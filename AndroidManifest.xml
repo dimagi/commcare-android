@@ -20,4 +20,7 @@
 
 <uses-library android:name="org.javarosa" />
 <uses-library android:name="org.commcare" />
+
+<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
 </manifest> 

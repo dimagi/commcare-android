@@ -4,6 +4,11 @@ public class GlobalConstants {
 	
 	public static final String FILE_REF_ROOT = "sdcard/";
 	
+	public static final String FILE_CC_ROOT = "/" + FILE_REF_ROOT + "commcare";
+	public static final String FILE_CC_INSTALL = FILE_CC_ROOT + "/install";
+	public static final String FILE_CC_UPGRADE = FILE_CC_ROOT + "/upgrade";
+	public static final String FILE_CC_CACHE = FILE_CC_ROOT + "/cache";
+	
 	public static final String DB_LOCATION = "/sdcard/commcare/commcare.sqlite";
 	
     /**
@@ -15,6 +20,8 @@ public class GlobalConstants {
      * Cache storage path
      */
     public static final String CACHE_PATH = "jr://file/commcare/cache/";
+    
+    public static final String INSTALL_REF = "jr://file/commcare/install";
     
     public static final String COMMCARE_PLATFORM = "COMMCARE_PLATFORM";
     

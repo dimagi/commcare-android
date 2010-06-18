@@ -1,5 +1,6 @@
 package org.commcare.android.activities;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -146,6 +147,8 @@ public class CommCareHomeActivity extends Activity {
     private void initData() {
     	int[] version = getVersion();
         platform = new AndroidCommCarePlatform(version[0], version[1], this);
+        
+        createPaths();
         setRoots();
         
         
@@ -167,7 +170,8 @@ public class CommCareHomeActivity extends Activity {
 		ResourceTable global = platform.getGlobalResourceTable();
 		
 		try {
-			platform.init(GlobalConstants.RESOURCE_PATH + "profile.xml", global, false);
+			String URL = "http://dl.dropbox.com/u/312782/";
+			platform.init(URL + "profile.xml", global, false);
 		} catch (UnfullfilledRequirementsException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -175,6 +179,16 @@ public class CommCareHomeActivity extends Activity {
 		
 		platform.initialize(global);
 		Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
+    }
+    
+    private void createPaths() {
+    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE};
+    	for(String path : paths) {
+    		File f = new File(path);
+    		if(!f.exists()) {
+    			f.mkdir();
+    		}
+    	}
     }
     
 	private void setRoots() {
