@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout android:id="@+id/TableLayout01" android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"><TextView android:text="@+id/TextView01" android:layout_height="wrap_content" android:id="@+id/text_commcare_title" android:gravity="center" android:layout_width="fill_parent" android:paddingTop="30px" android:textSize="18px"></TextView><LinearLayout android:id="@+id/LinearLayout01" android:layout_width="fill_parent" android:orientation="vertical" android:layout_height="wrap_content" android:layout_gravity="center" android:paddingLeft="40px" android:paddingRight="40px"><TextView android:text="@+id/TextView02" android:layout_height="wrap_content" android:id="@+id/text_username" android:layout_width="fill_parent" android:gravity="left"></TextView><EditText android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/edit_username"></EditText><TextView android:text="@+id/TextView03" android:layout_height="wrap_content" android:id="@+id/text_password" android:layout_width="fill_parent" android:gravity="left|center_horizontal"></TextView><EditText android:layout_height="wrap_content" android:inputType="textPassword" android:layout_width="fill_parent" android:id="@+id/edit_password"></EditText></LinearLayout><Button android:layout_height="wrap_content" android:id="@+id/login_button" android:layout_width="fill_parent" android:layout_gravity="bottom"></Button>
+
+
+
+
+
+
+
+</FrameLayout>
