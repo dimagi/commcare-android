@@ -5,8 +5,10 @@
     android:layout_height="fill_parent">
 
 
-<TextView android:layout_height="wrap_content" android:text="CommCare ODK" android:id="@+id/title_text" android:gravity="center" android:layout_width="fill_parent" android:textSize="13pt" android:layout_marginTop="10px" android:layout_marginBottom="20px"></TextView>
-<Button android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:layout_marginRight="10px" android:id="@+id/start" android:text="Get Started" android:textSize="8pt"></Button><Button android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:layout_marginRight="10px" android:text="Send Unsent Data" android:id="@+id/sendunsent" android:textSize="8pt"></Button><Button android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:layout_marginRight="10px" android:id="@+id/logout" android:text="Log Out" android:textSize="8pt"></Button>
+
+<ImageView android:id="@+id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:src="@drawable/ccbanner" android:paddingBottom="20px" android:paddingLeft="20px" android:paddingTop="20px" android:layout_marginRight="20px" android:maxHeight="135px" android:maxWidth="663px" android:scaleType="fitCenter"></ImageView><Button android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:layout_marginRight="10px" android:id="@+id/start" android:text="Get Started"></Button><Button android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:layout_marginRight="10px" android:id="@+id/logout" android:text="Log Out"></Button>
+
+
 
 
 </LinearLayout>

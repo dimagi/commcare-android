@@ -45,6 +45,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class Case implements Persistable, IMetaData {
 	public static String STORAGE_KEY = "CCCASE";
 	
+	public static String META_CASE_ID = "caseid";
+	
 	private String typeId;
 	private String id;
 	private String extId;
@@ -135,8 +137,8 @@ public class Case implements Persistable, IMetaData {
 		}
 	}
 	
-	public void setUserId(int id) {
-		data.put(org.javarosa.core.api.Constants.USER_ID_KEY, new Integer(id));
+	public void setUserId(String id) {
+		data.put(org.javarosa.core.api.Constants.USER_ID_KEY, id);
 	}
 
 	/**
@@ -205,6 +207,14 @@ public class Case implements Persistable, IMetaData {
 		this.data.put(key, value);
 	}
 	
+	public Object getProperty(String key) {
+		if(this.data.containsKey(key)) {
+			return this.data.get(key);
+		} else {
+			return null;
+		}
+	}
+	
 	public Hashtable getMetaData() {
 		Hashtable h = new Hashtable();
 		String[] fields = getMetaDataFields();
@@ -219,7 +229,7 @@ public class Case implements Persistable, IMetaData {
 	}
 
 	public Object getMetaData(String fieldName) {
-		if (fieldName.equals("caseid")) {
+		if (fieldName.equals(META_CASE_ID)) {
 			return id;
 		} else if (fieldName.equals("casetype")) {
 			return typeId;
@@ -231,6 +241,6 @@ public class Case implements Persistable, IMetaData {
 	}
 
 	public String[] getMetaDataFields() {
-		return new String[] {"caseid", "casetype", "externalid"};
+		return new String[] {META_CASE_ID, "casetype", "externalid"};
 	}
 }

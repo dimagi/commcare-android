@@ -3,12 +3,12 @@
  */
 package org.commcare.android.adapters;
 
-import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.android.view.SimpleTextView;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 
 import android.content.Context;
@@ -21,27 +21,28 @@ import android.widget.ListAdapter;
  * @author ctsims
  *
  */
-public class MenuListAdapter implements ListAdapter {
+public class NestedMenuListAdapter implements ListAdapter {
 	
 	private CommCarePlatform platform;
-	private Menu menu;
 	private Context context;
 	
-	private Entry[] data;
+	private Menu[] data;
 	
-	public MenuListAdapter(Context context, CommCarePlatform platform, Menu menu) {
+	public NestedMenuListAdapter(Context context, CommCarePlatform platform) {
 		this.platform = platform;
-		this.menu = menu;
 		this.context = context;
 		
-		Hashtable<String, Entry> map = platform.getMenuMap();
-		Vector<Entry> entries = new Vector<Entry>();
-		for(String command : menu.getCommandIds()) {
-			Entry e = map.get(command);
-			entries.add(e);
+		Vector<Menu> menus = new Vector<Menu>();
+		
+		for(Suite s : platform.getInstalledSuites()) {
+			for(Menu m : s.getMenus()) {
+				if(m.getRoot() == null || m.getRoot() == "" || m.getRoot().equals("root")) {
+					menus.add(m);
+				}
+			}
 		}
-		data= new Entry[entries.size()];
-		entries.copyInto(data);
+		data= new Menu[menus.size()];
+		menus.copyInto(data);
 	}
 
 	/* (non-Javadoc)
@@ -68,7 +69,7 @@ public class MenuListAdapter implements ListAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItem(int)
 	 */
-	public Object getItem(int i) {
+	public Menu getItem(int i) {
 		return data[i];
 	}
 
@@ -76,8 +77,7 @@ public class MenuListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
 	public long getItemId(int i) {
-		//Skeeeeetccchhyyyy
-		return data[i].getCommandId().hashCode();
+		return data[i].getId().hashCode();
 	}
 
 	/* (non-Javadoc)
@@ -91,12 +91,12 @@ public class MenuListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
 	public View getView(int i, View v, ViewGroup vg) {
-		Entry e = data[i];
+		Menu m = data[i];
 		SimpleTextView emv =(SimpleTextView)v;
 		if(emv == null) {
-			emv = new SimpleTextView(context, platform, e.getText());
+			emv = new SimpleTextView(context, platform, m.getName());
 		} else{
-			emv.setParams(platform, e.getText());
+			emv.setParams(platform, m.getName());
 		}
 		return emv;
 	}

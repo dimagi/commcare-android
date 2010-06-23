@@ -13,14 +13,23 @@
 
     
 <activity android:label="@string/app_name" android:name=".activities.LoginActivity"></activity>
-<activity android:name=".activities.SuiteMenuList"></activity>
+<activity android:name=".activities.MenuList"></activity>
 <activity android:name=".activities.EntitySelectActivity"></activity>
+<activity android:name=".activities.EntityDetailActivity"></activity>
+
+<provider android:name="org.commcare.android.providers.PreloadContentProvider" android:authorities="org.commcare.preloadprovider" />
 
 </application>
 
 <uses-library android:name="org.javarosa" />
 <uses-library android:name="org.commcare" />
 
-<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+  <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.READ_PHONE_STATE"/>
+  <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.INTERNET"/>
+  <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.ACCESS_SURFACE_FLINGER"/>
+  <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+<uses-permission android:name="android.permission.CALL_PHONE"></uses-permission>
 
 </manifest> 

@@ -3,7 +3,7 @@
  */
 package org.commcare.android.view;
 
-import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 
 import android.content.Context;
@@ -14,16 +14,16 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
-public class EntryMenuView extends RelativeLayout {
+public class SimpleTextView extends RelativeLayout {
 	
 	private TextView mPrimaryTextView;
 
-	public EntryMenuView(Context context, CommCarePlatform platform, Entry e) {
+	public SimpleTextView(Context context, CommCarePlatform platform, Text t) {
 		super(context);
 		
         mPrimaryTextView = new TextView(context);
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
-        mPrimaryTextView.setText(e.getText().evaluate());
+        mPrimaryTextView.setText(t.evaluate());
         mPrimaryTextView.setPadding(20, 15, 15, 20);
         mPrimaryTextView.setId(2);
         LayoutParams l =
@@ -34,7 +34,7 @@ public class EntryMenuView extends RelativeLayout {
 
 	}
 
-	public void setParams(CommCarePlatform platform, Entry e) {
-		mPrimaryTextView.setText(e.getText().evaluate());
+	public void setParams(CommCarePlatform platform, Text t) {
+		mPrimaryTextView.setText(t.evaluate());
 	}
 }

@@ -99,7 +99,7 @@ public class UserXmlParser extends TransactionParser<User> {
 	
 	public IStorageUtilityIndexed storage() {
 		if(storage == null) {
-			storage = new SqlIndexedStorageUtility(User.STORAGE_KEY, User.class.getName(), context);
+			storage = new SqlIndexedStorageUtility<User>(User.STORAGE_KEY, User.class, context);
 		} 
 		return storage;
 	}

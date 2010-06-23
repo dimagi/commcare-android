@@ -3,7 +3,10 @@
  */
 package org.commcare.android.database;
 
+import java.util.Iterator;
+
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.database.Cursor;
@@ -12,12 +15,12 @@ import android.database.Cursor;
  * @author ctsims
  *
  */
-public class SqlStorageIterator implements IStorageIterator {
+public class SqlStorageIterator<T extends Persistable> implements IStorageIterator, Iterator<T> {
 
 	Cursor c;
-	SqlIndexedStorageUtility storage;
+	SqlIndexedStorageUtility<T> storage;
 
-	public SqlStorageIterator(Cursor c, SqlIndexedStorageUtility storage) {
+	public SqlStorageIterator(Cursor c, SqlIndexedStorageUtility<T> storage) {
 		this.c = c;
 		this.storage = storage;
 		c.moveToFirst();
@@ -42,7 +45,7 @@ public class SqlStorageIterator implements IStorageIterator {
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
 	 */
-	public Externalizable nextRecord() {
+	public T nextRecord() {
 		return storage.read(nextID());
 	}
 
@@ -51,6 +54,18 @@ public class SqlStorageIterator implements IStorageIterator {
 	 */
 	public int numRecords() {
 		return c.getCount();
+	}
+
+	public boolean hasNext() {
+		return hasMore();
+	}
+
+	public T next() {
+		return nextRecord();
+	}
+
+	public void remove() {
+		//Unsupported for now
 	}
 
 }

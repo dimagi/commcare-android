@@ -3,17 +3,11 @@
  */
 package org.commcare.android.adapters;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.models.Entity;
-import org.commcare.android.models.EntityFactory;
-import org.commcare.android.view.EntityView;
+import org.commcare.android.util.CallListener;
+import org.commcare.android.view.EntityDetailView;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.services.storage.Persistable;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -25,92 +19,55 @@ import android.widget.ListAdapter;
  * @author ctsims
  *
  */
-public class EntityListAdapter<T extends Persistable> implements ListAdapter {
-	
-	SqlIndexedStorageUtility<T> utility;
+public class EntityDetailAdapter implements ListAdapter {
 	
 	Context context;
 	CommCarePlatform platform;
+	Detail detail;
+	Entity entity;
+	CallListener listener;
 	
-	List<DataSetObserver> observers;
-	
-	EntityFactory<T> factory;
-	List<Entity<T>> full;
-	List<Entity<T>> current;
-	
-	public EntityListAdapter(Context context, Detail d, CommCarePlatform platform, SqlIndexedStorageUtility<T> utility) {
-		this.utility = utility;
-		
-		factory = new EntityFactory<T>(d);
-		
-		full = new ArrayList<Entity<T>>();
-		current = new ArrayList<Entity<T>>();
-		
+	public EntityDetailAdapter(Context context, CommCarePlatform platform, Detail detail, Entity entity, CallListener listener) {		
 		this.context = context;
 		this.platform = platform;
-		this.observers = new ArrayList<DataSetObserver>();
-
-		all();
-	}
-	
-	private void all() {
-		for(SqlStorageIterator<T> i = utility.iterate() ; i.hasMore() ;){
-			T t = i.nextRecord();
-			Entity<T> e = factory.getEntity(t);
-			if(e != null) {
-				full.add(e);
-				current.add(e);
-			}
-		}
-	}
-	
-	private void filterValues(String filter) {
-		current.clear();
-		
-		full:
-		for(Entity<T> e : full) {
-			for(String field : e.getFields()) {
-				if(field.contains(filter)) {
-					current.add(e);
-					continue full;
-				}
-			}
-		}
+		this.detail = detail;
+		this.entity = entity;
+		this.listener = listener;
 	}
 	
 	/* (non-Javadoc)
 	 * @see android.widget.ListAdapter#areAllItemsEnabled()
 	 */
 	public boolean areAllItemsEnabled() {
-		return true;
+		return false;
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.ListAdapter#isEnabled(int)
 	 */
 	public boolean isEnabled(int position) {
-		return true;
+		return false;
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getCount()
 	 */
 	public int getCount() {
-		return current.size();
+		return entity.getFields().length;
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItem(int)
 	 */
-	public T getItem(int position) {
-		return current.get(position).getElement();
+	public Object getItem(int position) {
+		return entity.getFields()[position];
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
 	public long getItemId(int position) {
-		return current.get(position).getElement().getID();
+		return position;
 	}
 
 	/* (non-Javadoc)
@@ -124,14 +81,15 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Entity<T> e = current.get(position);
-		EntityView emv =(EntityView)convertView;
-		if(emv == null) {
-			emv = new EntityView(context, platform, factory.getDetail(), e);
+		EntityDetailView dv =(EntityDetailView)convertView;
+		if(dv == null) {
+			dv = new EntityDetailView(context, platform, detail, entity, position);
+			dv.setCallListener(listener);
 		} else{
-			emv.setParams(platform, e);
+			dv.setParams(platform, detail, entity, position);
+			dv.setCallListener(listener);
 		}
-		return emv;
+		return dv;
 	}
 
 	/* (non-Javadoc)
@@ -155,25 +113,16 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 		return getCount() > 0;
 	}
 	
-	public void applyFilter(String s) {
-		filterValues(s);
-		for(DataSetObserver o : observers) {
-			o.onChanged();
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
 	 */
 	public void registerDataSetObserver(DataSetObserver observer) {
-		this.observers.add(observer);
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
 	 */
 	public void unregisterDataSetObserver(DataSetObserver observer) {
-		this.observers.remove(observer);
 	}
 
 }

@@ -4,9 +4,9 @@
 package org.commcare.android.database;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -27,15 +27,16 @@ import android.database.sqlite.SQLiteDatabase;
  * @author ctsims
  *
  */
-public class SqlIndexedStorageUtility implements IStorageUtilityIndexed {
+public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
 	
 	String table;
-	String className;
+	Class<? extends T> ctype;
 	Context c;
+	T t;
 	
-	public SqlIndexedStorageUtility(String table, String className, Context c) {
+	public SqlIndexedStorageUtility(String table, Class<? extends T> ctype, Context c) {
 		this.table = table;
-		this.className = className;
+		this.ctype = ctype;
 		this.c = c;
 	}
 
@@ -62,7 +63,7 @@ public class SqlIndexedStorageUtility implements IStorageUtilityIndexed {
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
-	public Externalizable getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
+	public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
 		Cursor c = DbUtil.getHandle().query(table, new String[] {DbUtil.DATA_COL} , fieldName + "='" + value.toString() +"'", null, null, null, null);
 		if(c.getCount() == 0) {
 			throw new NoSuchElementException("No element in table " + table + " with name " + fieldName +" and value " + value.toString());
@@ -75,9 +76,9 @@ public class SqlIndexedStorageUtility implements IStorageUtilityIndexed {
 		return newObject(data);
 	}
 	
-	public Externalizable newObject(byte[] data) {
+	public T newObject(byte[] data) {
 		try {
-			Externalizable e = (Externalizable)Class.forName(className).newInstance();
+			T e = (T)ctype.newInstance();
 			e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), DbUtil.getPrototypeFactory(c));
 			
 			return e;
@@ -86,9 +87,6 @@ public class SqlIndexedStorageUtility implements IStorageUtilityIndexed {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (InstantiationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e) {
@@ -198,15 +196,19 @@ public class SqlIndexedStorageUtility implements IStorageUtilityIndexed {
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
 	 */
-	public IStorageIterator iterate() {
+	public SqlStorageIterator<T> iterate() {
 		Cursor c = DbUtil.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
-		return new SqlStorageIterator(c, this);
+		return new SqlStorageIterator<T>(c, this);
+	}
+	
+	public Iterator<T> iterator() {
+		return iterate();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#read(int)
 	 */
-	public Externalizable read(int id) {
+	public T read(int id) {
 		return newObject(readBytes(id));
 	}
 
@@ -238,7 +240,7 @@ public class SqlIndexedStorageUtility implements IStorageUtilityIndexed {
 	 * @see org.javarosa.core.services.storage.IStorageUtility#remove(org.javarosa.core.services.storage.Persistable)
 	 */
 	public void remove(Persistable p) {
-		this.read(p.getID());
+		this.remove(p.getID());
 	}
 
 	/* (non-Javadoc)
@@ -344,4 +346,5 @@ public class SqlIndexedStorageUtility implements IStorageUtilityIndexed {
 			db.endTransaction();
 		}
 	}
+
 }

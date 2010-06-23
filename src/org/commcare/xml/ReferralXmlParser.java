@@ -109,7 +109,7 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 	
 	private IStorageUtilityIndexed storage() {
 		if(storage == null) {
-			storage = new SqlIndexedStorageUtility(Referral.STORAGE_KEY, Referral.class.getName(), context);
+			storage = new SqlIndexedStorageUtility<Referral>(Referral.STORAGE_KEY, Referral.class, context);
 		}
 		return storage;
 	}

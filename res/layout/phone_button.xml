@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content" android:drawableLeft="@drawable/sym_action_call" android:inputType="phone" android:typeface="monospace" android:layout_gravity="center_vertical|center_horizontal" android:drawablePadding="5px">
+</Button>

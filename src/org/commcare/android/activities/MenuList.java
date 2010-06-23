@@ -18,6 +18,7 @@ package org.commcare.android.activities;
 
 import org.commcare.android.R;
 import org.commcare.android.adapters.MenuListAdapter;
+import org.commcare.android.adapters.NestedMenuListAdapter;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.CommCarePlatformProvider;
 import org.commcare.suite.model.Entry;
@@ -29,31 +30,41 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 
-public class SuiteMenuList extends ListActivity {
+public class MenuList extends ListActivity {
 	
 	private CommCarePlatform platform;
 	private Menu m;
+	
+	private ListAdapter adapter;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.suite_menu_layout);
         
-        String menuId = getIntent().getStringExtra(GlobalConstants.MENU_ID);
-        platform = CommCarePlatformProvider.unpack(getIntent().getBundleExtra(GlobalConstants.COMMCARE_PLATFORM));
+        String menuId = getIntent().getStringExtra(GlobalConstants.STATE_COMMAND_ID);
         
-        for(Suite s : platform.getInstalledSuites()) {
-        	for(Menu m : s.getMenus()) {
-        		if(m.getId().equals(menuId)) {
-        			this.m = m;
-        		}
-        	}
+        platform = CommCarePlatformProvider.unpack(getIntent().getBundleExtra(GlobalConstants.COMMCARE_PLATFORM), this);
+        
+        if(menuId != null) { 
+	        for(Suite s : platform.getInstalledSuites()) {
+	        	for(Menu m : s.getMenus()) {
+	        		if(m.getId().equals(menuId)) {
+	        			this.m = m;
+	        			adapter = new MenuListAdapter(this, platform, m);
+	        		}
+	        	}
+	        }
+	        setTitle(getString(R.string.app_name) + " > " + m.getName().evaluate());
+        } else {
+        	adapter = new NestedMenuListAdapter(this, platform);
+	        setTitle(getString(R.string.app_name) + " > " + "CommCare ODK");
         }
         
-        setTitle(getString(R.string.app_name) + " > " + m.getName().evaluate());
         
         refreshView();
     }
@@ -63,7 +74,7 @@ public class SuiteMenuList extends ListActivity {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	setListAdapter(new MenuListAdapter(this, platform, m));
+    	setListAdapter(adapter);
     }
 
 
@@ -72,11 +83,17 @@ public class SuiteMenuList extends ListActivity {
      */
     @Override
     protected void onListItemClick(ListView listView, View view, int position, long id) {
-    	Entry e = (Entry)getListAdapter().getItem(position);
+    	String commandId;
+    	Object value = getListAdapter().getItem(position);
+    	if(value instanceof Entry) {
+    		commandId = ((Entry)value).getCommandId();
+    	} else {
+    		commandId = ((Menu)value).getId();
+    	}
 
         // create intent for return and store path
         Intent i = new Intent();
-        i.putExtra(GlobalConstants.COMMAND_ID, e.getCommandId());
+        i.putExtra(GlobalConstants.STATE_COMMAND_ID, commandId);
         setResult(RESULT_OK, i);
 
         finish();

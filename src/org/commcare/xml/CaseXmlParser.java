@@ -75,7 +75,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				
 				//Create the case.
 				Case c = new Case(data[3], data[0]);
-				c.setUserId(this.parseInt(data[2]));
+				c.setUserId(data[2]);
 				c.setExternalId(data[1]);
 				c.setCaseId(caseId);
 				commit(c);
@@ -121,7 +121,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 	
 	public IStorageUtilityIndexed storage() {
 		if(storage == null) {
-			storage = new SqlIndexedStorageUtility(Case.STORAGE_KEY, Case.class.getName(), c);
+			storage = new SqlIndexedStorageUtility<Case>(Case.STORAGE_KEY, Case.class, c);
 		} 
 		return storage;
 	}
