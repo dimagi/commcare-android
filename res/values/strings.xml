@@ -2,4 +2,6 @@
 <resources>
     <string name="hello">Hello World, CommCareHomeActivity!</string>
     <string name="app_name">CommCare ODK</string>
+<string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string>
+<string name="default_submit_server">http://pact-dev.carehq.org/receiver/submit/pact</string>
 </resources>

@@ -6,8 +6,13 @@ package org.commcare.android.tasks;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -15,8 +20,6 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManager;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -74,8 +77,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	protected Integer doInBackground(Void... params) {
 		
-		try {
-			Reference r = ReferenceManager._().DeriveReference("jr://file/commcare/data.xml");
+		/**try {
+			Reference r = ReferenceManager._().DeriveReference("http://build.dimagi.com/commcare/pact/data.xml");
 			this.publishProgress(PROGRESS_AUTHED);
 			readInput(r.getStream());
 			this.publishProgress(PROGRESS_DONE);
@@ -84,7 +87,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			this.publishProgress(PROGRESS_DONE);
 			return UNKNOWN_FAILURE;
 		}
-					/**
+					**/
 		
 		
 
@@ -127,7 +130,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			}
 			this.publishProgress(PROGRESS_DONE);
 			return UNKNOWN_FAILURE;
-			**/
+			
 	}
 	
 	private void readInput(InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {

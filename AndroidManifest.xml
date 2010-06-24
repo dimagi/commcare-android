@@ -19,6 +19,7 @@
 
 <provider android:name="org.commcare.android.providers.PreloadContentProvider" android:authorities="org.commcare.preloadprovider" />
 
+<activity android:name=".preferences.ServerPreferences"></activity>
 </application>
 
 <uses-library android:name="org.javarosa" />

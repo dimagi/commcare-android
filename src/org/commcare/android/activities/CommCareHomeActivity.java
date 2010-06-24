@@ -111,6 +111,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     		if(resultCode == RESULT_CANCELED) {
     			//quit somehow.
     			this.finish();
+    			return;
     		} else if(resultCode == RESULT_OK) {
     			platform.logInUser(intent.getStringExtra(GlobalConstants.STATE_USER_KEY));
     			refreshView();
@@ -152,7 +153,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         	if(resultCode == RESULT_OK) {
         		String instance = intent.getStringExtra("instancepath");
         		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        		mProcess = new ProcessAndSendTask(this, settings.getString(ServerPreferences.KEY_SUBMIT, null));
+        		mProcess = new ProcessAndSendTask(this, settings.getString(ServerPreferences.KEY_SUBMIT, this.getString(R.string.default_submit_server)));
         		mProcess.setListener(this);
         		showDialog(DIALOG_PROCESS);
         		mProcess.execute(instance);

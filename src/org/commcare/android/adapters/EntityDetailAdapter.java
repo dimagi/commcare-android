@@ -3,6 +3,9 @@
  */
 package org.commcare.android.adapters;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.CallListener;
 import org.commcare.android.view.EntityDetailView;
@@ -26,6 +29,7 @@ public class EntityDetailAdapter implements ListAdapter {
 	Detail detail;
 	Entity entity;
 	CallListener listener;
+	List<Integer> valid;
 	
 	public EntityDetailAdapter(Context context, CommCarePlatform platform, Detail detail, Entity entity, CallListener listener) {		
 		this.context = context;
@@ -33,6 +37,12 @@ public class EntityDetailAdapter implements ListAdapter {
 		this.detail = detail;
 		this.entity = entity;
 		this.listener = listener;
+		valid = new ArrayList<Integer>(); 
+		for(int i = 0 ; i < entity.getFields().length ; ++i ) {
+			if(!entity.getFields()[i].equals("")) {
+				valid.add(i);
+			}
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -53,21 +63,21 @@ public class EntityDetailAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getCount()
 	 */
 	public int getCount() {
-		return entity.getFields().length;
+		return valid.size();
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItem(int)
 	 */
 	public Object getItem(int position) {
-		return entity.getFields()[position];
+		return entity.getFields()[valid.get(position)];
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
 	public long getItemId(int position) {
-		return position;
+		return valid.get(position);
 	}
 
 	/* (non-Javadoc)
@@ -83,10 +93,10 @@ public class EntityDetailAdapter implements ListAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		EntityDetailView dv =(EntityDetailView)convertView;
 		if(dv == null) {
-			dv = new EntityDetailView(context, platform, detail, entity, position);
+			dv = new EntityDetailView(context, platform, detail, entity, valid.get(position));
 			dv.setCallListener(listener);
 		} else{
-			dv.setParams(platform, detail, entity, position);
+			dv.setParams(platform, detail, entity, valid.get(position));
 			dv.setCallListener(listener);
 		}
 		return dv;

@@ -40,14 +40,14 @@ public class EntityDetailView extends LinearLayout {
         LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.6f);
         
         label = new TextView(context);
-        label.setTextAppearance(context, android.R.style.TextAppearance_Large);
+        label.setTextAppearance(context, android.R.style.TextAppearance_Medium);
         label.setPadding(20, 15, 15, 20);
         label.setId(1);
 	    addView(label, l);
 	    
-	    dl = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 0.4f);
+	    dl = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);
 	    data = new TextView(context);
-	    data.setTextAppearance(context, android.R.style.TextAppearance_Large);
+	    data.setTextAppearance(context, android.R.style.TextAppearance_Medium);
 	    data.setPadding(0, 15, 15, 20);
 	    data.setId(2);
 	    addView(data, dl);

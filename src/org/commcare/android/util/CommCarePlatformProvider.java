@@ -5,11 +5,13 @@ package org.commcare.android.util;
 
 import java.io.File;
 
+import org.commcare.android.R;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.Referral;
 import org.commcare.android.models.User;
+import org.commcare.android.preferences.ServerPreferences;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.resources.model.Resource;
@@ -25,12 +27,14 @@ import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 /**
  * @author ctsims
@@ -81,7 +85,9 @@ public class CommCarePlatformProvider {
 		ResourceTable global = newplatform.getGlobalResourceTable();
 		
 		try {
-			newplatform.init(GlobalConstants.PROFILE_REF, global, false);
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(c);
+    		String profile = settings.getString(ServerPreferences.KEY_APP, c.getString(R.string.default_app_server));
+			newplatform.init(profile, global, false);
 		} catch (UnfullfilledRequirementsException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
