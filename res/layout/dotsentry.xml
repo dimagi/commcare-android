@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="fill_parent">
+ <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/text_time" android:textAppearance="?android:attr/textAppearanceMedium" android:text="AM Dose" android:layout_marginLeft="20px"></TextView><View android:id="@+id/View01" android:background="@drawable/dots_dose_border" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:layout_height="2px"></View><RadioGroup android:layout_height="wrap_content" android:id="@+id/dose_group" android:layout_width="wrap_content" android:paddingLeft="40px"><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="All Taken" android:id="@+id/radio_all"></RadioButton><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Some Taken" android:id="@+id/radio_some"></RadioButton><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="None Taken" android:id="@+id/radio_none"></RadioButton><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Unable to Check" android:id="@+id/radio_unchecked"></RadioButton>
+</RadioGroup>
+
+
+
+<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/missed_details" android:visibility="gone" android:layout_marginLeft="20px"><TextView android:id="@+id/TextView01" android:layout_height="wrap_content" android:text="Medicines w/Missed Doses" android:layout_width="wrap_content" android:paddingRight="75px" android:layout_marginLeft="5px"></TextView><EditText android:layout_height="wrap_content" android:id="@+id/text_missed" android:layout_width="fill_parent" android:layout_marginLeft="5px"></EditText></LinearLayout>
+</LinearLayout>

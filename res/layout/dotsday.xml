@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content" android:clickable="true" android:background="@drawable/dots_back">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="M" android:id="@+id/text_dow" android:textColor="@color/bigday" android:textStyle="bold" android:textAppearance="?android:attr/textAppearanceMedium"></TextView><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6/29" android:layout_below="@+id/text_dow" android:id="@+id/text_date" android:textColor="@color/dotsdate"></TextView>
+
+<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/dose_status" android:layout_below="@+id/text_date" android:orientation="horizontal" android:paddingTop="8px"><ImageView android:id="@+id/ImageView01" android:layout_width="wrap_content" android:layout_height="wrap_content"></ImageView>
+<TextView android:id="@+id/TextView01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="right" android:text="X" android:textStyle="bold" android:textColor="@color/red"></TextView>
+</LinearLayout>
+
+</RelativeLayout>

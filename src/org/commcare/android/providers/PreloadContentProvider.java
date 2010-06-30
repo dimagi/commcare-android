@@ -30,8 +30,7 @@ public class PreloadContentProvider extends ContentProvider {
 	public static final Uri CONTENT_URI_CASE = Uri.parse("content://org.commcare.preloadprovider/case");
 	
 	public PreloadContentProvider() {
-		String empty = "empty";
-		empty.subSequence(0,2);
+
 	}
 	
 	public static void initializeSession(AndroidCommCarePlatform platform, Context context) {
@@ -84,9 +83,15 @@ public class PreloadContentProvider extends ContentProvider {
 			CasePreloader preloader = new CasePreloader(c);
 			String param = uri.getLastPathSegment();
 			IAnswerData data = preloader.handlePreload(param);
-			return new PreloadedContentCursor(data.uncast().getString());
+			if(data == null) {
+				return null;
+			} else { 
+				return new PreloadedContentCursor(data.uncast().getString());
+			}
+		} else {
+			return null;
 		}
-		return null;
+		
 	}
 
 	/* (non-Javadoc)

@@ -20,6 +20,22 @@
 <provider android:name="org.commcare.android.providers.PreloadContentProvider" android:authorities="org.commcare.preloadprovider" />
 
 <activity android:name=".preferences.ServerPreferences"></activity>
+<activity android:name="org.commcare.android.activities.DotsEntryActivity">
+    <intent-filter>
+    	<action android:name="org.commcare.android.action.DotsEntry"/>
+		<category android:name="android.intent.category.DEFAULT"/>
+    </intent-filter>
+    <!-- this is what we should be doing once we have the content provider working -->
+    <intent-filter>
+    	<action android:name="android.intent.action.VIEW" />
+    	<action android:name="android.intent.action.EDIT" />
+    	<category android:name="android.intent.category.DEFAULT"/>
+    	<!-- need to add something like:
+    	 <data android:mimeType="vnd.android.cursor.item/vnd.google.note" />
+    	 here once we make a contentProvider for forms.
+    	 -->
+    </intent-filter>   
+</activity>
 </application>
 
 <uses-library android:name="org.javarosa" />
