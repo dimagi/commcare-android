@@ -73,12 +73,19 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         } else {
 	        String data = getIntent().getStringExtra(DOTS_DATA);
 	        
+	        Date anchorDate = new Date();
+        	String anchor = getIntent().getStringExtra("anchor");
+        	if(anchor != null) {
+        		anchorDate = DateUtils.parseDate(anchor);
+        	}
+	        
 	        if(data != null) {
 	        	dotsData = DotsData.DeserializeDotsData(data);
+	        	dotsData.recenter(anchorDate);
 	        } else {
 	        	String regimen = getIntent().getStringExtra("regimen");
 	        	int regType = Integer.parseInt(regimen);
-	        	dotsData = DotsData.CreateDotsData(regType, new Date());
+	        	dotsData = DotsData.CreateDotsData(regType, anchorDate);
 	        }
 	
 	        offset = 0;

@@ -15,6 +15,7 @@ public class DotsData {
 	Date anchor;
 	
 	int regimen;
+	private static final String SELF_REPORT_FLAG = "MCSR";
 	
 	public static enum MedStatus {
 		unchecked,
@@ -29,14 +30,16 @@ public class DotsData {
 		
 		MedStatus status;
 		String missedMeds;
+		boolean selfReported;
 		
-		public DotsBox(MedStatus status) {
-			this.status = status;
+		public DotsBox(MedStatus status, boolean selfReported) {
+			this(status, selfReported, null);
 		}
 		
-		public DotsBox(MedStatus status, String missedMeds) {
+		public DotsBox(MedStatus status, boolean selfReported, String missedMeds) {
 			this.status = status;
 			this.missedMeds = missedMeds;
+			this.selfReported = selfReported;
 		}
 		
 		public MedStatus status() {
@@ -45,6 +48,10 @@ public class DotsData {
 		
 		public String missedMeds() {
 			return missedMeds;
+		}
+		
+		public boolean selfreported() {
+			return selfReported;
 		}
 	}
 	
@@ -64,6 +71,9 @@ public class DotsData {
 			String serial = "";
 			for(int j = 0 ; j < this.boxes.length ; ++j) {
 				serial += this.boxes[j].status.toString();
+				if(this.boxes[j].selfReported) {
+					serial+=SELF_REPORT_FLAG;
+				}
 				if(this.boxes[j].missedMeds != null) {
 					serial += " " + this.boxes[j].missedMeds;
 				}
@@ -80,13 +90,19 @@ public class DotsData {
 			DotsBox[] boxes = new DotsBox[boxStrings.length];
 			
 			for(int j = 0 ; j < boxes.length ; ++j) {
+				boolean selfreport = false;
 				String box = boxStrings[j];
 				String missed = null;
 				if(box.contains(" ")){
 					missed = box.substring(box.indexOf(" "), box.length());
 					box = box.substring(0, box.indexOf(" "));
 				}
-				boxes[j] = new DotsBox(MedStatus.valueOf(box), missed);
+				if(box.endsWith(SELF_REPORT_FLAG)) {
+					box = box.substring(0, box.indexOf(SELF_REPORT_FLAG));
+					selfreport = true;
+				}
+				
+				boxes[j] = new DotsBox(MedStatus.valueOf(box), selfreport, missed);
 			}
 			
 			return new DotsDay(boxes);
@@ -117,8 +133,8 @@ public class DotsData {
 		}
 		DotsDay[] newDays = new DotsDay[this.days.length];
 		for(int i = 0; i < newDays.length; ++i) {
-			if(i - difference >= 0 && i - difference < this.days.length) {
-				newDays[i] = this.days[i - difference];
+			if(difference + i >= 0 && difference + i < this.days.length) {
+				newDays[i] = this.days[difference + i];
 			} else {
 				newDays[i] = new DotsDay(emptyBoxes(this.regimen));
 			}
@@ -171,7 +187,7 @@ public class DotsData {
 	public static DotsBox[] emptyBoxes(int length) {
 		DotsBox[] boxes = new DotsBox[length];
 		for(int j = 0 ; j <  boxes.length ; ++j ) {
-			boxes[j] = new DotsBox(MedStatus.unchecked);
+			boxes[j] = new DotsBox(MedStatus.unchecked, false);
 		}
 		return boxes;
 	}

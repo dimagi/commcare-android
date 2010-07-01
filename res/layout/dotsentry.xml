@@ -3,7 +3,9 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="fill_parent">
  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/text_time" android:textAppearance="?android:attr/textAppearanceMedium" android:text="AM Dose" android:layout_marginLeft="20px"></TextView><View android:id="@+id/View01" android:background="@drawable/dots_dose_border" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:layout_height="2px"></View><RadioGroup android:layout_height="wrap_content" android:id="@+id/dose_group" android:layout_width="wrap_content" android:paddingLeft="40px"><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="All Taken" android:id="@+id/radio_all"></RadioButton><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Some Taken" android:id="@+id/radio_some"></RadioButton><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="None Taken" android:id="@+id/radio_none"></RadioButton><RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Unable to Check" android:id="@+id/radio_unchecked"></RadioButton>
-</RadioGroup>
+
+
+</RadioGroup><CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/cbx_self_reported" android:text="Dose was Self Reported" android:layout_marginLeft="20px"></CheckBox>
 
 
 

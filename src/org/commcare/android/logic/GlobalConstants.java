@@ -30,8 +30,6 @@ public class GlobalConstants {
     
     public static final String COMMCARE_PLATFORM = "COMMCARE_PLATFORM";
     
-    public static final String OTA_SERVER = "http://pact-dev.carehq.org/provider/caselist";
-    
 
     /**
      * How long to wait when opening network connection in milliseconds

@@ -16,6 +16,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
@@ -36,6 +37,7 @@ public class DotsDetailView {
 	};
 	
 	RadioGroup[] groups;
+	CheckBox[] selfReported;
 	EditText[] missedName;
 	DotsDay day;
 	int index;
@@ -59,6 +61,7 @@ public class DotsDetailView {
 		
 		String[] titles = labels[day.boxes().length - 1];
 		groups = new RadioGroup[day.boxes().length];
+		selfReported = new CheckBox[day.boxes().length];
 		missedName = new EditText[day.boxes().length];
 		
 		for(int i = 0; i < day.boxes().length; ++i) {
@@ -72,6 +75,10 @@ public class DotsDetailView {
 			missedName[i] = (EditText)details.findViewById(R.id.text_missed);
 			
 			groups[i] = (RadioGroup)details.findViewById(R.id.dose_group);
+			selfReported[i] = (CheckBox)details.findViewById(R.id.cbx_self_reported);
+			if(box.selfreported()) {
+				selfReported[i].setChecked(true);
+			}
 			
 			int id = -1;
 			
@@ -153,7 +160,7 @@ public class DotsDetailView {
 					status = MedStatus.unchecked;
 					break;
 			}
-			boxes[i] = new DotsBox(status,meds);
+			boxes[i] = new DotsBox(status,selfReported[i].isChecked(), meds);
 		}
 		return new DotsDay(boxes);
 	}

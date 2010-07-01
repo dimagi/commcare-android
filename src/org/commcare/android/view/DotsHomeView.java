@@ -142,40 +142,44 @@ public class DotsHomeView extends FrameLayout {
 		//day.setOnClickListener()
 		TextView date = (TextView)dayView.findViewById(R.id.text_date);
 		TextView dow = (TextView)dayView.findViewById(R.id.text_dow);
-		LinearLayout doses = (LinearLayout)dayView.findViewById(R.id.dose_status);
-		//TableRow doses = (TableRow)dayView.findViewById(R.id.dose_status);
+		//LinearLayout doses = (LinearLayout)dayView.findViewById(R.id.dose_status);
+		TableLayout table = (TableLayout)dayView.findViewById(R.id.dose_table);
+		table.setPadding(0,0,2,0);
+		table.setShrinkAllColumns(true);
+		
+		TableRow doses = (TableRow)dayView.findViewById(R.id.dose_status);
+		TableRow selfReported = (TableRow)dayView.findViewById(R.id.self_report_row);
 		
 		dow.setText(dayArray[c.get(Calendar.DAY_OF_WEEK) -1]);
-		date.setText(c.get(Calendar.MONTH) + "/" + c.get(Calendar.DAY_OF_MONTH));
+		date.setText((c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.DAY_OF_MONTH));
 		
 		doses.removeAllViews();
 		for(DotsBox box : d.boxes()) {
-			TextView status = new TextView(this.getContext());
-			status.setPadding(0,0,4,0);
+			ImageView status = new ImageView(this.getContext());
+			status.setPadding(0,0,1,0);
 			switch(box.status()) {
 			case full:
-				status.setText("J");
+				status.setImageResource(R.drawable.redx);
 				break;
 			case partial:
-				status.setText("S");
+				status.setImageResource(R.drawable.blues);
 				break;
 			case empty:
-				status.setText("X");
+				status.setImageResource(R.drawable.checkmark);
 				break;
 			case unchecked:
-				status.setText("?");
-				break;
-			default:
-				status.setText("E");
+				status.setImageResource(R.drawable.blueq);
 				break;
 			}
 				
-			//doses.addView(status);
+			doses.addView(status);
 			
-			ImageView image = new ImageView(this.getContext());
-			image.setImageResource(R.drawable.checkmark);
-			image.setPadding(0,0,2,0);
-			doses.addView(image);
+			ImageView selfReport = new ImageView(this.getContext());
+			if(box.selfreported()) {
+				selfReport.setPadding(0,0,1,0);
+				selfReport.setImageResource(R.drawable.greencircle);
+			}
+			selfReported.addView(selfReport);
 		}
 		
 		return dayView;

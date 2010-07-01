@@ -96,7 +96,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 				
 				dataPuller = new DataPullTask(username.getText().toString(), 
 						                             password.getText().toString(),
-						                             GlobalConstants.OTA_SERVER,
+						                             LoginActivity.this.getString(R.string.default_ota_server),
 						                             LoginActivity.this);
 				
 				dataPuller.setPullListener(LoginActivity.this);
