@@ -212,8 +212,11 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     protected void onResume() {
         super.onResume();
         if(platform.getLoggedInUser() == null) {
-        	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+        	Intent i = new Intent(getApplicationContext(), DotsEntryActivity.class);
+        	i.putExtra("regimen", "4");
         	startActivityForResult(i,LOGIN_USER);
+        	//Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+        	//startActivityForResult(i,LOGIN_USER);
         } else {
         	refreshView();
         }

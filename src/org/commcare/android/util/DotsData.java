@@ -159,7 +159,7 @@ public class DotsData {
 	}
 	
 	public static DotsData CreateDotsData(int regType, Date anchor) {
-		DotsDay[] days = new DotsDay[14];
+		DotsDay[] days = new DotsDay[21];
 		for(int i = 0 ; i <  days.length ; ++i ) {
 			days[i] = new DotsDay(emptyBoxes(regType));
 		}
