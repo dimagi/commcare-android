@@ -19,6 +19,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteDatabase;
 import dalvik.system.DexFile;
 
@@ -119,15 +121,14 @@ public class DbUtil {
            throws IOException 
    {
        ArrayList<String> classNames = new ArrayList<String>();
+       
+       String zpath = c.getApplicationInfo().sourceDir;
 	   
-	   URL uri = c.getClassLoader().getResource(c.getPackageName());
 	   
-	   String zpath = null;
-	   if(uri == null) {
+	   if(zpath == null) {
 		   zpath = "/data/app/org.commcare.android.apk";
-	   } else {
-		  zpath = uri.toString();
 	   }
+	   
 	   DexFile df = new DexFile(new File(zpath));
 	   for(Enumeration<String> en = df.entries() ; en.hasMoreElements() ;) {
 		   String cn = en.nextElement();
