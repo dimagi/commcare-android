@@ -42,7 +42,6 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	private String currentCmd;
 	private String currentCase;
 	private String currentRef;
-	private String currentForm;
 	
 	public AndroidCommCarePlatform(int majorVersion, int minorVersion, Context c) {
 		super(majorVersion, minorVersion);
@@ -186,10 +185,6 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.currentCase = caseId;
 	}
 	
-	public void setForm(String formId) {
-		this.currentForm = formId;
-	}
-	
 	public void setCommand(String commandId) {
 		this.currentCmd = commandId;
 	}
@@ -199,7 +194,11 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	}
 	
 	public String getForm() {
-		return this.currentForm;
+		String command = getCommand();
+		if(command == null) { return null; }
+		
+		Entry e = getMenuMap().get(command);
+		return e.getXFormNamespace();
 	}
 	
 	public String getCommand() {
@@ -209,7 +208,6 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	public void clearState() {
 		this.currentCase = null;
 		this.currentCmd = null;
-		this.currentForm = null;
 		this.currentRef = null;
 	}
 	

@@ -9,6 +9,7 @@ import org.commcare.android.R;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
+import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.Referral;
 import org.commcare.android.models.User;
 import org.commcare.android.preferences.ServerPreferences;
@@ -60,7 +61,7 @@ public class CommCarePlatformProvider {
 	}
 	
 	private static AndroidCommCarePlatform initData(Context c) {
-    	int[] version = getVersion(c);
+    	int[] version = getCommCareVersion(c);
     	AndroidCommCarePlatform newplatform = new AndroidCommCarePlatform(version[0], version[1], c);
         
         createPaths();
@@ -100,7 +101,7 @@ public class CommCarePlatformProvider {
     }
     
     private static void createPaths() {
-    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED};
+    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE};
     	for(String path : paths) {
     		File f = new File(path);
     		if(!f.exists()) {
@@ -132,22 +133,25 @@ public class CommCarePlatformProvider {
 		}
 	}
     
-	private static int[] getVersion(Context c) {
-	    return versionNumbers(versionCode(c));
-	}
-	
-	private static int[] versionNumbers(int versionCode) {
-		if(versionCode == 1) {
-			return new int[] {1, 0};
-		} else {
-			return new int[] {-1, -1};
-		}
+	private static int[] getCommCareVersion(Context c) {
+		return c.getResources().getIntArray(R.array.commcare_version);
 	}
 	
 	private static void initDb(Context c) {
 		SQLiteDatabase database;
 		try {
 			database = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, null, SQLiteDatabase.OPEN_READWRITE);
+			int oldVersion = database.getVersion();
+			int currentVersion = versionCode(c);
+			if(currentVersion > oldVersion) {
+				database.close();
+				CommCareUpgrader upgrader = new CommCareUpgrader(c);
+				
+				//Evaluate success here somehow. Also, we'll need to log in to
+				//mess with anything in the DB, or any old encrypted files, we need a hook for that...
+				upgrader.doUpgrade(oldVersion, currentVersion);
+			}
+			//Upgrade
 		} catch(SQLiteException e) {
 			//No database
 			database = createDataBase(c);
@@ -156,7 +160,7 @@ public class CommCarePlatformProvider {
 	}
 	
 	private static SQLiteDatabase createDataBase(Context c) {
-		SQLiteDatabase database = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, null, SQLiteDatabase.CREATE_IF_NECESSARY);
+		SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(GlobalConstants.DB_LOCATION, null);
 		try{
 			
 			database.beginTransaction();
@@ -176,6 +180,10 @@ public class CommCarePlatformProvider {
 			
 			builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
 			builder.addData(new Resource());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(FormRecord.STORAGE_KEY);
+			builder.addData(new FormRecord());
 			database.execSQL(builder.getTableCreateString());
 			
 			database.setTransactionSuccessful();

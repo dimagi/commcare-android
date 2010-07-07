@@ -44,7 +44,12 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
 	 */
 	public Vector getIDsForValue(String fieldName, Object value) {
-		Cursor c = DbUtil.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , fieldName + "='" + value.toString() + "'", null,null, null, null);
+		return getIDsForValues(new String[] {fieldName}, new Object[] { value} );
+	}
+	
+	public Vector getIDsForValues(String[] fieldNames, Object[] values) {
+		String whereClause = DbUtil.createWhere(fieldNames, values);
+		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause, null,null, null, null);
 		if(c.getCount() == 0) {
 			return new Vector<Integer>();
 		} else {
@@ -64,7 +69,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
 	public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-		Cursor c = DbUtil.getHandle().query(table, new String[] {DbUtil.DATA_COL} , fieldName + "='" + value.toString() +"'", null, null, null, null);
+		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.DATA_COL} , fieldName + "='" + value.toString() +"'", null, null, null, null);
 		if(c.getCount() == 0) {
 			throw new NoSuchElementException("No element in table " + table + " with name " + fieldName +" and value " + value.toString());
 		}
@@ -103,7 +108,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
 	 */
 	public int add(Externalizable e) throws StorageFullException {
-		SQLiteDatabase db = DbUtil.getHandle();
+		SQLiteDatabase db = DbUtil.getHandle(this.c);
 		int i = -1;
 		try{
 			db.beginTransaction();
@@ -127,7 +132,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#close()
 	 */
 	public void close() {
-		DbUtil.getHandle().close();
+		DbUtil.getHandle(this.c).close();
 	}
 
 	/* (non-Javadoc)
@@ -141,7 +146,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
 	 */
 	public boolean exists(int id) {
-		Cursor c = DbUtil.getHandle().query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
+		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
 		if(c.getCount() == 0) {
 			return false;
 		}
@@ -163,7 +168,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#getNumRecords()
 	 */
 	public int getNumRecords() {
-		Cursor c = DbUtil.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
+		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
 		return c.getCount();
 	}
 
@@ -197,7 +202,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
 	 */
 	public SqlStorageIterator<T> iterate() {
-		Cursor c = DbUtil.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
+		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
 		return new SqlStorageIterator<T>(c, this);
 	}
 	
@@ -216,7 +221,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
 	 */
 	public byte[] readBytes(int id) {
-		Cursor c = DbUtil.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
+		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
 		
 		c.moveToFirst();
 		return c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
@@ -226,7 +231,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
 	 */
 	public void remove(int id) {
-		SQLiteDatabase db = DbUtil.getHandle();
+		SQLiteDatabase db = DbUtil.getHandle(this.c);
 		db.beginTransaction();
 		try {
 			db.delete(table, DbUtil.ID_COL +"="+String.valueOf(id),null);
@@ -247,7 +252,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#removeAll()
 	 */
 	public void removeAll() {
-		SQLiteDatabase db = DbUtil.getHandle();
+		SQLiteDatabase db = DbUtil.getHandle(this.c);
 		db.beginTransaction();
 		try {
 			db.delete(table, null,null);
@@ -277,7 +282,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		}
 		ids +=")";
 		
-		SQLiteDatabase db = DbUtil.getHandle();
+		SQLiteDatabase db = DbUtil.getHandle(this.c);
 		db.beginTransaction();
 		try {
 			db.delete(table, DbUtil.ID_COL +" IN "+ ids,null);
@@ -307,7 +312,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
 	 */
 	public void update(int id, Externalizable e) throws StorageFullException {
-		SQLiteDatabase db = DbUtil.getHandle();
+		SQLiteDatabase db = DbUtil.getHandle(this.c);
 		db.beginTransaction();
 		try {
 			db.update(table, DbUtil.getContentValues(e), DbUtil.ID_COL +"="+ String.valueOf(id), null);
@@ -325,7 +330,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 			update(p.getID(), p);
 			return;
 		}
-		SQLiteDatabase db = DbUtil.getHandle();
+		SQLiteDatabase db = DbUtil.getHandle(this.c);
 		try {
 		
 		db.beginTransaction();

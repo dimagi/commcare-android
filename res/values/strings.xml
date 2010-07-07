@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, CommCareHomeActivity!</string>
     <string name="app_name">CommCare ODK</string>
-<string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string>
-<string name="default_submit_server">http://pact-dev.carehq.org/receiver/submit/pact</string>
-<string name="default_ota_server">http://pact-dev.carehq.org/provider/caselist</string>
+	<string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string>
+	<string name="default_submit_server">http://pact-dev.carehq.org/receiver/submit/pact</string>
+	<string name="default_ota_server">http://pact-dev.carehq.org/provider/caselist</string>
+<integer-array name="commcare_version"><item>1</item>
+<item>1</item>
+</integer-array>
 </resources>

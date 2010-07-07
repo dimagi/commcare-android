@@ -20,7 +20,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import dalvik.system.DexFile;
 
 public class DbUtil {
@@ -32,13 +31,25 @@ public class DbUtil {
 	
 	private static PrototypeFactory factory;
 	
-	public static SQLiteDatabase getHandle() {
+	public static SQLiteDatabase getHandle(Context c) {
 		if(db == null) {
 			db = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, null, SQLiteDatabase.OPEN_READWRITE);
 		} else if(!db.isOpen()) {
 			db = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, null, SQLiteDatabase.OPEN_READWRITE);
 		}
 		return db;
+	}
+	
+
+	public static String createWhere(String[] fieldNames, Object[] values) {
+		String ret = "";
+		for(int i = 0 ; i < fieldNames.length; ++i) {
+			ret += fieldNames[i] + "='" + values[i].toString() + "'";
+			if(i + 1 < fieldNames.length) {
+				ret += " AND ";
+			}
+		}
+		return ret;
 	}
 	
 	public static ContentValues getContentValues(Externalizable e) {
