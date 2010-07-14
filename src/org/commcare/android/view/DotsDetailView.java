@@ -40,15 +40,17 @@ public class DotsDetailView {
 	CheckBox[] selfReported;
 	EditText[] missedName;
 	DotsDay day;
+	int[] boxes;
 	int index;
 	
 	public DotsDetailView() {
 		
 	}
 
-	public View LoadDotsDetailView(Context context, DotsDay day, int index, Date date, final DotsEditListener listener) {
+	public View LoadDotsDetailView(Context context, DotsDay day, int index, Date date, int[] boxes, final DotsEditListener listener) {
 		this.day = day;
 		this.index = index;
+		this.boxes = boxes;
 		View view = View.inflate(context, R.layout.dots_detail, null);
 
 		TextView title = (TextView)view.findViewById(R.id.dots_detail_title);
@@ -64,11 +66,11 @@ public class DotsDetailView {
 		selfReported = new CheckBox[day.boxes().length];
 		missedName = new EditText[day.boxes().length];
 		
-		for(int i = 0; i < day.boxes().length; ++i) {
-			DotsBox box = day.boxes()[i];
+		for(int i = 0; i < boxes.length; ++i) {
+			DotsBox box = day.boxes()[boxes[i]];
 			View details = View.inflate(context, R.layout.dotsentry, null);
 			TextView timeView = (TextView)details.findViewById(R.id.text_time);
-			timeView.setText(titles[i]);
+			timeView.setText(titles[boxes[i]]);
 			details.setPadding(0, 20, 0,0);
 			
 			final View missingDetails = details.findViewById(R.id.missed_details);
@@ -141,8 +143,17 @@ public class DotsDetailView {
 	}
 	
 	public DotsDay getDay() {
-		DotsBox[] boxes = new DotsBox[day.boxes().length];
-		for(int i =0 ; i < day.boxes().length ; ++i) {
+		DotsBox[] newboxes = new DotsBox[day.boxes().length];
+		
+		//First, fill in the non-relevant boxes using the pre-existing data
+		for(int i = 0 ; i < day.boxes().length ; ++i) {
+			if(!contains(i, boxes)) {
+				newboxes[i] = day.boxes()[i];
+			}
+		}
+		
+		//Now go fill in the new data
+		for(int i =0 ; i < boxes.length ; ++i) {
 			MedStatus status = MedStatus.unchecked;
 			String meds = null;
 			switch(groups[i].getCheckedRadioButtonId()) {
@@ -160,9 +171,18 @@ public class DotsDetailView {
 					status = MedStatus.unchecked;
 					break;
 			}
-			boxes[i] = new DotsBox(status,selfReported[i].isChecked(), meds);
+			newboxes[boxes[i]] = new DotsBox(status,selfReported[i].isChecked(), meds);
 		}
-		return new DotsDay(boxes);
+		return new DotsDay(newboxes);
+	}
+	
+	private boolean contains(int index, int[] boxes) {
+		for(int i = 0 ; i < boxes.length ; ++i ) {
+			if(boxes[i] == index) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

@@ -12,8 +12,9 @@ import android.graphics.Rect;
  *
  */
 public interface DotsEditListener {
-	public void editDotsDay(int i, Rect datRect);
+	public void editDotsDay(int i, Rect datRect, int[] boxes);
 	public void doneWithWeek();
 	public void cancelDayEdit();
 	public void dayEdited(int i, DotsDay day);
+	public void shiftWeek(int delta);
 }

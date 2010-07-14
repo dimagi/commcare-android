@@ -16,18 +16,18 @@ import android.graphics.Rect;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.ImageView.ScaleType;
 
 /**
  * @author ctsims
  *
  */
-public class DotsHomeView extends FrameLayout {
+public class DotsHomeView extends RelativeLayout {
 	
 	DotsData data;
 	DotsEditListener listener;
@@ -48,18 +48,25 @@ public class DotsHomeView extends FrameLayout {
 	private void refresh() {
 		this.removeAllViews();
 		
-		TextView title = new TextView(this.getContext());
-		title.setText("Weekly DOTS Data");
-		title.setTextAppearance(this.getContext(), android.R.style.TextAppearance_Medium);
-		//this.addView(title, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, Gravity.TOP));
 		ImageView earlier = new ImageView(this.getContext());
 		earlier.setImageResource(R.drawable.prev_arrow);
-		earlier.setPadding(0,20,0,0);
-		
+		earlier.setScaleType(ScaleType.CENTER_INSIDE);
+		earlier.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				listener.shiftWeek(-1);
+			}
+		});
 		
 		ImageView later = new ImageView(this.getContext());
 		later.setImageResource(R.drawable.next_arrow);
-		later.setPadding(0,20,0,0);
+		later.setScaleType(ScaleType.CENTER_INSIDE);
+		later.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				listener.shiftWeek(1);
+			}
+		});
 		
 		TableLayout table = new TableLayout(this.getContext());
 		
@@ -68,11 +75,21 @@ public class DotsHomeView extends FrameLayout {
 		
 		int displayRow = (rows -1) - offset;
 		
-		if(displayRow > 0 ) {
-			this.addView(earlier, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP));
+		LayoutParams earlierParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		earlierParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+		earlierParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+		this.addView(earlier);
+		
+		LayoutParams laterParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		laterParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+		laterParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+		this.addView(later, laterParams);
+		
+		if(!(displayRow > 0 )) {
+			earlier.setVisibility(INVISIBLE);
 		} 
-		if(rows > displayRow +1) {
-			this.addView(later, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.RIGHT | Gravity.TOP));
+		if(!(rows > displayRow +1)) {
+			earlier.setVisibility(INVISIBLE);
 		}
 		
 		int lowerbound = displayRow * TABLE_LENGTH;
@@ -80,49 +97,90 @@ public class DotsHomeView extends FrameLayout {
 		
 		table.setShrinkAllColumns(true);
 		table.setStretchAllColumns(true);
-		TableRow row = new TableRow(this.getContext());
+
+		//TableRow arrowrow = new TableRow(this.getContext());
+		TableRow toprow = new TableRow(this.getContext());
+		TableRow bottomrow = new TableRow(this.getContext());
 		
 		Calendar c = Calendar.getInstance();
 		c.setTime(data.anchor());
 		c.roll(Calendar.DAY_OF_YEAR, -(data.days().length - lowerbound -1 ));
 		
-		for(int i = lowerbound ; i < upperbound ; ++i) {
-//		    if(i > tableLength -1 && i % tableLength == 0 ) {
-//		    	table.addView(row);
-//				row = new TableRow(this.getContext());
-//				rows--;
-//		    }
-			DotsDay day = data.days()[i];
-			final int dayIndex = i; 
-			View view = getDayView(c, day);
-			view.setOnClickListener(new OnClickListener() {
-
-				public void onClick(View v) {
-					Rect hitRect = new Rect();
-					if(v.getParent() instanceof View) {
-						v.getHitRect(hitRect);
-						View parent = (View)v.getParent();
-						DotsHomeView.this.offsetDescendantRectToMyCoords(parent, hitRect);
-						listener.editDotsDay(dayIndex,hitRect);
-					} else{
-						hitRect = new Rect(0,0,v.getWidth(), v.getHeight());
-						DotsHomeView.this.offsetDescendantRectToMyCoords(v, hitRect);
-						listener.editDotsDay(dayIndex,hitRect);
-					}
+		
+		int[] topindices;
+		int[] bottomindices = null;
+		
+		switch(data.days()[0].boxes().length) {
+			case 1:
+				topindices = new int[] {0};
+				break;
+			case 2:
+				topindices = new int[] {0};
+				bottomindices = new int[] {1};
+				break;
+			case 3:
+				topindices = new int[] {0,1};
+				bottomindices = new int[] {2};
+				break;
+			case 4:
+				topindices = new int[] {0,1};
+				bottomindices = new int[] {2,3};
+				break;
+			default:
+				topindices = new int[data.days()[0].boxes().length];
+				for(int j = 0 ; j < topindices.length ; ++j){ 
+					topindices[j] = j;
 				}
-				
-			});
-			row.addView(view);
+		}
+		
+		for(int i = lowerbound ; i < upperbound ; ++i) {
+			
+//			if(i == lowerbound) {
+//				//arrowrow.addView(new Button(this.getContext()));
+//				arrowrow.addView(earlier);
+//			} else if( i == upperbound -1) {
+//				//arrowrow.addView(new Button(this.getContext()));
+//				arrowrow.addView(later);
+//			} else {
+//				//Just an empty placeholder
+//				//arrowrow.addView(new ImageView(this.getContext()), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+//				View empty = new Button(this.getContext());
+//				empty.setVisibility(INVISIBLE);
+//				arrowrow.addView(empty);
+//			}
+			
+			DotsDay day = data.days()[i];
+			
+			View topview = getDayView(c, day, i, topindices);
+			toprow.addView(topview);
+			
+			if(bottomindices != null) {
+				View bottomview = getDayView(c, day, i, bottomindices);
+				bottomrow.addView(bottomview);
+			}
 			
 			c.roll(Calendar.DAY_OF_YEAR, 1);
 		}
 		
-		if(rows != 0) {
-			table.addView(row);
+//		toprow.setGravity(Gravity.CENTER_VERTICAL);
+//		bottomrow.setGravity(Gravity.CENTER_VERTICAL);
+		
+//		table.addView(arrowrow);
+		table.addView(toprow);
+		if(bottomindices != null) {
+			table.addView(bottomrow);
 		}
 		
-    	table.setGravity(Gravity.CENTER_VERTICAL);
-		this.addView(table, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+		if(displayRow > 0 ) {
+			earlier.setVisibility(VISIBLE);
+		}  else {
+			earlier.setVisibility(INVISIBLE);
+		}
+		if(rows > displayRow +1) {
+			later.setVisibility(VISIBLE);
+		}  else {
+			later.setVisibility(INVISIBLE);
+		}
 		
 		Button done = new Button(this.getContext());
 		done.setText("Finished");
@@ -133,11 +191,23 @@ public class DotsHomeView extends FrameLayout {
 			}
 			
 		});
-		this.addView(done, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
+		
+
+    	table.setGravity(Gravity.CENTER_VERTICAL);
+    	LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+    	//params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+    	params.addRule(RelativeLayout.BELOW, earlier.getId());
+    	params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+    	params.addRule(RelativeLayout.ABOVE, done.getId());
+    	
+		this.addView(table, params);
+		params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+		this.addView(done, params);
 	}
 
 	
-	private View getDayView(Calendar c, DotsDay d) {
+	private View getDayView(Calendar c, DotsDay d, final int dayIndex, final int[] boxes) {
 		View dayView = View.inflate(this.getContext(), R.layout.dotsday, null);
 		//day.setOnClickListener()
 		TextView date = (TextView)dayView.findViewById(R.id.text_date);
@@ -154,7 +224,8 @@ public class DotsHomeView extends FrameLayout {
 		date.setText((c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.DAY_OF_MONTH));
 		
 		doses.removeAllViews();
-		for(DotsBox box : d.boxes()) {
+		for(int i = 0 ; i < boxes.length ; ++i) {
+			DotsBox box = d.boxes()[boxes[i]];
 			ImageView status = new ImageView(this.getContext());
 			status.setPadding(0,0,1,0);
 			switch(box.status()) {
@@ -175,14 +246,32 @@ public class DotsHomeView extends FrameLayout {
 			doses.addView(status);
 			
 			ImageView selfReport = new ImageView(this.getContext());
-			if(box.selfreported()) {
-				selfReport.setPadding(0,0,1,0);
-				selfReport.setImageResource(R.drawable.greencircle);
+			selfReport.setPadding(0,3,1,0);
+			selfReport.setImageResource(R.drawable.greencircle);
+			if(!box.selfreported()) {
+				selfReport.setVisibility(INVISIBLE);
 			}
 			selfReported.addView(selfReport);
 		}
 		
-		return dayView;
+		dayView.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				Rect hitRect = new Rect();
+				if(v.getParent() instanceof View) {
+					v.getHitRect(hitRect);
+					View parent = (View)v.getParent();
+					DotsHomeView.this.offsetDescendantRectToMyCoords(parent, hitRect);
+					listener.editDotsDay(dayIndex,hitRect, boxes);
+				} else{
+					hitRect = new Rect(0,0,v.getWidth(), v.getHeight());
+					DotsHomeView.this.offsetDescendantRectToMyCoords(v, hitRect);
+					listener.editDotsDay(dayIndex,hitRect, boxes);
+				}
+			}
+			
+		});
 		
+		return dayView;
 	}
 }

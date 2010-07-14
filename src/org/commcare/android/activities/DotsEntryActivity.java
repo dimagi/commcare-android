@@ -49,8 +49,10 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	private static final String DOTS_DAY = "dots_day";
 	private static final String DOTS_OFFSET = "dots_offset";
 	private static final String CURRENT_FOCUS = "dots_focus";
+	private static final String DOTS_BOX_INDICES = "dots_indices";
 	
 	private int editing = -1;
+	private int[] editingBoxes = null;
 	private int offset;
 	private DotsDay d;
 	private DotsDetailView ddv;
@@ -68,6 +70,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         	editing = savedInstanceState.getInt(DOTS_EDITING);
         	offset = savedInstanceState.getInt(DOTS_OFFSET);
         	if(editing != -1) {
+        		editingBoxes = savedInstanceState.getIntArray(DOTS_BOX_INDICES);
         		d = DotsDay.deserialize(savedInstanceState.getString(DOTS_DAY));
         	}
         } else {
@@ -108,6 +111,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         outState.putInt(DOTS_EDITING, editing);
         outState.putInt(DOTS_OFFSET, offset);
         if(editing != -1) {
+        	outState.putIntArray(DOTS_BOX_INDICES, editingBoxes);
         	outState.putString(DOTS_DAY, ddv.getDay().serialize());
         }
     }
@@ -139,17 +143,17 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         finish();
 	}
 
-	public void editDotsDay(int i, Rect rect) {
+	public void editDotsDay(int i, Rect rect, int[] boxes) {
 		zX = rect.centerX();
 		zY = rect.centerY();
 		
-		edit(i, dotsData.days()[i], AnimationType.zoomin);
+		edit(i, dotsData.days()[i], AnimationType.zoomin, boxes);
 	}
 	
-	private void edit(int i, DotsDay day, AnimationType anim) {
+	private void edit(int i, DotsDay day, AnimationType anim, int[] boxes) {
 		editing = i;
 		ddv = new DotsDetailView();
-		View view = ddv.LoadDotsDetailView(this, day, i, DateUtils.dateAdd(dotsData.anchor(),  i - dotsData.days().length), this);
+		View view = ddv.LoadDotsDetailView(this, day, i, DateUtils.dateAdd(dotsData.anchor(),  i - dotsData.days().length + 1), boxes, this);
 		showView(view, anim);
 	}
 	
@@ -220,7 +224,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     	if(editing == -1) {
     		showView(home(), AnimationType.fade);
     	} else {
-    		edit(editing, d, AnimationType.fade);
+    		edit(editing, d, AnimationType.fade, editingBoxes);
     	}
 	}
 	
@@ -291,4 +295,8 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 		showView(home(), offsetChange > 0 ? AnimationType.right : AnimationType.left);
 		return true;
     }
+
+	public void shiftWeek(int delta) {
+		tryMove(-delta);
+	}
 }
