@@ -117,6 +117,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     }
     
     private View home() {
+    	setTitle(getString(R.string.app_name) + " > " + " DOTS");
     	return new DotsHomeView(this, dotsData, this, offset);
     }
     
@@ -152,8 +153,12 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	
 	private void edit(int i, DotsDay day, AnimationType anim, int[] boxes) {
 		editing = i;
+		editingBoxes = boxes;
 		ddv = new DotsDetailView();
-		View view = ddv.LoadDotsDetailView(this, day, i, DateUtils.dateAdd(dotsData.anchor(),  i - dotsData.days().length + 1), boxes, this);
+		Date date = DateUtils.dateAdd(dotsData.anchor(),  i - dotsData.days().length + 1);
+		View view = ddv.LoadDotsDetailView(this, day, i, date, boxes, this);
+		
+		setTitle(getString(R.string.app_name) + " > " + "DOTS Details for " + DateUtils.formatDate(date, DateUtils.FORMAT_HUMAN_READABLE_SHORT));
 		showView(view, anim);
 	}
 	

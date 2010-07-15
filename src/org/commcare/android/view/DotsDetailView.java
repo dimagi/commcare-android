@@ -11,17 +11,18 @@ import org.commcare.android.util.DotsData.DotsBox;
 import org.commcare.android.util.DotsData.DotsDay;
 import org.commcare.android.util.DotsData.MedStatus;
 import org.javarosa.core.model.utils.DateUtils;
+import org.odk.collect.android.widgets.TriggerWidget;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.ToggleButton;
 
 /**
  * @author ctsims
@@ -31,12 +32,13 @@ public class DotsDetailView {
 	
 	private final static String[][] labels = new String[][] {
 			new String[] {"Dose"},
-			new String[] {"AM Dose", "PM Dose"},
-			new String[] {"AM Dose", "Afternoon Dose", "PM Dose"},
-			new String[] {"AM Dose", "Afternoon Dose", "PM Dose", "Evening Dose"}
+			new String[] {"Morning", "Evening"},
+			new String[] {"Morning", "Noon", "Evening"},
+			new String[] {"Morning", "Noon", "Evening", "Bedtime"}
 	};
 	
-	RadioGroup[] groups;
+	//RadioGroup[] groups;
+	View[] groups; 
 	CheckBox[] selfReported;
 	EditText[] missedName;
 	DotsDay day;
@@ -61,14 +63,17 @@ public class DotsDetailView {
 		
 		container.removeAllViews();
 		
+		
 		String[] titles = labels[day.boxes().length - 1];
-		groups = new RadioGroup[day.boxes().length];
+		//groups = new RadioGroup[day.boxes().length];
+		groups = new View[day.boxes().length];
 		selfReported = new CheckBox[day.boxes().length];
 		missedName = new EditText[day.boxes().length];
 		
 		for(int i = 0; i < boxes.length; ++i) {
 			DotsBox box = day.boxes()[boxes[i]];
-			View details = View.inflate(context, R.layout.dotsentry, null);
+			final View details = View.inflate(context, R.layout.compact_dot_entry, null);
+			groups[i] = details;
 			TextView timeView = (TextView)details.findViewById(R.id.text_time);
 			timeView.setText(titles[boxes[i]]);
 			details.setPadding(0, 20, 0,0);
@@ -76,48 +81,88 @@ public class DotsDetailView {
 			final View missingDetails = details.findViewById(R.id.missed_details);
 			missedName[i] = (EditText)details.findViewById(R.id.text_missed);
 			
-			groups[i] = (RadioGroup)details.findViewById(R.id.dose_group);
+			//groups[i] = (RadioGroup)details.findViewById(R.id.dose_group);
 			selfReported[i] = (CheckBox)details.findViewById(R.id.cbx_self_reported);
 			if(box.selfreported()) {
 				selfReported[i].setChecked(true);
 			}
 			
-			int id = -1;
+			int checked = -1;
 			
 			switch(box.status()) {
 				case empty:
-					id = R.id.radio_all;
+					checked = R.id.radio_all;
 					break;
 				case partial:
-					id = R.id.radio_some;
+					checked = R.id.radio_some;
 					missedName[i].setText(box.missedMeds());
 					missingDetails.setVisibility(View.VISIBLE);
 					break;
 				case full:
-					id = R.id.radio_none;
+					checked = R.id.radio_none;
 					break;
 				case unchecked:
-					id = R.id.radio_unchecked;
+					checked = R.id.radio_unchecked;
 					break;
 			}
-			if(id != -1) {
-				groups[i].check(id);
+//			if(id != -1) {
+//				groups[i].check(id);
+//			}
+			
+			ToggleButton checkedToggle = (ToggleButton)details.findViewById(checked);
+			checkedToggle.setChecked(true);
+			
+			//set up listeners
+			final int[] ids = new int[] {R.id.radio_all, R.id.radio_some, R.id.radio_unchecked, R.id.radio_none};
+			for(int id : ids) {
+				ToggleButton toggle = (ToggleButton)details.findViewById(id);
+				toggle.setOnClickListener(new View.OnClickListener() {
+		            public void onClick(View v) {
+		            	for(int id : ids) {
+		            		if(v.getId() == id) {
+		            			((ToggleButton)v).setChecked(true);
+		            		} else {
+		            			ToggleButton toggle = (ToggleButton)details.findViewById(id);
+		            			toggle.setChecked(false);
+		            		}
+		            		
+		            		if(v.getId() == R.id.radio_some) {
+								missingDetails.setVisibility(View.VISIBLE);
+		    				} else {
+		    					missingDetails.setVisibility(View.GONE);
+		    				}
+		            	}
+		            }
+		        });
 			}
+//				toggle.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+//					
+//					
+//				});
 
 			
-			groups[i].setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-				public void onCheckedChanged(RadioGroup group, int checkedId) {
-					if(checkedId == R.id.radio_some) {
-						missingDetails.setVisibility(View.VISIBLE);
-					} else {
-						missingDetails.setVisibility(View.GONE);
-					}
-				}
-				
-			});
+//			groups[i].setOnCheckedChangeListener(new OnCheckedChangeListener() {
+//
+//				public void onCheckedChanged(RadioGroup group, int checkedId) {
+//					if(checkedId == R.id.radio_some) {
+//						missingDetails.setVisibility(View.VISIBLE);
+//					} else {
+//						missingDetails.setVisibility(View.GONE);
+//					}
+//				}
+//				
+//			});
 			
-			container.addView(details, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+			if(context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.FILL_PARENT);
+				params.leftMargin = 10;
+				params.rightMargin = 10;
+				params.weight = (float)(1f / day.boxes().length);
+				container.addView(details, params);
+				container.setOrientation(LinearLayout.HORIZONTAL);
+			} else {
+				container.addView(details, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+			}
 		}
 		
 		Button ok = (Button)view.findViewById(R.id.btn_dots_detail_ok);
@@ -152,11 +197,24 @@ public class DotsDetailView {
 			}
 		}
 		
+		
 		//Now go fill in the new data
 		for(int i =0 ; i < boxes.length ; ++i) {
+			
+			int checkedButton = -1;
+			//Retrieve the selected value
+			int[] ids = new int[] {R.id.radio_all, R.id.radio_some, R.id.radio_unchecked, R.id.radio_none};
+			for(int id : ids) {
+				ToggleButton button = (ToggleButton)groups[i].findViewById(id);
+				if(button.isChecked()) {
+					checkedButton = id;
+				}
+			}
+			
 			MedStatus status = MedStatus.unchecked;
 			String meds = null;
-			switch(groups[i].getCheckedRadioButtonId()) {
+			
+			switch(checkedButton) {
 				case R.id.radio_all:
 					status= MedStatus.empty;
 					break;
