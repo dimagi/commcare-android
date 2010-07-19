@@ -135,37 +135,23 @@ public class DotsHomeView extends RelativeLayout {
 		
 		for(int i = lowerbound ; i < upperbound ; ++i) {
 			
-//			if(i == lowerbound) {
-//				//arrowrow.addView(new Button(this.getContext()));
-//				arrowrow.addView(earlier);
-//			} else if( i == upperbound -1) {
-//				//arrowrow.addView(new Button(this.getContext()));
-//				arrowrow.addView(later);
-//			} else {
-//				//Just an empty placeholder
-//				//arrowrow.addView(new ImageView(this.getContext()), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-//				View empty = new Button(this.getContext());
-//				empty.setVisibility(INVISIBLE);
-//				arrowrow.addView(empty);
-//			}
-			
 			DotsDay day = data.days()[i];
+
+			TableRow.LayoutParams dayParams = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			dayParams.setMargins(1,1,1,1);
+			
 			
 			View topview = getDayView(c, day, i, topindices);
-			toprow.addView(topview);
+			toprow.addView(topview, dayParams);
 			
 			if(bottomindices != null) {
 				View bottomview = getDayView(c, day, i, bottomindices);
-				bottomrow.addView(bottomview);
+				bottomrow.addView(bottomview, dayParams);
 			}
 			
 			c.roll(Calendar.DAY_OF_YEAR, 1);
 		}
 		
-//		toprow.setGravity(Gravity.CENTER_VERTICAL);
-//		bottomrow.setGravity(Gravity.CENTER_VERTICAL);
-		
-//		table.addView(arrowrow);
 		table.addView(toprow);
 		if(bottomindices != null) {
 			table.addView(bottomrow);
