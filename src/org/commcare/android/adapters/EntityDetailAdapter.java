@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.commcare.android.models.Entity;
-import org.commcare.android.util.CallListener;
+import org.commcare.android.util.DetailButtonListener;
 import org.commcare.android.view.EntityDetailView;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
@@ -28,10 +28,10 @@ public class EntityDetailAdapter implements ListAdapter {
 	CommCarePlatform platform;
 	Detail detail;
 	Entity entity;
-	CallListener listener;
+	DetailButtonListener listener;
 	List<Integer> valid;
 	
-	public EntityDetailAdapter(Context context, CommCarePlatform platform, Detail detail, Entity entity, CallListener listener) {		
+	public EntityDetailAdapter(Context context, CommCarePlatform platform, Detail detail, Entity entity, DetailButtonListener listener) {		
 		this.context = context;
 		this.platform = platform;
 		this.detail = detail;

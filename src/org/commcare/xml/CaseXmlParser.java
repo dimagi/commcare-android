@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Case;
 import org.commcare.data.xml.TransactionParser;
@@ -121,7 +123,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 	
 	public IStorageUtilityIndexed storage() {
 		if(storage == null) {
-			storage = new SqlIndexedStorageUtility<Case>(Case.STORAGE_KEY, Case.class, c);
+			storage =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
 		} 
 		return storage;
 	}

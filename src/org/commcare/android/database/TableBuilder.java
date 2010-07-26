@@ -29,7 +29,11 @@ public class TableBuilder {
 		if(p instanceof IMetaData) {
 			String[] keys = ((IMetaData)p).getMetaDataFields();
 			for(String key : keys) {
-				cols.add(scrubInput(key));	
+				if(p instanceof EncryptedModel && ((EncryptedModel)p).isEncrypted(key)) {
+					cols.add(scrubInput(key) + " BLOB");
+				} else {
+					cols.add(scrubInput(key));
+				}
 			}
 		}
 		

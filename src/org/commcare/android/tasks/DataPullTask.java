@@ -5,6 +5,11 @@ package org.commcare.android.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -13,6 +18,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.util.CryptUtil;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -76,25 +83,17 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	protected Integer doInBackground(Void... params) {
-		
-		/**try {
-			Reference r = ReferenceManager._().DeriveReference("http://build.dimagi.com/commcare/pact/data.xml");
-			this.publishProgress(PROGRESS_AUTHED);
-			readInput(r.getStream());
-			this.publishProgress(PROGRESS_DONE);
-			return DOWNLOAD_SUCCESS;
-		} catch(Exception e) {
-			this.publishProgress(PROGRESS_DONE);
-			return UNKNOWN_FAILURE;
-		}
-					**/
-		
-		
 
 			DefaultHttpClient client = new DefaultHttpClient();
 			client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
 			
 			try {
+				SecretKey key = getKeyForDevice(client);
+				
+				//This is necessary (currently) to make sure that data
+				//is encoded. Probably a better way to do this.
+				CommCareApplication._().logIn(key.getEncoded());
+				
 				HttpResponse response = client.execute(new HttpGet(server));
 				int responseCode = response.getStatusLine().getStatusCode();
 				if(responseCode == 401) {
@@ -105,7 +104,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				if(responseCode >= 200 && responseCode < 300) {
 					
 					try {
-						readInput(response.getEntity().getContent());
+						readInput(response.getEntity().getContent(), key);
 						this.publishProgress(PROGRESS_DONE);
 						return DOWNLOAD_SUCCESS;
 					} catch (InvalidStructureException e) {
@@ -133,15 +132,16 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			
 	}
 	
-	private void readInput(InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+	private void readInput(InputStream stream, SecretKey key) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		DataModelPullParser parser;
+		final byte[] wrappedKey = CryptUtil.wrapKey(key,credentials.getPassword());
 			parser = new DataModelPullParser(stream, new TransactionParserFactory() {
 				
 				public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 					if(name.toLowerCase().equals("case")) {
 						return new CaseXmlParser(parser, c);
 					} else if(name.toLowerCase().equals("registration")) {
-						return new UserXmlParser(parser, c);
+						return new UserXmlParser(parser, c, wrappedKey);
 					}
 					return null;
 				}
@@ -151,5 +151,27 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	}
 		
-
+	private SecretKey getKeyForDevice(DefaultHttpClient client) throws ClientProtocolException, IOException {
+		//Fetch the symetric key for this phone.
+//		HttpGet get = new HttpGet(server);
+//		get.addHeader("deviceid", CommCareApplication._().getPhoneId());
+//		client.execute(get);
+		
+		return generateTestKey();
+	}
+	
+	private SecretKey generateTestKey() {
+		CommCareApplication._().getPhoneId();
+		//SecretKeyFactory factory = SecretKeyFactory.getInstance("AES");
+		KeyGenerator generator;
+		try {
+			generator = KeyGenerator.getInstance("AES");
+			generator.init(256, new SecureRandom(CommCareApplication._().getPhoneId().getBytes()));
+			return generator.generateKey();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

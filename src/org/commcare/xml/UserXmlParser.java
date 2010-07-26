@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.User;
 import org.commcare.data.xml.TransactionParser;
@@ -20,10 +22,12 @@ public class UserXmlParser extends TransactionParser<User> {
 
 	IStorageUtilityIndexed storage;
 	Context context;
+	byte[] wrappedKey;
 	
-	public UserXmlParser(KXmlParser parser, Context context) {
+	public UserXmlParser(KXmlParser parser, Context context, byte[] wrappedKey) {
 		super(parser, "registration", null);
 		this.context = context;
+		this.wrappedKey = wrappedKey;
 	}
 
 	public User parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -47,6 +51,7 @@ public class UserXmlParser extends TransactionParser<User> {
 		
 		if(u == null) {
 			u = new User(username, passwordHash, uuid);
+			u.setWrappedKey(wrappedKey);
 		}
 		
 		//Now look for optional components
@@ -99,7 +104,7 @@ public class UserXmlParser extends TransactionParser<User> {
 	
 	public IStorageUtilityIndexed storage() {
 		if(storage == null) {
-			storage = new SqlIndexedStorageUtility<User>(User.STORAGE_KEY, User.class, context);
+			storage =  CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
 		} 
 		return storage;
 	}

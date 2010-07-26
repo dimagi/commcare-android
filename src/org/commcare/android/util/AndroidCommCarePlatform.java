@@ -7,8 +7,11 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.models.User;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
@@ -43,6 +46,8 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	private String currentCase;
 	private String currentRef;
 	
+	private long callDuration = 0;
+	
 	public AndroidCommCarePlatform(int majorVersion, int minorVersion, Context c) {
 		super(majorVersion, minorVersion);
 		xmlnstable = new Hashtable<String, String>();
@@ -70,7 +75,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	public ResourceTable getGlobalResourceTable() {
 		if(global == null) {
-			global = ResourceTable.RetrieveTable(new SqlIndexedStorageUtility<Resource>("GLOBAL_RESOURCE_TABLE", Resource.class, c), new AndroidResourceInstallerFactory());
+			global = ResourceTable.RetrieveTable( CommCareApplication._().getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
 		}
 		return global;
 	}
@@ -97,8 +102,10 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.loginTime = new Date();
 	}
 	
-	public String getLoggedInUser() {
-		return currentUser;
+	public User getLoggedInUser() {
+		if(currentUser == null) { return null; }
+		SqlIndexedStorageUtility<User> userStorage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
+		return userStorage.getRecordForValue(User.META_UID, currentUser);
 	}
 	
 	public Vector<Entry> getEntriesForCommand(String commandId) {
@@ -209,6 +216,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.currentCase = null;
 		this.currentCmd = null;
 		this.currentRef = null;
+		callDuration = 0;
 	}
 	
 	public void logout() {
@@ -237,5 +245,13 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 				currentUser = incoming.getString(GlobalConstants.STATE_USER_KEY);
 			}
 		}
+	}
+
+	public void setCallDuration(long callDuration) {
+		this.callDuration = callDuration;
+	}
+	
+	public long getCallDuration() {
+		return callDuration;
 	}
 }

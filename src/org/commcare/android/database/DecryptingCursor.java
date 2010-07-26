@@ -3,6 +3,12 @@
  */
 package org.commcare.android.database;
 
+import java.io.IOException;
+
+import javax.crypto.Cipher;
+
+import org.commcare.android.util.CryptUtil;
+
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,81 +19,133 @@ import android.database.sqlite.SQLiteQuery;
  *
  */
 public class DecryptingCursor extends SQLiteCursor {
+	
+	Cipher cipher;
+	EncryptedModel model;
 
-	public DecryptingCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query) {
+	public DecryptingCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, EncryptedModel model, Cipher cipher) {
 		super(db, driver, editTable, query);
+		this.model = model;
+		this.cipher = cipher;
+		
 	}
 
 	@Override
 	public byte[] getBlob(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.getBlob(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.getBlob(columnIndex);
+		} else {
+			return decrypt(columnIndex);
+		}
 	}
 
 	@Override
 	public double getDouble(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.getDouble(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.getDouble(columnIndex);
+		} else {
+			return Double.valueOf(new String(decrypt(columnIndex)));
+		}
 	}
 
 	@Override
 	public float getFloat(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.getFloat(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.getFloat(columnIndex);
+		} else {
+			return Float.valueOf(new String(decrypt(columnIndex)));
+		}
 	}
 
 	@Override
 	public int getInt(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.getInt(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.getInt(columnIndex);
+		} else {
+			return Integer.valueOf(new String(decrypt(columnIndex)));
+		}
 	}
 
 	@Override
 	public long getLong(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.getLong(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.getLong(columnIndex);
+		} else {
+			return Long.valueOf(new String(decrypt(columnIndex)));
+		}
 	}
 
 	@Override
 	public short getShort(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.getShort(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.getShort(columnIndex);
+		} else {
+			return Short.valueOf(new String(decrypt(columnIndex)));
+		}
 	}
 
 	@Override
 	public String getString(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.getString(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.getString(columnIndex);
+		} else {
+			return new String(decrypt(columnIndex));
+		}
 	}
-
+/**
 	@Override
 	public boolean isBlob(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.isBlob(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.isBlob(columnIndex);
+		}
 	}
 
 	@Override
 	public boolean isFloat(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.isFloat(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.isFloat(columnIndex);
+		}
+		
 	}
 
 	@Override
 	public boolean isLong(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.isLong(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.isLong(columnIndex);
+		}
 	}
 
 	@Override
 	public boolean isNull(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.isNull(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.isNull(columnIndex);
+		}
 	}
 
 	@Override
 	public boolean isString(int columnIndex) {
-		// TODO Auto-generated method stub
-		return super.isString(columnIndex);
+		if(!isEncrypted(columnIndex)) {
+			return super.isString(columnIndex);
+		}
 	}
-
+	**/
+	
+	private boolean isEncrypted(int columnIndex) {
+		String column = this.getColumnName(columnIndex);
+		if(model.isEncrypted(column)) {
+			return true;
+		} if(column.equals(DbUtil.DATA_COL)) {
+			return model.isBlobEncrypted();
+		}
+		return false;
+	}
+	
+	private byte[] decrypt(int columnIndex) {
+		byte[] data = super.getBlob(columnIndex);
+		try{
+			return CryptUtil.decrypt(data, cipher);
+		} catch(IOException e) {
+			return null;
+		}
+	}
 }

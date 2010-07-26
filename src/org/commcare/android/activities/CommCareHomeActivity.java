@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Vector;
 
 import org.commcare.android.R;
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
@@ -35,6 +37,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	public static final int GET_COMMAND = 1;
 	public static final int GET_CASE = 2;
 	public static final int MODEL_RESULT = 4;
+	public static final int INIT_APP = 8;
 	
 	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
@@ -117,6 +120,16 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	switch(requestCode) {
+    	case INIT_APP:
+    		if(resultCode == RESULT_CANCELED) {
+    			//quit somehow.
+    			this.finish();
+    			return;
+    		} else if(resultCode == RESULT_OK) {
+    			CommCareApplication._().initializeGlobalResources();
+    			return;
+    		}
+    		break;
     	case LOGIN_USER:
     		if(resultCode == RESULT_CANCELED) {
     			//quit somehow.
@@ -157,13 +170,16 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         		break;
     		} else if(resultCode == RESULT_OK) {
     			platform.setCaseId(intent.getStringExtra(GlobalConstants.STATE_CASE_ID));
+    			if(intent.hasExtra(CallOutActivity.CALL_DURATION)) {
+    				platform.setCallDuration(intent.getLongExtra(CallOutActivity.CALL_DURATION, 0));
+    			}
     			break;
     		}
         case MODEL_RESULT:
         	if(resultCode == RESULT_OK) {
         		String instance = intent.getStringExtra("instancepath");
         		boolean completed = intent.getBooleanExtra("instancecomplete", true);
-        		SqlIndexedStorageUtility<FormRecord> storage = new SqlIndexedStorageUtility<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, this);
+        		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
         		Vector<Integer> records = storage.getIDsForValue(FormRecord.META_PATH, instance);
         		
         		if(completed) {
@@ -241,7 +257,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		String xmlns = e.getXFormNamespace();
 		String path = platform.getFormPath(xmlns);
 		
-		SqlIndexedStorageUtility<FormRecord> storage = new SqlIndexedStorageUtility<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, this);
+		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		Vector<Integer> records = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {xmlns, platform.getCaseId(), FormRecord.STATUS_INCOMPLETE});
 		if(records.size() > 0 ) {
 			FormRecord r = storage.read(records.elementAt(0));
@@ -261,7 +277,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		if(instancePath != null) {
 			i.putExtra("instancepath", instancePath);
 		}
-		String[] preloaders = new String[] {"case", PreloadContentProvider.CONTENT_URI_CASE + "/" + caseId + "/"};
+		
+		String[] preloaders = new String[] {"case", PreloadContentProvider.CONTENT_URI_CASE + "/" + caseId + "/", "meta", PreloadContentProvider.CONTENT_URI_META + "/"};
 		i.putExtra("preloadproviders",preloaders);
 		
 		startActivityForResult(i, MODEL_RESULT);
@@ -275,7 +292,17 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     @Override
     protected void onResume() {
         super.onResume();
-        if(platform.getLoggedInUser() == null) {
+        //CryptUtil.testCrypt("passwordtest");
+        if(CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY &&
+                CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY) {
+     	        Intent i = new Intent(getApplicationContext(), CommCareStartupActivity.class);
+     	        i.putExtra(CommCareStartupActivity.DATABASE_STATE, CommCareApplication._().getDatabaseState());
+     	        i.putExtra(CommCareStartupActivity.RESOURCE_STATE, CommCareApplication._().getAppResourceState());
+     	        
+     	        
+     	        this.startActivityForResult(i, INIT_APP);
+             }
+        else if(platform.getLoggedInUser() == null) {
         	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         	startActivityForResult(i,LOGIN_USER);
         } else {
@@ -316,7 +343,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                     	formEntry(formpath, caseId, null);
                         break;
                     case DialogInterface.BUTTON2: // no, and delete the old one
-                    	SqlIndexedStorageUtility<FormRecord> storage = new SqlIndexedStorageUtility<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, CommCareHomeActivity.this);
+                    	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
                     	Vector<Integer> records = storage.getIDsForValues(new String[] {FormRecord.META_PATH}, new Object[] {instancePath});
                     	if(records.size() < 1 || records.size() > 1) {
                     		//Serious Problem.

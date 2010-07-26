@@ -7,12 +7,17 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
 import org.commcare.android.R;
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.util.CryptUtil;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -72,14 +77,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         login.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View arg0) {
-				User u = tryLocalLogin();
-				if(u != null) {
-					Intent i = new Intent();
-			        i.putExtra(GlobalConstants.STATE_USER_KEY, u.getUniqueId());
-			        i.putExtra(GlobalConstants.STATE_USER_LOGIN, new Date());
-			        setResult(RESULT_OK, i);
-			        
-					finish();
+				if(tryLocalLogin()) {
 					return;
 				}
 				
@@ -123,7 +121,7 @@ public class LoginActivity extends Activity implements DataPullListener {
     	checkServer.setText("Check Server");
     }
     
-    private User tryLocalLogin() {
+    private boolean tryLocalLogin() {
     	try{
     	String passwd = password.getText().toString();
     	for(User u : storage()) {
@@ -136,24 +134,38 @@ public class LoginActivity extends Activity implements DataPullListener {
         		String hashed = number.toString(16);
         		
         		if(hash.equals(alg + "$" + salt + "$" + hashed)) {
-        			return u;
+        			byte[] key = CryptUtil.unWrapKey(u.getWrappedKey(), passwd);
+        			logIn(u, key);
+        			return true;
         		}
         	} else {
         		if(u.getPassword().equals(passwd)) {
-        			return u;
+        			byte[] key = CryptUtil.unWrapKey(u.getWrappedKey(), passwd);
+        			logIn(u, key);
+        			return true;
     			}
         	}
     	}
-    	return null;
+    	return false;
     	}catch (Exception e) {
     		e.printStackTrace();
-    		return null;
+    		return false;
     	}
+    }
+    
+    private void logIn(User u, byte[] key) {
+    	CommCareApplication._().logIn(key);
+		Intent i = new Intent();
+        i.putExtra(GlobalConstants.STATE_USER_KEY, u.getUniqueId());
+        i.putExtra(GlobalConstants.STATE_USER_LOGIN, new Date());
+        setResult(RESULT_OK, i);
+        
+		finish();
     }
     
     private SqlIndexedStorageUtility<User> storage() {
     	if(storage == null) {
-    		storage= new SqlIndexedStorageUtility<User>(User.STORAGE_KEY, User.class, this);
+    		storage=  CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
     	}
     	return storage;
     }
@@ -171,14 +183,8 @@ public class LoginActivity extends Activity implements DataPullListener {
 					Toast.LENGTH_LONG).show();
 			break;
 		case DataPullTask.DOWNLOAD_SUCCESS:
-			User u = tryLocalLogin();
-			if(u != null) {
-				Intent i = new Intent();
-		        i.putExtra(GlobalConstants.STATE_USER_KEY, u.getUniqueId());
-		        i.putExtra(GlobalConstants.STATE_USER_LOGIN, new Date());
-		        setResult(RESULT_OK, i);
-		        
-				finish();
+			if(tryLocalLogin()) {
+				//success, don't need to do anything
 				break;
 			} else {
 				Toast.makeText(this, 

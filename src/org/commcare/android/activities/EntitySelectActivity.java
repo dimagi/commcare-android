@@ -7,6 +7,8 @@ import java.util.Vector;
 
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
@@ -79,8 +81,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	header.removeAllViews();
     	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     	header.addView(v,params);
-    	
-    	adapter = new EntityListAdapter<Case>(this, detail, platform, new SqlIndexedStorageUtility<Case>(Case.STORAGE_KEY, Case.class, this));
+    	adapter = new EntityListAdapter<Case>(this, detail, platform, CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class));
     	setListAdapter(adapter);
     	searchbox.requestFocus();
     }
@@ -115,6 +116,10 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	        // create intent for return and store path
     	        Intent i = new Intent(this.getIntent());
     	        i.putExtra(GlobalConstants.STATE_CASE_ID, intent.getStringExtra(GlobalConstants.STATE_CASE_ID));
+    	        long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
+    	        if(duration != 0) {
+    	        	i.putExtra(CallOutActivity.CALL_DURATION, duration);
+    	        }
     	        setResult(RESULT_OK, i);
 
     	        finish();

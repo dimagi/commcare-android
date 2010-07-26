@@ -31,13 +31,13 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	
 	String table;
 	Class<? extends T> ctype;
-	Context c;
 	T t;
+	DbHelper helper;
 	
-	public SqlIndexedStorageUtility(String table, Class<? extends T> ctype, Context c) {
+	public SqlIndexedStorageUtility(String table, Class<? extends T> ctype, DbHelper helper) {
 		this.table = table;
 		this.ctype = ctype;
-		this.c = c;
+		this.helper = helper;
 	}
 
 	/* (non-Javadoc)
@@ -48,8 +48,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	}
 	
 	public Vector getIDsForValues(String[] fieldNames, Object[] values) {
-		String whereClause = DbUtil.createWhere(fieldNames, values);
-		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause, null,null, null, null);
+		String whereClause = helper.createWhere(fieldNames, values);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause, null,null, null, null);
 		if(c.getCount() == 0) {
 			return new Vector<Integer>();
 		} else {
@@ -69,7 +69,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
 	public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.DATA_COL} , fieldName + "='" + value.toString() +"'", null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , fieldName + "='" + value.toString() +"'", null, null, null, null);
 		if(c.getCount() == 0) {
 			throw new NoSuchElementException("No element in table " + table + " with name " + fieldName +" and value " + value.toString());
 		}
@@ -84,7 +84,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	public T newObject(byte[] data) {
 		try {
 			T e = (T)ctype.newInstance();
-			e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), DbUtil.getPrototypeFactory(c));
+			e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
 			
 			return e;
 			
@@ -108,11 +108,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
 	 */
 	public int add(Externalizable e) throws StorageFullException {
-		SQLiteDatabase db = DbUtil.getHandle(this.c);
+		SQLiteDatabase db = helper.getHandle();
 		int i = -1;
 		try{
 			db.beginTransaction();
-			long ret = db.insertOrThrow(table, DbUtil.DATA_COL, DbUtil.getContentValues(e));
+			long ret = db.insertOrThrow(table, DbUtil.DATA_COL, helper.getContentValues(e));
 			
 			if(ret > Integer.MAX_VALUE) {
 				throw new RuntimeException("Waaaaaaaaaay too many values");
@@ -132,7 +132,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#close()
 	 */
 	public void close() {
-		DbUtil.getHandle(this.c).close();
+		helper.getHandle().close();
 	}
 
 	/* (non-Javadoc)
@@ -146,7 +146,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
 	 */
 	public boolean exists(int id) {
-		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
 		if(c.getCount() == 0) {
 			return false;
 		}
@@ -168,7 +168,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#getNumRecords()
 	 */
 	public int getNumRecords() {
-		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
 		return c.getCount();
 	}
 
@@ -202,7 +202,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
 	 */
 	public SqlStorageIterator<T> iterate() {
-		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
 		return new SqlStorageIterator<T>(c, this);
 	}
 	
@@ -221,7 +221,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
 	 */
 	public byte[] readBytes(int id) {
-		Cursor c = DbUtil.getHandle(this.c).query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
 		
 		c.moveToFirst();
 		return c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
@@ -231,7 +231,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
 	 */
 	public void remove(int id) {
-		SQLiteDatabase db = DbUtil.getHandle(this.c);
+		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
 			db.delete(table, DbUtil.ID_COL +"="+String.valueOf(id),null);
@@ -252,7 +252,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#removeAll()
 	 */
 	public void removeAll() {
-		SQLiteDatabase db = DbUtil.getHandle(this.c);
+		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
 			db.delete(table, null,null);
@@ -282,7 +282,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		}
 		ids +=")";
 		
-		SQLiteDatabase db = DbUtil.getHandle(this.c);
+		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
 			db.delete(table, DbUtil.ID_COL +" IN "+ ids,null);
@@ -312,10 +312,10 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
 	 */
 	public void update(int id, Externalizable e) throws StorageFullException {
-		SQLiteDatabase db = DbUtil.getHandle(this.c);
+		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			db.update(table, DbUtil.getContentValues(e), DbUtil.ID_COL +"="+ String.valueOf(id), null);
+			db.update(table, helper.getContentValues(e), DbUtil.ID_COL +"="+ String.valueOf(id), null);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
@@ -330,11 +330,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 			update(p.getID(), p);
 			return;
 		}
-		SQLiteDatabase db = DbUtil.getHandle(this.c);
+		SQLiteDatabase db = helper.getHandle();
 		try {
 		
 		db.beginTransaction();
-		long ret = db.insertOrThrow(table, DbUtil.DATA_COL, DbUtil.getContentValues(p));
+		long ret = db.insertOrThrow(table, DbUtil.DATA_COL, helper.getContentValues(p));
 		
 		if(ret > Integer.MAX_VALUE) {
 			throw new RuntimeException("Waaaaaaaaaay too many values");
@@ -344,7 +344,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		//Now we need to put the id into the record
 		
 		p.setID(id);
-		db.update(table, DbUtil.getContentValues(p), DbUtil.ID_COL +"="+ String.valueOf(id), null);
+		db.update(table, helper.getContentValues(p), DbUtil.ID_COL +"="+ String.valueOf(id), null);
 		
 		db.setTransactionSuccessful();
 		} finally {

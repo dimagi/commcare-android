@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="fill_parent" android:layout_width="fill_parent">
+<ImageView android:id="@+id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="20px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView><TextView android:id="@+id/TextView01" android:layout_width="fill_parent" android:layout_height="wrap_content" android:textSize="18px" android:gravity="center_horizontal" android:layout_gravity="center_vertical|center_horizontal" android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."></TextView>
+<Button android:layout_height="wrap_content" android:id="@+id/start_install" android:layout_width="fill_parent" android:layout_gravity="bottom|center_horizontal" android:text="Start Install"></Button>
+</FrameLayout>

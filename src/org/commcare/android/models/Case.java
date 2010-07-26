@@ -22,9 +22,11 @@ package org.commcare.android.models;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
+import org.commcare.android.database.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -42,7 +44,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @date Mar 19, 2009 
  *
  */
-public class Case implements Persistable, IMetaData {
+public class Case implements Persistable, IMetaData, EncryptedModel {
 	public static String STORAGE_KEY = "CCCASE";
 	
 	public static String META_CASE_ID = "caseid";
@@ -242,5 +244,17 @@ public class Case implements Persistable, IMetaData {
 
 	public String[] getMetaDataFields() {
 		return new String[] {META_CASE_ID, "casetype", "externalid"};
+	}
+
+	public boolean isBlobEncrypted() {
+		return true;
+	}
+
+	public boolean isEncrypted(String data) {
+		if (data.equals("casetype")) {
+			return true;
+		} else if (data.equals("externalid")) {
+			return true;
+		} return false;
 	}
 }

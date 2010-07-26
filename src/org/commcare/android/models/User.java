@@ -43,11 +43,14 @@ public class User implements Persistable, IMetaData
 	public static final String META_UID = "uid";
 	public static final String META_USERNAME = "username";
 	public static final String META_ID = "userid";
+	public static final String META_WRAPPED_KEY = "wrappedkey";
 
 	private int recordId = -1; //record id on device
 	private String username;
 	private String password;
 	private String uniqueId;  //globally-unique id
+	
+	private byte[] wrappedKey;
 	
 	private boolean rememberMe = false;
 	
@@ -77,6 +80,7 @@ public class User implements Persistable, IMetaData
 		this.recordId = ExtUtil.readInt(in);
 		this.uniqueId = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		this.rememberMe = ExtUtil.readBool(in);
+		this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(in));
 		this.properties = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
 	}
 
@@ -86,6 +90,7 @@ public class User implements Persistable, IMetaData
 		ExtUtil.writeNumeric(out, recordId);
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(uniqueId));
         ExtUtil.writeBool(out, rememberMe);
+        ExtUtil.writeBytes(out, ExtUtil.emptyIfNull(wrappedKey));
 		ExtUtil.write(out, new ExtWrapMap(properties));
 	}
 
@@ -149,6 +154,14 @@ public class User implements Persistable, IMetaData
 		return uniqueId;
 	}
 	
+	public void setWrappedKey(byte[] key) {
+		this.wrappedKey = key;
+	}
+	
+	public byte[] getWrappedKey() {
+		return wrappedKey;
+	}
+	
 	public Enumeration listProperties() {
 		return this.properties.keys();
 	}
@@ -176,12 +189,14 @@ public class User implements Persistable, IMetaData
 			return username;
 		} else if(META_ID.equals(fieldName)) {
 			return new Integer(recordId);
+		} else if (META_WRAPPED_KEY.equals(fieldName)) {
+			return wrappedKey;
 		}
 		throw new IllegalArgumentException("No metadata field " + fieldName  + " for User Models");
 	}
 
 	public String[] getMetaDataFields() {
-		return new String[] {META_UID, META_USERNAME, META_ID};
+		return new String[] {META_UID, META_USERNAME, META_ID, META_WRAPPED_KEY};
 	}
 	
 }

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Hashtable;
 
+import org.commcare.android.database.EncryptedModel;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.Restorable;
@@ -43,7 +44,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @date Jan 23, 2009 
  *
  */
-public class Referral implements Persistable, IMetaData {
+public class Referral implements Persistable, IMetaData, EncryptedModel {
 	public static final String STORAGE_KEY = "PATREFERRAL";
 	
 	private String type;
@@ -174,6 +175,15 @@ public class Referral implements Persistable, IMetaData {
 
 	public String[] getMetaDataFields() {
 		return new String[] {"referralid"};
+	}
+
+	public boolean isBlobEncrypted() {
+		return true;
+	}
+
+	public boolean isEncrypted(String data) {
+		//ref ID isn't encrypted here.
+		return false;
 	}
 
 }

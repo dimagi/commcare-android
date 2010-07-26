@@ -6,6 +6,8 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.util.Date;
 
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Referral;
 import org.commcare.data.xml.TransactionParser;
@@ -109,7 +111,7 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 	
 	private IStorageUtilityIndexed storage() {
 		if(storage == null) {
-			storage = new SqlIndexedStorageUtility<Referral>(Referral.STORAGE_KEY, Referral.class, context);
+			storage =  CommCareApplication._().getStorage(Referral.STORAGE_KEY, Referral.class);
 		}
 		return storage;
 	}

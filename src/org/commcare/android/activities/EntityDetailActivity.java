@@ -7,14 +7,16 @@ import java.util.Vector;
 
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityDetailAdapter;
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.EntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.DetailButtonListener;
 import org.commcare.android.util.CommCarePlatformProvider;
-import org.commcare.android.util.CallListener;
 import org.commcare.suite.model.Entry;
 
 import android.app.ListActivity;
@@ -30,7 +32,7 @@ import android.widget.ListView;
  * @author ctsims
  *
  */
-public class EntityDetailActivity extends ListActivity implements CallListener {
+public class EntityDetailActivity extends ListActivity implements DetailButtonListener {
 	private AndroidCommCarePlatform platform;
 	
 	private static final int CALL_OUT = 0;
@@ -73,7 +75,7 @@ public class EntityDetailActivity extends ListActivity implements CallListener {
         
         factory = new EntityFactory<Case>(platform.getDetail(prototype.getLongDetailId()));
         
-        Case c = (new SqlIndexedStorageUtility<Case>(Case.STORAGE_KEY, Case.class, this)).getRecordForValue(Case.META_CASE_ID, id);
+        Case c =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class).getRecordForValue(Case.META_CASE_ID, id);
         
         entity = factory.getEntity(c);
         
@@ -106,8 +108,20 @@ public class EntityDetailActivity extends ListActivity implements CallListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	switch(requestCode) {
     	case CALL_OUT:
-    		refreshView();
-    		return;
+    		if(resultCode == RESULT_CANCELED) {
+    			refreshView();
+    			return;
+    		} else {
+    			long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
+    			
+		        Intent i = new Intent(EntityDetailActivity.this.getIntent());
+		        i.putExtra(GlobalConstants.STATE_CASE_ID, entity.getElement().getCaseId());
+		        i.putExtra(CallOutActivity.CALL_DURATION, duration);
+		        setResult(RESULT_OK, i);
+
+		        finish();
+		        return;
+    		}
     	default:
     		super.onActivityResult(requestCode, resultCode, intent);
     	}
@@ -115,8 +129,8 @@ public class EntityDetailActivity extends ListActivity implements CallListener {
 
 
 	public void callRequested(String phoneNumber) {
-		Intent intent = new Intent(Intent.ACTION_CALL);
-		intent.setData(Uri.parse("tel:" + phoneNumber));
+		Intent intent = new Intent(getApplicationContext(), CallOutActivity.class);
+		intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
 		this.startActivityForResult(intent, CALL_OUT);
 	}
 }

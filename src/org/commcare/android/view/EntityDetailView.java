@@ -5,7 +5,7 @@ package org.commcare.android.view;
 
 import org.commcare.android.R;
 import org.commcare.android.models.Entity;
-import org.commcare.android.util.CallListener;
+import org.commcare.android.util.DetailButtonListener;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
 
@@ -63,7 +63,7 @@ public class EntityDetailView extends LinearLayout {
 		setParams(platform, d, e, index);
 	}
 	
-	public void setCallListener(final CallListener listener) {
+	public void setCallListener(final DetailButtonListener listener) {
 		phone.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
