@@ -5,7 +5,6 @@ import java.util.Vector;
 
 import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;

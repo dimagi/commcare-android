@@ -233,9 +233,20 @@ public class DotsHomeView extends RelativeLayout {
 			
 			ImageView selfReport = new ImageView(this.getContext());
 			selfReport.setPadding(0,3,1,0);
-			selfReport.setImageResource(R.drawable.greencircle);
-			if(!box.selfreported()) {
-				selfReport.setVisibility(INVISIBLE);
+//			selfReport.setImageResource(R.drawable.greencircle);
+//			if(!box.selfreported()) {
+//				selfReport.setVisibility(INVISIBLE);
+//			}
+			switch(box.reportType()) {
+			case direct:
+				selfReport.setImageResource(R.drawable.eye);
+				break;
+			case pillbox:
+				selfReport.setImageResource(R.drawable.pillbox);
+				break;
+			case self:
+				selfReport.setImageResource(R.drawable.greencircle);
+				break;
 			}
 			selfReported.addView(selfReport);
 		}

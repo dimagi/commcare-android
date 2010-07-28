@@ -15,7 +15,7 @@ public class DotsData {
 	Date anchor;
 	
 	int regimen;
-	private static final String SELF_REPORT_FLAG = "MCSR";
+	//private static final String SELF_REPORT_FLAG = "MCSR";
 	
 	public static enum MedStatus {
 		unchecked,
@@ -24,22 +24,28 @@ public class DotsData {
 		partial;
 	}
 	
+	public static enum ReportType {
+		direct,
+		pillbox,
+		self
+	}
+	
 	DotsDay[] days;
 	
 	public static final class DotsBox {
 		
 		MedStatus status;
 		String missedMeds;
-		boolean selfReported;
+		ReportType type;
 		
-		public DotsBox(MedStatus status, boolean selfReported) {
-			this(status, selfReported, null);
+		public DotsBox(MedStatus status, ReportType type) {
+			this(status, type, null);
 		}
 		
-		public DotsBox(MedStatus status, boolean selfReported, String missedMeds) {
+		public DotsBox(MedStatus status, ReportType type, String missedMeds) {
 			this.status = status;
 			this.missedMeds = missedMeds;
-			this.selfReported = selfReported;
+			this.type = type;
 		}
 		
 		public MedStatus status() {
@@ -50,8 +56,8 @@ public class DotsData {
 			return missedMeds;
 		}
 		
-		public boolean selfreported() {
-			return selfReported;
+		public ReportType reportType() {
+			return type;
 		}
 	}
 	
@@ -71,9 +77,7 @@ public class DotsData {
 			String serial = "";
 			for(int j = 0 ; j < this.boxes.length ; ++j) {
 				serial += this.boxes[j].status.toString();
-				if(this.boxes[j].selfReported) {
-					serial+=SELF_REPORT_FLAG;
-				}
+				serial+=this.boxes[j].type.toString();
 				if(this.boxes[j].missedMeds != null) {
 					serial += " " + this.boxes[j].missedMeds;
 				}
@@ -90,19 +94,27 @@ public class DotsData {
 			DotsBox[] boxes = new DotsBox[boxStrings.length];
 			
 			for(int j = 0 ; j < boxes.length ; ++j) {
-				boolean selfreport = false;
 				String box = boxStrings[j];
 				String missed = null;
 				if(box.contains(" ")){
 					missed = box.substring(box.indexOf(" "), box.length());
 					box = box.substring(0, box.indexOf(" "));
 				}
-				if(box.endsWith(SELF_REPORT_FLAG)) {
-					box = box.substring(0, box.indexOf(SELF_REPORT_FLAG));
-					selfreport = true;
+				ReportType type = ReportType.pillbox;
+				//This is unforgivably bad, but we'll ignore that
+				//since we're switching to json anyway.
+				if(box.endsWith(ReportType.direct.toString())) {
+					box = box.substring(0, box.indexOf(ReportType.direct.toString()));
+					type = ReportType.direct;
+				} else if(box.endsWith(ReportType.pillbox.toString())) {
+					box = box.substring(0, box.indexOf(ReportType.pillbox.toString()));
+					type = ReportType.pillbox;
+				} else if(box.endsWith(ReportType.self.toString())) {
+					box = box.substring(0, box.indexOf(ReportType.self.toString()));
+					type = ReportType.self;
 				}
 				
-				boxes[j] = new DotsBox(MedStatus.valueOf(box), selfreport, missed);
+				boxes[j] = new DotsBox(MedStatus.valueOf(box), type, missed);
 			}
 			
 			return new DotsDay(boxes);
@@ -187,7 +199,7 @@ public class DotsData {
 	public static DotsBox[] emptyBoxes(int length) {
 		DotsBox[] boxes = new DotsBox[length];
 		for(int j = 0 ; j <  boxes.length ; ++j ) {
-			boxes[j] = new DotsBox(MedStatus.unchecked, false);
+			boxes[j] = new DotsBox(MedStatus.unchecked, ReportType.pillbox);
 		}
 		return boxes;
 	}

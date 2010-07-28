@@ -10,6 +10,7 @@ import org.commcare.android.util.DotsEditListener;
 import org.commcare.android.util.DotsData.DotsBox;
 import org.commcare.android.util.DotsData.DotsDay;
 import org.commcare.android.util.DotsData.MedStatus;
+import org.commcare.android.util.DotsData.ReportType;
 import org.javarosa.core.model.utils.DateUtils;
 import org.odk.collect.android.widgets.TriggerWidget;
 
@@ -76,17 +77,31 @@ public class DotsDetailView {
 			groups[i] = details;
 			TextView timeView = (TextView)details.findViewById(R.id.text_time);
 			timeView.setText(titles[boxes[i]]);
-			details.setPadding(0, 20, 0,0);
+			details.setPadding(0, 0, 0,0);
 			
 			final View missingDetails = details.findViewById(R.id.missed_details);
 			missedName[i] = (EditText)details.findViewById(R.id.text_missed);
 			
 			//groups[i] = (RadioGroup)details.findViewById(R.id.dose_group);
-			selfReported[i] = (CheckBox)details.findViewById(R.id.cbx_self_reported);
-			if(box.selfreported()) {
-				selfReported[i].setChecked(true);
+			//selfReported[i] = (CheckBox)details.findViewById(R.id.cbx_self_reported);
+			
+			int type = R.id.tbt_pillbox; 
+			
+			switch(box.reportType()) {
+			case self:
+				type = R.id.tbt_self;
+				break;
+			case pillbox:
+				type = R.id.tbt_pillbox;
+				break;
+			case direct:
+				type = R.id.tbt_direct;
+				break;
 			}
 			
+			ToggleButton selectedReportType = (ToggleButton)details.findViewById(type);
+			selectedReportType.setChecked(true);
+						
 			int checked = -1;
 			
 			switch(box.status()) {
@@ -105,9 +120,6 @@ public class DotsDetailView {
 					checked = R.id.radio_unchecked;
 					break;
 			}
-//			if(id != -1) {
-//				groups[i].check(id);
-//			}
 			
 			ToggleButton checkedToggle = (ToggleButton)details.findViewById(checked);
 			checkedToggle.setChecked(true);
@@ -135,23 +147,24 @@ public class DotsDetailView {
 		            }
 		        });
 			}
-//				toggle.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-//					
-//					
-//				});
-
 			
-//			groups[i].setOnCheckedChangeListener(new OnCheckedChangeListener() {
-//
-//				public void onCheckedChanged(RadioGroup group, int checkedId) {
-//					if(checkedId == R.id.radio_some) {
-//						missingDetails.setVisibility(View.VISIBLE);
-//					} else {
-//						missingDetails.setVisibility(View.GONE);
-//					}
-//				}
-//				
-//			});
+			//set up listeners
+			final int[] typeids = new int[] {R.id.tbt_direct, R.id.tbt_pillbox, R.id.tbt_self};
+			for(int id : typeids) {
+				ToggleButton toggle = (ToggleButton)details.findViewById(id);
+				toggle.setOnClickListener(new View.OnClickListener() {
+		            public void onClick(View v) {
+		            	for(int id : typeids) {
+		            		if(v.getId() == id) {
+		            			((ToggleButton)v).setChecked(true);
+		            		} else {
+		            			ToggleButton toggle = (ToggleButton)details.findViewById(id);
+		            			toggle.setChecked(false);
+		            		}
+		            	}
+		            }
+		        });
+			}
 			
 			if(context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.FILL_PARENT);
@@ -211,6 +224,17 @@ public class DotsDetailView {
 				}
 			}
 			
+			int reportType = -1;
+			//Retrieve the selected value
+			int[] reportids = new int[] {R.id.tbt_direct, R.id.tbt_pillbox, R.id.tbt_self};
+			for(int id : reportids) {
+				ToggleButton button = (ToggleButton)groups[i].findViewById(id);
+				if(button.isChecked()) {
+					reportType = id;
+				}
+			}
+
+			
 			MedStatus status = MedStatus.unchecked;
 			String meds = null;
 			
@@ -229,7 +253,22 @@ public class DotsDetailView {
 					status = MedStatus.unchecked;
 					break;
 			}
-			newboxes[boxes[i]] = new DotsBox(status,selfReported[i].isChecked(), meds);
+			
+			ReportType type = ReportType.pillbox;
+			
+			switch(reportType) {
+				case R.id.tbt_direct:
+					type = ReportType.direct;
+					break;
+				case R.id.tbt_pillbox:
+					type = ReportType.pillbox;
+					break;
+				case R.id.tbt_self:
+					type = ReportType.self;
+					break;
+			}
+			
+			newboxes[boxes[i]] = new DotsBox(status,type, meds);
 		}
 		return new DotsDay(newboxes);
 	}

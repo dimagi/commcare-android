@@ -15,7 +15,7 @@ import org.commcare.android.models.Case;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.EntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.DetailButtonListener;
+import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.CommCarePlatformProvider;
 import org.commcare.suite.model.Entry;
 
@@ -23,6 +23,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -32,7 +33,7 @@ import android.widget.ListView;
  * @author ctsims
  *
  */
-public class EntityDetailActivity extends ListActivity implements DetailButtonListener {
+public class EntityDetailActivity extends ListActivity implements DetailCalloutListener {
 	private AndroidCommCarePlatform platform;
 	
 	private static final int CALL_OUT = 0;
@@ -132,5 +133,11 @@ public class EntityDetailActivity extends ListActivity implements DetailButtonLi
 		Intent intent = new Intent(getApplicationContext(), CallOutActivity.class);
 		intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
 		this.startActivityForResult(intent, CALL_OUT);
+	}
+
+
+	public void addressRequested(String address) {
+		Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + address));
+        startActivity(call);
 	}
 }

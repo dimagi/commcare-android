@@ -16,5 +16,12 @@
 
 
 
-<CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dose was Self Reported" android:id="@+id/cbx_self_reported"></CheckBox>
+<TextView android:id="@+id/TextView03" android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_horizontal" android:text="Observation Type"></TextView><LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_width="fill_parent">
+<ToggleButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Self" android:textOff="Direct" android:layout_weight="1" android:id="@+id/tbt_direct" android:textOn="Directly Observed"></ToggleButton>
+<ToggleButton android:text="@+id/ToggleButton02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:textOff="Pillbox" android:textOn="Pillbox Check" android:id="@+id/tbt_pillbox"></ToggleButton>
+<ToggleButton android:text="@+id/ToggleButton03" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textOff="Self" android:layout_weight="1" android:id="@+id/tbt_self" android:textOn="Self Report"></ToggleButton>
+</LinearLayout><CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dose was Self Reported" android:id="@+id/cbx_self_reported" android:visibility="gone"></CheckBox>
+
+
+
 </LinearLayout>
