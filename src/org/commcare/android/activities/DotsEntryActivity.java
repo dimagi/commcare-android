@@ -3,12 +3,14 @@
  */
 package org.commcare.android.activities;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.commcare.android.R;
 import org.commcare.android.util.DotsData;
 import org.commcare.android.util.DotsEditListener;
 import org.commcare.android.util.GestureDetector;
+import org.commcare.android.util.DotsData.DotsBox;
 import org.commcare.android.util.DotsData.DotsDay;
 import org.commcare.android.view.DotsDetailView;
 import org.commcare.android.view.DotsHomeView;
@@ -75,6 +77,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         	}
         } else {
 	        String data = getIntent().getStringExtra(DOTS_DATA);
+	        boolean populateAnchor = false;
 	        
 	        Date anchorDate = new Date();
         	String anchor = getIntent().getStringExtra("anchor");
@@ -84,11 +87,26 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	        
 	        if(data != null) {
 	        	dotsData = DotsData.DeserializeDotsData(data);
-	        	dotsData.recenter(anchorDate);
+	        	if(dotsData.recenter(anchorDate) != 0) {
+	        		populateAnchor = true;
+	        	}
 	        } else {
 	        	String regimen = getIntent().getStringExtra("regimen");
 	        	int regType = Integer.parseInt(regimen);
 	        	dotsData = DotsData.CreateDotsData(regType, anchorDate);
+	        	populateAnchor = true;
+	        }
+
+	        String currentDoseCheck = getIntent().getStringExtra("currentdose");
+	        if(populateAnchor && currentDoseCheck != null) {
+	        	int box = Integer.parseInt(getIntent().getStringExtra("currentbox"));
+	        	
+	        	// now fill in the box specified
+	        	DotsDay day = dotsData.days()[dotsData.days().length - 1];
+	        	DotsBox[] boxes = day.boxes();
+	        	boxes[box] = DotsBox.deserialize(currentDoseCheck);
+	        	
+	        	dotsData.days()[dotsData.days().length - 1] = new DotsDay(boxes);
 	        }
 	
 	        offset = 0;

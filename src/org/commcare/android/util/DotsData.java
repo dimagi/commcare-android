@@ -59,6 +59,28 @@ public class DotsData {
 		public ReportType reportType() {
 			return type;
 		}
+		
+		public static DotsBox deserialize(String box) {
+			String missed = null;
+			if(box.contains(" ")){
+				missed = box.substring(box.indexOf(" "), box.length());
+				box = box.substring(0, box.indexOf(" "));
+			}
+			ReportType type = ReportType.pillbox;
+			//This is unforgivably bad, but we'll ignore that
+			//since we're switching to json anyway.
+			if(box.endsWith(ReportType.direct.toString())) {
+				box = box.substring(0, box.indexOf(ReportType.direct.toString()));
+				type = ReportType.direct;
+			} else if(box.endsWith(ReportType.pillbox.toString())) {
+				box = box.substring(0, box.indexOf(ReportType.pillbox.toString()));
+				type = ReportType.pillbox;
+			} else if(box.endsWith(ReportType.self.toString())) {
+				box = box.substring(0, box.indexOf(ReportType.self.toString()));
+				type = ReportType.self;
+			}
+			return new DotsBox(MedStatus.valueOf(box), type, missed); 
+		}
 	}
 	
 	public static final class DotsDay {
@@ -94,27 +116,8 @@ public class DotsData {
 			DotsBox[] boxes = new DotsBox[boxStrings.length];
 			
 			for(int j = 0 ; j < boxes.length ; ++j) {
-				String box = boxStrings[j];
-				String missed = null;
-				if(box.contains(" ")){
-					missed = box.substring(box.indexOf(" "), box.length());
-					box = box.substring(0, box.indexOf(" "));
-				}
-				ReportType type = ReportType.pillbox;
-				//This is unforgivably bad, but we'll ignore that
-				//since we're switching to json anyway.
-				if(box.endsWith(ReportType.direct.toString())) {
-					box = box.substring(0, box.indexOf(ReportType.direct.toString()));
-					type = ReportType.direct;
-				} else if(box.endsWith(ReportType.pillbox.toString())) {
-					box = box.substring(0, box.indexOf(ReportType.pillbox.toString()));
-					type = ReportType.pillbox;
-				} else if(box.endsWith(ReportType.self.toString())) {
-					box = box.substring(0, box.indexOf(ReportType.self.toString()));
-					type = ReportType.self;
-				}
-				
-				boxes[j] = new DotsBox(MedStatus.valueOf(box), type, missed);
+				String box = boxStrings[j];				
+				boxes[j] = DotsBox.deserialize(box);
 			}
 			
 			return new DotsDay(boxes);
@@ -138,10 +141,10 @@ public class DotsData {
 	}
 	
 	
-	public void recenter(Date newAnchor) {
+	public int recenter(Date newAnchor) {
 		int difference = DateUtils.dateDiff(anchor, newAnchor);
 		if(difference == 0) {
-			return;
+			return 0;
 		}
 		DotsDay[] newDays = new DotsDay[this.days.length];
 		for(int i = 0; i < newDays.length; ++i) {
@@ -153,6 +156,7 @@ public class DotsData {
 		}
 		this.anchor = newAnchor;
 		this.days = newDays;
+		return difference;
 	}
 	
 	public String SerializeDotsData() {
