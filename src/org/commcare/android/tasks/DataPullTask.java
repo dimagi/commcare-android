@@ -3,6 +3,7 @@
  */
 package org.commcare.android.tasks;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -10,6 +11,7 @@ import java.security.SecureRandom;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -19,6 +21,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.util.Base64;
+import org.commcare.android.util.Base64DecoderException;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
@@ -27,6 +31,10 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.util.StreamUtil;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -41,6 +49,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	Credentials credentials;
 	String server;
+	String keyProvider;
 	Context c;
 	
 	DataPullListener listener;
@@ -54,8 +63,9 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	public static final int PROGRESS_AUTHED = 1;
 	public static final int PROGRESS_DONE= 2;
 	
-	public DataPullTask(String username, String password, String server, Context c) {
+	public DataPullTask(String username, String password, String server, String keyProvider, Context c) {
 		this.server = server;
+		this.keyProvider = keyProvider;
 		credentials = new UsernamePasswordCredentials(username, password);
 		this.c = c;
 	}
@@ -88,11 +98,15 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
 			
 			try {
-				SecretKey key = getKeyForDevice(client);
+				SecretKeySpec spec = getKeyForDevice();
+				if(spec == null) {
+					this.publishProgress(PROGRESS_DONE);
+					return UNKNOWN_FAILURE;
+				}
 				
 				//This is necessary (currently) to make sure that data
 				//is encoded. Probably a better way to do this.
-				CommCareApplication._().logIn(key.getEncoded());
+				CommCareApplication._().logIn(spec.getEncoded());
 				
 				HttpResponse response = client.execute(new HttpGet(server));
 				int responseCode = response.getStatusLine().getStatusCode();
@@ -104,7 +118,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				if(responseCode >= 200 && responseCode < 300) {
 					
 					try {
-						readInput(response.getEntity().getContent(), key);
+						readInput(response.getEntity().getContent(), spec);
 						this.publishProgress(PROGRESS_DONE);
 						return DOWNLOAD_SUCCESS;
 					} catch (InvalidStructureException e) {
@@ -132,7 +146,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			
 	}
 	
-	private void readInput(InputStream stream, SecretKey key) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+	private void readInput(InputStream stream, SecretKeySpec key) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		DataModelPullParser parser;
 		final byte[] wrappedKey = CryptUtil.wrapKey(key,credentials.getPassword());
 			parser = new DataModelPullParser(stream, new TransactionParserFactory() {
@@ -151,18 +165,39 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	}
 		
-	private SecretKey getKeyForDevice(DefaultHttpClient client) throws ClientProtocolException, IOException {
+	private SecretKeySpec getKeyForDevice() throws ClientProtocolException, IOException {
+		DefaultHttpClient client = new DefaultHttpClient();
+		client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
 		//Fetch the symetric key for this phone.
-//		HttpGet get = new HttpGet(server);
-//		get.addHeader("deviceid", CommCareApplication._().getPhoneId());
-//		client.execute(get);
+		HttpGet get = new HttpGet(keyProvider);
+		get.addHeader("deviceid", CommCareApplication._().getPhoneId());
+		HttpResponse response = client.execute(get);
+		InputStream input = response.getEntity().getContent();
 		
-		return generateTestKey();
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		StreamUtil.transfer(input, bos);
+		byte[] bytes = bos.toByteArray();
+		
+		try {
+			JSONObject json = new JSONObject(new JSONTokener(new String(bytes)));
+			
+			String aesKey = json.getString("aesKeyString");
+			
+			byte[] encoded = Base64.decodeWebSafe(aesKey);
+			SecretKeySpec spec = new SecretKeySpec(encoded, "AES");
+			return spec;
+		} catch(JSONException e) {
+			e.printStackTrace();
+		} catch (Base64DecoderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		//return generateTestKey();
 	}
 	
 	private SecretKey generateTestKey() {
 		CommCareApplication._().getPhoneId();
-		//SecretKeyFactory factory = SecretKeyFactory.getInstance("AES");
 		KeyGenerator generator;
 		try {
 			generator = KeyGenerator.getInstance("AES");

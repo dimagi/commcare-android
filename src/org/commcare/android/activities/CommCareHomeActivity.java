@@ -1,7 +1,12 @@
 package org.commcare.android.activities;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Vector;
+
+import javax.crypto.SecretKey;
 
 import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
@@ -9,6 +14,8 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.preferences.ServerPreferences;
+import org.commcare.android.providers.EncryptedFileInputStream;
+import org.commcare.android.providers.EncryptedFileOutputStream;
 import org.commcare.android.providers.PreloadContentProvider;
 import org.commcare.android.tasks.ProcessAndSendListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -16,6 +23,7 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCarePlatformProvider;
 import org.commcare.suite.model.Entry;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.StreamUtil;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -66,7 +74,6 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         startButton = (Button) findViewById(R.id.start);
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	
                 Intent i = new Intent(getApplicationContext(), MenuList.class);
                 Bundle b = new Bundle();
                 
@@ -89,7 +96,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             }
         });
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -178,33 +185,42 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         	if(resultCode == RESULT_OK) {
         		String instance = intent.getStringExtra("instancepath");
         		boolean completed = intent.getBooleanExtra("instancecomplete", true);
+        		//intent.get
         		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+        		
+        		//First, check to see if there's already data we're updating
         		Vector<Integer> records = storage.getIDsForValue(FormRecord.META_PATH, instance);
+        		FormRecord current;
+        		if(records.size() > 0) {
+        			current = storage.read(records.elementAt(0).intValue());
+        		} else {
+        			//Otherwise, we need to get the current record from the unstarted stub
+        			Vector<Integer> unstarteds = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getForm(), platform.getCaseId(), FormRecord.STATUS_UNSTARTED});
+        			if(unstarteds.size() != 1) {
+        				throw new RuntimeException("Invalid DB state upon returning from form entry"); 
+        			}
+        			current = storage.read(unstarteds.elementAt(0).intValue());
+        		}
         		
         		if(completed) {
-        			if(records.size() > 0) {
-        				FormRecord r = new FormRecord(platform.getForm(), instance, platform.getCaseId(), FormRecord.STATUS_COMPLETE);
-        				r.setID(records.elementAt(0));
-        				try {
-							storage.write(r);
-						} catch (StorageFullException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-        			}
+    				FormRecord r = new FormRecord(platform.getForm(), instance, platform.getCaseId(), FormRecord.STATUS_COMPLETE, current.getAesKey());
+    				r.setID(current.getID());
+    				try {
+						storage.write(r);
+					} catch (StorageFullException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 	        		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 	        		mProcess = new ProcessAndSendTask(this, settings.getString(ServerPreferences.KEY_SUBMIT, this.getString(R.string.default_submit_server)));
 	        		mProcess.setListener(this);
 	        		showDialog(DIALOG_PROCESS);
-	        		mProcess.execute(instance);
+	        		mProcess.execute(r);
 	        		refreshView();
         		} else {
-        			FormRecord r = new FormRecord(platform.getForm(), instance, platform.getCaseId(), FormRecord.STATUS_INCOMPLETE);
         			
-        			//Update existing record (if there is one);
-        			if(records.size() > 0) {
-        				r.setID(records.elementAt(0));
-        			}
+        			FormRecord r = new FormRecord(platform.getForm(), instance, platform.getCaseId(), FormRecord.STATUS_INCOMPLETE, current.getAesKey());
+        			r.setID(current.getID());
         			
         			try {
 						storage.write(r);
@@ -260,25 +276,47 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		Vector<Integer> records = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {xmlns, platform.getCaseId(), FormRecord.STATUS_INCOMPLETE});
 		if(records.size() > 0 ) {
 			FormRecord r = storage.read(records.elementAt(0));
-			createAskUseOldDialog(path, platform.getCaseId(),r.getPath());
+			createAskUseOldDialog(path,r);
 		} else {
-			formEntry(path, platform.getCaseId(), null);
+			formEntry(path, null);
 		}
 		
 	
     }
     
-    private void formEntry(String formpath, String caseId, String instancePath) {
+    private void formEntry(String formpath, FormRecord r) {
 		PreloadContentProvider.initializeSession(platform, this);
 		Intent i = new Intent("org.odk.collect.android.action.FormEntry");
 		i.putExtra("formpath", formpath);
 		i.putExtra("instancedestination", GlobalConstants.FILE_CC_SAVED);
-		if(instancePath != null) {
-			i.putExtra("instancepath", instancePath);
+		
+		if(r == null) {
+			SecretKey key = CommCareApplication._().createNewSymetricKey();
+			r = new FormRecord(platform.getForm(), "", platform.getCaseId(), FormRecord.STATUS_UNSTARTED, key.getEncoded());
+			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+			
+			//Make sure that there are no other unstarted definitions for this form/case, otherwise we won't be able to tell them apart unpon completion
+			Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getForm(),platform.getCaseId(), FormRecord.STATUS_UNSTARTED} );
+			for(Integer recordId : ids) {
+				storage.remove(recordId.intValue());
+			}
+			
+			try {
+				storage.write(r);
+			} catch (StorageFullException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
-		String[] preloaders = new String[] {"case", PreloadContentProvider.CONTENT_URI_CASE + "/" + caseId + "/", "meta", PreloadContentProvider.CONTENT_URI_META + "/"};
+		if(r.getPath() != "") {
+			i.putExtra("instancepath", r.getPath());
+		}
+		i.putExtra("encryptionkey", r.getAesKey());
+		i.putExtra("encryptionkeyalgo", "AES");
+		
+		String[] preloaders = new String[] {"case", PreloadContentProvider.CONTENT_URI_CASE + "/" + r.getEntityId() + "/", "meta", PreloadContentProvider.CONTENT_URI_META + "/"};
 		i.putExtra("preloadproviders",preloaders);
+
 		
 		startActivityForResult(i, MODEL_RESULT);
     }
@@ -291,7 +329,6 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     @Override
     protected void onResume() {
         super.onResume();
-        //CryptUtil.testCrypt("passwordtest");
         if(CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY &&
                 CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY) {
      	        Intent i = new Intent(getApplicationContext(), CommCareStartupActivity.class);
@@ -328,7 +365,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         return null;
     }
     
-    private void createAskUseOldDialog(final String formpath, final String caseId, final String instancePath) {
+    private void createAskUseOldDialog(final String formpath, final FormRecord r) {
         mAskOldDialog = new AlertDialog.Builder(this).create();
         mAskOldDialog.setTitle("Continue Form");
         mAskOldDialog.setMessage("You've got a saved copy of an incomplete form for this client. Do you want to continue filling out that form?");
@@ -336,32 +373,27 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON1: // yes, use old
-                    	formEntry(formpath, caseId, instancePath);
+                    	formEntry(formpath, r);
                         break;
                     case DialogInterface.BUTTON3: // no, create new
-                    	formEntry(formpath, caseId, null);
+                    	formEntry(formpath, null);
                         break;
                     case DialogInterface.BUTTON2: // no, and delete the old one
                     	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-                    	Vector<Integer> records = storage.getIDsForValues(new String[] {FormRecord.META_PATH}, new Object[] {instancePath});
-                    	if(records.size() < 1 || records.size() > 1) {
-                    		//Serious Problem.
-                    	} else {
-                    		storage.remove(records.elementAt(0));
-                    		//How do we delete the saved record here?
-                    		//Find the parent folder and delete it, I guess?
-                    		try {
-                    			File f = new File(instancePath);
-                    			if(!f.isDirectory() && f.getParentFile() != null) {
-                    				f = f.getParentFile();
-                    			}
-                    			f.delete();
-                    		} catch(Exception e) {
-                    			e.printStackTrace();
-                    		}
-                    	}
+                		storage.remove(r);
+                		//How do we delete the saved record here?
+                		//Find the parent folder and delete it, I guess?
+                		try {
+                			File f = new File(r.getPath());
+                			if(!f.isDirectory() && f.getParentFile() != null) {
+                				f = f.getParentFile();
+                			}
+                			f.delete();
+                		} catch(Exception e) {
+                			e.printStackTrace();
+                		}
                     	
-                    	formEntry(formpath, caseId, null);
+                    	formEntry(formpath, null);
                         break;
                 }
             }

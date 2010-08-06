@@ -4,6 +4,7 @@
 	<string name="default_app_server">http://build.dimagi.com/commcare/staging/profile.xml</string>
 	<string name="default_submit_server">http://pact-dev.carehq.org/receiver/submit/pact</string>
 	<string name="default_ota_server">http://pact-dev.carehq.org/provider/caselist</string>
+	<string name="default_key_server">http://build.dimagi.com/commcare/staging/1.txt</string>
 <integer-array name="commcare_version"><item>1</item>
 <item>1</item>
 </integer-array>

@@ -10,9 +10,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.Date;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -24,6 +27,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.commcare.android.application.CommCareApplication;
 import org.javarosa.core.util.StreamUtil;
 
 /**
@@ -119,5 +123,43 @@ public class CryptUtil {
 		} catch (NoSuchPaddingException e) {
 			return null;
 		}
+	}
+	
+	private static byte[] append(byte[] one, byte[] two) {
+		byte[] result = new byte[one.length + two.length];
+		for(int i = 0; i < result.length; ++i) {
+			if(i < one.length) {
+				result[i] = one[i];
+			} else {
+				int index = i - one.length;
+				result[i] = two[index];
+			}
+		}
+		return result;
+	}
+	
+	public static byte[] uniqueSeedFromSecureStatic(byte[] secureStatic) {
+		long uniqueBase = new Date().getTime();
+		String baseString = Long.toHexString(uniqueBase);
+		try {
+			return append(baseString.getBytes(), MessageDigest.getInstance("SHA-1").digest(secureStatic));
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static SecretKey generateSymetricKey(byte[] prngSeed) {
+		KeyGenerator generator;
+		try {
+			generator = KeyGenerator.getInstance("AES");
+			generator.init(256, new SecureRandom(prngSeed));
+			return generator.generateKey();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

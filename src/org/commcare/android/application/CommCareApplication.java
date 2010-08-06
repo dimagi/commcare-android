@@ -10,6 +10,7 @@ import java.util.Hashtable;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.R;
@@ -19,10 +20,12 @@ import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
+import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.Referral;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -37,8 +40,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteException;
 import android.telephony.TelephonyManager;
 
 /**
@@ -136,6 +139,10 @@ public class CommCareApplication extends Application {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public SecretKey createNewSymetricKey() {
+		return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
 	}
 	
 	
@@ -263,6 +270,7 @@ public class CommCareApplication extends Application {
 		Hashtable<String, EncryptedModel> models = new Hashtable<String, EncryptedModel>();
 		models.put(Case.STORAGE_KEY, new Case());
 		models.put(Referral.STORAGE_KEY, new Case());
+		models.put(FormRecord.STORAGE_KEY, new Case());
 		return models;
 	}
 

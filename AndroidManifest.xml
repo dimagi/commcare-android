@@ -38,6 +38,7 @@
 </activity>
 <activity android:name=".activities.CallOutActivity"></activity>
 <activity android:name=".activities.CommCareStartupActivity" android:configChanges="orientation"></activity>
+<provider android:authorities="org.commcare.fileprovider" android:name="org.commcare.android.providers.CommCareFileContentProvider"></provider>
 </application>
 
 <uses-library android:name="org.javarosa" />

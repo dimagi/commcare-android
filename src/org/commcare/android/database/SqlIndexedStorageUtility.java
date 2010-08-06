@@ -51,6 +51,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		String whereClause = helper.createWhere(fieldNames, values);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause, null,null, null, null);
 		if(c.getCount() == 0) {
+			c.close();
 			return new Vector<Integer>();
 		} else {
 			c.moveToFirst();
@@ -61,6 +62,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 				indices.add(Integer.valueOf(id));
 				c.moveToNext();
 			}
+			c.close();
 			return indices;
 		}
 	}
@@ -78,6 +80,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		}
 		c.moveToFirst();
 		byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
+		c.close();
 		return newObject(data);
 	}
 	
@@ -148,11 +151,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	public boolean exists(int id) {
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
 		if(c.getCount() == 0) {
+			c.close();
 			return false;
 		}
 		if(c.getCount() > 1) {
-			 throw new InvalidIndexException("Invalid ID column. Multiple records found with value " + id, "ID");
+			c.close();
+			throw new InvalidIndexException("Invalid ID column. Multiple records found with value " + id, "ID");
 		}
+		c.close();
 		return true;
 	}
 
@@ -169,7 +175,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 */
 	public int getNumRecords() {
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
-		return c.getCount();
+		int records = c.getCount();
+		c.close();
+		return records;
 	}
 
 	/* (non-Javadoc)
@@ -224,7 +232,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
 		
 		c.moveToFirst();
-		return c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
+		byte[] blob = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
+		c.close();
+		return blob;
 	}
 
 	/* (non-Javadoc)
@@ -273,6 +283,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 				removed.add(id);
 			}
 		}
+		
 		String ids = "(";
 		for(int i = 0; i < removed.size() ; ++i) { 
 			ids += String.valueOf(i);

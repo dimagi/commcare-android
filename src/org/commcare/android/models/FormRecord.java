@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.commcare.android.database.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -18,7 +19,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  *
  */
-public class FormRecord implements Persistable, IMetaData {
+public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	
 	public static final String STORAGE_KEY = "FORMRECORDS";
 	public static final String META_XMLNS = "XMLNS";
@@ -28,12 +29,14 @@ public class FormRecord implements Persistable, IMetaData {
 	
 	public static final String STATUS_INCOMPLETE = "incomplete";
 	public static final String STATUS_COMPLETE = "complete";
+	public static final String STATUS_UNSTARTED = "unstarted";
 	
 	private int id = -1;
 	private String status;
 	private String path;
 	private String xmlns;
 	private String entity;
+	private byte[] aesKey;
 	
 	public FormRecord() { }
 	
@@ -46,11 +49,12 @@ public class FormRecord implements Persistable, IMetaData {
 	 * @param entityId
 	 * @param status
 	 */
-	public FormRecord(String xmlns, String path, String entityId, String status) {
+	public FormRecord(String xmlns, String path, String entityId, String status, byte[] aesKey) {
 		this.xmlns = xmlns;
 		this.path = path;
 		this.entity = entityId;
 		this.status = status;
+		this.aesKey = aesKey;
 	}
 
 	/* (non-Javadoc)
@@ -70,6 +74,14 @@ public class FormRecord implements Persistable, IMetaData {
 	public String getPath() {
 		return path;
 	}
+	
+	public byte[] getAesKey() {
+		return aesKey;
+	}
+	
+	public String getEntityId() {
+		return entity;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
@@ -79,6 +91,7 @@ public class FormRecord implements Persistable, IMetaData {
 		path = ExtUtil.readString(in);
 		entity = ExtUtil.readString(in);
 		status = ExtUtil.readString(in);
+		aesKey = ExtUtil.readBytes(in);
 	}
 
 	/* (non-Javadoc)
@@ -89,6 +102,7 @@ public class FormRecord implements Persistable, IMetaData {
 		ExtUtil.writeString(out, path);
 		ExtUtil.writeString(out, entity);
 		ExtUtil.writeString(out, status);
+		ExtUtil.writeBytes(out, aesKey);
 	}
 
 	/* (non-Javadoc)
@@ -129,6 +143,14 @@ public class FormRecord implements Persistable, IMetaData {
 	 */
 	public String[] getMetaDataFields() {
 		return new String [] {META_XMLNS, META_PATH, META_ENTITY_ID, META_STATUS};
+	}
+
+	public boolean isEncrypted(String data) {
+		return false;
+	}
+
+	public boolean isBlobEncrypted() {
+		return true;
 	}
 
 }

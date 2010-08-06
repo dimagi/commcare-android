@@ -3,10 +3,19 @@
  */
 package org.commcare.android.tasks;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -14,18 +23,22 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.mime.EncryptedFileBody;
+import org.commcare.android.models.FormRecord;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.util.StreamUtil;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -37,7 +50,7 @@ import android.util.Log;
  * @author ctsims
  *
  */
-public class ProcessAndSendTask extends AsyncTask<String, Integer, Integer> {
+public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> {
 
 	Context c;
 	String url;
@@ -59,14 +72,15 @@ public class ProcessAndSendTask extends AsyncTask<String, Integer, Integer> {
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
-	protected Integer doInBackground(String... params) {
-		Integer[] results = new Integer[params.length];
-		for(int i = 0 ; i < params.length ; ++i) {
-			String form = params[i];
+	protected Integer doInBackground(FormRecord... records) {
+		Integer[] results = new Integer[records.length];
+		for(int i = 0 ; i < records.length ; ++i) {
+			String form = records[i].getPath();
 			try{
 				DataModelPullParser parser;
 				File f = new File(form);
-				parser = new DataModelPullParser(new FileInputStream(f), new TransactionParserFactory() {
+				InputStream is = new CipherInputStream(new FileInputStream(f), getDecryptCipher(records[i].getAesKey()));
+				parser = new DataModelPullParser(is, new TransactionParserFactory() {
 					
 					public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 						if(name.toLowerCase().equals("case")) {
@@ -78,6 +92,7 @@ public class ProcessAndSendTask extends AsyncTask<String, Integer, Integer> {
 				});
 				
 				parser.parse();
+				is.close();
 				
 				//Ok, file's all parsed. Move the instance folder to be ready for sending.
 				File folder = f.getCanonicalFile().getParentFile();
@@ -87,7 +102,7 @@ public class ProcessAndSendTask extends AsyncTask<String, Integer, Integer> {
 				if(folder.renameTo(newFolder)) {
 					//Good!
 					//Time to Send!
-					results[i] = sendInstance(newFolder);
+					results[i] = sendInstance(newFolder, records[i].getAesKey());
 				}
 				
 			} catch (FileNotFoundException e) {
@@ -109,12 +124,32 @@ public class ProcessAndSendTask extends AsyncTask<String, Integer, Integer> {
 		}
 		
 		int result = 0;
-		for(int i = 0 ; i < params.length ; ++ i) {
+		for(int i = 0 ; i < records.length ; ++ i) {
 			if(results[i] > result) {
 				result = results[i];
 			}
 		}
 		return result;
+	}
+	
+	private static Cipher getDecryptCipher(byte[] key) {
+		Cipher cipher;
+		try {
+			cipher = Cipher.getInstance("AES");
+			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"));
+			return cipher;
+			//TODO: Something smart here;
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public void setListener(ProcessAndSendListener listener) {
@@ -134,7 +169,7 @@ public class ProcessAndSendTask extends AsyncTask<String, Integer, Integer> {
 		url = null;
 	}
 	
-	private int sendInstance(File folder) {
+	private int sendInstance(File folder, byte[] aesKey) throws FileNotFoundException {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
         HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
@@ -151,20 +186,26 @@ public class ProcessAndSendTask extends AsyncTask<String, Integer, Integer> {
             Log.e(t, "no files to upload");
             cancel(true);
         }
-
+        
         // mime post
         MultipartEntity entity = new MultipartEntity();
+        
         for (int j = 0; j < files.length; j++) {
             File f = files[j];
-            FileBody fb;
+            ContentBody fb;
             if (f.getName().endsWith(".xml")) {
-                fb = new FileBody(f, "text/xml");
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart("xml_submission_file", fb);
-                    Log.i(t, "added xml file " + f.getName());
-                } else {
-                    Log.i(t, "file " + f.getName() + " is too big");
-                }
+            	
+            	//fb = new InputStreamBody(new CipherInputStream(new FileInputStream(f), getDecryptCipher(aesKey)), "text/xml", f.getName());
+            	fb = new EncryptedFileBody(f, getDecryptCipher(aesKey), "text/xml");
+                entity.addPart("xml_submission_file", fb);
+                
+                //fb = new FileBody(f, "text/xml");
+                //Don't know if we can ask for the content length on the input stream, so skip it.
+//                if (fb.getContentLength() <= MAX_BYTES) {
+//                    Log.i(t, "added xml file " + f.getName());
+//                } else {
+//                    Log.i(t, "file " + f.getName() + " is too big");
+//                }
             } else if (f.getName().endsWith(".jpg")) {
                 fb = new FileBody(f, "image/jpeg");
                 if (fb.getContentLength() <= MAX_BYTES) {
@@ -220,6 +261,19 @@ public class ProcessAndSendTask extends AsyncTask<String, Integer, Integer> {
         }
         int responseCode = response.getStatusLine().getStatusCode();
         Log.e(t, "Response code:" + responseCode);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        
+        try {
+			StreamUtil.transfer(response.getEntity().getContent(), bos);
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        System.out.println(new String(bos.toByteArray()));
+        
 
         if(responseCode >= 200 && responseCode < 300) {
             return FULL_SUCCESS;
