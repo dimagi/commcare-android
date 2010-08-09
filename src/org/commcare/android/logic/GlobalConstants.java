@@ -12,11 +12,9 @@ public class GlobalConstants {
 	public static final String FILE_CC_SAVED = FILE_CC_ROOT + "/saved/";
 	public static final String FILE_CC_PROCESSED = FILE_CC_ROOT + "/processed/";
 	
+	
 	public static final String DB_LOCATION = "/sdcard/commcare/commcare.sqlite";
 	public static final String CC_DB_NAME = "commcare";
-	
-	//public static final String PROFILE_REF = "http://dl.dropbox.com/u/312782/profile.xml";
-	//public static final String PROFILE_REF = "jr://resource/profile.xml";
 	
     /**
      * Resource storage path

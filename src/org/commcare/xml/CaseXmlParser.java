@@ -4,12 +4,12 @@
 package org.commcare.xml;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
@@ -29,10 +29,16 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
 	Context c;
 	IStorageUtilityIndexed storage;
+	Collection<String> ignoreIDs;
 	
 	public CaseXmlParser(KXmlParser parser, Context c) {
+		this(parser, c, new Vector<String>());
+	}
+	
+	public CaseXmlParser(KXmlParser parser, Context c, Collection<String> ignoreIDs) {
 		super(parser, "case", null);
 		this.c = c;
+		this.ignoreIDs = ignoreIDs;
 	}
 
 	public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -41,6 +47,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		//parse (with verification) the next tag
 		this.nextTag("case_id");
 		String caseId = parser.nextText();
+		if(ignoreIDs.contains(caseId)) {
+			//Skip the case somehow
+			this.skipBlock("case");
+			return null;
+		}
 		
 		this.nextTag("date_modified");
 		String dateModified = parser.nextText();

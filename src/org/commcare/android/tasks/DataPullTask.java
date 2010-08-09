@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Vector;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -21,6 +22,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.models.Case;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
 import org.commcare.android.util.CryptUtil;
@@ -149,20 +152,28 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	private void readInput(InputStream stream, SecretKeySpec key) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		DataModelPullParser parser;
 		final byte[] wrappedKey = CryptUtil.wrapKey(key,credentials.getPassword());
-			parser = new DataModelPullParser(stream, new TransactionParserFactory() {
-				
-				public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-					if(name.toLowerCase().equals("case")) {
-						return new CaseXmlParser(parser, c);
-					} else if(name.toLowerCase().equals("registration")) {
-						return new UserXmlParser(parser, c, wrappedKey);
-					}
-					return null;
+		
+		//Go collect existing case data models that we should skip.
+		final Vector<String> existingCases = new Vector<String>();
+		SqlIndexedStorageUtility<Case> caseStorage = CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
+		for(Case c : caseStorage) {
+			existingCases.add(c.getCaseId());
+		}
+		
+		
+		parser = new DataModelPullParser(stream, new TransactionParserFactory() {
+			
+			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+				if(name.toLowerCase().equals("case")) {
+					return new CaseXmlParser(parser, c, existingCases);
+				} else if(name.toLowerCase().equals("registration")) {
+					return new UserXmlParser(parser, c, wrappedKey);
 				}
-				
-			});
-			parser.parse();
-
+				return null;
+			}
+			
+		});
+		parser.parse();
 	}
 		
 	private SecretKeySpec getKeyForDevice() throws ClientProtocolException, IOException {
