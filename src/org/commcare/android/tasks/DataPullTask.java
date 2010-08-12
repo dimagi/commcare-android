@@ -181,7 +181,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
 		//Fetch the symetric key for this phone.
 		HttpGet get = new HttpGet(keyProvider);
-		get.addHeader("deviceid", CommCareApplication._().getPhoneId());
+		get.addHeader("x-openrosa-deviceid", CommCareApplication._().getPhoneId());
 		HttpResponse response = client.execute(get);
 		InputStream input = response.getEntity().getContent();
 		

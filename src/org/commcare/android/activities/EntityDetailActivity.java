@@ -74,7 +74,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
         
         setTitle(getString(R.string.app_name) + " > " + "Details");
         
-        factory = new EntityFactory<Case>(platform.getDetail(prototype.getLongDetailId()));
+        factory = new EntityFactory<Case>(platform.getDetail(prototype.getLongDetailId()), platform.getLoggedInUser());
         
         Case c =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class).getRecordForValue(Case.META_CASE_ID, id);
         

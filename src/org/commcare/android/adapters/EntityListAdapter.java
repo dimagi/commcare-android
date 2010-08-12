@@ -10,6 +10,7 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.EntityFactory;
+import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
@@ -38,10 +39,10 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	List<Entity<T>> full;
 	List<Entity<T>> current;
 	
-	public EntityListAdapter(Context context, Detail d, CommCarePlatform platform, SqlIndexedStorageUtility<T> utility) {
+	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility) {
 		this.utility = utility;
 		
-		factory = new EntityFactory<T>(d);
+		factory = new EntityFactory<T>(d, platform.getLoggedInUser());
 		
 		full = new ArrayList<Entity<T>>();
 		current = new ArrayList<Entity<T>>();
@@ -70,7 +71,7 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 		full:
 		for(Entity<T> e : full) {
 			for(String field : e.getFields()) {
-				if(field.contains(filter)) {
+				if(field.toLowerCase().contains(filter.toLowerCase())) {
 					current.add(e);
 					continue full;
 				}

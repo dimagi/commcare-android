@@ -32,6 +32,8 @@ import android.os.Bundle;
  */
 public class AndroidCommCarePlatform extends CommCarePlatform {
 	
+	public static final String ENTITY_NONE = "NONE";
+	
 	private Hashtable<String, String> xmlnstable;
 	private Context c;
 	private ResourceTable global;

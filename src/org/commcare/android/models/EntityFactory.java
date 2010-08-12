@@ -6,6 +6,9 @@ package org.commcare.android.models;
 import java.util.Stack;
 
 import org.commcare.android.preloaders.CasePreloader;
+import org.commcare.android.preloaders.UserPreloader;
+import org.commcare.entity.CaseEntityFilter;
+import org.commcare.entity.InstanceEntityFilter;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.data.IAnswerData;
@@ -21,9 +24,11 @@ import org.javarosa.core.services.storage.Persistable;
 public class EntityFactory<T extends Persistable> {
 	Detail detail;
 	FormInstance instance;
+	User current;
 	
-	public EntityFactory(Detail d) {
+	public EntityFactory(Detail d, User current) {
 		this.detail = d;
+		this.current = current;
 	}
 	
 	public Detail getDetail() {
@@ -32,6 +37,10 @@ public class EntityFactory<T extends Persistable> {
 	
 	public Entity<T> getEntity(T data) {
 		loadData(data);
+		
+		if(!meetsFilter(data, instance)) {
+			return null;
+		}
 		Text[] templates = detail.getTemplates();
 		String[] outcomes = new String[templates.length];
 		for(int i = 0 ; i < templates.length ; ++i ) {
@@ -41,7 +50,6 @@ public class EntityFactory<T extends Persistable> {
 	}
 	
 	protected void loadData(T data) {
-		IPreloadHandler preloader = getPreloader(data);
 		instance = detail.getInstance();
 		Stack<TreeElement> elements = new Stack<TreeElement>();
 		elements.push(instance.getRoot());
@@ -51,16 +59,40 @@ public class EntityFactory<T extends Persistable> {
 				elements.push(element.getChildAt(i));
 			}
 			String ref = element.getAttributeValue(null,"reference");
-			if(ref != null && preloader.preloadHandled().equals(ref)) {
-				IAnswerData loaded = preloader.handlePreload(element.getAttributeValue(null, "field"));
-				element.setValue(loaded);
+			if(ref != null) {
+				IPreloadHandler preloader = this.getPreloader(ref, data);
+				if(preloader != null) {
+					IAnswerData loaded = preloader.handlePreload(element.getAttributeValue(null, "field"));
+					element.setValue(loaded);
+				}
 			}
 		}
 	}
 	
-	private IPreloadHandler getPreloader(T t) {
+	private boolean meetsFilter(T t, FormInstance instance) {
+		if(detail.getFilter() == null) {
+			return true;
+		}
 		if(t instanceof Case) {
+			CaseEntityFilter caseFilter = new CaseEntityFilter(detail.getFilter());
+			if(!caseFilter.matches((Case)t)) {
+				return false;
+			}
+		}
+		
+		InstanceEntityFilter filter = new InstanceEntityFilter(detail.getFilter());
+		if(!filter.matches(instance)) {
+				return false;
+		}
+		
+		return true;
+	}
+	
+	private IPreloadHandler getPreloader(String preloader, T t) {
+		if("case".equals(preloader)) {
 			return new CasePreloader((Case)t);
+		} else if ("user".equals(preloader)) {
+			return new UserPreloader(current);
 		} else {
 			return null;
 		}

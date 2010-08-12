@@ -84,6 +84,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	adapter = new EntityListAdapter<Case>(this, detail, platform, CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class));
     	setListAdapter(adapter);
     	searchbox.requestFocus();
+    	
     }
 
 

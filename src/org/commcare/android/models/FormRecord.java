@@ -87,6 +87,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
 	 */
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+		id = (int)ExtUtil.readNumeric(in);
 		xmlns = ExtUtil.readString(in);
 		path = ExtUtil.readString(in);
 		entity = ExtUtil.readString(in);
@@ -98,6 +99,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
 	 */
 	public void writeExternal(DataOutputStream out) throws IOException {
+		ExtUtil.writeNumeric(out, id);
 		ExtUtil.writeString(out, xmlns);
 		ExtUtil.writeString(out, path);
 		ExtUtil.writeString(out, entity);

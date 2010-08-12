@@ -21,6 +21,7 @@ import org.commcare.android.tasks.ProcessAndSendListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCarePlatformProvider;
+import org.commcare.android.util.FileUtil;
 import org.commcare.suite.model.Entry;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.StreamUtil;
@@ -156,13 +157,15 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     				if(platform.getCaseId() != null) {
     					platform.setCaseId(null);
     					break;
+    				} else {
+    	        		platform.setCommand(null);
+    	        		break;
     				}
     			} else {
     				//We've got nothing useful, come home bill bailey.
         			refreshView();
         			return;
     			}
-    			break;
     		} else if(resultCode == RESULT_OK) {
     			//Get our command, set it, and continue forward
     			String command = intent.getStringExtra(GlobalConstants.STATE_COMMAND_ID);
@@ -191,11 +194,15 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         		//First, check to see if there's already data we're updating
         		Vector<Integer> records = storage.getIDsForValue(FormRecord.META_PATH, instance);
         		FormRecord current;
+    			String caseID = platform.getCaseId();
+    			if(caseID == null) {
+    				caseID = AndroidCommCarePlatform.ENTITY_NONE; 
+    			}
         		if(records.size() > 0) {
         			current = storage.read(records.elementAt(0).intValue());
         		} else {
         			//Otherwise, we need to get the current record from the unstarted stub
-        			Vector<Integer> unstarteds = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getForm(), platform.getCaseId(), FormRecord.STATUS_UNSTARTED});
+        			Vector<Integer> unstarteds = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getForm(), caseID, FormRecord.STATUS_UNSTARTED});
         			if(unstarteds.size() != 1) {
         				throw new RuntimeException("Invalid DB state upon returning from form entry"); 
         			}
@@ -203,7 +210,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         		}
         		
         		if(completed) {
-    				FormRecord r = new FormRecord(platform.getForm(), instance, platform.getCaseId(), FormRecord.STATUS_COMPLETE, current.getAesKey());
+    				FormRecord r = new FormRecord(platform.getForm(), instance, caseID, FormRecord.STATUS_COMPLETE, current.getAesKey());
     				r.setID(current.getID());
     				try {
 						storage.write(r);
@@ -219,7 +226,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        		refreshView();
         		} else {
         			
-        			FormRecord r = new FormRecord(platform.getForm(), instance, platform.getCaseId(), FormRecord.STATUS_INCOMPLETE, current.getAesKey());
+        			FormRecord r = new FormRecord(platform.getForm(), instance, caseID, FormRecord.STATUS_INCOMPLETE, current.getAesKey());
         			r.setID(current.getID());
         			
         			try {
@@ -273,7 +280,11 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		String path = platform.getFormPath(xmlns);
 		
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-		Vector<Integer> records = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {xmlns, platform.getCaseId(), FormRecord.STATUS_INCOMPLETE});
+		String caseID = platform.getCaseId();
+		if(caseID == null) {
+			caseID = AndroidCommCarePlatform.ENTITY_NONE; 
+		}
+		Vector<Integer> records = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {xmlns, caseID, FormRecord.STATUS_INCOMPLETE});
 		if(records.size() > 0 ) {
 			FormRecord r = storage.read(records.elementAt(0));
 			createAskUseOldDialog(path,r);
@@ -291,12 +302,18 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		i.putExtra("instancedestination", GlobalConstants.FILE_CC_SAVED);
 		
 		if(r == null) {
+			
+			String caseID = platform.getCaseId();
+			if(caseID == null) {
+				caseID = AndroidCommCarePlatform.ENTITY_NONE; 
+			}
+			
 			SecretKey key = CommCareApplication._().createNewSymetricKey();
-			r = new FormRecord(platform.getForm(), "", platform.getCaseId(), FormRecord.STATUS_UNSTARTED, key.getEncoded());
+			r = new FormRecord(platform.getForm(), "",caseID, FormRecord.STATUS_UNSTARTED, key.getEncoded());
 			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 			
 			//Make sure that there are no other unstarted definitions for this form/case, otherwise we won't be able to tell them apart unpon completion
-			Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getForm(),platform.getCaseId(), FormRecord.STATUS_UNSTARTED} );
+			Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getForm(),caseID, FormRecord.STATUS_UNSTARTED} );
 			for(Integer recordId : ids) {
 				storage.remove(recordId.intValue());
 			}
@@ -388,7 +405,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                 			if(!f.isDirectory() && f.getParentFile() != null) {
                 				f = f.getParentFile();
                 			}
-                			f.delete();
+                			FileUtil.deleteFile(f);
                 		} catch(Exception e) {
                 			e.printStackTrace();
                 		}
