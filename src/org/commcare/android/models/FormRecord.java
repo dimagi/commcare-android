@@ -27,6 +27,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	public static final String META_ENTITY_ID = "ENTITYID";
 	public static final String META_STATUS = "STATUS";
 	
+	public static final String STATUS_UNSENT = "unsent";
 	public static final String STATUS_INCOMPLETE = "incomplete";
 	public static final String STATUS_COMPLETE = "complete";
 	public static final String STATUS_UNSTARTED = "unstarted";
@@ -81,6 +82,14 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	
 	public String getEntityId() {
 		return entity;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+	
+	public String getFormNamespace() {
+		return xmlns;
 	}
 
 	/* (non-Javadoc)

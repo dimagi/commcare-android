@@ -29,15 +29,19 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.util.FileUtil;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.StreamUtil;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -54,6 +58,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 
 	Context c;
 	String url;
+	Integer[] results;
 	
 	public static final int FULL_SUCCESS = 0;
 	public static final int PARTIAL_SUCCESS = 1;
@@ -61,50 +66,43 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 	public static final int TRANSPORT_FAILURE = 4;
 	
 	ProcessAndSendListener listener;
+	SqlIndexedStorageUtility<FormRecord> storage;
 	
 	private static long MAX_BYTES = 1048576-1024; // 1MB less 1KB overhead
 	
 	public ProcessAndSendTask(Context c, String url) {
 		this.c = c;
 		this.url = url;
+		storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 	}
 	
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
 	protected Integer doInBackground(FormRecord... records) {
-		Integer[] results = new Integer[records.length];
+		results = new Integer[records.length];
 		for(int i = 0 ; i < records.length ; ++i) {
-			String form = records[i].getPath();
-			try{
-				DataModelPullParser parser;
-				File f = new File(form);
-				InputStream is = new CipherInputStream(new FileInputStream(f), getDecryptCipher(records[i].getAesKey()));
-				parser = new DataModelPullParser(is, new TransactionParserFactory() {
-					
-					public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-						if(name.toLowerCase().equals("case")) {
-							return new CaseXmlParser(parser, c);
-						} 
-						return null;
-					}
-					
-				});
+			FormRecord record = records[i];
+			
+			
+			try {
 				
-				parser.parse();
-				is.close();
-				
-				//Ok, file's all parsed. Move the instance folder to be ready for sending.
-				File folder = f.getCanonicalFile().getParentFile();
-
-				String folderName = folder.getName();
-				File newFolder = new File(GlobalConstants.FILE_CC_PROCESSED + folderName);
-				if(folder.renameTo(newFolder)) {
-					//Good!
-					//Time to Send!
-					results[i] = sendInstance(newFolder, records[i].getAesKey());
+				if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
+					record = process(record);
 				}
 				
+				File folder = new File(record.getPath()).getCanonicalFile().getParentFile();
+				
+				//Good!
+				//Time to Send!
+				results[i] = sendInstance(folder, record.getAesKey());
+				
+				//Check for success
+				if(results[i].intValue() == FULL_SUCCESS) {
+					storage.remove(record);
+					FileUtil.deleteFile(folder);
+				}
+				 
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -120,6 +118,9 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 			} catch (UnfullfilledRequirementsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (StorageFullException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		
@@ -130,6 +131,46 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 			}
 		}
 		return result;
+	}
+	
+	private FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+		String form = record.getPath();
+		
+		DataModelPullParser parser;
+		File f = new File(form);
+		InputStream is = new CipherInputStream(new FileInputStream(f), getDecryptCipher(record.getAesKey()));
+		parser = new DataModelPullParser(is, new TransactionParserFactory() {
+			
+			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+				if(name.toLowerCase().equals("case")) {
+					return new CaseXmlParser(parser, c);
+				} 
+				return null;
+			}
+			
+		});
+		
+		parser.parse();
+		is.close();
+		
+		//Ok, file's all parsed. Move the instance folder to be ready for sending.
+		File folder = f.getCanonicalFile().getParentFile();
+
+		String folderName = folder.getName();
+		File newFolder = new File(GlobalConstants.FILE_CC_PROCESSED + folderName);
+		if(folder.renameTo(newFolder)) {
+			String newFormPath = newFolder.getAbsolutePath() + File.separator + f.getName();
+			if(!new File(newFormPath).exists()) {
+				throw new IOException("Couldn't find processed instance");
+			}
+			//update the records to show that the form has been processed and is ready to be sent;
+			FormRecord processedRecord = new FormRecord(record.getFormNamespace(), newFormPath, record.getEntityId(), FormRecord.STATUS_UNSENT, record.getAesKey());
+			processedRecord.setID(record.getID());
+			storage.write(processedRecord);
+			return processedRecord;
+		} else {
+			throw new IOException("Couldn't move processed files");
+		}
 	}
 	
 	private static Cipher getDecryptCipher(byte[] key) {
@@ -162,11 +203,18 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 			if(result == null) {
 				result = FAILURE;
 			}
-			listener.processAndSendFinished(result);
+			int successes = 0;
+			for(Integer formResult : results) {
+				if(formResult != null && FULL_SUCCESS == formResult.intValue()) {
+					successes ++;
+				}
+			}
+			listener.processAndSendFinished(result, successes);
 		}
 		//These will never get Zero'd otherwise
 		c = null;
 		url = null;
+		results = null;
 	}
 	
 	private int sendInstance(File folder, byte[] aesKey) throws FileNotFoundException {

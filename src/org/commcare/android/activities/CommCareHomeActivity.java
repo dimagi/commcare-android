@@ -49,6 +49,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	
 	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
+	public static final int DIALOG_SEND_UNSENT =2;
 	
 	View homeScreen;
 	
@@ -145,6 +146,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     		} else if(resultCode == RESULT_OK) {
     			platform.logInUser(intent.getStringExtra(GlobalConstants.STATE_USER_KEY));
     			refreshView();
+    			checkAndStartUnsentTask();
     			return;
     		}
     		break;
@@ -338,6 +340,25 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		startActivityForResult(i, MODEL_RESULT);
     }
     
+    
+    protected void checkAndStartUnsentTask() {
+    	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+    	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
+    	if(ids.size() > 0) {
+    		FormRecord[] records = new FormRecord[ids.size()];
+    		for(int i = 0 ; i < ids.size() ; ++i) {
+    			records[i] = storage.read(ids.elementAt(i).intValue());
+    		}
+    		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    		mProcess = new ProcessAndSendTask(this, settings.getString(ServerPreferences.KEY_SUBMIT, this.getString(R.string.default_submit_server)));
+    		mProcess.setListener(this);
+    		showDialog(DIALOG_SEND_UNSENT);
+    		mProcess.execute(records);
+    	} else {
+    		//Nothing.
+    	}
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -378,6 +399,13 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                 mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
                 return mProgressDialog;
+        case DIALOG_SEND_UNSENT:
+	        	mProgressDialog = new ProgressDialog(this);
+	            mProgressDialog.setTitle("Sending...");
+	            mProgressDialog.setMessage("Sending Unsent Data to Server");
+	            mProgressDialog.setIndeterminate(true);
+	            mProgressDialog.setCancelable(false);
+	            return mProgressDialog;
         }
         return null;
     }
@@ -426,10 +454,14 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     private void refreshView() {
     }
 
-	public void processAndSendFinished(int result) {
+	public void processAndSendFinished(int result, int successfulSends) {
 		mProgressDialog.dismiss();
 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
-			Toast.makeText(this, "Form Sent to Server!", Toast.LENGTH_LONG).show();
+			String label = "Form Sent to Server!";
+			if(successfulSends > 1) {
+				label = successfulSends + " Forms Sent to Server!";
+			}
+			Toast.makeText(this, label, Toast.LENGTH_LONG).show();
 		} else {
 			Toast.makeText(this, "Error in Sending! Will try again later.", Toast.LENGTH_LONG).show();
 		}
