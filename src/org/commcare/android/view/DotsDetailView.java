@@ -31,29 +31,32 @@ import android.widget.ToggleButton;
  */
 public class DotsDetailView {
 	
-	private final static String[][] labels = new String[][] {
+	public final static String[][] labels = new String[][] {
 			new String[] {"Dose"},
 			new String[] {"Morning", "Evening"},
 			new String[] {"Morning", "Noon", "Evening"},
 			new String[] {"Morning", "Noon", "Evening", "Bedtime"}
 	};
 	
+	public final static String[] regimens = new String[] { "Non-ART", "ART"};  
+	
 	//RadioGroup[] groups;
 	View[] groups; 
 	CheckBox[] selfReported;
 	EditText[] missedName;
 	DotsDay day;
-	int[] boxes;
 	int index;
+	int dose;
 	
 	public DotsDetailView() {
 		
 	}
 
-	public View LoadDotsDetailView(Context context, DotsDay day, int index, Date date, int[] boxes, final DotsEditListener listener) {
+	public View LoadDotsDetailView(Context context, DotsDay day, int index, Date date, int dose, final DotsEditListener listener) {
 		this.day = day;
 		this.index = index;
-		this.boxes = boxes;
+		this.dose = dose;
+		
 		View view = View.inflate(context, R.layout.dots_detail, null);
 
 		TextView title = (TextView)view.findViewById(R.id.dots_detail_title);
@@ -64,19 +67,23 @@ public class DotsDetailView {
 		
 		container.removeAllViews();
 		
-		
-		String[] titles = labels[day.boxes().length - 1];
 		//groups = new RadioGroup[day.boxes().length];
 		groups = new View[day.boxes().length];
 		selfReported = new CheckBox[day.boxes().length];
 		missedName = new EditText[day.boxes().length];
 		
-		for(int i = 0; i < boxes.length; ++i) {
-			DotsBox box = day.boxes()[boxes[i]];
+		int[] regimenIndices = day.getRegIndexes(dose);
+		
+		for(int i = 0; i < day.boxes().length; ++i) {
+			int subIndex = regimenIndices[i];
+			if(subIndex == -1) {
+				continue;
+			}
+			DotsBox box = day.boxes()[i][subIndex];
 			final View details = View.inflate(context, R.layout.compact_dot_entry, null);
 			groups[i] = details;
 			TextView timeView = (TextView)details.findViewById(R.id.text_time);
-			timeView.setText(titles[boxes[i]]);
+			timeView.setText(regimens[i] + ": " + labels[day.getMaxReg() -1 ][dose]);
 			details.setPadding(0, 0, 0,0);
 			
 			final View missingDetails = details.findViewById(R.id.missed_details);
@@ -192,7 +199,7 @@ public class DotsDetailView {
 		cancel.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
-				listener.cancelDayEdit();
+				listener.cancelDoseEdit();
 			}
 			
 		});
@@ -201,18 +208,17 @@ public class DotsDetailView {
 	}
 	
 	public DotsDay getDay() {
-		DotsBox[] newboxes = new DotsBox[day.boxes().length];
 		
-		//First, fill in the non-relevant boxes using the pre-existing data
-		for(int i = 0 ; i < day.boxes().length ; ++i) {
-			if(!contains(i, boxes)) {
-				newboxes[i] = day.boxes()[i];
-			}
-		}
+		int[] regIndices = day.getRegIndexes(dose);
+		DotsBox[] newBoxes = new DotsBox[regIndices.length];
 		
 		
 		//Now go fill in the new data
-		for(int i =0 ; i < boxes.length ; ++i) {
+		for(int i =0 ; i < regIndices.length ; ++i) {
+			if(regIndices[i] == -1) {
+				newBoxes[i] = null;
+				continue;
+			}
 			
 			int checkedButton = -1;
 			//Retrieve the selected value
@@ -268,18 +274,9 @@ public class DotsDetailView {
 					break;
 			}
 			
-			newboxes[boxes[i]] = new DotsBox(status,type, meds);
+			newBoxes[i] = new DotsBox(status,type, meds);
 		}
-		return new DotsDay(newboxes);
+		
+		return day.updateDose(dose, newBoxes);
 	}
-	
-	private boolean contains(int index, int[] boxes) {
-		for(int i = 0 ; i < boxes.length ; ++i ) {
-			if(boxes[i] == index) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 }

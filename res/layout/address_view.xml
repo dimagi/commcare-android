@@ -4,5 +4,5 @@
   android:layout_width="wrap_content"
   android:layout_height="wrap_content" android:orientation="vertical">
 <Button android:layout_height="wrap_content" android:id="@+id/address_button" android:drawableLeft="@drawable/sym_action_lookup" android:text="Show Address" android:layout_width="fill_parent"></Button>
-<TextView android:layout_height="wrap_content" android:id="@+id/address_text" android:layout_width="fill_parent"></TextView>
+<TextView android:layout_height="wrap_content" android:id="@+id/address_text" android:layout_width="fill_parent" android:inputType="textMultiLine|textPostalAddress"></TextView>
 </LinearLayout>

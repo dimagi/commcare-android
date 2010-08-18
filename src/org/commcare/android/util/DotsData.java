@@ -5,7 +5,13 @@ package org.commcare.android.util;
 
 import java.util.Date;
 
+import org.commcare.android.util.DotsData.DotsBox;
+import org.commcare.android.util.DotsData.DotsDay;
 import org.javarosa.core.model.utils.DateUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
  * @author ctsims
@@ -14,8 +20,16 @@ import org.javarosa.core.model.utils.DateUtils;
 public class DotsData {
 	Date anchor;
 	
-	int regimen;
-	//private static final String SELF_REPORT_FLAG = "MCSR";
+	int[] regimens;
+	
+	DotsDay[] days;
+	
+	private static final int[][] equivM = new int[][] {
+		new int[] {0,-1,-1,-1},
+		new int[] {0,-1,1,-1},
+		new int[] {0,1, 2,-1},
+		new int[] {0,1,2, 3}
+	};
 	
 	public static enum MedStatus {
 		unchecked,
@@ -29,8 +43,6 @@ public class DotsData {
 		pillbox,
 		self
 	}
-	
-	DotsDay[] days;
 	
 	public static final class DotsBox {
 		
@@ -59,69 +71,149 @@ public class DotsData {
 		public ReportType reportType() {
 			return type;
 		}
+				
+		public static DotsBox deserialize(String box){
+			try {
+				return DotsBox.deserialize(new JSONArray(new JSONTokener(box)));
+			}catch (JSONException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		
-		public static DotsBox deserialize(String box) {
+		public static DotsBox deserialize(JSONArray box) throws JSONException {
 			String missed = null;
-			if(box.contains(" ")){
-				missed = box.substring(box.indexOf(" "), box.length());
-				box = box.substring(0, box.indexOf(" "));
+			if(box.length() > 2) {
+				missed= box.getString(2);
 			}
-			ReportType type = ReportType.pillbox;
-			//This is unforgivably bad, but we'll ignore that
-			//since we're switching to json anyway.
-			if(box.endsWith(ReportType.direct.toString())) {
-				box = box.substring(0, box.indexOf(ReportType.direct.toString()));
-				type = ReportType.direct;
-			} else if(box.endsWith(ReportType.pillbox.toString())) {
-				box = box.substring(0, box.indexOf(ReportType.pillbox.toString()));
-				type = ReportType.pillbox;
-			} else if(box.endsWith(ReportType.self.toString())) {
-				box = box.substring(0, box.indexOf(ReportType.self.toString()));
-				type = ReportType.self;
+			
+			String status = box.getString(0);
+			String type = box.getString(1);
+			return new DotsBox(MedStatus.valueOf(status), ReportType.valueOf(type), missed); 
+		}
+		
+		public JSONArray serialize() {
+			JSONArray ser = new JSONArray();
+			ser.put(status.toString());
+			ser.put(type.toString());
+			if(missedMeds != null){
+				ser.put(missedMeds);
 			}
-			return new DotsBox(MedStatus.valueOf(box), type, missed); 
+			return ser;
 		}
 	}
 	
 	public static final class DotsDay {
 		
-		DotsBox[] boxes;
+		DotsBox[][] boxes;
 		
-		public DotsDay(DotsBox[] boxes) {
+		public DotsDay(DotsBox[][] boxes) {
 			this.boxes = boxes;
 		}
 		
-		public DotsBox[] boxes() {
+		public DotsBox[][] boxes() {
 			return boxes;
 		}
 		
-		public String serialize() {
-			String serial = "";
-			for(int j = 0 ; j < this.boxes.length ; ++j) {
-				serial += this.boxes[j].status.toString();
-				serial+=this.boxes[j].type.toString();
-				if(this.boxes[j].missedMeds != null) {
-					serial += " " + this.boxes[j].missedMeds;
+		public JSONArray serialize() {
+			JSONArray day = new JSONArray();
+			for(int i = 0; i < boxes.length ; ++i) {
+				JSONArray regimen = new JSONArray();
+				for(int j = 0; j < boxes[i].length ; ++j) {
+					regimen.put(boxes[i][j].serialize());
 				}
-				if(j + 1 < this.boxes.length) { 
-					serial += ";";
-				}
+				day.put(regimen);
 			}
-			return serial;
+			return day;
 		}
 		
 		public static DotsDay deserialize(String day) {
-			String[] boxStrings = day.split(";");
-			
-			DotsBox[] boxes = new DotsBox[boxStrings.length];
-			
-			for(int j = 0 ; j < boxes.length ; ++j) {
-				String box = boxStrings[j];				
-				boxes[j] = DotsBox.deserialize(box);
+			try { 
+				return deserialize(new JSONArray(new JSONTokener(day)));
+			} catch(JSONException e) {
+				throw new RuntimeException(e);
 			}
-			
-			return new DotsDay(boxes);
+		}
+		
+		public static DotsDay deserialize(JSONArray day) throws JSONException {
+			DotsBox[][] fullDay = new DotsBox[day.length()][];
+			for(int i = 0 ; i < day.length() ; ++i) {
+				JSONArray regimen = day.getJSONArray(i);
+				DotsBox[] boxes = new DotsBox[regimen.length()];
+				for(int j = 0 ; j < regimen.length() ; ++j) {
+					boxes[j] = DotsBox.deserialize(regimen.getJSONArray(j));
+				}
+				fullDay[i] = boxes;
+			}
+			return new DotsDay(fullDay);
 
+		}
+
+		public int getMaxReg() {
+			return 4;
+//			int max = 0;
+//			for(DotsBox[] reg : boxes) {
+//				if(reg.length > max) {
+//					max = reg.length;
+//				}
+//			}
+//			return max;
+		}
+		
+		public int[] getRegIndexes(int index) {
+			int max = this.getMaxReg();
+			int[] retVal = new int[boxes.length];
+			for(int i = 0 ; i < boxes.length ; ++i) {
+				if(boxes[i].length == 0) {
+					retVal[i] = -1;
+				} else {
+					retVal[i] = equivM[boxes[i].length -1 ][index];
+				}
+			}
+			return retVal;
+		}
+
+		public DotsDay updateDose(int dose, DotsBox[] newboxes) {
+			int[] indices = getRegIndexes(dose);
+			for(int i = 0 ; i < boxes.length; ++i) {
+				if(indices[i] == -1) {
+					//Nothing to do
+				} else {
+					this.boxes[i][indices[i]] = newboxes[i];
+				}
+			}
+			return this;
+		}
+
+		public MedStatus status() {
+			MedStatus ret = null;
+			for(int i = 0 ; i < boxes.length; ++i) {
+				for(int j = 0 ; j < boxes[i].length; ++j) {
+					DotsBox b = boxes[i][j];
+					if(ret == null) {
+						if(b.status != MedStatus.unchecked) {
+							ret = MedStatus.empty;
+						} else {
+							ret = MedStatus.unchecked;
+						}
+					} else {
+						if(ret == MedStatus.unchecked) {
+							if(b.status != MedStatus.unchecked) {
+								return MedStatus.partial;
+							}
+						}
+						else if(ret == MedStatus.empty) {
+							if(b.status == MedStatus.unchecked) {
+								return MedStatus.partial;
+							}
+						}
+					}
+				}
+			}
+			if(ret == null) {
+				return MedStatus.unchecked;
+			} else {
+				return ret;
+			}
 		}
 	}
 	
@@ -134,9 +226,9 @@ public class DotsData {
 	}
 	
 
-	private DotsData(Date anchor, int regType, DotsDay[] days) {
+	private DotsData(Date anchor, int[] regimens, DotsDay[] days) {
 		this.anchor = anchor;
-		this.regimen = regType;
+		this.regimens = regimens;
 		this.days = days;
 	}
 	
@@ -151,7 +243,7 @@ public class DotsData {
 			if(difference + i >= 0 && difference + i < this.days.length) {
 				newDays[i] = this.days[difference + i];
 			} else {
-				newDays[i] = new DotsDay(emptyBoxes(this.regimen));
+				newDays[i] = new DotsDay(emptyBoxes(this.regimens));
 			}
 		}
 		this.anchor = newAnchor;
@@ -161,49 +253,71 @@ public class DotsData {
 	
 	public String SerializeDotsData() {
 		
-		String serialized = anchor.toGMTString() + "|";
-		serialized += String.valueOf(regimen);
-		
-		for(int i = 0 ; i < days.length ; ++i) {
-			serialized += "|";
-			serialized += days[i].serialize();
+		try{
+			JSONObject object = new JSONObject();
+			object.put("anchor", anchor.toGMTString());
+			JSONArray jRegs = new JSONArray();
+			for(int i : regimens) {
+				jRegs.put(i);
+			}
+			object.put("regimens", jRegs);
+			
+			JSONArray jDays = new JSONArray();
+			for(DotsDay day : days) {
+				jDays.put(day.serialize());
+			}
+			object.put("days", jDays);
+			
+			return object.toString();
+		} catch(JSONException e) {
+			throw new RuntimeException(e);
 		}
-		return serialized;
 	}
 	
 	public static DotsData DeserializeDotsData(String dots) {
-		String[] data = dots.split("\\|");
 		
-		Date anchor = new Date(Date.parse(data[0]));
-		
-		int regType = Integer.parseInt(data[1]);
-		
-		int numDays = data.length - 2;
-		
-		DotsDay[] days = new DotsDay[numDays];
-		
-		for(int i = 0 ; i < numDays ; ++i) {
-			String day = data[i + 2];
-			days[i] = DotsDay.deserialize(day);
+		try {
+			JSONObject data = new JSONObject(new JSONTokener(dots));
+			
+			Date anchor = new Date(Date.parse(data.getString("anchor")));
+			
+			JSONArray jRegs = data.getJSONArray("regimens");
+			int[] regs =  new int[jRegs.length()];
+			for(int i = 0 ; i < regs.length ; ++i) {
+				regs[i] = jRegs.getInt(i);
+			}
+			
+			JSONArray jDays = data.getJSONArray("days");
+			DotsDay[] days =  new DotsDay[jDays.length()];
+			for(int i = 0 ; i < days.length ; ++i) {
+				days[i] = DotsDay.deserialize(jDays.getJSONArray(i));
+			}
+			
+			return new DotsData(anchor, regs, days);
+		} catch(JSONException e) {
+			throw new RuntimeException(e);
 		}
 		
-		return new DotsData(anchor, regType, days);
+
 	}
 	
-	public static DotsData CreateDotsData(int regType, Date anchor) {
+	public static DotsData CreateDotsData(int[] regType, Date anchor) {
 		DotsDay[] days = new DotsDay[21];
-		for(int i = 0 ; i <  days.length ; ++i ) {
-			days[i] = new DotsDay(emptyBoxes(regType));
+		for(int j = 0 ; j <  days.length ; ++j ) {
+			days[j] = new DotsDay(emptyBoxes(regType));
 		}
 		
 		DotsData data = new DotsData(anchor, regType, days);
 		return data;
 	}
 	
-	public static DotsBox[] emptyBoxes(int length) {
-		DotsBox[] boxes = new DotsBox[length];
-		for(int j = 0 ; j <  boxes.length ; ++j ) {
-			boxes[j] = new DotsBox(MedStatus.unchecked, ReportType.pillbox);
+	public static DotsBox[][] emptyBoxes(int[] lengths) {
+		DotsBox[][] boxes = new DotsBox[lengths.length][];
+		for(int i = 0 ; i < lengths.length; ++i ) {
+			boxes[i] = new DotsBox[lengths[i]];
+			for(int j = 0 ; j <  boxes[i].length ; ++j ) {
+				boxes[i][j] = new DotsBox(MedStatus.unchecked, ReportType.pillbox);
+			}
 		}
 		return boxes;
 	}

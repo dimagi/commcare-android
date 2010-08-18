@@ -76,7 +76,6 @@ public class EntityDetailView extends LinearLayout {
 	    addressView = (View)View.inflate(context, R.layout.address_view, null);
 	    addressText = (TextView)addressView.findViewById(R.id.address_text);
 	    addressButton = (Button)addressView.findViewById(R.id.address_button);
-	    addressText.setInputType(InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS);
 	    addressView.setId(4);
 	    
 		this.setWeightSum(1.0f);

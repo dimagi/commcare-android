@@ -8,13 +8,15 @@ import java.util.Date;
 
 import org.commcare.android.R;
 import org.commcare.android.util.DotsData;
-import org.commcare.android.util.DotsEditListener;
-import org.commcare.android.util.GestureDetector;
 import org.commcare.android.util.DotsData.DotsBox;
 import org.commcare.android.util.DotsData.DotsDay;
+import org.commcare.android.util.DotsEditListener;
+import org.commcare.android.util.GestureDetector;
 import org.commcare.android.view.DotsDetailView;
 import org.commcare.android.view.DotsHomeView;
 import org.javarosa.core.model.utils.DateUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,11 +26,18 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.ScaleAnimation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 /**
  * @author ctsims
@@ -49,13 +58,11 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	private static final String DOTS_DATA = "odk_intent_data";
 	private static final String DOTS_EDITING = "dots_editing";
 	private static final String DOTS_DAY = "dots_day";
-	private static final String DOTS_OFFSET = "dots_offset";
+	private static final String DOTS_BOX = "dots_box";
 	private static final String CURRENT_FOCUS = "dots_focus";
-	private static final String DOTS_BOX_INDICES = "dots_indices";
 	
-	private int editing = -1;
-	private int[] editingBoxes = null;
-	private int offset;
+	private int curday = -1;
+	private int curdose = -1;
 	private DotsDay d;
 	private DotsDetailView ddv;
 	private GestureDetector mGestureDetector;
@@ -69,10 +76,9 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         
         if(savedInstanceState != null) {
         	dotsData = DotsData.DeserializeDotsData(savedInstanceState.getString(DOTS_DATA));
-        	editing = savedInstanceState.getInt(DOTS_EDITING);
-        	offset = savedInstanceState.getInt(DOTS_OFFSET);
-        	if(editing != -1) {
-        		editingBoxes = savedInstanceState.getIntArray(DOTS_BOX_INDICES);
+        	curday = savedInstanceState.getInt(DOTS_EDITING);
+        	curdose = savedInstanceState.getInt(DOTS_BOX);
+        	if(curdose != -1) {
         		d = DotsDay.deserialize(savedInstanceState.getString(DOTS_DAY));
         	}
         } else {
@@ -91,9 +97,21 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	        		populateAnchor = true;
 	        	}
 	        } else {
+	        	int[] regimens = new int[2];
+	        	
+	        	
 	        	String regimen = getIntent().getStringExtra("regimen");
-	        	int regType = Integer.parseInt(regimen);
-	        	dotsData = DotsData.CreateDotsData(regType, anchorDate);
+	        	try {
+		        	JSONArray array = new JSONArray(regimen);
+		        	for(int i = 0; i < array.length(); ++i) {
+		        		regimens[i] = array.getInt(i);
+		        	}
+	        	}
+		        catch(JSONException e) {
+		        	throw new RuntimeException(e);
+		        }
+	        	
+	        	dotsData = DotsData.CreateDotsData(regimens, anchorDate);
 	        	populateAnchor = true;
 	        }
 
@@ -103,13 +121,23 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	        	
 	        	// now fill in the box specified
 	        	DotsDay day = dotsData.days()[dotsData.days().length - 1];
-	        	DotsBox[] boxes = day.boxes();
-	        	boxes[box] = DotsBox.deserialize(currentDoseCheck);
+	        	DotsBox[][] boxes = day.boxes();
+	        	boxes[0][box] = DotsBox.deserialize(currentDoseCheck);
 	        	
 	        	dotsData.days()[dotsData.days().length - 1] = new DotsDay(boxes);
 	        }
-	
-	        offset = 0;
+	        
+	        String currentDoseCheckTwo = getIntent().getStringExtra("currentdosetwo");
+	        if(populateAnchor && currentDoseCheckTwo != null && currentDoseCheckTwo != "") {
+	        	int box = Integer.parseInt(getIntent().getStringExtra("currentboxtwo"));
+	        	
+	        	// now fill in the box specified
+	        	DotsDay day = dotsData.days()[dotsData.days().length - 1];
+	        	DotsBox[][] boxes = day.boxes();
+	        	boxes[1][box] = DotsBox.deserialize(currentDoseCheckTwo);
+	        	
+	        	dotsData.days()[dotsData.days().length - 1] = new DotsDay(boxes);
+	        }
 	        
 	        showView(home(), AnimationType.fade);
         }
@@ -126,55 +154,50 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(DOTS_DATA,dotsData.SerializeDotsData());
-        outState.putInt(DOTS_EDITING, editing);
-        outState.putInt(DOTS_OFFSET, offset);
-        if(editing != -1) {
-        	outState.putIntArray(DOTS_BOX_INDICES, editingBoxes);
-        	outState.putString(DOTS_DAY, ddv.getDay().serialize());
+        outState.putInt(DOTS_EDITING, curday);
+        outState.putInt(DOTS_BOX, curdose);
+        if(curdose != -1) {
+        	outState.putString(DOTS_DAY, ddv.getDay().serialize().toString());
         }
     }
     
-    private View home() {
+    private DotsHomeView home() {
     	setTitle(getString(R.string.app_name) + " > " + " DOTS");
-    	return new DotsHomeView(this, dotsData, this, offset);
+    	return new DotsHomeView(this, dotsData, this);
     }
     
     
 	public void dayEdited(int i, DotsDay day) {
 		dotsData.days()[i] = day;
-		editing = -1;
-		showView(home(), AnimationType.zoomout);
-		zX = -1;
-		zY = -1;
+		curdose = -1;
+		showView(curday(), AnimationType.fade);
 	}
 	
-	public void cancelDayEdit() {
-		editing = -1;
-		showView(home(), AnimationType.zoomout);
-		zX = -1;
-		zY = -1;
+	public void cancelDoseEdit() {
+		curdose = -1;
+		showView(curday(), AnimationType.fade);
 	}
 
-	public void doneWithWeek() {
+	public void doneWithDOTS() {
 		Intent i = new Intent(this.getIntent());
         i.putExtra(DOTS_DATA, dotsData.SerializeDotsData());
         setResult(RESULT_OK, i);
         finish();
 	}
 
-	public void editDotsDay(int i, Rect rect, int[] boxes) {
+	public void editDotsDay(int i, Rect rect) {
 		zX = rect.centerX();
 		zY = rect.centerY();
 		
-		edit(i, dotsData.days()[i], AnimationType.zoomin, boxes);
+		edit(i, AnimationType.zoomin);
 	}
 	
-	private void edit(int i, DotsDay day, AnimationType anim, int[] boxes) {
-		editing = i;
-		editingBoxes = boxes;
-		ddv = new DotsDetailView();
+	private void edit(int i, AnimationType anim) {
+		curday = i;
+		//ddv = new DotsDetailView();
 		Date date = DateUtils.dateAdd(dotsData.anchor(),  i - dotsData.days().length + 1);
-		View view = ddv.LoadDotsDetailView(this, day, i, date, boxes, this);
+		//View view = ddv.LoadDotsDetailView(this, day, i, date, boxes, this);
+		View view = curday();
 		
 		setTitle(getString(R.string.app_name) + " > " + "DOTS Details for " + DateUtils.formatDate(date, DateUtils.FORMAT_HUMAN_READABLE_SHORT));
 		showView(view, anim);
@@ -186,7 +209,18 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	View mNextView;
 	
 	private void showView(View next, AnimationType anim) {
-		
+		showView(next,anim, null);
+	}
+	
+	private void showView(View next, AnimationType anim, View target) {
+		if(target != null) {
+			next.buildDrawingCache();
+			Rect targetRect = new Rect(0,0,target.getWidth(), target.getHeight());
+			((ViewGroup)next).offsetDescendantRectToMyCoords(target, targetRect);
+			zX = targetRect.centerX();
+			zY = targetRect.centerY();
+			next.destroyDrawingCache();
+		}
 		
         switch (anim) {
 	        case zoomin:
@@ -224,7 +258,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	
 	    if (mCurrentView != null && mOutAnimation != null) {
 	        mCurrentView.startAnimation(mOutAnimation);
-	        //mRelativeLayout.removeView(mCurrentView);
 	    }
 	
 	    if(mInAnimation != null) {
@@ -244,20 +277,35 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	@Override
 	protected void onResume() {
 		super.onResume();
-    	if(editing == -1) {
+    	if(curday == -1) {
     		showView(home(), AnimationType.fade);
+    	} else if(curdose == -1) {
+    		edit(curday, AnimationType.fade);
     	} else {
-    		edit(editing, d, AnimationType.fade, editingBoxes);
+    		editDose(curday, curdose, d, null);
     	}
+	}
+	
+	public void cancelDayEdit(int editing) {
+		curday = -1;
+		d= null;
+		DotsHomeView home = home();
+		
+		showView(home, AnimationType.zoomout);
 	}
 	
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                if(editing != -1) {
-                	cancelDayEdit();
-                	return true;
+                if(curday != -1) {
+                	if(curdose != -1) {
+                		cancelDoseEdit();
+                		return true;
+                	} else {
+                		cancelDayEdit(curday);
+                		return true;
+                	}
                 }
                 
         }
@@ -295,10 +343,10 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         if (!mBeenSwiped) {
             switch (mGestureDetector.getGesture(motionEvent)) {
                 case SWIPE_RIGHT:
-                    handled = tryMove(1);
+                    handled = tryMove(-1);
                     break;
                 case SWIPE_LEFT:
-                    handled = tryMove(-1);
+                    handled = tryMove(1);
                     break;
             }
         }
@@ -306,20 +354,178 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     }
     
     private boolean tryMove(int offsetChange) {
-    	if(editing != -1) {
+    	if(curdose != -1 || curday == -1) {
     		return false;
     	}
-    	int maxOffset = (int)Math.ceil(this.dotsData.days().length / DotsHomeView.TABLE_LENGTH) - 1;
-    	if(offset + offsetChange < 0 || offset + offsetChange > maxOffset) {
+    	int maxOffset = this.dotsData.days().length - 1;
+    	if(curday + offsetChange < 0 || curday + offsetChange > maxOffset) {
     		return false;
     	}
 		mBeenSwiped = true;
-		offset = offset + offsetChange;
-		showView(home(), offsetChange > 0 ? AnimationType.right : AnimationType.left);
+		curday = curday + offsetChange;
+		edit(curday, offsetChange > 0 ? AnimationType.left : AnimationType.right);
 		return true;
     }
 
-	public void shiftWeek(int delta) {
+	public void shiftDay(int delta) {
 		tryMove(-delta);
+	}
+	
+
+	private View curday() {
+		final ViewGroup dayView = (ViewGroup)View.inflate(this, R.layout.dotsdoses, null);
+		TableRow[] rows = new TableRow[4];
+		rows[0] = (TableRow)dayView.findViewById(R.id.dots_dose_one);
+		rows[1] = (TableRow)dayView.findViewById(R.id.dots_dose_two);
+		//rows[2] = (TableRow)dayView.findViewById(R.id.dots_dose_three);
+		//rows[3] = (TableRow)dayView.findViewById(R.id.dots_dose_four);
+		
+		DotsDay day = dotsData.days()[curday];
+		
+		int disLen = day.getMaxReg();
+		for(int i = 0 ; i < disLen ; ++i ) {
+			final int regIndex = i;
+			View doseView = getDoseView(day, curday, i);
+			rows[i % 2 == 0 ? 0 : 1].addView(doseView == null ? new ImageView(this): doseView);
+			if(doseView == null) { 
+				
+				continue;
+			}
+			
+			doseView.setOnClickListener(new OnClickListener() {
+
+				public void onClick(View v) {
+					Rect hitRect = new Rect();
+					if(v.getParent() instanceof View) {
+						v.getHitRect(hitRect);
+						View parent = (View)v.getParent();
+						dayView.offsetDescendantRectToMyCoords(parent, hitRect);
+						DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
+					} else{
+						hitRect = new Rect(0,0,v.getWidth(), v.getHeight());
+						dayView.offsetDescendantRectToMyCoords(v, hitRect);
+						DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
+					}
+				}
+				
+			});
+		}
+		
+		View next = (View)dayView.findViewById(R.id.btn_doses_next);
+		if(curday == dotsData.days().length - 1) {
+			next.setVisibility(View.INVISIBLE);
+		} else{
+			next.setOnClickListener(new OnClickListener() {
+
+				public void onClick(View v) {
+					tryMove(1);
+				}
+				
+			});
+		}
+		View prev = (View)dayView.findViewById(R.id.btn_doses_prev);
+		if(curday == 0) {
+			prev.setVisibility(View.INVISIBLE);
+		} else{
+			prev.setOnClickListener(new OnClickListener() {
+
+				public void onClick(View v) {
+					tryMove(-1);
+				}
+				
+			});
+		}
+		
+		Button done = (Button)dayView.findViewById(R.id.btn_dots_doses_done);
+		done.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				DotsEntryActivity.this.cancelDayEdit(curday);
+			}
+			
+		});
+		return dayView;
+	}
+	
+	private ViewGroup getDoseView(DotsDay d, int dayIndex, int regimenIndex) {
+		
+		int[] boxes = d.getRegIndexes(regimenIndex);
+		boolean empty = true;
+		for(int i : boxes ){
+			if(i!= -1) {
+				empty = false;
+			}
+		}
+		if(empty) { return null; };
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime(dotsData.anchor());
+		c.roll(Calendar.DATE, dotsData.days().length - dayIndex + 1);
+		
+		ViewGroup doseView = (ViewGroup)View.inflate(this, R.layout.dotsdose, null);
+		TextView dosename = (TextView)doseView.findViewById(R.id.text_dosename);
+		TableLayout table = (TableLayout)doseView.findViewById(R.id.dose_table);
+		table.setPadding(0,0,2,0);
+		table.setShrinkAllColumns(true);
+		
+		TableRow doses = (TableRow)table.findViewById(R.id.dose_status);
+		TableRow selfReported = (TableRow)table.findViewById(R.id.self_report_row);
+		
+		dosename.setText(DotsDetailView.labels[d.getMaxReg() -1 ][regimenIndex]);
+		
+		doses.removeAllViews();
+		
+		for(int i = 0 ; i < boxes.length ; ++i) {
+			if(boxes[i] == -1) {
+				continue;
+			}
+			DotsBox box = d.boxes()[i][boxes[i]];
+			ImageView status = new ImageView(this);
+			status.setPadding(0,0,1,0);
+			switch(box.status()) {
+			case full:
+				status.setImageResource(R.drawable.redx);
+				break;
+			case partial:
+				status.setImageResource(R.drawable.blues);
+				break;
+			case empty:
+				status.setImageResource(R.drawable.checkmark);
+				break;
+			case unchecked:
+				status.setImageResource(R.drawable.blueq);
+				break;
+			}
+				
+			doses.addView(status);
+			
+			ImageView selfReport = new ImageView(this);
+			selfReport.setPadding(0,3,1,0);
+			switch(box.reportType()) {
+			case direct:
+				selfReport.setImageResource(R.drawable.eye);
+				break;
+			case pillbox:
+				selfReport.setImageResource(R.drawable.pillbox);
+				break;
+			case self:
+				selfReport.setImageResource(R.drawable.greencircle);
+				break;
+			}
+			selfReported.addView(selfReport);
+		}
+		
+		return doseView;
+	}
+
+	public void editDose(int dayIndex, int regimenIndex, DotsDay day, Rect hitRect) {
+		curday = dayIndex;
+		curdose = regimenIndex;
+		Calendar c = Calendar.getInstance();
+		c.setTime(dotsData.anchor());
+		c.roll(Calendar.DATE, dotsData.days().length - dayIndex + 1);
+		
+		ddv = new DotsDetailView();
+		showView(ddv.LoadDotsDetailView(this, day, dayIndex, c.getTime(), regimenIndex, this), AnimationType.fade);
 	}
 }

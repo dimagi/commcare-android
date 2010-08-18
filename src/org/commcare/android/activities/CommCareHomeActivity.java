@@ -377,6 +377,18 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
      	        this.startActivityForResult(i, INIT_APP);
              }
         else if(platform.getLoggedInUser() == null) {
+        	
+//        	Intent i = new Intent(getApplicationContext(), DotsEntryActivity.class);
+//        	i.putExtra("regimen", "[0,4]");
+//       	
+//        	i.putExtra("currentdose", "['full', 'pillbox']");
+//        	i.putExtra("currentbox", "0");
+//
+//        	i.putExtra("currentdosetwo", "['empty', 'direct']");
+//        	i.putExtra("currentboxtwo", "0");
+//        	
+//        	startActivityForResult(i,LOGIN_USER);
+        	
         	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         	startActivityForResult(i,LOGIN_USER);
         } else {
