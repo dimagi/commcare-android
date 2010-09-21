@@ -42,8 +42,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 		
 	}
 	
-	public ProfileAndroidInstaller(String localDestination) {
-		super(localDestination);
+	public ProfileAndroidInstaller(String localDestination, String upgradeDestination) {
+		super(localDestination, upgradeDestination);
 	}
 	
 
@@ -93,12 +93,12 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 	
 			
 			ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(), 
-					upgrade ? Resource.RESOURCE_STATUS_PENDING : Resource.RESOURCE_STATUS_UNINITIALIZED, false);
+					upgrade ? Resource.RESOURCE_STATUS_UNINITIALIZED : Resource.RESOURCE_STATUS_UNINITIALIZED, false);
 			
 			Profile p = parser.parse();
 			p.initializeProperties();
 			
-			table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
+			table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
 			return true;
 		} catch (InvalidReferenceException e) {
 			// TODO Auto-generated catch block
@@ -117,7 +117,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 		return false;
 	}
 	
-	protected int customInstall(Reference local) throws IOException {
+	protected int customInstall(Reference local, boolean upgrade) throws IOException {
 		return Resource.RESOURCE_STATUS_LOCAL;
 	}
 

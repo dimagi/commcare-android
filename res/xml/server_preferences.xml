@@ -16,12 +16,12 @@ the License.
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-    		android:dialogTitle="CommCare Application Server" android:key="appserver" android:id="@+id/appserver" android:title="CommCare Application Server" android:defaultValue="http://build.dimagi.com/commcare/pact/profile.xml"/>
+    		android:dialogTitle="CommCare Application Server" android:id="@+id/appserver" android:title="CommCare Application Server" android:key="default_app_server" android:defaultValue="@string/default_app_server"/>
             
                 <EditTextPreference
-        android:title="Data Server" android:defaultValue="http://pact.ashand.com/mobile/caselist" android:key="dataserver" android:enabled="true" android:dialogTitle="CommCare Data Server" android:id="@+id/dataserver"/>
+        android:title="Data Server" android:enabled="true" android:dialogTitle="CommCare Data Server" android:id="@+id/dataserver" android:key="default_ota_server" android:defaultValue="@string/default_ota_server"/>
             
                 <EditTextPreference
-        android:title="Submission Server" android:key="submitserver" android:dialogTitle="CommCare Submission Server" android:enabled="true" android:id="@+id/submitserver" android:defaultValue="http://staging.commcarehq.org/receiver/submit/PACT"/>
+        android:title="Submission Server" android:dialogTitle="CommCare Submission Server" android:enabled="true" android:id="@+id/submitserver" android:key="default_submit_server" android:defaultValue="@string/default_submit_server"/>
                 
 </PreferenceScreen>

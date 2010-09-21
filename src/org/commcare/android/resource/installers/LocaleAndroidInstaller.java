@@ -31,8 +31,8 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
 		
 	}
 	
-	public LocaleAndroidInstaller(String destination, String locale) {
-		super(destination);
+	public LocaleAndroidInstaller(String destination, String upgradeDestination, String locale) {
+		super(destination, upgradeDestination);
 		this.locale = locale;
 	}
 	
@@ -45,8 +45,8 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
 		return true;
 	}
 	
-	protected int customInstall(Reference local) throws IOException {
-		return Resource.RESOURCE_STATUS_INSTALLED;
+	protected int customInstall(Reference local, boolean upgrade) throws IOException {
+		return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
 	}
 
 	/* (non-Javadoc)

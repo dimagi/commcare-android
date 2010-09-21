@@ -44,8 +44,8 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 		
 	}
 	
-	public SuiteAndroidInstaller(String localDestination) {
-		super(localDestination);
+	public SuiteAndroidInstaller(String localDestination, String upgradeDestination) {
+		super(localDestination, upgradeDestination);
 	}
 	
 
@@ -88,13 +88,12 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 		
 		try {
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
-	
 			
 			SuiteParser parser = new SuiteParser(local.getStream(), table, r.getRecordGuid());
 			
 			Suite s = parser.parse();
 			
-			table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
+			table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
 			return true;
 		} catch (InvalidReferenceException e) {
 			// TODO Auto-generated catch block
@@ -113,7 +112,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 		return false;
 	}
 	
-	protected int customInstall(Reference local) throws IOException {
+	protected int customInstall(Reference local, boolean upgrade) throws IOException {
 		return Resource.RESOURCE_STATUS_LOCAL;
 	}
 

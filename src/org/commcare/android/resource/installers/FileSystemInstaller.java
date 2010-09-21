@@ -5,6 +5,7 @@ package org.commcare.android.resource.installers;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -30,13 +31,15 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCarePlatform> {
 	String localLocation;
 	String localDestination;
+	String upgradeDestination;
 	
 	public FileSystemInstaller() {
 		
 	}
 	
-	public FileSystemInstaller(String localDestination) {
+	public FileSystemInstaller(String localDestination, String upgradeDestination) {
 		this.localDestination = localDestination;
+		this.upgradeDestination = upgradeDestination;
 	}
 	
 	/* (non-Javadoc)
@@ -56,29 +59,24 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	 * @see org.commcare.resources.model.ResourceInstaller#install(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation, org.javarosa.core.reference.Reference, org.commcare.resources.model.ResourceTable, org.commcare.util.CommCareInstance, boolean)
 	 */
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
-		localLocation = localDestination + "/" + r.getResourceId() + ".xml";
-		if(upgrade) {
-			//Move to temp, move, then move back.
-		} else {
-				try {
-				//Stream to location
-				Reference local = ReferenceManager._().DeriveReference(localLocation);
-				StreamUtil.transfer(ref.getStream(), local.getOutputStream());
-				
-				int status = customInstall(local);
-				
-				table.commit(r, status);
-				return true;
-			} catch (InvalidReferenceException e) {
-				throw new RuntimeException(e);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+		localLocation = (upgrade ? upgradeDestination : localDestination) + "/" + r.getResourceId() + ".xml";
+		try {
+			//Stream to location
+			Reference local = ReferenceManager._().DeriveReference(localLocation);
+			StreamUtil.transfer(ref.getStream(), local.getOutputStream());
+			
+			int status = customInstall(local, upgrade);
+			
+			table.commit(r, status);
+			return true;
+		} catch (InvalidReferenceException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		return false;
 	}
 
-	protected abstract int customInstall(Reference local) throws IOException;
+	protected abstract int customInstall(Reference local, boolean upgrade) throws IOException;
 	
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
@@ -89,16 +87,36 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	 * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable, org.commcare.resources.model.ResourceTable)
 	 */
 	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
-		// TODO Auto-generated method stub
-		return false;
+		try{
+			return new File(ReferenceManager._().DeriveReference(this.localLocation).getLocalURI()).delete();
+		} catch(InvalidReferenceException e) {
+			throw new UnresolvedResourceException(r, "Local reference couldn't be found for resource at " + this.localLocation);
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
 	 */
 	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			
+			//Get the temporary location
+			Reference local = ReferenceManager._().DeriveReference(localLocation);
+
+			//Get final destination
+			String finalLocation =  localDestination + "/" + r.getResourceId() + ".xml";
+			Reference finalRef = ReferenceManager._().DeriveReference(finalLocation);
+			
+			if(!(new File(local.getLocalURI()).renameTo(new File(finalRef.getLocalURI())))) {
+				return false;
+			}
+			
+			localLocation = finalLocation;
+			return true;
+		} catch (InvalidReferenceException e) {
+			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
+		}
 	}
 
 	/* (non-Javadoc)
@@ -107,6 +125,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		this.localLocation = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		this.localDestination = ExtUtil.readString(in);
+		this.upgradeDestination = ExtUtil.readString(in);
 	}
 
 	/* (non-Javadoc)
@@ -115,5 +134,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(localLocation));
 		ExtUtil.writeString(out, localDestination);
+		ExtUtil.writeString(out, upgradeDestination);
 	}
 }

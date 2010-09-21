@@ -37,6 +37,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	private Hashtable<String, String> xmlnstable;
 	private Context c;
 	private ResourceTable global;
+	private ResourceTable upgrade;
 	
 	private Profile profile;
 	private Vector<Suite> installedSuites;
@@ -80,6 +81,13 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 			global = ResourceTable.RetrieveTable( CommCareApplication._().getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
 		}
 		return global;
+	}
+	
+	public ResourceTable getUpgradeResourceTable() {
+		if(upgrade == null) {
+			upgrade = ResourceTable.RetrieveTable( CommCareApplication._().getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+		}
+		return upgrade;
 	}
 	
 	public Profile getCurrentProfile() {

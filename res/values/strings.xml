@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">CommCare ODK</string>
-	<string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string>
-	<string name="default_submit_server">https://pact.dimagi.com/receiver/submit/pact</string>
-	<string name="default_ota_server">https://pact.dimagi.com/provider/caselist</string>
+	<!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
+	<string name="default_app_server">http://build.dimagi.com/commcare/pf/profile.xml</string>
+	<string name="default_submit_server">https://staging.commcarehq.org/receiver/submit/pf</string>
+	<string name="default_ota_server">https://staging.commcarehq.org/ota_restore</string>
+	<!-- string name="default_submit_server">https://pact.dimagi.com/receiver/submit/pact</string -->
+	<!-- string name="default_ota_server">https://pact.dimagi.com/provider/caselist</string -->
 	<string name="default_key_server">https://pact.dimagi.com/keys/getkey</string>
-<integer-array name="commcare_version"><item>1</item>
-<item>1</item>
+	<integer-array name="commcare_version"><item>1</item>
+	<item>1</item>
 </integer-array>
 </resources>

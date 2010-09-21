@@ -25,10 +25,12 @@ import org.commcare.android.models.Referral;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
@@ -36,12 +38,14 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
+import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 
 /**
@@ -53,6 +57,7 @@ public class CommCareApplication extends Application {
 	public static final int STATE_UNINSTALLED = 0;
 	public static final int STATE_UPGRADE = 1;
 	public static final int STATE_READY = 2;
+	public static final int STATE_CORRUPTED = 4;
 	
 	private int dbState;
 	private int resourceState;
@@ -64,10 +69,14 @@ public class CommCareApplication extends Application {
 	private AndroidCommCarePlatform platform;
 	
 	private static SQLiteDatabase database; 
+	
+	private SharedPreferences appPreferences;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler()));
 		
 		PropertyManager.setPropertyManager(new ODKPropertyManager());
 		
@@ -75,6 +84,8 @@ public class CommCareApplication extends Application {
 		setRoots();
 		
 		CommCareApplication.app = this;
+		
+        appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		int[] version = getCommCareVersion();
 		platform = new AndroidCommCarePlatform(version[0], version[1], this);
@@ -183,6 +194,10 @@ public class CommCareApplication extends Application {
 		String imei = manager.getDeviceId();
 		return imei;
 	}
+	
+	public SharedPreferences preferences() {
+		return appPreferences;
+	}
     
     private void createPaths() {
     	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE};
@@ -204,17 +219,40 @@ public class CommCareApplication extends Application {
 	}
 	
 	private int initResources() {
+		try {
+			//Now, we need to identify the state of the application resources
+			AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform(); 
+			ResourceTable global = platform.getGlobalResourceTable();
+			//TODO: This, but better.
+			Resource profile = global.getResourceWithId("commcare-application-profile");
+			if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
+				platform.initialize(global);
+				Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
+				return STATE_READY;
+			} else{
+				return STATE_UNINSTALLED;
+			}
+		}
+		catch(Exception e) {
+			return STATE_CORRUPTED;
+		}
+	}
+	
+	public void upgrade() {
 		//Now, we need to identify the state of the application resources
 		AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform(); 
 		ResourceTable global = platform.getGlobalResourceTable();
 		//TODO: This, but better.
 		Resource profile = global.getResourceWithId("commcare-application-profile");
 		if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-			platform.initialize(global);
-			Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
-			return STATE_READY;
+			try {
+				platform.upgrade(global, platform.getUpgradeResourceTable(), appPreferences.getString("default_app_server", getString(R.string.default_app_server)));
+			} catch (UnfullfilledRequirementsException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else{
-			return STATE_UNINSTALLED;
+			//App isn't properly installed/prepared yet.
 		}
 	}
 
@@ -287,5 +325,25 @@ public class CommCareApplication extends Application {
 
 	public static CommCareApplication _() {
 		return app;
+	}
+
+	/**
+	 * This method is a shortcut to wiping out the profile/suite/xforms/etc, and 
+	 * regathering the application resources in the case of something bad happening.
+	 * 
+	 * It may mess up the app, so it shouldn't be called upon trivially.
+	 */
+	public boolean resetApplicationResources() {
+		ResourceTable global = platform.getGlobalResourceTable();
+		global.clear();
+		String profile = appPreferences.getString("default_app_server", this.getString(R.string.default_app_server));
+		try {
+			platform.init(profile, global, false);
+			return true;
+		} catch (UnfullfilledRequirementsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
 	}
 }

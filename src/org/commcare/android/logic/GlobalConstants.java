@@ -27,6 +27,8 @@ public class GlobalConstants {
     
     public static final String INSTALL_REF = "jr://file/commcare/install";
     
+    public static final String UPGRADE_REF = "jr://file/commcare/upgrade";
+    
     public static final String COMMCARE_PLATFORM = "COMMCARE_PLATFORM";
     
 

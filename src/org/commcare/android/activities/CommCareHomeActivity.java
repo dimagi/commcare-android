@@ -1,9 +1,7 @@
 package org.commcare.android.activities;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.Serializable;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
@@ -13,10 +11,9 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.preferences.ServerPreferences;
-import org.commcare.android.providers.EncryptedFileInputStream;
-import org.commcare.android.providers.EncryptedFileOutputStream;
+import org.commcare.android.preferences.CommCarePreferences;
 import org.commcare.android.providers.PreloadContentProvider;
+import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.ProcessAndSendListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -24,7 +21,7 @@ import org.commcare.android.util.CommCarePlatformProvider;
 import org.commcare.android.util.FileUtil;
 import org.commcare.suite.model.Entry;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.StreamUtil;
+import org.odk.collect.android.preferences.ServerPreferences;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,6 +32,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -50,6 +49,10 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
 	public static final int DIALOG_SEND_UNSENT =2;
+	public static final int DIALOG_CORRUPTED = 4;
+	
+	private static final int MENU_PREFERENCES = 1;
+	private static final int MENU_UPDATE = 2;
 	
 	View homeScreen;
 	
@@ -57,6 +60,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	
 	ProgressDialog mProgressDialog;
 	AlertDialog mAskOldDialog;
+	AlertDialog mAttemptFixDialog;
 	
 	ProcessAndSendTask mProcess;
 	
@@ -187,7 +191,24 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     			break;
     		}
         case MODEL_RESULT:
-        	if(resultCode == RESULT_OK) {
+        	if(resultCode == 1) {
+        		//Exception in form entry!
+        		
+        		if(intent.hasExtra("odk_exception")) {
+        			Throwable ex = (Throwable)intent.getSerializableExtra("odk_exception");
+            		ExceptionReportTask task = new ExceptionReportTask();
+            		task.execute(ex);
+        		} else {
+        			RuntimeException ex = new RuntimeException("Unspecified exception from form entry engine");
+        			ExceptionReportTask task = new ExceptionReportTask();
+            		task.execute(ex);
+        		}
+        		
+    			platform.clearState();
+    			refreshView();
+        		break;
+        	}
+        	else if(resultCode == RESULT_OK) {
         		String instance = intent.getStringExtra("instancepath");
         		boolean completed = intent.getBooleanExtra("instancecomplete", true);
         		//intent.get
@@ -220,8 +241,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-	        		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-	        		mProcess = new ProcessAndSendTask(this, settings.getString(ServerPreferences.KEY_SUBMIT, this.getString(R.string.default_submit_server)));
+	        		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+	        		mProcess = new ProcessAndSendTask(this, settings.getString("default_submit_server", this.getString(R.string.default_submit_server)));
 	        		mProcess.setListener(this);
 	        		showDialog(DIALOG_PROCESS);
 	        		mProcess.execute(r);
@@ -349,8 +370,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     		for(int i = 0 ; i < ids.size() ; ++i) {
     			records[i] = storage.read(ids.elementAt(i).intValue());
     		}
-    		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    		mProcess = new ProcessAndSendTask(this, settings.getString(ServerPreferences.KEY_SUBMIT, this.getString(R.string.default_submit_server)));
+    		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+    		mProcess = new ProcessAndSendTask(this, settings.getString("default_submit_server", this.getString(R.string.default_submit_server)));
     		mProcess.setListener(this);
     		showDialog(DIALOG_SEND_UNSENT);
     		mProcess.execute(records);
@@ -367,12 +388,26 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     @Override
     protected void onResume() {
         super.onResume();
-        if(CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY &&
+        dispatchHomeScreen();
+    }
+    
+    private void dispatchHomeScreen() {
+        
+        //First make sure nothing catastrophic has happened
+        if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
+           CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
+     	        
+        	//If so, ask the user if they want to wipe and recover (Possibly try to send everything first?)
+        	showDialog(DIALOG_CORRUPTED);
+        }
+        
+        //Now we need to catch any resource or database upgrade flags and make sure that the application
+        //is ready to go.
+        else if(CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
                 CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY) {
      	        Intent i = new Intent(getApplicationContext(), CommCareStartupActivity.class);
      	        i.putExtra(CommCareStartupActivity.DATABASE_STATE, CommCareApplication._().getDatabaseState());
      	        i.putExtra(CommCareStartupActivity.RESOURCE_STATE, CommCareApplication._().getAppResourceState());
-     	        
      	        
      	        this.startActivityForResult(i, INIT_APP);
              }
@@ -418,8 +453,34 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	            mProgressDialog.setIndeterminate(true);
 	            mProgressDialog.setCancelable(false);
 	            return mProgressDialog;
+        case DIALOG_CORRUPTED:
+        		return createAskFixDialog();
         }
         return null;
+    }
+    
+    public Dialog createAskFixDialog() {
+    	mAttemptFixDialog = new AlertDialog.Builder(this).create();
+        mAttemptFixDialog.setTitle("Storage is Corrupt :/");
+        mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
+        DialogInterface.OnClickListener attemptFixDialog = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON1: // attempt repair
+                    	CommCareApplication._().resetApplicationResources();
+                    	dispatchHomeScreen();
+                        break;
+                    case DialogInterface.BUTTON2: // Shut down
+                    	CommCareHomeActivity.this.finish();
+                        break;
+                }
+            }
+        };
+        mAttemptFixDialog.setCancelable(false);
+        mAttemptFixDialog.setButton("Attempt Fix", attemptFixDialog);
+        mAttemptFixDialog.setButton2("Shut Down", attemptFixDialog);
+        
+        return mAttemptFixDialog;
     }
     
     private void createAskUseOldDialog(final String formpath, final FormRecord r) {
@@ -479,4 +540,40 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		}
 		refreshView();
 	}
+	
+
+    private void createPreferencesMenu() {
+        Intent i = new Intent(this, CommCarePreferences.class);
+        startActivity(i);
+    }
+
+	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_PREFERENCES, 0, "Settings").setIcon(
+                android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_UPDATE, 0, "Update CommCare").setIcon(
+        		android.R.drawable.ic_menu_upload);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_PREFERENCES:
+                createPreferencesMenu();
+                return true;
+            case MENU_UPDATE:
+            	CommCareApplication._().upgrade();
+    			platform.clearState();
+    			platform.logout();
+            	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+            	startActivityForResult(i,LOGIN_USER);
+            	return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

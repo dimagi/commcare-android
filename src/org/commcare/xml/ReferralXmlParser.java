@@ -36,6 +36,7 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 		super(parser, "referral", null);
 		this.caseId = caseId;
 		this.context = context;
+		this.created = created;
 	}
 	
 	public Referral parse() throws InvalidStructureException, IOException, XmlPullParserException {

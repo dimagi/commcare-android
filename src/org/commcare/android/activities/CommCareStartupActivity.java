@@ -11,7 +11,7 @@ import org.commcare.android.models.Case;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.Referral;
 import org.commcare.android.models.User;
-import org.commcare.android.preferences.ServerPreferences;
+import org.commcare.android.preferences.CommCarePreferences;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUpgrader;
 import org.commcare.resources.model.Resource;
@@ -103,8 +103,9 @@ public class CommCareStartupActivity extends Activity {
 	
 	private void installResources() {
 		try {
+			//This is replicated in the application in a few palces.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-    		String profile = settings.getString(ServerPreferences.KEY_APP, this.getString(R.string.default_app_server));
+    		String profile = settings.getString("default_app_server", this.getString(R.string.default_app_server));
     		
     		AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
     		ResourceTable global = platform.getGlobalResourceTable();
@@ -126,7 +127,7 @@ public class CommCareStartupActivity extends Activity {
 		
 		//Evaluate success here somehow. Also, we'll need to log in to
 		//mess with anything in the DB, or any old encrypted files, we need a hook for that...
-		upgrader.doUpgrade(oldVersion, currentVersion);
+		upgrader.doUpgrade(database, oldVersion, currentVersion);
 	}
 	
 	private boolean createDataBase() {
@@ -149,6 +150,10 @@ public class CommCareStartupActivity extends Activity {
 			database.execSQL(builder.getTableCreateString());
 			
 			builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
+			builder.addData(new Resource());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
 			builder.addData(new Resource());
 			database.execSQL(builder.getTableCreateString());
 			

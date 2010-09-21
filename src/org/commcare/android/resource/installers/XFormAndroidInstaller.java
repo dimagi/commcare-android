@@ -30,8 +30,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		
 	}
 	
-	public XFormAndroidInstaller(String localDestination) {
-		super(localDestination);
+	public XFormAndroidInstaller(String localDestination, String upgradeDestination) {
+		super(localDestination, upgradeDestination);
 	}
 	
 
@@ -43,10 +43,10 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		return true;
 	}
 	
-	protected int customInstall(Reference local) throws IOException {
+	protected int customInstall(Reference local, boolean upgrade) throws IOException {
 		FormDef formDef = XFormParser.getFormDef(new InputStreamReader(local.getStream(), "UTF-8"));
 		this.namespace = formDef.getInstance().schema;
-		return Resource.RESOURCE_STATUS_INSTALLED;
+		return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
 	}
 
 	/* (non-Javadoc)
