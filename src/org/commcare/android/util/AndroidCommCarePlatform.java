@@ -161,6 +161,25 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		
 		Vector<Entry> entries = getEntriesForCommand(this.getCommand());
 		
+		//Referrals require cases as well, and if a referral is chosen a case
+		//will be too, so we'll check for it first.
+		if(currentRef == null) {
+			boolean needRef = false;
+			for(Entry e : entries) {
+				if(!e.getReferences().containsKey("referral")){
+					// We can't grab a referral yet, since 
+					// there is an entry which doesn't use one
+					needRef = false;
+					break;
+				} else {
+					needRef = true;
+				}
+			}
+			if(needRef) {
+				return GlobalConstants.STATE_REFERRAL_ID;
+			}
+		}
+		
 		if(currentCase == null) {
 			boolean needCase = false;
 			for(Entry e : entries) {
@@ -204,6 +223,14 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	public void setCommand(String commandId) {
 		this.currentCmd = commandId;
+	}
+	
+	public void setReferralId(String referralId) {
+		this.currentRef = referralId;
+	}
+	
+	public String getReferralId() {
+		return this.currentRef;
 	}
 	
 	public String getCaseId() {

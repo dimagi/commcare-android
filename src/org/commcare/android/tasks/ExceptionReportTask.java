@@ -17,19 +17,30 @@
 package org.commcare.android.tasks;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Date;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.mime.MIME;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.util.DeviceReport;
 import org.odk.collect.android.logic.GlobalConstants;
 
@@ -83,10 +94,33 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
         DefaultHttpClient httpclient = new DefaultHttpClient(params);
         HttpPost httppost = new HttpPost(URI);
         
-        httppost.setEntity(new ByteArrayEntity(data));
+        MultipartEntity entity = new MultipartEntity();
+        try {
+        	//Apparently if you don't have a filename in the multipart wrapper, some receivers
+        	//don't properly receive this post.
+        	StringBody body = new StringBody(new String(data), "text/xml", MIME.DEFAULT_CHARSET) {
+				@Override
+				public String getFilename() {
+					return "exceptionreport.xml";
+				}
+        	};
+			entity.addPart("xml_submission_file", body);
+		} catch (IllegalCharsetNameException e1) {
+			e1.printStackTrace();
+		} catch (UnsupportedCharsetException e1) {
+			e1.printStackTrace();
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+
+        
+        httppost.setEntity(entity);
         
         try {
-			httpclient.execute(httppost);
+			HttpResponse response = httpclient.execute(httppost);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			response.getEntity().writeTo(bos);
+			System.out.println("Response: " + new String(bos.toByteArray()));
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

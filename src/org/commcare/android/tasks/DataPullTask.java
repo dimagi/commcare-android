@@ -101,7 +101,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
 			
 			try {
-				SecretKeySpec spec = getKeyForDevice();
+				//SecretKeySpec spec = getKeyForDevice();
+				SecretKeySpec spec = generateTestKey();
 				if(spec == null) {
 					this.publishProgress(PROGRESS_DONE);
 					return UNKNOWN_FAILURE;
@@ -207,13 +208,13 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		//return generateTestKey();
 	}
 	
-	private SecretKey generateTestKey() {
+	private SecretKeySpec generateTestKey() {
 		CommCareApplication._().getPhoneId();
 		KeyGenerator generator;
 		try {
 			generator = KeyGenerator.getInstance("AES");
 			generator.init(256, new SecureRandom(CommCareApplication._().getPhoneId().getBytes()));
-			return generator.generateKey();
+			return new SecretKeySpec(generator.generateKey().getEncoded(), "AES");
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
