@@ -291,4 +291,10 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	public long getCallDuration() {
 		return callDuration;
 	}
+	
+	public void initialize(ResourceTable global) {
+		this.profile = null;
+		this.installedSuites.clear();
+		super.initialize(global);
+	}
 }

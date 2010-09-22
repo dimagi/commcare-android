@@ -24,7 +24,9 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -77,7 +79,8 @@ public class LoginActivity extends Activity implements DataPullListener {
         login.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View arg0) {
-				if(tryLocalLogin()) {
+				//If they don't manually want to check the server, try logging in locally
+				if(!checkServer.isChecked() && tryLocalLogin()) {
 					return;
 				}
 				
@@ -90,11 +93,12 @@ public class LoginActivity extends Activity implements DataPullListener {
 				
 				//We should go digest auth this user on the server and see whether to pull them
 				//down.
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
 				
 				dataPuller = new DataPullTask(username.getText().toString(), 
 						                             password.getText().toString(),
-						                             LoginActivity.this.getString(R.string.default_ota_server),
-						                             LoginActivity.this.getString(R.string.default_key_server),
+						                             prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
+						                             prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
 						                             LoginActivity.this);
 				
 				dataPuller.setPullListener(LoginActivity.this);
@@ -119,7 +123,6 @@ public class LoginActivity extends Activity implements DataPullListener {
     	passLabel.setText("Password:");
     	userLabel.setText("Username:");
     	login.setText("Log In");
-    	checkServer.setText("Check Server");
     }
     
     private boolean tryLocalLogin() {

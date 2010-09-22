@@ -16,15 +16,19 @@
 
 package org.commcare.android.preferences;
 
-import org.odk.collect.android.R;
+import org.commcare.android.R;
+import org.commcare.android.activities.LoginActivity;
+import org.commcare.android.application.CommCareApplication;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.Intent;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class CommCarePreferences extends PreferenceActivity {
+	
+	private static final int CLEAR_USER_DATA = Menu.FIRST;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,4 +36,25 @@ public class CommCarePreferences extends PreferenceActivity {
         addPreferencesFromResource(R.xml.server_preferences);
         setTitle("CommCare" + " > " + "Application Preferences");
     }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, CLEAR_USER_DATA, 0, "Clear User Data").setIcon(
+                android.R.drawable.ic_menu_delete);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case CLEAR_USER_DATA:
+                CommCareApplication._().clearUserData();
+                this.finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

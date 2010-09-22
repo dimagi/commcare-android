@@ -29,28 +29,30 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
 	Context c;
 	IStorageUtilityIndexed storage;
-	Collection<String> ignoreIDs;
+	Collection<String> existingIDs;
 	
 	public CaseXmlParser(KXmlParser parser, Context c) {
 		this(parser, c, new Vector<String>());
 	}
 	
-	public CaseXmlParser(KXmlParser parser, Context c, Collection<String> ignoreIDs) {
+	public CaseXmlParser(KXmlParser parser, Context c, Collection<String> existingIDs) {
 		super(parser, "case", null);
 		this.c = c;
-		this.ignoreIDs = ignoreIDs;
+		this.existingIDs = existingIDs;
 	}
 
 	public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
 		this.checkNode("case");
 		
+		boolean updateMode = false;
+		
 		//parse (with verification) the next tag
 		this.nextTag("case_id");
 		String caseId = parser.nextText();
-		if(ignoreIDs.contains(caseId)) {
-			//Skip the case somehow
-			this.skipBlock("case");
-			return null;
+		if(existingIDs.contains(caseId)) {
+			//Case already on the phone, don't create, just
+			//update
+			updateMode = true;
 		}
 		
 		this.nextTag("date_modified");
@@ -86,12 +88,14 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					}
 				}
 				
-				//Create the case.
-				Case c = new Case(data[3], data[0]);
-				c.setUserId(data[2]);
-				c.setExternalId(data[1]);
-				c.setCaseId(caseId);
-				commit(c);
+				if(!updateMode) {
+					//Create the case.
+					Case c = new Case(data[3], data[0]);
+					c.setUserId(data[2]);
+					c.setExternalId(data[1]);
+					c.setCaseId(caseId);
+					commit(c);
+				}
 				
 			} else if(action.equals("update")) {
 				Case c = retrieve(caseId);

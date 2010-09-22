@@ -15,6 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.R;
 import org.commcare.android.database.CommCareDBCursorFactory;
+import org.commcare.android.database.CommCareOpenHelper;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
@@ -22,6 +23,7 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.Referral;
+import org.commcare.android.models.User;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -30,6 +32,7 @@ import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -45,6 +48,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 
@@ -97,7 +101,7 @@ public class CommCareApplication extends Application {
 		
 		if(dbState != STATE_UNINSTALLED) {
 			CursorFactory factory = new CommCareDBCursorFactory();
-			database = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, factory, SQLiteDatabase.OPEN_READWRITE);
+			database = new CommCareOpenHelper(this, factory).getWritableDatabase();
 		}
 	}
 	
@@ -109,7 +113,7 @@ public class CommCareApplication extends Application {
 		}
 		
 		CursorFactory factory = new CommCareDBCursorFactory(this.encryptedModels(), this.getDecrypter());
-		database = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, factory, SQLiteDatabase.OPEN_READWRITE);
+		database = new CommCareOpenHelper(this, factory).getWritableDatabase();
 	}
 	
 	public Cipher getEncrypter() {
@@ -202,20 +206,25 @@ public class CommCareApplication extends Application {
     private void createPaths() {
     	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE};
     	for(String path : paths) {
-    		File f = new File(path);
+    		File f = new File(storageRoot() + path);
     		if(!f.exists()) {
-    			f.mkdir();
+    			f.mkdirs();
     		}
     	}
     }
 	
 	private void setRoots() {
 		JavaHttpRoot http = new JavaHttpRoot();
-		JavaFileRoot file = new JavaFileRoot(GlobalConstants.FILE_REF_ROOT);
+		
+		JavaFileRoot file = new JavaFileRoot(storageRoot());
 
 		ReferenceManager._().addReferenceFactory(http);
 		ReferenceManager._().addReferenceFactory(file);
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
+	}
+	
+	private String storageRoot() {
+		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ this.getPackageName() +"/files/";
 	}
 	
 	private int initResources() {
@@ -254,20 +263,15 @@ public class CommCareApplication extends Application {
 		} else{
 			//App isn't properly installed/prepared yet.
 		}
+		platform.initialize(global);
 	}
 
 	private int initDb() {
 		SQLiteDatabase database;
 		try {
-			database = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, null, SQLiteDatabase.OPEN_READWRITE);
-			int oldVersion = database.getVersion();
-			int currentVersion = CommCareApplication._().versionCode();
+			database = new CommCareOpenHelper(this).getWritableDatabase();
 			database.close();
-			if(currentVersion > oldVersion) {
-				return STATE_UPGRADE;
-			} else {
-				return STATE_READY;
-			}
+			return STATE_READY;
 		} catch(SQLiteException e) {
 			//Only thrown in DB isn't there
 			return STATE_UNINSTALLED;
@@ -282,7 +286,7 @@ public class CommCareApplication extends Application {
 				public SQLiteDatabase getHandle() {
 					CursorFactory factory = new CommCareDBCursorFactory(encryptedModels(), getDecrypter());
 					if(database == null || !database.isOpen()) {
-						database = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, factory, SQLiteDatabase.OPEN_READWRITE);
+						database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
 					}
 					return database;
 				}
@@ -294,7 +298,7 @@ public class CommCareApplication extends Application {
 				public SQLiteDatabase getHandle() {
 					CursorFactory factory = new CommCareDBCursorFactory();
 					if(database == null || !database.isOpen()) {
-						database = SQLiteDatabase.openDatabase(GlobalConstants.DB_LOCATION, factory, SQLiteDatabase.OPEN_READWRITE);
+						database = new CommCareOpenHelper(this.c, factory).getWritableDatabase();
 					}
 					return database;
 				}
@@ -344,6 +348,35 @@ public class CommCareApplication extends Application {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
+		} catch (UnresolvedResourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		}
+	}
+
+	/**
+	 * This method wipes out all local user data (users, referrals, etc) but leaves
+	 * application resources in place.
+	 * 
+	 * It makes no attempt to make sure this is a safe operation when called, so
+	 * it shouldn't be used lightly.
+	 */
+	public void clearUserData() {
+		//First clear anything that will require the user's key, since we're going to wipe it out!
+		getStorage(Referral.STORAGE_KEY, Referral.class).removeAll();
+		getStorage(Case.STORAGE_KEY, Case.class).removeAll();
+		
+		//TODO: We should really be wiping out the _stored_ instances here, too
+		getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
+		
+		//Now we wipe out the user entirely
+		getStorage(User.STORAGE_KEY, User.class).removeAll();
+		
+		//We should be clear of anything that requires the storage key anymore, so we can now dump
+		//user credentials.
+		platform.logout();
+		
+		//Should be good to go. The app'll log us out now that there's no user details in memory
 	}
 }

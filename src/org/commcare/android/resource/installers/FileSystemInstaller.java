@@ -70,9 +70,11 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 			table.commit(r, status);
 			return true;
 		} catch (InvalidReferenceException e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "Unavailable resource at " + e.getReferenceString());
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "IOException for resource");
 		}
 	}
 

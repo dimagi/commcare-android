@@ -57,7 +57,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 		try {
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
 	
-			
 			SuiteParser parser = new SuiteParser(local.getStream(), instance.getGlobalResourceTable(),null);
 			
 			Suite s = parser.parse();

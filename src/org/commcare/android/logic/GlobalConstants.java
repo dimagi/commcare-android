@@ -2,9 +2,7 @@ package org.commcare.android.logic;
 
 public class GlobalConstants {
 	
-	public static final String FILE_REF_ROOT = "sdcard/";
-	
-	public static final String FILE_CC_ROOT = "/" + FILE_REF_ROOT + "commcare";
+	public static final String FILE_CC_ROOT = "/commcare";
 	public static final String FILE_CC_INSTALL = FILE_CC_ROOT + "/install";
 	public static final String FILE_CC_UPGRADE = FILE_CC_ROOT + "/upgrade";
 	public static final String FILE_CC_CACHE = FILE_CC_ROOT + "/cache";
@@ -12,7 +10,6 @@ public class GlobalConstants {
 	public static final String FILE_CC_SAVED = FILE_CC_ROOT + "/saved/";
 	public static final String FILE_CC_PROCESSED = FILE_CC_ROOT + "/processed/";
 	
-	public static final String DB_LOCATION = "/sdcard/commcare/commcare.sqlite";
 	public static final String CC_DB_NAME = "commcare";
 	
     /**

@@ -16,12 +16,13 @@ the License.
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-    		android:dialogTitle="CommCare Application Server" android:id="@+id/appserver" android:title="CommCare Application Server" android:key="default_app_server" android:defaultValue="@string/default_app_server"/>
+    		android:dialogTitle="CommCare Application Server" android:id="@+id/appserver" android:title="CommCare Application Server" android:key="default_app_server" android:defaultValue="@string/default_app_server" android:enabled="true"/>
             
                 <EditTextPreference
-        android:title="Data Server" android:enabled="true" android:dialogTitle="CommCare Data Server" android:id="@+id/dataserver" android:key="default_ota_server" android:defaultValue="@string/default_ota_server"/>
+        android:title="Data Server" android:enabled="true" android:dialogTitle="CommCare Data Server" android:id="@+id/dataserver" android:key="ota-restore-url" android:defaultValue="@string/ota_restore_url"/>
             
                 <EditTextPreference
-        android:title="Submission Server" android:dialogTitle="CommCare Submission Server" android:enabled="true" android:id="@+id/submitserver" android:key="default_submit_server" android:defaultValue="@string/default_submit_server"/>
+        android:title="Submission Server" android:dialogTitle="CommCare Submission Server" android:enabled="true" android:id="@+id/submitserver" android:key="PostURL" android:defaultValue="@string/PostURL"/>
                 
+<EditTextPreference android:key="default_key_server" android:enabled="true" android:title="Key Server" android:defaultValue="@string/key_server"></EditTextPreference>
 </PreferenceScreen>

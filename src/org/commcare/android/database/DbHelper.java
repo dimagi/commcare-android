@@ -28,7 +28,7 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public abstract class DbHelper {
 	
-	private Context c;
+	protected Context c;
 	private Cipher encrypter;
 	//private Hashtable<String, EncryptedModel> encryptedModels;
 	

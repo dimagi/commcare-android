@@ -51,8 +51,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	public static final int DIALOG_SEND_UNSENT =2;
 	public static final int DIALOG_CORRUPTED = 4;
 	
-	private static final int MENU_PREFERENCES = 1;
-	private static final int MENU_UPDATE = 2;
+	private static final int MENU_PREFERENCES = Menu.FIRST;
+	private static final int MENU_UPDATE = Menu.FIRST  +1;;
 	
 	View homeScreen;
 	
@@ -242,7 +242,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 						e.printStackTrace();
 					}
 	        		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
-	        		mProcess = new ProcessAndSendTask(this, settings.getString("default_submit_server", this.getString(R.string.default_submit_server)));
+	        		mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
 	        		mProcess.setListener(this);
 	        		showDialog(DIALOG_PROCESS);
 	        		mProcess.execute(r);
@@ -371,7 +371,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     			records[i] = storage.read(ids.elementAt(i).intValue());
     		}
     		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
-    		mProcess = new ProcessAndSendTask(this, settings.getString("default_submit_server", this.getString(R.string.default_submit_server)));
+    		mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
     		mProcess.setListener(this);
     		showDialog(DIALOG_SEND_UNSENT);
     		mProcess.execute(records);
@@ -405,9 +405,9 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         //is ready to go.
         else if(CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
                 CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY) {
-     	        Intent i = new Intent(getApplicationContext(), CommCareStartupActivity.class);
-     	        i.putExtra(CommCareStartupActivity.DATABASE_STATE, CommCareApplication._().getDatabaseState());
-     	        i.putExtra(CommCareStartupActivity.RESOURCE_STATE, CommCareApplication._().getAppResourceState());
+     	        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+     	        i.putExtra(CommCareSetupActivity.DATABASE_STATE, CommCareApplication._().getDatabaseState());
+     	        i.putExtra(CommCareSetupActivity.RESOURCE_STATE, CommCareApplication._().getAppResourceState());
      	        
      	        this.startActivityForResult(i, INIT_APP);
              }
