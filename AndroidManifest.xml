@@ -11,7 +11,7 @@
         </activity>
 
     
-<activity android:label="@string/app_name" android:name=".activities.LoginActivity"></activity>
+<activity android:label="@string/app_name" android:name=".activities.LoginActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name=".activities.MenuList"></activity>
 <activity android:name=".activities.EntitySelectActivity"></activity>
 <activity android:name=".activities.EntityDetailActivity"></activity>
@@ -36,7 +36,7 @@
     </intent-filter>   
 </activity>
 <activity android:name=".activities.CallOutActivity"></activity>
-<activity android:name=".activities.CommCareSetupActivity" android:configChanges="orientation"></activity>
+<activity android:name=".activities.CommCareSetupActivity" android:configChanges="orientation" android:windowSoftInputMode="adjustResize"></activity>
 <provider android:authorities="org.commcare.fileprovider" android:name="org.commcare.android.providers.CommCareFileContentProvider"></provider>
 </application>
 

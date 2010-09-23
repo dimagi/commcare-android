@@ -202,11 +202,15 @@ public class CommCareApplication extends Application {
 	public SharedPreferences preferences() {
 		return appPreferences;
 	}
+	
+	public String fsPath(String relative) {
+		return storageRoot() + relative;
+	}
     
     private void createPaths() {
     	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE};
     	for(String path : paths) {
-    		File f = new File(storageRoot() + path);
+    		File f = new File(fsPath(path));
     		if(!f.exists()) {
     			f.mkdirs();
     		}

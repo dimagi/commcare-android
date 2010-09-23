@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -157,7 +158,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 		File folder = f.getCanonicalFile().getParentFile();
 
 		String folderName = folder.getName();
-		File newFolder = new File(GlobalConstants.FILE_CC_PROCESSED + folderName);
+		File newFolder = new File(CommCareApplication._().fsPath(GlobalConstants.FILE_CC_PROCESSED) + folderName);
 		if(folder.renameTo(newFolder)) {
 			String newFormPath = newFolder.getAbsolutePath() + File.separator + f.getName();
 			if(!new File(newFormPath).exists()) {

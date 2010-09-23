@@ -322,7 +322,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		PreloadContentProvider.initializeSession(platform, this);
 		Intent i = new Intent("org.odk.collect.android.action.FormEntry");
 		i.putExtra("formpath", formpath);
-		i.putExtra("instancedestination", GlobalConstants.FILE_CC_SAVED);
+		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_SAVED)));
 		
 		if(r == null) {
 			
