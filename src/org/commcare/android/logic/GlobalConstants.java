@@ -26,8 +26,6 @@ public class GlobalConstants {
     
     public static final String UPGRADE_REF = "jr://file/commcare/upgrade";
     
-    public static final String COMMCARE_PLATFORM = "COMMCARE_PLATFORM";
-    
 
     /**
      * How long to wait when opening network connection in milliseconds

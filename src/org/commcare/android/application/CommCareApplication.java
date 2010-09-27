@@ -383,4 +383,29 @@ public class CommCareApplication extends Application {
 		
 		//Should be good to go. The app'll log us out now that there's no user details in memory
 	}
+
+	public String getCurrentVersionString() {
+		PackageManager pm = this.getPackageManager();
+		PackageInfo pi;
+		try {
+			pi = pm.getPackageInfo("org.commcare.android", 0);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+			return "ERROR! Incorrect package version requested";
+		}
+		int[] versions = this.getCommCareVersion();
+		String ccv = "";
+		for(int vn: versions) {
+			if(ccv != "") {
+				ccv +=".";
+			}
+			ccv += vn;
+		}
+		
+		String buildDate = getString(R.string.app_build_date);
+		String buildNumber = getString(R.string.app_build_number);
+		
+		return "CommCare ODK, version \"" + pi.versionName + "\"(" + pi.versionCode+ "). CommCare Version " +  ccv + ". Build #" + buildNumber + ", built on: " + buildDate;
+		
+	}
 }

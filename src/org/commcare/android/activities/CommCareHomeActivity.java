@@ -1,7 +1,6 @@
 package org.commcare.android.activities;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
@@ -17,11 +16,9 @@ import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.ProcessAndSendListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.CommCarePlatformProvider;
 import org.commcare.android.util.FileUtil;
 import org.commcare.suite.model.Entry;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.odk.collect.android.preferences.ServerPreferences;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -61,6 +58,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	ProgressDialog mProgressDialog;
 	AlertDialog mAskOldDialog;
 	AlertDialog mAttemptFixDialog;
+	private int mCurrentDialog;
 	
 	ProcessAndSendTask mProcess;
 	
@@ -74,19 +72,15 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        platform = CommCarePlatformProvider.unpack(savedInstanceState, this);
+        platform = CommCareApplication._().getCommCarePlatform();
         
         // enter data button. expects a result.
         startButton = (Button) findViewById(R.id.start);
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MenuList.class);
-                Bundle b = new Bundle();
                 
-                CommCarePlatformProvider.pack(b, platform);
-                i.putExtra(GlobalConstants.COMMCARE_PLATFORM, b);
                 startActivityForResult(i, GET_COMMAND);
-
             }
         });
         
@@ -277,17 +271,12 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     	}
     	if(needed == GlobalConstants.STATE_CASE_ID) {
             Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
-            Bundle b = new Bundle();
             
-            CommCarePlatformProvider.pack(b, platform);
-            i.putExtra(GlobalConstants.COMMCARE_PLATFORM, b);
             startActivityForResult(i, GET_CASE);
     	} else if(needed == GlobalConstants.STATE_COMMAND_ID) {
             Intent i = new Intent(getApplicationContext(), MenuList.class);
             Bundle b = new Bundle();
             
-            CommCarePlatformProvider.pack(b, platform);
-            i.putExtra(GlobalConstants.COMMCARE_PLATFORM, b);
             i.putExtra(GlobalConstants.STATE_COMMAND_ID, platform.getCommand());
             startActivityForResult(i, GET_COMMAND);
     	}
@@ -438,6 +427,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
      */
     @Override
     protected Dialog onCreateDialog(int id) {
+    	mCurrentDialog = id;
         switch (id) {
         case DIALOG_PROCESS:
                 mProgressDialog = new ProgressDialog(this);
@@ -528,7 +518,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     }
 
 	public void processAndSendFinished(int result, int successfulSends) {
-		mProgressDialog.dismiss();
+		this.dismissDialog(mCurrentDialog);
 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
 			String label = "Form Sent to Server!";
 			if(successfulSends > 1) {

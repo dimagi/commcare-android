@@ -8,22 +8,18 @@ import java.util.Vector;
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.EntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DetailCalloutListener;
-import org.commcare.android.util.CommCarePlatformProvider;
 import org.commcare.suite.model.Entry;
 
 import android.app.ListActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.util.Linkify;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -65,7 +61,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
         	
         });
         
-        platform = CommCarePlatformProvider.unpack(getIntent().getBundleExtra(GlobalConstants.COMMCARE_PLATFORM), this);
+        platform = CommCareApplication._().getCommCarePlatform();
         
 		Vector<Entry> entries = platform.getEntriesForCommand(getIntent().getStringExtra(GlobalConstants.STATE_COMMAND_ID));
 		prototype = entries.elementAt(0);

@@ -8,12 +8,9 @@ import java.util.Vector;
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.CommCarePlatformProvider;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -54,7 +51,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         
         searchbox.addTextChangedListener(this);
         
-        platform = CommCarePlatformProvider.unpack(getIntent().getBundleExtra(GlobalConstants.COMMCARE_PLATFORM), this);
+        platform = CommCareApplication._().getCommCarePlatform();
         
 		Vector<Entry> entries = platform.getEntriesForCommand(platform.getCommand());
 		prototype = entries.elementAt(0);
@@ -96,10 +93,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	
     	
         Intent i = new Intent(getApplicationContext(), EntityDetailActivity.class);
-        Bundle b = new Bundle();
-        
-        CommCarePlatformProvider.pack(b, platform);
-        i.putExtra(GlobalConstants.COMMCARE_PLATFORM, b);
+
         i.putExtra(GlobalConstants.STATE_CASE_ID, adapter.getItem(position).getCaseId());
         startActivityForResult(i, CONFIRM_SELECT);
         

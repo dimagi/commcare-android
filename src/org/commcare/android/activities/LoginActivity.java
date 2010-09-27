@@ -106,6 +106,9 @@ public class LoginActivity extends Activity implements DataPullListener {
 				LoginActivity.this.showDialog(DIALOG_CHECKING_SERVER);
 			}
         });
+        
+        TextView versionDisplay = (TextView)findViewById(R.id.str_version);
+        versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
     }
     
     /*

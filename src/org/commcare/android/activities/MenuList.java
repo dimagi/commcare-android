@@ -19,8 +19,8 @@ package org.commcare.android.activities;
 import org.commcare.android.R;
 import org.commcare.android.adapters.MenuListAdapter;
 import org.commcare.android.adapters.NestedMenuListAdapter;
+import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.util.CommCarePlatformProvider;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
@@ -44,11 +44,10 @@ public class MenuList extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        platform = CommCareApplication._().getCommCarePlatform();
         setContentView(R.layout.suite_menu_layout);
         
         String menuId = getIntent().getStringExtra(GlobalConstants.STATE_COMMAND_ID);
-        
-        platform = CommCarePlatformProvider.unpack(getIntent().getBundleExtra(GlobalConstants.COMMCARE_PLATFORM), this);
         
         if(menuId != null) { 
 	        for(Suite s : platform.getInstalledSuites()) {
