@@ -15,6 +15,7 @@ import org.commcare.android.models.EntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.suite.model.Entry;
+import org.commcare.util.CommCareSession;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -53,7 +54,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
 
 			public void onClick(View v) {
 		        Intent i = new Intent(EntityDetailActivity.this.getIntent());
-		        i.putExtra(GlobalConstants.STATE_CASE_ID, entity.getElement().getCaseId());
+		        i.putExtra(CommCareSession.STATE_CASE_ID, entity.getElement().getCaseId());
 		        setResult(RESULT_OK, i);
 
 		        finish();
@@ -63,14 +64,14 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
         
         platform = CommCareApplication._().getCommCarePlatform();
         
-		Vector<Entry> entries = platform.getEntriesForCommand(getIntent().getStringExtra(GlobalConstants.STATE_COMMAND_ID));
+		Vector<Entry> entries = platform.getSession().getEntriesForCommand(getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID));
 		prototype = entries.elementAt(0);
 		
-		String id = getIntent().getStringExtra(GlobalConstants.STATE_CASE_ID);
+		String id = getIntent().getStringExtra(CommCareSession.STATE_CASE_ID);
         
         setTitle(getString(R.string.app_name) + " > " + "Details");
         
-        factory = new EntityFactory<Case>(platform.getDetail(prototype.getLongDetailId()), platform.getLoggedInUser());
+        factory = new EntityFactory<Case>(platform.getSession().getDetail(prototype.getLongDetailId()), platform.getLoggedInUser());
         
         Case c =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class).getRecordForValue(Case.META_CASE_ID, id);
         
@@ -112,7 +113,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
     			long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
     			
 		        Intent i = new Intent(EntityDetailActivity.this.getIntent());
-		        i.putExtra(GlobalConstants.STATE_CASE_ID, entity.getElement().getCaseId());
+		        i.putExtra(CommCareSession.STATE_CASE_ID, entity.getElement().getCaseId());
 		        i.putExtra(CallOutActivity.CALL_DURATION, duration);
 		        setResult(RESULT_OK, i);
 

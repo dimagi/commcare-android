@@ -8,13 +8,13 @@ import java.util.Vector;
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Text;
+import org.commcare.util.CommCareSession;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -53,7 +53,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         
         platform = CommCareApplication._().getCommCarePlatform();
         
-		Vector<Entry> entries = platform.getEntriesForCommand(platform.getCommand());
+		Vector<Entry> entries = platform.getSession().getEntriesForCommand(platform.getSession().getCommand());
 		prototype = entries.elementAt(0);
         
         setTitle(getString(R.string.app_name) + " > " + " Select");
@@ -66,7 +66,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	Detail detail = platform.getDetail(prototype.getShortDetailId());
+    	Detail detail = platform.getSession().getDetail(prototype.getShortDetailId());
     	
     	Text[] templates = detail.getHeaders();
     	String[] headers = new String[templates.length];
@@ -94,7 +94,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	
         Intent i = new Intent(getApplicationContext(), EntityDetailActivity.class);
 
-        i.putExtra(GlobalConstants.STATE_CASE_ID, adapter.getItem(position).getCaseId());
+        i.putExtra(CommCareSession.STATE_CASE_ID, adapter.getItem(position).getCaseId());
         startActivityForResult(i, CONFIRM_SELECT);
         
     }
@@ -110,7 +110,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     		if(resultCode == RESULT_OK) {
     	        // create intent for return and store path
     	        Intent i = new Intent(this.getIntent());
-    	        i.putExtra(GlobalConstants.STATE_CASE_ID, intent.getStringExtra(GlobalConstants.STATE_CASE_ID));
+    	        i.putExtra(CommCareSession.STATE_CASE_ID, intent.getStringExtra(CommCareSession.STATE_CASE_ID));
     	        long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
     	        if(duration != 0) {
     	        	i.putExtra(CallOutActivity.CALL_DURATION, duration);

@@ -18,6 +18,7 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.FileUtil;
 import org.commcare.suite.model.Entry;
+import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.storage.StorageFullException;
 
 import android.app.Activity;
@@ -89,7 +90,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), LoginActivity.class);
                 
-                CommCareHomeActivity.this.platform.clearState();
+                CommCareHomeActivity.this.platform.getSession().clearState();
                 CommCareHomeActivity.this.platform.logout();
                 
                 startActivityForResult(i, LOGIN_USER);
@@ -125,6 +126,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    	CommCareSession session = platform.getSession();
+    	
     	switch(requestCode) {
     	case INIT_APP:
     		if(resultCode == RESULT_CANCELED) {
@@ -152,13 +155,13 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     	case GET_COMMAND:
     		if(resultCode == RESULT_CANCELED) {
     			//We were already deep into getting other state
-    			if(platform.getCommand() != null) {
+    			if(session.getCommand() != null) {
     				//In order of depth: Ref, Case.
-    				if(platform.getCaseId() != null) {
-    					platform.setCaseId(null);
+    				if(session.getCaseId() != null) {
+    					session.setCaseId(null);
     					break;
     				} else {
-    	        		platform.setCommand(null);
+    					session.setCommand(null);
     	        		break;
     				}
     			} else {
@@ -168,17 +171,17 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     			}
     		} else if(resultCode == RESULT_OK) {
     			//Get our command, set it, and continue forward
-    			String command = intent.getStringExtra(GlobalConstants.STATE_COMMAND_ID);
-    			platform.setCommand(command);
+    			String command = intent.getStringExtra(CommCareSession.STATE_COMMAND_ID);
+    			session.setCommand(command);
     			break;
     		}
         case GET_CASE:
         	if(resultCode == RESULT_CANCELED) {
-        		platform.setCaseId(null);
-        		platform.setCommand(null);
+        		session.setCaseId(null);
+        		session.setCommand(null);
         		break;
     		} else if(resultCode == RESULT_OK) {
-    			platform.setCaseId(intent.getStringExtra(GlobalConstants.STATE_CASE_ID));
+    			session.setCaseId(intent.getStringExtra(CommCareSession.STATE_CASE_ID));
     			if(intent.hasExtra(CallOutActivity.CALL_DURATION)) {
     				platform.setCallDuration(intent.getLongExtra(CallOutActivity.CALL_DURATION, 0));
     			}
@@ -198,7 +201,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             		task.execute(ex);
         		}
         		
-    			platform.clearState();
+        		session.clearState();
     			refreshView();
         		break;
         	}
@@ -211,7 +214,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         		//First, check to see if there's already data we're updating
         		Vector<Integer> records = storage.getIDsForValue(FormRecord.META_PATH, instance);
         		FormRecord current;
-    			String caseID = platform.getCaseId();
+    			String caseID = session.getCaseId();
     			if(caseID == null) {
     				caseID = AndroidCommCarePlatform.ENTITY_NONE; 
     			}
@@ -219,7 +222,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         			current = storage.read(records.elementAt(0).intValue());
         		} else {
         			//Otherwise, we need to get the current record from the unstarted stub
-        			Vector<Integer> unstarteds = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getForm(), caseID, FormRecord.STATUS_UNSTARTED});
+        			Vector<Integer> unstarteds = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getSession().getForm(), caseID, FormRecord.STATUS_UNSTARTED});
         			if(unstarteds.size() != 1) {
         				throw new RuntimeException("Invalid DB state upon returning from form entry"); 
         			}
@@ -227,7 +230,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         		}
         		
         		if(completed) {
-    				FormRecord r = new FormRecord(platform.getForm(), instance, caseID, FormRecord.STATUS_COMPLETE, current.getAesKey());
+    				FormRecord r = new FormRecord(session.getForm(), instance, caseID, FormRecord.STATUS_COMPLETE, current.getAesKey());
     				r.setID(current.getID());
     				try {
 						storage.write(r);
@@ -243,7 +246,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        		refreshView();
         		} else {
         			
-        			FormRecord r = new FormRecord(platform.getForm(), instance, caseID, FormRecord.STATUS_INCOMPLETE, current.getAesKey());
+        			FormRecord r = new FormRecord(session.getForm(), instance, caseID, FormRecord.STATUS_INCOMPLETE, current.getAesKey());
         			r.setID(current.getID());
         			
         			try {
@@ -255,29 +258,29 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 					
         			refreshView();
         		}
-        		platform.clearState();
+        		session.clearState();
         		return;
     		} else {
-    			platform.clearState();
+    			session.clearState();
     			refreshView();
         		break;
     		}
     	} 
     		
     	
-    	String needed = platform.getNeededData();
+    	String needed = session.getNeededData();
     	if(needed == null) {
     		startFormEntry();
     	}
-    	if(needed == GlobalConstants.STATE_CASE_ID) {
+    	if(needed == CommCareSession.STATE_CASE_ID) {
             Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
             
             startActivityForResult(i, GET_CASE);
-    	} else if(needed == GlobalConstants.STATE_COMMAND_ID) {
+    	} else if(needed == CommCareSession.STATE_COMMAND_ID) {
             Intent i = new Intent(getApplicationContext(), MenuList.class);
             Bundle b = new Bundle();
             
-            i.putExtra(GlobalConstants.STATE_COMMAND_ID, platform.getCommand());
+            i.putExtra(CommCareSession.STATE_COMMAND_ID, session.getCommand());
             startActivityForResult(i, GET_COMMAND);
     	}
     	
@@ -285,14 +288,14 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     }
     
     private void startFormEntry() {
-    	String command = platform.getCommand();
+    	String command = platform.getSession().getCommand();
 		
 		Entry e = platform.getMenuMap().get(command);
 		String xmlns = e.getXFormNamespace();
 		String path = platform.getFormPath(xmlns);
 		
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-		String caseID = platform.getCaseId();
+		String caseID = platform.getSession().getCaseId();
 		if(caseID == null) {
 			caseID = AndroidCommCarePlatform.ENTITY_NONE; 
 		}
@@ -313,19 +316,21 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		i.putExtra("formpath", formpath);
 		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_SAVED)));
 		
+		CommCareSession session = platform.getSession();
+		
 		if(r == null) {
 			
-			String caseID = platform.getCaseId();
+			String caseID = session.getCaseId();
 			if(caseID == null) {
 				caseID = AndroidCommCarePlatform.ENTITY_NONE; 
 			}
 			
 			SecretKey key = CommCareApplication._().createNewSymetricKey();
-			r = new FormRecord(platform.getForm(), "",caseID, FormRecord.STATUS_UNSTARTED, key.getEncoded());
+			r = new FormRecord(session.getForm(), "",caseID, FormRecord.STATUS_UNSTARTED, key.getEncoded());
 			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 			
 			//Make sure that there are no other unstarted definitions for this form/case, otherwise we won't be able to tell them apart unpon completion
-			Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {platform.getForm(),caseID, FormRecord.STATUS_UNSTARTED} );
+			Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_ENTITY_ID, FormRecord.META_STATUS}, new Object[] {session.getForm(),caseID, FormRecord.STATUS_UNSTARTED} );
 			for(Integer recordId : ids) {
 				storage.remove(recordId.intValue());
 			}
@@ -557,7 +562,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                 return true;
             case MENU_UPDATE:
             	CommCareApplication._().upgrade();
-    			platform.clearState();
+    			platform.getSession().clearState();
     			platform.logout();
             	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
             	startActivityForResult(i,LOGIN_USER);

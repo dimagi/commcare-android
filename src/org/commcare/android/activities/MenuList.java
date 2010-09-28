@@ -20,11 +20,11 @@ import org.commcare.android.R;
 import org.commcare.android.adapters.MenuListAdapter;
 import org.commcare.android.adapters.NestedMenuListAdapter;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareSession;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -47,7 +47,7 @@ public class MenuList extends ListActivity {
         platform = CommCareApplication._().getCommCarePlatform();
         setContentView(R.layout.suite_menu_layout);
         
-        String menuId = getIntent().getStringExtra(GlobalConstants.STATE_COMMAND_ID);
+        String menuId = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
         
         if(menuId != null) { 
 	        for(Suite s : platform.getInstalledSuites()) {
@@ -92,7 +92,7 @@ public class MenuList extends ListActivity {
 
         // create intent for return and store path
         Intent i = new Intent();
-        i.putExtra(GlobalConstants.STATE_COMMAND_ID, commandId);
+        i.putExtra(CommCareSession.STATE_COMMAND_ID, commandId);
         setResult(RESULT_OK, i);
 
         finish();

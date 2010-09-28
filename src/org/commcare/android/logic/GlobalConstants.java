@@ -36,9 +36,4 @@ public class GlobalConstants {
     //All of the app state is contained in these values
     public static final String STATE_USER_KEY = "COMMCARE_USER";
     public static final String STATE_USER_LOGIN = "USER_LOGIN";
-    public static final String STATE_COMMAND_ID = "COMMAND_ID";
-    public static final String STATE_MENU_ID = "MENU_ID";
-    public static final String STATE_CASE_ID = "CASE_ID";
-    public static final String STATE_REFERRAL_ID = "REFERRAL_ID";
-    public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 }
