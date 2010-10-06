@@ -58,10 +58,6 @@ public class DotsDetailView {
 		this.dose = dose;
 		
 		View view = View.inflate(context, R.layout.dots_detail, null);
-
-		TextView title = (TextView)view.findViewById(R.id.dots_detail_title);
-		
-		title.setText("DOTS Details for " + DateUtils.formatDate(date, DateUtils.FORMAT_HUMAN_READABLE_SHORT));
 		
 		LinearLayout container = (LinearLayout)view.findViewById(R.id.dots_content_frame);
 		

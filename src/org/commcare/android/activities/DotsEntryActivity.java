@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -199,7 +200,9 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 		//View view = ddv.LoadDotsDetailView(this, day, i, date, boxes, this);
 		View view = curday();
 		
-		setTitle(getString(R.string.app_name) + " > " + "DOTS Details for " + DateUtils.formatDate(date, DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+		//DateFormat df = DateFormat.getDateFormat(this);
+		
+		setTitle(getString(R.string.app_name) + " > " + "DOTS Details for " + DateFormat.format("MM/dd/yyyy", date));
 		showView(view, anim);
 	}
 	

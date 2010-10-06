@@ -92,7 +92,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     protected void onListItemClick(ListView listView, View view, int position, long id) {
     	
     	
-        Intent i = new Intent(getApplicationContext(), EntityDetailActivity.class);
+        Intent i = new Intent(getApplicationContext(), CaseDetailActivity.class);
 
         i.putExtra(CommCareSession.STATE_CASE_ID, adapter.getItem(position).getCaseId());
         startActivityForResult(i, CONFIRM_SELECT);

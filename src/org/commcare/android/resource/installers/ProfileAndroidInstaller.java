@@ -144,7 +144,6 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 		return Resource.RESOURCE_STATUS_LOCAL;
 	}
 
-
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
 	 */

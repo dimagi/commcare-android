@@ -16,6 +16,7 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
+import org.javarosa.core.services.storage.Persistable;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -30,17 +31,17 @@ import android.widget.ListView;
  * @author ctsims
  *
  */
-public class EntityDetailActivity extends ListActivity implements DetailCalloutListener {
+public abstract class EntityDetailActivity<T extends Persistable> extends ListActivity implements DetailCalloutListener {
 	private AndroidCommCarePlatform platform;
 	
 	private static final int CALL_OUT = 0;
 	
 	Entry prototype;
 	
-	Entity<Case> entity;
+	Entity<T> entity;
 	
 	EntityDetailAdapter adapter;
-	EntityFactory<Case> factory;
+	EntityFactory<T> factory;
 	
 	Button next;
 	
@@ -54,7 +55,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
 
 			public void onClick(View v) {
 		        Intent i = new Intent(EntityDetailActivity.this.getIntent());
-		        i.putExtra(CommCareSession.STATE_CASE_ID, entity.getElement().getCaseId());
+		        loadOutgoingIntent(i);
 		        setResult(RESULT_OK, i);
 
 		        finish();
@@ -62,20 +63,19 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
         	
         });
         
+        
         platform = CommCareApplication._().getCommCarePlatform();
         
-		Vector<Entry> entries = platform.getSession().getEntriesForCommand(getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID));
+        String passedCommand = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
+        
+		Vector<Entry> entries = platform.getSession().getEntriesForCommand(passedCommand == null ? platform.getSession().getCommand() : passedCommand);
 		prototype = entries.elementAt(0);
+
+        factory = new EntityFactory<T>(platform.getSession().getDetail(prototype.getLongDetailId()), platform.getLoggedInUser());
 		
-		String id = getIntent().getStringExtra(CommCareSession.STATE_CASE_ID);
+	    entity = factory.getEntity(readObjectFromIncomingIntent(getIntent()));
         
         setTitle(getString(R.string.app_name) + " > " + "Details");
-        
-        factory = new EntityFactory<Case>(platform.getSession().getDetail(prototype.getLongDetailId()), platform.getLoggedInUser());
-        
-        Case c =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class).getRecordForValue(Case.META_CASE_ID, id);
-        
-        entity = factory.getEntity(c);
         
         refreshView();
     }
@@ -98,6 +98,10 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
         //Shouldn't be possible
     }
     
+    protected abstract T readObjectFromIncomingIntent(Intent i);
+    
+    protected abstract void loadOutgoingIntent(Intent i);
+    
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
@@ -113,7 +117,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
     			long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
     			
 		        Intent i = new Intent(EntityDetailActivity.this.getIntent());
-		        i.putExtra(CommCareSession.STATE_CASE_ID, entity.getElement().getCaseId());
+		        loadOutgoingIntent(i);
 		        i.putExtra(CallOutActivity.CALL_DURATION, duration);
 		        setResult(RESULT_OK, i);
 

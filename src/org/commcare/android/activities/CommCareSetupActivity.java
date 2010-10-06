@@ -12,6 +12,8 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -58,58 +60,101 @@ public class CommCareSetupActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.first_start_screen);
 		
+		if(savedInstanceState == null) {
+			profileRef = this.getIntent().getStringExtra(APP_PROFILE_REF);
+			
+			if(profileRef == null) {
+			    profileRef = PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server));
+			}
+		} else {
+	        advanced = savedInstanceState.getBoolean("advanced");
+	        profileRef = savedInstanceState.getString("profileref");
+		}
+		
 		advancedView = this.findViewById(R.id.advanced_panel);
 		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
+		editProfileRef.setText(profileRef);
 		mainMessage = (TextView)this.findViewById(R.id.str_setup_message);
 		
 		//First, identify the binary state
-		dbState = this.getIntent().getIntExtra(DATABASE_STATE, CommCareApplication.STATE_READY);
-		resourceState = this.getIntent().getIntExtra(RESOURCE_STATE, CommCareApplication.STATE_READY);
-		profileRef = this.getIntent().getStringExtra(APP_PROFILE_REF);
-		if(profileRef == null) {
-		    profileRef = PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server));
+		dbState = CommCareApplication._().getDatabaseState();
+		resourceState = CommCareApplication._().getAppResourceState();
+		
+    	advancedView.setVisibility(advanced ? View.VISIBLE : View.INVISIBLE);
+		
+		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
+			//We got called from an outside application, it's gonna be a wild ride!
+			profileRef = this.getIntent().getData().toString();
+			
+			//Now just start up normally.
+		} else {
+			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
+			//and we can just skip tihs
+			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY) {
+		        Intent i = new Intent(getIntent());
+		        
+		        setResult(RESULT_OK, i);
+		        finish();
+		        return;
+			}
 		}
 		
-		if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY) {
-	        Intent i = new Intent(getIntent());
-	        
-	        setResult(RESULT_OK, i);
-	        finish();
+		Button b = (Button)this.findViewById(R.id.start_install);
+		b.setOnClickListener(new OnClickListener() {
 
-//			Intent i = new Intent(this, CommCareHomeActivity.class);
-//			this.startActivity(i);
-		} else {
-			Button b = (Button)this.findViewById(R.id.start_install);
-			b.setOnClickListener(new OnClickListener() {
-
-				public void onClick(View v) {
-					if(dbState == CommCareApplication.STATE_READY) {
-						//If app is fully initialized, don't need to do anything
-					} 
-					
-					//Now check on the resources
-					if(resourceState == CommCareApplication.STATE_READY) {
-						//nothing to do, don't sweat it.
-					} else if(resourceState == CommCareApplication.STATE_UNINSTALLED) {
-						if(!installResources()) {
-							return;
-						}
-					} else if(resourceState == CommCareApplication.STATE_UPGRADE) {
-						//We don't actually see this yet.
+			public void onClick(View v) {
+				if(dbState == CommCareApplication.STATE_READY) {
+					//If app is fully initialized, don't need to do anything
+				} 
+				
+				//Now check on the resources
+				if(resourceState == CommCareApplication.STATE_READY) {
+					//nothing to do, don't sweat it.
+				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED) {
+					if(!installResources()) {
+						return;
 					}
-					
-					//Good to go
-			        Intent i = new Intent(getIntent());
-			        
-			        setResult(RESULT_OK, i);
-			        
-			        finish();
+				} else if(resourceState == CommCareApplication.STATE_UPGRADE) {
+					//We don't actually see this yet.
 				}
 				
-			});
-
-		}
+		        //TODO: We might have gotten here due to being called from the outside, in which
+				//case we should manually start up the home activity
+				
+				if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+					
+					//Need to do the init from here, since cchome won't know we're returning
+					CommCareApplication._().initializeGlobalResources();
+					
+					//Call out to CommCare Home
+	     	        Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+	     	        
+	     	       CommCareSetupActivity.this.startActivity(i);
+	     	       finish();
+	     	       return;
+				} else {
+					//Good to go
+			        Intent i = new Intent(getIntent());
+			        setResult(RESULT_OK, i);
+			        finish();
+			        return;
+				}
+			}
+			
+		});
 	}
+	
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("advanced", advanced);
+        outState.putString("profileref", advanced ? editProfileRef.getText().toString() : profileRef);
+    }
 	
 	private boolean installResources() {
 		
@@ -124,6 +169,15 @@ public class CommCareSetupActivity extends Activity {
     		ResourceTable global = platform.getGlobalResourceTable();
     		
     		platform.init(ref, global, false);
+    		
+    		//Alll goood, we should make this the current profile ref.
+    		//TODO: _OR_ we should use the one in the profile...
+    		
+    		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    		Editor edit = prefs.edit();
+    		edit.putString("default_app_server", ref);
+    		edit.commit();
+    		
     		return true;
 		} catch (UnfullfilledRequirementsException e) {
 			// TODO Auto-generated catch block
@@ -169,7 +223,6 @@ public class CommCareSetupActivity extends Activity {
                 return true;
             case MODE_ADVANCED:
             	advanced = true;
-            	editProfileRef.setText(profileRef);
             	advancedView.setVisibility(View.VISIBLE);
             	return true;
         }

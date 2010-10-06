@@ -275,10 +275,11 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     	if(needed == CommCareSession.STATE_CASE_ID) {
             Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
             
+            i.putExtra(CommCareSession.STATE_COMMAND_ID, session.getCommand());
+            
             startActivityForResult(i, GET_CASE);
     	} else if(needed == CommCareSession.STATE_COMMAND_ID) {
             Intent i = new Intent(getApplicationContext(), MenuList.class);
-            Bundle b = new Bundle();
             
             i.putExtra(CommCareSession.STATE_COMMAND_ID, session.getCommand());
             startActivityForResult(i, GET_COMMAND);
@@ -400,12 +401,9 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         else if(CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
                 CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY) {
      	        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-     	        i.putExtra(CommCareSetupActivity.DATABASE_STATE, CommCareApplication._().getDatabaseState());
-     	        i.putExtra(CommCareSetupActivity.RESOURCE_STATE, CommCareApplication._().getAppResourceState());
      	        
      	        this.startActivityForResult(i, INIT_APP);
-             }
-        else if(platform.getLoggedInUser() == null) {
+        } else if(platform.getLoggedInUser() == null) {
         	
 //        	Intent i = new Intent(getApplicationContext(), DotsEntryActivity.class);
 //        	i.putExtra("regimen", "[0,4]");
