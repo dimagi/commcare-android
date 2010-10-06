@@ -18,9 +18,15 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class InstanceEntityFilter extends EntityFilter<FormInstance> {
 
 	private Filter filter;
+	Text xpathText; 
 	
 	public InstanceEntityFilter(Filter filter) {
 		this.filter = filter;
+		try {
+			xpathText = Text.XPathText("if(" + filter.getRaw() + ",'t','f')",new Hashtable<String, Text>());
+		} catch (XPathSyntaxException ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -28,12 +34,7 @@ public class InstanceEntityFilter extends EntityFilter<FormInstance> {
 	 */
 	public boolean matches(FormInstance instance) {
 		if(filter.getRaw() != null) {
-			try {
-				return "t".equals(Text.XPathText("if(" + filter.getRaw() + ",'t','f')",new Hashtable<String, Text>()).evaluate(instance, null));
-			} catch (XPathSyntaxException ex) {
-				ex.printStackTrace();
-				return true;
-			}
+			return "t".equals(xpathText.evaluate(instance, null));
 		}
 		return true;
 	}

@@ -233,7 +233,8 @@ public class DotsData {
 	}
 	
 	
-	public int recenter(Date newAnchor) {
+	public int recenter(int[] regimens, Date newAnchor) {
+		this.regimens = regimens;
 		int difference = DateUtils.dateDiff(anchor, newAnchor);
 		if(difference == 0) {
 			return 0;

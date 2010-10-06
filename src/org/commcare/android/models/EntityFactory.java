@@ -74,18 +74,34 @@ public class EntityFactory<T extends Persistable> {
 			return true;
 		}
 		if(t instanceof Case) {
-			CaseEntityFilter caseFilter = new CaseEntityFilter(detail.getFilter());
+			CaseEntityFilter caseFilter = caseFilter();
 			if(!caseFilter.matches((Case)t)) {
 				return false;
 			}
 		}
 		
-		InstanceEntityFilter filter = new InstanceEntityFilter(detail.getFilter());
+		InstanceEntityFilter filter = instanceEntityFilter();
 		if(!filter.matches(instance)) {
 				return false;
 		}
 		
 		return true;
+	}
+	
+	CaseEntityFilter cfilter;
+	private CaseEntityFilter caseFilter() {
+		if(cfilter == null) {
+			cfilter = new CaseEntityFilter(detail.getFilter());
+		}
+		return cfilter;
+	}
+	
+	InstanceEntityFilter ifilter;
+	private InstanceEntityFilter instanceEntityFilter() {
+		if(ifilter == null) {
+			ifilter = new InstanceEntityFilter(detail.getFilter());
+		}
+		return ifilter;
 	}
 	
 	private IPreloadHandler getPreloader(String preloader, T t) {

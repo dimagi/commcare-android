@@ -83,6 +83,19 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         		d = DotsDay.deserialize(savedInstanceState.getString(DOTS_DAY));
         	}
         } else {
+        	String regimen = getIntent().getStringExtra("regimen");
+        	int[] regimens = new int[2];
+        	
+        	try {
+	        	JSONArray array = new JSONArray(regimen);
+	        	for(int i = 0; i < array.length(); ++i) {
+	        		regimens[i] = array.getInt(i);
+	        	}
+        	}
+	        catch(JSONException e) {
+	        	throw new RuntimeException(e);
+	        }
+        	
 	        String data = getIntent().getStringExtra(DOTS_DATA);
 	        boolean populateAnchor = false;
 	        
@@ -94,24 +107,10 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	        
 	        if(data != null) {
 	        	dotsData = DotsData.DeserializeDotsData(data);
-	        	if(dotsData.recenter(anchorDate) != 0) {
+	        	if(dotsData.recenter(regimens, anchorDate) != 0) {
 	        		populateAnchor = true;
 	        	}
 	        } else {
-	        	int[] regimens = new int[2];
-	        	
-	        	
-	        	String regimen = getIntent().getStringExtra("regimen");
-	        	try {
-		        	JSONArray array = new JSONArray(regimen);
-		        	for(int i = 0; i < array.length(); ++i) {
-		        		regimens[i] = array.getInt(i);
-		        	}
-	        	}
-		        catch(JSONException e) {
-		        	throw new RuntimeException(e);
-		        }
-	        	
 	        	dotsData = DotsData.CreateDotsData(regimens, anchorDate);
 	        	populateAnchor = true;
 	        }
