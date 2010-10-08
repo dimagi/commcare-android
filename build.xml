@@ -43,9 +43,7 @@
 	
 	<target name="getlibs" if="compile.libs">
 		<!-- First we need to clear it out -->
-		<delete dir="${buildlibs}"/>
 		<copy todir="${buildlibs}">
-			<fileset dir="${jrdeps}" includes="*.jar"/>
 			<fileset dir="${cclibs}" includes="*.jar"/>
 			<fileset dir="${jrlibs}" includes="*.jar"/>
 			<fileset dir="lib" includes="*.jar"/>
