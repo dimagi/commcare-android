@@ -1,2 +1,6 @@
 glob:bin/
 glob:gen\
+glob:dist/*
+glob:buildlibs/*
+glob:local.properties
+glob:key.properties

@@ -17,11 +17,9 @@
 package org.commcare.android.tasks;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Date;
@@ -30,21 +28,21 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.HttpClientParams;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.mime.EncryptedFileBody;
+import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.DeviceReport;
-import org.odk.collect.android.logic.GlobalConstants;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 
 /**
@@ -56,8 +54,6 @@ import android.os.AsyncTask;
 
 public class ExceptionReportTask extends AsyncTask<Throwable, String, String>  
 {
-	String URI = "https://pact.dimagi.com/receiver/submit/pact";
-
     @Override
     protected String doInBackground(Throwable... values) {		
 		DeviceReport report = new DeviceReport(CommCareApplication._());
@@ -90,6 +86,14 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
         HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
         HttpClientParams.setRedirecting(params, false);
 
+        String URI = CommCareApplication._().getString(R.string.PostURL);
+        try {
+        	SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+        	URI = settings.getString("PostURL", CommCareApplication._().getString(R.string.PostURL));
+        } catch(Exception e) {
+        	//D-oh. Really?
+        }
+        
         // setup client
         DefaultHttpClient httpclient = new DefaultHttpClient(params);
         HttpPost httppost = new HttpPost(URI);

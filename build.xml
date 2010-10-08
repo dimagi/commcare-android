@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="commcare-odk">
+
+    <!-- The local.properties file is created and updated by the 'android' tool.
+         It contains the path to the SDK. It should *NOT* be checked in in Version
+         Control Systems. -->
+    <property file="local.properties" />
+
+    <property file="build.properties" />
+
+    <property file="default.properties" />
+	
+	<property file="${file.key.properties}" />
+	
+	<!-- set the property for the resource directory if we are doing a custom build-->
+	<condition property="resource.dir" value="${custom.dir.resource}">
+		<equals arg1="${build.custom}" arg2="true"/>
+	</condition>
+	
+	<target name="compileresources" if="build.custom">
+		<tstamp>
+		  <format property="TODAY_TIMESTAMP"
+		          pattern="MMMM-dd-yyyy"/>
+		</tstamp>
+		<mkdir dir="${custom.dir.resource}"/>
+		
+		<copy todir="${custom.dir.resource}">
+			<fileset dir="res"/>
+		</copy>
+		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
+		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${build.number}"/>
+	</target>
+
+    <!-- Custom Android task to deal with the project target, and import the proper rules.
+         This requires ant 1.6.0 or above. -->
+    <path id="android.antlibs">
+        <pathelement path="${sdk.dir}/tools/lib/anttasks.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/sdklib.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/androidprefs.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/apkbuilder.jar" />
+        <pathelement path="${sdk.dir}/tools/lib/jarutils.jar" />
+    </path>
+	
+	<target name="getlibs" if="compile.libs">
+		<!-- First we need to clear it out -->
+		<delete dir="${buildlibs}"/>
+		<copy todir="${buildlibs}">
+			<fileset dir="${jrdeps}" includes="*.jar"/>
+			<fileset dir="${cclibs}" includes="*.jar"/>
+			<fileset dir="${jrlibs}" includes="*.jar"/>
+			<fileset dir="lib" includes="*.jar"/>
+		</copy>
+	</target>
+
+    <taskdef name="setup"
+        classname="com.android.ant.SetupTask"
+        classpathref="android.antlibs" />
+	
+    <!-- Execute the Android Setup task that will setup some properties specific to the target,
+         and import the build rules files.
+
+         The rules file is imported from
+            <SDK>/platforms/<target_platform>/templates/android_rules.xml
+
+         To customize some build steps for your project:
+         - copy the content of the main node <project> from android_rules.xml
+         - paste it in this build.xml below the <setup /> task.
+         - disable the import by changing the setup task below to <setup import="false" />
+
+         This will ensure that the properties are setup correctly but that your customized
+         build steps are used.
+    -->
+    <setup />
+	
+	<target name="init">
+		<delete dir="${custom.dir}"/>
+		<mkdir dir="${custom.dir}"/>
+		<!-- figure out what the app # is now-->
+		
+	</target>
+	<target name="buildfull" depends="init,compileresources,getlibs">
+		<antcall target="release"/>
+	</target>
+	
+	<target name="cleanupresources" if="build.custom">
+		<delete dir="${custom.dir.resource}"/>
+	</target>
+		
+	<target name="cleanup" depends="cleanupresources">
+		<delete dir="${custom.dir}"/>
+	</target>
+	
+	<target name="addversionnumber">
+		<property name="android.version.code" value="android:versionCode="/>
+		<replaceregexp file="AndroidManifest.xml"
+			match='android:versionCode="(.*)"'
+			replace='${android.version.code}"${version.code}"'/>
+	</target>
+	
+	<target name="buildserver" depends="addversionnumber,buildfull, cleanup"/>
+</project>
