@@ -43,6 +43,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	public static final int GET_CASE = 2;
 	public static final int MODEL_RESULT = 4;
 	public static final int INIT_APP = 8;
+	public static final int GET_INCOMPLETE_FORM = 16;
 	
 	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
@@ -65,6 +66,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	
 	Button startButton;
 	Button logoutButton;
+	Button viewIncomplete;
 	
     /** Called when the activity is first created. */
     @Override
@@ -82,6 +84,16 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                 Intent i = new Intent(getApplicationContext(), MenuList.class);
                 
                 startActivityForResult(i, GET_COMMAND);
+            }
+        });
+        
+     // enter data button. expects a result.
+        viewIncomplete = (Button) findViewById(R.id.incomplete);
+        viewIncomplete.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), IncompleteFormActivity.class);
+                
+                startActivityForResult(i, GET_INCOMPLETE_FORM);
             }
         });
         
@@ -152,6 +164,25 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     		}
     		break;
     		
+    	case GET_INCOMPLETE_FORM:
+    		if(resultCode == RESULT_CANCELED) {
+    			refreshView();
+    			return;
+    		}
+    		else if(resultCode == RESULT_OK) {
+    			int record = intent.getIntExtra(FormRecord.STORAGE_KEY, -1);
+    			if(record == -1) {
+    				//Hm, what to do here?
+    				break;
+    			}
+    			FormRecord r = CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read(record);
+    			session.setXmlns(r.getFormNamespace());
+    			if(r.getEntityId() != null) {
+    				session.setCaseId(r.getEntityId());
+    			}
+    			formEntry(platform.getFormPath(r.getFormNamespace()), r);
+    			return;
+    		}
     	case GET_COMMAND:
     		if(resultCode == RESULT_CANCELED) {
     			//We were already deep into getting other state

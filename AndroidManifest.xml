@@ -37,6 +37,7 @@
 	</intent-filter>
 </activity>
 
+<activity android:name=".activities.IncompleteFormActivity" android:windowSoftInputMode="adjustResize"></activity>
 </application>
 
 <uses-library android:name="org.javarosa" />
