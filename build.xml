@@ -17,6 +17,17 @@
 		<equals arg1="${build.custom}" arg2="true"/>
 	</condition>
 	
+	<!-- set the properties for what the external libs should be. This can be overriden by the properties -->
+	<condition property="external.libs.dir" value="${buildlibs}">
+		<equals arg1="${compile.libs}" arg2="true"/>
+	</condition>
+	
+	<condition property="external.libs.dir" value="lib/">
+		<not>
+			<equals arg1="${compile.libs}" arg2="true"/>
+		</not>
+	</condition>
+	
 	<target name="compileresources" if="build.custom">
 		<tstamp>
 		  <format property="TODAY_TIMESTAMP"
@@ -42,7 +53,6 @@
     </path>
 	
 	<target name="getlibs" if="compile.libs">
-		<property name="external.libs.dir" value="${buildlibs}"/>
 		<!-- First we need to clear it out -->
 		<copy todir="${buildlibs}">
 			<fileset dir="${cclibs}" includes="*.jar"/>
@@ -78,8 +88,6 @@
 		
 	</target>
 	<target name="buildfull" depends="init,compileresources,getlibs">
-		<!-- If getlibs didn't set this parameter, it should get set now -->
-		<property name="external.libs.dir" value="lib/"/>
 		<antcall target="release"/>
 	</target>
 	
