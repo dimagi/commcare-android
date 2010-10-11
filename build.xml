@@ -42,6 +42,7 @@
     </path>
 	
 	<target name="getlibs" if="compile.libs">
+		<property name="external.libs.dir" value="${buildlibs}"/>
 		<!-- First we need to clear it out -->
 		<copy todir="${buildlibs}">
 			<fileset dir="${cclibs}" includes="*.jar"/>
@@ -77,6 +78,8 @@
 		
 	</target>
 	<target name="buildfull" depends="init,compileresources,getlibs">
+		<!-- If getlibs didn't set this parameter, it should get set now -->
+		<property name="external.libs.dir" value="lib/"/>
 		<antcall target="release"/>
 	</target>
 	
@@ -95,5 +98,5 @@
 			replace='${android.version.code}"${version.code}"'/>
 	</target>
 	
-	<target name="buildserver" depends="addversionnumber,buildfull, cleanup"/>
+	<target name="buildserver" depends="addversionnumber,buildfull,cleanup"/>
 </project>
