@@ -84,6 +84,8 @@
 	<target name="init">
 		<delete dir="${custom.dir}"/>
 		<mkdir dir="${custom.dir}"/>
+		<!-- The android build xml naively assumes this folder always exists-->
+		<mkdir dir="libs"/>
 		<!-- figure out what the app # is now-->
 		
 	</target>
