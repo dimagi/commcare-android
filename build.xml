@@ -33,7 +33,7 @@
 			<fileset dir="res"/>
 		</copy>
 		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
-		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${build.number}"/>
+		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${version.code}"/>
 	</target>
 
     <!-- Custom Android task to deal with the project target, and import the proper rules.
