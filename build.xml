@@ -18,14 +18,8 @@
 	</condition>
 	
 	<!-- set the properties for what the external libs should be. This can be overriden by the properties -->
-	<condition property="external.libs.dir" value="${buildlibs}">
+	<condition property="external.libs.dir" value="${buildlibs}" else="lib/">
 		<equals arg1="${compile.libs}" arg2="true"/>
-	</condition>
-	
-	<condition property="external.libs.dir" value="lib/">
-		<not>
-			<equals arg1="${compile.libs}" arg2="true"/>
-		</not>
 	</condition>
 	
 	<target name="compileresources" if="build.custom">
