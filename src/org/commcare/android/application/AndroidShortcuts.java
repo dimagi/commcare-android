@@ -8,20 +8,14 @@ import java.util.ArrayList;
 import org.commcare.android.R;
 import org.commcare.android.activities.CommCareHomeActivity;
 import org.commcare.suite.model.Suite;
-import org.commcare.util.CommCareSession;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * @author ctsims
@@ -53,8 +47,7 @@ public class AndroidShortcuts extends Activity {
     	
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	
-        builder.setTitle("CommCare ODK Shortcuts");
-       
+        builder.setTitle("Select CommCare Shortcut");
 
         for(Suite s : CommCareApplication._().getCommCarePlatform().getInstalledSuites()) {
         	for(org.commcare.suite.model.Menu m : s.getMenus()) {
@@ -73,6 +66,15 @@ public class AndroidShortcuts extends Activity {
                 returnShortcut(AndroidShortcuts.this.names[item], AndroidShortcuts.this.commands[item]);
             }
         });
+        
+        builder.setOnCancelListener(new OnCancelListener() {
+			public void onCancel(DialogInterface dialog) {
+				AndroidShortcuts sc = AndroidShortcuts.this;
+				sc.setResult(RESULT_CANCELED);
+		        sc.finish();
+		        return;
+			}
+        });
 
         
         AlertDialog alert = builder.create();
@@ -86,6 +88,9 @@ public class AndroidShortcuts extends Activity {
         Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
         shortcutIntent.setClassName(this, CommCareHomeActivity.class.getName());
         shortcutIntent.putExtra(EXTRA_KEY_SHORTCUT, command);
+        
+        //Home here makes the intent new every time you call it
+        shortcutIntent.addCategory(Intent.CATEGORY_HOME);
 
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);

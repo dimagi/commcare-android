@@ -458,7 +458,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         	platform.getSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
         	//We were launched in shortcut mode. Get the command and load us up.
         	startNextFetch();
-        	//Only process it once
+        	//Only launch shortcuts once per intent
         	this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
         }
     }
