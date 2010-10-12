@@ -6,6 +6,7 @@ import java.util.Vector;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.R;
+import org.commcare.android.application.AndroidShortcuts;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
@@ -296,9 +297,15 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     			refreshView();
         		break;
     		}
-    	} 
-    		
+    	}     		
     	
+    	startNextFetch();
+    	
+    	super.onActivityResult(requestCode, resultCode, intent);
+    }
+    
+    private void startNextFetch() {
+    	CommCareSession session = platform.getSession();
     	String needed = session.getNeededData();
     	if(needed == null) {
     		startFormEntry();
@@ -315,8 +322,6 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             i.putExtra(CommCareSession.STATE_COMMAND_ID, session.getCommand());
             startActivityForResult(i, GET_COMMAND);
     	}
-    	
-    	super.onActivityResult(requestCode, resultCode, intent);
     }
     
     private void startFormEntry() {
@@ -449,8 +454,12 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         	
         	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         	startActivityForResult(i,LOGIN_USER);
-        } else {
-        	refreshView();
+        } else if(this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
+        	platform.getSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
+        	//We were launched in shortcut mode. Get the command and load us up.
+        	startNextFetch();
+        	//Only process it once
+        	this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
         }
     }
     

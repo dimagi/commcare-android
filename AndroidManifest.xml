@@ -37,8 +37,33 @@
 	</intent-filter>
 </activity>
 
+
+		<!-- Enable Shortcuts for Command Actions -->
+		<activity android:name=".application.AndroidShortcuts"
+                  android:label="CommCare Shortcuts" android:theme="@android:style/Theme.Dialog">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
+
+        <activity-alias android:name=".application.ShortcutGenerator"
+            android:targetActivity=".application.AndroidShortcuts"
+            android:label="CommCare ODK Shortcut">
+
+            <!--  This intent-filter allows your shortcuts to be created in the launcher. -->
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity-alias>
+
 <activity android:name=".activities.IncompleteFormActivity" android:windowSoftInputMode="adjustResize"></activity>
+
 </application>
+
 
 <uses-library android:name="org.javarosa" />
 <uses-library android:name="org.commcare" />
