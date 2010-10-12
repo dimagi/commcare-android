@@ -48,9 +48,6 @@ public class AndroidShortcuts extends Activity {
     }
     
     private void buildMenuList() {
-    	ViewGroup v = (ViewGroup)View.inflate(this, R.layout.command_shortcut_list, null);
-    	this.setContentView(v);
-        
     	ArrayList<String> names = new ArrayList<String>();
     	ArrayList<String> commands = new ArrayList<String>();
     	
@@ -80,27 +77,8 @@ public class AndroidShortcuts extends Activity {
         
         AlertDialog alert = builder.create();
         alert.show();
-    	//this.registerForContextMenu(v);
-    	//this.openContextMenu(v);
     }
     
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        menu.setHeaderTitle("CommCare Shortcuts");
-        
-        for(int i = 0 ; i < commands.length ; ++i) {
-        	menu.add(Menu.NONE, i, i, names[i]);
-        }
-    }
-    
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-      int id = item.getItemId();
-      returnShortcut(names[id], commands[id]);
-      return true;
-    }
-
-
     /**
      * 
      */
