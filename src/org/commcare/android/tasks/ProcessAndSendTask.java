@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -82,46 +82,59 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 	 */
 	protected Integer doInBackground(FormRecord... records) {
 		results = new Integer[records.length];
+		for(int i = 0; i < records.length ; ++i ) {
+			//Assume failure
+			results[i] = FAILURE;
+		}
+		Vector<Exception> thrownwhileprocessing = new Vector<Exception>();
 		for(int i = 0 ; i < records.length ; ++i) {
 			FormRecord record = records[i];
-			
-			
 			try {
 				
+				//If the form is complete, but unprocessed, process it.
 				if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
 					record = process(record);
 				}
 				
-				File folder = new File(record.getPath()).getCanonicalFile().getParentFile();
+				//If it's unsent, go ahead and send it
 				
-				//Good!
-				//Time to Send!
-				results[i] = sendInstance(folder, record.getAesKey());
-				
-				//Check for success
-				if(results[i].intValue() == FULL_SUCCESS) {
-					storage.remove(record);
-					FileUtil.deleteFile(folder);
+				if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
+					File folder = new File(record.getPath()).getCanonicalFile().getParentFile();
+					
+					//Good!
+					//Time to Send!
+					results[i] = sendInstance(folder, record.getAesKey());
+					
+					//Check for success
+					if(results[i].intValue() == FULL_SUCCESS) {
+						storage.remove(record);
+						FileUtil.deleteFile(folder);
+					}
 				}
-				 
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				thrownwhileprocessing.add(e);
 			} catch (InvalidStructureException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				thrownwhileprocessing.add(e);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				thrownwhileprocessing.add(e);
 			} catch (XmlPullParserException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				thrownwhileprocessing.add(e);
 			} catch (UnfullfilledRequirementsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				thrownwhileprocessing.add(e);
 			} catch (StorageFullException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				thrownwhileprocessing.add(e);
 			}
 		}
 		
@@ -130,6 +143,12 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 			if(results[i] > result) {
 				result = results[i];
 			}
+		}
+		
+		if(thrownwhileprocessing.size() > 0) {
+			//although some may have succeeded, we need to know that we failed, so send something to the server;
+			ExceptionReportTask ert = new ExceptionReportTask();
+			ert.execute(thrownwhileprocessing.toArray(new Exception[0]));
 		}
 		return result;
 	}

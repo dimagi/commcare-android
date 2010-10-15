@@ -395,7 +395,10 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     
     protected void checkAndStartUnsentTask() {
     	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+    	
+    	//Get all forms which are either unsent or unprocessed
     	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
+    	ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
     	if(ids.size() > 0) {
     		FormRecord[] records = new FormRecord[ids.size()];
     		for(int i = 0 ; i < ids.size() ; ++i) {
