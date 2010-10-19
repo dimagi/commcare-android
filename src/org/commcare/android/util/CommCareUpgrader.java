@@ -33,8 +33,6 @@ public class CommCareUpgrader {
 			} else { return false;}
 		}
 		
-		database.close();
-		
 		return from == to; 
 	}
 	
