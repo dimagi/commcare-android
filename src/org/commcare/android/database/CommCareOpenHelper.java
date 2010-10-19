@@ -23,7 +23,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class CommCareOpenHelper extends SQLiteOpenHelper {
 	
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 24;
     private Context context;
     
     public CommCareOpenHelper(Context context) {
@@ -41,34 +41,34 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase database) {
 		
 		try {
-		TableBuilder builder = new TableBuilder(Case.STORAGE_KEY);
-		builder.addData(new Case());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder(Referral.STORAGE_KEY);
-		builder.addData(new Referral());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder(User.STORAGE_KEY);
-		builder.addData(new User());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
-		builder.addData(new Resource());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
-		builder.addData(new Resource());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder(FormRecord.STORAGE_KEY);
-		builder.addData(new FormRecord());
-		database.execSQL(builder.getTableCreateString());
-		database.beginTransaction();
-		database.setVersion(CommCareApplication._().versionCode());
-		
-		
-		database.setTransactionSuccessful();
+			database.beginTransaction();
+			
+			TableBuilder builder = new TableBuilder(Case.STORAGE_KEY);
+			builder.addData(new Case());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(Referral.STORAGE_KEY);
+			builder.addData(new Referral());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(User.STORAGE_KEY);
+			builder.addData(new User());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
+			builder.addData(new Resource());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
+			builder.addData(new Resource());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(FormRecord.STORAGE_KEY);
+			builder.addData(new FormRecord());
+			database.execSQL(builder.getTableCreateString());
+			database.setVersion(DATABASE_VERSION);
+					
+			database.setTransactionSuccessful();
 		} finally {
 			database.endTransaction();
 		}
