@@ -76,12 +76,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         super.onCreate(savedInstanceState);
         
         if(savedInstanceState != null) {
-        	dotsData = DotsData.DeserializeDotsData(savedInstanceState.getString(DOTS_DATA));
-        	curday = savedInstanceState.getInt(DOTS_EDITING);
-        	curdose = savedInstanceState.getInt(DOTS_BOX);
-        	if(curdose != -1) {
-        		d = DotsDay.deserialize(savedInstanceState.getString(DOTS_DAY));
-        	}
+        	//Will get restored in onRestoreInstanceState
         } else {
         	String regimen = getIntent().getStringExtra("regimen");
         	int[] regimens = new int[2];
@@ -159,6 +154,17 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         if(curdose != -1) {
         	outState.putString(DOTS_DAY, ddv.getDay().serialize().toString());
         }
+    }
+    
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    	super.onRestoreInstanceState(savedInstanceState);
+    	dotsData = DotsData.DeserializeDotsData(savedInstanceState.getString(DOTS_DATA));
+    	curday = savedInstanceState.getInt(DOTS_EDITING);
+    	curdose = savedInstanceState.getInt(DOTS_BOX);
+    	if(curdose != -1) {
+    		d = DotsDay.deserialize(savedInstanceState.getString(DOTS_DAY));
+    	}
     }
     
     private DotsHomeView home() {
@@ -285,6 +291,15 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     		edit(curday, AnimationType.fade);
     	} else {
     		editDose(curday, curdose, d, null);
+    	}
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		//Make sure all data in UI's is in memory
+    	if(curdose != -1) {
+    		d = ddv.getDay();
     	}
 	}
 	
