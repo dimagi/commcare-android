@@ -26,6 +26,7 @@ import org.commcare.android.models.Referral;
 import org.commcare.android.models.User;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
+import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.CryptUtil;
@@ -247,6 +248,9 @@ public class CommCareApplication extends Application {
 			}
 		}
 		catch(Exception e) {
+			e.printStackTrace();
+			ExceptionReportTask ert = new ExceptionReportTask();
+			ert.execute(e);
 			return STATE_CORRUPTED;
 		}
 	}
