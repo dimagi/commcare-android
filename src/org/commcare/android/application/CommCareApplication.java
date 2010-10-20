@@ -37,6 +37,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
@@ -52,6 +53,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 /**
  * @author ctsims
@@ -248,6 +250,8 @@ public class CommCareApplication extends Application {
 			}
 		}
 		catch(Exception e) {
+			Log.i("FAILURE", "Problem with loading");
+			Log.i("FAILURE", "E: " + e.getMessage());
 			e.printStackTrace();
 			ExceptionReportTask ert = new ExceptionReportTask();
 			ert.execute(e);
