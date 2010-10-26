@@ -231,7 +231,10 @@ public class CommCareApplication extends Application {
 	}
 	
 	private String storageRoot() {
-		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ this.getPackageName() +"/files/";
+		//We used to use the external storage directory, which apparently _DESTROYS YOUR FILES ON UPGRADE_. Do not
+		//switch back until we can figure out how to correct for that.
+		return getApplicationContext().getFilesDir().toString();
+		//return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ this.getPackageName() +"/files/";
 	}
 	
 	private int initResources() {
