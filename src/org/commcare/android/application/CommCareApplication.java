@@ -7,6 +7,7 @@ import java.io.File;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -19,6 +20,7 @@ import org.commcare.android.database.CommCareOpenHelper;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.FormRecord;
@@ -37,10 +39,10 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageManager;
 
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -231,14 +233,15 @@ public class CommCareApplication extends Application {
 	}
 	
 	private String storageRoot() {
-		//We used to use the external storage directory, which apparently _DESTROYS YOUR FILES ON UPGRADE_. Do not
-		//switch back until we can figure out how to correct for that.
-		return getApplicationContext().getFilesDir().toString();
-		//return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ this.getPackageName() +"/files/";
+		//This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
+		//it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
+		//to rely on the fact that the phone knows how to fix missing/corrupt directories every time it upgrades.
+		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ this.getPackageName() +"/files/";
 	}
 	
 	private int initResources() {
 		try {
+			
 			//Now, we need to identify the state of the application resources
 			AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform(); 
 			ResourceTable global = platform.getGlobalResourceTable();
@@ -358,15 +361,41 @@ public class CommCareApplication extends Application {
 		String profile = appPreferences.getString("default_app_server", this.getString(R.string.default_app_server));
 		try {
 			platform.init(profile, global, false);
+			resourceState = this.initResources();
 			return true;
 		} catch (UnfullfilledRequirementsException e) {
-			// TODO Auto-generated catch block
+			ExceptionReportTask ert = new ExceptionReportTask();
+			ert.execute(e);
 			e.printStackTrace();
 			return false;
 		} catch (UnresolvedResourceException e) {
-			// TODO Auto-generated catch block
+			ExceptionReportTask ert = new ExceptionReportTask();
+			ert.execute(e);
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	/**
+	 * This method goes through and identifies whether there are elements in the
+	 * database which point to/expect files to exist on the file system, and clears
+	 * out any records which refer to files that don't exist. 
+	 */
+	public void cleanUpDatabaseFileLinkages() {
+		Vector<Integer> toDelete = new Vector<Integer>();	
+		SqlIndexedStorageUtility<FormRecord> storage = getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		
+		//Can't load the records outright, since we'd need to be logged in (The key is encrypted)
+		for(SqlStorageIterator iterator = storage.iterate(); iterator.hasMore();) {
+			int id = iterator.nextID();
+			String path = storage.getMetaDataFieldForRecord(id, FormRecord.META_PATH);
+			if(!new File(path).exists()) {
+				toDelete.add(id);
+			}
+		}
+		
+		for(int recordid : toDelete) {
+			storage.remove(recordid);
 		}
 	}
 

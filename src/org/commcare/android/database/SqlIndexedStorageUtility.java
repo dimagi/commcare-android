@@ -66,6 +66,16 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 			return indices;
 		}
 	}
+	
+	public String getMetaDataFieldForRecord(int recordId, String fieldName) {
+		Cursor c = helper.getHandle().query(table, new String[] {fieldName} , DbUtil.ID_COL + "=" + recordId, null, null, null, null);
+		if(c.getCount() == 0) {
+			throw new NoSuchElementException("No record in table " + table + " for ID " + recordId);
+		}
+		c.moveToFirst();
+		return c.getString(c.getColumnIndexOrThrow(fieldName));
+
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)

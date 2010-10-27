@@ -3,9 +3,7 @@
  */
 package org.commcare.android.util;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.TableBuilder;
-import org.commcare.android.models.Case;
 import org.commcare.android.models.FormRecord;
 import org.commcare.resources.model.Resource;
 
@@ -34,10 +32,6 @@ public class CommCareUpgrader {
 			} else { return false;}
 		}
 		
-		if(from < 24) {
-			upgradeBeforeTwentyFour(database);
-		}
-		
 		return from == to; 
 	}
 	
@@ -56,13 +50,16 @@ public class CommCareUpgrader {
 	/**
 	 * Due a to a bug in Android 2.2 that is present on ~all of our 
 	 * production phones, upgrading from database versions
-	 * before v. 24 is going to toast all of the app data. As such
+	 * before v. TOBEDECIDED is going to toast all of the app data. As such
 	 * we need to remove all of the relevant records to ensure that
 	 * the app doesn't crash and burn. 
 	 * 
 	 * @param database
 	 */
 	public void upgradeBeforeTwentyFour(SQLiteDatabase database) {
+		//NOTE: We'll do this cleanly when appropriate, but for
+		//right now we're just going to live with the bug.
+		
 		database.beginTransaction();
 		
 		database.execSQL("delete from GLOBAL_RESOURCE_TABLE");

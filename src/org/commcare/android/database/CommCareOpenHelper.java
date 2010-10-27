@@ -3,7 +3,6 @@
  */
 package org.commcare.android.database;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.FormRecord;

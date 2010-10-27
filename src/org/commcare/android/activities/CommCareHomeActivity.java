@@ -445,7 +445,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         } else if(platform.getLoggedInUser() == null) {
         	
 //        	Intent i = new Intent(getApplicationContext(), DotsEntryActivity.class);
-//        	i.putExtra("regimen", "[0,4]");
+//        	i.putExtra("regimen", "[1,2]");
 //       	
 //        	i.putExtra("currentdose", "['full', 'pillbox']");
 //        	i.putExtra("currentbox", "0");
@@ -497,13 +497,22 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     
     public Dialog createAskFixDialog() {
     	mAttemptFixDialog = new AlertDialog.Builder(this).create();
-        mAttemptFixDialog.setTitle("Storage is Corrupt :/");
-        mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
+    	
+    	//Test if this was a botched upgrade.
+    	boolean upgradeIssue = testBotchedUpgrade();
+    	if(!upgradeIssue) {
+    		mAttemptFixDialog.setTitle("Storage is Corrupt :/");
+    		mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
+    	} else {
+    		mAttemptFixDialog.setTitle("Complete Upgrade");
+    		mAttemptFixDialog.setMessage("CommCare needs to finish the upgrade by downloading the application's resources.");
+    	}
         DialogInterface.OnClickListener attemptFixDialog = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON1: // attempt repair
                     	CommCareApplication._().resetApplicationResources();
+                    	CommCareApplication._().cleanUpDatabaseFileLinkages();
                     	dispatchHomeScreen();
                         break;
                     case DialogInterface.BUTTON2: // Shut down
@@ -513,10 +522,30 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             }
         };
         mAttemptFixDialog.setCancelable(false);
-        mAttemptFixDialog.setButton("Attempt Fix", attemptFixDialog);
-        mAttemptFixDialog.setButton2("Shut Down", attemptFixDialog);
+        if(!upgradeIssue) {
+        	mAttemptFixDialog.setButton("Attempt Fix", attemptFixDialog);
+        	mAttemptFixDialog.setButton2("Shut Down", attemptFixDialog);
+        } else {
+        	mAttemptFixDialog.setButton("Complete Upgrade", attemptFixDialog);
+        }
         
         return mAttemptFixDialog;
+    }
+    
+    private boolean testBotchedUpgrade() {
+    	//If the install folder is empty, we know that commcare wiped out our stuff.
+    	File install = new File(CommCareApplication._().fsPath(GlobalConstants.FILE_CC_INSTALL));
+    	File[] installed = install.listFiles();
+    	if(installed == null || installed.length == 0) {
+    		return true;
+    	}
+    	//there's another failure mode where the files somehow end up empty.
+    	for(File f : installed) {
+    		if(f.length() != 0) {
+    			return false;
+    		}
+    	}
+    	return true;
     }
     
     private void createAskUseOldDialog(final String formpath, final FormRecord r) {
