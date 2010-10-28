@@ -11,6 +11,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -48,12 +49,14 @@ public class CommCareSetupActivity extends Activity {
 	int dbState;
 	int resourceState;
 	
-	String profileRef;
+	String incomingRef;
 	
 	View advancedView;
 	EditText editProfileRef;
 	TextView mainMessage;
+	Button installButton;
 	boolean advanced = false;
+	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -61,21 +64,15 @@ public class CommCareSetupActivity extends Activity {
 		setContentView(R.layout.first_start_screen);
 		
 		if(savedInstanceState == null) {
-			profileRef = this.getIntent().getStringExtra(APP_PROFILE_REF);
-			
-			if(profileRef == null) {
-			    profileRef = PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server));
-			}
+			incomingRef = this.getIntent().getStringExtra(APP_PROFILE_REF);
 		} else {
 	        advanced = savedInstanceState.getBoolean("advanced");
-	        profileRef = savedInstanceState.getString("profileref");
+	        incomingRef = savedInstanceState.getString("profileref");
 		}
 		
 		advancedView = this.findViewById(R.id.advanced_panel);
-		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
-		editProfileRef.setText(profileRef);
 		mainMessage = (TextView)this.findViewById(R.id.str_setup_message);
-		
+
 		//First, identify the binary state
 		dbState = CommCareApplication._().getDatabaseState();
 		resourceState = CommCareApplication._().getAppResourceState();
@@ -84,7 +81,7 @@ public class CommCareSetupActivity extends Activity {
 		
 		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
 			//We got called from an outside application, it's gonna be a wild ride!
-			profileRef = this.getIntent().getData().toString();
+			incomingRef = this.getIntent().getData().toString();
 			
 			//Now just start up normally.
 		} else {
@@ -99,10 +96,22 @@ public class CommCareSetupActivity extends Activity {
 			}
 		}
 		
-		Button b = (Button)this.findViewById(R.id.start_install);
-		b.setOnClickListener(new OnClickListener() {
+		
+		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
+		installButton = (Button)this.findViewById(R.id.start_install);
+		
+		if(incomingRef == null) {
+			mainMessage.setText("Welcome to CommCare! To proceed with installation, please navigate to a CommCare Profile on your Web Browser.");
+			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
+			installButton.setEnabled(false);
+		} else {
+			editProfileRef.setText(incomingRef);
+		}
+		
+		installButton.setOnClickListener(new OnClickListener() {
 
-			public void onClick(View v) {
+			public void onClick(View v) {	
+				
 				if(dbState == CommCareApplication.STATE_READY) {
 					//If app is fully initialized, don't need to do anything
 				} 
@@ -153,12 +162,12 @@ public class CommCareSetupActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("advanced", advanced);
-        outState.putString("profileref", advanced ? editProfileRef.getText().toString() : profileRef);
+        outState.putString("profileref", advanced ? editProfileRef.getText().toString() : incomingRef);
     }
 	
 	private boolean installResources() {
 		
-		String ref = profileRef;
+		String ref = incomingRef;
 		if(advanced) {
 			ref = editProfileRef.getText().toString();
 		}
@@ -203,8 +212,8 @@ public class CommCareSetupActivity extends Activity {
         super.onCreateOptionsMenu(menu);
         if(advanced) {
         	menu.removeItem(MODE_ADVANCED);
-	        menu.add(0, MODE_BASIC, 0, "Basic Mode").setIcon(
-	                android.R.drawable.ic_menu_help);
+	        //menu.add(0, MODE_BASIC, 0, "Basic Mode").setIcon(
+	                //android.R.drawable.ic_menu_help);
         } else {
             menu.removeItem(MODE_BASIC);
         	menu.add(0, MODE_ADVANCED, 0, "Advanced Mode").setIcon(
@@ -224,6 +233,7 @@ public class CommCareSetupActivity extends Activity {
             case MODE_ADVANCED:
             	advanced = true;
             	advancedView.setVisibility(View.VISIBLE);
+            	installButton.setEnabled(true);
             	return true;
         }
         return super.onOptionsItemSelected(item);
