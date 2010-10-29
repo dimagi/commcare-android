@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class CommCareHomeActivity extends Activity implements ProcessAndSendListener {
@@ -75,6 +76,9 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        TextView version = (TextView)findViewById(R.id.str_version);
+        version.setText(CommCareApplication._().getCurrentVersionString());
         
         platform = CommCareApplication._().getCommCarePlatform();
         

@@ -7,9 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 
+import org.commcare.android.application.CommCareApplication;
 import org.javarosa.core.model.utils.DateUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
@@ -32,8 +32,8 @@ public class DeviceReport {
 	
 	Context mContext;
 	
-	public DeviceReport(Context mContext) {
-		this.mContext = mContext;
+	public DeviceReport(CommCareApplication application) {
+		this.mContext = application;
 		TelephonyManager mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
 
         String did = mTelephonyManager.getDeviceId();
@@ -45,6 +45,10 @@ public class DeviceReport {
 		Element deviceId = reportNode.createElement(null,"device_id");
 		deviceId.addChild(Element.TEXT, did);
 		reportNode.addChild(Element.ELEMENT,deviceId);
+		
+		Element appVersion = reportNode.createElement(null,"version");
+		appVersion.addChild(Element.TEXT, application.getCurrentVersionString());
+		reportNode.addChild(Element.ELEMENT,appVersion);
 		
 		Element reportDate = reportNode.createElement(null,"report_date");
 		reportDate.addChild(Element.TEXT, DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601));
