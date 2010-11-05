@@ -5,10 +5,13 @@ package org.commcare.android.models;
 
 import java.util.Stack;
 
+import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.preloaders.CasePreloader;
+import org.commcare.android.preloaders.ReferralPreloader;
 import org.commcare.android.preloaders.UserPreloader;
 import org.commcare.entity.CaseEntityFilter;
 import org.commcare.entity.InstanceEntityFilter;
+import org.commcare.entity.ReferralEntityFilter;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.data.IAnswerData;
@@ -44,7 +47,7 @@ public class EntityFactory<T extends Persistable> {
 		Text[] templates = detail.getTemplates();
 		String[] outcomes = new String[templates.length];
 		for(int i = 0 ; i < templates.length ; ++i ) {
-			outcomes[i] = templates[i].evaluate(instance, null);
+			outcomes[i] = templates[i].evaluate(instance, null).trim();
 		}
 		return new Entity<T>(outcomes, data);
 	}
@@ -80,6 +83,13 @@ public class EntityFactory<T extends Persistable> {
 			}
 		}
 		
+		if(t instanceof Referral) {
+			ReferralEntityFilter referralFilter = referralFilter();
+			if(!referralFilter.matches((Referral)t)) {
+				return false;
+			}
+		}
+		
 		InstanceEntityFilter filter = instanceEntityFilter();
 		if(!filter.matches(instance)) {
 				return false;
@@ -96,6 +106,15 @@ public class EntityFactory<T extends Persistable> {
 		return cfilter;
 	}
 	
+	ReferralEntityFilter rfilter;
+	private ReferralEntityFilter referralFilter() {
+		if(rfilter == null) {
+			rfilter = new ReferralEntityFilter(detail.getFilter());
+		}
+		return rfilter;
+	}
+	
+	
 	InstanceEntityFilter ifilter;
 	private InstanceEntityFilter instanceEntityFilter() {
 		if(ifilter == null) {
@@ -106,9 +125,16 @@ public class EntityFactory<T extends Persistable> {
 	
 	private IPreloadHandler getPreloader(String preloader, T t) {
 		if("case".equals(preloader)) {
-			return new CasePreloader((Case)t);
+			if(t instanceof Case) {
+				return new CasePreloader((Case)t);
+			} else if(t instanceof Referral) {
+				return new CasePreloader(CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class).getRecordForValue(Case.META_CASE_ID, ((Referral)t).getLinkedId()));
+			}
+			throw new IllegalArgumentException("Couldn't load 'case' preloader from context element of type " + t.getClass());
 		} else if ("user".equals(preloader)) {
 			return new UserPreloader(current);
+		} else if ("referral".equals(preloader)) {
+			return new ReferralPreloader((Referral)t);
 		} else {
 			return null;
 		}

@@ -8,8 +8,6 @@ import java.util.Vector;
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.Case;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.EntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;

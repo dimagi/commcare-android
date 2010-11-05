@@ -8,13 +8,14 @@ import java.util.Vector;
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.models.Case;
+import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
+import org.javarosa.core.services.storage.Persistable;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -30,13 +31,13 @@ import android.widget.ListView;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends ListActivity implements TextWatcher {
+public abstract class EntitySelectActivity<T extends Persistable> extends ListActivity implements TextWatcher {
 	private AndroidCommCarePlatform platform;
 	
 	private static final int CONFIRM_SELECT = 0;
 	
 	EditText searchbox;
-	EntityListAdapter<Case> adapter;
+	EntityListAdapter<T> adapter;
 	Entry prototype;
 	LinearLayout header;
 	
@@ -78,11 +79,14 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	header.removeAllViews();
     	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     	header.addView(v,params);
-    	adapter = new EntityListAdapter<Case>(this, detail, platform, CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class));
+    	adapter = new EntityListAdapter<T>(this, detail, platform, getStorage());
     	setListAdapter(adapter);
     	searchbox.requestFocus();
     	
     }
+    
+    protected abstract SqlIndexedStorageUtility<T> getStorage();
+    protected abstract Intent getDetailIntent(T t);
 
 
     /**
@@ -90,11 +94,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
      */
     @Override
     protected void onListItemClick(ListView listView, View view, int position, long id) {
-    	
-    	
-        Intent i = new Intent(getApplicationContext(), CaseDetailActivity.class);
-
-        i.putExtra(CommCareSession.STATE_CASE_ID, adapter.getItem(position).getCaseId());
+        Intent i = getDetailIntent(adapter.getItem(position));
         startActivityForResult(i, CONFIRM_SELECT);
         
     }
@@ -110,11 +110,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     		if(resultCode == RESULT_OK) {
     	        // create intent for return and store path
     	        Intent i = new Intent(this.getIntent());
-    	        i.putExtra(CommCareSession.STATE_CASE_ID, intent.getStringExtra(CommCareSession.STATE_CASE_ID));
-    	        long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
-    	        if(duration != 0) {
-    	        	i.putExtra(CallOutActivity.CALL_DURATION, duration);
-    	        }
+    	        
+    	        i.putExtras(intent.getExtras());
     	        setResult(RESULT_OK, i);
 
     	        finish();

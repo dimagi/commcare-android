@@ -13,7 +13,7 @@
     
 <activity android:label="@string/app_name" android:name=".activities.LoginActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name=".activities.MenuList"></activity>
-<activity android:name=".activities.EntitySelectActivity"></activity>
+
 <activity android:name=".activities.CaseDetailActivity"></activity>
 
 <provider android:name="org.commcare.android.providers.PreloadContentProvider" android:authorities="org.commcare.preloadprovider" />
@@ -62,6 +62,10 @@
 
 <activity android:name=".activities.IncompleteFormActivity" android:windowSoftInputMode="adjustResize"></activity>
 
+
+<activity android:windowSoftInputMode="adjustResize" android:name=".activities.CaseSelectActivity"></activity>
+<activity android:windowSoftInputMode="adjustResize" android:name=".activities.ReferralSelectActivity"></activity>
+<activity android:windowSoftInputMode="adjustResize" android:name=".activities.ReferralDetailActivity"></activity>
 </application>
 
 

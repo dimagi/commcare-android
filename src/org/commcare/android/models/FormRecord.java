@@ -8,7 +8,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.EncryptedModel;
+import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -162,6 +165,55 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 
 	public boolean isBlobEncrypted() {
 		return true;
+	}
+	
+	String[] cached;
+	private void decache() {
+		if(AndroidCommCarePlatform.ENTITY_NONE.equals(entity)) {
+			cached = new String[] { null, null, null};
+		} else if(entity.startsWith("case:")) {
+		    cached = new String[] { entity.substring("case:".length()), null, null};
+		} else if(entity.startsWith("referral")) {
+			int c = entity.indexOf(":");
+			int length = Integer.parseInt(entity.substring("referral".length(), c));
+			String refid = entity.substring(c+1, c + length + 1);
+			String type = entity.substring(c + length+1	);
+			Referral r = CommCareApplication._().getStorage(Referral.STORAGE_KEY, Referral.class).
+															getRecordForValues(new String[] {Referral.REFERRAL_ID, Referral.REFERRAL_TYPE},
+																			   new String[] {refid, type});
+			cached = new String[] {r.getLinkedId(), r.getReferralId(), r.getType()};
+		}
+	}
+	public String getCaseId() {
+		if(cached == null) {
+			decache();
+		}
+		return cached[0];
+	}
+	
+	public String getReferralId() {
+		if(cached == null) {
+			decache();
+		}
+		return cached[1];
+	}
+	public String getReferralType() {
+		if(cached == null) {
+			decache();
+		}
+		return cached[2];
+	}
+	
+	public static String generateEntityId(CommCareSession session) {
+		if(session.getReferralId() != null) {
+			//referral is primary
+			return "referral" + session.getReferralId().length() + ":" + session.getReferralId() + session.getReferralType();
+		} else if(session.getCaseId() != null) {
+			//case is primary
+			return "case:"+session.getCaseId();
+		} else {
+			return AndroidCommCarePlatform.ENTITY_NONE;
+		}
 	}
 
 }

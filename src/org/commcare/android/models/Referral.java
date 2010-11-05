@@ -46,6 +46,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class Referral implements Persistable, IMetaData, EncryptedModel {
 	public static final String STORAGE_KEY = "PATREFERRAL";
+	public static final String REFERRAL_ID = "referralid";
+	public static final String REFERRAL_TYPE = "referraltype";
 	
 	private String type;
 	private String referralId;
@@ -161,20 +163,24 @@ public class Referral implements Persistable, IMetaData, EncryptedModel {
 
 	public Hashtable getMetaData() {
 		Hashtable meta = new Hashtable();
-		meta.put("referralid",referralId);
+		for(String key : getMetaDataFields()) {
+			meta.put(key, getMetaData(key));
+		}
 		return meta;
 	}
 
 	public Object getMetaData(String fieldName) {
-		if("referralid".equals(fieldName)) {
+		if(REFERRAL_ID.equals(fieldName)) {
 			return referralId;
+		} else if(REFERRAL_TYPE.equals(fieldName)) {
+			return type;
 		} else {
 			throw new IllegalArgumentException("No metadata field " + fieldName  + " in the case storage system");
 		}
 	}
 
 	public String[] getMetaDataFields() {
-		return new String[] {"referralid"};
+		return new String[] {REFERRAL_ID, REFERRAL_TYPE};
 	}
 
 	public boolean isBlobEncrypted() {

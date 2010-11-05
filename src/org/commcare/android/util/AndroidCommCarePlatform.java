@@ -33,6 +33,7 @@ import android.os.Bundle;
 public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	public static final String ENTITY_NONE = "NONE";
+	public static final String STATE_REFERRAL_TYPE = "REFERRAL_TYPE";
 	
 	private Hashtable<String, String> xmlnstable;
 	private Context c;

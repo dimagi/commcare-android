@@ -78,7 +78,7 @@ public class IncompleteFormRecordView extends LinearLayout {
 		if(record.getEntityId() != null) {
 			SqlIndexedStorageUtility<Case> storage =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
 			try {
-				Case c = storage.getRecordForValue(Case.META_CASE_ID, record.getEntityId());
+				Case c = storage.getRecordForValue(Case.META_CASE_ID, record.getCaseId());
 				
 				//TODO : I am a bad person, _Fix this_
 				if(c.getProperty("initials") != null) {

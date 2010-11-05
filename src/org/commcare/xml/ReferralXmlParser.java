@@ -44,21 +44,25 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 		
 		//parse (with verification) the next tag
 		this.nextTag("referral_id");
-		String refId = parser.nextText();
+		String refId = parser.nextText().trim();
 		
-		this.nextTag("followup_date");
-		String followupDate = parser.nextText();
-		Date followup = DateUtils.parseDate(followupDate);
+		//temporary
+		Date followup = created;
 		
 		//Now look for actions
 		while(this.nextTagInBlock("referral")) {
 			
 			String action = parser.getName().toLowerCase();
 			
+			if(action.equals("followup_date")) {
+				String followupDate = parser.nextText().trim();
+				followup = DateUtils.parseDate(followupDate);
+			}
+			
 			if(action.equals("open")) {
 				this.getNextTagInBlock("open");
 				checkNode("referral_types");
-				String referralTypes = parser.nextText();
+				String referralTypes = parser.nextText().trim();
 				for(Object s : DateUtils.split(referralTypes, " ", true)) {
 					Referral pr = new Referral((String)s, created, refId, caseId, followup);
 					commit(pr);
@@ -69,11 +73,11 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 			} else if(action.equals("update")) {
 				this.getNextTagInBlock("update");
 				checkNode("referral_type");
-				String refType = parser.nextText();
+				String refType = parser.nextText().trim();
 				Referral r = retrieve(refId, refType);
 				r.setDateDue(followup);
 				if(this.nextTagInBlock("update")) {
-					String dateClosed = parser.nextText();
+					String dateClosed = parser.nextText().trim();
 					//TODO: Hmmm, see if we need to do anything here.
 					//Date closed = DateUtils.parseDate(dateClosed);
 					r.close();
@@ -100,8 +104,8 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 	}
 
 	public Referral retrieve(String entityId, String type) {
-		IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage(Referral.STORAGE_KEY);
-		for(Object i : storage.getIDsForValue("referralid", entityId)) {
+		IStorageUtilityIndexed storage = (IStorageUtilityIndexed)CommCareApplication._().getStorage(Referral.STORAGE_KEY, Referral.class);
+		for(Object i : storage.getIDsForValue(Referral.REFERRAL_ID, entityId)) {
 			Referral r = (Referral)storage.read(((Integer)i).intValue());
 			if(r.getType().equals(type)) {
 				return r;

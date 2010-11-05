@@ -7,8 +7,10 @@ import java.util.List;
 
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.Case;
+import org.commcare.android.models.Referral;
 import org.commcare.android.preloaders.CasePreloader;
 import org.commcare.android.preloaders.MetaPreloader;
+import org.commcare.android.preloaders.ReferralPreloader;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.javarosa.core.model.data.IAnswerData;
 
@@ -30,6 +32,7 @@ public class PreloadContentProvider extends ContentProvider {
 	public static final Uri CONTENT_URI = Uri.parse("content://org.commcare.preloadprovider");
 	public static final Uri CONTENT_URI_CASE = Uri.parse("content://org.commcare.preloadprovider/case");
 	public static final Uri CONTENT_URI_META = Uri.parse("content://org.commcare.preloadprovider/meta");
+	public static final Uri CONTENT_URI_REFERRAL = Uri.parse("content://org.commcare.preloadprovider/referral");
 	
 	public PreloadContentProvider() {
 
@@ -98,7 +101,24 @@ public class PreloadContentProvider extends ContentProvider {
 			} else { 
 				return new PreloadedContentCursor(data.uncast().getString());
 			}
-		}else {
+		} else if("referral".equals(uriParts.get(0))) {
+			String id = uriParts.get(1);
+			String type = uriParts.get(2);
+			
+			Referral r =  CommCareApplication._().getStorage(Referral.STORAGE_KEY, Referral.class).
+			                                  getRecordForValues(new String[] {Referral.REFERRAL_ID, Referral.REFERRAL_TYPE},
+			                                		             new String[] {id, type});
+			
+			ReferralPreloader preloader = new ReferralPreloader(r);
+			String param = uri.getLastPathSegment();
+			IAnswerData data = preloader.handlePreload(param);
+
+			if(data == null) {
+				return null;
+			} else { 
+				return new PreloadedContentCursor(data.uncast().getString());
+			}
+		} else {
 			return null;
 		}
 		

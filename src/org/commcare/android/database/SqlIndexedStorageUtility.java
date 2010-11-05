@@ -76,6 +76,24 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		return c.getString(c.getColumnIndexOrThrow(fieldName));
 
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
+	 */
+	public T getRecordForValues(String[] fieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
+		String whereClause = helper.createWhere(fieldNames, values);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause, null,null, null, null);
+		if(c.getCount() == 0) {
+			throw new NoSuchElementException("No element in table " + table + " with names " + fieldNames +" and values " + values.toString());
+		}
+		if(c.getCount() > 1) {
+			 throw new InvalidIndexException("Invalid unique column set" + fieldNames + ". Multiple records found with value " + values.toString(), fieldNames.toString());
+		}
+		c.moveToFirst();
+		byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
+		c.close();
+		return newObject(data);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
