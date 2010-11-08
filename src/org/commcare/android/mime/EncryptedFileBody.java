@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -15,7 +14,7 @@ import javax.crypto.CipherInputStream;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.james.mime4j.message.Entity;
-import org.javarosa.core.util.StreamUtil;
+import org.javarosa.core.util.StreamsUtil;
 
 
 /**
@@ -56,7 +55,7 @@ public class EncryptedFileBody extends AbstractContentBody {
 	@Override
 	public void writeTo(OutputStream out) throws IOException {
 		CipherInputStream cis = new CipherInputStream(new FileInputStream(file), cipher);
-		StreamUtil.transfer(cis, out);
+		StreamsUtil.writeFromInputToOutput(cis, out);
 		cis.close();
 	}
 

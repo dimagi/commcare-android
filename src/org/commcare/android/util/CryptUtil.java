@@ -5,11 +5,8 @@ package org.commcare.android.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -19,16 +16,13 @@ import java.util.Date;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.android.application.CommCareApplication;
-import org.javarosa.core.util.StreamUtil;
+import org.javarosa.core.util.StreamsUtil;
 
 /**
  * @author ctsims
@@ -70,7 +64,7 @@ public class CryptUtil {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		try {
-			StreamUtil.transfer(cis, bos);
+			StreamsUtil.writeFromInputToOutput(cis, bos);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -85,7 +79,7 @@ public class CryptUtil {
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
-		StreamUtil.transfer(cis, bos);
+		StreamsUtil.writeFromInputToOutput(cis, bos);
 		
 		return bos.toByteArray();
 	}

@@ -11,7 +11,6 @@ import java.security.SecureRandom;
 import java.util.Vector;
 
 import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.http.HttpResponse;
@@ -34,7 +33,7 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.util.StreamUtil;
+import org.javarosa.core.util.StreamsUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -187,7 +186,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		InputStream input = response.getEntity().getContent();
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		StreamUtil.transfer(input, bos);
+		StreamsUtil.writeFromInputToOutput(input, bos);
 		byte[] bytes = bos.toByteArray();
 		
 		try {

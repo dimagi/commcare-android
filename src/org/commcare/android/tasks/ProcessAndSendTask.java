@@ -43,7 +43,7 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.StreamUtil;
+import org.javarosa.core.util.StreamsUtil;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -332,7 +332,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         
         try {
-			StreamUtil.transfer(response.getEntity().getContent(), bos);
+        	StreamsUtil.writeFromInputToOutput(response.getEntity().getContent(), bos);
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
