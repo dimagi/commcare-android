@@ -65,7 +65,7 @@ public class DotsHomeView extends RelativeLayout {
 		
 		Calendar c = Calendar.getInstance();
 		c.setTime(data.anchor());
-		c.roll(Calendar.DAY_OF_YEAR, -(data.days().length - 1 ));
+		c.add(Calendar.DATE, -(data.days().length - 1 ));
 		
 		int currentRow = 0;
 		
@@ -84,7 +84,7 @@ public class DotsHomeView extends RelativeLayout {
 				currentRow = currentRow+1;
 			}
 			
-			c.roll(Calendar.DAY_OF_YEAR, 1);
+			c.add(Calendar.DATE, 1);
 		}
 		
 		for(int i = 0 ; i < tRows.length ; ++i) {
