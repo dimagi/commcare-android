@@ -182,6 +182,9 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 															getRecordForValues(new String[] {Referral.REFERRAL_ID, Referral.REFERRAL_TYPE},
 																			   new String[] {refid, type});
 			cached = new String[] {r.getLinkedId(), r.getReferralId(), r.getType()};
+		} else {
+			//Pre DB26 Record
+			cached = new String[] {entity, null, null };
 		}
 	}
 	public String getCaseId() {
