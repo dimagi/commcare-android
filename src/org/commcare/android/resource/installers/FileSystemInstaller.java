@@ -59,7 +59,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	 * @see org.commcare.resources.model.ResourceInstaller#install(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation, org.javarosa.core.reference.Reference, org.commcare.resources.model.ResourceTable, org.commcare.util.CommCareInstance, boolean)
 	 */
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
-		localLocation = (upgrade ? upgradeDestination : localDestination) + "/" + r.getResourceId() + ".xml";
+		localLocation = (upgrade ? upgradeDestination : localDestination) + "/" + getResourceName(r,location);
 		try {
 			//Stream to location
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
@@ -104,9 +104,12 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 			
 			//Get the temporary location
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
+			
+			//use same filename as before
+			String filepart = localLocation.substring(localLocation.lastIndexOf("/"));
 
 			//Get final destination
-			String finalLocation =  localDestination + "/" + r.getResourceId() + ".xml";
+			String finalLocation =  localDestination + "/" + filepart;
 			Reference finalRef = ReferenceManager._().DeriveReference(finalLocation);
 			
 			if(!(new File(local.getLocalURI()).renameTo(new File(finalRef.getLocalURI())))) {
@@ -137,5 +140,9 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(localLocation));
 		ExtUtil.writeString(out, localDestination);
 		ExtUtil.writeString(out, upgradeDestination);
+	}
+	
+	public String getResourceName(Resource r, ResourceLocation loc) {
+		return r.getResourceId() + ".xml";
 	}
 }

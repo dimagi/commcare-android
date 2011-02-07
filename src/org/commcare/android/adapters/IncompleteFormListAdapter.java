@@ -26,17 +26,24 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	private AndroidCommCarePlatform platform;
 	private Context context;
 	
+	String filter;
 	private FormRecord[] records;
 	
 	public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform) {
 		this.platform = platform;
 		this.context = context;
+		this.filter = null;
 		resetRecords();
 	}
 	
 	public void resetRecords() {
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-		Vector<Integer> formids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_INCOMPLETE} );
+		Vector<Integer> formids;
+		if(filter != null) {
+			formids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {filter} );
+		} else {
+			formids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_SAVED} );
+		}
 		records = new FormRecord[formids.size()];
 		for(int i = 0 ; i < records.length ; ++i) {
 			records[i] = storage.read(formids.elementAt(i).intValue());
@@ -124,5 +131,10 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	 */
 	public boolean isEmpty() {
 		return records.length > 0;
+	}
+	
+	public void setFormFilter(String filter) {
+		this.filter = filter;
+		resetRecords();
 	}
 }

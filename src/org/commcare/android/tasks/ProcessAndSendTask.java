@@ -39,6 +39,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.suite.model.Profile;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -105,11 +106,18 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 					//Time to Send!
 					results[i] = sendInstance(folder, record.getAesKey());
 					
+			        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
 					//Check for success
 					if(results[i].intValue() == FULL_SUCCESS) {
-						storage.remove(record);
-						FileUtil.deleteFile(folder);
-					}
+						//Only delete if this device isn't set up to review.
+					    if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
+							storage.remove(record);
+							FileUtil.deleteFile(folder);
+						} else {
+							//Otherwise save and move appropriately
+							moveRecord(record, CommCareApplication._().fsPath(GlobalConstants.FILE_CC_STORED), FormRecord.STATUS_SAVED);
+						}
+			        }
 				}
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -173,18 +181,24 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 		parser.parse();
 		is.close();
 		
+		return moveRecord(record, CommCareApplication._().fsPath(GlobalConstants.FILE_CC_PROCESSED), FormRecord.STATUS_UNSENT);
+	}
+	
+	private FormRecord moveRecord(FormRecord record, String newPath, String newStatus) throws IOException, StorageFullException{
+		String form = record.getPath();
+		File f = new File(form);
 		//Ok, file's all parsed. Move the instance folder to be ready for sending.
 		File folder = f.getCanonicalFile().getParentFile();
 
 		String folderName = folder.getName();
-		File newFolder = new File(CommCareApplication._().fsPath(GlobalConstants.FILE_CC_PROCESSED) + folderName);
+		File newFolder = new File(newPath + folderName);
 		if(folder.renameTo(newFolder)) {
 			String newFormPath = newFolder.getAbsolutePath() + File.separator + f.getName();
 			if(!new File(newFormPath).exists()) {
 				throw new IOException("Couldn't find processed instance");
 			}
 			//update the records to show that the form has been processed and is ready to be sent;
-			FormRecord processedRecord = new FormRecord(record.getFormNamespace(), newFormPath, record.getEntityId(), FormRecord.STATUS_UNSENT, record.getAesKey());
+			FormRecord processedRecord = new FormRecord(record.getFormNamespace(), newFormPath, record.getEntityId(), newStatus, record.getAesKey());
 			processedRecord.setID(record.getID());
 			storage.write(processedRecord);
 			return processedRecord;

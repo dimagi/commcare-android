@@ -3,11 +3,19 @@
  */
 package org.commcare.android.view;
 
+import java.io.IOException;
+
 import org.commcare.android.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,22 +25,22 @@ import android.widget.TextView;
  */
 public class EntityView extends LinearLayout {
 	
-	private TextView[] views;
+	private View[] views;
+	private String[] forms; 
 
 	public EntityView(Context context, CommCarePlatform platform, Detail d, Entity e) {
 		super(context);
 
 		this.setWeightSum(1);
 		
-		views = new TextView[e.getFields().length];
+		views = new View[e.getFields().length];
+		forms = d.getTemplateForms();
 		
-        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, (float)(1.0 / views.length));
+		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
 		
 		for(int i = 0 ; i < views.length ; ++i) {
-		
-	        views[i] = new TextView(context);
-	        views[i].setTextAppearance(context, android.R.style.TextAppearance_Large);
-	        views[i].setPadding(20, 15, 15, 20);
+			LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+	        views[i] = getView(context, null, forms[i]);
 	        views[i].setId(i);
 	        addView(views[i], l);
 		}
@@ -45,24 +53,97 @@ public class EntityView extends LinearLayout {
 
 		this.setWeightSum(1);
 		
-		views = new TextView[headerText.length];
+		views = new View[headerText.length];
 		
-        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, (float)(1.0 / views.length));
+		
+		float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
+		String[] headerForms = d.getHeaderForms();
 		
 		for(int i = 0 ; i < views.length ; ++i) {
-		
-	        views[i] = new TextView(context);
-	        views[i].setTextAppearance(context, android.R.style.TextAppearance_Large);
-	        views[i].setPadding(20, 15, 15, 20);
+	        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
+	        
+	        views[i] = getView(context, headerText[i], headerForms[i]);
 	        views[i].setId(i);
-	        views[i].setText(headerText[i]);
 	        addView(views[i], l);
 		}
 	}
+	
+	private View getView(Context context, String text, String form) {
+		View retVal;
+        if("image".equals(form)) {
+        	ImageView iv = new ImageView(context);
+			retVal = iv;
+        	if(text != null) {
+				try {
+					Bitmap b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
+					iv.setImageBitmap(b);
+				} catch (IOException e) {
+					e.printStackTrace();
+					//Error loading image
+				} catch (InvalidReferenceException e) {
+					e.printStackTrace();
+					//No image
+				}
+        	}
+        } else {
+	        TextView tv = new TextView(context);
+	        retVal = tv;
+	        tv.setTextAppearance(context, android.R.style.TextAppearance_Large);
+        	if(text != null) {
+        		tv.setText(text);
+        	}
+        }
+        
+        //For all views
+        retVal.setPadding(20, 15, 15, 20);
+        return retVal;
+	}
+	
+	private float[] calculateDetailWeights(int[] hints) {
+		float[] weights = new float[hints.length];
+		int fullSize = 100;
+		int sharedBetween = 0;
+		for(int hint : hints) {
+			if(hint != -1) {
+				fullSize -= hint;
+			} else {
+				sharedBetween ++;
+			}
+		}
+		
+		double average = ((double)fullSize) / (double)sharedBetween;
+		
+		for(int i = 0; i < hints.length; ++i) {
+			int hint = hints[i];
+			weights[i] = hint == -1? (float)(average/100.0) :  (float)(((double)hint)/100.0);
+		}
+
+		return weights;
+	}
 
 	public void setParams(CommCarePlatform platform, Entity e) {
+		String[] fields = e.getFields();
+		
 		for(int i = 0; i < e.getFields().length ; ++i) {
-			views[i].setText(e.getFields()[i]);
+			if(fields[i] == null) {
+				continue;
+			}
+	        if("image".equals(forms[i])) {
+	        	ImageView iv = (ImageView)views[i];
+				Bitmap b;
+				try {
+					b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(fields[i]).getStream());
+					iv.setImageBitmap(b);
+				} catch (IOException ex) {
+					ex.printStackTrace();
+					//Error loading image
+				} catch (InvalidReferenceException ex) {
+					ex.printStackTrace();
+					//No image
+				}
+	        } else {
+		        ((TextView)views[i]).setText(fields[i]);
+	        }
 		}
 	}
 }

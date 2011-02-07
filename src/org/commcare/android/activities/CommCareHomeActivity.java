@@ -20,6 +20,7 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.FileUtil;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.storage.StorageFullException;
 
@@ -72,6 +73,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	Button logoutButton;
 	Button viewIncomplete;
 	
+	Button viewOldForms;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,7 +101,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         viewIncomplete = (Button) findViewById(R.id.incomplete);
         viewIncomplete.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), IncompleteFormActivity.class);
+                Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
+                i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
                 
                 startActivityForResult(i, GET_INCOMPLETE_FORM);
             }
@@ -113,6 +117,15 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                 CommCareHomeActivity.this.platform.logout();
                 
                 startActivityForResult(i, LOGIN_USER);
+            }
+        });
+        
+        viewOldForms = (Button) findViewById(R.id.old);
+        viewOldForms.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
+                
+                startActivityForResult(i, GET_INCOMPLETE_FORM);
             }
         });
     }
@@ -485,6 +498,12 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         	startNextFetch();
         	//Only launch shortcuts once per intent
         	this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
+        }
+        
+        //Make sure that the review button is properly enabled.
+        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        if(p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
+        	viewOldForms.setVisibility(Button.VISIBLE);
         }
     }
     

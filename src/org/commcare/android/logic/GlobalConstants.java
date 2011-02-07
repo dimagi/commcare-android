@@ -8,7 +8,9 @@ public class GlobalConstants {
 	public static final String FILE_CC_CACHE = FILE_CC_ROOT + "/cache";
 	public static final String FILE_CC_INCOMPLETE = FILE_CC_ROOT + "/incomplete/";
 	public static final String FILE_CC_SAVED = FILE_CC_ROOT + "/saved/";
+	public static final String FILE_CC_STORED = FILE_CC_ROOT + "/stored/";
 	public static final String FILE_CC_PROCESSED = FILE_CC_ROOT + "/processed/";
+	public static final String FILE_CC_MEDIA = FILE_CC_ROOT + "/media/";
 	
 	public static final String CC_DB_NAME = "commcare";
 	
@@ -16,6 +18,11 @@ public class GlobalConstants {
      * Resource storage path
      */
     public static final String RESOURCE_PATH = "jr://file/commcare/resources/";
+    
+    /**
+     * Media storage path
+     */
+    public static final String MEDIA_REF = "jr://file/commcare/media/";
     
     /**
      * Cache storage path

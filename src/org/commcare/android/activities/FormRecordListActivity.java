@@ -32,11 +32,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 
-public class IncompleteFormActivity extends ListActivity {
+public class FormRecordListActivity extends ListActivity {
 	
 	private static final int OPEN_RECORD = Menu.FIRST;
 	private static final int DELETE_RECORD = Menu.FIRST  + 1;
@@ -52,8 +51,18 @@ public class IncompleteFormActivity extends ListActivity {
         setContentView(R.layout.suite_menu_layout);
 
         adapter = new IncompleteFormListAdapter(this, platform);
-        setTitle(getString(R.string.app_name) + " > " + "Incomplete Forms");
         
+        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
+        	String statusFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
+        	if(statusFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
+        		setTitle(getString(R.string.app_name) + " > " + "Incomplete Forms");
+        	} else {
+        		setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
+        	}
+        	adapter.setFormFilter(statusFilter);
+        } else {
+        	setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
+        }
         this.registerForContextMenu(this.getListView());
         refreshView();
     }

@@ -60,12 +60,13 @@
 
         </activity-alias>
 
-<activity android:name=".activities.IncompleteFormActivity" android:windowSoftInputMode="adjustResize"></activity>
+
 
 
 <activity android:windowSoftInputMode="adjustResize" android:name=".activities.CaseSelectActivity"></activity>
 <activity android:windowSoftInputMode="adjustResize" android:name=".activities.ReferralSelectActivity"></activity>
 <activity android:windowSoftInputMode="adjustResize" android:name=".activities.ReferralDetailActivity"></activity>
+<activity android:name=".activities.FormRecordListActivity" android:windowSoftInputMode="adjustResize"></activity>
 </application>
 
 

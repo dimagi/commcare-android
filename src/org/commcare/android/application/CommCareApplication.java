@@ -214,7 +214,7 @@ public class CommCareApplication extends Application {
 	}
     
     private void createPaths() {
-    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE};
+    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE, GlobalConstants.FILE_CC_STORED, GlobalConstants.FILE_CC_MEDIA};
     	for(String path : paths) {
     		File f = new File(fsPath(path));
     		if(!f.exists()) {
@@ -231,6 +231,7 @@ public class CommCareApplication extends Application {
 		ReferenceManager._().addReferenceFactory(http);
 		ReferenceManager._().addReferenceFactory(file);
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
+		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",GlobalConstants.MEDIA_REF));
 	}
 	
 	private String storageRoot() {

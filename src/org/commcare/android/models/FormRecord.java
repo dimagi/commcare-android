@@ -34,6 +34,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	public static final String STATUS_INCOMPLETE = "incomplete";
 	public static final String STATUS_COMPLETE = "complete";
 	public static final String STATUS_UNSTARTED = "unstarted";
+	public static final String STATUS_SAVED = "saved";
 	
 	private int id = -1;
 	private String status;

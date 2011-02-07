@@ -31,7 +31,23 @@ public class JavaFileReference implements Reference {
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		return new FileOutputStream(file());
+		File f = file();
+		ensureFilePathExists(f);
+		return new FileOutputStream(f);
+	}
+	
+	/**
+	 * Ensure that everything between "localpart" and f exists
+	 * and create it if not.
+	 * 
+	 * @param f
+	 */
+	private void ensureFilePathExists(File f) {
+		File folder = f.getParentFile();
+		if(folder != null) {
+			//Don't worry about return value
+			folder.mkdirs();
+		}
 	}
 
 	public InputStream getStream() throws IOException {
