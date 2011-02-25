@@ -65,6 +65,12 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 				String referralTypes = parser.nextText().trim();
 				for(Object s : DateUtils.split(referralTypes, " ", true)) {
 					Referral pr = new Referral((String)s, created, refId, caseId, followup);
+					
+					//If there's already a referral we need to duplicate the ID to overwrite the record.
+					Referral r = retrieve(refId, (String)s);
+					if(r != null) {
+						pr.setID(r.getID());
+					}
 					commit(pr);
 				}
 				if(this.nextTagInBlock("open")) {
