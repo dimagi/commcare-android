@@ -95,7 +95,13 @@ public class LoginActivity extends Activity implements DataPullListener {
 				//down.
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
 				
-				dataPuller = new DataPullTask(username.getText().toString(), 
+				String un = username.getText().toString();
+				
+				if(prefs.contains("cc_user_domain")) {
+					un += "@" + prefs.getString("cc_user_domain",null);
+				}
+				
+				dataPuller = new DataPullTask(un, 
 						                             password.getText().toString(),
 						                             prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
 						                             prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
@@ -183,11 +189,13 @@ public class LoginActivity extends Activity implements DataPullListener {
 			Toast.makeText(this, 
 					"Authentication failed on server, please check credentials and try again.", 
 					Toast.LENGTH_LONG).show();
+			this.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.BAD_DATA:
 			Toast.makeText(this, 
-					"Server provided improperly formatted data, pleaes contact your supervisor.", 
+					"Server provided improperly formatted data, please contact your supervisor.", 
 					Toast.LENGTH_LONG).show();
+			this.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.DOWNLOAD_SUCCESS:
 			if(tryLocalLogin()) {
@@ -203,6 +211,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 			Toast.makeText(this, 
 					"Unknown failure, please try again.", 
 					Toast.LENGTH_LONG).show();
+			this.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		}
 	}
