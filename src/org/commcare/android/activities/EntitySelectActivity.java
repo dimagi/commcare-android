@@ -3,10 +3,13 @@
  */
 package org.commcare.android.activities;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.application.AndroidShortcuts;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -17,11 +20,16 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.storage.Persistable;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -35,6 +43,9 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 	private AndroidCommCarePlatform platform;
 	
 	private static final int CONFIRM_SELECT = 0;
+	
+	private static final int MENU_SORT = Menu.FIRST;
+
 	
 	EditText searchbox;
 	EntityListAdapter<T> adapter;
@@ -71,15 +82,19 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
     	
     	Text[] templates = detail.getHeaders();
     	String[] headers = new String[templates.length];
+    	int defaultKey = -1;
     	for(int i = 0 ; i < templates.length ; ++i) {
     		headers[i] = templates[i].evaluate();
+    		if(defaultKey == -1 && !"".equals(headers[i])) {
+    			defaultKey = i;
+    		}
     	}
     	
     	EntityView v = new EntityView(this, platform, detail, headers);
     	header.removeAllViews();
     	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     	header.addView(v,params);
-    	adapter = new EntityListAdapter<T>(this, detail, platform, getStorage());
+    	adapter = new EntityListAdapter<T>(this, detail, platform, getStorage(), defaultKey);
     	setListAdapter(adapter);
     	searchbox.requestFocus();
     	
@@ -145,4 +160,64 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 		// TODO Auto-generated method stub
 		
 	}
+	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_SORT, 0, "Sort By...").setIcon(
+                android.R.drawable.ic_menu_sort_alphabetically);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_SORT:
+                createSortMenu();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    
+    private void createSortMenu() {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	
+        builder.setTitle("Sort by...");
+    	Text[] templates = platform.getSession().getDetail(prototype.getShortDetailId()).getHeaders();
+        
+    	List<String> namesList = new ArrayList<String>();
+    	        
+    	final int[] keyarray = new int[templates.length];
+
+    	int added = 0;
+    	for(int i = 0 ; i < templates.length ; ++i) {
+    		String result = templates[i].evaluate();
+    		if(!"".equals(result)) {
+    			namesList.add(result); 
+    			keyarray[added] = i;
+    			added++;
+    		}
+    	}
+    	
+    	final String[] names = namesList.toArray(new String[0]);
+
+        builder.setItems(names, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+            	adapter.sortEntities(keyarray[item]);
+            	adapter.applyFilter(searchbox.getText().toString());
+            }
+        });
+        
+        builder.setOnCancelListener(new OnCancelListener() {
+			public void onCancel(DialogInterface dialog) {
+				//
+			}
+        });
+
+        
+        AlertDialog alert = builder.create();
+        alert.show();
+
+    }
 }

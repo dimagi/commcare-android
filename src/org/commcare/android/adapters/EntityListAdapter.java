@@ -4,6 +4,7 @@
 package org.commcare.android.adapters;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
@@ -40,6 +41,10 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	List<Entity<T>> current;
 	
 	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility) {
+		this(context, d, platform, utility, -1);
+	}
+	
+	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility, int sort) {
 		this.utility = utility;
 		
 		factory = new EntityFactory<T>(d, platform.getLoggedInUser());
@@ -52,6 +57,10 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 		this.observers = new ArrayList<DataSetObserver>();
 
 		all();
+		if(sort != -1) {
+			sort(sort);
+		}
+		filterValues("");
 	}
 	
 	private void all() {
@@ -60,7 +69,6 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 			Entity<T> e = factory.getEntity(t);
 			if(e != null) {
 				full.add(e);
-				current.add(e);
 			}
 		}
 	}
@@ -77,6 +85,16 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 				}
 			}
 		}
+	}
+	
+	private void sort(final int field) {
+		java.util.Collections.sort(full, new Comparator<Entity<T>>() {
+
+			public int compare(Entity<T> object1, Entity<T> object2) {
+				return object1.getFields()[field].compareTo(object2.getFields()[field]);
+			}
+			
+		});
 	}
 	
 	/* (non-Javadoc)
@@ -161,6 +179,10 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 		for(DataSetObserver o : observers) {
 			o.onChanged();
 		}
+	}
+	
+	public void sortEntities(int key) {
+		sort(key);
 	}
 
 	/* (non-Javadoc)
