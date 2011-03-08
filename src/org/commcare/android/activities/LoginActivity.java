@@ -142,9 +142,14 @@ public class LoginActivity extends Activity implements DataPullListener {
     		if(hash.contains("$")) {
         		String alg = "sha1";
         		String salt = hash.split("\\$")[1];
+        		String check = hash.split("\\$")[2];
         		MessageDigest md = MessageDigest.getInstance("SHA-1");
         		BigInteger number = new BigInteger(1, md.digest((salt+passwd).getBytes()));
         		String hashed = number.toString(16);
+        		
+        		while(hashed.length() < check.length()) {
+        			hashed = "0" + hashed;
+        		}
         		
         		if(hash.equals(alg + "$" + salt + "$" + hashed)) {
         			byte[] key = CryptUtil.unWrapKey(u.getWrappedKey(), passwd);
