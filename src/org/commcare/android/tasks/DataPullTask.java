@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.crypto.KeyGenerator;
@@ -20,6 +21,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.commcare.android.activities.LoginActivity;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Case;
@@ -41,7 +43,10 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 /**
  * @author ctsims
@@ -95,6 +100,14 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	protected Integer doInBackground(Void... params) {
+		
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+    	
+    	if("true".equals(prefs.getString("cc-auto-update","false"))) {
+    		Editor e = prefs.edit();
+    		e.putLong("last-ota-restore", new Date().getTime());
+    		e.commit();
+    	}
 
 			DefaultHttpClient client = new DefaultHttpClient();
 			client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);

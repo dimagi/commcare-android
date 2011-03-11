@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.DummyResourceTable;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -135,8 +136,34 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 		if(!super.upgrade(r, table)) {
 			return false;
 		}
-		//TODO: Figure out how to parse the profile without messing w/the resources and then init 
-		//the properties
+		
+		try {
+		Reference local = ReferenceManager._().DeriveReference(localLocation);
+		
+		//Create a parser with no side effects
+		ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null,  Resource.RESOURCE_STATUS_INSTALLED, false);
+		
+		//Parse just the file (for the properties)
+		Profile p = parser.parse();
+		
+		initProperties(p);
+		} catch (InvalidReferenceException e) {
+			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "Profile not available after upgrade");
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "Profile not available after upgrade");
+		} catch (InvalidStructureException e) {
+			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "Profile not parseable after upgrade");
+		} catch (UnfullfilledRequirementsException e) {
+			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "Profile not compatible after upgrade");
+		} catch (XmlPullParserException e) {
+			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "Profile not parseable after upgrade");
+		}
+
 		return true;
 	}
 	

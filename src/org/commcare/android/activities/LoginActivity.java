@@ -5,19 +5,18 @@ package org.commcare.android.activities;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.Calendar;
 import java.util.Date;
-
-import javax.crypto.SecretKey;
 
 import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.util.CryptUtil;
+import org.javarosa.core.model.utils.DateUtils;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -117,6 +116,24 @@ public class LoginActivity extends Activity implements DataPullListener {
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
     }
     
+    private void autoUpdateConfig() {
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+    	
+    	if(!"true".equals(prefs.getString("cc-auto-update","false"))) { return;}
+		
+		long now = new Date().getTime();
+		
+		long lastRestore = prefs.getLong("last-ota-restore", 0);
+		Calendar lastRestoreCalendar = Calendar.getInstance();
+		lastRestoreCalendar.setTimeInMillis(lastRestore);
+		
+		if(now - lastRestore > DateUtils.DAY_IN_MS || (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
+			//If it's been more than 24 hrs since the last update or if it's the next day. 
+			checkServer.setChecked(true);
+			checkServer.setEnabled(false);
+		}
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -132,6 +149,7 @@ public class LoginActivity extends Activity implements DataPullListener {
     	passLabel.setText("Password:");
     	userLabel.setText("Username:");
     	login.setText("Log In");
+    	autoUpdateConfig();
     }
     
     private boolean tryLocalLogin() {
