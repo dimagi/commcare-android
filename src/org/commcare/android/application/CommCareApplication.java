@@ -30,6 +30,7 @@ import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.ODKPropertyManager;
@@ -42,7 +43,6 @@ import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageManager;
 
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -54,6 +54,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -111,7 +112,7 @@ public class CommCareApplication extends Application {
 		}
 	}
 	
-	public void logIn(byte[] symetricKey) {
+	public void logIn(byte[] symetricKey, User user) {
 		this.key = symetricKey;
 		
 		if(database != null && database.isOpen()) {
@@ -120,6 +121,28 @@ public class CommCareApplication extends Application {
 		
 		CursorFactory factory = new CommCareDBCursorFactory(this.encryptedModels(), this.getDecrypter());
 		database = new CommCareOpenHelper(this, factory).getWritableDatabase();
+		if(user != null) {
+			attachCallListener(user);
+		}
+	}
+	
+	private CallInPhoneListener listener = null;
+	
+	private void attachCallListener(User user) {
+		TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
+		
+		CallInPhoneListener listener = new CallInPhoneListener(this, this.getCommCarePlatform(), user);
+		listener.startCache();
+        
+        tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+	}
+	
+	private void detachCallListener() {
+		if(listener != null) {
+			TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
+			tManager.listen(listener, PhoneStateListener.LISTEN_NONE);	
+			listener = null;
+		}
 	}
 	
 	public Cipher getEncrypter() {
@@ -202,6 +225,9 @@ public class CommCareApplication extends Application {
 	public String getPhoneId() {
 		TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
 		String imei = manager.getDeviceId();
+		if(imei == null) {
+			imei = android.provider.Settings.Secure.ANDROID_ID;
+		}
 		return imei;
 	}
 	

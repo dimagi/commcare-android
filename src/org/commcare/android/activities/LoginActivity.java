@@ -190,7 +190,7 @@ public class LoginActivity extends Activity implements DataPullListener {
     }
     
     private void logIn(User u, byte[] key) {
-    	CommCareApplication._().logIn(key);
+    	CommCareApplication._().logIn(key, u);
 		Intent i = new Intent();
         i.putExtra(GlobalConstants.STATE_USER_KEY, u.getUniqueId());
         i.putExtra(GlobalConstants.STATE_USER_LOGIN, new Date());

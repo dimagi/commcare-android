@@ -27,7 +27,7 @@ import org.javarosa.core.services.storage.Persistable;
 public class EntityFactory<T extends Persistable> {
 	Detail detail;
 	FormInstance instance;
-	User current;
+	User current; 
 	
 	public EntityFactory(Detail d, User current) {
 		this.detail = d;

@@ -122,7 +122,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				
 				//This is necessary (currently) to make sure that data
 				//is encoded. Probably a better way to do this.
-				CommCareApplication._().logIn(spec.getEncoded());
+				CommCareApplication._().logIn(spec.getEncoded(), null);
 				
 				HttpResponse response = client.execute(new HttpGet(server));
 				int responseCode = response.getStatusLine().getStatusCode();

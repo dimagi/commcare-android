@@ -303,7 +303,7 @@ public class DotsData {
 	}
 	
 	public static DotsData CreateDotsData(int[] regType, Date anchor) {
-		DotsDay[] days = new DotsDay[21];
+		DotsDay[] days = new DotsDay[7];
 		for(int j = 0 ; j <  days.length ; ++j ) {
 			days[j] = new DotsDay(emptyBoxes(regType));
 		}

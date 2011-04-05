@@ -68,4 +68,9 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 		//Unsupported for now
 	}
 
+	public int peekID() {
+		int id = c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
+		return id;
+	}
+
 }
