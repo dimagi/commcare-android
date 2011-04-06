@@ -21,7 +21,6 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 public class CommCareDBCursorFactory implements CursorFactory {
 	
 	private Hashtable<String, EncryptedModel> models;
-	private Cipher cipher;
 	
 	/**
 	 * Creates a cursor factory which is incapable of dealing with 
@@ -31,9 +30,8 @@ public class CommCareDBCursorFactory implements CursorFactory {
 		
 	}
 	
-	public CommCareDBCursorFactory(Hashtable<String, EncryptedModel> models, Cipher cipher) {
+	public CommCareDBCursorFactory(Hashtable<String, EncryptedModel> models) {
 		this.models = models;
-		this.cipher = cipher;
 	}
 
 	/* (non-Javadoc)
@@ -44,7 +42,11 @@ public class CommCareDBCursorFactory implements CursorFactory {
 			return new SQLiteCursor(db, masterQuery, editTable, query);
 		} else {
 			EncryptedModel model = models.get(editTable);
-			return new DecryptingCursor(db, masterQuery, editTable, query, model, cipher);
+			return new DecryptingCursor(db, masterQuery, editTable, query, model, getReadCipher());
 		}
 	} 
+	
+	protected Cipher getReadCipher() {
+		return null;
+	}
 }

@@ -27,7 +27,6 @@ public class DecryptingCursor extends SQLiteCursor {
 		super(db, driver, editTable, query);
 		this.model = model;
 		this.cipher = cipher;
-		
 	}
 
 	@Override

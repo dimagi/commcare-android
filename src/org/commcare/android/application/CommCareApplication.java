@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherSpi;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -119,7 +120,11 @@ public class CommCareApplication extends Application {
 			database.close();
 		}
 		
-		CursorFactory factory = new CommCareDBCursorFactory(this.encryptedModels(), this.getDecrypter());
+		CursorFactory factory = new CommCareDBCursorFactory(this.encryptedModels()) {
+			protected Cipher getReadCipher() {
+				return getDecrypter();
+			}
+		};
 		database = new CommCareOpenHelper(this, factory).getWritableDatabase();
 		if(user != null) {
 			attachCallListener(user);
@@ -146,32 +151,37 @@ public class CommCareApplication extends Application {
 	}
 	
 	public Cipher getEncrypter() {
-		SecretKeySpec spec = new SecretKeySpec(key, "AES");
-		
-		try{
-			Cipher encrypter = Cipher.getInstance("AES");
-			encrypter.init(Cipher.ENCRYPT_MODE, spec);
-			return encrypter;
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		synchronized(key) {
+
+			SecretKeySpec spec = new SecretKeySpec(key, "AES");
+			
+			try{
+				Cipher encrypter = Cipher.getInstance("AES");
+				encrypter.init(Cipher.ENCRYPT_MODE, spec);
+				return encrypter;
+			} catch (InvalidKeyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchPaddingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
 		}
-		return null;
 	}
 	
 	public Cipher getDecrypter() {
 		try {
-			SecretKeySpec spec = new SecretKeySpec(key, "AES");
-			Cipher decrypter = Cipher.getInstance("AES");
-			decrypter.init(Cipher.DECRYPT_MODE, spec);
-		
-			return decrypter;
+			synchronized(key) {
+				SecretKeySpec spec = new SecretKeySpec(key, "AES");
+				Cipher decrypter = Cipher.getInstance("AES");
+				decrypter.init(Cipher.DECRYPT_MODE, spec);
+			
+				return decrypter;
+			}
 		} catch (InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -330,8 +340,12 @@ public class CommCareApplication extends Application {
 			helper = new DbHelper(this.getApplicationContext(), getEncrypter()) {
 				@Override
 				public SQLiteDatabase getHandle() {
-					CursorFactory factory = new CommCareDBCursorFactory(encryptedModels(), getDecrypter());
 					if(database == null || !database.isOpen()) {
+						CursorFactory factory = new CommCareDBCursorFactory(encryptedModels()) {
+							protected Cipher getReadCipher() {
+								return getDecrypter();
+							}
+						};
 						database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
 					}
 					return database;
@@ -342,8 +356,8 @@ public class CommCareApplication extends Application {
 			helper = new DbHelper(this.getApplicationContext()) {
 				@Override
 				public SQLiteDatabase getHandle() {
-					CursorFactory factory = new CommCareDBCursorFactory();
 					if(database == null || !database.isOpen()) {
+						CursorFactory factory = new CommCareDBCursorFactory();
 						database = new CommCareOpenHelper(this.c, factory).getWritableDatabase();
 					}
 					return database;

@@ -30,7 +30,10 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 	 * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
 	 */
 	public boolean hasMore() {
-		return !c.isAfterLast();
+		if(!c.isClosed()) {
+			return !c.isAfterLast();
+		} 
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -39,6 +42,9 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 	public int nextID() {
 		int id = c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
 		c.moveToNext();
+		if(c.isAfterLast()) {
+			c.close();
+		}
 		return id;
 	}
 
