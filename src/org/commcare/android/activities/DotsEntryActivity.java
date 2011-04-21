@@ -102,7 +102,11 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	        
 	        if(data != null) {
 	        	dotsData = DotsData.DeserializeDotsData(data);
-	        	if(dotsData.recenter(regimens, anchorDate) != 0) {
+	        	
+	        	//If the regimen is new for today, or if the current values for the last day are all 
+	        	//the default
+	        	if(dotsData.recenter(regimens, anchorDate) != 0 || 
+	        	   dotsData.days()[dotsData.days().length -1].isDefault()) {
 	        		populateAnchor = true;
 	        	}
 	        } else {

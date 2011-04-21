@@ -114,6 +114,24 @@ public class DotsData {
 			return boxes;
 		}
 		
+		/**
+		 * Whether this box contains the default observations for a 
+		 * new day object. 
+		 * 
+		 * @return True if the day is indistinguishable from a default day,
+		 * false otherwise
+		 */
+		public boolean isDefault() {
+			for(int i = 0; i < boxes.length ; ++i) {
+				for(int j = 0; j < boxes[i].length; ++j) {
+					if(boxes[i][j].status != MedStatus.unchecked) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		
 		public JSONArray serialize() {
 			JSONArray day = new JSONArray();
 			for(int i = 0; i < boxes.length ; ++i) {
@@ -303,7 +321,7 @@ public class DotsData {
 	}
 	
 	public static DotsData CreateDotsData(int[] regType, Date anchor) {
-		DotsDay[] days = new DotsDay[7];
+		DotsDay[] days = new DotsDay[21];
 		for(int j = 0 ; j <  days.length ; ++j ) {
 			days[j] = new DotsDay(emptyBoxes(regType));
 		}
