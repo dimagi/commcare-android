@@ -16,7 +16,10 @@ import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.storage.Persistable;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,6 +27,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * @author ctsims
@@ -33,7 +37,7 @@ public abstract class EntityDetailActivity<T extends Persistable> extends ListAc
 	private AndroidCommCarePlatform platform;
 	
 	private static final int CALL_OUT = 0;
-	
+		
 	Entry prototype;
 	
 	Entity<T> entity;

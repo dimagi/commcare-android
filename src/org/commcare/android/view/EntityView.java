@@ -39,10 +39,12 @@ public class EntityView extends LinearLayout {
 		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
 		
 		for(int i = 0 ; i < views.length ; ++i) {
-			LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
-	        views[i] = getView(context, null, forms[i]);
-	        views[i].setId(i);
-	        addView(views[i], l);
+			if(weights[i] != 0) {
+				LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+		        views[i] = getView(context, null, forms[i]);
+		        views[i].setId(i);
+		        addView(views[i], l);
+			}
 		}
         
 		setParams(platform, e);
@@ -60,11 +62,13 @@ public class EntityView extends LinearLayout {
 		String[] headerForms = d.getHeaderForms();
 		
 		for(int i = 0 ; i < views.length ; ++i) {
-	        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
-	        
-	        views[i] = getView(context, headerText[i], headerForms[i]);
-	        views[i].setId(i);
-	        addView(views[i], l);
+			if(lengths[i] != 0) {
+		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
+		        
+		        views[i] = getView(context, headerText[i], headerForms[i]);
+		        views[i].setId(i);
+		        addView(views[i], l);
+			}
 		}
 	}
 	
@@ -125,6 +129,9 @@ public class EntityView extends LinearLayout {
 		String[] fields = e.getFields();
 		
 		for(int i = 0; i < e.getFields().length ; ++i) {
+			//Empty (width = 0) field
+			if(views[i] == null) { continue;}
+			
 			if(fields[i] == null) {
 				continue;
 			}
@@ -137,9 +144,11 @@ public class EntityView extends LinearLayout {
 				} catch (IOException ex) {
 					ex.printStackTrace();
 					//Error loading image
+					iv.setImageBitmap(null);
 				} catch (InvalidReferenceException ex) {
 					ex.printStackTrace();
 					//No image
+					iv.setImageBitmap(null);
 				}
 	        } else {
 		        ((TextView)views[i]).setText(fields[i]);

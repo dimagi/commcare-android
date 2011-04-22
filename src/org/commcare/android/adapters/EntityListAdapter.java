@@ -40,6 +40,9 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	List<Entity<T>> full;
 	List<Entity<T>> current;
 	
+	int currentSort = -1;
+	boolean reverseSort = false;
+	
 	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility) {
 		this(context, d, platform, utility, -1);
 	}
@@ -87,11 +90,19 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 		}
 	}
 	
-	private void sort(final int field) {
+	private void sort(int field) {
+		if(currentSort == field) {
+			reverseSort = !reverseSort;
+		} else {
+			reverseSort = false;
+		}
+		
+		currentSort = field;
+		
 		java.util.Collections.sort(full, new Comparator<Entity<T>>() {
 
 			public int compare(Entity<T> object1, Entity<T> object2) {
-				return object1.getFields()[field].compareTo(object2.getFields()[field]);
+				return (reverseSort ? -1 : 1) * object1.getFields()[currentSort].compareTo(object2.getFields()[currentSort]);
 			}
 			
 		});
@@ -183,6 +194,14 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	
 	public void sortEntities(int key) {
 		sort(key);
+	}
+	
+	public int getCurrentSort() {
+		return currentSort;
+	}
+	
+	public boolean isCurrentSortReversed() {
+		return reverseSort;
 	}
 
 	/* (non-Javadoc)

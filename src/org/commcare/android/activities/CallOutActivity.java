@@ -7,6 +7,10 @@ import java.util.Date;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +27,13 @@ public class CallOutActivity extends Activity {
 	public static final String CALL_DURATION = "cos_pd";
 	public static final String RETURNING = "cos_return";
 	
+	private static final int DIALOG_NUMBER_ACTION = 0;
+	
+	private static final int SMS_RESULT = 0;
+	
+	private static String number;
+
+	
 	TelephonyManager tManager;
 	CallListener listener;
 	
@@ -31,12 +42,10 @@ public class CallOutActivity extends Activity {
         super.onCreate(savedInstanceState);
         tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
         listener = new CallListener(); 
+                
+        number = this.getIntent().getStringExtra(PHONE_NUMBER);
         
-        tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-        
-        Intent call = new Intent(Intent.ACTION_CALL);
-        call.setData(Uri.parse("tel:" + this.getIntent().getStringExtra(PHONE_NUMBER)));
-        startActivity(call);
+        this.showDialog(DIALOG_NUMBER_ACTION);
     }
     
     public void onResume() {
@@ -62,8 +71,55 @@ public class CallOutActivity extends Activity {
         } 
     }
     
+    
+    protected Dialog onCreateDialog(int id) {
+    	switch (id) {
+    	case DIALOG_NUMBER_ACTION:
+    		final CharSequence[] items = {"Call", "Send SMS"};
+
+    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    		builder.setTitle("Select Action");
+    		builder.setItems(items, new DialogInterface.OnClickListener() {
+    		    public void onClick(DialogInterface dialog, int item) {
+    		    	if(item == 0 ) {
+    		            tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+    		    		
+    		    		Intent call = new Intent(Intent.ACTION_CALL);
+    		    		call.setData(Uri.parse("tel:" + number));
+    		    		startActivity(call);
+    		    	} else {    				
+    		    		Intent sms = new Intent(Intent.ACTION_SENDTO);
+    		    		sms.setData(Uri.parse("smsto:" + number));
+    		    		startActivityForResult(sms,SMS_RESULT);
+    		    	}
+    		    }
+    		});
+    		builder.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface dialog) {
+	        		Intent i = new Intent(getIntent());
+			        
+			        setResult(RESULT_CANCELED, i);
+			        finish();
+			        return;
+				}
+    			
+    		});
+    		AlertDialog alert = builder.create();
+    		return alert;
+    	}
+    	return null;
+    }
+    
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	super.onActivityResult(requestCode, resultCode, intent);
+    	if(requestCode == SMS_RESULT) {
+    		//we're done here
+    		Intent i = new Intent(getIntent());
+	        
+	        setResult(RESULT_CANCELED, i);
+	        finish();
+    	}
     }
 
     public class CallListener extends PhoneStateListener {

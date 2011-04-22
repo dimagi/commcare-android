@@ -189,19 +189,26 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
     	List<String> namesList = new ArrayList<String>();
     	        
     	final int[] keyarray = new int[templates.length];
+    	
+    	int currentSort = adapter.getCurrentSort();
+    	boolean reversed = adapter.isCurrentSortReversed();
 
     	int added = 0;
     	for(int i = 0 ; i < templates.length ; ++i) {
     		String result = templates[i].evaluate();
     		if(!"".equals(result)) {
-    			namesList.add(result); 
+    			String prepend = "";
+    			if(currentSort == i) {
+    				prepend = reversed ? "(v) " : "(^) ";
+    			}
+    			namesList.add(prepend + result); 
     			keyarray[added] = i;
     			added++;
     		}
     	}
     	
     	final String[] names = namesList.toArray(new String[0]);
-
+    	    	
         builder.setItems(names, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
             	adapter.sortEntities(keyarray[item]);
