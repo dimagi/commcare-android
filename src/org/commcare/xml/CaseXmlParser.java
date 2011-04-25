@@ -11,6 +11,7 @@ import java.util.Vector;
 
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.Case;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
@@ -41,7 +42,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		this.existingIDs = existingIDs;
 	}
 
-	public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
+	public Case parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
 		this.checkNode("case");
 		
 		boolean updateMode = false;
@@ -118,7 +119,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		return null;
 	}
 
-	public void commit(Case parsed) throws IOException {
+	public void commit(Case parsed) throws IOException, SessionUnavailableException{
 		try {
 			storage().write(parsed);
 		} catch (StorageFullException e) {
@@ -127,7 +128,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		}
 	}
 
-	public Case retrieve(String entityId) {
+	public Case retrieve(String entityId) throws SessionUnavailableException{
 		IStorageUtilityIndexed storage = storage();
 		try{
 			return (Case)storage.getRecordForValue("caseid", entityId);
@@ -136,7 +137,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		}
 	}
 	
-	public IStorageUtilityIndexed storage() {
+	public IStorageUtilityIndexed storage() throws SessionUnavailableException{
 		if(storage == null) {
 			storage =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
 		} 

@@ -92,6 +92,7 @@
 <activity android:windowSoftInputMode="adjustResize" android:name=".activities.ReferralSelectActivity"></activity>
 <activity android:windowSoftInputMode="adjustResize" android:name=".activities.ReferralDetailActivity"></activity>
 <activity android:name=".activities.FormRecordListActivity" android:windowSoftInputMode="adjustResize"></activity>
+<service android:name=".services.CommCareSessionService" android:enabled="true"></service>
 </application>
 
 

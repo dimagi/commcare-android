@@ -112,7 +112,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.loginTime = new Date();
 	}
 	
-	public User getLoggedInUser() {
+	public User getLoggedInUser() throws SessionUnavailableException {
 		if(currentUser == null) { return null; }
 		SqlIndexedStorageUtility<User> userStorage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
 		return userStorage.getRecordForValue(User.META_UID, currentUser);

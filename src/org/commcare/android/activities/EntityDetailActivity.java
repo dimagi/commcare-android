@@ -12,6 +12,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.EntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.storage.Persistable;
@@ -51,35 +52,39 @@ public abstract class EntityDetailActivity<T extends Persistable> extends ListAc
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.entity_detail);
-        next = (Button)findViewById(R.id.entity_select_button);
-        next.setOnClickListener(new OnClickListener() {
-
-			public void onClick(View v) {
-		        Intent i = new Intent(EntityDetailActivity.this.getIntent());
-		        loadOutgoingIntent(i);
-		        setResult(RESULT_OK, i);
-
-		        finish();
-			}
-        	
-        });
-        
-        
-        platform = CommCareApplication._().getCommCarePlatform();
-        
-        String passedCommand = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
-        
-		Vector<Entry> entries = platform.getSession().getEntriesForCommand(passedCommand == null ? platform.getSession().getCommand() : passedCommand);
-		prototype = entries.elementAt(0);
-
-        factory = new EntityFactory<T>(platform.getSession().getDetail(prototype.getLongDetailId()), platform.getLoggedInUser());
-		
-	    entity = factory.getEntity(readObjectFromIncomingIntent(getIntent()));
-        
-        setTitle(getString(R.string.app_name) + " > " + "Details");
-        
-        refreshView();
+        try{
+	        setContentView(R.layout.entity_detail);
+	        next = (Button)findViewById(R.id.entity_select_button);
+	        next.setOnClickListener(new OnClickListener() {
+	
+				public void onClick(View v) {
+			        Intent i = new Intent(EntityDetailActivity.this.getIntent());
+			        loadOutgoingIntent(i);
+			        setResult(RESULT_OK, i);
+	
+			        finish();
+				}
+	        	
+	        });
+	        
+	        
+	        platform = CommCareApplication._().getCommCarePlatform();
+	        
+	        String passedCommand = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
+	        
+			Vector<Entry> entries = platform.getSession().getEntriesForCommand(passedCommand == null ? platform.getSession().getCommand() : passedCommand);
+			prototype = entries.elementAt(0);
+	
+	        factory = new EntityFactory<T>(platform.getSession().getDetail(prototype.getLongDetailId()), platform.getLoggedInUser());
+			
+		    entity = factory.getEntity(readObjectFromIncomingIntent(getIntent()));
+	        
+	        setTitle(getString(R.string.app_name) + " > " + "Details");
+	        
+	        refreshView();
+        } catch(SessionUnavailableException sue) {
+        	//TODO: Login and return to try again
+        }
     }
 
 
@@ -100,7 +105,7 @@ public abstract class EntityDetailActivity<T extends Persistable> extends ListAc
         //Shouldn't be possible
     }
     
-    protected abstract T readObjectFromIncomingIntent(Intent i);
+    protected abstract T readObjectFromIncomingIntent(Intent i) throws SessionUnavailableException;
     
     protected abstract void loadOutgoingIntent(Intent i);
     

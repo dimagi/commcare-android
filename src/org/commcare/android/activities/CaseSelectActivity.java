@@ -6,6 +6,7 @@ package org.commcare.android.activities;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Case;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.util.CommCareSession;
 
 import android.content.Intent;
@@ -16,7 +17,7 @@ import android.content.Intent;
  */
 public class CaseSelectActivity extends EntitySelectActivity<Case> {
 
-	protected SqlIndexedStorageUtility<Case> getStorage() {
+	protected SqlIndexedStorageUtility<Case> getStorage() throws SessionUnavailableException{
 		return CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
 	}
 	

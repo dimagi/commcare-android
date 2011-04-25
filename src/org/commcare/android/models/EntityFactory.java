@@ -9,6 +9,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.preloaders.CasePreloader;
 import org.commcare.android.preloaders.ReferralPreloader;
 import org.commcare.android.preloaders.UserPreloader;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.entity.CaseEntityFilter;
 import org.commcare.entity.InstanceEntityFilter;
 import org.commcare.entity.ReferralEntityFilter;
@@ -38,7 +39,7 @@ public class EntityFactory<T extends Persistable> {
 		return detail;
 	}
 	
-	public Entity<T> getEntity(T data) {
+	public Entity<T> getEntity(T data) throws SessionUnavailableException{
 		loadData(data);
 		
 		if(!meetsFilter(data, instance)) {
@@ -52,7 +53,7 @@ public class EntityFactory<T extends Persistable> {
 		return new Entity<T>(outcomes, data);
 	}
 	
-	protected void loadData(T data) {
+	protected void loadData(T data) throws SessionUnavailableException{
 		instance = detail.getInstance();
 		Stack<TreeElement> elements = new Stack<TreeElement>();
 		elements.push(instance.getRoot());
@@ -72,7 +73,7 @@ public class EntityFactory<T extends Persistable> {
 		}
 	}
 	
-	private boolean meetsFilter(T t, FormInstance instance) {
+	private boolean meetsFilter(T t, FormInstance instance) throws SessionUnavailableException{
 		if(detail.getFilter() == null) {
 			return true;
 		}
@@ -107,9 +108,9 @@ public class EntityFactory<T extends Persistable> {
 	}
 	
 	ReferralEntityFilter rfilter;
-	private ReferralEntityFilter referralFilter() {
+	private ReferralEntityFilter referralFilter() throws SessionUnavailableException {
 		if(rfilter == null) {
-			rfilter = new ReferralEntityFilter(detail.getFilter());
+			rfilter = new ReferralEntityFilter(detail.getFilter(), CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class));
 		}
 		return rfilter;
 	}
@@ -123,7 +124,7 @@ public class EntityFactory<T extends Persistable> {
 		return ifilter;
 	}
 	
-	private IPreloadHandler getPreloader(String preloader, T t) {
+	private IPreloadHandler getPreloader(String preloader, T t) throws SessionUnavailableException {
 		if("case".equals(preloader)) {
 			if(t instanceof Case) {
 				return new CasePreloader((Case)t);

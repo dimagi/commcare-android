@@ -7,6 +7,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Referral;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.util.CommCareSession;
 
 import android.content.Intent;
@@ -18,7 +19,7 @@ import android.content.Intent;
 public class ReferralSelectActivity extends EntitySelectActivity<Referral> {
 
 	@Override
-	protected SqlIndexedStorageUtility<Referral> getStorage() {
+	protected SqlIndexedStorageUtility<Referral> getStorage() throws SessionUnavailableException{
 		return CommCareApplication._().getStorage(Referral.STORAGE_KEY, Referral.class);
 	}
 

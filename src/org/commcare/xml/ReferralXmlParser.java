@@ -7,15 +7,13 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Referral;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.services.storage.StorageManager;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -39,7 +37,7 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 		this.created = created;
 	}
 	
-	public Referral parse() throws InvalidStructureException, IOException, XmlPullParserException {
+	public Referral parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
 		this.checkNode("referral");
 		
 		//parse (with verification) the next tag
@@ -100,7 +98,7 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 		return null;
 	}
 
-	public void commit(Referral parsed) throws IOException {
+	public void commit(Referral parsed) throws IOException, SessionUnavailableException {
 		try {
 			storage().write(parsed);
 		} catch (StorageFullException e) {
@@ -109,7 +107,7 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 		}
 	}
 
-	public Referral retrieve(String entityId, String type) {
+	public Referral retrieve(String entityId, String type) throws SessionUnavailableException{
 		IStorageUtilityIndexed storage = (IStorageUtilityIndexed)CommCareApplication._().getStorage(Referral.STORAGE_KEY, Referral.class);
 		for(Object i : storage.getIDsForValue(Referral.REFERRAL_ID, entityId)) {
 			Referral r = (Referral)storage.read(((Integer)i).intValue());
@@ -120,7 +118,7 @@ public class ReferralXmlParser extends TransactionParser<Referral> {
 		return null;
 	}
 	
-	private IStorageUtilityIndexed storage() {
+	private IStorageUtilityIndexed storage() throws SessionUnavailableException {
 		if(storage == null) {
 			storage =  CommCareApplication._().getStorage(Referral.STORAGE_KEY, Referral.class);
 		}

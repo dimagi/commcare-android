@@ -11,4 +11,5 @@
 	<integer-array name="commcare_version"><item>1</item>
 	<item>1</item>
 </integer-array>
+<string name="notificationtitle">Logged Into Commcare</string>
 </resources>

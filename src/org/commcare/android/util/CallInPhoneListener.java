@@ -70,45 +70,47 @@ public class CallInPhoneListener extends PhoneStateListener {
 
 			@Override
 			protected Void doInBackground(Void... params) {
-				synchronized(cachedNumbers) {
-					Set<String> usedDetails = new HashSet<String>();
-					
-					for(Suite s : platform.getInstalledSuites() ){
-						for(Entry e : s.getEntries().values()) {
-							ArrayList<Detail> details = new ArrayList<Detail>();
-							if(e.getShortDetailId() != null && !e.getShortDetailId().equals("") && !usedDetails.contains(e.getShortDetailId())) {
-								details.add(s.getDetail(e.getShortDetailId()));
-								usedDetails.add(e.getShortDetailId());
-							}
-							if(e.getLongDetailId() != null && !e.getLongDetailId().equals("") && !usedDetails.contains(e.getLongDetailId())) {
-								details.add(s.getDetail(e.getLongDetailId()));
-								usedDetails.add(e.getLongDetailId());
-							}
-							
-							for(Detail d : details) {
-								Set<Integer> phoneIds = new HashSet<Integer>();
-								String[] forms = d.getTemplateForms();
-								for(int i = 0 ; i < forms.length ; ++i) {
-									if("phone".equals(forms[i])) {
-										phoneIds.add(i);
-									}
+				try {
+					synchronized(cachedNumbers) {
+						Set<String> usedDetails = new HashSet<String>();
+						
+						for(Suite s : platform.getInstalledSuites() ){
+							for(Entry e : s.getEntries().values()) {
+								ArrayList<Detail> details = new ArrayList<Detail>();
+								if(e.getShortDetailId() != null && !e.getShortDetailId().equals("") && !usedDetails.contains(e.getShortDetailId())) {
+									details.add(s.getDetail(e.getShortDetailId()));
+									usedDetails.add(e.getShortDetailId());
 								}
-								if(phoneIds.size() == 0 ) { continue;}
-								//We have a winner!
+								if(e.getLongDetailId() != null && !e.getLongDetailId().equals("") && !usedDetails.contains(e.getLongDetailId())) {
+									details.add(s.getDetail(e.getLongDetailId()));
+									usedDetails.add(e.getLongDetailId());
+								}
 								
-								if(e.getReferences().containsKey("referral")) {
+								for(Detail d : details) {
+									Set<Integer> phoneIds = new HashSet<Integer>();
+									String[] forms = d.getTemplateForms();
+									for(int i = 0 ; i < forms.length ; ++i) {
+										if("phone".equals(forms[i])) {
+											phoneIds.add(i);
+										}
+									}
+									if(phoneIds.size() == 0 ) { continue;}
+									//We have a winner!
 									
-								} else if(e.getReferences().containsKey("case")) {
-									SqlIndexedStorageUtility<Case> storage = CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
-									EntityFactory factory = new EntityFactory(d, user);
-									for(SqlStorageIterator<Case> i = storage.iterate() ; i.hasMore() ;){
-										Case c = i.nextRecord();
-										Entity<Case> entity = factory.getEntity(c);
-										if(entity != null) {
-											for(Integer id : phoneIds) {
-												String number = entity.getFields()[id];
-												if(number != null && !number.equals("")) {
-													cachedNumbers.put(number, c.getName());
+									if(e.getReferences().containsKey("referral")) {
+										
+									} else if(e.getReferences().containsKey("case")) {
+										SqlIndexedStorageUtility<Case> storage = CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
+										EntityFactory factory = new EntityFactory(d, user);
+										for(SqlStorageIterator<Case> i = storage.iterate() ; i.hasMore() ;){
+											Case c = i.nextRecord();
+											Entity<Case> entity = factory.getEntity(c);
+											if(entity != null) {
+												for(Integer id : phoneIds) {
+													String number = entity.getFields()[id];
+													if(number != null && !number.equals("")) {
+														cachedNumbers.put(number, c.getName());
+													}
 												}
 											}
 										}
@@ -116,8 +118,11 @@ public class CallInPhoneListener extends PhoneStateListener {
 								}
 							}
 						}
+						System.out.println("Caching Complete");
+						return null;
 					}
-					System.out.println("Caching Complete");
+				} catch(SessionUnavailableException sue) {
+					//We got logged out in the middle of 
 					return null;
 				}
 			}

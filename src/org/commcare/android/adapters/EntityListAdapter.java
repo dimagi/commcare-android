@@ -12,6 +12,7 @@ import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.EntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
@@ -43,11 +44,11 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	int currentSort = -1;
 	boolean reverseSort = false;
 	
-	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility) {
+	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility)  throws SessionUnavailableException{
 		this(context, d, platform, utility, -1);
 	}
 	
-	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility, int sort) {
+	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility, int sort) throws SessionUnavailableException {
 		this.utility = utility;
 		
 		factory = new EntityFactory<T>(d, platform.getLoggedInUser());
@@ -66,7 +67,7 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 		filterValues("");
 	}
 	
-	private void all() {
+	private void all() throws SessionUnavailableException{
 		for(SqlStorageIterator<T> i = utility.iterate() ; i.hasMore() ;){
 			T t = i.nextRecord();
 			Entity<T> e = factory.getEntity(t);

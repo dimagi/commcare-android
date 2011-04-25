@@ -21,6 +21,7 @@ import org.commcare.android.adapters.IncompleteFormListAdapter;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 
 import android.app.ListActivity;
@@ -47,24 +48,28 @@ public class FormRecordListActivity extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        platform = CommCareApplication._().getCommCarePlatform();
-        setContentView(R.layout.suite_menu_layout);
-
-        adapter = new IncompleteFormListAdapter(this, platform);
-        
-        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
-        	String statusFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
-        	if(statusFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
-        		setTitle(getString(R.string.app_name) + " > " + "Incomplete Forms");
-        	} else {
-        		setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
-        	}
-        	adapter.setFormFilter(statusFilter);
-        } else {
-        	setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
+        try {
+	        platform = CommCareApplication._().getCommCarePlatform();
+	        setContentView(R.layout.suite_menu_layout);
+	
+	        adapter = new IncompleteFormListAdapter(this, platform);
+	        
+	        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
+	        	String statusFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
+	        	if(statusFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
+	        		setTitle(getString(R.string.app_name) + " > " + "Incomplete Forms");
+	        	} else {
+	        		setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
+	        	}
+	        	adapter.setFormFilter(statusFilter);
+	        } else {
+	        	setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
+	        }
+	        this.registerForContextMenu(this.getListView());
+	        refreshView();
+        } catch(SessionUnavailableException sue) {
+        	//TODO: session is dead, login and return
         }
-        this.registerForContextMenu(this.getListView());
-        refreshView();
     }
 
 
@@ -107,17 +112,22 @@ public class FormRecordListActivity extends ListActivity {
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-      AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-      switch(item.getItemId()) {
-      case OPEN_RECORD:
-    	  returnItem(info.position);
-    	  return true;
-      case DELETE_RECORD:
-    	  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).remove((int)info.id);
-    	  this.getListView().post(new Runnable() { public void run() {adapter.notifyDataSetChanged();}});
-      }
-      
-      return true;
+    	try {
+	      AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+	      switch(item.getItemId()) {
+	      case OPEN_RECORD:
+	    	  returnItem(info.position);
+	    	  return true;
+	      case DELETE_RECORD:
+	    	  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).remove((int)info.id);
+	    	  this.getListView().post(new Runnable() { public void run() {adapter.notifyDataSetChanged();}});
+	      }
+	      
+	      return true;
+    	} catch(SessionUnavailableException sue) {
+    		//TODO: Login and try again
+    		return true;
+    	}
     }
 
 }

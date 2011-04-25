@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -169,7 +170,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	}
 	
 	String[] cached;
-	private void decache() {
+	private void decache() throws SessionUnavailableException {
 		if(AndroidCommCarePlatform.ENTITY_NONE.equals(entity)) {
 			cached = new String[] { null, null, null};
 		} else if(entity.startsWith("case:")) {
@@ -188,20 +189,20 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 			cached = new String[] {entity, null, null };
 		}
 	}
-	public String getCaseId() {
+	public String getCaseId() throws SessionUnavailableException {
 		if(cached == null) {
 			decache();
 		}
 		return cached[0];
 	}
 	
-	public String getReferralId() {
+	public String getReferralId() throws SessionUnavailableException {
 		if(cached == null) {
 			decache();
 		}
 		return cached[1];
 	}
-	public String getReferralType() {
+	public String getReferralType() throws SessionUnavailableException {
 		if(cached == null) {
 			decache();
 		}

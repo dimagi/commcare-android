@@ -13,6 +13,7 @@ import org.commcare.android.application.AndroidShortcuts;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -78,29 +79,32 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	Detail detail = platform.getSession().getDetail(prototype.getShortDetailId());
-    	
-    	Text[] templates = detail.getHeaders();
-    	String[] headers = new String[templates.length];
-    	int defaultKey = -1;
-    	for(int i = 0 ; i < templates.length ; ++i) {
-    		headers[i] = templates[i].evaluate();
-    		if(defaultKey == -1 && !"".equals(headers[i])) {
-    			defaultKey = i;
-    		}
+    	try {
+	    	Detail detail = platform.getSession().getDetail(prototype.getShortDetailId());
+	    	
+	    	Text[] templates = detail.getHeaders();
+	    	String[] headers = new String[templates.length];
+	    	int defaultKey = -1;
+	    	for(int i = 0 ; i < templates.length ; ++i) {
+	    		headers[i] = templates[i].evaluate();
+	    		if(defaultKey == -1 && !"".equals(headers[i])) {
+	    			defaultKey = i;
+	    		}
+	    	}
+	    	
+	    	EntityView v = new EntityView(this, platform, detail, headers);
+	    	header.removeAllViews();
+	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+	    	header.addView(v,params);
+	    	adapter = new EntityListAdapter<T>(this, detail, platform, getStorage(), defaultKey);
+	    	setListAdapter(adapter);
+	    	searchbox.requestFocus();
+    	} catch(SessionUnavailableException sue) {
+    		//TODO: login and return
     	}
-    	
-    	EntityView v = new EntityView(this, platform, detail, headers);
-    	header.removeAllViews();
-    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-    	header.addView(v,params);
-    	adapter = new EntityListAdapter<T>(this, detail, platform, getStorage(), defaultKey);
-    	setListAdapter(adapter);
-    	searchbox.requestFocus();
-    	
     }
     
-    protected abstract SqlIndexedStorageUtility<T> getStorage();
+    protected abstract SqlIndexedStorageUtility<T> getStorage() throws SessionUnavailableException;
     protected abstract Intent getDetailIntent(T t);
 
 

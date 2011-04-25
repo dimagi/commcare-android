@@ -76,7 +76,7 @@
     <setup />
 	
 	<target name="init">
-		<delete dir="${custom.dir}"/>
+		<!--delete dir="${custom.dir}"/-->
 		<mkdir dir="${custom.dir}"/>
 		<!-- The android build xml naively assumes this folder always exists-->
 		<mkdir dir="libs"/>
@@ -92,7 +92,7 @@
 	</target>
 		
 	<target name="cleanup" depends="cleanupresources">
-		<delete dir="${custom.dir}"/>
+		<!--delete dir="${custom.dir}"/-->
 	</target>
 	
 	<target name="addversionnumber">

@@ -16,6 +16,7 @@ import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.util.CryptUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.model.utils.DateUtils;
 
 import android.app.Activity;
@@ -61,6 +62,7 @@ public class LoginActivity extends Activity implements DataPullListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.login);
         
         login = (Button)findViewById(R.id.login_button);
@@ -142,7 +144,16 @@ public class LoginActivity extends Activity implements DataPullListener {
     @Override
     protected void onResume() {
         super.onResume();
-        refreshView();
+        
+        if(CommCareApplication._().getSession() != null && CommCareApplication._().getSession().isLoggedIn()) {
+    		Intent i = new Intent();
+            setResult(RESULT_OK, i);
+            
+    		finish();
+
+        } else {
+        	refreshView();
+        }
     }
     
     private void refreshView() {
@@ -191,6 +202,7 @@ public class LoginActivity extends Activity implements DataPullListener {
     
     private void logIn(User u, byte[] key) {
     	CommCareApplication._().logIn(key, u);
+    	
 		Intent i = new Intent();
         i.putExtra(GlobalConstants.STATE_USER_KEY, u.getUniqueId());
         i.putExtra(GlobalConstants.STATE_USER_LOGIN, new Date());
@@ -199,7 +211,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 		finish();
     }
     
-    private SqlIndexedStorageUtility<User> storage() {
+    private SqlIndexedStorageUtility<User> storage() throws SessionUnavailableException{
     	if(storage == null) {
     		storage=  CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
     	}

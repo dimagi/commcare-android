@@ -7,6 +7,8 @@ import java.util.Hashtable;
 
 import javax.crypto.Cipher;
 
+import org.commcare.android.util.SessionUnavailableException;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
@@ -37,7 +39,7 @@ public class CommCareDBCursorFactory implements CursorFactory {
 	/* (non-Javadoc)
 	 * @see android.database.sqlite.SQLiteDatabase.CursorFactory#newCursor(android.database.sqlite.SQLiteDatabase, android.database.sqlite.SQLiteCursorDriver, java.lang.String, android.database.sqlite.SQLiteQuery)
 	 */
-	public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
+	public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) throws SessionUnavailableException{
 		if(models == null || !models.containsKey(editTable)) {
 			return new SQLiteCursor(db, masterQuery, editTable, query);
 		} else {
@@ -46,7 +48,7 @@ public class CommCareDBCursorFactory implements CursorFactory {
 		}
 	} 
 	
-	protected Cipher getReadCipher() {
+	protected Cipher getReadCipher() throws SessionUnavailableException {
 		return null;
 	}
 }

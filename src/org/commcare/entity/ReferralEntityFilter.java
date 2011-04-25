@@ -9,6 +9,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.Referral;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Filter;
 import org.javarosa.core.services.storage.EntityFilter;
 
@@ -21,9 +22,9 @@ public class ReferralEntityFilter extends EntityFilter<Referral> {
 	Filter primary;
 	SqlIndexedStorageUtility<Case> storage;
 	
-	public ReferralEntityFilter(Filter primary) {
+	public ReferralEntityFilter(Filter primary, SqlIndexedStorageUtility<Case> storage) {
 		this.primary = primary;
-		storage = CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
+		this.storage = storage;
 	}
 		
 	public int preFilter(int id, Hashtable<String, Object> metaData) {

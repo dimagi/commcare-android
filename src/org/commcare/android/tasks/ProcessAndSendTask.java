@@ -36,6 +36,7 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -72,7 +73,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 	
 	private static long MAX_BYTES = 1048576-1024; // 1MB less 1KB overhead
 	
-	public ProcessAndSendTask(Context c, String url) {
+	public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
 		storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);

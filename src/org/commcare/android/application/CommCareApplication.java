@@ -10,7 +10,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
-import javax.crypto.CipherSpi;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -29,12 +28,14 @@ import org.commcare.android.models.Referral;
 import org.commcare.android.models.User;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
+import org.commcare.android.services.CommCareSessionService;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.ODKPropertyManager;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -46,6 +47,10 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.app.Application;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -54,6 +59,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
 import android.os.Environment;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -73,8 +79,6 @@ public class CommCareApplication extends Application {
 	private int dbState;
 	private int resourceState;
 	
-	private byte[] key;
-
 	private static CommCareApplication app;
 	
 	private AndroidCommCarePlatform platform;
@@ -113,22 +117,19 @@ public class CommCareApplication extends Application {
 		}
 	}
 	
+	public void logout() {
+		this.platform.getSession().clearState();
+        this.platform.logout();
+        
+        doUnbindService();
+	}
+	
 	public void logIn(byte[] symetricKey, User user) {
-		this.key = symetricKey;
-		
-		if(database != null && database.isOpen()) {
-			database.close();
-		}
-		
-		CursorFactory factory = new CommCareDBCursorFactory(this.encryptedModels()) {
-			protected Cipher getReadCipher() {
-				return getDecrypter();
-			}
-		};
-		database = new CommCareOpenHelper(this, factory).getWritableDatabase();
-		if(user != null) {
-			attachCallListener(user);
-		}
+		doBindService(symetricKey, user);
+	}
+	
+	public SecretKey createNewSymetricKey() {
+		return mBoundService.createNewSymetricKey();
 	}
 	
 	private CallInPhoneListener listener = null;
@@ -148,55 +149,6 @@ public class CommCareApplication extends Application {
 			tManager.listen(listener, PhoneStateListener.LISTEN_NONE);	
 			listener = null;
 		}
-	}
-	
-	public Cipher getEncrypter() {
-		synchronized(key) {
-
-			SecretKeySpec spec = new SecretKeySpec(key, "AES");
-			
-			try{
-				Cipher encrypter = Cipher.getInstance("AES");
-				encrypter.init(Cipher.ENCRYPT_MODE, spec);
-				return encrypter;
-			} catch (InvalidKeyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchPaddingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
-		}
-	}
-	
-	public Cipher getDecrypter() {
-		try {
-			synchronized(key) {
-				SecretKeySpec spec = new SecretKeySpec(key, "AES");
-				Cipher decrypter = Cipher.getInstance("AES");
-				decrypter.init(Cipher.DECRYPT_MODE, spec);
-			
-				return decrypter;
-			}
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public SecretKey createNewSymetricKey() {
-		return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
 	}
 	
 	
@@ -334,16 +286,16 @@ public class CommCareApplication extends Application {
 		}
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String storage, Class<T> c) {
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String storage, Class<T> c) throws SessionUnavailableException {
 		DbHelper helper;
-		if(key != null) {
-			helper = new DbHelper(this.getApplicationContext(), getEncrypter()) {
+		if(mBoundService != null && mBoundService.isLoggedIn()) {
+			helper = new DbHelper(this.getApplicationContext(), mBoundService.getEncrypter()) {
 				@Override
 				public SQLiteDatabase getHandle() {
 					if(database == null || !database.isOpen()) {
 						CursorFactory factory = new CommCareDBCursorFactory(encryptedModels()) {
 							protected Cipher getReadCipher() {
-								return getDecrypter();
+								return mBoundService.getDecrypter();
 							}
 						};
 						database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
@@ -423,8 +375,9 @@ public class CommCareApplication extends Application {
 	 * database which point to/expect files to exist on the file system, and clears
 	 * out any records which refer to files that don't exist. 
 	 */
-	public void cleanUpDatabaseFileLinkages() {
-		Vector<Integer> toDelete = new Vector<Integer>();	
+	public void cleanUpDatabaseFileLinkages() throws SessionUnavailableException{
+		Vector<Integer> toDelete = new Vector<Integer>();
+		
 		SqlIndexedStorageUtility<FormRecord> storage = getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		
 		//Can't load the records outright, since we'd need to be logged in (The key is encrypted)
@@ -448,7 +401,7 @@ public class CommCareApplication extends Application {
 	 * It makes no attempt to make sure this is a safe operation when called, so
 	 * it shouldn't be used lightly.
 	 */
-	public void clearUserData() {
+	public void clearUserData() throws SessionUnavailableException {
 		//First clear anything that will require the user's key, since we're going to wipe it out!
 		getStorage(Referral.STORAGE_KEY, Referral.class).removeAll();
 		getStorage(Case.STORAGE_KEY, Case.class).removeAll();
@@ -489,5 +442,73 @@ public class CommCareApplication extends Application {
 		
 		return "CommCare ODK, version \"" + pi.versionName + "\"(" + pi.versionCode+ "). CommCare Version " +  ccv + ". Build #" + buildNumber + ", built on: " + buildDate;
 		
+	}
+	
+	//Start Service code. Will be changed in the future
+	private CommCareSessionService mBoundService;
+
+	private ServiceConnection mConnection;
+
+	boolean mIsBound = false;
+	void doBindService(final byte[] key, final User user) {
+		mConnection = new ServiceConnection() {
+		    public void onServiceConnected(ComponentName className, IBinder service) {
+		        // This is called when the connection with the service has been
+		        // established, giving us the service object we can use to
+		        // interact with the service.  Because we have bound to a explicit
+		        // service that we know is running in our own process, we can
+		        // cast its IBinder to a concrete class and directly access it.
+		        mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
+		        
+		        mBoundService.logIn(key);
+		        
+				if(database != null && database.isOpen()) {
+					database.close();
+				}
+				
+				CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
+					protected Cipher getReadCipher() {
+						return mBoundService.getDecrypter();
+					}
+				};
+				database = new CommCareOpenHelper(CommCareApplication.this, factory).getWritableDatabase();
+				if(user != null) {
+					attachCallListener(user);
+				}		
+		    }
+
+		    public void onServiceDisconnected(ComponentName className) {
+		        // This is called when the connection with the service has been
+		        // unexpectedly disconnected -- that is, its process crashed.
+		        // Because it is running in our same process, we should never
+		        // see this happen.
+		        mBoundService = null;
+		    }
+		};
+		
+	    // Establish a connection with the service.  We use an explicit
+	    // class name because we want a specific service implementation that
+	    // we know will be running in our own process (and thus won't be
+	    // supporting component replacement by other applications).
+	    bindService(new Intent(this,  CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
+	    
+	    mIsBound = true;
+	}
+
+	void doUnbindService() {
+	    if (mIsBound) {
+	    	mBoundService.logout();
+	        // Detach our existing connection.
+	        unbindService(mConnection);
+	        mIsBound = false;
+	    }
+	}
+	
+	public CommCareSessionService getSession() {
+		if(mIsBound) {
+			return mBoundService;
+		} else {
+			return null;
+		}
 	}
 }

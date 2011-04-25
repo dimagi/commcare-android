@@ -9,6 +9,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Referral;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.util.CommCareSession;
 
 import android.content.Intent;
@@ -20,7 +21,7 @@ import android.content.Intent;
 public class ReferralDetailActivity extends EntityDetailActivity<Referral> {
 
 	@Override
-	protected Referral readObjectFromIncomingIntent(Intent i) {
+	protected Referral readObjectFromIncomingIntent(Intent i) throws SessionUnavailableException {
 		String id = getIntent().getStringExtra(CommCareSession.STATE_REFERRAL_ID);
 		String type = getIntent().getStringExtra(AndroidCommCarePlatform.STATE_REFERRAL_TYPE);
 

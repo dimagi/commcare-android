@@ -9,6 +9,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 
 import android.content.Context;
@@ -29,14 +30,14 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	String filter;
 	private FormRecord[] records;
 	
-	public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform) {
+	public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform) throws SessionUnavailableException{
 		this.platform = platform;
 		this.context = context;
 		this.filter = null;
 		resetRecords();
 	}
 	
-	public void resetRecords() {
+	public void resetRecords() throws SessionUnavailableException {
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		Vector<Integer> formids;
 		if(filter != null) {
@@ -133,7 +134,7 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		return records.length > 0;
 	}
 	
-	public void setFormFilter(String filter) {
+	public void setFormFilter(String filter) throws SessionUnavailableException {
 		this.filter = filter;
 		resetRecords();
 	}

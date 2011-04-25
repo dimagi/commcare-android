@@ -5,9 +5,8 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.User;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
@@ -30,7 +29,7 @@ public class UserXmlParser extends TransactionParser<User> {
 		this.wrappedKey = wrappedKey;
 	}
 
-	public User parse() throws InvalidStructureException, IOException, XmlPullParserException {
+	public User parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
 		this.checkNode("registration");
 		
 		//parse (with verification) the next tag
@@ -84,7 +83,7 @@ public class UserXmlParser extends TransactionParser<User> {
 		return u;
 	}
 
-	public void commit(User parsed) throws IOException {
+	public void commit(User parsed) throws IOException, SessionUnavailableException {
 		try {
 			storage().write(parsed);
 		} catch (StorageFullException e) {
@@ -93,7 +92,7 @@ public class UserXmlParser extends TransactionParser<User> {
 		}
 	}
 
-	public User retrieve(String entityId) {
+	public User retrieve(String entityId) throws SessionUnavailableException {
 		IStorageUtilityIndexed storage = storage();
 		try{
 			return (User)storage.getRecordForValue(User.META_UID, entityId);
@@ -102,7 +101,7 @@ public class UserXmlParser extends TransactionParser<User> {
 		}
 	}
 	
-	public IStorageUtilityIndexed storage() {
+	public IStorageUtilityIndexed storage() throws SessionUnavailableException{
 		if(storage == null) {
 			storage =  CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
 		} 

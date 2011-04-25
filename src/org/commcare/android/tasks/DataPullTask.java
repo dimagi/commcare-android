@@ -28,6 +28,7 @@ import org.commcare.android.models.Case;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
 import org.commcare.android.util.CryptUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -101,6 +102,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	protected Integer doInBackground(Void... params) {
 		
+		
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
     	
     	if("true".equals(prefs.getString("cc-auto-update","false"))) {
@@ -120,16 +122,17 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					return UNKNOWN_FAILURE;
 				}
 				
-				//This is necessary (currently) to make sure that data
-				//is encoded. Probably a better way to do this.
-				CommCareApplication._().logIn(spec.getEncoded(), null);
-				
 				HttpResponse response = client.execute(new HttpGet(server));
 				int responseCode = response.getStatusLine().getStatusCode();
 				if(responseCode == 401) {
 					return AUTH_FAILED;
 				}
 				this.publishProgress(PROGRESS_AUTHED);
+				
+				
+				//This is necessary (currently) to make sure that data
+				//is encoded. Probably a better way to do this.
+				CommCareApplication._().logIn(spec.getEncoded(), null);
 				
 				if(responseCode >= 200 && responseCode < 300) {
 					
@@ -156,13 +159,15 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (SessionUnavailableException sue) {
+				//TODO: Keys were lost somehow.
 			}
 			this.publishProgress(PROGRESS_DONE);
 			return UNKNOWN_FAILURE;
 			
 	}
 	
-	private void readInput(InputStream stream, SecretKeySpec key) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+	private void readInput(InputStream stream, SecretKeySpec key) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
 		DataModelPullParser parser;
 		final byte[] wrappedKey = CryptUtil.wrapKey(key,credentials.getPassword());
 		

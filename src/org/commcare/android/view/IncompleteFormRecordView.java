@@ -16,6 +16,7 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
@@ -71,7 +72,7 @@ public class IncompleteFormRecordView extends LinearLayout {
         start = new Date();
 	}
 
-	public void setParams(AndroidCommCarePlatform platform, FormRecord record) {
+	public void setParams(AndroidCommCarePlatform platform, FormRecord record) throws SessionUnavailableException{
 		Text name = names.get(record.getFormNamespace());
 		mPrimaryTextView.setText(name.evaluate());
 		
