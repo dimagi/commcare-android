@@ -75,7 +75,7 @@ public abstract class EntityDetailActivity<T extends Persistable> extends ListAc
 			Vector<Entry> entries = platform.getSession().getEntriesForCommand(passedCommand == null ? platform.getSession().getCommand() : passedCommand);
 			prototype = entries.elementAt(0);
 	
-	        factory = new EntityFactory<T>(platform.getSession().getDetail(prototype.getLongDetailId()), platform.getLoggedInUser());
+	        factory = new EntityFactory<T>(platform.getSession().getDetail(prototype.getLongDetailId()), CommCareApplication._().getSession().getLoggedInUser());
 			
 		    entity = factory.getEntity(readObjectFromIncomingIntent(getIntent()));
 	        

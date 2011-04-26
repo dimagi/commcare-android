@@ -4,15 +4,11 @@
 package org.commcare.android.application;
 
 import java.io.File;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.R;
 import org.commcare.android.database.CommCareDBCursorFactory;
@@ -33,7 +29,6 @@ import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
-import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.resources.model.Resource;
@@ -119,7 +114,6 @@ public class CommCareApplication extends Application {
 	
 	public void logout() {
 		this.platform.getSession().clearState();
-        this.platform.logout();
         
         doUnbindService();
 	}
@@ -412,11 +406,8 @@ public class CommCareApplication extends Application {
 		//Now we wipe out the user entirely
 		getStorage(User.STORAGE_KEY, User.class).removeAll();
 		
-		//We should be clear of anything that requires the storage key anymore, so we can now dump
-		//user credentials.
-		platform.logout();
-		
 		//Should be good to go. The app'll log us out now that there's no user details in memory
+		logout();
 	}
 
 	public String getCurrentVersionString() {
@@ -460,7 +451,7 @@ public class CommCareApplication extends Application {
 		        // cast its IBinder to a concrete class and directly access it.
 		        mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 		        
-		        mBoundService.logIn(key);
+		        mBoundService.logIn(key, user);
 		        
 				if(database != null && database.isOpen()) {
 					database.close();
@@ -504,11 +495,11 @@ public class CommCareApplication extends Application {
 	    }
 	}
 	
-	public CommCareSessionService getSession() {
+	public CommCareSessionService getSession() throws SessionUnavailableException {
 		if(mIsBound) {
 			return mBoundService;
 		} else {
-			return null;
+			throw new SessionUnavailableException();
 		}
 	}
 }

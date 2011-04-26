@@ -43,6 +43,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class CommCareHomeActivity extends Activity implements ProcessAndSendListener {
+	
 	public static final int LOGIN_USER = 0;
 	public static final int GET_COMMAND = 1;
 	public static final int GET_CASE = 2;
@@ -111,11 +112,10 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         logoutButton = (Button) findViewById(R.id.logout);
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-                
                 CommCareApplication._().logout();
                 
-                startActivityForResult(i, LOGIN_USER);
+                //This will dispatch the login screen by default more cleanly
+                dispatchHomeScreen();
             }
         });
         
@@ -177,11 +177,10 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	    			this.finish();
 	    			return;
 	    		} else if(resultCode == RESULT_OK) {
-	    			if(!intent.hasExtra(GlobalConstants.STATE_USER_KEY)) {
-	    				//If the intent is empty, we were already logged in, we just ended up with a weird flow.
+	    			if(intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
+	    				//If we were already logged in just roll with it.
 	    				refreshView();
 	    			} else {
-	    				platform.logInUser(intent.getStringExtra(GlobalConstants.STATE_USER_KEY));
 	    				refreshView();
 	    				checkAndStartUnsentTask();
 	    			}
@@ -487,7 +486,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	     	        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
 	     	        
 	     	        this.startActivityForResult(i, INIT_APP);
-	        } else if(platform.getLoggedInUser() == null) {
+	        } else if(!CommCareApplication._().getSession().isLoggedIn()) {
 	        	
 	//        	Intent i = new Intent(getApplicationContext(), DotsEntryActivity.class);
 	//        	i.putExtra("regimen", "[1,2]");
@@ -517,6 +516,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        }
     	} catch(SessionUnavailableException sue) {
     		//TODO: See how much context we have, and go login
+        	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+        	startActivityForResult(i,LOGIN_USER);
     	}
     }
     
@@ -696,7 +697,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             case MENU_UPDATE:
             	CommCareApplication._().upgrade();
     			platform.getSession().clearState();
-    			platform.logout();
+    			CommCareApplication._().getSession().logout();
             	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
             	startActivityForResult(i,LOGIN_USER);
             	return true;

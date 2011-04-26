@@ -3,6 +3,7 @@
  */
 package org.commcare.android.preloaders;
 
+import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.User;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.javarosa.core.model.data.IAnswerData;
@@ -34,7 +35,7 @@ public class MetaPreloader implements IPreloadHandler {
 	 * @see org.javarosa.core.model.utils.IPreloadHandler#handlePreload(java.lang.String)
 	 */
 	public IAnswerData handlePreload(String preloadParams) {
-		User u = platform.getLoggedInUser();
+		User u = CommCareApplication._().getSession().getLoggedInUser();
 		if(preloadParams == null ) { return null; }
 		 if("UserName".toLowerCase().equals(preloadParams.toLowerCase())) {
 			 if(u == null) { return null; }

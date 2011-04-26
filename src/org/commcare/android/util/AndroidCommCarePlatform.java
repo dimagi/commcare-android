@@ -43,9 +43,6 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	private Profile profile;
 	private Vector<Suite> installedSuites;
 	
-	private String currentUser;
-	private Date loginTime;
-	
 	private long callDuration = 0;
 	
 	private CommCareSession session;
@@ -107,46 +104,18 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.installedSuites.add(s);
 	}
 	
-	public void logInUser(String userId) {
-		this.currentUser = userId;
-		this.loginTime = new Date();
-	}
-	
-	public User getLoggedInUser() throws SessionUnavailableException {
-		if(currentUser == null) { return null; }
-		SqlIndexedStorageUtility<User> userStorage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
-		return userStorage.getRecordForValue(User.META_UID, currentUser);
-	}
-	
 	public CommCareSession getSession() {
 		return session;
 	}
 	
-	public void logout() {
-		this.currentUser = null;
-		this.loginTime = null;
-	}
 	
 	public void pack(Bundle outgoing) {
-		if(currentUser != null) {
-			outgoing.putString(GlobalConstants.STATE_USER_KEY, currentUser);
-		}
-		if(loginTime != null) {
-			outgoing.putLong(GlobalConstants.STATE_USER_LOGIN, loginTime.getTime());
-		}
+
 	}
 	
 	public void unpack(Bundle incoming) {
 		if(incoming == null) {
 			return;
-		}
-		if(incoming.containsKey(GlobalConstants.STATE_USER_LOGIN)) {
-			long login = incoming.getLong(GlobalConstants.STATE_USER_LOGIN);
-			double hrsSinceLogin = ((double)((new Date()).getTime() - login)/1000/60/60);
-			if(hrsSinceLogin > 4) {
-				loginTime = new Date(login);
-				currentUser = incoming.getString(GlobalConstants.STATE_USER_KEY);
-			}
 		}
 	}
 

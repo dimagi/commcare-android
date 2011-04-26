@@ -40,6 +40,9 @@ import android.widget.Toast;
  *
  */
 public class LoginActivity extends Activity implements DataPullListener {
+	
+	public static String ALREADY_LOGGED_IN = "la_loggedin";
+	
 	ProgressDialog mProgressDialog;
 	
 	Button login;
@@ -145,15 +148,20 @@ public class LoginActivity extends Activity implements DataPullListener {
     protected void onResume() {
         super.onResume();
         
-        if(CommCareApplication._().getSession() != null && CommCareApplication._().getSession().isLoggedIn()) {
+        try {
+        if(CommCareApplication._().getSession().isLoggedIn()) {
     		Intent i = new Intent();
+    		i.putExtra(ALREADY_LOGGED_IN, true);
             setResult(RESULT_OK, i);
             
     		finish();
-
-        } else {
-        	refreshView();
+    		return;
         }
+        }catch(SessionUnavailableException sue) {
+        	//Nothing, we're logging in here anyway
+        }
+        
+        refreshView();
     }
     
     private void refreshView() {
@@ -204,8 +212,6 @@ public class LoginActivity extends Activity implements DataPullListener {
     	CommCareApplication._().logIn(key, u);
     	
 		Intent i = new Intent();
-        i.putExtra(GlobalConstants.STATE_USER_KEY, u.getUniqueId());
-        i.putExtra(GlobalConstants.STATE_USER_LOGIN, new Date());
         setResult(RESULT_OK, i);
         
 		finish();

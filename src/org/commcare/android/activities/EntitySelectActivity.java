@@ -96,7 +96,7 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 	    	header.removeAllViews();
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    	header.addView(v,params);
-	    	adapter = new EntityListAdapter<T>(this, detail, platform, getStorage(), defaultKey);
+	    	adapter = new EntityListAdapter<T>(this, detail, platform, getStorage(), CommCareApplication._().getSession().getLoggedInUser(), defaultKey);
 	    	setListAdapter(adapter);
 	    	searchbox.requestFocus();
     	} catch(SessionUnavailableException sue) {
@@ -226,7 +226,7 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 			}
         });
 
-        
+        	
         AlertDialog alert = builder.create();
         alert.show();
 

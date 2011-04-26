@@ -12,4 +12,5 @@
 	<item>1</item>
 </integer-array>
 <string name="notificationtitle">Logged Into Commcare</string>
+<string name="expirenotification">CommCare Login Expired</string>
 </resources>
