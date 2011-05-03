@@ -184,6 +184,7 @@ public class CommCareSessionService extends Service {
 		synchronized(lock){
 			key = null;
 			maintenanceTimer.cancel();
+	        this.stopForeground(true);
 		}
 	}
 	

@@ -58,7 +58,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	public static final int DIALOG_CORRUPTED = 4;
 	
 	private static final int MENU_PREFERENCES = Menu.FIRST;
-	private static final int MENU_UPDATE = Menu.FIRST  +1;;
+	private static final int MENU_UPDATE = Menu.FIRST  +1;
+	private static final int MENU_CALL_LOG = Menu.FIRST  +2;
 	
 	View homeScreen;
 	
@@ -675,6 +676,12 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         Intent i = new Intent(this, CommCarePreferences.class);
         startActivity(i);
     }
+    
+    private void createCallLogActivity() {
+        Intent i = new Intent(this, CallLogActivity.class);
+        startActivity(i);
+
+    }
 
 	
     @Override
@@ -684,6 +691,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                 android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_UPDATE, 0, "Update CommCare").setIcon(
         		android.R.drawable.ic_menu_upload);
+        menu.add(0, MENU_CALL_LOG, 0, "Call Log").setIcon(
+        		android.R.drawable.ic_menu_recent_history);
         return true;
     }
 
@@ -700,6 +709,9 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     			CommCareApplication._().getSession().logout();
             	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
             	startActivityForResult(i,LOGIN_USER);
+            	return true;
+            case MENU_CALL_LOG:
+            	createCallLogActivity();
             	return true;
         }
         return super.onOptionsItemSelected(item);

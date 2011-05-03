@@ -131,7 +131,7 @@ public class CommCareApplication extends Application {
 	private void attachCallListener(User user) {
 		TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
 		
-		CallInPhoneListener listener = new CallInPhoneListener(this, this.getCommCarePlatform(), user);
+		listener = new CallInPhoneListener(this, this.getCommCarePlatform(), user);
 		listener.startCache();
         
         tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -143,6 +143,10 @@ public class CommCareApplication extends Application {
 			tManager.listen(listener, PhoneStateListener.LISTEN_NONE);	
 			listener = null;
 		}
+	}
+	
+	public CallInPhoneListener getCallListener() {
+		return listener;
 	}
 	
 	

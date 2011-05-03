@@ -5,6 +5,7 @@ package org.commcare.android.activities;
 
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.models.Case;
 import org.commcare.android.models.Referral;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
@@ -31,5 +32,10 @@ public class ReferralSelectActivity extends EntitySelectActivity<Referral> {
         i.putExtra(AndroidCommCarePlatform.STATE_REFERRAL_TYPE, r.getType());
         return i;
 	}
-
+	
+	@Override
+	protected Referral getEntityFromID(String uniqueid) throws SessionUnavailableException {
+		//Not supported currently
+		return null;
+	}
 }

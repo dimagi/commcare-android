@@ -43,6 +43,8 @@ import android.widget.ListView;
 public abstract class EntitySelectActivity<T extends Persistable> extends ListActivity implements TextWatcher {
 	private AndroidCommCarePlatform platform;
 	
+	private static final String EXTRA_ENTITY_KEY = "esa_entity_key";
+	
 	private static final int CONFIRM_SELECT = 0;
 	
 	private static final int MENU_SORT = Menu.FIRST;
@@ -71,7 +73,14 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
         
         setTitle(getString(R.string.app_name) + " > " + " Select");
         
-        refreshView();
+        if(this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+        	T entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+        	
+            Intent i = getDetailIntent(entity);
+            startActivityForResult(i, CONFIRM_SELECT);
+        } else {
+            refreshView();
+        }
     }
 
 
@@ -106,6 +115,14 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
     
     protected abstract SqlIndexedStorageUtility<T> getStorage() throws SessionUnavailableException;
     protected abstract Intent getDetailIntent(T t);
+    
+    /**
+     * NOT GUARANTEED TO WORK! May return an entity if one exists
+     * 
+     * @param uniqueid
+     * @return
+     */
+    protected abstract T getEntityFromID(String uniqueid);
 
 
     /**

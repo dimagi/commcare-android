@@ -27,4 +27,14 @@ public class CaseSelectActivity extends EntitySelectActivity<Case> {
         i.putExtra(CommCareSession.STATE_CASE_ID, c.getCaseId());
         return i;
 	}
+
+	@Override
+	protected Case getEntityFromID(String uniqueid) throws SessionUnavailableException {
+		SqlIndexedStorageUtility<Case> storage = getStorage();
+		try { 
+			return storage.getRecordForValue(Case.META_CASE_ID, uniqueid);
+		} catch(Exception e) {
+			return null;
+		}
+	}
 }

@@ -38,6 +38,8 @@ public abstract class EntityDetailActivity<T extends Persistable> extends ListAc
 	private AndroidCommCarePlatform platform;
 	
 	private static final int CALL_OUT = 0;
+	
+	public static final String IS_DEAD_END = "eda_ide";
 		
 	Entry prototype;
 	
@@ -66,6 +68,10 @@ public abstract class EntityDetailActivity<T extends Persistable> extends ListAc
 				}
 	        	
 	        });
+	        
+	        if(getIntent().getBooleanExtra(IS_DEAD_END, false)) {
+	        	next.setText("Done");
+	        }
 	        
 	        
 	        platform = CommCareApplication._().getCommCarePlatform();
