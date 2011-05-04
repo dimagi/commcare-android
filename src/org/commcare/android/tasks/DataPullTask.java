@@ -6,6 +6,7 @@ package org.commcare.android.tasks;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
@@ -21,7 +22,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.commcare.android.activities.LoginActivity;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Case;
@@ -66,6 +66,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	public static final int AUTH_FAILED = 1;
 	public static final int BAD_DATA = 2;
 	public static final int UNKNOWN_FAILURE = 4;
+	public static final int UNREACHABLE_HOST = 8;
 	
 	public static final int PROGRESS_NONE = 0;
 	public static final int PROGRESS_AUTHED = 1;
@@ -156,10 +157,13 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (UnknownHostException e) {
+				this.publishProgress(PROGRESS_DONE);
+				return UNREACHABLE_HOST;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (SessionUnavailableException sue) {
+			}catch (SessionUnavailableException sue) {
 				//TODO: Keys were lost somehow.
 			}
 			this.publishProgress(PROGRESS_DONE);

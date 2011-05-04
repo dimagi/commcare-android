@@ -248,6 +248,12 @@ public class LoginActivity extends Activity implements DataPullListener {
 						Toast.LENGTH_LONG).show();
 				break;
 			}
+		case DataPullTask.UNREACHABLE_HOST:
+			Toast.makeText(this, 
+					"Couldn't contact server. Please make sure an internet connection is available or try again later.", 
+					Toast.LENGTH_LONG).show();
+			this.dismissDialog(DIALOG_CHECKING_SERVER);
+			break;
 		case DataPullTask.UNKNOWN_FAILURE:
 			Toast.makeText(this, 
 					"Unknown failure, please try again.", 

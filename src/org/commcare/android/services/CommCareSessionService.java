@@ -100,7 +100,7 @@ public class CommCareSessionService extends Service {
     /**
      * Show a notification while this service is running.
      */
-    private void showLoggedInNotification() {
+    private void showLoggedInNotification(User user) {
     	//mNM.cancel(org.commcare.android.R.string.expirenotification);
     	
         CharSequence text = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
@@ -114,8 +114,10 @@ public class CommCareSessionService extends Service {
         // Set the info for the views that show in the notification panel.
         notification.setLatestEventInfo(this, this.getString(org.commcare.android.R.string.notificationtitle), text, contentIntent);
 
-        // Send the notification.
-        this.startForeground(NOTIFICATION, notification);
+        if(user != null) {
+        	//Send the notification.
+        	this.startForeground(NOTIFICATION, notification);
+        }
     }
     
     /*
@@ -152,7 +154,7 @@ public class CommCareSessionService extends Service {
 		this.sessionExpireDate = new Date(new Date().getTime() + SESSION_LENGTH);
 		
         // Display a notification about us starting.  We put an icon in the status bar.
-        showLoggedInNotification();
+        showLoggedInNotification(user);
         
         maintenanceTimer = new Timer("CommCareService");
         maintenanceTimer.schedule(new TimerTask() {
