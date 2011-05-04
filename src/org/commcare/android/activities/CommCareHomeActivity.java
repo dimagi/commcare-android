@@ -300,6 +300,13 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        			current = storage.read(unstarteds.elementAt(0).intValue());
 	        		}
 	        		
+	        		//See if we were viewing an old form, in which case we don't want to change the historical record.
+	        		if(current.getStatus() == FormRecord.STATUS_COMPLETE) {
+		        		session.clearState();
+	        			refreshView();
+		        		return;
+	        		}
+	        		
 	        		if(completed) {
 	    				FormRecord r = new FormRecord(session.getForm(), instance, entityId, FormRecord.STATUS_COMPLETE, current.getAesKey());
 	    				r.setID(current.getID());
@@ -319,7 +326,6 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        			
 	        			FormRecord r = new FormRecord(session.getForm(), instance, entityId, FormRecord.STATUS_INCOMPLETE, current.getAesKey());
 	        			r.setID(current.getID());
-	        			
 	        			try {
 							storage.write(r);
 						} catch (StorageFullException e) {
@@ -666,7 +672,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 			}
 			Toast.makeText(this, label, Toast.LENGTH_LONG).show();
 		} else {
-			Toast.makeText(this, "Error in Sending! Will try again later.", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "Having issues communicating with the server to send forms. Will try again later.", Toast.LENGTH_LONG).show();
 		}
 		refreshView();
 	}
