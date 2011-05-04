@@ -127,14 +127,14 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				if(responseCode == 401) {
 					return AUTH_FAILED;
 				}
-				this.publishProgress(PROGRESS_AUTHED);
-				
-				
-				//This is necessary (currently) to make sure that data
-				//is encoded. Probably a better way to do this.
-				CommCareApplication._().logIn(spec.getEncoded(), null);
 				
 				if(responseCode >= 200 && responseCode < 300) {
+					
+					this.publishProgress(PROGRESS_AUTHED);
+					
+					//This is necessary (currently) to make sure that data
+					//is encoded. Probably a better way to do this.
+					CommCareApplication._().logIn(spec.getEncoded(), null);
 					
 					try {
 						readInput(response.getEntity().getContent(), spec);
