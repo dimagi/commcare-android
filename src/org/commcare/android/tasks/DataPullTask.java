@@ -10,6 +10,8 @@ import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.crypto.KeyGenerator;
@@ -24,23 +26,22 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.models.Case;
+import org.commcare.android.models.FormRecord;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.data.xml.TransactionParser;
-import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.xml.CaseXmlParser;
-import org.commcare.xml.UserXmlParser;
+import org.commcare.xml.CommCareTransactionParserFactory;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.StreamsUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
@@ -102,26 +103,45 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	protected Integer doInBackground(Void... params) {
+		boolean loginNeeded = true;
+		try {
+			loginNeeded = CommCareApplication._().getSession().isLoggedIn();
+		} catch(SessionUnavailableException sue) {
+			//expected if we aren't initialized.
+		}
 		
-		
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
-    	
-    	if("true".equals(prefs.getString("cc-auto-update","false"))) {
-    		Editor e = prefs.edit();
-    		e.putLong("last-ota-restore", new Date().getTime());
-    		e.commit();
-    	}
+		if(loginNeeded) {
+	    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+	    	
+	    	if("true".equals(prefs.getString("cc-auto-update","false"))) {
+	    		Editor e = prefs.edit();
+	    		e.putLong("last-ota-restore", new Date().getTime());
+	    		e.commit();
+	    	}
+		}
+		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c);
 
 			DefaultHttpClient client = new DefaultHttpClient();
 			client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
 			
 			try {
-				//SecretKeySpec spec = getKeyForDevice();
-				SecretKeySpec spec = generateTestKey();
-				if(spec == null) {
-					this.publishProgress(PROGRESS_DONE);
-					return UNKNOWN_FAILURE;
+				//This is a dangerous way to do this (the null settings), should revisit later
+				SecretKeySpec spec = null;
+				if(loginNeeded) {
+					//Get the key 
+					//SecretKeySpec spec = getKeyForDevice();
+					spec = generateTestKey();
+					
+					if(spec == null) {
+						this.publishProgress(PROGRESS_DONE);
+						return UNKNOWN_FAILURE;
+					}
+					
+					//add to transaction parser factory
+					byte[] wrappedKey = CryptUtil.wrapKey(spec,credentials.getPassword());
+					factory.initUserParser(wrappedKey);
 				}
+					
 				
 				HttpResponse response = client.execute(new HttpGet(server));
 				int responseCode = response.getStatusLine().getStatusCode();
@@ -133,12 +153,14 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					
 					this.publishProgress(PROGRESS_AUTHED);
 					
-					//This is necessary (currently) to make sure that data
-					//is encoded. Probably a better way to do this.
-					CommCareApplication._().logIn(spec.getEncoded(), null);
+					if(loginNeeded) {
+						//This is necessary (currently) to make sure that data
+						//is encoded. Probably a better way to do this.
+						CommCareApplication._().logIn(spec.getEncoded(), null);
+					}
 					
 					try {
-						readInput(response.getEntity().getContent(), spec);
+						readInput(response.getEntity().getContent(), factory);
 						this.publishProgress(PROGRESS_DONE);
 						return DOWNLOAD_SUCCESS;
 					} catch (InvalidStructureException e) {
@@ -171,30 +193,37 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			
 	}
 	
-	private void readInput(InputStream stream, SecretKeySpec key) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
+	private void readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
 		DataModelPullParser parser;
-		final byte[] wrappedKey = CryptUtil.wrapKey(key,credentials.getPassword());
 		
 		//Go collect existing case data models that we should skip.
 		final Vector<String> existingCases = new Vector<String>();
 		SqlIndexedStorageUtility<Case> caseStorage = CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
+		for(SqlStorageIterator<Case> i = caseStorage.iterate(); i.hasNext();) {
+			caseStorage.getMetaDataFieldForRecord(i.nextID(), Case.META_CASE_ID);
+		}
+		long time = new Date().getTime();
 		for(Case c : caseStorage) {
 			existingCases.add(c.getCaseId());
 		}
+		System.out.println("Caching existing cases took: " + (new Date().getTime() - time) + "ms");
 		
+		factory.initCaseParser(existingCases);
 		
-		parser = new DataModelPullParser(stream, new TransactionParserFactory() {
-			
-			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-				if(name.toLowerCase().equals("case")) {
-					return new CaseXmlParser(parser, c, existingCases);
-				} else if(name.toLowerCase().equals("registration")) {
-					return new UserXmlParser(parser, c, wrappedKey);
-				}
-				return null;
-			}
-			
-		});
+		Hashtable<String,String> formNamespaces = new Hashtable<String, String>(); 
+		
+		for(String xmlns : CommCareApplication._().getCommCarePlatform().getInstalledForms()) {
+			formNamespaces.put(xmlns, CommCareApplication._().getCommCarePlatform().getFormPath(xmlns));
+		}
+		factory.initFormInstanceParser(formNamespaces);
+		
+//		SqlIndexedStorageUtility<FormRecord> formRecordStorge = CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+//
+//		for(SqlStorageIterator<FormRecord> i = formRecordStorge.iterate(); i.hasNext() ;) {
+//			
+//		}
+		
+		parser = new DataModelPullParser(stream, factory);
 		parser.parse();
 	}
 		

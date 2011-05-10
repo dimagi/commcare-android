@@ -16,6 +16,16 @@ import android.util.Log;
  */
 public class FileUtil {
 	
+
+    public static boolean createFolder(String path) {
+            boolean made = true;
+            File dir = new File(path);
+            if (!dir.exists()) {
+                made = dir.mkdirs();
+            }
+            return made;
+    }
+	
 	public static boolean deleteFile(File f) {
 		if(!f.exists()) { return true; }
 		if(!f.isDirectory()) {

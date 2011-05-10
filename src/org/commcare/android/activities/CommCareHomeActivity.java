@@ -437,7 +437,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		
 		String[] preloaders = new String[] {"case", PreloadContentProvider.CONTENT_URI_CASE + "/" + r.getCaseId() + "/", "meta", PreloadContentProvider.CONTENT_URI_META + "/", "patient_referral", PreloadContentProvider.CONTENT_URI_REFERRAL + "/" + r.getReferralId() + "/" + r.getReferralType() + "/"};
 		i.putExtra("preloadproviders",preloaders);
-
+		i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
 		
 		startActivityForResult(i, MODEL_RESULT);
     }

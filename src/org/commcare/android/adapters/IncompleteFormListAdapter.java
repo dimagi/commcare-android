@@ -138,4 +138,8 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		this.filter = filter;
 		resetRecords();
 	}
+	
+	public String getFilter() {
+		return this.filter;
+	}
 }

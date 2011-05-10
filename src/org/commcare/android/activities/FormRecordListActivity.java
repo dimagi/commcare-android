@@ -20,11 +20,18 @@ import org.commcare.android.R;
 import org.commcare.android.adapters.IncompleteFormListAdapter;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.tasks.DataPullListener;
+import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 
+import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -34,12 +41,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 public class FormRecordListActivity extends ListActivity {
 	
+	private static final int DIALOG_PROCESS = 1;
+	private ProgressDialog mProgressDialog;
+	
 	private static final int OPEN_RECORD = Menu.FIRST;
 	private static final int DELETE_RECORD = Menu.FIRST  + 1;
+	
+	private static final int DOWNLOAD_FORMS = Menu.FIRST;
 	
 	private AndroidCommCarePlatform platform;
 	
@@ -77,6 +90,7 @@ public class FormRecordListActivity extends ListActivity {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
+    	adapter.resetRecords();
     	setListAdapter(adapter);
     }
 
@@ -130,4 +144,95 @@ public class FormRecordListActivity extends ListActivity {
     	}
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean parent = super.onCreateOptionsMenu(menu);
+        if(!FormRecord.STATUS_INCOMPLETE.equals(adapter.getFilter())) {
+	        menu.add(0, DOWNLOAD_FORMS, 0, "Fetch Forms from Server").setIcon(
+	                android.R.drawable.ic_menu_rotate);
+	        return true;
+        }
+        return parent;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case DOWNLOAD_FORMS:
+            	this.showDialog(DIALOG_PROCESS);
+            	DataPullTask pull = new DataPullTask("","", "http://build.dimagi.com/compiled.xml", "", this);
+            	pull.setPullListener(new DataPullListener() {
+
+					public void finished(int status) {
+						switch(status) {
+						case DataPullTask.DOWNLOAD_SUCCESS:
+							mProgressDialog.setMessage("Forms downloaded. Processing...");
+							FormRecordCleanupTask task = new FormRecordCleanupTask(FormRecordListActivity.this) {
+	
+								@Override
+								protected void onPostExecute(Integer result) {
+									super.onPostExecute(result);
+									mProgressDialog.setMessage("Forms Processed.");
+									FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
+									FormRecordListActivity.this.refreshView();
+								}
+								
+							};
+							task.execute();
+							break;
+						case DataPullTask.UNKNOWN_FAILURE:
+							Toast.makeText(FormRecordListActivity.this, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
+							FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
+							break;
+						case DataPullTask.AUTH_FAILED:
+							Toast.makeText(FormRecordListActivity.this, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
+							FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
+							break;
+						case DataPullTask.BAD_DATA:
+							Toast.makeText(FormRecordListActivity.this, "Bad data from server. Please talk with your supervisor.", Toast.LENGTH_LONG).show();
+							FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
+							break;
+						case DataPullTask.UNREACHABLE_HOST:
+							Toast.makeText(FormRecordListActivity.this, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
+							FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
+							break;
+							
+						}
+					}
+
+					public void progressUpdate(int progressCode) {
+						switch(progressCode){
+						case DataPullTask.PROGRESS_AUTHED:
+							mProgressDialog.setMessage("Authed with server, downloading forms");
+							break;
+						}
+					}
+            		
+            	});
+            	pull.execute();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.app.Activity#onCreateDialog(int)
+     */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+        case DIALOG_PROCESS:
+                mProgressDialog = new ProgressDialog(this);
+                mProgressDialog.setTitle("Fetching Old Forms");
+                mProgressDialog.setMessage("Connecting to server...");
+                mProgressDialog.setIndeterminate(true);
+                mProgressDialog.setCancelable(false);
+                return mProgressDialog;
+        }
+        return null;
+    }
 }

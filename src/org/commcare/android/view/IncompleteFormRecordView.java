@@ -76,7 +76,7 @@ public class IncompleteFormRecordView extends LinearLayout {
 		Text name = names.get(record.getFormNamespace());
 		mPrimaryTextView.setText(name.evaluate());
 		
-		if(record.getEntityId() != null) {
+		if(record.getEntityId() != null && !record.getEntityId().equals(AndroidCommCarePlatform.ENTITY_NONE)) {
 			SqlIndexedStorageUtility<Case> storage =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
 			try {
 				Case c = storage.getRecordForValue(Case.META_CASE_ID, record.getCaseId());

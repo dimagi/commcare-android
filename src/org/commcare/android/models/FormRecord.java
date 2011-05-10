@@ -36,6 +36,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	public static final String STATUS_COMPLETE = "complete";
 	public static final String STATUS_UNSTARTED = "unstarted";
 	public static final String STATUS_SAVED = "saved";
+	public static final String STATUS_UNINDEXED = "unindexed";
 	
 	private int id = -1;
 	private String status;
@@ -207,6 +208,13 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 			decache();
 		}
 		return cached[2];
+	}
+	
+	public static String generateEntityId(Case c) {
+		if(c == null) { return AndroidCommCarePlatform.ENTITY_NONE;}
+		
+		//NOTE: We're not even trying to worry about any referral stuff, here.
+		return "Case:" + c.getCaseId();
 	}
 	
 	public static String generateEntityId(CommCareSession session) {

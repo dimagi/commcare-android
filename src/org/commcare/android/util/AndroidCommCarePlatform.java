@@ -3,19 +3,13 @@
  */
 package org.commcare.android.util;
 
-import java.util.Date;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.User;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
@@ -57,6 +51,10 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	public void registerXmlns(String xmlns, String filepath) {
 		xmlnstable.put(xmlns, filepath);
+	}
+	
+	public Set<String> getInstalledForms() {
+		return xmlnstable.keySet();
 	}
 
 	public String getFormPath(String xFormNamespace) {

@@ -11,6 +11,7 @@ import java.util.Vector;
 
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.Case;
+import org.commcare.android.models.Referral;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
@@ -111,12 +112,16 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				c.setClosed(true);
 				commit(c);
 			} else if(action.equals("referral")) {
-				new ReferralXmlParser(parser,caseId,modified, c).parse();
+				parseReferral(parser, caseId, modified, c);
 			}
 		}
 		
 		
 		return null;
+	}
+	
+	public Referral parseReferral(KXmlParser parser, String caseId, Date modified, Context c) throws SessionUnavailableException, InvalidStructureException, IOException, XmlPullParserException {
+		return new ReferralXmlParser(parser,caseId,modified, c).parse();
 	}
 
 	public void commit(Case parsed) throws IOException, SessionUnavailableException{
