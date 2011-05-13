@@ -17,33 +17,44 @@ import org.xmlpull.v1.XmlPullParserException;
  * @author ctsims
  *
  */
-public class MetaDataXmlParser extends TransactionParser<Date> {
+public class MetaDataXmlParser extends TransactionParser<String[]> {
 
 	public MetaDataXmlParser(KXmlParser parser) {
 		super(parser, "meta", null);
 	}
 
 	@Override
-	public void commit(Date formEditDate) throws IOException {
+	public void commit(String[] data) throws IOException {
 		//nothing;
 	}
 
 	@Override
-	public Date parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+	public String[] parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		this.checkNode("meta");
 		
-		Date timeend = null;
+		String lastModified = null;
+		String uid = null;
 		
 		while(this.nextTagInBlock("meta")) {
 			String item = this.parser.getName();
 			if(item == null) { continue;}
-			if("timeend".equals(item.toLowerCase())) {
-				String dateModified = parser.nextText().trim();
-				timeend = DateUtils.parseDateTime(dateModified);
-				commit(timeend);
+			if("timestart".equals(item.toLowerCase())) {
+				String start = parser.nextText().trim();
+				//Only update modified if time end hasn't set it
+				if(lastModified == null || lastModified == "") {
+					lastModified = start;
+				}
+			}
+			else if("timeend".equals(item.toLowerCase())) {
+				lastModified = parser.nextText().trim();
+			}
+			else if("uid".equals(item.toLowerCase())) {
+				uid = parser.nextText().trim();
 			}
 		}
-		return null;
+		String[] ret = new String[] {lastModified, uid};
+		commit(ret);
+		return ret;
 	}
 
 }

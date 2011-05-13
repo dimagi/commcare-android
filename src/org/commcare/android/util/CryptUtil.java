@@ -22,8 +22,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-import org.javarosa.core.util.StreamsUtil;
-
 /**
  * @author ctsims
  *
@@ -64,7 +62,7 @@ public class CryptUtil {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		try {
-			StreamsUtil.writeFromInputToOutput(cis, bos);
+			AndroidStreamUtil.writeFromInputToOutput(cis, bos);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -79,7 +77,7 @@ public class CryptUtil {
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
-		StreamsUtil.writeFromInputToOutput(cis, bos);
+		AndroidStreamUtil.writeFromInputToOutput(cis, bos);
 		
 		return bos.toByteArray();
 	}

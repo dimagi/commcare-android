@@ -20,6 +20,7 @@ import org.commcare.android.R;
 import org.commcare.android.adapters.IncompleteFormListAdapter;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
@@ -30,10 +31,15 @@ import org.commcare.android.view.IncompleteFormRecordView;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -67,16 +73,21 @@ public class FormRecordListActivity extends ListActivity {
 	
 	        adapter = new IncompleteFormListAdapter(this, platform);
 	        
+	        String statusFilter = null;
+	        
 	        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
-	        	String statusFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
+	        	statusFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
 	        	if(statusFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
 	        		setTitle(getString(R.string.app_name) + " > " + "Incomplete Forms");
 	        	} else {
 	        		setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
 	        	}
-	        	adapter.setFormFilter(statusFilter);
 	        } else {
 	        	setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
+	        }
+	        
+	        if(statusFilter != null) {
+	        	adapter.setFormFilter(statusFilter);
 	        }
 	        this.registerForContextMenu(this.getListView());
 	        refreshView();
@@ -106,12 +117,26 @@ public class FormRecordListActivity extends ListActivity {
     private void returnItem(int position) {
     	FormRecord value = (FormRecord)getListAdapter().getItem(position);
 
-        // create intent for return and store path
-        Intent i = new Intent();
-        i.putExtra(FormRecord.STORAGE_KEY, value.getID());
-        setResult(RESULT_OK, i);
-
-        finish();
+    	if(FormRecord.STATUS_SAVED.equals(adapter.getFilter())) {
+    		Intent i = new Intent("org.odk.collect.android.action.FormEntry");
+    		i.putExtra("formpath", CommCareApplication._().getCommCarePlatform().getFormPath(value.getFormNamespace()));
+    		
+    		i.putExtra("instancepath", value.getPath());
+    		i.putExtra("encryptionkey", value.getAesKey());
+    		i.putExtra("encryptionkeyalgo", "AES");
+    		
+    		i.putExtra("readonlyform", true);
+    		
+    		startActivity(i);
+    		return;
+    	} else {
+	        // We want to actually launch an interactive form entry.
+	        Intent i = new Intent();
+	        i.putExtra(FormRecord.STORAGE_KEY, value.getID());
+	        setResult(RESULT_OK, i);
+	
+	        finish();
+    	}
     }
     
     @Override
@@ -121,7 +146,7 @@ public class FormRecordListActivity extends ListActivity {
         menu.setHeaderTitle(ifrv.mPrimaryTextView.getText() + " (" + ifrv.mRightTextView.getText() + ")");
         
         menu.add(Menu.NONE, OPEN_RECORD, OPEN_RECORD, "Open");
-        menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, "Delete Entry");
+        menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, "Delete Entry");        
     }
     
     @Override
@@ -155,13 +180,23 @@ public class FormRecordListActivity extends ListActivity {
         return parent;
     }
 
+    TextToSpeech mTts;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
             	this.showDialog(DIALOG_PROCESS);
-            	DataPullTask pull = new DataPullTask("","", "http://build.dimagi.com/compiled.xml", "", this);
+            	User u = CommCareApplication._().getSession().getLoggedInUser();
+            	String username = u.getUsername();
+            	//We should go digest auth this user on the server and see whether to pull them
+				//down.
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+				
+				if(prefs.contains("cc_user_domain")) {
+					username += "@" + prefs.getString("cc_user_domain",null);
+				}
+            	DataPullTask pull = new DataPullTask(username,u.getCachedPwd(), "http://173.9.45.86:8888/submits/mine/restore", "", this);
             	pull.setPullListener(new DataPullListener() {
 
 					public void finished(int status) {
@@ -173,27 +208,45 @@ public class FormRecordListActivity extends ListActivity {
 								@Override
 								protected void onPostExecute(Integer result) {
 									super.onPostExecute(result);
+									unlock();
 									mProgressDialog.setMessage("Forms Processed.");
 									FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
 									FormRecordListActivity.this.refreshView();
 								}
 								
+								@Override
+								protected void onProgressUpdate(Integer ... values) {
+									if(values[0] < 0) {
+										if(values[0] == FormRecordCleanupTask.STATUS_CLEANUP) {
+											mProgressDialog.setMessage("Forms Processed. Cleaning up form records...");
+										}
+									}
+									else {
+										mProgressDialog.setMessage("Forms downloaded. Processing " + values[0] + " of " + values[1] +"...");
+									}
+								}
+								
+								
 							};
 							task.execute();
 							break;
 						case DataPullTask.UNKNOWN_FAILURE:
+							unlock();
 							Toast.makeText(FormRecordListActivity.this, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
 							FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
 							break;
 						case DataPullTask.AUTH_FAILED:
+							unlock();
 							Toast.makeText(FormRecordListActivity.this, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
 							FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
 							break;
 						case DataPullTask.BAD_DATA:
+							unlock();
 							Toast.makeText(FormRecordListActivity.this, "Bad data from server. Please talk with your supervisor.", Toast.LENGTH_LONG).show();
 							FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
 							break;
 						case DataPullTask.UNREACHABLE_HOST:
+							unlock();
 							Toast.makeText(FormRecordListActivity.this, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
 							FormRecordListActivity.this.dismissDialog(DIALOG_PROCESS);
 							break;
@@ -201,19 +254,50 @@ public class FormRecordListActivity extends ListActivity {
 						}
 					}
 
-					public void progressUpdate(int progressCode) {
-						switch(progressCode){
+					public void progressUpdate(Integer ... progress) {
+						switch(progress[0]){
 						case DataPullTask.PROGRESS_AUTHED:
-							mProgressDialog.setMessage("Authed with server, downloading forms");
+							mProgressDialog.setMessage("Authed with server, downloading forms" + (progress[1] == 0 ? "" : " (" +progress[1] + ")"));
 							break;
 						}
 					}
             		
             	});
+            	
+            	wakelock();
+            	
             	pull.execute();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //Don't ever lose this reference
+    private static WakeLock wakelock;
+    
+    private void wakelock() {
+    	if(wakelock != null) {
+    		if(wakelock.isHeld()) {
+    			wakelock.release();
+    		}
+    	}
+    	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    	PowerManager.WakeLock wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CommCareFormSync");
+    	//Twenty minutes max.
+    	wakelock.acquire(1000*60*20);
+    }
+    
+    private void unlock() {
+    	if(wakelock != null) {
+    		wakelock.release();
+    	}
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	//Make sure we're not holding onto the wake lock still, no matter what
+    	unlock();
     }
 
     

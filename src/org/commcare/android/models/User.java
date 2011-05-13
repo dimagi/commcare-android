@@ -199,4 +199,13 @@ public class User implements Persistable, IMetaData
 		return new String[] {META_UID, META_USERNAME, META_ID, META_WRAPPED_KEY};
 	}
 	
+	//Don't ever save!
+	private String cachedPwd;
+	public void setCachedPwd(String password) {
+		this.cachedPwd = password;
+	}
+	public String getCachedPwd() {
+		return this.cachedPwd;
+	}
+	
 }

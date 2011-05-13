@@ -1,6 +1,7 @@
 package org.commcare.android.activities;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
@@ -15,6 +16,7 @@ import org.commcare.android.models.Referral;
 import org.commcare.android.preferences.CommCarePreferences;
 import org.commcare.android.providers.PreloadContentProvider;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -308,8 +310,15 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        		}
 	        		
 	        		if(completed) {
-	    				FormRecord r = new FormRecord(session.getForm(), instance, entityId, FormRecord.STATUS_COMPLETE, current.getAesKey());
+	    				FormRecord r = new FormRecord(session.getForm(), instance, entityId, FormRecord.STATUS_COMPLETE, current.getAesKey(), current.getInstanceID(), current.lastModified());
 	    				r.setID(current.getID());
+	    				
+	    				try {
+	    					r = FormRecordCleanupTask.getUpdatedRecord(this, r, FormRecord.STATUS_COMPLETE);
+	    				} catch(Exception e) {
+	    					throw new RuntimeException(e);
+	    				}
+	    				
 	    				try {
 							storage.write(r);
 						} catch (StorageFullException e) {
@@ -324,8 +333,18 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		        		refreshView();
 	        		} else {
 	        			
-	        			FormRecord r = new FormRecord(session.getForm(), instance, entityId, FormRecord.STATUS_INCOMPLETE, current.getAesKey());
+	        			FormRecord r = new FormRecord(session.getForm(), instance, entityId, FormRecord.STATUS_INCOMPLETE, current.getAesKey(), current.getInstanceID(), current.lastModified());
 	        			r.setID(current.getID());
+	        			
+	        			try {
+	        				//Try to parse out information from the record if there is one
+	        				if(new File(instance).exists()) {
+	        					r = FormRecordCleanupTask.getUpdatedRecord(this, r, FormRecord.STATUS_INCOMPLETE);
+	        				}
+	    				} catch(Exception e) {
+	    					//the instance might not be complete, so don't mess with anything if there's an issue.
+	    				}
+	        			
 	        			try {
 							storage.write(r);
 						} catch (StorageFullException e) {
@@ -413,7 +432,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 			String entityId = FormRecord.generateEntityId(session);
 			
 			SecretKey key = CommCareApplication._().createNewSymetricKey();
-			r = new FormRecord(session.getForm(), "",entityId, FormRecord.STATUS_UNSTARTED, key.getEncoded());
+			r = new FormRecord(session.getForm(), "",entityId, FormRecord.STATUS_UNSTARTED, key.getEncoded(), null, new Date(0));
 			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 			
 			//Make sure that there are no other unstarted definitions for this form/case, otherwise we won't be able to tell them apart unpon completion

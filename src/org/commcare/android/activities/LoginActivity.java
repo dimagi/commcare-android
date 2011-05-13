@@ -190,12 +190,14 @@ public class LoginActivity extends Activity implements DataPullListener {
         		
         		if(hash.equals(alg + "$" + salt + "$" + hashed)) {
         			byte[] key = CryptUtil.unWrapKey(u.getWrappedKey(), passwd);
+        			u.setCachedPwd(passwd);
         			logIn(u, key);
         			return true;
         		}
         	} else {
         		if(u.getPassword().equals(passwd)) {
         			byte[] key = CryptUtil.unWrapKey(u.getWrappedKey(), passwd);
+        			u.setCachedPwd(passwd);
         			logIn(u, key);
         			return true;
     			}
@@ -263,8 +265,8 @@ public class LoginActivity extends Activity implements DataPullListener {
 		}
 	}
 
-	public void progressUpdate(int progressCode) {
-		if(progressCode == DataPullTask.PROGRESS_AUTHED) {
+	public void progressUpdate(Integer ... progress) {
+		if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
 			mProgressDialog.setMessage("Server contacted, downloading data.");
 		}
 	}

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
@@ -19,7 +20,6 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.util.StreamsUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -63,7 +63,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		try {
 			//Stream to location
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
-			StreamsUtil.writeFromInputToOutput(ref.getStream(), local.getOutputStream());
+			AndroidStreamUtil.writeFromInputToOutput(ref.getStream(), local.getOutputStream());
 			
 			int status = customInstall(local, upgrade);
 			

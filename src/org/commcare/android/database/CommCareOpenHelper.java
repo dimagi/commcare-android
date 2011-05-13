@@ -22,7 +22,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class CommCareOpenHelper extends SQLiteOpenHelper {
 	
-    private static final int DATABASE_VERSION = 26;
+    private static final int DATABASE_VERSION = 27;
     private Context context;
     
     public CommCareOpenHelper(Context context) {

@@ -6,12 +6,12 @@ package org.commcare.android.tasks;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Vector;
 
 import javax.crypto.KeyGenerator;
@@ -28,16 +28,17 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.models.Case;
-import org.commcare.android.models.FormRecord;
+import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.bitcache.BitCache;
+import org.commcare.android.util.bitcache.BitCacheFactory;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.xml.CommCareTransactionParserFactory;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.StreamsUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -98,14 +99,14 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		if(listener != null) {
-			listener.progressUpdate(values[0]);
+			listener.progressUpdate(values);
 		}
 	}
 
 	protected Integer doInBackground(Void... params) {
 		boolean loginNeeded = true;
 		try {
-			loginNeeded = CommCareApplication._().getSession().isLoggedIn();
+			loginNeeded = !CommCareApplication._().getSession().isLoggedIn();
 		} catch(SessionUnavailableException sue) {
 			//expected if we aren't initialized.
 		}
@@ -119,7 +120,12 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	    		e.commit();
 	    	}
 		}
-		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c);
+		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c) {
+			@Override
+			public void reportProgress(int progress) {
+				DataPullTask.this.publishProgress(PROGRESS_AUTHED,progress);
+			}
+		};
 
 			DefaultHttpClient client = new DefaultHttpClient();
 			client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
@@ -151,7 +157,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				
 				if(responseCode >= 200 && responseCode < 300) {
 					
-					this.publishProgress(PROGRESS_AUTHED);
+					this.publishProgress(PROGRESS_AUTHED,0);
 					
 					if(loginNeeded) {
 						//This is necessary (currently) to make sure that data
@@ -159,8 +165,27 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 						CommCareApplication._().logIn(spec.getEncoded(), null);
 					}
 					
+					int dataSizeGuess = -1;
+					if(response.containsHeader("Content-Length")) {
+						String length = response.getFirstHeader("Content-Length").getValue();
+						try{
+							dataSizeGuess = Integer.parseInt(length);
+						} catch(Exception e) {
+							//Whatever.
+						}
+					}
+					
+					BitCache cache = BitCacheFactory.getCache(c, dataSizeGuess);
+					
+					cache.initializeCache();
+					
 					try {
-						readInput(response.getEntity().getContent(), factory);
+						OutputStream cacheOut = cache.getCacheStream();
+						AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), cacheOut);
+					
+						InputStream cacheIn = cache.retrieveCache();
+						readInput(cacheIn, factory);
+							
 						this.publishProgress(PROGRESS_DONE);
 						return DOWNLOAD_SUCCESS;
 					} catch (InvalidStructureException e) {
@@ -173,7 +198,10 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 						e.printStackTrace();
 					} catch (IllegalStateException e) {
 						e.printStackTrace();
-					} 
+					} finally {
+						//destroy temp file
+						cache.release();
+					}
 				}
 				
 			} catch (ClientProtocolException e) {

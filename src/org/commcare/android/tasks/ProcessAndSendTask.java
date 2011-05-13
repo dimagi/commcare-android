@@ -35,6 +35,7 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.DataModelPullParser;
@@ -45,7 +46,6 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.StreamsUtil;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -199,7 +199,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 				throw new IOException("Couldn't find processed instance");
 			}
 			//update the records to show that the form has been processed and is ready to be sent;
-			FormRecord processedRecord = new FormRecord(record.getFormNamespace(), newFormPath, record.getEntityId(), newStatus, record.getAesKey());
+			FormRecord processedRecord = new FormRecord(record.getFormNamespace(), newFormPath, record.getEntityId(), newStatus, record.getAesKey(), record.getInstanceID(), record.lastModified());
 			processedRecord.setID(record.getID());
 			storage.write(processedRecord);
 			return processedRecord;
@@ -347,7 +347,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         
         try {
-        	StreamsUtil.writeFromInputToOutput(response.getEntity().getContent(), bos);
+        	AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), bos);
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

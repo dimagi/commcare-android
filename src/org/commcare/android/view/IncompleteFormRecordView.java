@@ -72,7 +72,7 @@ public class IncompleteFormRecordView extends LinearLayout {
         start = new Date();
 	}
 
-	public void setParams(AndroidCommCarePlatform platform, FormRecord record) throws SessionUnavailableException{
+	public void setParams(AndroidCommCarePlatform platform, FormRecord record, Long timestamp) throws SessionUnavailableException{
 		Text name = names.get(record.getFormNamespace());
 		mPrimaryTextView.setText(name.evaluate());
 		
@@ -94,9 +94,8 @@ public class IncompleteFormRecordView extends LinearLayout {
 		}
 		
 		//be careful here...
-		File f = new File(record.getPath());
-		if(f.exists()) {
-			mRightTextView.setText(DateUtils.formatSameDayTime(f.lastModified(), start.getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT));
+		if(timestamp != 0) {
+			mRightTextView.setText(DateUtils.formatSameDayTime(timestamp, start.getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT));
 		} else {
 			mRightTextView.setText("Never");
 		}

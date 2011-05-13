@@ -3,6 +3,12 @@
  */
 package org.commcare.android.adapters;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.application.CommCareApplication;
@@ -13,7 +19,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 
 import android.content.Context;
-import android.database.DataSetObserver;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -28,27 +33,38 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	private Context context;
 	
 	String filter;
-	private FormRecord[] records;
+	private List<FormRecord> records;
 	
 	public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform) throws SessionUnavailableException{
 		this.platform = platform;
 		this.context = context;
 		this.filter = null;
-		resetRecords();
 	}
 	
-	public void resetRecords() throws SessionUnavailableException {
+	public void resetRecords() throws SessionUnavailableException {		
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-		Vector<Integer> formids;
-		if(filter != null) {
-			formids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {filter} );
-		} else {
-			formids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_SAVED} );
-		}
-		records = new FormRecord[formids.size()];
-		for(int i = 0 ; i < records.length ; ++i) {
-			records[i] = storage.read(formids.elementAt(i).intValue());
-		}
+		
+		System.out.println("one");
+		if(filter == null) { filter = FormRecord.STATUS_SAVED; }
+		records = storage.getRecordsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {filter} );
+		System.out.println("two");
+		
+		Collections.sort(records,new Comparator<FormRecord>() {
+
+			public int compare(FormRecord one, FormRecord two) {
+				
+				long ot = one.lastModified().getTime();
+				long tt = two.lastModified().getTime();
+				 
+				if(ot == 0) return -1;
+				if(tt == 0) return 1;
+				
+				return ot > tt ? -1 : ot == tt ? 0 : 1;
+				
+			}
+			
+		});
+		System.out.println("three");
 	}
 
 	@Override
@@ -75,22 +91,22 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	 * @see android.widget.Adapter#getCount()
 	 */
 	public int getCount() {
-		return records.length;
+		return records.size();
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItem(int)
 	 */
 	public Object getItem(int i) {
-		return records[i];
+		return records.get(i);
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
 	public long getItemId(int i) {
-		//Skeeeeetccchhyyyy
-		return records[i].getID();
+		//Skeeeeetccchhyyyy maybe?
+		return records.get(i).getID();
 	}
 
 	/* (non-Javadoc)
@@ -104,12 +120,12 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
 	public View getView(int i, View v, ViewGroup vg) {
-		FormRecord r = records[i];
+		FormRecord r = records.get(i);
 		IncompleteFormRecordView ifrv =(IncompleteFormRecordView)v;
 		if(ifrv == null) {
 			ifrv = new IncompleteFormRecordView(context, platform);
 		}
-		ifrv.setParams(platform, r);
+		ifrv.setParams(platform, r, r.lastModified().getTime());
 		return ifrv;
 	}
 
@@ -131,12 +147,11 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	 * @see android.widget.Adapter#isEmpty()
 	 */
 	public boolean isEmpty() {
-		return records.length > 0;
+		return getCount() > 0;
 	}
 	
 	public void setFormFilter(String filter) throws SessionUnavailableException {
 		this.filter = filter;
-		resetRecords();
 	}
 	
 	public String getFilter() {

@@ -3,6 +3,7 @@
  */
 package org.commcare.android.database;
 
+import java.util.Collection;
 import java.util.Vector;
 
 import org.javarosa.core.services.storage.IMetaData;
@@ -56,5 +57,15 @@ public class TableBuilder {
 	public static String scrubInput(String input) {
 		//Scrub
 		return input;
+	}
+	
+	public static String sqlList(Collection<Integer> input) {
+		if (input.size() ==0) { return "()";}
+		//I want list comprehensions so bad right now.
+		String ret = "(";
+		for(int i : input) {
+			ret += i + ",";
+		}
+		return ret.substring(0, ret.length()-1) + ")";
 	}
 }

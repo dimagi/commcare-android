@@ -4,6 +4,7 @@
 package org.commcare.android.util;
 
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.models.Case;
 import org.commcare.android.models.FormRecord;
 import org.commcare.resources.model.Resource;
 
@@ -29,6 +30,12 @@ public class CommCareUpgrader {
 		if(from == 1) {
 			if(upgradeOneTwo(database)) {
 				from = 2;
+			} else { return false;}
+		}
+		
+		if(from == 26) {
+			if(upgradeTwoSixtoTwoSeven(database)) {
+				from = 27;
 			} else { return false;}
 		}
 		
@@ -68,4 +75,28 @@ public class CommCareUpgrader {
 		database.setTransactionSuccessful();
 		database.endTransaction();
 	}
+	
+	/**
+	 * Previous FormRecord entries were lacking, we're going to 
+	 * wipe them out.
+	 * 
+	 * @param database 
+	 * @return
+	 */
+	private boolean upgradeTwoSixtoTwoSeven(SQLiteDatabase database) {
+		database.beginTransaction();
+		
+		//wipe out old Form Record table
+		database.execSQL("drop table " + FormRecord.STORAGE_KEY);
+		
+		//Build us a new one with the new structure
+		TableBuilder builder = new TableBuilder(FormRecord.STORAGE_KEY);
+		builder.addData(new FormRecord());
+		database.execSQL(builder.getTableCreateString());
+
+		database.setTransactionSuccessful();
+		database.endTransaction();
+		return true;
+	}
+
 }

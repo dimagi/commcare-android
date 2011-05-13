@@ -9,8 +9,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -23,6 +24,7 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.Case;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.Referral;
+import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
@@ -31,6 +33,7 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.MetaDataXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -45,6 +48,8 @@ import android.os.AsyncTask;
 public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	Context context;
 	
+	public static final int STATUS_CLEANUP = -1;
+	
 	private static final int SUCCESS = -1;
 	private static final int SKIP = -2;
 	private static final int DELETE = -4;
@@ -58,9 +63,10 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	protected Integer doInBackground(Void... params) {
 		SqlIndexedStorageUtility<FormRecord> storage = CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		
-		Vector<Integer> oldIndexedRecords = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_SAVED });
+		Vector<Integer> recordsToRemove = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_SAVED });
 		
 		Vector<Integer> unindexedRecords = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_UNINDEXED });
+		int oldrecords = recordsToRemove.size();
 		int count = 0;
 		for(int recordID : unindexedRecords) {
 			FormRecord r = storage.read(recordID);
@@ -71,99 +77,48 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			case SKIP:
 				break;
 			case DELETE:
-				storage.remove(recordID);
+				recordsToRemove.add(recordID);
 				break;
 			}
 			count++;
-			this.publishProgress(count);
+			this.publishProgress(count, unindexedRecords.size());
 		}
 		
-		for(int recordID : oldIndexedRecords) {
-			storage.remove(recordID);
+		List<Integer> wipeable = new ArrayList<Integer>();
+		this.publishProgress(STATUS_CLEANUP);
+		for(int recordID : recordsToRemove) {
+			removeRecordThorough(recordID, storage, wipeable);
 		}
+		
+		storage.remove(wipeable);
+		System.out.println("Synced: " + unindexedRecords.size() + ". Removed: " + oldrecords + " old records, and " + (recordsToRemove.size() - oldrecords) + " busted new ones");
 		return SUCCESS;
 	}
 	
-	private int cleanupRecord(FormRecord r, SqlIndexedStorageUtility<FormRecord> storage) {
-		final Hashtable<String, Case> table = new Hashtable<String, Case>();
-		final Date[] modified = new Date[1];
-		
-		//Note, this factory doesn't handle referral information at all, we're skipping that for now.
-		TransactionParserFactory factory = new TransactionParserFactory() {
-
-			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-				if("case".equals(name)) {
-					return new CaseXmlParser(parser, context) {
-						
-						public void commit(Case parsed) throws IOException, SessionUnavailableException{
-							table.put(parsed.getCaseId(), parsed);
-						}
-
-						public Case retrieve(String entityId) throws SessionUnavailableException{
-							if(table.containsKey(entityId)) {
-								return table.get(entityId);
-							}
-							else{
-								return null;
-							}
-						}
-						
-						public Referral parseReferral(KXmlParser parser, String caseId, Date modified, Context c) throws SessionUnavailableException, InvalidStructureException, IOException, XmlPullParserException {
-							parser.skipSubTree();
-							return null;
-						}
-					};
+	private void removeRecordThorough(int recordID, SqlIndexedStorageUtility<FormRecord> storage, List<Integer> toRemove) {
+		String path = storage.getMetaDataFieldForRecord(recordID, FormRecord.META_PATH);
+		if(path != null && path != "") {
+			File file = new File(path).getParentFile();
+			if(file.exists()) {
+				if(!FileUtil.deleteFile(file)) {
+					//Don't remove the record pointer if the file didn't get deleted, since we'll
+					//lose the ability to clear it later.
+					return;
 				}
-				else if("meta".equals(name.toLowerCase())) {
-					return new MetaDataXmlParser(parser) {
-						
-						public void commit(Date lastmodified) throws IOException, SessionUnavailableException{
-							//table.put(parsed.getCaseId(), parsed);
-							modified[0] = lastmodified;
-						}
-
-					};
-				}
-				return null;
 			}
-			
-			
-		};
-		
-		if(!new File(r.getPath()).exists()) {
-			//No actual file, delete this
-			return DELETE;
 		}
-		
-		FileInputStream fis;
+		toRemove.add(recordID);
+	}
+
+
+	private int cleanupRecord(FormRecord r, SqlIndexedStorageUtility<FormRecord> storage) {
 		try {
-			fis = new FileInputStream(r.getPath());
-		
-			Cipher decrypter = Cipher.getInstance("AES");
-			decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
-
-			CipherInputStream cis = new CipherInputStream(fis, decrypter);
-
-			//Construct parser for this form's internal data.
-			DataModelPullParser parser = new DataModelPullParser(cis, factory);
-			parser.parse();
-
-			Case c = null;
-			if(table.size() > 0 ) {
-				 c = table.values().iterator().next();
+			FormRecord updated = getUpdatedRecord(context, r, FormRecord.STATUS_SAVED);
+			if(updated == null) {
+				return DELETE;
+			} else {
+				storage.write(updated);
 			}
-			
-			if(modified[0] != null) {
-				File thefile = new File(r.getPath());
-				thefile.setLastModified(modified[0].getTime());
-			}
-			
-			
-			//Write record
-			FormRecord parsed = new FormRecord(r.getFormNamespace(), r.getPath(), FormRecord.generateEntityId(c), FormRecord.STATUS_SAVED, r.getAesKey());
-			parsed.setID(r.getID());
-			
-			storage.write(parsed);
 			return SUCCESS;
 		} catch (FileNotFoundException e) {
 			// No form, skip and delete the form record;
@@ -195,6 +150,99 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			// Can't resolve here, skip.
 			throw new RuntimeException(e);
 		}
+	}
+	
+	/**
+	 * Parses out a formrecord and fills in the various parse-able details (UUID, date modified, etc), and updates
+	 * it to the provided status.
+	 * 
+	 * @param context
+	 * @param r
+	 * @param newStatus
+	 * @return null if there was not file to parse. The new form record to be written to the DB otherwise
+	 * @throws InvalidKeyException 
+	 * @throws NoSuchPaddingException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws IOException 
+	 * @throws InvalidStructureException 
+	 * @throws UnfullfilledRequirementsException 
+	 * @throws XmlPullParserException 
+	 */
+	public static FormRecord getUpdatedRecord(final Context context, FormRecord r, String newStatus) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+		//Awful. Just... awful
+		final String[] caseIDs = new String[1];
+		final Date[] modified = new Date[] {new Date(0)};
+		final String[] uuid = new String[1];
+		
+		//Note, this factory doesn't handle referral information at all, we're skipping that for now.
+		TransactionParserFactory factory = new TransactionParserFactory() {
+
+			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+				if(name == null) { return null;}
+				if("case".equals(name)) {
+					return new CaseXmlParser(parser, context) {
+						
+						@Override
+						public void commit(Case parsed) throws IOException, SessionUnavailableException{
+							String incoming = parsed.getCaseId();
+							if(incoming != null && incoming != "") {
+								caseIDs[0] = incoming;
+							}
+						}
+
+						@Override
+						public Case retrieve(String entityId) throws SessionUnavailableException{
+							caseIDs[0] = entityId;
+							Case c = new Case("","");
+							c.setCaseId(entityId);
+							return c;
+						}
+						@Override
+						public Referral parseReferral(KXmlParser parser, String caseId, Date modified, Context c) throws SessionUnavailableException, InvalidStructureException, IOException, XmlPullParserException {
+							parser.skipSubTree();
+							return null;
+						}
+					};
+				}
+				else if("meta".equals(name.toLowerCase())) {
+					return new MetaDataXmlParser(parser) {
+						
+						@Override
+						public void commit(String[] meta) throws IOException, SessionUnavailableException{
+							if(meta[0] != null) {
+								modified[0] = DateUtils.parseDateTime(meta[0]);
+							}
+							uuid[0] = meta[1];
+						}
+
+					};
+				}
+				return null;
+			}
+			
+			
+		};
+		
+		if(!new File(r.getPath()).exists()) {
+			return null;
+		}
+		
+		FileInputStream fis;
+		fis = new FileInputStream(r.getPath());
+	
+		Cipher decrypter = Cipher.getInstance("AES");
+		decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
+
+		CipherInputStream cis = new CipherInputStream(fis, decrypter);
+
+		//Construct parser for this form's internal data.
+		DataModelPullParser parser = new DataModelPullParser(cis, factory);
+		parser.parse();
+		
+		FormRecord parsed = new FormRecord(r.getFormNamespace(), r.getPath(), FormRecord.generateEntityId(caseIDs[0]), newStatus, r.getAesKey(),uuid[0], modified[0]);
+		parsed.setID(r.getID());
+		
+		return parsed;
 	}
 
 

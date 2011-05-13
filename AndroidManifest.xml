@@ -102,7 +102,7 @@
 
   <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.READ_PHONE_STATE"/>
   <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.INTERNET"/>
-  <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.ACCESS_SURFACE_FLINGER"/>
+  <uses-permission android:name="android.permission.ACCESS_SURFACE_FLINGER" xmlns:android="http://schemas.android.com/apk/res/android"/>
   <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
@@ -113,4 +113,5 @@
 <uses-sdk android:minSdkVersion="5" android:targetSdkVersion="8" android:maxSdkVersion="10"></uses-sdk>
 
 <uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
+<uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
 </manifest> 

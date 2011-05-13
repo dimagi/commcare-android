@@ -6,6 +6,7 @@ package org.commcare.android.models;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Hashtable;
 
 import org.commcare.android.application.CommCareApplication;
@@ -30,6 +31,8 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	public static final String META_PATH = "PATH";
 	public static final String META_ENTITY_ID = "ENTITYID";
 	public static final String META_STATUS = "STATUS";
+	public static final String META_UUID = "UUID";
+	public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
 	
 	public static final String STATUS_UNSENT = "unsent";
 	public static final String STATUS_INCOMPLETE = "incomplete";
@@ -45,6 +48,12 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	private String entity;
 	private byte[] aesKey;
 	
+	private String uuid;
+	private Date lastModified;
+	
+	//Placeholder
+	private Hashtable<String, String> metadata = null;
+	
 	public FormRecord() { }
 	
 	/**
@@ -56,12 +65,15 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	 * @param entityId
 	 * @param status
 	 */
-	public FormRecord(String xmlns, String path, String entityId, String status, byte[] aesKey) {
+	public FormRecord(String xmlns, String path, String entityId, String status, byte[] aesKey, String uuid, Date lastModified) {
 		this.xmlns = xmlns;
 		this.path = path;
 		this.entity = entityId;
 		this.status = status;
 		this.aesKey = aesKey;
+		
+		this.uuid = uuid;
+		this.lastModified = lastModified;
 	}
 
 	/* (non-Javadoc)
@@ -97,6 +109,14 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	public String getFormNamespace() {
 		return xmlns;
 	}
+	
+	public String getInstanceID() {
+		return uuid;
+	}
+	
+	public Date lastModified() {
+		return lastModified;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
@@ -108,6 +128,8 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		entity = ExtUtil.readString(in);
 		status = ExtUtil.readString(in);
 		aesKey = ExtUtil.readBytes(in);
+		uuid = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		lastModified = ExtUtil.readDate(in);
 	}
 
 	/* (non-Javadoc)
@@ -120,6 +142,8 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		ExtUtil.writeString(out, entity);
 		ExtUtil.writeString(out, status);
 		ExtUtil.writeBytes(out, aesKey);
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(uuid));
+		ExtUtil.writeDate(out, lastModified);
 	}
 
 	/* (non-Javadoc)
@@ -150,6 +174,10 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 			return entity;
 		} else if(fieldName.equals(META_STATUS)) {
 			return status;
+		}  else if(fieldName.equals(META_UUID)) {
+			return uuid;
+		}  else if(fieldName.equals(META_LAST_MODIFIED)) {
+			return lastModified;
 		} else {
 			throw new IllegalArgumentException("No metadata field " + fieldName  + " in the form record storage system");
 		}
@@ -159,7 +187,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	 * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
 	 */
 	public String[] getMetaDataFields() {
-		return new String [] {META_XMLNS, META_PATH, META_ENTITY_ID, META_STATUS};
+		return new String [] {META_XMLNS, META_PATH, META_ENTITY_ID, META_STATUS, META_UUID, META_LAST_MODIFIED};
 	}
 
 	public boolean isEncrypted(String data) {
@@ -210,11 +238,11 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		return cached[2];
 	}
 	
-	public static String generateEntityId(Case c) {
-		if(c == null) { return AndroidCommCarePlatform.ENTITY_NONE;}
+	public static String generateEntityId(String caseID) {
+		if(caseID == null) { return AndroidCommCarePlatform.ENTITY_NONE;}
 		
 		//NOTE: We're not even trying to worry about any referral stuff, here.
-		return "Case:" + c.getCaseId();
+		return "Case:" + caseID;
 	}
 	
 	public static String generateEntityId(CommCareSession session) {

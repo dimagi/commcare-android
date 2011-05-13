@@ -10,5 +10,5 @@ package org.commcare.android.tasks;
 public interface DataPullListener {
 	public void finished(int status);
 	
-	public void progressUpdate(int progressCode);
+	public void progressUpdate(Integer ... progress);
 }

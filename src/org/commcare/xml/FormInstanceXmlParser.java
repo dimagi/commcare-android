@@ -3,6 +3,7 @@
  */
 package org.commcare.xml;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Hashtable;
 
 import javax.crypto.Cipher;
@@ -47,6 +49,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 	IStorageUtilityIndexed storage;
 	Hashtable<String, String> namespaces;
 	int counter = 0;
+	Cipher encrypter;
 	
 	private String destination;
 	
@@ -84,20 +87,24 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 		KXmlSerializer serializer = new KXmlSerializer();
 	
 		SecretKey key = CommCareApplication._().createNewSymetricKey();
-		FormRecord r = new FormRecord(xmlns, getFileDestination(namespaces.get(xmlns), destination)  , "", FormRecord.STATUS_UNINDEXED, key.getEncoded());
+		FormRecord r = new FormRecord(xmlns, getFileDestination(namespaces.get(xmlns), destination)  , "", FormRecord.STATUS_UNINDEXED, key.getEncoded(),null, new Date(0));
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		
 		OutputStream o = new FileOutputStream(r.getPath());
 		CipherOutputStream cos = null;
+		BufferedOutputStream bos = null;
 		
-		Cipher encrypter;
 		try {
-			encrypter = Cipher.getInstance(key.getAlgorithm());
+			if(encrypter == null) {
+				encrypter = Cipher.getInstance(key.getAlgorithm());
+			}
 
 			encrypter.init(Cipher.ENCRYPT_MODE, key);
 			cos = new CipherOutputStream(o, encrypter);
+			bos = new BufferedOutputStream(cos,1024*256);
+			
 		
-			serializer.setOutput(cos, "UTF-8");
+			serializer.setOutput(bos, "UTF-8");
 		
 			document.write(serializer);
 		
@@ -114,9 +121,9 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 		} catch (InvalidKeyException e) {
 			throw new RuntimeException(e.getMessage());
 		} finally {
-			//since cos might not have even been created.
-			if(cos != null) {
-				cos.close();
+			//since bos might not have even been created.
+			if(bos != null) {
+				bos.close();
 			} else {
 				o.close();
 			}

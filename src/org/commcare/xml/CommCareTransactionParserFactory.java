@@ -25,6 +25,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	
 	private Hashtable<String, String> formInstanceNamespaces;
 	
+	int requests = 0;
+	
 	public CommCareTransactionParserFactory(Context context) {
 		this.context = context;
 	}
@@ -33,25 +35,32 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	 * @see org.commcare.data.xml.TransactionParserFactory#getParser(java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
 	 */
 	public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-		if(namespace == null) {
-			int a  =3;
-			a++;
-		}
-		
 		if(namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
+			req();
 			return formInstanceParser.getParser(name, namespace, parser);
 		} else if("case".toLowerCase().equals(name)) {
 			if(caseParser == null) {
 				throw new RuntimeException("Couldn't recieve Case transaction without initialization!");
 			}
-			return userParser.getParser(name, namespace, parser);
+			req();
+			return caseParser.getParser(name, namespace, parser);
 		} else if("registration".toLowerCase().equals(name)) {
 			if(userParser == null) {
 				throw new RuntimeException("Couldn't recieve User transaction without initialization!");
 			}
+			req();
 			return userParser.getParser(name, namespace, parser);
 		}
 		return null;
+	}
+	
+	private void req() {
+		requests++;
+		reportProgress(requests);
+	}
+	
+	public void reportProgress(int total) {
+		//nothing
 	}
 	
 	public void initUserParser(final byte[] wrappedKey) {

@@ -6,6 +6,7 @@ package org.commcare.android.database;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Vector;
@@ -49,7 +50,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	
 	public Vector getIDsForValues(String[] fieldNames, Object[] values) {
 		String whereClause = helper.createWhere(fieldNames, values);
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause, null,null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause, null,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
 			return new Vector<Integer>();
@@ -67,8 +68,29 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		}
 	}
 	
+	public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
+		String whereClause = helper.createWhere(fieldNames, values);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause, null,null, null, null);
+		if(c.getCount() == 0) {
+			c.close();
+			return new Vector<T>();
+		} else {
+			c.moveToFirst();
+			Vector<T> indices = new Vector<T>();
+			int index = c.getColumnIndexOrThrow(DbUtil.DATA_COL);
+			while(!c.isAfterLast()) {		
+				byte[] data = c.getBlob(index);
+				indices.add(newObject(data));
+				c.moveToNext();
+			}
+			c.close();
+			return indices;
+		}
+	}
+	
 	public String getMetaDataFieldForRecord(int recordId, String fieldName) {
-		Cursor c = helper.getHandle().query(table, new String[] {fieldName} , DbUtil.ID_COL + "=" + recordId, null, null, null, null);
+		String rid = String.valueOf(recordId);
+		Cursor c = helper.getHandle().query(table, new String[] {fieldName} , DbUtil.ID_COL + "=?", new String[] {rid}, null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
 			throw new NoSuchElementException("No record in table " + table + " for ID " + recordId);
@@ -262,7 +284,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
 	 */
 	public byte[] readBytes(int id) {
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"=?", new String[] {String.valueOf(id)}, null, null, null);
 		
 		c.moveToFirst();
 		byte[] blob = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
@@ -277,7 +299,21 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			db.delete(table, DbUtil.ID_COL +"="+String.valueOf(id),null);
+			db.delete(table, DbUtil.ID_COL +"=?",new String[] {String.valueOf(id)});
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+		}	
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
+	 */
+	public void remove(Collection<Integer> ids) {
+		SQLiteDatabase db = helper.getHandle();
+		db.beginTransaction();
+		try {
+			db.delete(table, DbUtil.ID_COL +" in " + TableBuilder.sqlList(ids), null);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
