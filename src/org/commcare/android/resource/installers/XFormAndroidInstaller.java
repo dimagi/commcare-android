@@ -44,7 +44,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	protected int customInstall(Reference local, boolean upgrade) throws IOException {
-		FormDef formDef = XFormParser.getFormDef(new InputStreamReader(local.getStream(), "UTF-8"));
+		FormDef formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
 		this.namespace = formDef.getInstance().schema;
 		return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
 	}
