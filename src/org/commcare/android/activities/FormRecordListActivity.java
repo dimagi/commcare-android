@@ -24,6 +24,7 @@ import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
@@ -173,8 +174,13 @@ public class FormRecordListActivity extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
         if(!FormRecord.STATUS_INCOMPLETE.equals(adapter.getFilter())) {
-	        menu.add(0, DOWNLOAD_FORMS, 0, "Fetch Forms from Server").setIcon(
-	                android.R.drawable.ic_menu_rotate);
+        	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    		String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
+    		
+    		//If there's nowhere to fetch forms from, we can't really go fetch them
+    		if(!(source == null || source.equals(""))) {
+    			menu.add(0, DOWNLOAD_FORMS, 0, "Fetch Forms from Server").setIcon(android.R.drawable.ic_menu_rotate);
+    		}
 	        return true;
         }
         return parent;
@@ -187,16 +193,20 @@ public class FormRecordListActivity extends ListActivity {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
             	this.showDialog(DIALOG_PROCESS);
+            	
+        		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            	
             	User u = CommCareApplication._().getSession().getLoggedInUser();
             	String username = u.getUsername();
+            	
+            	String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
+            	
             	//We should go digest auth this user on the server and see whether to pull them
 				//down.
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-				
 				if(prefs.contains("cc_user_domain")) {
 					username += "@" + prefs.getString("cc_user_domain",null);
 				}
-            	DataPullTask pull = new DataPullTask(username,u.getCachedPwd(), "http://173.9.45.86:8888/submits/mine/restore", "", this);
+            	DataPullTask pull = new DataPullTask(username,u.getCachedPwd(), source, "", this);
             	pull.setPullListener(new DataPullListener() {
 
 					public void finished(int status) {

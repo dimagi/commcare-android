@@ -500,7 +500,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        //First make sure nothing catastrophic has happened
 	        if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
 	           CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
-	     	        
+	        	
 	        	//If so, ask the user if they want to wipe and recover (Possibly try to send everything first?)
 	        	showDialog(DIALOG_CORRUPTED);
 	        }

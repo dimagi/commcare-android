@@ -38,13 +38,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 		if(namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
 			req();
 			return formInstanceParser.getParser(name, namespace, parser);
-		} else if("case".toLowerCase().equals(name)) {
+		} else if(name != null && name.toLowerCase().equals("case")) {
 			if(caseParser == null) {
 				throw new RuntimeException("Couldn't recieve Case transaction without initialization!");
 			}
 			req();
 			return caseParser.getParser(name, namespace, parser);
-		} else if("registration".toLowerCase().equals(name)) {
+		} else if(name != null && name.toLowerCase().equals("registration")) {
 			if(userParser == null) {
 				throw new RuntimeException("Couldn't recieve User transaction without initialization!");
 			}
