@@ -26,6 +26,7 @@ public class CallOutActivity extends Activity {
 	public static final String PHONE_NUMBER = "cos_pn";
 	public static final String CALL_DURATION = "cos_pd";
 	public static final String RETURNING = "cos_return";
+	public static final String INCOMING_ACTION = "cos_inac";
 	
 	private static final int DIALOG_NUMBER_ACTION = 0;
 	
@@ -45,7 +46,11 @@ public class CallOutActivity extends Activity {
                 
         number = this.getIntent().getStringExtra(PHONE_NUMBER);
         
-        this.showDialog(DIALOG_NUMBER_ACTION);
+        if(this.getIntent().hasExtra(INCOMING_ACTION)) {
+        	dispatchAction(this.getIntent().getStringExtra(INCOMING_ACTION));
+        } else {
+        	this.showDialog(DIALOG_NUMBER_ACTION);
+        }
     }
     
     public void onResume() {
@@ -81,17 +86,7 @@ public class CallOutActivity extends Activity {
     		builder.setTitle("Select Action");
     		builder.setItems(items, new DialogInterface.OnClickListener() {
     		    public void onClick(DialogInterface dialog, int item) {
-    		    	if(item == 0 ) {
-    		            tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-    		    		
-    		    		Intent call = new Intent(Intent.ACTION_CALL);
-    		    		call.setData(Uri.parse("tel:" + number));
-    		    		startActivity(call);
-    		    	} else {    				
-    		    		Intent sms = new Intent(Intent.ACTION_SENDTO);
-    		    		sms.setData(Uri.parse("smsto:" + number));
-    		    		startActivityForResult(sms,SMS_RESULT);
-    		    	}
+    		    	dispatchAction(item == 0 ? Intent.ACTION_CALL : Intent.ACTION_SENDTO);
     		    }
     		});
     		builder.setOnCancelListener(new OnCancelListener() {
@@ -109,6 +104,20 @@ public class CallOutActivity extends Activity {
     		return alert;
     	}
     	return null;
+    }
+    
+    private void dispatchAction(String action) {
+    	if(Intent.ACTION_CALL.equals(action) ) {
+            tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+    		
+    		Intent call = new Intent(Intent.ACTION_CALL);
+    		call.setData(Uri.parse("tel:" + number));
+    		startActivity(call);
+    	} else {    				
+    		Intent sms = new Intent(Intent.ACTION_SENDTO);
+    		sms.setData(Uri.parse("smsto:" + number));
+    		startActivityForResult(sms,SMS_RESULT);
+    	}
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {

@@ -5,17 +5,19 @@ package org.commcare.android.activities;
 
 import org.commcare.android.R;
 import org.commcare.android.adapters.CallRecordAdapter;
+import org.commcare.android.adapters.MessageRecordAdapter;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog.Calls;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 /**
@@ -25,15 +27,45 @@ import android.widget.ListView;
 public class CallLogActivity<T extends Persistable> extends ListActivity {
 	
 	LinearLayout header;
-	CallRecordAdapter adapter;
+	CallRecordAdapter calls;
+	MessageRecordAdapter messages;
+	
+	private static final String EXTRA_MESSAGES = "cla_messages";
+	
+	boolean isMessages = false;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setTitle(getString(R.string.app_name) + " > " + "Call Logs");
+        setTitle(getString(R.string.app_name) + " > " + "Phone Logs");
+        
+        isMessages = getIntent().getBooleanExtra(EXTRA_MESSAGES, false);
         
         refreshView();
+    }
+    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EXTRA_MESSAGES,isMessages);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+     */
+    @Override
+    protected void onRestoreInstanceState(Bundle inState) {
+        super.onRestoreInstanceState(inState);
+        inState.getBoolean(EXTRA_MESSAGES, false);
     }
 
 
@@ -42,7 +74,19 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
      */
     private void refreshView() {
     	try {
-    		adapter = new CallRecordAdapter(this, managedQuery(android.provider.CallLog.Calls.CONTENT_URI,null, null, null, Calls.DATE + " DESC"));
+    		ListAdapter adapter = null;
+    		if(isMessages) {
+    			if(messages == null) {
+    				messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
+    			}
+    			adapter = messages;
+    		} else {
+    			if(calls == null) {
+    				calls = new CallRecordAdapter(this, managedQuery(android.provider.CallLog.Calls.CONTENT_URI,null, null, null, Calls.DATE + " DESC"));
+    			}
+    			adapter =calls;
+    		}
+    		
     		this.setListAdapter(adapter);
     	} catch(SessionUnavailableException sue) {
     		//TODO: login and return
@@ -54,16 +98,27 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
      */
     @Override
     protected void onListItemClick(ListView listView, View view, int position, long id) {
-    	String number = (String)adapter.getItem(position);
-        Intent detail = CommCareApplication._().getCallListener().getDetailIntent(this,number);
-        if(detail == null) {
-        	//Start normal callout activity
+    	if(isMessages) {
+        	String number = (String)messages.getItem(position);
         	Intent i = new Intent(this, CallOutActivity.class);
         	i.putExtra(CallOutActivity.PHONE_NUMBER, number);
+        	i.putExtra(CallOutActivity.INCOMING_ACTION, Intent.ACTION_SENDTO);
         	startActivity(i);
-        } else {
-        	startActivity(detail);
-        }
+        	return;
+    	}
+    	else {
+        	String number = (String)calls.getItem(position);
+        	Intent detail = CommCareApplication._().getCallListener().getDetailIntent(this,number);
+	        if(detail == null) {
+	        	//Start normal callout activity
+	        	Intent i = new Intent(this, CallOutActivity.class);
+	        	i.putExtra(CallOutActivity.PHONE_NUMBER, number);
+	        	i.putExtra(CallOutActivity.INCOMING_ACTION, Intent.ACTION_SENDTO);
+	        	startActivity(i);
+	        } else {
+	        	startActivity(detail);
+	        }
+    	}
         
     }
     

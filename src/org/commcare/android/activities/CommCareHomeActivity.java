@@ -703,7 +703,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     }
     
     private void createCallLogActivity() {
-        Intent i = new Intent(this, CallLogActivity.class);
+        Intent i = new Intent(this, PhoneLogActivity.class);
         startActivity(i);
 
     }
