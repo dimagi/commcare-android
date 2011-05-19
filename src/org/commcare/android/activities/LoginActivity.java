@@ -149,7 +149,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         super.onResume();
         
         try {
-        if(CommCareApplication._().getSession().isLoggedIn()) {
+        if(CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
     		Intent i = new Intent();
     		i.putExtra(ALREADY_LOGGED_IN, true);
             setResult(RESULT_OK, i);
