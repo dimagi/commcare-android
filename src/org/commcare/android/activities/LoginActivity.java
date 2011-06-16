@@ -45,6 +45,8 @@ public class LoginActivity extends Activity implements DataPullListener {
 	
 	ProgressDialog mProgressDialog;
 	
+	private static LoginActivity currentActivity;
+	
 	Button login;
 	
 	TextView userLabel;
@@ -65,6 +67,8 @@ public class LoginActivity extends Activity implements DataPullListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        currentActivity = this;
         
         setContentView(R.layout.login);
         
@@ -112,8 +116,8 @@ public class LoginActivity extends Activity implements DataPullListener {
 						                             LoginActivity.this);
 				
 				dataPuller.setPullListener(LoginActivity.this);
-				dataPuller.execute();
 				LoginActivity.this.showDialog(DIALOG_CHECKING_SERVER);
+				dataPuller.execute();
 			}
         });
         
@@ -232,13 +236,13 @@ public class LoginActivity extends Activity implements DataPullListener {
 			Toast.makeText(this, 
 					"Authentication failed on server, please check credentials and try again.", 
 					Toast.LENGTH_LONG).show();
-			this.dismissDialog(DIALOG_CHECKING_SERVER);
+			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.BAD_DATA:
 			Toast.makeText(this, 
 					"Server provided improperly formatted data, please contact your supervisor.", 
 					Toast.LENGTH_LONG).show();
-			this.dismissDialog(DIALOG_CHECKING_SERVER);
+			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.DOWNLOAD_SUCCESS:
 			if(tryLocalLogin()) {
@@ -254,13 +258,13 @@ public class LoginActivity extends Activity implements DataPullListener {
 			Toast.makeText(this, 
 					"Couldn't contact server. Please make sure an internet connection is available or try again later.", 
 					Toast.LENGTH_LONG).show();
-			this.dismissDialog(DIALOG_CHECKING_SERVER);
+			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.UNKNOWN_FAILURE:
 			Toast.makeText(this, 
 					"Unknown failure, please try again.", 
 					Toast.LENGTH_LONG).show();
-			this.dismissDialog(DIALOG_CHECKING_SERVER);
+			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		}
 	}

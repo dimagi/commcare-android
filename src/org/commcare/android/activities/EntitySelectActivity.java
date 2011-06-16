@@ -9,7 +9,6 @@ import java.util.Vector;
 
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.application.AndroidShortcuts;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -18,21 +17,22 @@ import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Text;
-import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
@@ -46,6 +46,7 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 	private static final String EXTRA_ENTITY_KEY = "esa_entity_key";
 	
 	private static final int CONFIRM_SELECT = 0;
+	private static final int BARCODE_FETCH = 1;
 	
 	private static final int MENU_SORT = Menu.FIRST;
 
@@ -54,6 +55,7 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 	EntityListAdapter<T> adapter;
 	Entry prototype;
 	LinearLayout header;
+	ImageButton barcodeButton;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,8 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
         setContentView(R.layout.entity_select_layout);
         searchbox = (EditText)findViewById(R.id.searchbox);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
+        
+        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
         
         
         searchbox.addTextChangedListener(this);
@@ -72,6 +76,15 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 		prototype = entries.elementAt(0);
         
         setTitle(getString(R.string.app_name) + " > " + " Select");
+        
+        barcodeButton.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				Intent i = new Intent("com.google.zxing.client.android.SCAN");
+				startActivityForResult(i, BARCODE_FETCH);
+			}
+        	
+        });
         
         if(this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
         	T entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
@@ -142,6 +155,10 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	switch(requestCode){
+    	case BARCODE_FETCH:
+    		String result = intent.getStringExtra("SCAN_RESULT");
+    		this.searchbox.setText(result);
+    		break;
     	case CONFIRM_SELECT:
     		if(resultCode == RESULT_OK) {
     	        // create intent for return and store path

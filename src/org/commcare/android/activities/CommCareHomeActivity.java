@@ -74,16 +74,20 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	
 	ProcessAndSendTask mProcess;
 	
+	static Activity currentHome;
+	
 	Button startButton;
 	Button logoutButton;
 	Button viewIncomplete;
 	
 	Button viewOldForms;
+
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        currentHome = this;
         setContentView(R.layout.main);
         
         TextView version = (TextView)findViewById(R.id.str_version);
@@ -683,7 +687,8 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     }
 
 	public void processAndSendFinished(int result, int successfulSends) {
-		this.dismissDialog(mCurrentDialog);
+		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
+		currentHome.dismissDialog(mCurrentDialog);
 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
 			String label = "Form Sent to Server!";
 			if(successfulSends > 1) {

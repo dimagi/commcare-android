@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content">
-<LinearLayout android:layout_height="wrap_content" android:orientation="horizontal" android:layout_alignParentTop="true" android:layout_width="fill_parent" android:id="@+id/entity_select_header"></LinearLayout><ListView android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@android:id/list" android:layout_above="@+id/searchfooter" android:layout_below="@+id/entity_select_header"></ListView><LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:id="@+id/searchfooter"><TextView android:id="@+id/TextView02" android:layout_below="@+id/TextView01" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Search:" android:layout_gravity="center_vertical"></TextView><EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/searchbox"></EditText></LinearLayout>
+  android:layout_height="wrap_content" android:layout_width="fill_parent">
+<LinearLayout android:layout_height="wrap_content" android:orientation="horizontal" android:layout_alignParentTop="true" android:layout_width="fill_parent" android:id="@+id/entity_select_header">
+</LinearLayout>
+<ListView android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@android:id/list" android:layout_above="@+id/searchfooter" android:layout_below="@+id/entity_select_header"></ListView>
+
+<LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:id="@+id/searchfooter" android:orientation="horizontal">
+	<TextView android:id="@+id/TextView02" android:layout_below="@+id/TextView01" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Search:" android:layout_gravity="center_vertical"></TextView>
+	<RelativeLayout android:id="@+id/relativeLayout1" android:layout_height="wrap_content" android:layout_width="fill_parent">
+		<EditText android:id="@+id/searchbox" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_toLeftOf="@+id/barcodeButton"></EditText>
+		<ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:src="@drawable/barcode" android:id="@+id/barcodeButton"></ImageButton>
+	</RelativeLayout>
+</LinearLayout>
 
 
 
