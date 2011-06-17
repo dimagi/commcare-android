@@ -19,6 +19,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.services.storage.Persistable;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -156,8 +157,10 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	switch(requestCode){
     	case BARCODE_FETCH:
-    		String result = intent.getStringExtra("SCAN_RESULT");
-    		this.searchbox.setText(result);
+    		if(resultCode == Activity.RESULT_OK) {
+    			String result = intent.getStringExtra("SCAN_RESULT");
+    			this.searchbox.setText(result);
+    		}
     		break;
     	case CONFIRM_SELECT:
     		if(resultCode == RESULT_OK) {
