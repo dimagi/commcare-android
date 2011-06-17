@@ -22,6 +22,7 @@ import org.javarosa.core.services.storage.Persistable;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -36,6 +37,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * @author ctsims
@@ -82,7 +84,12 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 
 			public void onClick(View v) {
 				Intent i = new Intent("com.google.zxing.client.android.SCAN");
-				startActivityForResult(i, BARCODE_FETCH);
+				try {
+					startActivityForResult(i, BARCODE_FETCH);
+				} catch(ActivityNotFoundException anfe) {
+					Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
+					noReader.show();
+				}
 			}
         	
         });
