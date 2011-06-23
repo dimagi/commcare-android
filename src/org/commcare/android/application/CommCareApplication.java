@@ -86,6 +86,11 @@ public class CommCareApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		
+		//Workaround because android is written by 7 year olds.
+		//(reuses http connection pool improperly, so the second https
+		//request in a short time period will flop)
+		System.setProperty("http.keepAlive", "false");
+		
 		Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler()));
 		
 		PropertyManager.setPropertyManager(new ODKPropertyManager());

@@ -6,9 +6,10 @@ package org.commcare.android.references;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
+import org.commcare.android.logic.GlobalConstants;
 import org.javarosa.core.reference.Reference;
 
 /**
@@ -44,7 +45,14 @@ public class JavaHttpReference implements Reference {
 	 */
 	public InputStream getStream() throws IOException {
 		URL url = new URL(uri);
-		return url.openStream();
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
+		con.setRequestMethod("GET");
+		con.setDoInput(true);
+		con.setInstanceFollowRedirects(true);
+		// Start the query
+		con.connect();
+		return con.getInputStream();
 	}
 
 	/* (non-Javadoc)
