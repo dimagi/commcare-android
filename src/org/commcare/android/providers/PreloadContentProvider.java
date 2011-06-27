@@ -85,6 +85,11 @@ public class PreloadContentProvider extends ContentProvider {
 			List<String> uriParts = uri.getPathSegments();
 			if("case".equals(uriParts.get(0))) {
 				String caseId = uriParts.get(uriParts.size() - 2);
+				
+				//No case preloaded, no sweat
+				if(caseId == null) { 
+					return null;
+				}
 				Case c =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class).getRecordForValue(Case.META_CASE_ID, caseId);
 				
 				CasePreloader preloader = new CasePreloader(c);
