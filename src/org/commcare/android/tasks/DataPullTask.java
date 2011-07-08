@@ -215,6 +215,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				e.printStackTrace();
 			}catch (SessionUnavailableException sue) {
 				//TODO: Keys were lost somehow.
+				sue.printStackTrace();
 			}
 			this.publishProgress(PROGRESS_DONE);
 			return UNKNOWN_FAILURE;

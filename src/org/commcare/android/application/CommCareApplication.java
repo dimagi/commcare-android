@@ -128,7 +128,9 @@ public class CommCareApplication extends Application {
 	}
 	
 	public SecretKey createNewSymetricKey() {
-		return mBoundService.createNewSymetricKey();
+		synchronized(mBoundService) {
+			return mBoundService.createNewSymetricKey();
+		}
 	}
 	
 	private CallInPhoneListener listener = null;
@@ -450,6 +452,7 @@ public class CommCareApplication extends Application {
 	private ServiceConnection mConnection;
 
 	boolean mIsBound = false;
+	boolean mIsBinding = false;
 	void doBindService(final byte[] key, final User user) {
 		mConnection = new ServiceConnection() {
 		    public void onServiceConnected(ComponentName className, IBinder service) {
@@ -460,7 +463,13 @@ public class CommCareApplication extends Application {
 		        // cast its IBinder to a concrete class and directly access it.
 		        mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 		        
-		        mBoundService.logIn(key, user);
+				synchronized(mBoundService) {
+					//Don't let anyone touch this until it's logged in
+					mBoundService.logIn(key, user);
+				}
+			    mIsBound = true;
+			    mIsBinding = false;
+
 		        
 				if(database != null && database.isOpen()) {
 					database.close();
@@ -491,8 +500,7 @@ public class CommCareApplication extends Application {
 	    // we know will be running in our own process (and thus won't be
 	    // supporting component replacement by other applications).
 	    bindService(new Intent(this,  CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
-	    
-	    mIsBound = true;
+	    mIsBinding = true;
 	}
 
 	void doUnbindService() {
@@ -505,8 +513,13 @@ public class CommCareApplication extends Application {
 	}
 	
 	public CommCareSessionService getSession() throws SessionUnavailableException {
+		//If binding is currently in process, just wait for it.
+		while(mIsBinding);
+		
 		if(mIsBound) {
-			return mBoundService;
+			synchronized(mBoundService) {
+				return mBoundService;
+			}
 		} else {
 			throw new SessionUnavailableException();
 		}
