@@ -114,6 +114,11 @@ public class DummyResourceTable extends ResourceTable {
 						// TODO Auto-generated method stub
 						
 					}
+
+					public Vector verifyInstallation(Resource r) {
+						// TODO Auto-generated method stub
+						return null;
+					}
 					
 				};
 			}

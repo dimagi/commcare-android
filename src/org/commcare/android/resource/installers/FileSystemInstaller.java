@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidStreamUtil;
@@ -29,6 +30,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCarePlatform> {
+
+
 	String localLocation;
 	String localDestination;
 	String upgradeDestination;
@@ -144,5 +147,23 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	
 	public String getResourceName(Resource r, ResourceLocation loc) {
 		return r.getResourceId() + ".xml";
+	}
+	
+	public Vector<UnresolvedResourceException> verifyInstallation(Resource r) {
+		Vector<UnresolvedResourceException> issues = new Vector<UnresolvedResourceException>();
+		try {
+			Reference ref = ReferenceManager._().DeriveReference(localLocation);
+			if(!ref.doesBinaryExist()) {
+				issues.add(new UnresolvedResourceException(r,"File doesn't exist at: " + ref.getLocalURI()));
+				return issues;
+			}
+		} catch (IOException e) {
+			issues.add(new UnresolvedResourceException(r,"Problem accessing file at: " + localLocation));
+			return issues;
+		} catch (InvalidReferenceException e) {
+			issues.add(new UnresolvedResourceException(r,"invalid reference: " + localLocation));
+			return issues;
+		}
+		return null;
 	}
 }
