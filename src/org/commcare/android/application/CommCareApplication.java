@@ -40,6 +40,7 @@ import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageFullException;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -268,8 +269,16 @@ public class CommCareApplication extends Application {
 		Resource profile = global.getResourceWithId("commcare-application-profile");
 		if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
 			try {
-				platform.upgrade(global, platform.getUpgradeResourceTable(), appPreferences.getString("default_app_server", getString(R.string.default_app_server)));
+				ResourceTable temporary = platform.getUpgradeResourceTable();
+				platform.stageUpgradeTable(global, temporary, appPreferences.getString("default_app_server", getString(R.string.default_app_server)));
+				platform.upgrade(global, temporary);
 			} catch (UnfullfilledRequirementsException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (StorageFullException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnresolvedResourceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
