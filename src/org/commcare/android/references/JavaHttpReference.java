@@ -81,4 +81,7 @@ public class JavaHttpReference implements Reference {
 		return uri;
 	}
 
+	public Reference[] probeAlternativeReferences() {
+		return new Reference [0];
+	}
 }
