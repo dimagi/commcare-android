@@ -379,6 +379,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     private void startNextFetch() throws SessionUnavailableException {
     	CommCareSession session = platform.getSession();
     	String needed = session.getNeededData();
+    	String[] lastPopped = session.getPoppedStep();
     	
     	if(needed == null) {
     		startFormEntry();
@@ -392,6 +393,9 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             Intent i = new Intent(getApplicationContext(), CaseSelectActivity.class);
             
             i.putExtra(CommCareSession.STATE_COMMAND_ID, session.getCommand());
+            if(lastPopped != null && CommCareSession.STATE_CASE_ID.equals(lastPopped[0])) {
+            	i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped[1]);
+            }
             
             startActivityForResult(i, GET_CASE);
     	} else if(needed == CommCareSession.STATE_REFERRAL_ID) {

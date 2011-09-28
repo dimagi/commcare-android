@@ -46,7 +46,7 @@ import android.widget.Toast;
 public abstract class EntitySelectActivity<T extends Persistable> extends ListActivity implements TextWatcher {
 	private AndroidCommCarePlatform platform;
 	
-	private static final String EXTRA_ENTITY_KEY = "esa_entity_key";
+	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
 	
 	private static final int CONFIRM_SELECT = 0;
 	private static final int BARCODE_FETCH = 1;
@@ -182,6 +182,10 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
     		} else {
     	        Intent i = new Intent(this.getIntent());
     	        setResult(RESULT_CANCELED, i);
+    	        //If the original calling intent bounced us up immediately, we need to refresh
+    	        if(this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+    	        	refreshView();
+    	        }
         		return;
     		}
     	default:
