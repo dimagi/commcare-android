@@ -300,21 +300,25 @@ public class CommCareApplication extends Application {
 		}
 	}
 	
+	public Object dbHandleLock = new Object();
+	
 	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String storage, Class<T> c) throws SessionUnavailableException {
 		DbHelper helper;
 		if(mBoundService != null && mBoundService.isLoggedIn()) {
 			helper = new DbHelper(this.getApplicationContext(), mBoundService.getEncrypter()) {
 				@Override
 				public SQLiteDatabase getHandle() {
-					if(database == null || !database.isOpen()) {
-						CursorFactory factory = new CommCareDBCursorFactory(encryptedModels()) {
-							protected Cipher getReadCipher() {
-								return mBoundService.getDecrypter();
-							}
-						};
-						database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
+					synchronized(dbHandleLock) {
+						if(database == null || !database.isOpen()) {
+							CursorFactory factory = new CommCareDBCursorFactory(encryptedModels()) {
+								protected Cipher getReadCipher() {
+									return mBoundService.getDecrypter();
+								}
+							};
+							database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
+						}
+						return database;
 					}
-					return database;
 				}
 				
 			};
@@ -322,11 +326,13 @@ public class CommCareApplication extends Application {
 			helper = new DbHelper(this.getApplicationContext()) {
 				@Override
 				public SQLiteDatabase getHandle() {
-					if(database == null || !database.isOpen()) {
-						CursorFactory factory = new CommCareDBCursorFactory();
-						database = new CommCareOpenHelper(this.c, factory).getWritableDatabase();
+						synchronized(dbHandleLock) {
+						if(database == null || !database.isOpen()) {
+							CursorFactory factory = new CommCareDBCursorFactory();
+							database = new CommCareOpenHelper(this.c, factory).getWritableDatabase();
+						}
+						return database;
 					}
-					return database;
 				}
 				
 			};
