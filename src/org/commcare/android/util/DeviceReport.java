@@ -34,9 +34,8 @@ public class DeviceReport {
 	
 	public DeviceReport(CommCareApplication application) {
 		this.mContext = application;
-		TelephonyManager mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
 
-        String did = mTelephonyManager.getDeviceId();
+        String did = application.getPhoneId();
 		
 		document = new Document();
 		reportNode = document.createElement(XMLNS, "device_report");
