@@ -288,7 +288,6 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	}
 	
 	private SecretKeySpec generateTestKey() {
-		CommCareApplication._().getPhoneId();
 		KeyGenerator generator;
 		try {
 			generator = KeyGenerator.getInstance("AES");

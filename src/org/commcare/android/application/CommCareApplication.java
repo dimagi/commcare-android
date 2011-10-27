@@ -305,26 +305,35 @@ public class CommCareApplication extends Application {
 	public Object dbHandleLock = new Object();
 	
 	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String storage, Class<T> c) throws SessionUnavailableException {
-		DbHelper helper;
-		if(mBoundService != null && mBoundService.isLoggedIn()) {
-			helper = new DbHelper(this.getApplicationContext(), mBoundService.getEncrypter()) {
-				@Override
-				public SQLiteDatabase getHandle() {
-					synchronized(dbHandleLock) {
-						if(database == null || !database.isOpen()) {
-							CursorFactory factory = new CommCareDBCursorFactory(encryptedModels()) {
-								protected Cipher getReadCipher() {
-									return mBoundService.getDecrypter();
-								}
-							};
-							database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
+		DbHelper helper = null;
+		try {
+			//If the session service is available, go grab it
+			CommCareSessionService service = getSession();
+			if(service.isLoggedIn()) {
+				helper = new DbHelper(this.getApplicationContext(), service.getEncrypter()) {
+					@Override
+					public SQLiteDatabase getHandle() {
+						synchronized(dbHandleLock) {
+							if(database == null || !database.isOpen()) {
+								CursorFactory factory = new CommCareDBCursorFactory(encryptedModels()) {
+									protected Cipher getReadCipher() {
+										return getSession().getDecrypter();
+									}
+								};
+								database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
+							}
+							return database;
 						}
-						return database;
 					}
-				}
-				
-			};
-		} else {
+					
+				};
+			}
+		} catch(SessionUnavailableException sue) {
+			//Not logged in, proceed with unencrypted storage
+		}
+		
+		//If we didn't get the decrypting DB helper, we should grab the normal one
+		if(helper == null) {
 			helper = new DbHelper(this.getApplicationContext()) {
 				@Override
 				public SQLiteDatabase getHandle() {
@@ -484,13 +493,14 @@ public class CommCareApplication extends Application {
 					//Don't let anyone touch this until it's logged in
 					mBoundService.logIn(key, user);
 				}
-			    mIsBound = true;
-			    mIsBinding = false;
 
 		        synchronized(dbHandleLock) {
 		        	if(database != null && database.isOpen()) {
 						database.close();
 					}
+		        	
+		        	//NOTE: If any of this is updated care should be taken to ensure that none of it depends on
+		        	//the mIsBound service flag, otherwise we could deadlock
 					CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
 						protected Cipher getReadCipher() {
 							return mBoundService.getDecrypter();
@@ -498,6 +508,13 @@ public class CommCareApplication extends Application {
 					};
 					database = new CommCareOpenHelper(CommCareApplication.this, factory).getWritableDatabase();
 				}
+		        
+				//service available
+			    mIsBound = true;
+		        
+		        //Don't signal bind completion until the db is initialized.
+			    mIsBinding = false;
+			    
 				if(user != null) {
 					attachCallListener(user);
 				}		
