@@ -114,7 +114,9 @@ public class CommCareApplication extends Application {
 		
 		if(dbState != STATE_UNINSTALLED) {
 			CursorFactory factory = new CommCareDBCursorFactory();
-			database = new CommCareOpenHelper(this, factory).getWritableDatabase();
+			synchronized(dbHandleLock) {
+				database = new CommCareOpenHelper(this, factory).getWritableDatabase();
+			}
 		}
 	}
 	
@@ -326,7 +328,7 @@ public class CommCareApplication extends Application {
 			helper = new DbHelper(this.getApplicationContext()) {
 				@Override
 				public SQLiteDatabase getHandle() {
-						synchronized(dbHandleLock) {
+					synchronized(dbHandleLock) {
 						if(database == null || !database.isOpen()) {
 							CursorFactory factory = new CommCareDBCursorFactory();
 							database = new CommCareOpenHelper(this.c, factory).getWritableDatabase();
@@ -485,17 +487,17 @@ public class CommCareApplication extends Application {
 			    mIsBound = true;
 			    mIsBinding = false;
 
-		        
-				if(database != null && database.isOpen()) {
-					database.close();
-				}
-				
-				CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
-					protected Cipher getReadCipher() {
-						return mBoundService.getDecrypter();
+		        synchronized(dbHandleLock) {
+		        	if(database != null && database.isOpen()) {
+						database.close();
 					}
-				};
-				database = new CommCareOpenHelper(CommCareApplication.this, factory).getWritableDatabase();
+					CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
+						protected Cipher getReadCipher() {
+							return mBoundService.getDecrypter();
+						}
+					};
+					database = new CommCareOpenHelper(CommCareApplication.this, factory).getWritableDatabase();
+				}
 				if(user != null) {
 					attachCallListener(user);
 				}		
