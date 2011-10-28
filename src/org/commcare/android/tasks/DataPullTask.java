@@ -148,6 +148,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					//add to transaction parser factory
 					byte[] wrappedKey = CryptUtil.wrapKey(spec,credentials.getPassword());
 					factory.initUserParser(wrappedKey);
+				} else {
+					factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
 				}
 					
 				
