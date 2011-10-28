@@ -13,8 +13,11 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.Referral;
+import org.commcare.android.models.User;
 import org.commcare.android.preferences.CommCarePreferences;
 import org.commcare.android.providers.PreloadContentProvider;
+import org.commcare.android.tasks.DataPullListener;
+import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendListener;
@@ -79,6 +82,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	Button startButton;
 	Button logoutButton;
 	Button viewIncomplete;
+	Button syncButton;
 	
 	Button viewOldForms;
 
@@ -134,6 +138,95 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                 startActivityForResult(i, GET_INCOMPLETE_FORM);
             }
         });
+        
+        syncButton  = (Button) findViewById(R.id.sync_now);
+        syncButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                boolean formsToSend = checkAndStartUnsentTask(new ProcessAndSendListener() {
+                	
+                	public void processAndSendFinished(int result, int successfulSends) {
+                		if(currentHome != CommCareHomeActivity.this) { System.out.println("Fixing issue with new activity");}
+                		if(result == ProcessAndSendTask.FULL_SUCCESS) {
+                			String label = successfulSends + " Forms Sent to Server!";
+                			Toast.makeText(currentHome, label, Toast.LENGTH_LONG).show();
+                			
+                			//OK, all forms sent, sync time 
+                			syncData();
+                			
+                		} else {
+                			currentHome.dismissDialog(mCurrentDialog);
+                			Toast.makeText(currentHome, "Having issues communicating with the server to send forms. Will try again later.", Toast.LENGTH_LONG).show();
+                		}
+                	}
+
+                });
+                
+                if(!formsToSend) {
+                	//No unsent forms, just sync
+                	syncData();
+                }
+                
+            }
+        });
+    }
+    
+    private void syncData() {
+    	User u = CommCareApplication._().getSession().getLoggedInUser();
+    	String username = u.getUsername(); 
+    	
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		//TODO: We do this in a lot of places, we should wrap it somewhere
+		if(prefs.contains("cc_user_domain")) {
+			username += "@" + prefs.getString("cc_user_domain",null);
+		}
+
+
+    	DataPullTask pullTask = new DataPullTask(username, u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this);
+    	pullTask.setPullListener(new DataPullListener() {
+
+			public void finished(int status) {
+				currentHome.dismissDialog(mCurrentDialog);
+				
+				//TODO: SHARES _A LOT_ with login activity. Unify into service
+				switch(status) {
+				case DataPullTask.AUTH_FAILED:
+					Toast.makeText(currentHome, 
+							"Authentication failed on server. Please log out and try to log in again with syncing", 
+							Toast.LENGTH_LONG).show();
+					break;
+				case DataPullTask.BAD_DATA:
+					Toast.makeText(currentHome, "Server provided improperly formatted data, please try again or contact your supervisor.", 
+							Toast.LENGTH_LONG).show();
+					break;
+				case DataPullTask.DOWNLOAD_SUCCESS:
+					Toast.makeText(currentHome, "Sync Success!", Toast.LENGTH_LONG).show();
+					break;
+				case DataPullTask.UNREACHABLE_HOST:
+					Toast.makeText(currentHome, "Couldn't contact server. Please make sure an internet connection is available or try again later.", 
+							Toast.LENGTH_LONG).show();
+					break;
+				case DataPullTask.UNKNOWN_FAILURE:
+					Toast.makeText(currentHome, "Unknown failure, please try again.", Toast.LENGTH_LONG).show();
+					break;
+				}
+				
+				//TODO: What if the user info was updated?
+			}
+
+			public void progressUpdate(Integer... progress) {
+				if(progress[0] == DataPullTask.PROGRESS_STARTED) {
+					mProgressDialog.setMessage("Contacting server for sync...");
+				} else if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
+					mProgressDialog.setMessage("Server contacted, downloading data.");
+				}
+			}
+    		
+    	});
+    	//possibly already showing
+    	currentHome.showDialog(DIALOG_PROCESS);
+    	
+    	pullTask.execute();
     }
     
     /*
@@ -189,7 +282,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	    				refreshView();
 	    			} else {
 	    				refreshView();
-	    				checkAndStartUnsentTask();
+	    				checkAndStartUnsentTask(this);
 	    			}
 	    			return;
 	    		}
@@ -470,7 +563,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     }
     
     
-    protected void checkAndStartUnsentTask() throws SessionUnavailableException {
+    protected boolean checkAndStartUnsentTask(ProcessAndSendListener listener) throws SessionUnavailableException {
     	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
     	
     	//Get all forms which are either unsent or unprocessed
@@ -483,11 +576,13 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     		}
     		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
     		mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
-    		mProcess.setListener(this);
+    		mProcess.setListener(listener);
     		showDialog(DIALOG_SEND_UNSENT);
     		mProcess.execute(records);
+    		return true;
     	} else {
     		//Nothing.
+    		return false;
     	}
     }
     

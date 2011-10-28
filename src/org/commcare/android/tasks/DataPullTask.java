@@ -70,7 +70,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	public static final int UNKNOWN_FAILURE = 4;
 	public static final int UNREACHABLE_HOST = 8;
 	
-	public static final int PROGRESS_NONE = 0;
+	public static final int PROGRESS_STARTED = 0;
 	public static final int PROGRESS_AUTHED = 1;
 	public static final int PROGRESS_DONE= 2;
 	
@@ -104,6 +104,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	protected Integer doInBackground(Void... params) {
+		publishProgress(PROGRESS_STARTED);
+		
 		boolean loginNeeded = true;
 		try {
 			loginNeeded = !CommCareApplication._().getSession().isLoggedIn();
