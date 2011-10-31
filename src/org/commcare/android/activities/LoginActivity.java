@@ -103,7 +103,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 				//down.
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
 				
-				String un = username.getText().toString();
+				String un = getUsername();
 				
 				if(prefs.contains("cc_user_domain")) {
 					un += "@" + prefs.getString("cc_user_domain",null);
@@ -175,10 +175,17 @@ public class LoginActivity extends Activity implements DataPullListener {
     	autoUpdateConfig();
     }
     
+    private String getUsername() {
+    	return username.getText().toString().trim();
+    }
+    
     private boolean tryLocalLogin() {
     	try{
     	String passwd = password.getText().toString();
     	for(User u : storage()) {
+    		if(!u.getUsername().equals(getUsername())) {
+    			continue;
+    		}
     		String hash = u.getPassword();
     		if(hash.contains("$")) {
         		String alg = "sha1";
