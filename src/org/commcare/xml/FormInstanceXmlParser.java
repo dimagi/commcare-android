@@ -24,6 +24,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.util.AndroidCommCareSession;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.TransactionParser;
@@ -87,7 +88,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 		KXmlSerializer serializer = new KXmlSerializer();
 	
 		SecretKey key = CommCareApplication._().createNewSymetricKey();
-		FormRecord r = new FormRecord(xmlns, getFileDestination(namespaces.get(xmlns), destination)  , "", FormRecord.STATUS_UNINDEXED, key.getEncoded(),null, new Date(0));
+		FormRecord r = new FormRecord(getFileDestination(namespaces.get(xmlns), destination), xmlns, FormRecord.STATUS_UNINDEXED, key.getEncoded(),null, new Date(0));
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		
 		OutputStream o = new FileOutputStream(r.getPath());

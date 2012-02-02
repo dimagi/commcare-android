@@ -4,10 +4,10 @@
 package org.commcare.android.database;
 
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.Case;
+import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.Referral;
 import org.commcare.android.models.User;
+import org.commcare.android.util.AndroidCommCareSession;
 import org.commcare.android.util.CommCareUpgrader;
 import org.commcare.resources.model.Resource;
 
@@ -42,12 +42,8 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 		try {
 			database.beginTransaction();
 			
-			TableBuilder builder = new TableBuilder(Case.STORAGE_KEY);
-			builder.addData(new Case());
-			database.execSQL(builder.getTableCreateString());
-			
-			builder = new TableBuilder(Referral.STORAGE_KEY);
-			builder.addData(new Referral());
+			TableBuilder builder = new TableBuilder(ACase.STORAGE_KEY);
+			builder.addData(new ACase());
 			database.execSQL(builder.getTableCreateString());
 			
 			builder = new TableBuilder(User.STORAGE_KEY);
@@ -65,6 +61,11 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			builder = new TableBuilder(FormRecord.STORAGE_KEY);
 			builder.addData(new FormRecord());
 			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(AndroidCommCareSession.STORAGE_KEY);
+			builder.addData(new AndroidCommCareSession());
+			database.execSQL(builder.getTableCreateString());
+			
 			database.setVersion(DATABASE_VERSION);
 					
 			database.setTransactionSuccessful();

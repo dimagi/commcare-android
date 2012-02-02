@@ -120,7 +120,7 @@ public class FormRecordListActivity extends ListActivity {
 
     	if(FormRecord.STATUS_SAVED.equals(adapter.getFilter())) {
     		Intent i = new Intent("org.odk.collect.android.action.FormEntry");
-    		i.putExtra("formpath", CommCareApplication._().getCommCarePlatform().getFormPath(value.getFormNamespace()));
+    		i.putExtra("formpath", CommCareApplication._().getCommCarePlatform().getFormContentUri(value.getFormNamespace()));
     		
     		i.putExtra("instancepath", value.getPath());
     		i.putExtra("encryptionkey", value.getAesKey());

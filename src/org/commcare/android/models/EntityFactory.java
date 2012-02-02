@@ -3,141 +3,19 @@
  */
 package org.commcare.android.models;
 
-import java.util.Stack;
-
-import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.preloaders.CasePreloader;
-import org.commcare.android.preloaders.ReferralPreloader;
-import org.commcare.android.preloaders.UserPreloader;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.entity.CaseEntityFilter;
-import org.commcare.entity.InstanceEntityFilter;
-import org.commcare.entity.ReferralEntityFilter;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Text;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.utils.IPreloadHandler;
-import org.javarosa.core.services.storage.Persistable;
 
 /**
  * @author ctsims
  *
  */
-public class EntityFactory<T extends Persistable> {
-	Detail detail;
-	FormInstance instance;
-	User current; 
+public abstract class EntityFactory<T> {
 	
-	public EntityFactory(Detail d, User current) {
-		this.detail = d;
-		this.current = current;
-	}
-	
-	public Detail getDetail() {
-		return detail;
-	}
-	
-	public Entity<T> getEntity(T data) throws SessionUnavailableException{
-		loadData(data);
-		
-		if(!meetsFilter(data, instance)) {
-			return null;
-		}
-		Text[] templates = detail.getTemplates();
-		String[] outcomes = new String[templates.length];
-		for(int i = 0 ; i < templates.length ; ++i ) {
-			outcomes[i] = templates[i].evaluate(instance, null).trim();
-		}
-		return new Entity<T>(outcomes, data);
-	}
-	
-	protected void loadData(T data) throws SessionUnavailableException{
-		instance = detail.getInstance();
-		Stack<TreeElement> elements = new Stack<TreeElement>();
-		elements.push(instance.getRoot());
-		while(elements.size() > 0 ) {
-			TreeElement element = elements.pop();
-			for(int i = 0 ; i < element.getNumChildren() ; ++i) {
-				elements.push(element.getChildAt(i));
-			}
-			String ref = element.getAttributeValue(null,"reference");
-			if(ref != null) {
-				IPreloadHandler preloader = this.getPreloader(ref, data);
-				if(preloader != null) {
-					IAnswerData loaded = preloader.handlePreload(element.getAttributeValue(null, "field"));
-					element.setValue(loaded);
-				}
-			}
-		}
-	}
-	
-	private boolean meetsFilter(T t, FormInstance instance) throws SessionUnavailableException{
-		if(detail.getFilter() == null) {
-			return true;
-		}
-		if(t instanceof Case) {
-			CaseEntityFilter caseFilter = caseFilter();
-			if(!caseFilter.matches((Case)t)) {
-				return false;
-			}
-		}
-		
-		if(t instanceof Referral) {
-			ReferralEntityFilter referralFilter = referralFilter();
-			if(!referralFilter.matches((Referral)t)) {
-				return false;
-			}
-		}
-		
-		InstanceEntityFilter filter = instanceEntityFilter();
-		if(!filter.matches(instance)) {
-				return false;
-		}
-		
-		return true;
-	}
-	
-	CaseEntityFilter cfilter;
-	private CaseEntityFilter caseFilter() {
-		if(cfilter == null) {
-			cfilter = new CaseEntityFilter(detail.getFilter());
-		}
-		return cfilter;
-	}
-	
-	ReferralEntityFilter rfilter;
-	private ReferralEntityFilter referralFilter() throws SessionUnavailableException {
-		if(rfilter == null) {
-			rfilter = new ReferralEntityFilter(detail.getFilter(), CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class));
-		}
-		return rfilter;
-	}
-	
-	
-	InstanceEntityFilter ifilter;
-	private InstanceEntityFilter instanceEntityFilter() {
-		if(ifilter == null) {
-			ifilter = new InstanceEntityFilter(detail.getFilter());
-		}
-		return ifilter;
-	}
-	
-	private IPreloadHandler getPreloader(String preloader, T t) throws SessionUnavailableException {
-		if("case".equals(preloader)) {
-			if(t instanceof Case) {
-				return new CasePreloader((Case)t);
-			} else if(t instanceof Referral) {
-				return new CasePreloader(CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class).getRecordForValue(Case.META_CASE_ID, ((Referral)t).getLinkedId()));
-			}
-			throw new IllegalArgumentException("Couldn't load 'case' preloader from context element of type " + t.getClass());
-		} else if ("user".equals(preloader)) {
-			return new UserPreloader(current);
-		} else if ("referral".equals(preloader)) {
-			return new ReferralPreloader((Referral)t);
-		} else {
-			return null;
-		}
-	}
+	public abstract Entity<T> getEntity(T data) throws SessionUnavailableException;
+//		Text[] templates = detail.getTemplates();
+//		String[] outcomes = new String[templates.length];
+//		for(int i = 0 ; i < templates.length ; ++i ) {
+//			outcomes[i] = templates[i].evaluate(new EvaluationContext(instance)).trim();
+//		}
+//		return new Entity<T>(outcomes, data);
 }

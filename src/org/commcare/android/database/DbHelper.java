@@ -47,7 +47,7 @@ public abstract class DbHelper {
 	public String createWhere(String[] fieldNames, Object[] values) {
 		String ret = "";
 		for(int i = 0 ; i < fieldNames.length; ++i) {
-			ret += fieldNames[i] + "='" + values[i].toString() + "'";
+			ret += TableBuilder.scrubName(fieldNames[i]) + "='" + values[i].toString() + "'";
 			if(i + 1 < fieldNames.length) {
 				ret += " AND ";
 			}
@@ -85,9 +85,9 @@ public abstract class DbHelper {
 				String key = keys.nextElement();
 				String value = data.get(key).toString();
 				if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
-					values.put(key, CryptUtil.encrypt(value.getBytes(), encrypter));
+					values.put(TableBuilder.scrubName(key), CryptUtil.encrypt(value.getBytes(), encrypter));
 				} else {
-					values.put(key, value);
+					values.put(TableBuilder.scrubName(key), value);
 				}
 			}
 		}

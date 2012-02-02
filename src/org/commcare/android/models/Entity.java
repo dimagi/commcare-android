@@ -3,14 +3,13 @@
  */
 package org.commcare.android.models;
 
-import org.javarosa.core.services.storage.Persistable;
 
 
 /**
  * @author ctsims
  *
  */
-public class Entity<T extends Persistable> {
+public class Entity<T> {
 	
 	T t;
 	String[] data;

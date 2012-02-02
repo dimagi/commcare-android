@@ -21,15 +21,15 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.models.Case;
+import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.Referral;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.MetaDataXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -180,7 +180,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 				if(name == null) { return null;}
 				if("case".equals(name)) {
-					return new CaseXmlParser(parser, context) {
+					return new AndroidCaseXmlParser(parser, CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class)) {
 						
 						@Override
 						public void commit(Case parsed) throws IOException, SessionUnavailableException{
@@ -191,16 +191,11 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 						}
 
 						@Override
-						public Case retrieve(String entityId) throws SessionUnavailableException{
+						public ACase retrieve(String entityId) throws SessionUnavailableException{
 							caseIDs[0] = entityId;
-							Case c = new Case("","");
+							ACase c = new ACase("","");
 							c.setCaseId(entityId);
 							return c;
-						}
-						@Override
-						public Referral parseReferral(KXmlParser parser, String caseId, Date modified, Context c) throws SessionUnavailableException, InvalidStructureException, IOException, XmlPullParserException {
-							parser.skipSubTree();
-							return null;
 						}
 					};
 				}
@@ -239,7 +234,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		DataModelPullParser parser = new DataModelPullParser(cis, factory);
 		parser.parse();
 		
-		FormRecord parsed = new FormRecord(r.getFormNamespace(), r.getPath(), FormRecord.generateEntityId(caseIDs[0]), newStatus, r.getAesKey(),uuid[0], modified[0]);
+		FormRecord parsed = new FormRecord(r.getFormNamespace(), r.getPath(), newStatus, r.getAesKey(),uuid[0], modified[0]);
 		parsed.setID(r.getID());
 		
 		return parsed;

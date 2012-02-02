@@ -31,9 +31,9 @@ public class TableBuilder {
 			String[] keys = ((IMetaData)p).getMetaDataFields();
 			for(String key : keys) {
 				if(p instanceof EncryptedModel && ((EncryptedModel)p).isEncrypted(key)) {
-					cols.add(scrubInput(key) + " BLOB");
+					cols.add(scrubName(key) + " BLOB");
 				} else {
-					cols.add(scrubInput(key));
+					cols.add(scrubName(key));
 				}
 			}
 		}
@@ -43,7 +43,7 @@ public class TableBuilder {
 	
 	public String getTableCreateString() {
 		
-		String built = "CREATE TABLE " + scrubInput(name) + " (";
+		String built = "CREATE TABLE " + scrubName(name) + " (";
 		for(int i = 0 ; i < cols.size() ; ++i) {
 			built += cols.elementAt(i);
 			if(i < cols.size() - 1) {
@@ -54,9 +54,9 @@ public class TableBuilder {
 		return built;
 	}
 	
-	public static String scrubInput(String input) {
+	public static String scrubName(String input) {
 		//Scrub
-		return input;
+		return input.replace("-", "_");
 	}
 	
 	public static String sqlList(Collection<Integer> input) {

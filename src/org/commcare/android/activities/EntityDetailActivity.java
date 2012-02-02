@@ -9,18 +9,16 @@ import org.commcare.android.R;
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.Entity;
-import org.commcare.android.models.EntityFactory;
+import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
-import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.model.instance.TreeReference;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,25 +26,28 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * @author ctsims
  *
  */
-public abstract class EntityDetailActivity<T extends Persistable> extends ListActivity implements DetailCalloutListener {
+public class EntityDetailActivity extends ListActivity implements DetailCalloutListener {
 	private AndroidCommCarePlatform platform;
 	
 	private static final int CALL_OUT = 0;
 	
 	public static final String IS_DEAD_END = "eda_ide";
+	
+	public static final String CONTEXT_REFERENCE = "eda_crid";
+
+	public static final String DETAIL_ID = "eda_detail_id";
 		
 	Entry prototype;
 	
-	Entity<T> entity;
+	Entity<TreeReference> entity;
 	
 	EntityDetailAdapter adapter;
-	EntityFactory<T> factory;
+	NodeEntityFactory factory;
 	
 	Button next;
 	
@@ -81,9 +82,9 @@ public abstract class EntityDetailActivity<T extends Persistable> extends ListAc
 			Vector<Entry> entries = platform.getSession().getEntriesForCommand(passedCommand == null ? platform.getSession().getCommand() : passedCommand);
 			prototype = entries.elementAt(0);
 	
-	        factory = new EntityFactory<T>(platform.getSession().getDetail(prototype.getLongDetailId()), CommCareApplication._().getSession().getLoggedInUser());
+	        factory = new NodeEntityFactory(platform.getSession().getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), platform.getSession().getEvaluationContext(new CommCareInstanceInitializer(platform)));
 			
-		    entity = factory.getEntity(readObjectFromIncomingIntent(getIntent()));
+		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), CommCareSession.STATE_DATUM_VAL, TreeReference.class));
 	        
 	        setTitle(getString(R.string.app_name) + " > " + "Details");
 	        
@@ -110,10 +111,10 @@ public abstract class EntityDetailActivity<T extends Persistable> extends ListAc
     protected void onListItemClick(ListView listView, View view, int position, long id) {
         //Shouldn't be possible
     }
-    
-    protected abstract T readObjectFromIncomingIntent(Intent i) throws SessionUnavailableException;
-    
-    protected abstract void loadOutgoingIntent(Intent i);
+        
+    protected void loadOutgoingIntent(Intent i) {
+    	i.putExtra(CommCareSession.STATE_DATUM_VAL, this.getIntent().getStringExtra(CommCareSession.STATE_DATUM_VAL));
+    }
     
     /*
      * (non-Javadoc)

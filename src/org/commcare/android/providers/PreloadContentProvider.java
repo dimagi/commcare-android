@@ -5,12 +5,7 @@ package org.commcare.android.providers;
 
 import java.util.List;
 
-import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.models.Case;
-import org.commcare.android.models.Referral;
-import org.commcare.android.preloaders.CasePreloader;
 import org.commcare.android.preloaders.MetaPreloader;
-import org.commcare.android.preloaders.ReferralPreloader;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.model.data.IAnswerData;
@@ -83,43 +78,9 @@ public class PreloadContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		try {
 			List<String> uriParts = uri.getPathSegments();
-			if("case".equals(uriParts.get(0))) {
-				String caseId = uriParts.get(uriParts.size() - 2);
-				
-				//No case preloaded, no sweat
-				if(caseId == null) { 
-					return null;
-				}
-				Case c =  CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class).getRecordForValue(Case.META_CASE_ID, caseId);
-				
-				CasePreloader preloader = new CasePreloader(c);
-				String param = uri.getLastPathSegment();
-				IAnswerData data = preloader.handlePreload(param);
-				if(data == null) {
-					return null;
-				} else { 
-					return new PreloadedContentCursor(data.uncast().getString());
-				}
-			} else if("meta".equals(uriParts.get(0))) {
+			if("meta".equals(uriParts.get(0))) {
 				String param = uriParts.get(1);
 				IAnswerData data = new MetaPreloader(platform).handlePreload(param);
-				if(data == null) {
-					return null;
-				} else { 
-					return new PreloadedContentCursor(data.uncast().getString());
-				}
-			} else if("referral".equals(uriParts.get(0))) {
-				String id = uriParts.get(1);
-				String type = uriParts.get(2);
-				
-				Referral r =  CommCareApplication._().getStorage(Referral.STORAGE_KEY, Referral.class).
-				                                  getRecordForValues(new String[] {Referral.REFERRAL_ID, Referral.REFERRAL_TYPE},
-				                                		             new String[] {id, type});
-				
-				ReferralPreloader preloader = new ReferralPreloader(r);
-				String param = uri.getLastPathSegment();
-				IAnswerData data = preloader.handlePreload(param);
-	
 				if(data == null) {
 					return null;
 				} else { 

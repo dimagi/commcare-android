@@ -18,6 +18,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 
 /**
@@ -39,14 +40,14 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	private long callDuration = 0;
 	
-	private CommCareSession session;
+	private AndroidCommCareSession session;
 	
 	public AndroidCommCarePlatform(int majorVersion, int minorVersion, Context c) {
 		super(majorVersion, minorVersion);
 		xmlnstable = new Hashtable<String, String>();
 		this.c = c;
 		installedSuites = new Vector<Suite>();
-		session = new CommCareSession(this);
+		session = new AndroidCommCareSession(this);
 	}
 	
 	public void registerXmlns(String xmlns, String filepath) {
@@ -57,14 +58,9 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		return xmlnstable.keySet();
 	}
 
-	public String getFormPath(String xFormNamespace) {
+	public Uri getFormContentUri(String xFormNamespace) {
 		if(xmlnstable.containsKey(xFormNamespace)) {
-			try {
-				return ReferenceManager._().DeriveReference(xmlnstable.get(xFormNamespace)).getLocalURI();
-			} catch (InvalidReferenceException e) {
-				e.printStackTrace();
-				throw new RuntimeException(e);
-			}
+			return Uri.parse(xmlnstable.get(xFormNamespace));
 		} 
 		
 		//Search through manually?
@@ -102,7 +98,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.installedSuites.add(s);
 	}
 	
-	public CommCareSession getSession() {
+	public AndroidCommCareSession getSession() {
 		return session;
 	}
 	

@@ -144,6 +144,7 @@ public class DecryptingCursor extends SQLiteCursor {
 		try{
 			return CryptUtil.decrypt(data, cipher);
 		} catch(IOException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}

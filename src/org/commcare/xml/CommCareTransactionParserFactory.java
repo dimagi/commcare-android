@@ -6,6 +6,9 @@ package org.commcare.xml;
 import java.util.Collection;
 import java.util.Hashtable;
 
+import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.models.ACase;
+import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.kxml2.io.KXmlParser;
@@ -78,12 +81,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	}
 	
 	public void initCaseParser(final Collection<String> existingCases) {
+		final int[] tallies = new int[3];
 		caseParser = new TransactionParserFactory() {
 			CaseXmlParser created = null;
 			
-			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+			public TransactionParser<Case> getParser(String name, String namespace, KXmlParser parser) {
 				if(created == null) {
-					created = new CaseXmlParser(parser, context, existingCases);
+					created = new AndroidCaseXmlParser(parser, tallies, true, CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class));
 				}
 				
 				return created;

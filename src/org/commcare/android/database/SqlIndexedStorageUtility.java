@@ -20,7 +20,6 @@ import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -88,15 +87,16 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		}
 	}
 	
-	public String getMetaDataFieldForRecord(int recordId, String fieldName) {
+	public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
 		String rid = String.valueOf(recordId);
-		Cursor c = helper.getHandle().query(table, new String[] {fieldName} , DbUtil.ID_COL + "=?", new String[] {rid}, null, null, null);
+		String scrubbedName = TableBuilder.scrubName(rawFieldName);
+		Cursor c = helper.getHandle().query(table, new String[] {scrubbedName} , DbUtil.ID_COL + "=?", new String[] {rid}, null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
 			throw new NoSuchElementException("No record in table " + table + " for ID " + recordId);
 		}
 		c.moveToFirst();
-		String result = c.getString(c.getColumnIndexOrThrow(fieldName));
+		String result = c.getString(c.getColumnIndexOrThrow(scrubbedName));
 		c.close();
 		return result;
 
@@ -105,14 +105,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
-	public T getRecordForValues(String[] fieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
-		String whereClause = helper.createWhere(fieldNames, values);
+	public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
+		String whereClause = helper.createWhere(rawFieldNames, values);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause, null,null, null, null);
 		if(c.getCount() == 0) {
-			throw new NoSuchElementException("No element in table " + table + " with names " + fieldNames +" and values " + values.toString());
+			throw new NoSuchElementException("No element in table " + table + " with names " + rawFieldNames +" and values " + values.toString());
 		}
 		if(c.getCount() > 1) {
-			 throw new InvalidIndexException("Invalid unique column set" + fieldNames + ". Multiple records found with value " + values.toString(), fieldNames.toString());
+			 throw new InvalidIndexException("Invalid unique column set" + rawFieldNames + ". Multiple records found with value " + values.toString(), rawFieldNames.toString());
 		}
 		c.moveToFirst();
 		byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
@@ -123,15 +123,16 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
-	public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , fieldName + "='" + value.toString() +"'", null, null, null, null);
+	public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
+		String scrubbedName = TableBuilder.scrubName(rawFieldName);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , scrubbedName + "='" + value.toString() +"'", null, null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
-			throw new NoSuchElementException("No element in table " + table + " with name " + fieldName +" and value " + value.toString());
+			throw new NoSuchElementException("No element in table " + table + " with name " + scrubbedName +" and value " + value.toString());
 		}
 		if(c.getCount() > 1) {
 			c.close();
-			throw new InvalidIndexException("Invalid unique column " + fieldName + ". Multiple records found with value " + value.toString(), fieldName);
+			throw new InvalidIndexException("Invalid unique column " + scrubbedName + ". Multiple records found with value " + value.toString(), scrubbedName);
 		}
 		c.moveToFirst();
 		byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
@@ -430,6 +431,10 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		} finally {
 			db.endTransaction();
 		}
+	}
+
+	public void setReadOnly() {
+		//TODO: Implement (although I doubt there's much useful stuff to do)
 	}
 
 }

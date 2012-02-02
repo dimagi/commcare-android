@@ -7,17 +7,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.models.Entity;
-import org.commcare.android.models.EntityFactory;
-import org.commcare.android.models.User;
+import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -29,33 +28,32 @@ import android.widget.ListAdapter;
  * @author ctsims
  *
  */
-public class EntityListAdapter<T extends Persistable> implements ListAdapter {
-	
-	SqlIndexedStorageUtility<T> utility;
+public class EntityListAdapter implements ListAdapter {
 	
 	Context context;
 	CommCarePlatform platform;
 	
 	List<DataSetObserver> observers;
 	
-	EntityFactory<T> factory;
-	List<Entity<T>> full;
-	List<Entity<T>> current;
+	NodeEntityFactory factory;
+	List<Entity<TreeReference>> full;
+	List<Entity<TreeReference>> current;
+	List<TreeReference> references;
 	
 	int currentSort = -1;
 	boolean reverseSort = false;
 	
-	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility, User user)  throws SessionUnavailableException{
-		this(context, d, platform, utility, user, -1);
+	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, AndroidCommCarePlatform platform, List<TreeReference> references)  throws SessionUnavailableException{
+		this(context, d, ec, platform, references, -1);
 	}
 	
-	public EntityListAdapter(Context context, Detail d, AndroidCommCarePlatform platform, SqlIndexedStorageUtility<T> utility, User user, int sort) throws SessionUnavailableException {
-		this.utility = utility;
+	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, AndroidCommCarePlatform platform, List<TreeReference> references, int sort) throws SessionUnavailableException {
+		factory = new NodeEntityFactory(d, ec);
 		
-		factory = new EntityFactory<T>(d, user);
+		full = new ArrayList<Entity<TreeReference>>();
+		current = new ArrayList<Entity<TreeReference>>();
 		
-		full = new ArrayList<Entity<T>>();
-		current = new ArrayList<Entity<T>>();
+		this.references = references;
 		
 		this.context = context;
 		this.platform = platform;
@@ -69,9 +67,8 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	}
 	
 	private void all() throws SessionUnavailableException{
-		for(SqlStorageIterator<T> i = utility.iterate() ; i.hasMore() ;){
-			T t = i.nextRecord();
-			Entity<T> e = factory.getEntity(t);
+		for(TreeReference ref : references) {
+			Entity<TreeReference> e = factory.getEntity(ref);
 			if(e != null) {
 				full.add(e);
 			}
@@ -82,7 +79,7 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 		current.clear();
 		
 		full:
-		for(Entity<T> e : full) {
+		for(Entity<TreeReference> e : full) {
 			for(String field : e.getFields()) {
 				if(field.toLowerCase().contains(filter.toLowerCase())) {
 					current.add(e);
@@ -101,9 +98,9 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 		
 		currentSort = field;
 		
-		java.util.Collections.sort(full, new Comparator<Entity<T>>() {
+		java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
 
-			public int compare(Entity<T> object1, Entity<T> object2) {
+			public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
 				return (reverseSort ? -1 : 1) * object1.getFields()[currentSort].compareTo(object2.getFields()[currentSort]);
 			}
 			
@@ -134,7 +131,7 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItem(int)
 	 */
-	public T getItem(int position) {
+	public TreeReference getItem(int position) {
 		return current.get(position).getElement();
 	}
 
@@ -142,7 +139,7 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
 	public long getItemId(int position) {
-		return current.get(position).getElement().getID();
+		return references.indexOf(current.get(position).getElement());
 	}
 
 	/* (non-Javadoc)
@@ -156,7 +153,7 @@ public class EntityListAdapter<T extends Persistable> implements ListAdapter {
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Entity<T> e = current.get(position);
+		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if(emv == null) {
 			emv = new EntityView(context, platform, factory.getDetail(), e);

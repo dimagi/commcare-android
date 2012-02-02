@@ -27,7 +27,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.models.Case;
+import org.commcare.android.models.ACase;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
@@ -231,12 +231,12 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		
 		//Go collect existing case data models that we should skip.
 		final Vector<String> existingCases = new Vector<String>();
-		SqlIndexedStorageUtility<Case> caseStorage = CommCareApplication._().getStorage(Case.STORAGE_KEY, Case.class);
-		for(SqlStorageIterator<Case> i = caseStorage.iterate(); i.hasNext();) {
-			caseStorage.getMetaDataFieldForRecord(i.nextID(), Case.META_CASE_ID);
+		SqlIndexedStorageUtility<ACase> caseStorage = CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class);
+		for(SqlStorageIterator<ACase> i = caseStorage.iterate(); i.hasNext();) {
+			caseStorage.getMetaDataFieldForRecord(i.nextID(), ACase.INDEX_CASE_ID);
 		}
 		long time = new Date().getTime();
-		for(Case c : caseStorage) {
+		for(ACase c : caseStorage) {
 			existingCases.add(c.getCaseId());
 		}
 		System.out.println("Caching existing cases took: " + (new Date().getTime() - time) + "ms");
@@ -246,7 +246,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		Hashtable<String,String> formNamespaces = new Hashtable<String, String>(); 
 		
 		for(String xmlns : CommCareApplication._().getCommCarePlatform().getInstalledForms()) {
-			formNamespaces.put(xmlns, CommCareApplication._().getCommCarePlatform().getFormPath(xmlns));
+			//TODO: rewrite this based on content providers
+			//formNamespaces.put(xmlns, CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
 		}
 		factory.initFormInstanceParser(formNamespaces);
 		

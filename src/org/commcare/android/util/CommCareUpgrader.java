@@ -4,7 +4,7 @@
 package org.commcare.android.util;
 
 import org.commcare.android.database.TableBuilder;
-import org.commcare.android.models.Case;
+import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.resources.model.Resource;
 

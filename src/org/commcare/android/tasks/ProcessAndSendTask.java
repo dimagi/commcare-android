@@ -34,6 +34,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
+import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
@@ -42,7 +43,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.suite.model.Profile;
-import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -172,7 +173,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 			
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 				if(name.toLowerCase().equals("case")) {
-					return new CaseXmlParser(parser, c);
+					return new AndroidCaseXmlParser(parser, CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class));
 				} 
 				return null;
 			}
@@ -199,10 +200,9 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 				throw new IOException("Couldn't find processed instance");
 			}
 			//update the records to show that the form has been processed and is ready to be sent;
-			FormRecord processedRecord = new FormRecord(record.getFormNamespace(), newFormPath, record.getEntityId(), newStatus, record.getAesKey(), record.getInstanceID(), record.lastModified());
-			processedRecord.setID(record.getID());
-			storage.write(processedRecord);
-			return processedRecord;
+			record.updateStatus(newFormPath, newStatus);
+			storage.write(record);
+			return record;
 		} else {
 			throw new IOException("Couldn't move processed files");
 		}

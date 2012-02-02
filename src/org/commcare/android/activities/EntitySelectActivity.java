@@ -10,14 +10,22 @@ import java.util.Vector;
 import org.commcare.android.R;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
-import org.javarosa.core.services.storage.Persistable;
+import org.commcare.util.CommCareSession;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathEqExpr;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathStringLiteral;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,10 +48,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 /**
+ * 
+ * TODO: Lots of locking and state-based cleanup
+ * 
  * @author ctsims
  *
  */
-public abstract class EntitySelectActivity<T extends Persistable> extends ListActivity implements TextWatcher {
+public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	private AndroidCommCarePlatform platform;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
@@ -55,10 +66,14 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 
 	
 	EditText searchbox;
-	EntityListAdapter<T> adapter;
+	EntityListAdapter adapter;
 	Entry prototype;
 	LinearLayout header;
 	ImageButton barcodeButton;
+	
+	SessionDatum selectDatum;
+	
+	EvaluationContext entityContext;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,6 +95,9 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
         
         setTitle(getString(R.string.app_name) + " > " + " Select");
         
+		selectDatum = platform.getSession().getNeededDatum();
+
+        
         barcodeButton.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
@@ -94,8 +112,8 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
         	
         });
         
-        if(this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-        	T entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+        if(selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+        	TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
         	
             Intent i = getDetailIntent(entity);
             startActivityForResult(i, CONFIRM_SELECT);
@@ -110,8 +128,10 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
      */
     private void refreshView() {
     	try {
-	    	Detail detail = platform.getSession().getDetail(prototype.getShortDetailId());
+    		
+	    	Detail detail = platform.getSession().getDetail(selectDatum.getShortDetail());
 	    	
+	    	//TODO: Get ec into these text's
 	    	Text[] templates = detail.getHeaders();
 	    	String[] headers = new String[templates.length];
 	    	int defaultKey = -1;
@@ -126,7 +146,11 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
 	    	header.removeAllViews();
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    	header.addView(v,params);
-	    	adapter = new EntityListAdapter<T>(this, detail, platform, getStorage(), CommCareApplication._().getSession().getLoggedInUser(), defaultKey);
+	    	
+	    	
+	    	Vector<TreeReference> references = getEC().expandReference(XPathReference.getPathExpr(selectDatum.getNodeset()).getReference(true));
+	    	
+	    	adapter = new EntityListAdapter(this, detail, getEC(), platform, references, defaultKey);
 	    	setListAdapter(adapter);
 	    	searchbox.requestFocus();
     	} catch(SessionUnavailableException sue) {
@@ -134,16 +158,65 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
     	}
     }
     
-    protected abstract SqlIndexedStorageUtility<T> getStorage() throws SessionUnavailableException;
-    protected abstract Intent getDetailIntent(T t);
+    private EvaluationContext getEC() {
+    	if(entityContext == null) {
+    		entityContext = platform.getSession().getEvaluationContext(getInstanceInit());
+    	}
+    	return entityContext;
+    }
     
+    private CommCareInstanceInitializer getInstanceInit() {
+    	return new CommCareInstanceInitializer(platform);
+    }
+    
+    protected Intent getDetailIntent(TreeReference contextRef) {
+    	//Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
+    	//we return
+    	
+    	TreeReference valueRef = XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
+    	AbstractTreeElement element = getEC().resolveReference(valueRef.contextualize(contextRef));
+    	String value = "";
+    	if(element != null && element.getValue() != null) {
+    		value = element.getValue().uncast().getString();
+    	}
+    	
+    	//See if we even have a long datum
+    	if(selectDatum.getLongDetail() != null) {
+    		//We do, 
+    	}
+    	
+    	Intent i = new Intent(getApplicationContext(), EntityDetailActivity.class);
+    	i.putExtra(CommCareSession.STATE_DATUM_VAL, value);
+    	i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail());
+    	CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
+    	
+    	return i;
+    }
     /**
      * NOT GUARANTEED TO WORK! May return an entity if one exists
      * 
      * @param uniqueid
      * @return
      */
-    protected abstract T getEntityFromID(String uniqueid);
+    protected TreeReference getEntityFromID(String uniqueid) {
+    	//The uniqueid here is the value selected, so we can in theory track down the value we're looking for.
+    	
+    	//Get root nodeset 
+    	TreeReference nodesetRef = XPathReference.getPathExpr(selectDatum.getNodeset()).getReference(true);
+    	Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size());
+    	predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(selectDatum.getValue()), new XPathStringLiteral(uniqueid)));
+    	nodesetRef.addPredicate(nodesetRef.size(), predicates);
+    	
+    	Vector<TreeReference> elements = getEC().expandReference(nodesetRef);
+    	if(elements.size() == 1) {
+    		return elements.firstElement();
+    	} else if(elements.size() > 1) {
+    		//Lots of nodes. Can't really choose one yet.
+    		return null;
+    	} else {
+    		return null;
+    	}
+    }
 
 
     /**
@@ -236,7 +309,8 @@ public abstract class EntitySelectActivity<T extends Persistable> extends ListAc
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	
         builder.setTitle("Sort by...");
-    	Text[] templates = platform.getSession().getDetail(prototype.getShortDetailId()).getHeaders();
+		SessionDatum datum = platform.getSession().getNeededDatum();
+    	Text[] templates = platform.getSession().getDetail(datum.getShortDetail()).getHeaders();
         
     	List<String> namesList = new ArrayList<String>();
     	        

@@ -3,7 +3,12 @@
  */
 package org.commcare.android.application;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -14,13 +19,13 @@ import org.commcare.android.R;
 import org.commcare.android.database.CommCareDBCursorFactory;
 import org.commcare.android.database.CommCareOpenHelper;
 import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.Case;
+import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.Referral;
 import org.commcare.android.models.User;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
@@ -41,6 +46,8 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -101,6 +108,8 @@ public class CommCareApplication extends Application {
 		setRoots();
 		
 		CommCareApplication.app = this;
+		
+		
 		
         appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
@@ -351,11 +360,42 @@ public class CommCareApplication extends Application {
 		return new SqlIndexedStorageUtility<T>(storage, c, helper);
 	}
 	
+	public void serializeToIntent(Intent i, String name, Externalizable data) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			data.writeExternal(new DataOutputStream(baos));
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		i.putExtra(name, baos.toByteArray());
+	}
+	
+	public <T extends Externalizable> T deserializeFromIntent(Intent i, String name, Class<T> type) {
+		T t;
+		try {
+			t = type.newInstance();
+			t.readExternal(new DataInputStream(new ByteArrayInputStream(i.getByteArrayExtra(name))), DbUtil.getPrototypeFactory(this));
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} catch (DeserializationException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e1) {
+			e1.printStackTrace();
+			throw new RuntimeException(e1);
+		} catch (InstantiationException e1) {
+			e1.printStackTrace();
+			throw new RuntimeException(e1);
+		}
+		return t;
+	}
+	
 	private Hashtable<String, EncryptedModel> encryptedModels() {
 		Hashtable<String, EncryptedModel> models = new Hashtable<String, EncryptedModel>();
-		models.put(Case.STORAGE_KEY, new Case());
-		models.put(Referral.STORAGE_KEY, new Case());
-		models.put(FormRecord.STORAGE_KEY, new Case());
+		models.put(ACase.STORAGE_KEY, new ACase());
+		models.put(FormRecord.STORAGE_KEY, new ACase());
 		return models;
 	}
 
@@ -434,8 +474,7 @@ public class CommCareApplication extends Application {
 	 */
 	public void clearUserData() throws SessionUnavailableException {
 		//First clear anything that will require the user's key, since we're going to wipe it out!
-		getStorage(Referral.STORAGE_KEY, Referral.class).removeAll();
-		getStorage(Case.STORAGE_KEY, Case.class).removeAll();
+		getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 		
 		//TODO: We should really be wiping out the _stored_ instances here, too
 		getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
