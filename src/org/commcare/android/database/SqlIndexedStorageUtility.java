@@ -432,4 +432,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		}
 	}
 
+	public void setReadOnly() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
