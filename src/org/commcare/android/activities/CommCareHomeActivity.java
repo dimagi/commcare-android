@@ -555,7 +555,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		i.putExtra("encryptionkey", r.getAesKey());
 		i.putExtra("encryptionkeyalgo", "AES");
 		
-		String[] preloaders = new String[] {"case", PreloadContentProvider.CONTENT_URI_CASE + "/" + r.getCaseId() + "/", "meta", PreloadContentProvider.CONTENT_URI_META + "/", "patient_referral", PreloadContentProvider.CONTENT_URI_REFERRAL + "/" + r.getReferralId() + "/" + r.getReferralType() + "/"};
+		String[] preloaders = new String[] {"case", PreloadContentProvider.CONTENT_URI_CASE + "/" + r.getCaseId() + "/", "user", PreloadContentProvider.CONTENT_URI_USER + "/", "meta", PreloadContentProvider.CONTENT_URI_META + "/", "patient_referral", PreloadContentProvider.CONTENT_URI_REFERRAL + "/" + r.getReferralId() + "/" + r.getReferralType() + "/"};
 		i.putExtra("preloadproviders",preloaders);
 		i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
 		
