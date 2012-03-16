@@ -8,4 +8,5 @@ public interface ResourceEngineListener {
 	public void failBadReqs(int code);
 	public void failUnknown();
 	public void updateProgress(int done, int pending);
+	public void failBadState();
 }

@@ -70,6 +70,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	public static final int INIT_APP = 8;
 	public static final int GET_INCOMPLETE_FORM = 16;
 	public static final int GET_REFERRAL = 32;
+	public static final int UPGRADE_APP = 64;
 	
 	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
@@ -283,6 +284,18 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	    		} else if(resultCode == RESULT_OK) {
 	    			CommCareApplication._().initializeGlobalResources();
 	    			return;
+	    		}
+	    		break;
+	    	case UPGRADE_APP:
+	    		if(resultCode == RESULT_CANCELED) {
+	    			//This might actually be bad, but try to go about your business
+    				refreshView();
+	    			return;
+	    		} else if(resultCode == RESULT_OK) {
+	    			platform.getSession().clearState();
+		    		CommCareApplication._().getSession().logout();
+	            	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+	            	startActivityForResult(i,LOGIN_USER);
 	    		}
 	    		break;
 	    	case LOGIN_USER:
@@ -881,11 +894,13 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
                 createPreferencesMenu();
                 return true;
             case MENU_UPDATE:
-            	CommCareApplication._().upgrade();
-    			platform.getSession().clearState();
-    			CommCareApplication._().getSession().logout();
-            	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-            	startActivityForResult(i,LOGIN_USER);
+            	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+            	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            	String ref = prefs.getString("default_app_server", null);
+            	i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
+            	i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
+            	
+            	startActivityForResult(i,UPGRADE_APP);
             	return true;
             case MENU_CALL_LOG:
             	createCallLogActivity();

@@ -46,7 +46,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	
 	public static final String DATABASE_STATE = "database_state";
 	public static final String RESOURCE_STATE = "resource_state";
-	public static final String APP_PROFILE_REF = "app_profile_ref";
+	public static final String KEY_PROFILE_REF = "app_profile_ref";
+	public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
+	
 	
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
@@ -65,7 +67,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     private ProgressDialog mProgressDialog;
 	
 	boolean advanced = false;
-	
+	boolean upgradeMode = false;
+
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -73,10 +76,12 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		setContentView(R.layout.first_start_screen);
 		
 		if(savedInstanceState == null) {
-			incomingRef = this.getIntent().getStringExtra(APP_PROFILE_REF);
+			incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
+			upgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
 		} else {
 	        advanced = savedInstanceState.getBoolean("advanced");
 	        incomingRef = savedInstanceState.getString("profileref");
+	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 		}
 		
 		advancedView = this.findViewById(R.id.advanced_panel);
@@ -91,12 +96,11 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
 			//We got called from an outside application, it's gonna be a wild ride!
 			incomingRef = this.getIntent().getData().toString();
-			
 			//Now just start up normally.
 		} else {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
-			//and we can just skip tihs
-			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY) {
+			//and we can just skip this unless it's upgradeMode
+			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && !upgradeMode) {
 		        Intent i = new Intent(getIntent());
 		        
 		        setResult(RESULT_OK, i);
@@ -130,12 +134,15 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 					//nothing to do, don't sweat it.
 				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED) {
 					startResourceInstall();
-				} else if(resourceState == CommCareApplication.STATE_UPGRADE) {
-					//We don't actually see this yet.
+				} else if(resourceState == CommCareApplication.STATE_UPGRADE && upgradeMode) {
+					//This will come up if the upgrade has problems  
+					startResourceInstall();
 				}
 			}
-			
 		});
+		if(upgradeMode) {
+			startResourceInstall();
+		}
 	}
 	
     /*
@@ -148,6 +155,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         super.onSaveInstanceState(outState);
         outState.putBoolean("advanced", advanced);
         outState.putString("profileref", advanced ? editProfileRef.getText().toString() : incomingRef);
+        outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
     }
 	
 	private void startResourceInstall() {
@@ -157,7 +165,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			ref = editProfileRef.getText().toString();
 		}
 		
-		ResourceEngineTask task = new ResourceEngineTask(this);
+		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
 		task.setListener(this);
 		
 		task.execute(ref);
@@ -203,17 +211,19 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case MODE_BASIC:
-            	advanced = false;
-            	advancedView.setVisibility(View.INVISIBLE);
-                return true;
-            case MODE_ADVANCED:
-            	advanced = true;
-            	advancedView.setVisibility(View.VISIBLE);
-            	installButton.setEnabled(true);
-            	return true;
-        }
+    	if(!upgradeMode) {
+	        switch (item.getItemId()) {
+	            case MODE_BASIC:
+	            	advanced = false;
+	            	advancedView.setVisibility(View.INVISIBLE);
+	                return true;
+	            case MODE_ADVANCED:
+	            	advanced = true;
+	            	advancedView.setVisibility(View.VISIBLE);
+	            	installButton.setEnabled(true);
+	            	return true;
+	        }
+    	}
         return super.onOptionsItemSelected(item);
     }
     
@@ -271,5 +281,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		if(mProgressDialog != null) {
 			mProgressDialog.setMessage("Profile found. " + done + " resources loaded, of " + pending + " total");
 		}
+	}
+
+	public void failBadState() {
+		this.dismissDialog(DIALOG_PROGRESS);
+		mainMessage.setText("There is already an CommCare App installed on this phone. Multiple apps are not currently supported. Please clear the application's data before reinstalling.");
 	}
 }

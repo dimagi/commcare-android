@@ -241,7 +241,7 @@ public class CommCareApplication extends Application {
 
 		ReferenceManager._().addReferenceFactory(http);
 		ReferenceManager._().addReferenceFactory(file);
-		ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
+		//ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",GlobalConstants.MEDIA_REF));
 	}
 	
@@ -276,33 +276,6 @@ public class CommCareApplication extends Application {
 			ert.execute(e);
 			return STATE_CORRUPTED;
 		}
-	}
-	
-	public void upgrade() {
-		//Now, we need to identify the state of the application resources
-		AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform(); 
-		ResourceTable global = platform.getGlobalResourceTable();
-		//TODO: This, but better.
-		Resource profile = global.getResourceWithId("commcare-application-profile");
-		if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-			try {
-				ResourceTable temporary = platform.getUpgradeResourceTable();
-				platform.stageUpgradeTable(global, temporary, appPreferences.getString("default_app_server", getString(R.string.default_app_server)));
-				platform.upgrade(global, temporary);
-			} catch (UnfullfilledRequirementsException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (StorageFullException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnresolvedResourceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else{
-			//App isn't properly installed/prepared yet.
-		}
-		platform.initialize(global);
 	}
 
 	private int initDb() {

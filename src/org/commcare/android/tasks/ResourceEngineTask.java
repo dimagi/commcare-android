@@ -5,6 +5,7 @@ package org.commcare.android.tasks;
 
 import java.util.Vector;
 
+import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
@@ -34,14 +35,17 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	
 	Resource missingResource = null;
 	int badReqCode = -1;
+	boolean upgradeMode = false;
 	
 	public static final int STATUS_INSTALLED = 0;
 	public static final int STATUS_MISSING = 1;
 	public static final int STATUS_ERROR = 2;
 	public static final int STATUS_FAIL_UNKNOWN = 4;
+	public static final int STATUS_FAIL_STATE = 8;
 	
-	public ResourceEngineTask(Context c) throws SessionUnavailableException{
+	public ResourceEngineTask(Context c, boolean upgradeMode) throws SessionUnavailableException{
 		this.c = c;
+		this.upgradeMode = upgradeMode;
 	}
 	
 	/* (non-Javadoc)
@@ -56,10 +60,37 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
     		ResourceTable global = platform.getGlobalResourceTable();
     		
     		//Ok, should figure out what the state of this bad boy is.
+    		Resource profile = global.getResourceWithId("commcare-application-profile");
+    		
+    		if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
+    			//We've got a fully installed profile, that's either very good, or very bad.
+    			if(upgradeMode) {
+    				//Good!
+    			} else {
+    				//Very bad!
+    				return STATUS_FAIL_STATE;
+    			}
+    		} else {
+    			//No profile.
+    			if(upgradeMode) {
+    				//We shouldn't have even been able to get here....
+    				return STATUS_FAIL_STATE;
+    			} else {
+    				//Good. 
+    			}
+    		}
+    		
     		
     		global.setStateListener(this);
     		
-    		platform.init(profileRef, global, false);
+    		if(upgradeMode) {
+				ResourceTable temporary = platform.getUpgradeResourceTable();
+				platform.stageUpgradeTable(global, temporary, profileRef);
+				platform.upgrade(global, temporary);
+				temporary.setStateListener(this);
+    		} else {
+    			platform.init(profileRef, global, false);
+    		}
     		
 			//Initialize them now that they're installed
 			CommCareApplication._().initializeGlobalResources();
@@ -79,21 +110,27 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 			e.printStackTrace();
 			badReqCode = e.getRequirementCode();
 			
-			cleanupFailure(platform);
+			if(!upgradeMode) {
+				cleanupFailure(platform);
+			}
 			
 			return STATUS_ERROR;
 		} catch (UnresolvedResourceException e) {
 			//couldn't find a resource, which isn't good. 
 			e.printStackTrace();
 			
-			cleanupFailure(platform);
+			if(!upgradeMode) {
+				cleanupFailure(platform);
+			}
 			
 			missingResource = e.getResource(); 
 			return STATUS_MISSING;
 		} catch(Exception e) {
 			e.printStackTrace();
 			
-			cleanupFailure(platform);
+			if(!upgradeMode) {
+				cleanupFailure(platform);
+			}
 			
 			return STATUS_FAIL_UNKNOWN;
 		}
@@ -129,8 +166,10 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 				listener.reportSuccess();
 			} else if(result == STATUS_MISSING){
 				listener.failMissingResource(missingResource);
-			} else if(result == STATUS_MISSING){
+			} else if(result == STATUS_ERROR){
 				listener.failBadReqs(badReqCode);
+			} else if(result == STATUS_FAIL_STATE){
+				listener.failBadState();
 			} else {
 				listener.failUnknown();
 			}

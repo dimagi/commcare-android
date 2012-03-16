@@ -14,8 +14,12 @@ import org.commcare.android.odk.provider.FormsProviderAPI;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -82,6 +86,37 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		}
 		
 		return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.commcare.android.resource.installers.FileSystemInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
+	 */
+	@Override
+	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
+		boolean fileUpgrade = super.upgrade(r, table);
+		if(!fileUpgrade) { return false;}
+		
+		String localRawUri;
+		try {
+			localRawUri = ReferenceManager._().DeriveReference(this.localLocation).getLocalURI();
+		} catch (InvalidReferenceException e) {
+			throw new UnresolvedResourceException(r, "Installed resource wasn't able to be derived from " + localLocation);
+		}
+		
+		//We're maintaining this whole Content setup now, so we've goota update things when we move them.
+		ContentResolver cr = CommCareApplication._().getContentResolver();
+		
+		ContentValues cv = new ContentValues();
+		cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, localRawUri); 
+
+		int updatedRows = cr.update(Uri.parse(this.contentUri), cv, null, null);
+		if(updatedRows > 1) {
+			throw new RuntimeException("Bad URI stored for xforms installer: " + this.contentUri);
+		} if(updatedRows == 0) {
+			return false;
+		}
+		
+		return true;
 	}
 
 	/* (non-Javadoc)
