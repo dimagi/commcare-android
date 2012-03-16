@@ -11,6 +11,9 @@ import org.commcare.android.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.kxml2.io.KXmlParser;
 
 import android.content.Context;
@@ -25,6 +28,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	private TransactionParserFactory userParser;
 	private TransactionParserFactory caseParser;
 	private TransactionParserFactory formInstanceParser;
+	private TransactionParserFactory fixtureParser;
 	
 	private Hashtable<String, String> formInstanceNamespaces;
 	
@@ -32,6 +36,26 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	
 	public CommCareTransactionParserFactory(Context context) {
 		this.context = context;
+		fixtureParser = new TransactionParserFactory() {
+			FixtureXmlParser created = null;
+			
+			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+				if(created == null) {
+					created = new FixtureXmlParser(parser) {
+						//TODO: store these on the file system instead of in DB?
+						private IStorageUtilityIndexed fixtureStorage;
+						public IStorageUtilityIndexed storage() {
+							if(fixtureStorage == null) {
+								fixtureStorage = CommCareApplication._().getStorage("fixture", FormInstance.class);
+							} 
+							return fixtureStorage;
+						}
+					};
+				}
+				
+				return created;
+			}
+		}; 
 	}
 	
 	/* (non-Javadoc)
@@ -43,16 +67,19 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			return formInstanceParser.getParser(name, namespace, parser);
 		} else if(name != null && name.toLowerCase().equals("case")) {
 			if(caseParser == null) {
-				throw new RuntimeException("Couldn't recieve Case transaction without initialization!");
+				throw new RuntimeException("Couldn't receive Case transaction without initialization!");
 			}
 			req();
 			return caseParser.getParser(name, namespace, parser);
 		} else if(name != null && name.toLowerCase().equals("registration")) {
 			if(userParser == null) {
-				throw new RuntimeException("Couldn't recieve User transaction without initialization!");
+				throw new RuntimeException("Couldn't receive User transaction without initialization!");
 			}
 			req();
 			return userParser.getParser(name, namespace, parser);
+		} else if(name != null && name.toLowerCase().equals("fixture")) {
+			req();
+			return fixtureParser.getParser(name, namespace, parser);
 		}
 		return null;
 	}
@@ -109,5 +136,4 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			}
 		};
 	}
-
 }

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.odk.provider.FormsProviderAPI;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.resources.model.Resource;
@@ -65,8 +66,9 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		ContentValues cv = new ContentValues();
 		cv.put(FormsProviderAPI.FormsColumns.DISPLAY_NAME, "NAME");
 		cv.put(FormsProviderAPI.FormsColumns.DESCRIPTION, "NAME"); //nullable
-		cv.put(FormsProviderAPI.FormsColumns.JR_FORM_ID, "NAME"); // ? 
+		cv.put(FormsProviderAPI.FormsColumns.JR_FORM_ID, formDef.getMainInstance().schema); // ? 
 		cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, local.getLocalURI()); 
+		cv.put(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH, GlobalConstants.MEDIA_REF);
 		//cv.put(FormsProviderAPI.FormsColumns.SUBMISSION_URI, "NAME"); //nullable
 		//cv.put(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY, "NAME"); //nullable
 		

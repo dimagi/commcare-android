@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.security.PublicKey;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -32,6 +33,8 @@ import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.services.CommCareSessionService;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidCommCareSession;
+import org.commcare.android.util.Base64;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.ODKPropertyManager;
@@ -40,6 +43,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
@@ -48,9 +52,11 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
 
 import android.app.Application;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -58,9 +64,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -109,10 +117,8 @@ public class CommCareApplication extends Application {
 		
 		CommCareApplication.app = this;
 		
-		
-		
         appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
+        
 		int[] version = getCommCareVersion();
 		platform = new AndroidCommCarePlatform(version[0], version[1], this);
 		
@@ -479,8 +485,16 @@ public class CommCareApplication extends Application {
 		//TODO: We should really be wiping out the _stored_ instances here, too
 		getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
 		
+		//Also, any of the sessions we've got saved
+		getStorage(AndroidCommCareSession.STORAGE_KEY, AndroidCommCareSession.class).removeAll();
+		
 		//Now we wipe out the user entirely
 		getStorage(User.STORAGE_KEY, User.class).removeAll();
+		
+		//Get rid of any user fixtures
+		getStorage("fixture", FormInstance.class).removeAll();
+		
+		
 		
 		//Should be good to go. The app'll log us out now that there's no user details in memory
 		logout();
@@ -556,7 +570,24 @@ public class CommCareApplication extends Application {
 			    
 				if(user != null) {
 					attachCallListener(user);
-				}		
+				}
+//				for(String xmlns : platform.getInstalledForms()) {
+//					Uri formURI = platform.getFormContentUri(xmlns);
+//					Cursor c = CommCareApplication.this.getContentResolver().query(formURI, new String[] {FormsColumns.BASE64_RSA_PUBLIC_KEY } ,null, null, null);
+//					if(!c.moveToFirst()) {
+//						// Soooooo bad.
+//						continue;
+//					} else {
+//						//Projection ensures we only have one column here.
+//						//if(c.isNull(0)) {
+//							ContentValues cv = new ContentValues();
+//							PublicKey pk = mBoundService.generateKeyPair(xmlns);
+//							String encodedKey = Base64.encode(pk.getEncoded());
+//							cv.put(FormsColumns.BASE64_RSA_PUBLIC_KEY, encodedKey);
+//							CommCareApplication.this.getContentResolver().update(formURI, cv, null, null);
+//						//}
+//					}
+//				}
 		    }
 
 		    public void onServiceDisconnected(ComponentName className) {

@@ -4,7 +4,12 @@
 package org.commcare.android.services;
 
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -264,5 +269,4 @@ public class CommCareSessionService extends Service {
 		}
 		return user;
 	}
-	
 }

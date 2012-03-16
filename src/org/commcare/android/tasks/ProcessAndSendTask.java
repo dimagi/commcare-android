@@ -11,11 +11,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.http.Header;
@@ -36,6 +38,7 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.util.AndroidCommCareSession;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -46,6 +49,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -106,7 +110,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 					
 					//Good!
 					//Time to Send!
-					results[i] = sendInstance(folder, record.getAesKey());
+					results[i] = sendInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
 					
 			        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
 					//Check for success
@@ -114,6 +118,9 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 						//Only delete if this device isn't set up to review.
 					    if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
 							storage.remove(record);
+							IStorageUtilityIndexed<AndroidCommCareSession> sessionStorage = CommCareApplication._().getStorage(AndroidCommCareSession.STORAGE_KEY, AndroidCommCareSession.class);
+							//Sooooo sketchy
+							sessionStorage.remove((Integer)sessionStorage.getIDsForValue(AndroidCommCareSession.META_FORM_RECORD_ID, record.getID()).get(0));
 							FileUtil.deleteFile(folder);
 						} else {
 							//Otherwise save and move appropriately
@@ -168,7 +175,8 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 		
 		DataModelPullParser parser;
 		File f = new File(form);
-		InputStream is = new CipherInputStream(new FileInputStream(f), getDecryptCipher(record.getAesKey()));
+
+		InputStream is = new CipherInputStream(new FileInputStream(f), getDecryptCipher(new SecretKeySpec(record.getAesKey(), "AES")));
 		parser = new DataModelPullParser(is, new TransactionParserFactory() {
 			
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
@@ -207,6 +215,27 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 			throw new IOException("Couldn't move processed files");
 		}
 	}
+	
+	private static Cipher getDecryptCipher(SecretKeySpec key) {
+		Cipher cipher;
+		try {
+			cipher = Cipher.getInstance("AES");
+			cipher.init(Cipher.DECRYPT_MODE, key);
+			return cipher;
+			//TODO: Something smart here;
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	
 	private static Cipher getDecryptCipher(byte[] key) {
 		Cipher cipher;
@@ -252,7 +281,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 		results = null;
 	}
 	
-	private int sendInstance(File folder, byte[] aesKey) throws FileNotFoundException {
+	private int sendInstance(File folder, SecretKeySpec key) throws FileNotFoundException {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
         HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
@@ -279,7 +308,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
             if (f.getName().endsWith(".xml")) {
             	
             	//fb = new InputStreamBody(new CipherInputStream(new FileInputStream(f), getDecryptCipher(aesKey)), "text/xml", f.getName());
-            	fb = new EncryptedFileBody(f, getDecryptCipher(aesKey), "text/xml");
+            	fb = new EncryptedFileBody(f, getDecryptCipher(key), "text/xml");
                 entity.addPart("xml_submission_file", fb);
                 
                 //fb = new FileBody(f, "text/xml");

@@ -226,15 +226,14 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		fis = new FileInputStream(r.getPath());
 	
 		Cipher decrypter = Cipher.getInstance("AES");
-		decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
-
+		decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));		
 		CipherInputStream cis = new CipherInputStream(fis, decrypter);
 
 		//Construct parser for this form's internal data.
 		DataModelPullParser parser = new DataModelPullParser(cis, factory);
 		parser.parse();
 		
-		FormRecord parsed = new FormRecord(r.getFormNamespace(), r.getPath(), newStatus, r.getAesKey(),uuid[0], modified[0]);
+		FormRecord parsed = new FormRecord(r.getPath(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
 		parsed.setID(r.getID());
 		
 		return parsed;

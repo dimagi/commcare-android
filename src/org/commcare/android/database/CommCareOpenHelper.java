@@ -10,6 +10,7 @@ import org.commcare.android.models.User;
 import org.commcare.android.util.AndroidCommCareSession;
 import org.commcare.android.util.CommCareUpgrader;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.model.instance.FormInstance;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -64,6 +65,10 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			
 			builder = new TableBuilder(AndroidCommCareSession.STORAGE_KEY);
 			builder.addData(new AndroidCommCareSession());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder("fixture");
+			builder.addData(new FormInstance());
 			database.execSQL(builder.getTableCreateString());
 			
 			database.setVersion(DATABASE_VERSION);

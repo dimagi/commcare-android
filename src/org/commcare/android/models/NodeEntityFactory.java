@@ -3,6 +3,7 @@
  */
 package org.commcare.android.models;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.commcare.android.util.SessionUnavailableException;
@@ -39,7 +40,10 @@ public class NodeEntityFactory {
 	public Entity<TreeReference> getEntity(TreeReference data) throws SessionUnavailableException {
 		EvaluationContext nodeContext = new EvaluationContext(ec, data);
 		Hashtable<String, XPathExpression> variables = getDetail().getVariableDeclarations();
-		for(String key : variables.keySet()) {
+		//These are actually in an ordered hashtable, so we can't just get the keyset, since it's
+		//in a 1.3 hashtable equivilant
+		for(Enumeration<String> en = variables.keys(); en.hasMoreElements();) {
+			String key = en.nextElement();
 			nodeContext.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(nodeContext)));
 		}
 		

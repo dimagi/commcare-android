@@ -13,6 +13,9 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.User;
+import org.commcare.android.odk.provider.FormsProviderAPI;
+import org.commcare.android.odk.provider.InstanceProviderAPI;
+import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.preferences.CommCarePreferences;
 import org.commcare.android.providers.PreloadContentProvider;
 import org.commcare.android.tasks.DataPullListener;
@@ -35,17 +38,21 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.odk.collect.android.tasks.FormLoaderTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -359,14 +366,18 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        		break;
 	        	}
 	        	else if(resultCode == RESULT_OK) {
-	        		String instance = intent.getStringExtra("instancepath");
-	        		boolean completed = intent.getBooleanExtra("instancecomplete", true);
+	        		Uri resultInstanceURI = intent.getData();
+	                Cursor c = managedQuery(resultInstanceURI, null,null,null, null);
+	                
+	                if(!c.moveToFirst()) {
+	                	throw new RuntimeException("Empty query for instance record!");
+	                }
 	        		
 	        		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 	        		
 	        		//TODO: Don't assume CC stays alive?
 	        		AndroidCommCareSession entrySession = platform.getSession();
-	        		FormRecord current  = storage.read(entrySession.getFormRecordId());
+	        		FormRecord current = storage.read(entrySession.getFormRecordId());
 	        		
 	        		//See if we were viewing an old form, in which case we don't want to change the historical record.
 	        		if(current.getStatus() == FormRecord.STATUS_COMPLETE) {
@@ -377,7 +388,9 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		        		return;
 	        		}
 	        		
-	        		if(completed) {
+        			String instance = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+	        		
+	        		if(InstanceProviderAPI.STATUS_COMPLETE.equals(c.getString(c.getColumnIndex(InstanceColumns.STATUS)))) {
 	        			current.updateStatus(instance, FormRecord.STATUS_COMPLETE);
 	    				
 	    				try {
@@ -488,16 +501,34 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 			SqlIndexedStorageUtility<AndroidCommCareSession> sessionStorage = CommCareApplication._().getStorage(AndroidCommCareSession.STORAGE_KEY, AndroidCommCareSession.class);
 	    	if(session.getFormRecordId() == -1) {
+	    		
+	    		//TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
+	    		
 	    		//First, we need to see if this session's unique hash corresponds to any pending forms.
 	    		Vector<Integer> ids = sessionStorage.getIDsForValue(AndroidCommCareSession.META_DESCRIPTOR_HASH, session.getSessionDescriptorHash());
-	    		if(ids.size() > 0) {
-	    			createAskUseOldDialog(session, ids.firstElement());
+	    		
+	    		Vector<Integer> validId = new Vector<Integer>();
+	    		//Filter for forms which have actually been started.
+	    		for(int id : ids) {
+	    			try {
+	    				int recordId = Integer.valueOf(sessionStorage.getMetaDataFieldForRecord(id, AndroidCommCareSession.META_FORM_RECORD_ID));
+	    				if(FormRecord.STATUS_INCOMPLETE.equals(storage.getMetaDataFieldForRecord(recordId, FormRecord.META_STATUS))) {
+	    					validId.add(recordId);
+	    				}
+	    			} catch(NumberFormatException nfe) {
+	    				//TODO: Clean up this record
+	    				continue;
+	    			}
+	    		}
+	    		
+	    		if(validId.size() > 0) {
+	    			createAskUseOldDialog(session, validId.firstElement());
 	    			return;
 	    		} 
 	    		
 	    		//We need to actually get a record to start filling out
 				SecretKey key = CommCareApplication._().createNewSymetricKey();
-				FormRecord r = new FormRecord(session.getForm(), "", FormRecord.STATUS_UNSTARTED, key.getEncoded(), null, new Date(0));
+				FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, session.getForm(), key.getEncoded(), null, new Date(0));
 				storage.write(r);
 	    		session.setFormRecord(r);
 	    	}
@@ -531,18 +562,32 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     
     private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
 		PreloadContentProvider.initializeSession(platform, this);
-		Intent i =new Intent(Intent.ACTION_EDIT, formUri);
+		FormLoaderTask.iif = new CommCareInstanceInitializer(platform);
+		Intent i =new Intent(getApplicationContext(), org.odk.collect.android.activities.FormEntryActivity.class);
+		i.setAction(Intent.ACTION_EDIT);
 		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_SAVED)));
 		
 		if(r.getPath() != "") {
-			i.putExtra("instancepath", r.getPath());
+			
+			//We should just be storing the index to this, not bothering to look it up with the path
+			String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";
+			Cursor c = this.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {r.getPath()}, null);
+			this.startManagingCursor(c);
+			if(!c.moveToFirst()) {
+				throw new RuntimeException("Couldn't find FormInstance for record!");
+			}
+			long id = c.getLong(0);
+			i.setData(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id));
+		} else {
+			i.setData(formUri);
 		}
-		i.putExtra("encryptionkey", r.getAesKey());
-		i.putExtra("encryptionkeyalgo", "AES");
 		
-		String[] preloaders = new String[] {"meta", PreloadContentProvider.CONTENT_URI_META + "/" };
-		i.putExtra("preloadproviders",preloaders);
 		i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
+		
+		i.putExtra("key_aes_storage", Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
+		
+		i.putExtra("form_content_uri", FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
+		i.putExtra("instance_content_uri", InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
 		
 		startActivityForResult(i, MODEL_RESULT);
     }

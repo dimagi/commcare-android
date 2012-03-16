@@ -84,7 +84,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
 	
 	        factory = new NodeEntityFactory(platform.getSession().getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), platform.getSession().getEvaluationContext(new CommCareInstanceInitializer(platform)));
 			
-		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), CommCareSession.STATE_DATUM_VAL, TreeReference.class));
+		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 	        
 	        setTitle(getString(R.string.app_name) + " > " + "Details");
 	        

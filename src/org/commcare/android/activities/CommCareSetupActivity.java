@@ -5,13 +5,18 @@ package org.commcare.android.activities;
 
 import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.tasks.ResourceEngineListener;
+import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -37,7 +42,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class CommCareSetupActivity extends Activity {
+public class CommCareSetupActivity extends Activity implements ResourceEngineListener {
 	
 	public static final String DATABASE_STATE = "database_state";
 	public static final String RESOURCE_STATE = "resource_state";
@@ -45,6 +50,8 @@ public class CommCareSetupActivity extends Activity {
 	
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
+	
+	public static final int DIALOG_PROGRESS = 0;
 	
 	int dbState;
 	int resourceState;
@@ -55,6 +62,8 @@ public class CommCareSetupActivity extends Activity {
 	EditText editProfileRef;
 	TextView mainMessage;
 	Button installButton;
+    private ProgressDialog mProgressDialog;
+	
 	boolean advanced = false;
 	
 	
@@ -120,33 +129,9 @@ public class CommCareSetupActivity extends Activity {
 				if(resourceState == CommCareApplication.STATE_READY) {
 					//nothing to do, don't sweat it.
 				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED) {
-					if(!installResources()) {
-						return;
-					}
+					startResourceInstall();
 				} else if(resourceState == CommCareApplication.STATE_UPGRADE) {
 					//We don't actually see this yet.
-				}
-				
-		        //TODO: We might have gotten here due to being called from the outside, in which
-				//case we should manually start up the home activity
-				
-				if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
-					
-					//Need to do the init from here, since cchome won't know we're returning
-					CommCareApplication._().initializeGlobalResources();
-					
-					//Call out to CommCare Home
-	     	        Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
-	     	        
-	     	       CommCareSetupActivity.this.startActivity(i);
-	     	       finish();
-	     	       return;
-				} else {
-					//Good to go
-			        Intent i = new Intent(getIntent());
-			        setResult(RESULT_OK, i);
-			        finish();
-			        return;
 				}
 			}
 			
@@ -165,46 +150,39 @@ public class CommCareSetupActivity extends Activity {
         outState.putString("profileref", advanced ? editProfileRef.getText().toString() : incomingRef);
     }
 	
-	private boolean installResources() {
+	private void startResourceInstall() {
 		
 		String ref = incomingRef;
 		if(advanced) {
 			ref = editProfileRef.getText().toString();
 		}
-		AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
 		
-		try {
-			//This is replicated in the application in a few places.
-    		ResourceTable global = platform.getGlobalResourceTable();
-    		
-    		platform.init(ref, global, false);
-    		
-    		//Alll goood, we should make this the current profile ref.
-    		//TODO: _OR_ we should use the one in the profile...
-    		
-    		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-    		Editor edit = prefs.edit();
-    		edit.putString("default_app_server", ref);
-    		edit.commit();
-    		
-    		return true;
-		} catch (UnfullfilledRequirementsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnresolvedResourceException e) {
-			Toast.makeText(this, "Uh oh! There was a problem with the initialization...", Toast.LENGTH_LONG).show();
-			
-			String error = "A serious problem occured! Couldn't find the resource with id: " + e.getResource().getResourceId() + ". Check the profile url in the advanced mode and make sure you have a network connection.";
-			mainMessage.setText(error);
-			
-			//TODO: Advanced mode button to view exception and possibly send it.
-			
-			ResourceTable global = platform.getGlobalResourceTable();
-			
-			//Install was botched, clear anything left lying around....
-			global.clear();
+		ResourceEngineTask task = new ResourceEngineTask(this);
+		task.setListener(this);
+		
+		task.execute(ref);
+		
+		this.showDialog(DIALOG_PROGRESS);
+	}
+
+	public void done() {
+		//TODO: We might have gotten here due to being called from the outside, in which
+		//case we should manually start up the home activity
+		
+		if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+			//Call out to CommCare Home
+ 	        Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+ 	        
+ 	       CommCareSetupActivity.this.startActivity(i);
+ 	       finish();
+ 	       return;
+		} else {
+			//Good to go
+	        Intent i = new Intent(getIntent());
+	        setResult(RESULT_OK, i);
+	        finish();
+	        return;
 		}
-		return false;
 	}
 	
     @Override
@@ -238,4 +216,60 @@ public class CommCareSetupActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+    
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateDialog(int)
+	 */
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		if(id == DIALOG_PROGRESS) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setTitle("Initializing Resources");
+            mProgressDialog.setMessage("Locating application profile...");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+            return mProgressDialog;
+		}
+		return null;
+	}
+    
+
+	public void reportSuccess() {
+		this.dismissDialog(DIALOG_PROGRESS);
+		done();
+	}
+
+	public void failMissingResource(Resource r) {
+		this.dismissDialog(DIALOG_PROGRESS);
+		Toast.makeText(this, "Uh oh! There was a problem with the initialization...", Toast.LENGTH_LONG).show();
+		
+		String error = "A serious problem occured! Couldn't find the resource with id: " + r.getResourceId() + ". Check the profile url in the advanced mode and make sure you have a network connection.";
+		
+		mainMessage.setText(error);
+	}
+
+	public void failBadReqs(int code) {
+		this.dismissDialog(DIALOG_PROGRESS);
+		Toast.makeText(this, "Uh oh! There was a problem with the initialization...", Toast.LENGTH_LONG).show();
+		
+		String error = "This version of CommCare is incompatible with the application provided. Error code: "+ code;
+		
+		mainMessage.setText(error);		
+	}
+
+	public void failUnknown() {
+		this.dismissDialog(DIALOG_PROGRESS);
+		Toast.makeText(this, "Uh oh! There was a problem with the initialization...", Toast.LENGTH_LONG).show();
+		
+		String error = "An unexpected error occured! Please try again and contact technical support if the problem persists";
+		
+		mainMessage.setText(error);
+	}
+
+	public void updateProgress(int done, int pending) {
+		if(mProgressDialog != null) {
+			mProgressDialog.setMessage("Profile found. " + done + " resources loaded, of " + pending + " total");
+		}
+	}
 }

@@ -90,17 +90,24 @@ public class InstanceProvider extends ContentProvider {
 
     private DatabaseHelper mDbHelper;
 
-
     @Override
     public boolean onCreate() {
-        mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
+    	//This is so stupid.
         return true;
+    }
+    
+    public void init() {
+		//this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
+    	if(mDbHelper == null) {
+            mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
+    	}
     }
 
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
+    	init();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(INSTANCES_TABLE_NAME);
 
@@ -149,6 +156,7 @@ public class InstanceProvider extends ContentProvider {
         if (sUriMatcher.match(uri) != INSTANCES) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
+        init();
 
         ContentValues values;
         if (initialValues != null) {
@@ -225,6 +233,7 @@ public class InstanceProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
+    	init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
         
@@ -284,6 +293,7 @@ public class InstanceProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    	init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
         String status = null;

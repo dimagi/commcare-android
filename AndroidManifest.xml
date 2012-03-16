@@ -17,6 +17,7 @@
 
 <provider android:name=".providers.PreloadContentProvider" android:authorities="org.commcare.preloadprovider" />
 <provider android:name=".odk.provider.FormsProvider" android:authorities="org.commcare.android.provider.odk.forms" />
+<provider android:name=".odk.provider.InstanceProvider" android:authorities="org.commcare.android.provider.odk.instances" />
 
 <activity android:name=".preferences.CommCarePreferences"></activity>
 <activity android:name="org.commcare.android.activities.DotsEntryActivity">
@@ -91,6 +92,8 @@
 <activity android:name=".activities.CallLogActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name=".activities.MessageLogActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name=".activities.PhoneLogActivity" android:windowSoftInputMode="adjustResize"></activity>
+<activity android:name="org.odk.collect.android.activities.FormEntryActivity"></activity>
+<activity android:name="org.odk.collect.android.activities.FormHierarchyActivity"></activity>
 </application>
 
 
