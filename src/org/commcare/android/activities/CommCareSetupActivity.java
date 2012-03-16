@@ -48,6 +48,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final String RESOURCE_STATE = "resource_state";
 	public static final String KEY_PROFILE_REF = "app_profile_ref";
 	public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
+	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	
 	
 	public static final int MODE_BASIC = Menu.FIRST;
@@ -141,6 +142,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 		});
 		if(upgradeMode) {
+			mainMessage.setText("Please wait while CommCare checks for upgrades");
 			startResourceInstall();
 		}
 	}
@@ -173,20 +175,22 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		this.showDialog(DIALOG_PROGRESS);
 	}
 
-	public void done() {
+	public void done(boolean requireRefresh) {
 		//TODO: We might have gotten here due to being called from the outside, in which
 		//case we should manually start up the home activity
 		
 		if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
 			//Call out to CommCare Home
- 	        Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
- 	        
- 	       CommCareSetupActivity.this.startActivity(i);
+ 	       Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+ 	       i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+ 	       startActivity(i);
  	       finish();
+ 	       
  	       return;
 		} else {
 			//Good to go
 	        Intent i = new Intent(getIntent());
+	        i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
 	        setResult(RESULT_OK, i);
 	        finish();
 	        return;
@@ -235,19 +239,44 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	protected Dialog onCreateDialog(int id) {
 		if(id == DIALOG_PROGRESS) {
             mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setTitle("Initializing Resources");
-            mProgressDialog.setMessage("Locating application profile...");
+            if(upgradeMode) {
+            	mProgressDialog.setTitle("CommCare App Update");
+            	mProgressDialog.setMessage("Checking for updates...");
+            } else {
+            	mProgressDialog.setTitle("Initializing Resources");
+            	mProgressDialog.setMessage("Locating application profile...");
+            }
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setCancelable(false);
             return mProgressDialog;
 		}
 		return null;
 	}
+	
+
+	public void updateProgress(int done, int total, int phase) {
+		if(mProgressDialog != null) {
+            if(upgradeMode) {
+
+            	if(phase == ResourceEngineTask.PHASE_DOWNLOAD) {
+            		mProgressDialog.setMessage("Updates found! Downloading new resource " + done + " of " + total);
+            	} if(phase == ResourceEngineTask.PHASE_COMMIT) {
+            		mProgressDialog.setMessage("Updates downloaded. Commiting new resources....");
+            	}
+            }
+			else {
+				mProgressDialog.setMessage("Profile found. " + done + " resources loaded, of " + total + " total");
+			}
+		}
+	}
     
 
-	public void reportSuccess() {
+	public void reportSuccess(boolean appChanged) {
 		this.dismissDialog(DIALOG_PROGRESS);
-		done();
+		if(!appChanged) {
+			Toast.makeText(this, "CommCare is up to date", Toast.LENGTH_LONG).show();
+		}
+		done(appChanged);
 	}
 
 	public void failMissingResource(Resource r) {
@@ -275,12 +304,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		String error = "An unexpected error occured! Please try again and contact technical support if the problem persists";
 		
 		mainMessage.setText(error);
-	}
-
-	public void updateProgress(int done, int pending) {
-		if(mProgressDialog != null) {
-			mProgressDialog.setMessage("Profile found. " + done + " resources loaded, of " + pending + " total");
-		}
 	}
 
 	public void failBadState() {

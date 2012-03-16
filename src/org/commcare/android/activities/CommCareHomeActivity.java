@@ -292,10 +292,12 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     				refreshView();
 	    			return;
 	    		} else if(resultCode == RESULT_OK) {
-	    			platform.getSession().clearState();
-		    		CommCareApplication._().getSession().logout();
-	            	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-	            	startActivityForResult(i,LOGIN_USER);
+	    			if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
+	    				platform.getSession().clearState();
+	    				CommCareApplication._().getSession().logout();
+	    			}
+	    			dispatchHomeScreen();
+    				return;
 	    		}
 	    		break;
 	    	case LOGIN_USER:

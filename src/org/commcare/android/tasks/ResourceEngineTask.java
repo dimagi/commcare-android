@@ -33,8 +33,13 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	ResourceEngineListener listener;
 	Context c;
 	
+	public static final int PHASE_CHECKING = 0;
+	public static final int PHASE_DOWNLOAD = 1;
+	public static final int PHASE_COMMIT = 2;
+	
 	Resource missingResource = null;
 	int badReqCode = -1;
+	private int phase = -1;  
 	boolean upgradeMode = false;
 	
 	public static final int STATUS_INSTALLED = 0;
@@ -42,6 +47,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	public static final int STATUS_ERROR = 2;
 	public static final int STATUS_FAIL_UNKNOWN = 4;
 	public static final int STATUS_FAIL_STATE = 8;
+	public static final int STATUS_UP_TO_DATE = 16;
 	
 	public ResourceEngineTask(Context c, boolean upgradeMode) throws SessionUnavailableException{
 		this.c = c;
@@ -84,10 +90,21 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
     		global.setStateListener(this);
     		
     		if(upgradeMode) {
+    			//See where we are now
+				int previousVersion = profile.getVersion();
+				
 				ResourceTable temporary = platform.getUpgradeResourceTable();
-				platform.stageUpgradeTable(global, temporary, profileRef);
-				platform.upgrade(global, temporary);
 				temporary.setStateListener(this);
+
+				platform.stageUpgradeTable(global, temporary, profileRef);
+				phase = PHASE_CHECKING;
+				platform.upgrade(global, temporary);
+				
+				//And see where we ended up to see whether an upgrade actually occurred
+	    		Resource newProfile = global.getResourceWithId("commcare-application-profile");
+	    		if(newProfile.getVersion() == previousVersion) {
+	    			return STATUS_UP_TO_DATE;
+	    		}
     		} else {
     			platform.init(profileRef, global, false);
     		}
@@ -143,7 +160,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	protected void onProgressUpdate(int[]... values) {
 		super.onProgressUpdate(values);
 		if(listener != null) {
-			listener.updateProgress(values[0][0], values[0][1]);
+			listener.updateProgress(values[0][0], values[0][1], values[0][2]);
 		}
 	}
 
@@ -163,7 +180,9 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	protected void onPostExecute(Integer result) {
 		if(listener != null) {
 			if(result == STATUS_INSTALLED){
-				listener.reportSuccess();
+				listener.reportSuccess(true);
+			} else if(result == STATUS_UP_TO_DATE){
+				listener.reportSuccess(false);
 			} else if(result == STATUS_MISSING){
 				listener.failMissingResource(missingResource);
 			} else if(result == STATUS_ERROR){
@@ -174,15 +193,29 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 				listener.failUnknown();
 			}
 		}
+		
+		//remove all references 
+		listener = null;
+		c = null;
 	}
 
 	public void resourceStateUpdated(ResourceTable table) {
 		Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
 		
+		//TODO: Better reflect upgrade status process
+		
 		int score = 0;
 
 		for(Resource r : resources) {
 			switch(r.getStatus()) {
+			case Resource.RESOURCE_STATUS_UPGRADE:
+				//If we spot an upgrade after we've started the upgrade process,
+				//something now needs to be updated
+				if(phase == PHASE_CHECKING) {
+					this.phase = PHASE_DOWNLOAD;
+				}
+				score += 1;
+				break;
 			case Resource.RESOURCE_STATUS_INSTALLED:
 				score += 1;
 				break;
@@ -196,7 +229,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	}
 
 	public void incrementProgress(int complete, int total) {
-		this.publishProgress(new int[] {complete, total});
+		this.publishProgress(new int[] {complete, total, phase});
 	}
 	
 }
