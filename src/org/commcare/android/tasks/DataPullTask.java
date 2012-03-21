@@ -48,6 +48,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
@@ -153,7 +154,14 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				}
 					
 				
-				HttpResponse response = client.execute(new HttpGet(server));
+				Uri serverUri = Uri.parse(server);
+				String serverRequestUri = serverUri.toString();
+				String vparam = serverUri.getQueryParameter("version");
+				if(vparam == null) {
+					serverRequestUri = serverUri.buildUpon().appendQueryParameter("version", "2.0").build().toString();
+				}
+				
+				HttpResponse response = client.execute(new HttpGet(serverRequestUri));
 				int responseCode = response.getStatusLine().getStatusCode();
 				if(responseCode == 401) {
 					return AUTH_FAILED;

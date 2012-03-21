@@ -27,7 +27,9 @@ import org.javarosa.xform.parse.XFormParser;
 
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 
@@ -75,15 +77,39 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		cv.put(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH, GlobalConstants.MEDIA_REF);
 		//cv.put(FormsProviderAPI.FormsColumns.SUBMISSION_URI, "NAME"); //nullable
 		//cv.put(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY, "NAME"); //nullable
-		
+
 		
 		try {
-			Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
-			this.contentUri = result.toString();
+			Cursor existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI, 
+					new String[] { FormsProviderAPI.FormsColumns._ID} , 
+					FormsProviderAPI.FormsColumns.JR_FORM_ID + "=?", 
+					new String[] { formDef.getMainInstance().schema}, null);
+
+			
+			if(existingforms.moveToFirst()) {
+				//we already have one form. Hopefully this is during an upgrade...
+				if(!upgrade) {
+					//Hm, error out?
+				}
+				
+				//Figure out the URI for that record
+				Uri recordId = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, existingforms.getLong(0));
+				cpc.update(recordId, cv, null, null);
+				this.contentUri = recordId.toString();
+				
+				//TODO: Check to see if there are other forms, and wipe them, too.
+				
+			} else {
+			
+					Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
+					this.contentUri = result.toString();
+			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new IOException("couldn't talk to form database to install form");
 		}
+
 		
 		return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
 	}
