@@ -143,6 +143,9 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		ExtUtil.writeString(out, status);
 		ExtUtil.writeBytes(out, aesKey);
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(uuid));
+		if(lastModified == null) {
+			lastModified = new Date(0);
+		}
 		ExtUtil.writeDate(out, lastModified);
 	}
 
@@ -242,7 +245,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		if(caseID == null) { return AndroidCommCarePlatform.ENTITY_NONE;}
 		
 		//NOTE: We're not even trying to worry about any referral stuff, here.
-		return "Case:" + caseID;
+		return "case:" + caseID;
 	}
 	
 	public static String generateEntityId(CommCareSession session) {

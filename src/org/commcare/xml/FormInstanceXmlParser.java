@@ -88,6 +88,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 	
 		SecretKey key = CommCareApplication._().createNewSymetricKey();
 		FormRecord r = new FormRecord(xmlns, getFileDestination(namespaces.get(xmlns), destination)  , "", FormRecord.STATUS_UNINDEXED, key.getEncoded(),null, new Date(0));
+		
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		
 		OutputStream o = new FileOutputStream(r.getPath());

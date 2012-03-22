@@ -83,7 +83,7 @@ public class IncompleteFormRecordView extends LinearLayout {
 				
 				//TODO : I am a bad person, _Fix this_
 				if(c.getProperty("initials") != null) {
-					mLowerTextView.setText((String)c.getProperty("initials"));
+					mLowerTextView.setText((String)c.getProperty("initials") + " " + (String)c.getProperty("pactid"));
 				} else{
 					mLowerTextView.setText(c.getName());
 				}

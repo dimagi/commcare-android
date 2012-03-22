@@ -227,6 +227,10 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			return null;
 		}
 		
+		if(modified[0] == null) {
+			modified[0] = new Date(0);
+		}
+		
 		FileInputStream fis;
 		fis = new FileInputStream(r.getPath());
 	
