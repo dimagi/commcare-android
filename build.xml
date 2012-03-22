@@ -49,13 +49,21 @@
     />
 
 
-    <target name="-pre-build">
+    <target name="-pre-build" depends="build-from-source">
+    	<!-- copy libraries -->
+		<copy todir="${jar.libs.dir}">
+			<fileset dir="lib" includes="*.jar"/>
+		</copy>
+    	<!-- update resources -->
+    </target>
+	
+	<target name="build-from-source" if="build.source">
+		<!-- todo: that -->
 		<copy todir="${jar.libs.dir}">
 			<fileset dir="${javarosa.libs}" includes="*.jar"/>
 			<fileset dir="${commcare.libs}" includes="*.jar"/>
-			<fileset dir="lib" includes="*.jar"/>
 		</copy>
-    </target>
+	</target>
 	
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
