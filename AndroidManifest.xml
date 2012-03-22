@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.commcare.android"
-      android:versionName="1.0" android:versionCode="105">
+      android:versionName="2.0" android:versionCode="106">
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true" android:theme="@android:style/Theme.Light" android:name=".application.CommCareApplication">
         <activity android:label="@string/app_name" android:name=".activities.CommCareHomeActivity" android:configChanges="orientation">
             <intent-filter>

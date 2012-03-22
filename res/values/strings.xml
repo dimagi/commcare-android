@@ -8,8 +8,8 @@
 	<!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
 	<!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
 	<string name="key_server">https://pact.dimagi.com/keys/getkey</string>
-	<integer-array name="commcare_version"><item>1</item>
-	<item>1</item>
+	<integer-array name="commcare_version"><item>2</item>
+	<item>0</item>
 </integer-array>
 <string name="notificationtitle">Logged Into Commcare</string>
 <string name="expirenotification">CommCare Login Expired</string>

@@ -4,3 +4,6 @@ glob:dist/*
 glob:buildlibs/*
 glob:local.properties
 glob:key.properties
+syntax: glob
+buildtmp/*
+libs/*

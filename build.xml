@@ -49,12 +49,23 @@
     />
 
 
-    <target name="-pre-build" depends="build-from-source">
+    <target name="-pre-build" depends="build-from-source, addversionnumber">
     	<!-- copy libraries -->
 		<copy todir="${jar.libs.dir}">
 			<fileset dir="lib" includes="*.jar"/>
 		</copy>
     	<!-- update resources -->
+		<tstamp>
+		  <format property="TODAY_TIMESTAMP"
+		          pattern="MMMM-dd-yyyy"/>
+		</tstamp>
+		<mkdir dir="${custom.dir.resource}"/>
+		
+		<copy todir="${custom.dir.resource}">
+			<fileset dir="res"/>
+		</copy>
+		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
+		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${version.code}"/>
     </target>
 	
 	<target name="build-from-source" if="build.source">
@@ -64,6 +75,14 @@
 			<fileset dir="${commcare.libs}" includes="*.jar"/>
 		</copy>
 	</target>
+	
+	<target name="addversionnumber" if="build.server">
+		<property name="android.version.code" value="android:versionCode="/>
+		<replaceregexp file="AndroidManifest.xml"
+			match='android:versionCode="(.*)"'
+			replace='${android.version.code}"${version.code}"'/>
+	</target>
+
 	
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
