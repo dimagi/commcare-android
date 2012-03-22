@@ -46,7 +46,10 @@ public class MetaDataXmlParser extends TransactionParser<String[]> {
 				}
 			}
 			else if("timeend".equals(item.toLowerCase())) {
-				lastModified = parser.nextText().trim();
+				String timeend = parser.nextText().trim();
+				if(timeend != null && timeend != "") {
+					lastModified = timeend;
+				}
 			}
 			else if("uid".equals(item.toLowerCase())) {
 				uid = parser.nextText().trim();
