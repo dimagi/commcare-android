@@ -48,13 +48,18 @@
             unless="sdk.dir"
     />
 
+	<target name="-pre-build">
+		<!-- we actually need to wipe out all of our libs now, since they're in ODK's library -->
+        <delete dir="${jar.libs.dir}"/>
+		<mkdir dir="${jar.libs.dir}"/>
+	</target>
 
     <target name="cc-setup" depends="build-from-source, addversionnumber">
     	<mkdir dir="${jar.libs.dir}"/>
     	<!-- copy libraries -->
 		<copy todir="${jar.libs.dir}">
 			<fileset dir="lib" includes="*.jar"/>
-		</copy>
+		</copy>	
     	<!-- update resources -->
 		<tstamp>
 		  <format property="TODAY_TIMESTAMP"
@@ -68,6 +73,20 @@
 		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
 		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${version.code}"/>
     </target>
+	
+	<target name="odk-setup">
+		<mkdir dir="${odk.libs}"/>
+		
+		<!-- Copy over original odk libs -->
+		<copy todir="${odk.libs}" overwrite="true">
+			<fileset dir="${odk.libs.orig}" includes="*.jar"/>
+		</copy>
+		
+    	<!-- copy CCODK versions (to ensure compatibility) -->
+		<copy todir="${odk.libs}" overwrite="true">
+			<fileset dir="libs" includes="*.jar"/>
+		</copy>
+	</target>
 	
 	<target name="build-from-source" if="build.source">
     	<mkdir dir="${jar.libs.dir}"/>
@@ -122,7 +141,7 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 	
-	<target name="cc-release" depends="cc-setup, release">
+	<target name="cc-release" depends="cc-setup, odk-setup, release">
 	</target>
 
 </project>
