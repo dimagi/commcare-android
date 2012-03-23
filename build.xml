@@ -49,7 +49,8 @@
     />
 
 
-    <target name="-pre-build" depends="build-from-source, addversionnumber">
+    <target name="cc-setup" depends="build-from-source, addversionnumber">
+    	<mkdir dir="${jar.libs.dir}"/>
     	<!-- copy libraries -->
 		<copy todir="${jar.libs.dir}">
 			<fileset dir="lib" includes="*.jar"/>
@@ -69,6 +70,7 @@
     </target>
 	
 	<target name="build-from-source" if="build.source">
+    	<mkdir dir="${jar.libs.dir}"/>
 		<!-- todo: that -->
 		<copy todir="${jar.libs.dir}">
 			<fileset dir="${javarosa.libs}" includes="*.jar"/>
@@ -119,5 +121,8 @@
     -->
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
+	
+	<target name="cc-release" depends="cc-setup, release">
+	</target>
 
 </project>
