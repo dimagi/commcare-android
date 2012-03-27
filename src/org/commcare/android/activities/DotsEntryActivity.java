@@ -121,7 +121,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	        	// now fill in the box specified
 	        	DotsDay day = dotsData.days()[dotsData.days().length - 1];
 	        	DotsBox[][] boxes = day.boxes();
-	        	boxes[0][box] = DotsBox.deserialize(currentDoseCheck);
+	        	boxes[0][box] = boxes[0][box].update(DotsBox.deserialize(currentDoseCheck));
 	        	
 	        	dotsData.days()[dotsData.days().length - 1] = new DotsDay(boxes);
 	        }
@@ -133,7 +133,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	        	// now fill in the box specified
 	        	DotsDay day = dotsData.days()[dotsData.days().length - 1];
 	        	DotsBox[][] boxes = day.boxes();
-	        	boxes[1][box] = DotsBox.deserialize(currentDoseCheckTwo);
+	        	boxes[1][box] = boxes[1][box].update(DotsBox.deserialize(currentDoseCheckTwo));
 	        	
 	        	dotsData.days()[dotsData.days().length - 1] = new DotsDay(boxes);
 	        }
@@ -409,7 +409,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 			View doseView = getDoseView(day, curday, i);
 			rows[i % 2 == 0 ? 0 : 1].addView(doseView == null ? new ImageView(this): doseView);
 			if(doseView == null) { 
-				
 				continue;
 			}
 			
