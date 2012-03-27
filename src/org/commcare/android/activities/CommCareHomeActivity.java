@@ -616,18 +616,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	     	        
 	     	        this.startActivityForResult(i, INIT_APP);
 	        } else if(!CommCareApplication._().getSession().isLoggedIn()) {
-	        	
-	//        	Intent i = new Intent(getApplicationContext(), DotsEntryActivity.class);
-	//        	i.putExtra("regimen", "[1,2]");
-	//       	
-	//        	i.putExtra("currentdose", "['full', 'pillbox']");
-	//        	i.putExtra("currentbox", "0");
-	//
-	//        	i.putExtra("currentdosetwo", "['empty', 'direct']");
-	//        	i.putExtra("currentboxtwo", "0");
-	//        	
-	//        	startActivityForResult(i,LOGIN_USER);
-	        	
+	        	//Don't think this is possible anymore
 	        	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
 	        	startActivityForResult(i,LOGIN_USER);
 	        } else if(this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
@@ -647,6 +636,24 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     		//TODO: See how much context we have, and go login
         	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         	startActivityForResult(i,LOGIN_USER);
+    		
+        	
+//        	Intent i = new Intent(getApplicationContext(), DotsEntryActivity.class);
+//        	i.putExtra("regimen", "[2,1]");
+//       	
+//        	i.putExtra("currentdose", "['full', 'pillbox']");
+//        	i.putExtra("currentbox", "0");
+//
+//        	i.putExtra("currentdosetwo", "['empty', 'direct']");
+//        	i.putExtra("currentboxtwo", "0");
+//        	
+//        	i.putExtra("odk_intent_data", 
+//"{'regimen_labels': [[2,3], [1]], 'regimens': [2, 1], 'days': [[[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'pillbox'], ['empty', 'pillbox']], [['empty', 'pillbox']]], [[['empty', 'pillbox'], ['empty', 'pillbox']], [['empty', 'pillbox']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['unchecked', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'pillbox'], ['empty', 'pillbox']], [['empty', 'pillbox']]], [[['empty', 'pillbox'], ['empty', 'pillbox']], [['empty', 'pillbox']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['empty', 'pillbox']], [['empty', 'direct']]], [[['empty', 'direct'], ['unchecked', 'pillbox']], [['empty', 'direct']]], [[['unchecked', 'pillbox'], ['unchecked', 'pillbox']], [['unchecked', 'pillbox']]], " +
+//"" +
+//"[[['empty', 'pillbox','one',2]]], [[['unchecked', 'pillbox'], ['unchecked', 'pillbox']], [['unchecked', 'pillbox']]]], 'anchor': '24 Mar 2012'}"	        			
+//        	);
+//        	startActivityForResult(i,LOGIN_USER);
+    		
     	}
     }
     

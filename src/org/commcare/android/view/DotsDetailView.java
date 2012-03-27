@@ -29,11 +29,22 @@ import android.widget.ToggleButton;
  */
 public class DotsDetailView {
 	
+	private static final String DOSE_MORNING = "Morning";
+	private static final String DOSE_NOON = "Noon";
+	private static final String DOSE_EVENING = "Evening";
+	private static final String DOSE_BEDTIME = "Bedtime";
+	private static final String DOSE_UNKNOWN = "Dose";
+	
+	
+	static String[] labelMap = new String [] {DOSE_MORNING, DOSE_NOON, DOSE_EVENING, DOSE_BEDTIME};
+	
+	//For unnamed labels, these are the defaults.
+	//TODO: 90% sure that only the last one here is relevant.
 	public final static String[][] labels = new String[][] {
-			new String[] {"Dose"},
-			new String[] {"Morning", "Evening"},
-			new String[] {"Morning", "Noon", "Evening"},
-			new String[] {"Morning", "Noon", "Evening", "Bedtime"}
+			new String[] {DOSE_UNKNOWN},
+			new String[] {DOSE_MORNING, DOSE_EVENING},
+			new String[] {DOSE_MORNING, DOSE_NOON, DOSE_EVENING},
+			new String[] {DOSE_MORNING, DOSE_NOON, DOSE_EVENING, DOSE_BEDTIME}
 	};
 	
 	public final static String[] regimens = new String[] { "Non-ART", "ART"};  
@@ -77,7 +88,20 @@ public class DotsDetailView {
 			final View details = View.inflate(context, R.layout.compact_dot_entry, null);
 			groups[i] = details;
 			TextView timeView = (TextView)details.findViewById(R.id.text_time);
-			timeView.setText(regimens[i] + ": " + labels[day.getMaxReg() -1 ][dose]);
+			
+			int doseName = box.getDoseLabel();
+			String label = "";
+			if(doseName == -1) {
+				label = labels[day.getMaxReg() -1 ][dose];
+			} else {
+				if(doseName >= 0 && doseName < labelMap.length) {
+					label = labelMap[doseName];
+				} else {
+					label = DOSE_UNKNOWN;
+				}
+			}
+			timeView.setText(regimens[i] + ": " + label);
+			
 			details.setPadding(0, 0, 0,0);
 			
 			final View missingDetails = details.findViewById(R.id.missed_details);
@@ -204,6 +228,7 @@ public class DotsDetailView {
 	public DotsDay getDay() {
 		
 		int[] regIndices = day.getRegIndexes(dose);
+		//TODO: This is basically a shallow copy
 		DotsBox[] newBoxes = new DotsBox[regIndices.length];
 		
 		
@@ -268,7 +293,7 @@ public class DotsDetailView {
 					break;
 			}
 			
-			newBoxes[i] = new DotsBox(status,type, meds);
+			newBoxes[i] = new DotsBox(status,type, meds, day.boxes()[dose][i].getDoseLabel());
 		}
 		
 		return day.updateDose(dose, newBoxes);
