@@ -293,7 +293,7 @@ public class DotsDetailView {
 					break;
 			}
 			
-			newBoxes[i] = new DotsBox(status,type, meds, day.boxes()[dose][i].getDoseLabel());
+			newBoxes[i] = new DotsBox(status,type, meds, day.boxes()[i][regIndices[i]].getDoseLabel());
 		}
 		
 		return day.updateDose(dose, newBoxes);
