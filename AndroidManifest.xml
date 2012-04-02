@@ -92,8 +92,9 @@
 <activity android:name=".activities.CallLogActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name=".activities.MessageLogActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name=".activities.PhoneLogActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name="org.odk.collect.android.activities.FormEntryActivity"></activity>
-<activity android:name="org.odk.collect.android.activities.FormHierarchyActivity"></activity>
+<activity android:name="org.odk.collect.android.activities.FormEntryActivity" android:windowSoftInputMode="adjustResize"></activity>
+<activity android:name="org.odk.collect.android.activities.FormHierarchyActivity" android:windowSoftInputMode="adjustResize"></activity>
+<activity android:name="org.odk.collect.android.activities.GeoPointActivity" android:windowSoftInputMode="adjustResize"></activity>
 </application>
 
 
