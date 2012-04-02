@@ -5,6 +5,7 @@ package org.commcare.android.resource.installers;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -92,15 +93,16 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 					//Hm, error out?
 				}
 				
-				//Figure out the URI for that record
+				//So we know there's another form here. We should wait until it's time for
+				//the upgrade and replace the pointer to here.
 				Uri recordId = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, existingforms.getLong(0));
-				cpc.update(recordId, cv, null, null);
+				
+				//Grab the URI we should update
 				this.contentUri = recordId.toString();
 				
-				//TODO: Check to see if there are other forms, and wipe them, too.
+				//TODO: Check to see if there is more than one form, and deal
 				
 			} else {
-			
 					Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
 					this.contentUri = result.toString();
 			}
@@ -133,8 +135,9 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		ContentResolver cr = CommCareApplication._().getContentResolver();
 		
 		ContentValues cv = new ContentValues();
-		cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, localRawUri); 
+		cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, new File(localRawUri).getAbsolutePath()); 
 
+		//Update the form file path
 		int updatedRows = cr.update(Uri.parse(this.contentUri), cv, null, null);
 		if(updatedRows > 1) {
 			throw new RuntimeException("Bad URI stored for xforms installer: " + this.contentUri);

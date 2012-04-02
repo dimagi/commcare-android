@@ -80,7 +80,7 @@ public class JavaFileReference implements Reference {
 	}
 
 	public String getLocalURI() {
-		return localPart + File.separator + uri;
+		return new File(localPart + File.separator + uri).getAbsolutePath();
 	}
 	
 	public Reference[] probeAlternativeReferences() {
