@@ -66,6 +66,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (UnfullfilledRequirementsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return false;

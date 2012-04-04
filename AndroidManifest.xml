@@ -95,6 +95,7 @@
 <activity android:name="org.odk.collect.android.activities.FormEntryActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.activities.FormHierarchyActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.activities.GeoPointActivity" android:windowSoftInputMode="adjustResize"></activity>
+<activity android:name="org.odk.collect.android.preferences.PreferencesActivity" android:windowSoftInputMode="adjustResize"></activity>
 </application>
 
 
