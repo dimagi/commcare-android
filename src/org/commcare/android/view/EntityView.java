@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.commcare.android.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -28,7 +29,7 @@ public class EntityView extends LinearLayout {
 	private View[] views;
 	private String[] forms; 
 
-	public EntityView(Context context, CommCarePlatform platform, Detail d, Entity e) {
+	public EntityView(Context context, Detail d, Entity e) {
 		super(context);
 
 		this.setWeightSum(1);
@@ -47,10 +48,10 @@ public class EntityView extends LinearLayout {
 			}
 		}
         
-		setParams(platform, e);
+		setParams(e);
 	}
 	
-	public EntityView(Context context, CommCarePlatform platform, Detail d, String[] headerText) {
+	public EntityView(Context context, Detail d, String[] headerText) {
 		super(context);
 
 		this.setWeightSum(1);
@@ -125,7 +126,7 @@ public class EntityView extends LinearLayout {
 		return weights;
 	}
 
-	public void setParams(CommCarePlatform platform, Entity e) {
+	public void setParams(Entity e) {
 		String[] fields = e.getFields();
 		
 		for(int i = 0; i < e.getFields().length ; ++i) {

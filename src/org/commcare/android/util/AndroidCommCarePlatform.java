@@ -40,14 +40,11 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	private long callDuration = 0;
 	
-	private AndroidCommCareSession session;
-	
 	public AndroidCommCarePlatform(int majorVersion, int minorVersion, Context c) {
 		super(majorVersion, minorVersion);
 		xmlnstable = new Hashtable<String, String>();
 		this.c = c;
 		installedSuites = new Vector<Suite>();
-		session = new AndroidCommCareSession(this);
 	}
 	
 	public void registerXmlns(String xmlns, String filepath) {
@@ -96,10 +93,6 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	public void registerSuite(Suite s) {
 		this.installedSuites.add(s);
-	}
-	
-	public AndroidCommCareSession getSession() {
-		return session;
 	}
 	
 	

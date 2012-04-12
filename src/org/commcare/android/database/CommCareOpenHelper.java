@@ -6,8 +6,8 @@ package org.commcare.android.database;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
-import org.commcare.android.util.AndroidCommCareSession;
 import org.commcare.android.util.CommCareUpgrader;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
@@ -63,8 +63,8 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			builder.addData(new FormRecord());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(AndroidCommCareSession.STORAGE_KEY);
-			builder.addData(new AndroidCommCareSession());
+			builder = new TableBuilder(SessionStateDescriptor.STORAGE_KEY);
+			builder.addData(new SessionStateDescriptor());
 			database.execSQL(builder.getTableCreateString());
 			
 			builder = new TableBuilder("fixture");

@@ -9,6 +9,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.User;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
@@ -22,14 +23,14 @@ import org.javarosa.core.util.ArrayUtilities;
  *
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
-	AndroidCommCarePlatform platform;
+	CommCareSession session;
 	CaseInstanceTreeElement casebase;
 	
 	public CommCareInstanceInitializer(){ 
 		this(null);
 	}
-	public CommCareInstanceInitializer(AndroidCommCarePlatform platform) {
-		this.platform = platform;
+	public CommCareInstanceInitializer(CommCareSession session) {
+		this.session = session;
 	}
 	
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
@@ -100,7 +101,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 		}
 		if(instance.getReference().indexOf("session") != -1) {
 			User u = app.getSession().getLoggedInUser();
-			TreeElement root = platform.getSession().getSessionInstance(app.getPhoneId(), app.getCurrentVersionString(), u.getUsername(), u.getUniqueId()).getRoot();
+			TreeElement root = session.getSessionInstance(app.getPhoneId(), app.getCurrentVersionString(), u.getUsername(), u.getUniqueId()).getRoot();
 			root.setParent(instance.getBase());
 			return root;
 		}

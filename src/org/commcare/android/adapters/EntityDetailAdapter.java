@@ -10,7 +10,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.view.EntityDetailView;
 import org.commcare.suite.model.Detail;
-import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareSession;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -25,15 +25,15 @@ import android.widget.ListAdapter;
 public class EntityDetailAdapter implements ListAdapter {
 	
 	Context context;
-	CommCarePlatform platform;
+	CommCareSession session;
 	Detail detail;
 	Entity entity;
 	DetailCalloutListener listener;
 	List<Integer> valid;
 	
-	public EntityDetailAdapter(Context context, CommCarePlatform platform, Detail detail, Entity entity, DetailCalloutListener listener) {		
+	public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, DetailCalloutListener listener) {		
 		this.context = context;
-		this.platform = platform;
+		this.session = session;
 		this.detail = detail;
 		this.entity = entity;
 		this.listener = listener;
@@ -93,10 +93,10 @@ public class EntityDetailAdapter implements ListAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		EntityDetailView dv =(EntityDetailView)convertView;
 		if(dv == null) {
-			dv = new EntityDetailView(context, platform, detail, entity, valid.get(position));
+			dv = new EntityDetailView(context, session, detail, entity, valid.get(position));
 			dv.setCallListener(listener);
 		} else{
-			dv.setParams(platform, detail, entity, valid.get(position));
+			dv.setParams(session, detail, entity, valid.get(position));
 			dv.setCallListener(listener);
 		}
 		return dv;

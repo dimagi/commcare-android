@@ -23,6 +23,7 @@ import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -56,7 +57,7 @@ import android.widget.Toast;
  *
  */
 public class EntitySelectActivity extends ListActivity implements TextWatcher {
-	private AndroidCommCarePlatform platform;
+	private CommCareSession session;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
 	
@@ -89,14 +90,14 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         
         searchbox.addTextChangedListener(this);
         
-        platform = CommCareApplication._().getCommCarePlatform();
+        session = CommCareApplication._().getCurrentSession();
         
-		Vector<Entry> entries = platform.getSession().getEntriesForCommand(platform.getSession().getCommand());
+		Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
 		prototype = entries.elementAt(0);
         
         setTitle(getString(R.string.app_name) + " > " + " Select");
         
-		selectDatum = platform.getSession().getNeededDatum();
+		selectDatum = session.getNeededDatum();
 
         
         barcodeButton.setOnClickListener(new OnClickListener() {
@@ -130,7 +131,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     private void refreshView() {
     	try {
     		
-	    	Detail detail = platform.getSession().getDetail(selectDatum.getShortDetail());
+	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
 	    	
 	    	//TODO: Get ec into these text's
 	    	Text[] templates = detail.getHeaders();
@@ -143,7 +144,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    		}
 	    	}
 	    	
-	    	EntityView v = new EntityView(this, platform, detail, headers);
+	    	EntityView v = new EntityView(this, detail, headers);
 	    	header.removeAllViews();
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    	header.addView(v,params);
@@ -155,7 +156,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	
 	    	Vector<TreeReference> references = getEC().expandReference(XPathReference.getPathExpr(selectDatum.getNodeset()).getReference(true));
 	    	
-	    	adapter = new EntityListAdapter(this, detail, getEC(), platform, references, defaultKey);
+	    	adapter = new EntityListAdapter(this, detail, getEC(), references, defaultKey);
 	    	setListAdapter(adapter);
 	    	searchbox.requestFocus();
     	} catch(SessionUnavailableException sue) {
@@ -165,13 +166,13 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     
     private EvaluationContext getEC() {
     	if(entityContext == null) {
-    		entityContext = platform.getSession().getEvaluationContext(getInstanceInit());
+    		entityContext = session.getEvaluationContext(getInstanceInit());
     	}
     	return entityContext;
     }
     
     private CommCareInstanceInitializer getInstanceInit() {
-    	return new CommCareInstanceInitializer(platform);
+    	return new CommCareInstanceInitializer(session);
     }
     
     protected Intent getDetailIntent(TreeReference contextRef) {
@@ -314,8 +315,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	
         builder.setTitle("Sort by...");
-		SessionDatum datum = platform.getSession().getNeededDatum();
-    	Text[] templates = platform.getSession().getDetail(datum.getShortDetail()).getHeaders();
+		SessionDatum datum = session.getNeededDatum();
+    	Text[] templates = session.getDetail(datum.getShortDetail()).getHeaders();
         
     	List<String> namesList = new ArrayList<String>();
     	        

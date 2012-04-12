@@ -116,7 +116,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		if(incomingRef == null) {
 			mainMessage.setText("Welcome to CommCare! To proceed with installation, please navigate to a CommCare Profile on your Web Browser.");
-			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
+			//editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
+			editProfileRef.setText("https://www.commcarehq.org/a/hsph/apps/download/9923d50075b055e32d4aab9706c84b1d/profile.ccpr");
 			installButton.setEnabled(false);
 		} else {
 			editProfileRef.setText(incomingRef);

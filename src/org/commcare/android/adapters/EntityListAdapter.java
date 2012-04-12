@@ -31,7 +31,6 @@ import android.widget.ListAdapter;
 public class EntityListAdapter implements ListAdapter {
 	
 	Context context;
-	CommCarePlatform platform;
 	
 	List<DataSetObserver> observers;
 	
@@ -43,11 +42,11 @@ public class EntityListAdapter implements ListAdapter {
 	int currentSort = -1;
 	boolean reverseSort = false;
 	
-	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, AndroidCommCarePlatform platform, List<TreeReference> references)  throws SessionUnavailableException{
-		this(context, d, ec, platform, references, -1);
+	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references)  throws SessionUnavailableException{
+		this(context, d, ec, references, -1);
 	}
 	
-	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, AndroidCommCarePlatform platform, List<TreeReference> references, int sort) throws SessionUnavailableException {
+	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references, int sort) throws SessionUnavailableException {
 		factory = new NodeEntityFactory(d, ec);
 		
 		full = new ArrayList<Entity<TreeReference>>();
@@ -56,7 +55,6 @@ public class EntityListAdapter implements ListAdapter {
 		this.references = references;
 		
 		this.context = context;
-		this.platform = platform;
 		this.observers = new ArrayList<DataSetObserver>();
 
 		all();
@@ -156,9 +154,9 @@ public class EntityListAdapter implements ListAdapter {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if(emv == null) {
-			emv = new EntityView(context, platform, factory.getDetail(), e);
+			emv = new EntityView(context, factory.getDetail(), e);
 		} else{
-			emv.setParams(platform, e);
+			emv.setParams(e);
 		}
 		return emv;
 	}

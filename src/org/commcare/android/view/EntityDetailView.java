@@ -8,9 +8,9 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareSession;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
@@ -45,7 +45,7 @@ public class EntityDetailView extends LinearLayout {
 	
 	DetailCalloutListener listener;
 
-	public EntityDetailView(Context context, CommCarePlatform platform, Detail d, Entity e, int index) {
+	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index) {
 		super(context);
 		
 		this.setOrientation(HORIZONTAL);
@@ -80,14 +80,14 @@ public class EntityDetailView extends LinearLayout {
 	    
 		this.setWeightSum(1.0f);
 	   
-		setParams(platform, d, e, index);
+		setParams(session, d, e, index);
 	}
 	
 	public void setCallListener(final DetailCalloutListener listener) {
 		this.listener = listener;
 	}
 
-	public void setParams(CommCarePlatform platform, Detail d, Entity e, int index) {
+	public void setParams(CommCareSession session, Detail d, Entity e, int index) {
 		label.setText(d.getHeaders()[index].evaluate());
 		if("phone".equals(d.getTemplateForms()[index])) {
 			callout.setText(e.getFields()[index]);

@@ -11,13 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.http.Header;
@@ -32,13 +30,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.commcare.android.activities.CommCareHomeActivity;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.util.AndroidCommCareSession;
+import org.commcare.android.models.SessionStateDescriptor;
+import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -95,63 +95,70 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 		}
 		Vector<Exception> thrownwhileprocessing = new Vector<Exception>();
 		for(int i = 0 ; i < records.length ; ++i) {
+			
 			FormRecord record = records[i];
-			try {
+			try{
 				
 				//If the form is complete, but unprocessed, process it.
 				if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
-					record = process(record);
+					try {
+						record = process(record);
+					} catch (InvalidStructureException e) {
+						thrownwhileprocessing.add(e);
+						new FormRecordCleanupTask(c).wipeRecord(record);
+						continue;
+					} catch (XmlPullParserException e) {
+						thrownwhileprocessing.add(e);
+						new FormRecordCleanupTask(c).wipeRecord(record);
+						continue;
+					} catch (UnfullfilledRequirementsException e) {
+						thrownwhileprocessing.add(e);
+						new FormRecordCleanupTask(c).wipeRecord(record);
+						continue;
+					}
 				}
 				
 				//If it's unsent, go ahead and send it
 				
 				if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
-					File folder = new File(record.getPath()).getCanonicalFile().getParentFile();
+					File folder;
+					try {
+						folder = new File(record.getPath()).getCanonicalFile().getParentFile();
+					} catch (IOException e) {
+						thrownwhileprocessing.add(e);
+						new FormRecordCleanupTask(c).wipeRecord(record);
+						continue;
+					}
 					
 					//Good!
 					//Time to Send!
-					results[i] = sendInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+					try {
+						results[i] = sendInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+					} catch (FileNotFoundException e) {
+						thrownwhileprocessing.add(e);
+						new FormRecordCleanupTask(c).wipeRecord(record);
+						continue;
+					}
 					
 			        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
 					//Check for success
 					if(results[i].intValue() == FULL_SUCCESS) {
 						//Only delete if this device isn't set up to review.
 					    if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-							storage.remove(record);
-							IStorageUtilityIndexed<AndroidCommCareSession> sessionStorage = CommCareApplication._().getStorage(AndroidCommCareSession.STORAGE_KEY, AndroidCommCareSession.class);
-							//Sooooo sketchy
-							sessionStorage.remove((Integer)sessionStorage.getIDsForValue(AndroidCommCareSession.META_FORM_RECORD_ID, record.getID()).get(0));
-							FileUtil.deleteFile(folder);
+	                    	new FormRecordCleanupTask(c).wipeRecord(record);
 						} else {
 							//Otherwise save and move appropriately
 							moveRecord(record, CommCareApplication._().fsPath(GlobalConstants.FILE_CC_STORED), FormRecord.STATUS_SAVED);
 						}
 			        }
 				}
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			}   catch (IOException e) {
 				thrownwhileprocessing.add(e);
-			} catch (InvalidStructureException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				thrownwhileprocessing.add(e);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				thrownwhileprocessing.add(e);
-			} catch (XmlPullParserException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				thrownwhileprocessing.add(e);
-			} catch (UnfullfilledRequirementsException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				thrownwhileprocessing.add(e);
-			} catch (StorageFullException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				thrownwhileprocessing.add(e);
+				new FormRecordCleanupTask(c).wipeRecord(record);
+				continue;
+			}  catch (StorageFullException e) {
+				new FormRecordCleanupTask(c).wipeRecord(record);
+				throw new RuntimeException(e);
 			}
 		}
 		
@@ -208,7 +215,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 				throw new IOException("Couldn't find processed instance");
 			}
 			//update the records to show that the form has been processed and is ready to be sent;
-			record.updateStatus(newFormPath, newStatus);
+			record = record.updateStatus(newFormPath, newStatus);
 			storage.write(record);
 			return record;
 		} else {

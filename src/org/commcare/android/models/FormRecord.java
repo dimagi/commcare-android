@@ -73,9 +73,10 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		this.lastModified = lastModified;
 	}
 	
-	public void updateStatus(String newPath, String newStatus) {
-		this.path = newPath;
-		this.status = newStatus;
+	public FormRecord updateStatus(String newPath, String newStatus) {
+		FormRecord fr = new FormRecord(newPath, newStatus, xmlns, aesKey, uuid, lastModified);
+		fr.id = this.id;
+		return fr;
 	}
 
 	/* (non-Javadoc)

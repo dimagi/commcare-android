@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -23,7 +24,11 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.SessionStateDescriptor;
+import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
@@ -34,11 +39,14 @@ import org.commcare.xml.MetaDataXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.AsyncTask;
 
 /**
@@ -113,7 +121,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 
 	private int cleanupRecord(FormRecord r, SqlIndexedStorageUtility<FormRecord> storage) {
 		try {
-			FormRecord updated = getUpdatedRecord(context, r, FormRecord.STATUS_SAVED);
+			FormRecord updated = getUpdatedRecord(r, FormRecord.STATUS_SAVED);
 			if(updated == null) {
 				return DELETE;
 			} else {
@@ -124,12 +132,6 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			// No form, skip and delete the form record;
 			e.printStackTrace();
 			return DELETE;
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchPaddingException e) {
-			throw new RuntimeException(e);
-		} catch (InvalidKeyException e) {
-			throw new RuntimeException(e);
 		} catch (InvalidStructureException e) {
 			// Bad form data, skip and delete
 			e.printStackTrace();
@@ -149,6 +151,9 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		} catch (StorageFullException e) {
 			// Can't resolve here, skip.
 			throw new RuntimeException(e);
+		} catch (InvalidStateException e) {
+			//Bad situation going down, wipe out the record
+			return DELETE;
 		}
 	}
 	
@@ -159,7 +164,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	 * @param context
 	 * @param r
 	 * @param newStatus
-	 * @return null if there was not file to parse. The new form record to be written to the DB otherwise
+	 * @return The new form record containing relevant details about this form
 	 * @throws InvalidKeyException 
 	 * @throws NoSuchPaddingException 
 	 * @throws NoSuchAlgorithmException 
@@ -168,7 +173,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	 * @throws UnfullfilledRequirementsException 
 	 * @throws XmlPullParserException 
 	 */
-	public static FormRecord getUpdatedRecord(final Context context, FormRecord r, String newStatus) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+	public static FormRecord getUpdatedRecord(FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		//Awful. Just... awful
 		final String[] caseIDs = new String[1];
 		final Date[] modified = new Date[] {new Date(0)};
@@ -219,18 +224,30 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		};
 		
 		if(!new File(r.getPath()).exists()) {
-			return null;
+			throw new InvalidStateException("No file exists for form record at: " + r.getPath());
 		}
 		
 		FileInputStream fis;
 		fis = new FileInputStream(r.getPath());
-	
-		Cipher decrypter = Cipher.getInstance("AES");
-		decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));		
-		CipherInputStream cis = new CipherInputStream(fis, decrypter);
+		InputStream is = fis;
+		
+		try {
+			Cipher decrypter = Cipher.getInstance("AES");
+			decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));		
+			is = new CipherInputStream(fis, decrypter);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			throw new RuntimeException("No Algorithm while attempting to decode form submission for processing");
+		} catch (NoSuchPaddingException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Invalid cipher data while attempting to decode form submission for processing");
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
+		}
 
 		//Construct parser for this form's internal data.
-		DataModelPullParser parser = new DataModelPullParser(cis, factory);
+		DataModelPullParser parser = new DataModelPullParser(is, factory);
 		parser.parse();
 		
 		FormRecord parsed = new FormRecord(r.getPath(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
@@ -240,4 +257,87 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 
+	public void wipeRecord(SessionStateDescriptor existing) {
+		int ssid = existing.getID();
+		int formRecordId = existing.getFormRecordId();
+		wipeRecord(ssid, formRecordId);
+	}
+
+
+	public void wipeRecord(AndroidSessionWrapper currentState) {
+		int formRecordId = currentState.getFormRecordId();
+		int ssdId = currentState.getSessionDescriptorId();
+		wipeRecord(ssdId, formRecordId);
+	}
+	
+	public void wipeRecord(FormRecord record) {
+		wipeRecord(-1, record.getID());
+	}
+	
+	private void wipeRecord(int sessionId, int formRecordId) {
+		SqlIndexedStorageUtility<FormRecord> frStorage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+
+		if(sessionId != -1) {
+			try {
+				SessionStateDescriptor ssd = ssdStorage.read(sessionId);
+				
+				int ssdFrid = ssd.getFormRecordId();
+				if(formRecordId == -1) {
+					formRecordId = ssdFrid;
+				} else if(formRecordId != ssdFrid) {
+					//Not good.
+					Logger.log("record-cleanup", "Inconsistent formRecordId's in session storage");
+				}
+			} catch(Exception e) {
+				Logger.log("record-cleanup", "Session ID exists, but with no record (or broken record)");
+			}
+		}
+		String dataPath = null;
+		
+		if(formRecordId != -1 ) {
+			try {
+				FormRecord r = frStorage.read(formRecordId);
+				dataPath = r.getPath();
+				
+				//See if there is a hanging session ID for this
+				if(sessionId == -1) {
+					Vector<Integer> sessionIds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, formRecordId);
+					//We really shouldn't be able to end up with sessionId's that point to more than one thing.
+					if(sessionIds.size() == 1) {
+						sessionId = sessionIds.firstElement();
+					} else if(sessionIds.size() > 1) {
+						sessionId = sessionIds.firstElement();
+						Logger.log("record-cleanup", "Multiple session ID's pointing to the same form record");
+					}
+				}
+			} catch(Exception e) {
+				Logger.log("record-cleanup", "Session ID exists, but with no record (or broken record)");
+			}
+		}
+		
+		//Delete 'em if you got 'em
+		if(sessionId != -1) {
+			ssdStorage.remove(sessionId);
+		}
+		if(formRecordId != -1) {
+			frStorage.remove(formRecordId);
+		}
+		
+		if(dataPath != null) {
+			String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";
+			Cursor c = context.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {dataPath}, null);
+			if(c.moveToFirst()) {
+				//There's a cursor for this file, good.
+				long id = c.getLong(0);
+				
+				//this should take care of the files
+				context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
+				c.close();
+			} else{
+				//No instance record for whatever reason, manually wipe files
+				FileUtil.deleteFileOrDir(dataPath);
+			}
+		}
+	}
 }

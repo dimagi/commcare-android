@@ -9,7 +9,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.security.PublicKey;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -27,14 +26,14 @@ import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.services.CommCareSessionService;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidCommCareSession;
-import org.commcare.android.util.Base64;
+import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.ODKPropertyManager;
@@ -42,6 +41,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.CommCareSession;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
@@ -49,14 +49,11 @@ import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
-import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
 
 import android.app.Application;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -64,11 +61,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -93,6 +88,8 @@ public class CommCareApplication extends Application {
 	private static CommCareApplication app;
 	
 	private AndroidCommCarePlatform platform;
+	
+	private AndroidSessionWrapper sessionWrapper;
 	
 	private static SQLiteDatabase database; 
 	
@@ -136,7 +133,9 @@ public class CommCareApplication extends Application {
 	}
 	
 	public void logout() {
-		this.platform.getSession().clearState();
+		if(this.sessionWrapper != null) {
+			sessionWrapper.reset();
+		}
         
         doUnbindService();
 	}
@@ -191,6 +190,14 @@ public class CommCareApplication extends Application {
 
 	public AndroidCommCarePlatform getCommCarePlatform() {
 		return platform;
+	}
+	
+	public CommCareSession getCurrentSession() {
+		return sessionWrapper.getSession();
+	}
+
+	public AndroidSessionWrapper getCurrentSessionWrapper() {
+		return sessionWrapper;
 	}
 	
 	public int getDatabaseState() {
@@ -459,7 +466,7 @@ public class CommCareApplication extends Application {
 		getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
 		
 		//Also, any of the sessions we've got saved
-		getStorage(AndroidCommCareSession.STORAGE_KEY, AndroidCommCareSession.class).removeAll();
+		getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class).removeAll();
 		
 		//Now we wipe out the user entirely
 		getStorage(User.STORAGE_KEY, User.class).removeAll();
@@ -543,6 +550,7 @@ public class CommCareApplication extends Application {
 			    
 				if(user != null) {
 					attachCallListener(user);
+					CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 				}
 //				for(String xmlns : platform.getInstalledForms()) {
 //					Uri formURI = platform.getFormContentUri(xmlns);
@@ -601,4 +609,5 @@ public class CommCareApplication extends Application {
 			throw new SessionUnavailableException();
 		}
 	}
+
 }

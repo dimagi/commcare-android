@@ -32,7 +32,7 @@ import android.widget.ListView;
  *
  */
 public class EntityDetailActivity extends ListActivity implements DetailCalloutListener {
-	private AndroidCommCarePlatform platform;
+	private CommCareSession session;
 	
 	private static final int CALL_OUT = 0;
 	
@@ -75,14 +75,15 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
 	        }
 	        
 	        
-	        platform = CommCareApplication._().getCommCarePlatform();
+	        //platform = CommCareApplication._().getCommCarePlatform();
+	        
 	        
 	        String passedCommand = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
 	        
-			Vector<Entry> entries = platform.getSession().getEntriesForCommand(passedCommand == null ? platform.getSession().getCommand() : passedCommand);
+			Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
 			prototype = entries.elementAt(0);
 	
-	        factory = new NodeEntityFactory(platform.getSession().getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), platform.getSession().getEvaluationContext(new CommCareInstanceInitializer(platform)));
+	        factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 	        
@@ -99,7 +100,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	adapter = new EntityDetailAdapter(this, platform, factory.getDetail(), entity, this);
+    	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this);
     	setListAdapter(adapter);
     }
 

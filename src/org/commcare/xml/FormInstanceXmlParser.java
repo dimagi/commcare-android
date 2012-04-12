@@ -24,7 +24,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.util.AndroidCommCareSession;
+import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.TransactionParser;

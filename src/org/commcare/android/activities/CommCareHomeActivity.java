@@ -12,6 +12,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
 import org.commcare.android.odk.provider.FormsProviderAPI;
 import org.commcare.android.odk.provider.InstanceProviderAPI;
@@ -25,14 +26,16 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidCommCareSession;
+import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -273,7 +276,9 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	try {
-	    	CommCareSession session = platform.getSession();
+    		
+    		//TODO: We might need to load this from serialized state?
+	    	AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 	    	
 	    	switch(requestCode) {
 	    	case INIT_APP:
@@ -293,7 +298,6 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	    			return;
 	    		} else if(resultCode == RESULT_OK) {
 	    			if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
-	    				platform.getSession().clearState();
 	    				CommCareApplication._().getSession().logout();
 	    			}
 	    			dispatchHomeScreen();
@@ -330,33 +334,43 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	    			}
 	    			FormRecord r = CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read(record);
 	    			
+	    			//Retrieve and load the appropriate ssd
+	    			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+	    			Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
+	    			if(ssds.size() == 1) {
+	    				currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
+	    			} else {
+	    				currentState.setFormRecordId(r.getID());
+	    			}
+
+	    			
 	    			formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
 	    			return;
 	    		}
 	    	case GET_COMMAND:
 	    		if(resultCode == RESULT_CANCELED) {
-	    			if(session.getCommand() == null) {
+	    			if(currentState.getSession().getCommand() == null) {
 	    				//Needed a command, and didn't already have one. Stepping back from
 	    				//an empty state, Go home!
-	            		session.clearState();
+	            		currentState.reset();
 	            		refreshView();
 	            		return;
 	    			} else {
-	    				session.stepBack();
+	    				currentState.getSession().stepBack();
 	    				break;
 	    			}
 	    		} else if(resultCode == RESULT_OK) {
 	    			//Get our command, set it, and continue forward
 	    			String command = intent.getStringExtra(CommCareSession.STATE_COMMAND_ID);
-	    			session.setCommand(command);
+	    			currentState.getSession().setCommand(command);
 	    			break;
 	    		}
 	        case GET_CASE:
 	        	if(resultCode == RESULT_CANCELED) {
-	        		session.stepBack();
+	        		currentState.getSession().stepBack();
 	        		break;
 	    		} else if(resultCode == RESULT_OK) {
-	    			session.setDatum(session.getNeededDatum().getDataId(), intent.getStringExtra(CommCareSession.STATE_DATUM_VAL));
+	    			currentState.getSession().setDatum(currentState.getSession().getNeededDatum().getDataId(), intent.getStringExtra(CommCareSession.STATE_DATUM_VAL));
 	    			if(intent.hasExtra(CallOutActivity.CALL_DURATION)) {
 	    				platform.setCallDuration(intent.getLongExtra(CallOutActivity.CALL_DURATION, 0));
 	    			}
@@ -376,81 +390,97 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	            		task.execute(ex);
 	        		}
 	        		
-	        		session.clearState();
+	        		Toast.makeText(this, "There was an unrecoverable error during form entry! If the problem persists, seek technical support", Toast.LENGTH_LONG);
+	        		
+	        		currentState.reset();
 	    			refreshView();
 	        		break;
 	        	}
 	        	else if(resultCode == RESULT_OK) {
-	        		Uri resultInstanceURI = intent.getData();
-	                Cursor c = managedQuery(resultInstanceURI, null,null,null, null);
-	                
-	                if(!c.moveToFirst()) {
-	                	throw new RuntimeException("Empty query for instance record!");
-	                }
 	        		
-	        		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-	        		
-	        		//TODO: Don't assume CC stays alive?
-	        		AndroidCommCareSession entrySession = platform.getSession();
-	        		FormRecord current = storage.read(entrySession.getFormRecordId());
+	                //This is the state we were in when we _Started_ form entry
+	        		FormRecord current = currentState.getFormRecord();
 	        		
 	        		//See if we were viewing an old form, in which case we don't want to change the historical record.
 	        		if(current.getStatus() == FormRecord.STATUS_COMPLETE) {
-	        			
-	        			//TODO: replace the session rather than clearing it in-place.
-		        		session.clearState();
+	        			currentState.reset();
 	        			refreshView();
 		        		return;
 	        		}
 	        		
-        			String instance = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+	        		Uri resultInstanceURI = intent.getData();
 	        		
-	        		if(InstanceProviderAPI.STATUS_COMPLETE.equals(c.getString(c.getColumnIndex(InstanceColumns.STATUS)))) {
-	        			current.updateStatus(instance, FormRecord.STATUS_COMPLETE);
-	    				
-	    				try {
-	    					current = FormRecordCleanupTask.getUpdatedRecord(this, current, FormRecord.STATUS_COMPLETE);
-	    				} catch(Exception e) {
-	    					throw new RuntimeException(e);
-	    				}
-	    				
-	    				try {
-							storage.write(current);
-						} catch (StorageFullException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-		        		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
-		        		mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
-		        		mProcess.setListener(this);
-		        		showDialog(DIALOG_PROCESS);
-		        		mProcess.execute(current);
-		        		refreshView();
-	        		} else {
-	        			current.updateStatus(instance, FormRecord.STATUS_INCOMPLETE);
-	        			
-	        			try {
-	        				//Try to parse out information from the record if there is one
-	        				if(new File(instance).exists()) {
-	        					current = FormRecordCleanupTask.getUpdatedRecord(this, current, FormRecord.STATUS_INCOMPLETE);
-	        				}
-	    				} catch(Exception e) {
-	    					//the instance might not be complete, so don't mess with anything if there's an issue.
-	    				}
-	        			
-	        			try {
-							storage.write(current);
-						} catch (StorageFullException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-	        			refreshView();
+	        		//TODO: encapsulate this pattern somewhere?
+	        		if(resultInstanceURI == null) {
+		        		Toast.makeText(this, "Form entry did not provide a result", Toast.LENGTH_LONG);
+		        		
+		        		currentState.reset();
+		    			refreshView();
+		    			return;
 	        		}
-	        		session.clearState();
-	        		return;
+	        		
+	        		//TODO: Feels like it would be cleaner to give the URI here, but we'd also 
+	        		//need to get the wrapper some context with it
+	                Cursor c = managedQuery(resultInstanceURI, null,null,null, null);
+	                boolean complete = false;
+	                try {
+	                	complete = currentState.beginRecordTransaction(c);
+	                } catch(IllegalArgumentException iae) {
+	                	
+	                	iae.printStackTrace();
+		        		Toast.makeText(this, "There was an unrecoverable error attempting to read the form result! If the problem persists, seek technical support", Toast.LENGTH_LONG);
+		        		//TODO: Fail more hardcore here? Wipe the form record and its ties?
+		        		
+		        		currentState.reset();
+		    			refreshView();
+		    			return;
+	                } finally {
+	                	c.close();
+	                }
+	                 
+        			//TODO: Move this logic into the process task?
+	                try {
+						current = currentState.commitRecordTransaction();
+					} catch (InvalidStateException e) {
+						
+						//Something went wrong with all of the connections which should exist. Tell
+						//the user, 
+						Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
+						new FormRecordCleanupTask(this).wipeRecord(currentState);
+						
+						//Notify the server of this problem (since we aren't going to crash) 
+						ExceptionReportTask ert = new ExceptionReportTask();
+						ert.execute(e);
+						
+						currentState.reset();
+	        			refreshView();
+        				return;
+					}
+	        			        		 
+	                //The form is either ready for processing, or not, depending on how it was saved
+	        		if(complete) {
+	        			//Form record should now be up to date now and stored correctly. Begin processing its content and submitting it. 
+        				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+        				
+        				//TODO: Move this to be a system notification thing
+        				mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
+        				mProcess.setListener(this);
+        				
+        				showDialog(DIALOG_PROCESS);
+        				mProcess.execute(current);
+	        			currentState.reset();
+        				refreshView();
+        				return;
+	        		} else {
+	        			//Form record is now stored. 
+	        			currentState.reset();
+	        			refreshView();
+        				return;
+	        		}
 	    		} else {
-	    			session.clearState();
+	    			//Entry was cancelled.
+	    			new FormRecordCleanupTask(this).wipeRecord(currentState);
+	    			currentState.reset();
 	    			refreshView();
 	        		return;
 	    		}
@@ -466,12 +496,12 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     }
     
     private void startNextFetch() throws SessionUnavailableException {
-    	AndroidCommCareSession session = platform.getSession();
+    	CommCareSession session = CommCareApplication._().getCurrentSession();
     	String needed = session.getNeededData();
     	String[] lastPopped = session.getPoppedStep();
     	
     	if(needed == null) {
-    		startFormEntry(session);
+    		startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
     	}
     	else if(needed == CommCareSession.STATE_COMMAND_ID) {
  			Intent i = new Intent(getApplicationContext(), MenuList.class);
@@ -489,7 +519,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
             startActivityForResult(i, GET_CASE);
     	} else if(needed == CommCareSession.STATE_DATUM_COMPUTED) {
     		//compute
-    		SessionDatum datum = CommCareApplication._().getCommCarePlatform().getSession().getNeededDatum();
+    		SessionDatum datum = session.getNeededDatum();
 			XPathExpression form;
 			try {
 				form = XPathParseTool.parseXPath(datum.getValue());
@@ -498,92 +528,52 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 				e.printStackTrace();
 				throw new RuntimeException(e.getMessage());
 			}
-			EvaluationContext ec = CommCareApplication._().getCommCarePlatform().getSession().getEvaluationContext(new CommCareInstanceInitializer(CommCareApplication._().getCommCarePlatform()));
+			EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
 			if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
-				CommCareApplication._().getCommCarePlatform().getSession().setXmlns(XPathFuncExpr.toString(form.eval(ec)));
-				CommCareApplication._().getCommCarePlatform().getSession().setDatum("", "awful");
+				session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
+				session.setDatum("", "awful");
 			} else {
-				CommCareApplication._().getCommCarePlatform().getSession().setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+				session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
 			}
 			startNextFetch();
 			return;
     	}
     }
     
-    private void startFormEntry(AndroidCommCareSession session) throws SessionUnavailableException{
-    	//String command = session.getCommand();
+    private void startFormEntry(AndroidSessionWrapper state) throws SessionUnavailableException{
 		try {
-			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-			SqlIndexedStorageUtility<AndroidCommCareSession> sessionStorage = CommCareApplication._().getStorage(AndroidCommCareSession.STORAGE_KEY, AndroidCommCareSession.class);
-	    	if(session.getFormRecordId() == -1) {
+			//If this is a new record (never saved before), which currently all should be 
+	    	if(state.getFormRecordId() == -1) {
 	    		
-	    		//TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
+	    		//First, see if we've already started this form before
+	    		SessionStateDescriptor existing = state.searchForDuplicates();
 	    		
-	    		//First, we need to see if this session's unique hash corresponds to any pending forms.
-	    		Vector<Integer> ids = sessionStorage.getIDsForValue(AndroidCommCareSession.META_DESCRIPTOR_HASH, session.getSessionDescriptorHash());
-	    		
-	    		Vector<Integer> validId = new Vector<Integer>();
-	    		//Filter for forms which have actually been started.
-	    		for(int id : ids) {
-	    			try {
-	    				int recordId = Integer.valueOf(sessionStorage.getMetaDataFieldForRecord(id, AndroidCommCareSession.META_FORM_RECORD_ID));
-	    				if(FormRecord.STATUS_INCOMPLETE.equals(storage.getMetaDataFieldForRecord(recordId, FormRecord.META_STATUS))) {
-	    					validId.add(recordId);
-	    				}
-	    			} catch(NumberFormatException nfe) {
-	    				//TODO: Clean up this record
-	    				continue;
-	    			}
+	    		if(existing != null) {
+	    			createAskUseOldDialog(state, existing);
+	    			return;
 	    		}
 	    		
-	    		if(validId.size() > 0) {
-	    			createAskUseOldDialog(session, validId.firstElement());
-	    			return;
-	    		} 
-	    		
-	    		//We need to actually get a record to start filling out
-				SecretKey key = CommCareApplication._().createNewSymetricKey();
-				FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, session.getForm(), key.getEncoded(), null, new Date(0));
-				storage.write(r);
-	    		session.setFormRecord(r);
+	    		//Otherwise, generate a stub record and commit it
+	    		state.commitStub();
+	    	} else {
+	    		Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
 	    	}
 	    	
-	    	sessionStorage.write(session);
-	    	
 	    	//there's already a form associated with this session, let's just get to it.
-	    	FormRecord record = storage.read(session.getFormRecordId());
+	    	FormRecord record = state.getFormRecord();
 	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record);
 		} catch (StorageFullException e) {
 			throw new RuntimeException(e);
 		}
-		
-//		Entry e = platform.getMenuMap().get(command);
-//		String xmlns = e.getXFormNamespace();
-//		String path = platform.getFormPath(xmlns);
-//		
-//		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-//		
-//		String entityid = FormRecord.commitSession(platform.getSession());
-//		Vector<Integer> records = storage.getIDsForValues(new String[] {FormRecord.META_XMLNS, FormRecord.META_STATUS}, new Object[] {xmlns, entityid, FormRecord.STATUS_INCOMPLETE});
-//		if(records.size() > 0 ) {
-//			FormRecord r = storage.read(records.elementAt(0));
-//			createAskUseOldDialog(path,r);
-//		} else {
-//			formEntry(path, null, platform.getSession());
-//		}
-		
-	
     }
     
     private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
-		PreloadContentProvider.initializeSession(platform, this);
-		FormLoaderTask.iif = new CommCareInstanceInitializer(platform);
+		FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
 		Intent i =new Intent(getApplicationContext(), org.odk.collect.android.activities.FormEntryActivity.class);
 		i.setAction(Intent.ACTION_EDIT);
 		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_SAVED)));
 		
 		if(r.getPath() != "") {
-			
 			//We should just be storing the index to this, not bothering to look it up with the path
 			String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";
 			Cursor c = this.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {r.getPath()}, null);
@@ -676,7 +666,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
 	        	startActivityForResult(i,LOGIN_USER);
 	        } else if(this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-	        	platform.getSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
+	        	CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
 	        	//We were launched in shortcut mode. Get the command and load us up.
 	        	startNextFetch();
 	        	//Only launch shortcuts once per intent
@@ -782,52 +772,25 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     	return true;
     }
     
-    private void createAskUseOldDialog(final AndroidCommCareSession currentSession, final int existingSessionRecord) {
+    private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         mAskOldDialog = new AlertDialog.Builder(this).create();
         mAskOldDialog.setTitle("Continue Form");
         mAskOldDialog.setMessage("You've got a saved copy of an incomplete form for this client. Do you want to continue filling out that form?");
         DialogInterface.OnClickListener useOldListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
             	try {
-            		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-            		SqlIndexedStorageUtility<AndroidCommCareSession> sessionStorage =  CommCareApplication._().getStorage(AndroidCommCareSession.STORAGE_KEY, AndroidCommCareSession.class);
-            		
-            		AndroidCommCareSession oldSession = sessionStorage.read(existingSessionRecord);
-            		
-            		FormRecord record = storage.read(oldSession.getFormRecordId());
 	                switch (i) {
 	                    case DialogInterface.BUTTON1: // yes, use old
-	                    	//TODO: Replace session or something instead of just in-place editing current one
-	                    	//Sessions should now be the same
-	                    	currentSession.setFormRecord(record);
-	                    	currentSession.setID(oldSession.getID());
-	                    	sessionStorage.write(currentSession);
-	                    	
-	                    	formEntry(platform.getFormContentUri(currentSession.getForm()), record);
+	                    	//Replace the current state from the descriptor
+	                    	state.loadFromStateDescription(existing);
+	                    	formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
 	                        break;
 	                    case DialogInterface.BUTTON2: // no, and delete the old one
-	                    	sessionStorage.remove(oldSession);
-	                		storage.remove(record);
-	                		//TODO: This should all be part of a generalized process
-	                		//How do we delete the saved record here?
-	                		//Find the parent folder and delete it, I guess?
-	                		try {
-	                			File f = new File(record.getPath());
-	                			if(!f.isDirectory() && f.getParentFile() != null) {
-	                				f = f.getParentFile();
-	                			}
-	                			FileUtil.deleteFile(f);
-	                		} catch(Exception e) {
-	                			e.printStackTrace();
-	                		}
+	                    	new FormRecordCleanupTask(CommCareHomeActivity.this).wipeRecord(existing);
 	                		//fallthrough to new now that old record is gone
 	                    case DialogInterface.BUTTON3: // no, create new
-	                    	SecretKey key = CommCareApplication._().createNewSymetricKey();
-	        				FormRecord r = new FormRecord(currentSession.getForm(), "", FormRecord.STATUS_UNSTARTED, key.getEncoded(), null, new Date(0));
-	        				storage.write(r);
-	        				currentSession.setFormRecord(r);
-	        				sessionStorage.write(currentSession);
-	                    	formEntry(platform.getFormContentUri(currentSession.getForm()), r);
+	                    	state.commitStub();
+	                    	formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
 	                        break;
 	                }
             	} catch(SessionUnavailableException sue) {
