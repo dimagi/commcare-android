@@ -19,6 +19,9 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
+ * A Session State Descriptor contains all of the information that can be persisted
+ * about a CommCare session. It is immutable and reflects a specific state.
+ * 
  * @author ctsims
  *
  */
@@ -105,7 +108,11 @@ public class SessionStateDescriptor implements Persistable, IMetaData, Encrypted
 		return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
 	}
 	
-	public String createSessionDescriptor(CommCareSession session) {
+	public String getSessionDescriptor() {
+		return this.sessionDescriptor;
+	}
+	
+	private String createSessionDescriptor(CommCareSession session) {
 		String descriptor = "";
 		for(String[] step : session.getSteps()) {
 			descriptor += step[0] + " ";

@@ -548,7 +548,9 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	    		//First, see if we've already started this form before
 	    		SessionStateDescriptor existing = state.searchForDuplicates();
 	    		
-	    		if(existing != null) {
+	    		//I'm not proud of the second clause, here. Basically, only ask if we should continue entry if the
+	    		//saved state actually involved selecting some data.
+	    		if(existing != null && existing.getSessionDescriptor().contains(CommCareSession.STATE_DATUM_VAL)) {
 	    			createAskUseOldDialog(state, existing);
 	    			return;
 	    		}
@@ -559,20 +561,28 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	    		Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
 	    	}
 	    	
-	    	//there's already a form associated with this session, let's just get to it.
+	    	//We should now have a valid record for our state. Time to get to form entry.
 	    	FormRecord record = state.getFormRecord();
 	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record);
+	    	
 		} catch (StorageFullException e) {
 			throw new RuntimeException(e);
 		}
     }
     
     private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
+    	//TODO: This is... just terrible. Specify where external instance data should come from
 		FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
+		
+		//Create our form entry activity callout
 		Intent i =new Intent(getApplicationContext(), org.odk.collect.android.activities.FormEntryActivity.class);
 		i.setAction(Intent.ACTION_EDIT);
+		
+		
 		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_SAVED)));
 		
+		//See if there's existing form data that we want to continue entering (note, this should be stored in the form
+		///record as a URI link to the instance provider in the future)
 		if(r.getPath() != "") {
 			//We should just be storing the index to this, not bothering to look it up with the path
 			String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";

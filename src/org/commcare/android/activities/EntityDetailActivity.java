@@ -75,7 +75,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
 	        }
 	        
 	        
-	        //platform = CommCareApplication._().getCommCarePlatform();
+	        session = CommCareApplication._().getCurrentSession();
 	        
 	        
 	        String passedCommand = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
