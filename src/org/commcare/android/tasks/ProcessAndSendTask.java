@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -30,17 +32,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.commcare.android.activities.CommCareHomeActivity;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.io.FormSubmissionEntity;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
-import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
@@ -49,7 +48,6 @@ import org.commcare.suite.model.Profile;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -62,21 +60,31 @@ import android.util.Log;
  * @author ctsims
  *
  */
-public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> {
+public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> implements FormSubmissionListener {
 
 	Context c;
 	String url;
-	Integer[] results;
+	Long[] results;
 	
-	public static final int FULL_SUCCESS = 0;
-	public static final int PARTIAL_SUCCESS = 1;
-	public static final int FAILURE = 2;
-	public static final int TRANSPORT_FAILURE = 4;
+	public static final long FULL_SUCCESS = 0;
+	public static final long PARTIAL_SUCCESS = 1;
+	public static final long FAILURE = 2;
+	public static final long TRANSPORT_FAILURE = 4;
+	public static final long PROGRESS_ALL_PROCESSED = 8;
 	
-	ProcessAndSendListener listener;
+	public static final long SUBMISSION_BEGIN = 16;
+	public static final long SUBMISSION_START = 32;
+	public static final long SUBMISSION_NOTIFY = 64;
+	public static final long SUBMISSION_DONE = 128;
+	
+	ProcessTaskListener listener;
+	FormSubmissionListener formSubmissionListener;
+	
 	SqlIndexedStorageUtility<FormRecord> storage;
 	
-	private static long MAX_BYTES = 1048576-1024; // 1MB less 1KB overhead
+	static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
+	
+	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
 	public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
 		this.c = c;
@@ -88,36 +96,89 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
 	protected Integer doInBackground(FormRecord... records) {
-		results = new Integer[records.length];
+		results = new Long[records.length];
 		for(int i = 0; i < records.length ; ++i ) {
 			//Assume failure
 			results[i] = FAILURE;
 		}
 		Vector<Exception> thrownwhileprocessing = new Vector<Exception>();
+		
+		//The first thing we need to do is make sure everything is processed,
+		//we can't actually proceed before that.
+		
 		for(int i = 0 ; i < records.length ; ++i) {
+			FormRecord record = records[i];
+
+			//If the form is complete, but unprocessed, process it.
+			if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
+				try {
+					records[i] = process(record);
+				} catch (InvalidStructureException e) {
+					thrownwhileprocessing.add(e);
+					new FormRecordCleanupTask(c).wipeRecord(record);
+					continue;
+				} catch (XmlPullParserException e) {
+					thrownwhileprocessing.add(e);
+					new FormRecordCleanupTask(c).wipeRecord(record);
+					continue;
+				} catch (UnfullfilledRequirementsException e) {
+					thrownwhileprocessing.add(e);
+					new FormRecordCleanupTask(c).wipeRecord(record);
+					continue;
+				}  catch (StorageFullException e) {
+					new FormRecordCleanupTask(c).wipeRecord(record);
+					throw new RuntimeException(e);
+				}   catch (IOException e) {
+					thrownwhileprocessing.add(e);
+					new FormRecordCleanupTask(c).wipeRecord(record);
+					continue;
+				} 
+			}
+		}
+		
+		this.publishProgress(PROGRESS_ALL_PROCESSED);
+		
+		//Put us on the queue!
+		synchronized(processTasks) {
+			processTasks.add(this);
+		}
+		
+		boolean proceed = false;
+		while(!proceed) {
+			//TODO: Terrible?
 			
+			//See if it's our turn to go
+			synchronized(processTasks) {
+				//Are we at the head of the queue?
+				ProcessAndSendTask head = processTasks.peek();
+				if(processTasks.peek() == this) {
+					proceed = true;
+					break;
+				}
+				//Otherwise, is the head of the queue busted?
+				if(head.getStatus() != AsyncTask.Status.RUNNING) {
+					//If so, get rid of it
+					processTasks.remove(head);
+				}
+			}
+			//If it's not yet quite our turn, take a nap
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		//Ok, all forms are now processed. Time to focus on sending
+		if(formSubmissionListener != null) {
+			formSubmissionListener.beginSubmissionProcess(records.length);
+		}
+		
+		for(int i = 0 ; i < records.length ; ++i) {
 			FormRecord record = records[i];
 			try{
-				
-				//If the form is complete, but unprocessed, process it.
-				if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
-					try {
-						record = process(record);
-					} catch (InvalidStructureException e) {
-						thrownwhileprocessing.add(e);
-						new FormRecordCleanupTask(c).wipeRecord(record);
-						continue;
-					} catch (XmlPullParserException e) {
-						thrownwhileprocessing.add(e);
-						new FormRecordCleanupTask(c).wipeRecord(record);
-						continue;
-					} catch (UnfullfilledRequirementsException e) {
-						thrownwhileprocessing.add(e);
-						new FormRecordCleanupTask(c).wipeRecord(record);
-						continue;
-					}
-				}
-				
 				//If it's unsent, go ahead and send it
 				
 				if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
@@ -133,7 +194,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 					//Good!
 					//Time to Send!
 					try {
-						results[i] = sendInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+						results[i] = sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"));
 					} catch (FileNotFoundException e) {
 						thrownwhileprocessing.add(e);
 						new FormRecordCleanupTask(c).wipeRecord(record);
@@ -162,7 +223,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 			}
 		}
 		
-		int result = 0;
+		long result = 0;
 		for(int i = 0 ; i < records.length ; ++ i) {
 			if(results[i] > result) {
 				result = results[i];
@@ -174,7 +235,18 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 			ExceptionReportTask ert = new ExceptionReportTask();
 			ert.execute(thrownwhileprocessing.toArray(new Exception[0]));
 		}
-		return result;
+		this.endSubmissionProcess();
+		synchronized(processTasks) {
+			processTasks.remove(this);
+		}
+		
+		return (int)result;
+	}
+	
+	public static int pending() {
+		synchronized(processTasks) {
+			return processTasks.size();
+		}
 	}
 	
 	private FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
@@ -223,6 +295,36 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.os.AsyncTask#onProgressUpdate(Progress[])
+	 */
+	protected void onProgressUpdate(Long... values) {
+		super.onProgressUpdate(values);
+		
+		if(values.length == 1 && values[0] == PROGRESS_ALL_PROCESSED) {
+			listener.processTaskAllProcessed();
+		}
+		
+		if(values.length > 0 ) {
+			if(formSubmissionListener != null) {
+				//Parcel updates out
+				if(values[0] == SUBMISSION_BEGIN) {
+					formSubmissionListener.beginSubmissionProcess(values[1].intValue());
+				} else if(values[0] == SUBMISSION_START) {
+					int item = values[1].intValue();
+					long size = values[2];
+					formSubmissionListener.startSubmission(item, size);
+				} else if(values[0] == SUBMISSION_NOTIFY) {
+					int item = values[1].intValue();
+					long progress = values[2];
+					formSubmissionListener.notifyProgress(item, progress);
+				} else if(values[0] == SUBMISSION_DONE) {
+					formSubmissionListener.endSubmissionProcess();
+				}
+			}
+		}
+	}
+
 	private static Cipher getDecryptCipher(SecretKeySpec key) {
 		Cipher cipher;
 		try {
@@ -264,31 +366,56 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
 		return null;
 	}
 	
-	public void setListener(ProcessAndSendListener listener) {
+	public void setListeners(ProcessTaskListener listener, FormSubmissionListener submissionListener) {
 		this.listener = listener;
+		this.formSubmissionListener = submissionListener;
 	}
 
 	@Override
 	protected void onPostExecute(Integer result) {
 		if(listener != null) {
 			if(result == null) {
-				result = FAILURE;
+				result = (int)FAILURE;
 			}
 			int successes = 0;
-			for(Integer formResult : results) {
+			for(Long formResult : results) {
 				if(formResult != null && FULL_SUCCESS == formResult.intValue()) {
 					successes ++;
 				}
 			}
 			listener.processAndSendFinished(result, successes);
 		}
+		
 		//These will never get Zero'd otherwise
 		c = null;
 		url = null;
 		results = null;
 	}
 	
-	private int sendInstance(File folder, SecretKeySpec key) throws FileNotFoundException {
+	private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
+	
+	private long sendInstance(int submissionNumber, File folder, SecretKeySpec key) throws FileNotFoundException {
+		
+        File[] files = folder.listFiles();
+
+        //If we're listening, figure out how much (roughly) we have to send
+		long bytes = 0;
+        for (int j = 0; j < files.length; j++) {
+        	//Make sure we'll be sending it
+        	boolean supported = false;
+        	for(String ext : SUPPORTED_FILE_EXTS) {
+        		if(files[j].getName().endsWith(ext)) {
+        			supported = true;
+        			break;
+        		}
+        	}
+        	if(!supported) { continue;}
+        	
+        	bytes += files[j].length();
+        	System.out.println("Added file: " + files[j].getName() +". Bytes to send: " + bytes);
+        }
+		this.startSubmission(submissionNumber, bytes);
+		
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
         HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
@@ -300,18 +427,19 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
         
         String t = "p+a+s";
         
-        File[] files = folder.listFiles();
         if (files == null) {
             Log.e(t, "no files to upload");
             cancel(true);
         }
         
         // mime post
-        MultipartEntity entity = new MultipartEntity();
+        MultipartEntity entity = new FormSubmissionEntity(this, submissionNumber);
         
         for (int j = 0; j < files.length; j++) {
             File f = files[j];
             ContentBody fb;
+            
+            //TODO: Match this with some reasonable library, rather than silly file lines
             if (f.getName().endsWith(".xml")) {
             	
             	//fb = new InputStreamBody(new CipherInputStream(new FileInputStream(f), getDecryptCipher(aesKey)), "text/xml", f.getName());
@@ -399,6 +527,25 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Integer, Integer> 
         } else {
         	return FAILURE;
         }
+	}
+	
+	
+	//Wrappers for the internal stuff
+	public void beginSubmissionProcess(int totalItems) {
+		this.publishProgress(SUBMISSION_BEGIN, (long)totalItems);
+	}
+
+	public void startSubmission(int itemNumber, long length) {
+		// TODO Auto-generated method stub
+		this.publishProgress(SUBMISSION_START, (long)itemNumber, length);
+	}
+
+	public void notifyProgress(int itemNumber, long progress) {
+		this.publishProgress(SUBMISSION_NOTIFY, (long)itemNumber, progress);
+	}
+
+	public void endSubmissionProcess() {
+		this.publishProgress(SUBMISSION_DONE);
 	}
 
 }

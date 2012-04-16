@@ -23,7 +23,7 @@ import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.ProcessAndSendListener;
+import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidSessionWrapper;
@@ -64,7 +64,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CommCareHomeActivity extends Activity implements ProcessAndSendListener {
+public class CommCareHomeActivity extends Activity implements ProcessTaskListener {
 	
 	public static final int LOGIN_USER = 0;
 	public static final int GET_COMMAND = 1;
@@ -160,7 +160,11 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         syncButton  = (Button) findViewById(R.id.sync_now);
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                boolean formsToSend = checkAndStartUnsentTask(new ProcessAndSendListener() {
+                boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {
+
+					public void processTaskAllProcessed() {
+						//Don't cancel the dialog, we need it to stay in the foreground to ensure things are set
+					}
                 	
                 	public void processAndSendFinished(int result, int successfulSends) {
                 		if(currentHome != CommCareHomeActivity.this) { System.out.println("Fixing issue with new activity");}
@@ -392,6 +396,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 	        		
 	        		Toast.makeText(this, "There was an unrecoverable error during form entry! If the problem persists, seek technical support", Toast.LENGTH_LONG);
 	        		
+	        		
 	        		currentState.reset();
 	    			refreshView();
 	        		break;
@@ -464,7 +469,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         				
         				//TODO: Move this to be a system notification thing
         				mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
-        				mProcess.setListener(this);
+        				mProcess.setListeners(this, CommCareApplication._().getSession());
         				
         				showDialog(DIALOG_PROCESS);
         				mProcess.execute(current);
@@ -608,7 +613,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     }
     
     
-    protected boolean checkAndStartUnsentTask(ProcessAndSendListener listener) throws SessionUnavailableException {
+    protected boolean checkAndStartUnsentTask(ProcessTaskListener listener) throws SessionUnavailableException {
     	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
     	
     	//Get all forms which are either unsent or unprocessed
@@ -621,7 +626,7 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     		}
     		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
     		mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
-    		mProcess.setListener(listener);
+    		mProcess.setListeners(this, CommCareApplication._().getSession());
     		showDialog(DIALOG_SEND_UNSENT);
     		mProcess.execute(records);
     		return true;
@@ -821,9 +826,10 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
     private void refreshView() {
     }
 
+    //Process and send listeners
+    
 	public void processAndSendFinished(int result, int successfulSends) {
 		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
-		currentHome.dismissDialog(mCurrentDialog);
 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
 			String label = "Form Sent to Server!";
 			if(successfulSends > 1) {
@@ -835,6 +841,13 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
 		}
 		refreshView();
 	}
+	
+	public void processTaskAllProcessed() {
+		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
+		currentHome.dismissDialog(mCurrentDialog);
+	}
+	
+	//END - Process and Send Listeners
 	
 
     private void createPreferencesMenu() {
@@ -883,5 +896,4 @@ public class CommCareHomeActivity extends Activity implements ProcessAndSendList
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

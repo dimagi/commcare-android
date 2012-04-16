@@ -4,12 +4,7 @@
 package org.commcare.android.services;
 
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,9 +14,12 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.commcare.android.R;
 import org.commcare.android.activities.CommCareHomeActivity;
 import org.commcare.android.activities.LoginActivity;
 import org.commcare.android.models.User;
+import org.commcare.android.tasks.FormSubmissionListener;
+import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 
@@ -33,6 +31,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.text.format.DateFormat;
+import android.widget.RemoteViews;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -41,7 +40,7 @@ import android.text.format.DateFormat;
  * @author ctsims
  *
  */
-public class CommCareSessionService extends Service {
+public class CommCareSessionService extends Service implements FormSubmissionListener {
 
     private NotificationManager mNM;
     
@@ -61,6 +60,7 @@ public class CommCareSessionService extends Service {
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
     private int NOTIFICATION = org.commcare.android.R.string.notificationtitle;
+    private int SUBMISSION_NOTIFICATION = org.commcare.android.R.string.submission_notification_title;
     
     /**
      * Class for clients to access.  Because we know this service always
@@ -173,7 +173,7 @@ public class CommCareSessionService extends Service {
 	}
 	
 	private void maintenance() {
-		boolean logout = false;;
+		boolean logout = false;
 		long time = new Date().getTime();
 		// If we're either past the session expire time, or the session expires more than its period in the future, 
 		// we need to log the user out
@@ -269,4 +269,99 @@ public class CommCareSessionService extends Service {
 		}
 		return user;
 	}
+	
+
+	// START - Submission Listening Hooks
+	int totalItems = -1;
+	long currentSize = -1;
+	long totalSent = -1;
+	Notification submissionNotification;
+	
+	int lastUpdate = 0;
+	
+	public void beginSubmissionProcess(int totalItems) {
+		this.totalItems = totalItems;
+		
+		String text = getSubmissionText(1, totalItems);
+		
+        // Set the icon, scrolling text and timestamp
+        submissionNotification = new Notification(org.commcare.android.R.drawable.notification, getTickerText(1, totalItems), System.currentTimeMillis());
+        submissionNotification.flags |= (Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, CommCareHomeActivity.class), 0);
+
+        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.submit_notification);
+        contentView.setImageViewResource(R.id.image, R.drawable.notification);
+        contentView.setTextViewText(R.id.submitTitle, getString(org.commcare.android.R.string.submission_notification_title));
+        contentView.setTextViewText(R.id.progressText, text);
+		contentView.setTextViewText(R.id.submissionDetails,"0b transmitted");
+
+        
+        // Set the info for the views that show in the notification panel.
+        submissionNotification.setLatestEventInfo(this, getString(org.commcare.android.R.string.submission_notification_title), text, contentIntent);
+        
+        submissionNotification.contentView = contentView;
+
+        if(user != null) {
+        	//Send the notification.
+        	mNM.notify(SUBMISSION_NOTIFICATION, submissionNotification);
+        }
+
+	}
+
+	public void startSubmission(int itemNumber, long length) {
+		currentSize = length;
+		
+		submissionNotification.contentView.setTextViewText(R.id.progressText, getSubmissionText(itemNumber + 1, totalItems));
+		submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, 0, false);
+		mNM.notify(SUBMISSION_NOTIFICATION, submissionNotification);
+	}
+
+	public void notifyProgress(int itemNumber, long progress) {
+		int progressPercent = (int)Math.floor((progress * 1.0 / currentSize) * 100);
+		
+		if(progressPercent - lastUpdate > 5) {
+			System.out.println("Updating progress with " + progress);
+			
+			String progressDetails = "";
+			if(progress < 1024) {
+				progressDetails = progress + "b transmitted";
+			} else if (progress < 1024 * 1024) {
+				progressDetails =  String.format("%1$,.1f", (progress / 1024.0))+ "kb transmitted";
+			} else {
+				progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0)))+ "mb transmitted";
+			}
+			
+			int pending = ProcessAndSendTask.pending();
+			if(pending > 1) {
+				submissionNotification.contentView.setTextViewText(R.id.submissionsPending, pending -1 + " Pending");
+			}
+			
+			submissionNotification.contentView.setTextViewText(R.id.submissionDetails,progressDetails);
+			submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, progressPercent, false);
+			mNM.notify(SUBMISSION_NOTIFICATION, submissionNotification);
+			lastUpdate = progressPercent;
+		}
+	}
+
+	public void endSubmissionProcess() {
+		mNM.cancel(SUBMISSION_NOTIFICATION);
+		submissionNotification = null;
+		totalItems = -1;
+		currentSize = -1;
+		totalSent = -1;
+		lastUpdate = 0;
+	}
+	
+	private String getSubmissionText(int current, int total) {
+        return current + "/" + total;
+	}
+	
+	private String getTickerText(int current, int total) {
+        return "CommCare submitting " + total +" forms";
+	}
+	
+	// END - Submission Listening Hooks
 }
