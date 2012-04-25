@@ -115,9 +115,8 @@ public class DummyResourceTable extends ResourceTable {
 						
 					}
 
-					public Vector verifyInstallation(Resource r) {
-						// TODO Auto-generated method stub
-						return null;
+					public boolean verifyInstallation(Resource r, Vector problems) {
+						return false;
 					}
 					
 				};
