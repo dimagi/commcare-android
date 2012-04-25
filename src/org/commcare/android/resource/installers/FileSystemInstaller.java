@@ -149,21 +149,20 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		return r.getResourceId() + ".xml";
 	}
 	
-	public Vector<UnresolvedResourceException> verifyInstallation(Resource r) {
-		Vector<UnresolvedResourceException> issues = new Vector<UnresolvedResourceException>();
+	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> issues) {
 		try {
 			Reference ref = ReferenceManager._().DeriveReference(localLocation);
 			if(!ref.doesBinaryExist()) {
 				issues.add(new UnresolvedResourceException(r,"File doesn't exist at: " + ref.getLocalURI()));
-				return issues;
+				return true;
 			}
 		} catch (IOException e) {
 			issues.add(new UnresolvedResourceException(r,"Problem accessing file at: " + localLocation));
-			return issues;
+			return true;
 		} catch (InvalidReferenceException e) {
 			issues.add(new UnresolvedResourceException(r,"invalid reference: " + localLocation));
-			return issues;
+			return true;
 		}
-		return null;
+		return false;
 	}
 }
