@@ -92,32 +92,16 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			this.publishProgress(count, unindexedRecords.size());
 		}
 		
-		List<Integer> wipeable = new ArrayList<Integer>();
 		this.publishProgress(STATUS_CLEANUP);
+		SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+		
 		for(int recordID : recordsToRemove) {
-			removeRecordThorough(recordID, storage, wipeable);
+			this.wipeRecord(-1, recordID, storage, ssdStorage);
 		}
 		
-		storage.remove(wipeable);
 		System.out.println("Synced: " + unindexedRecords.size() + ". Removed: " + oldrecords + " old records, and " + (recordsToRemove.size() - oldrecords) + " busted new ones");
 		return SUCCESS;
 	}
-	
-	private void removeRecordThorough(int recordID, SqlIndexedStorageUtility<FormRecord> storage, List<Integer> toRemove) {
-		String path = storage.getMetaDataFieldForRecord(recordID, FormRecord.META_PATH);
-		if(path != null && path != "") {
-			File file = new File(path).getParentFile();
-			if(file.exists()) {
-				if(!FileUtil.deleteFile(file)) {
-					//Don't remove the record pointer if the file didn't get deleted, since we'll
-					//lose the ability to clear it later.
-					return;
-				}
-			}
-		}
-		toRemove.add(recordID);
-	}
-
 
 	private int cleanupRecord(FormRecord r, SqlIndexedStorageUtility<FormRecord> storage) {
 		try {
@@ -275,8 +259,10 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	}
 	
 	private void wipeRecord(int sessionId, int formRecordId) {
-		SqlIndexedStorageUtility<FormRecord> frStorage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-		SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+		wipeRecord(sessionId, formRecordId, CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class), CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class));
+	}
+	
+	private void wipeRecord(int sessionId, int formRecordId, SqlIndexedStorageUtility<FormRecord> frStorage, SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage) {
 
 		if(sessionId != -1) {
 			try {

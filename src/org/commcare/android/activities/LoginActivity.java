@@ -103,13 +103,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 				//down.
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
 				
-				String un = getUsername();
-				
-				if(prefs.contains("cc_user_domain")) {
-					un += "@" + prefs.getString("cc_user_domain",null);
-				}
-				
-				dataPuller = new DataPullTask(un, 
+				dataPuller = new DataPullTask(getUsername(), 
 						                             password.getText().toString(),
 						                             prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
 						                             prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
@@ -277,9 +271,18 @@ public class LoginActivity extends Activity implements DataPullListener {
 	}
 
 	public void progressUpdate(Integer ... progress) {
-		if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
+		if(progress[0] == DataPullTask.PROGRESS_STARTED) {
+			mProgressDialog.setMessage("Cleaning local data");
+		} else if(progress[0] == DataPullTask.PROGRESS_CLEANED) {
+			mProgressDialog.setMessage("Requesting Data...");
+		} else if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
 			mProgressDialog.setMessage("Server contacted, downloading data.");
+		} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+			mProgressDialog.setMessage("Phone and server have inconsistent data! Starting recovery...");
+		} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+			mProgressDialog.setMessage("Recovering local DB State. Please do not turn off the app!");
 		}
+		
 	}
     
     /*

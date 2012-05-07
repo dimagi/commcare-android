@@ -44,6 +44,7 @@ public class User implements Persistable, IMetaData
 	public static final String META_USERNAME = "username";
 	public static final String META_ID = "userid";
 	public static final String META_WRAPPED_KEY = "wrappedkey";
+	public static final String META_SYNC_TOKEN = "synctoken";
 
 	private int recordId = -1; //record id on device
 	private String username;
@@ -53,6 +54,7 @@ public class User implements Persistable, IMetaData
 	private byte[] wrappedKey;
 	
 	private boolean rememberMe = false;
+	private String syncToken = null;
 	
 	/** String -> String **/
 	private Hashtable<String,String> properties = new Hashtable<String,String>(); 
@@ -81,6 +83,7 @@ public class User implements Persistable, IMetaData
 		this.uniqueId = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		this.rememberMe = ExtUtil.readBool(in);
 		this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(in));
+		this.syncToken = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		this.properties = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
 	}
 
@@ -91,6 +94,7 @@ public class User implements Persistable, IMetaData
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(uniqueId));
         ExtUtil.writeBool(out, rememberMe);
         ExtUtil.writeBytes(out, ExtUtil.emptyIfNull(wrappedKey));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(syncToken));
 		ExtUtil.write(out, new ExtWrapMap(properties));
 	}
 
@@ -181,6 +185,14 @@ public class User implements Persistable, IMetaData
 		}
 		return ret;
 	}
+	
+	public void setSyncToken(String syncToken) {
+		this.syncToken = syncToken;
+	}
+	
+	public String getSyncToken() {
+		return syncToken;
+	}
 
 	public Object getMetaData(String fieldName) {
 		if(META_UID.equals(fieldName)) {
@@ -191,12 +203,14 @@ public class User implements Persistable, IMetaData
 			return new Integer(recordId);
 		} else if (META_WRAPPED_KEY.equals(fieldName)) {
 			return wrappedKey;
+		} else if (META_SYNC_TOKEN.equals(fieldName)) {
+			return ExtUtil.emptyIfNull(syncToken);
 		}
 		throw new IllegalArgumentException("No metadata field " + fieldName  + " for User Models");
 	}
 
 	public String[] getMetaDataFields() {
-		return new String[] {META_UID, META_USERNAME, META_ID, META_WRAPPED_KEY};
+		return new String[] {META_UID, META_USERNAME, META_ID, META_WRAPPED_KEY, META_SYNC_TOKEN};
 	}
 	
 	//Don't ever save!

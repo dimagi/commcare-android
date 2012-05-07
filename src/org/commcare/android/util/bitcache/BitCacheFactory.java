@@ -15,7 +15,6 @@ public class BitCacheFactory {
 			return getCache(context);
 		}
 		return new MemoryBitCache();
-
 	}
 	public static BitCache getCache(Context context) {
 		//gotta be conservative if we don't have a guess

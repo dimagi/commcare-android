@@ -3,6 +3,7 @@
  */
 package org.commcare.xml;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Hashtable;
 
@@ -11,10 +12,12 @@ import org.commcare.android.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
 import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 
@@ -33,6 +36,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	private Hashtable<String, String> formInstanceNamespaces;
 	
 	int requests = 0;
+	String syncToken;
 	
 	public CommCareTransactionParserFactory(Context context) {
 		this.context = context;
@@ -80,6 +84,27 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 		} else if(name != null && name.toLowerCase().equals("fixture")) {
 			req();
 			return fixtureParser.getParser(name, namespace, parser);
+		}else if(name != null && name.toLowerCase().equals("message")) {
+			//server message;
+			//" <message nature=""/>"
+		} else if(name != null && name.toLowerCase().equals("sync") && namespace != null && "http://commcarehq.org/sync".equals(namespace)) {
+			return new TransactionParser<String>(parser, namespace, namespace) {
+				@Override
+				public void commit(String parsed) throws IOException {}
+
+				@Override
+				public String parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+					this.checkNode("sync");
+					this.nextTag("restore_id");
+					syncToken = parser.nextText();
+					if(syncToken == null) {
+						throw new InvalidStructureException("Sync block must contain restore_id with valid ID inside!", parser);
+					}
+					syncToken = syncToken.trim();
+					return syncToken;
+				}
+				
+			};
 		}
 		return null;
 	}
@@ -107,7 +132,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 		};
 	}
 	
-	public void initCaseParser(final Collection<String> existingCases) {
+	public void initCaseParser() {
 		final int[] tallies = new int[3];
 		caseParser = new TransactionParserFactory() {
 			CaseXmlParser created = null;
@@ -135,5 +160,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 				return created;
 			}
 		};
+	}
+
+	public String getSyncToken() {
+		return syncToken;
 	}
 }

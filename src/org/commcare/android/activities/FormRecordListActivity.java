@@ -24,7 +24,6 @@ import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
@@ -40,7 +39,6 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -159,7 +157,7 @@ public class FormRecordListActivity extends ListActivity {
 	    	  returnItem(info.position);
 	    	  return true;
 	      case DELETE_RECORD:
-	    	  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).remove((int)info.id);
+	    	  new FormRecordCleanupTask(this).wipeRecord(CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read((int)info.id));
 	    	  this.getListView().post(new Runnable() { public void run() {adapter.notifyDataSetChanged();}});
 	      }
 	      
@@ -197,16 +195,12 @@ public class FormRecordListActivity extends ListActivity {
         		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             	
             	User u = CommCareApplication._().getSession().getLoggedInUser();
-            	String username = u.getUsername();
             	
             	String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
             	
             	//We should go digest auth this user on the server and see whether to pull them
 				//down.
-				if(prefs.contains("cc_user_domain")) {
-					username += "@" + prefs.getString("cc_user_domain",null);
-				}
-            	DataPullTask pull = new DataPullTask(username,u.getCachedPwd(), source, "", this);
+            	DataPullTask pull = new DataPullTask(u.getUsername(),u.getCachedPwd(), source, "", this);
             	pull.setPullListener(new DataPullListener() {
 
 					public void finished(int status) {

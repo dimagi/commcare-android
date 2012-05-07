@@ -40,6 +40,7 @@ import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.util.AndroidStreamUtil;
+import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
@@ -416,14 +417,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
         }
 		this.startSubmission(submissionNumber, bytes);
 		
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
-        HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
-        HttpClientParams.setRedirecting(params, false);
-
-        // setup client
-        DefaultHttpClient httpclient = new DefaultHttpClient(params);
-        HttpPost httppost = new HttpPost(url);
+		HttpRequestGenerator generator = new HttpRequestGenerator(CommCareApplication._().getSession().getLoggedInUser());
         
         String t = "p+a+s";
         
@@ -481,12 +475,10 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
                 Log.w(t, "unsupported file type, not adding file: " + f.getName());
             }
         }
-        httppost.setEntity(entity);
-
         // prepare response and return uploaded
         HttpResponse response = null;
         try {
-            response = httpclient.execute(httppost);
+        	response = generator.postData(url, entity);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
             return TRANSPORT_FAILURE;

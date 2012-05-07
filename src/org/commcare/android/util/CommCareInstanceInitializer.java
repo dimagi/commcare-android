@@ -56,40 +56,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 			
 			String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
 			
-			IStorageUtilityIndexed storage = CommCareApplication._().getStorage("fixture", FormInstance.class);
-			
-			FormInstance fixture = null;
-			Vector<Integer> relevantFixtures = storage.getIDsForValue(FormInstance.META_ID, refId);
-			
-			///... Nooooot so clean.
-			if(relevantFixtures.size() == 1) {
-				//easy case, one fixture, use it
-				fixture = (FormInstance)storage.read(relevantFixtures.elementAt(0).intValue());
-				//TODO: Userid check anyway?
-			} else if(relevantFixtures.size() > 1){
-				//intersect userid and fixtureid set.
-				//TODO: Replace context call here with something from the session, need to stop relying on that coupling
-				
-				Vector<Integer> relevantUserFixtures = storage.getIDsForValue(FormInstance.META_XMLNS, userId);
-				
-				if(relevantUserFixtures.size() != 0) {
-					Integer userFixture = ArrayUtilities.intersectSingle(relevantFixtures, relevantUserFixtures);
-					if(userFixture != null) {
-						fixture = (FormInstance)storage.read(userFixture.intValue());
-					}
-				}
-				if(fixture == null) {
-					//Oooookay, so there aren't any fixtures for this user, see if there's a global fixture.				
-					Integer globalFixture = ArrayUtilities.intersectSingle(storage.getIDsForValue(FormInstance.META_XMLNS, ""), relevantFixtures);
-					if(globalFixture == null) {
-						//No fixtures?! What is this. Fail somehow. This method should really have an exception contract.
-						return null;
-					}
-					fixture = (FormInstance)storage.read(globalFixture.intValue());
-				}
-			} else {
-				fixture = null;
-			}
+			FormInstance fixture = CommCareUtil.loadFixture(refId, userId);
 			
 			if(fixture == null) {
 				throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);

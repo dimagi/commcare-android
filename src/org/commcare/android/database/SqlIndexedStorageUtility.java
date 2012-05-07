@@ -349,6 +349,13 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		Vector<Integer> removed = new Vector<Integer>();
 		for(IStorageIterator iterator = this.iterate() ; iterator.hasMore() ;) {
 			int id = iterator.nextID();
+			switch(ef.preFilter(id, null)){
+			case EntityFilter.PREFILTER_INCLUDE:
+				removed.add(id);
+				continue;
+			case EntityFilter.PREFILTER_EXCLUDE:
+				continue;
+			}
 			if(ef.matches(read(id))) {
 				removed.add(id);
 			}
@@ -356,7 +363,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		
 		String ids = "(";
 		for(int i = 0; i < removed.size() ; ++i) { 
-			ids += String.valueOf(i);
+			ids += String.valueOf(removed.elementAt(i));
 			if(i < removed.size() -1) {
 				ids +=", ";
 			}

@@ -194,17 +194,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     
     private void syncData() {
     	User u = CommCareApplication._().getSession().getLoggedInUser();
-    	String username = u.getUsername(); 
     	
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		//TODO: We do this in a lot of places, we should wrap it somewhere
-		if(prefs.contains("cc_user_domain")) {
-			username += "@" + prefs.getString("cc_user_domain",null);
-		}
 
-
-    	DataPullTask pullTask = new DataPullTask(username, u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this);
+    	DataPullTask pullTask = new DataPullTask(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this);
     	pullTask.setPullListener(new DataPullListener() {
 
 			public void finished(int status) {
@@ -238,9 +231,15 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 
 			public void progressUpdate(Integer... progress) {
 				if(progress[0] == DataPullTask.PROGRESS_STARTED) {
+					mProgressDialog.setMessage("Cleaning local data");
+				} else if(progress[0] == DataPullTask.PROGRESS_CLEANED) {
 					mProgressDialog.setMessage("Contacting server for sync...");
 				} else if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
 					mProgressDialog.setMessage("Server contacted, downloading data.");
+				}else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+					mProgressDialog.setMessage("Phone and server have inconsistent data! Starting recovery...");
+				} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+					mProgressDialog.setMessage("Recovering local DB State. Please do not turn off the app!");
 				}
 			}
     		
