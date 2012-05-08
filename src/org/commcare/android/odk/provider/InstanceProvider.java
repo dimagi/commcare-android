@@ -69,7 +69,7 @@ public class InstanceProvider extends ContentProvider {
            db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " (" 
                + InstanceColumns._ID + " integer primary key, " 
                + InstanceColumns.DISPLAY_NAME + " text not null, "
-               + InstanceColumns.SUBMISSION_URI + " text, " 
+               + InstanceColumns.SUBMISSION_URI + " text, "
                + InstanceColumns.CAN_EDIT_WHEN_COMPLETE + " text, "
                + InstanceColumns.INSTANCE_FILE_PATH + " text not null, "
                + InstanceColumns.JR_FORM_ID + " text not null, "

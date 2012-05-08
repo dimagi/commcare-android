@@ -45,6 +45,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 	public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
 		
 		try {
+			if(localLocation == null) {
+				throw new ResourceInitializationException("The suite file's location is null!");
+			}
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
 	
 			SuiteParser parser = new SuiteParser(local.getStream(), instance.getGlobalResourceTable(),null);

@@ -71,6 +71,10 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 			int status = customInstall(local, upgrade);
 			
 			table.commit(r, status);
+			
+			if(localLocation == null) {
+				throw new UnresolvedResourceException(r, "After install there is no local resource location");
+			}
 			return true;
 		} catch (InvalidReferenceException e) {
 			e.printStackTrace();
