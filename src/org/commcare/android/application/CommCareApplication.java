@@ -197,6 +197,7 @@ public class CommCareApplication extends Application {
 	}
 
 	public AndroidSessionWrapper getCurrentSessionWrapper() {
+		if(sessionWrapper == null) { throw new SessionUnavailableException(); }
 		return sessionWrapper;
 	}
 	

@@ -279,10 +279,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	try {
-    		
-    		//TODO: We might need to load this from serialized state?
-	    	AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
-	    	
 	    	switch(requestCode) {
 	    	case INIT_APP:
 	    		if(resultCode == RESULT_CANCELED) {
@@ -325,6 +321,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		break;
 	    		
 	    	case GET_INCOMPLETE_FORM:
+	    		//TODO: We might need to load this from serialized state?
+		    	AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+		    	
 	    		if(resultCode == RESULT_CANCELED) {
 	    			refreshView();
 	    			return;
@@ -350,7 +349,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
 	    			return;
 	    		}
+	    		break;
 	    	case GET_COMMAND:
+	    		//TODO: We might need to load this from serialized state?
+		    	currentState = CommCareApplication._().getCurrentSessionWrapper();
 	    		if(resultCode == RESULT_CANCELED) {
 	    			if(currentState.getSession().getCommand() == null) {
 	    				//Needed a command, and didn't already have one. Stepping back from
@@ -368,7 +370,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			currentState.getSession().setCommand(command);
 	    			break;
 	    		}
+	    		break;
 	        case GET_CASE:
+	    		//TODO: We might need to load this from serialized state?
+		    	currentState = CommCareApplication._().getCurrentSessionWrapper();
 	        	if(resultCode == RESULT_CANCELED) {
 	        		currentState.getSession().stepBack();
 	        		break;
@@ -380,6 +385,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			break;
 	    		}
 	        case MODEL_RESULT:
+	    		//TODO: We might need to load this from serialized state?
+		    	currentState = CommCareApplication._().getCurrentSessionWrapper();
 	        	if(resultCode == 1) {
 	        		//Exception in form entry!
 	        		
@@ -698,6 +705,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void returnToLogin() {
+    	returnToLogin("You were logged out of CommCare, please log back in");
+    }
+    
+    private void returnToLogin(String message) {
+    	Toast.makeText(this, message, Toast.LENGTH_LONG);
     	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
     	startActivityForResult(i,LOGIN_USER);
 	}
@@ -839,8 +851,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			}
 			Toast.makeText(this, label, Toast.LENGTH_LONG).show();
 		} else if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-			Toast.makeText(this, "You've been logged out of CommCare, please login again and sync", Toast.LENGTH_LONG).show();
-			returnToLogin();
+			returnToLogin("You've been logged out of CommCare, please login again and sync");
 		} else {
 			Toast.makeText(this, "Having issues communicating with the server to send forms. Will try again later.", Toast.LENGTH_LONG).show();
 		}
