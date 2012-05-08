@@ -191,6 +191,7 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
 		synchronized(lock){
 			key = null;
 			maintenanceTimer.cancel();
+			user = null;
 	        this.stopForeground(true);
 		}
 	}

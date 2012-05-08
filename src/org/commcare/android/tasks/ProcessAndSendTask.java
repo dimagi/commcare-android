@@ -78,6 +78,8 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	public static final long SUBMISSION_NOTIFY = 64;
 	public static final long SUBMISSION_DONE = 128;
 	
+	public static final long PROGRESS_LOGGED_OUT = 256;
+	
 	ProcessTaskListener listener;
 	FormSubmissionListener formSubmissionListener;
 	
@@ -97,6 +99,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
 	protected Integer doInBackground(FormRecord... records) {
+		try { 
 		results = new Long[records.length];
 		for(int i = 0; i < records.length ; ++i ) {
 			//Assume failure
@@ -181,7 +184,6 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 			FormRecord record = records[i];
 			try{
 				//If it's unsent, go ahead and send it
-				
 				if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
 					File folder;
 					try {
@@ -242,6 +244,9 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		}
 		
 		return (int)result;
+		} catch(SessionUnavailableException sue) {
+			return (int)PROGRESS_LOGGED_OUT;
+		}
 	}
 	
 	public static int pending() {

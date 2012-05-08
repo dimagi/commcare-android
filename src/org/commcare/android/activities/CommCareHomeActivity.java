@@ -160,6 +160,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         syncButton  = (Button) findViewById(R.id.sync_now);
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+//            	if(true) {
+//            	throw new RuntimeException("Pass to server!");
+//            	}
                 boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {
 
 					public void processTaskAllProcessed() {
@@ -496,6 +499,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	}
 	    	catch (SessionUnavailableException sue) {
 	    		//TODO: Cache current return, login, and try again
+	    		returnToLogin();
 	    	}
     }
     
@@ -676,9 +680,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	//        	i.putExtra("currentboxtwo", "0");
 	//        	
 	//        	startActivityForResult(i,LOGIN_USER);
-	        	
-	        	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-	        	startActivityForResult(i,LOGIN_USER);
+	        	returnToLogin();
 	        } else if(this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
 	        	CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
 	        	//We were launched in shortcut mode. Get the command and load us up.
@@ -694,12 +696,16 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        }
     	} catch(SessionUnavailableException sue) {
     		//TODO: See how much context we have, and go login
-        	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-        	startActivityForResult(i,LOGIN_USER);
+    		returnToLogin();
     	}
     }
     
-    /*
+    private void returnToLogin() {
+    	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+    	startActivityForResult(i,LOGIN_USER);
+	}
+
+	/*
      * (non-Javadoc)
      * 
      * @see android.app.Activity#onCreateDialog(int)
@@ -835,6 +841,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 				label = successfulSends + " Forms Sent to Server!";
 			}
 			Toast.makeText(this, label, Toast.LENGTH_LONG).show();
+		} else if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
+			Toast.makeText(this, "You've been logged out of CommCare, please login again and sync", Toast.LENGTH_LONG).show();
+			returnToLogin();
 		} else {
 			Toast.makeText(this, "Having issues communicating with the server to send forms. Will try again later.", Toast.LENGTH_LONG).show();
 		}
