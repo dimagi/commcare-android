@@ -68,7 +68,7 @@ public class User implements Persistable, IMetaData
 	}
 	
 	public User(String name, String passw, String uniqueID, String userType) {
-		username = name;
+		username = name.toLowerCase();
 		password = passw;
 		uniqueId = uniqueID;
 		setUserType(userType);
@@ -135,7 +135,7 @@ public class User implements Persistable, IMetaData
 	}
 
 	public void setUsername(String username) {
-		this.username = username;
+		this.username = username.toLowerCase();
 	}
 
 	public void setPassword(String password) {

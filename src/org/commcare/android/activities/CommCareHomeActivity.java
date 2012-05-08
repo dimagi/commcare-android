@@ -160,9 +160,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         syncButton  = (Button) findViewById(R.id.sync_now);
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-//            	if(true) {
-//            	throw new RuntimeException("Pass to server!");
-//            	}
                 boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {
 
 					public void processTaskAllProcessed() {

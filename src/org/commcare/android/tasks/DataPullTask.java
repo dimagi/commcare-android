@@ -12,18 +12,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.ACase;
@@ -37,7 +33,6 @@ import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
-import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.xml.CommCareTransactionParserFactory;
@@ -49,7 +44,6 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.StreamsUtil;
 import org.javarosa.model.xform.XPathReference;
 import org.json.JSONException;
@@ -398,9 +392,13 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	private void updateUserSyncToken(String syncToken) throws StorageFullException {
 		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
-		User u = storage.getRecordForValue(User.META_USERNAME, username);
-		u.setSyncToken(syncToken);
-		storage.write(u);
+		try {
+			User u = storage.getRecordForValue(User.META_USERNAME, username);
+			u.setSyncToken(syncToken);
+			storage.write(u);
+		} catch(NoSuchElementException nsee) {
+			//TODO: Something here? Maybe figure out if we downloaded a user from the server and attach the data to it?
+		}
 	}
 
 	private void purgeCases() {

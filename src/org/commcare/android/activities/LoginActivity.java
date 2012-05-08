@@ -170,7 +170,7 @@ public class LoginActivity extends Activity implements DataPullListener {
     }
     
     private String getUsername() {
-    	return username.getText().toString().trim();
+    	return username.getText().toString().toLowerCase().trim();
     }
     
     private boolean tryLocalLogin() {
