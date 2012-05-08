@@ -12,6 +12,7 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -50,11 +51,15 @@ public class NodeEntityFactory {
 		String[] details = new String[detail.getHeaderForms().length];
 		int count = 0;
 		for(Text t : this.getDetail().getTemplates()) {
-			details[count] = t.evaluate(nodeContext);
+			try {
+				details[count] = t.evaluate(nodeContext);
+			} catch(XPathException xpe) {
+				xpe.printStackTrace();
+				details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
+			}
 			count++;
 		}
 		
 		return new Entity<TreeReference>(details, data);
 	}
-
 }

@@ -59,6 +59,10 @@ public class HttpRequestGenerator {
 		this.credentials = new UsernamePasswordCredentials(domainedUsername, password);
 		this.username = username;
 	}
+	
+	public HttpRequestGenerator() {
+		//No authentication possible
+	}
 
 	public HttpResponse makeCaseFetchRequest(String baseUri) throws ClientProtocolException, IOException {
 		return makeCaseFetchRequest(baseUri, true);
@@ -113,6 +117,9 @@ public class HttpRequestGenerator {
 	}
 	
 	public String getSyncToken(String username) {
+		if(username == null) { 
+			return null;
+		}
 		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
 		Vector<Integer> users = storage.getIDsForValue(User.META_USERNAME, username);
 		//should be exactly one user

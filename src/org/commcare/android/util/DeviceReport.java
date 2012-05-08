@@ -41,29 +41,29 @@ public class DeviceReport {
 		reportNode = document.createElement(XMLNS, "device_report");
 		document.addChild(Element.ELEMENT, reportNode);
 		
-		Element deviceId = reportNode.createElement(null,"device_id");
+		Element deviceId = reportNode.createElement(XMLNS,"device_id");
 		deviceId.addChild(Element.TEXT, did);
 		reportNode.addChild(Element.ELEMENT,deviceId);
 		
-		Element appVersion = reportNode.createElement(null,"version");
-		appVersion.addChild(Element.TEXT, application.getCurrentVersionString());
-		reportNode.addChild(Element.ELEMENT,appVersion);
-		
-		Element reportDate = reportNode.createElement(null,"report_date");
+		Element reportDate = reportNode.createElement(XMLNS,"report_date");
 		reportDate.addChild(Element.TEXT, DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601));
 		reportNode.addChild(Element.ELEMENT,reportDate);
+		
+		Element appVersion = reportNode.createElement(XMLNS,"app_version");
+		appVersion.addChild(Element.TEXT, application.getCurrentVersionString());
+		reportNode.addChild(Element.ELEMENT,appVersion);
 	}
 	
 	public void addLogMessage(String type, String message, Date dateTime) {
 		Element lroot = logroot();
-		Element entry = lroot.createElement(null,"log_entry");
+		Element entry = lroot.createElement(XMLNS,"log");
 		entry.setAttribute(null, "date", DateUtils.formatDateTime(dateTime, DateUtils.FORMAT_ISO8601));
 		
-		Element nType = entry.createElement(null,"entry_type");
+		Element nType = entry.createElement(XMLNS,"type");
 		nType.addChild(Element.TEXT, type);
 		entry.addChild(Element.ELEMENT,nType);
 		
-		Element nMessage = entry.createElement(null,"entry_message");
+		Element nMessage = entry.createElement(XMLNS,"msg");
 		nMessage.addChild(Element.TEXT, message);
 		entry.addChild(Element.ELEMENT,nMessage);
 		
@@ -74,7 +74,7 @@ public class DeviceReport {
 	
 	private Element logroot() {
 		if(log ==null ) {
-			log = reportNode.createElement(null,"log_subreport");
+			log = reportNode.createElement(XMLNS,"log_subreport");
 			reportNode.addChild(Element.ELEMENT,log);
 		}
 		return log;

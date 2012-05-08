@@ -115,27 +115,13 @@ public class FormRecordListActivity extends ListActivity {
     
     private void returnItem(int position) {
     	FormRecord value = (FormRecord)getListAdapter().getItem(position);
+    	
+        // We want to actually launch an interactive form entry.
+        Intent i = new Intent();
+        i.putExtra(FormRecord.STORAGE_KEY, value.getID());
+        setResult(RESULT_OK, i);
 
-    	if(FormRecord.STATUS_SAVED.equals(adapter.getFilter())) {
-    		Intent i = new Intent("org.odk.collect.android.action.FormEntry");
-    		i.putExtra("formpath", CommCareApplication._().getCommCarePlatform().getFormContentUri(value.getFormNamespace()));
-    		
-    		i.putExtra("instancepath", value.getPath());
-    		i.putExtra("encryptionkey", value.getAesKey());
-    		i.putExtra("encryptionkeyalgo", "AES");
-    		
-    		i.putExtra("readonlyform", true);
-    		
-    		startActivity(i);
-    		return;
-    	} else {
-	        // We want to actually launch an interactive form entry.
-	        Intent i = new Intent();
-	        i.putExtra(FormRecord.STORAGE_KEY, value.getID());
-	        setResult(RESULT_OK, i);
-	
-	        finish();
-    	}
+        finish();
     }
     
     @Override

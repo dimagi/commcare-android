@@ -26,19 +26,13 @@ import java.util.Date;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.DeviceReport;
+import org.commcare.android.util.HttpRequestGenerator;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -81,11 +75,6 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
 			data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate +"</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + fallbacktext + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
 		}
 		
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
-        HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
-        HttpClientParams.setRedirecting(params, false);
-
         String URI = CommCareApplication._().getString(R.string.PostURL);
         try {
         	SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
@@ -94,15 +83,14 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
         	//D-oh. Really?
         }
         
-        // setup client
-        DefaultHttpClient httpclient = new DefaultHttpClient(params);
-        HttpPost httppost = new HttpPost(URI);
+        String payload = new String(data);
+        System.out.println("Outgoing payload: " + payload);
         
         MultipartEntity entity = new MultipartEntity();
         try {
         	//Apparently if you don't have a filename in the multipart wrapper, some receivers
         	//don't properly receive this post.
-        	StringBody body = new StringBody(new String(data), "text/xml", MIME.DEFAULT_CHARSET) {
+        	StringBody body = new StringBody(payload, "text/xml", MIME.DEFAULT_CHARSET) {
 				@Override
 				public String getFilename() {
 					return "exceptionreport.xml";
@@ -116,12 +104,17 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
 		} catch (UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
-
         
-        httppost.setEntity(entity);
+        HttpRequestGenerator generator;
+        try {
+        	generator = new HttpRequestGenerator(CommCareApplication._().getSession().getLoggedInUser());
+        } catch(Exception e){
+        	generator = new HttpRequestGenerator();
+        }
+        
         
         try {
-			HttpResponse response = httpclient.execute(httppost);
+			HttpResponse response = generator.postData(URI, entity);
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			response.getEntity().writeTo(bos);
 			System.out.println("Response: " + new String(bos.toByteArray()));
