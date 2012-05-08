@@ -68,7 +68,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
 			AndroidStreamUtil.writeFromInputToOutput(ref.getStream(), local.getOutputStream());
 			
-			int status = customInstall(local, upgrade);
+			int status = customInstall(r, local, upgrade);
 			
 			table.commit(r, status);
 			
@@ -85,7 +85,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		}
 	}
 
-	protected abstract int customInstall(Reference local, boolean upgrade) throws IOException;
+	protected abstract int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException;
 	
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()

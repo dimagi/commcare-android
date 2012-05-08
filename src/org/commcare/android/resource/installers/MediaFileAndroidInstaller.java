@@ -64,7 +64,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
 		return FileUtil.cleanFilePath(this.upgradeDestination, path);
 	}
 	
-	protected int customInstall(Reference local, boolean upgrade) throws IOException {
+	protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
 		return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
 	}
 

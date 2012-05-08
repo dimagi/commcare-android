@@ -61,9 +61,11 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		return true;
 	}
 	
-	protected int customInstall(Reference local, boolean upgrade) throws IOException {
+	@Override
+	protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
 		FormDef formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
 		this.namespace = formDef.getInstance().schema;
+		if(namespace == null) { throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined");}
 		
 		
 		//TODO: Where should this context be?

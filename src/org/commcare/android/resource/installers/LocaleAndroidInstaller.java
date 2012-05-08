@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
@@ -45,7 +46,7 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
 		return true;
 	}
 	
-	protected int customInstall(Reference local, boolean upgrade) throws IOException {
+	protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
 		return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
 	}
 

@@ -167,7 +167,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 		return true;
 	}
 	
-	protected int customInstall(Reference local, boolean upgrade) throws IOException {
+	protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
 		return Resource.RESOURCE_STATUS_LOCAL;
 	}
 

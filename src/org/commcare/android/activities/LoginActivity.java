@@ -299,7 +299,10 @@ public class LoginActivity extends Activity implements DataPullListener {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                dataPuller.cancel(true);
+                                //If it is null, this is tricky to recover from? 
+                                if(dataPuller != null) {
+                                	dataPuller.cancel(true);
+                                }
                             }
                         };
                 mProgressDialog.setTitle("Communicating with Server");
