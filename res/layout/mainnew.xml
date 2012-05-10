@@ -89,7 +89,7 @@
                 android:text="Sync With Server" android:layout_marginBottom="-6dp"/>
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/home.sync.message"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="You have N pending items, and last synced with the server at SOMEDATE"

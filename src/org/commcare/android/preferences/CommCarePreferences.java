@@ -20,6 +20,7 @@ import org.commcare.android.R;
 import org.commcare.android.activities.LoginActivity;
 import org.commcare.android.application.CommCareApplication;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
@@ -29,6 +30,7 @@ import android.view.MenuItem;
 public class CommCarePreferences extends PreferenceActivity {
 	
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
+	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,8 @@ public class CommCarePreferences extends PreferenceActivity {
         super.onCreateOptionsMenu(menu);
         menu.add(0, CLEAR_USER_DATA, 0, "Clear User Data").setIcon(
                 android.R.drawable.ic_menu_delete);
+        menu.add(0, ABOUT_COMMCARE, 1, "About CommCare").setIcon(
+                android.R.drawable.ic_menu_help);
         return true;
     }
 
@@ -53,6 +57,10 @@ public class CommCarePreferences extends PreferenceActivity {
                 CommCareApplication._().clearUserData();
                 this.finish();
                 return true;
+            case ABOUT_COMMCARE:
+            	AlertDialog dialog = new AlertDialog.Builder(this).setMessage(R.string.aboutdialog).create();
+            	dialog.show();
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -15,4 +15,17 @@
 <string name="expirenotification">CommCare Login Expired</string>
 <string name="submission_notification_title">Submitting Data</string>
 <string name="form_record_url"></string>
+<string name="aboutdialog">
+CommCare ODK
+Copyright 2010, Dimagi inc, All rights reserved
+
+Some images in CommCare are graciously used under Creative Commons Licensing
+“Door” symbol by Tak Imoto
+“Pencil” symbol by Creologica
+“Notebook” symbol by Carlo
+“Antenna” symbol by Dima
+
+from thenounproject.com collection.
+
+</string>
 </resources>

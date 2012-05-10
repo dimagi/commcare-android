@@ -9,6 +9,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -69,6 +71,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 /**
@@ -141,6 +144,9 @@ public class CommCareApplication extends Application {
 	}
 	
 	public void logIn(byte[] symetricKey, User user) {
+		if(this.mIsBound) {
+			logout();
+		}
 		doBindService(symetricKey, user);
 	}
 	
@@ -610,5 +616,24 @@ public class CommCareApplication extends Application {
 			throw new SessionUnavailableException();
 		}
 	}
+
+	
+	//TODO: Priorities and such
+	public String getSyncMessage() {
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	long lastSync = prefs.getLong("last-succesful-sync", 0);
+    	CharSequence syncTime = lastSync == 0? "never" : DateUtils.formatSameDayTime(lastSync, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
+    	int unsentForms = this.getStorage(FormRecord.STORAGE_KEY, FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+    	
+    	//TODO: Localize this all
+    	String message = "";
+    	if(unsentForms > 0) {
+    		String pluralmsg = unsentForms > 1 ? " forms which have " : " form which has ";
+    		message += "You have " + unsentForms + pluralmsg + "not been sent to the server.\n";
+    	}
+    	message += "You last synced with the server: " + syncTime;
+    	return message;
+	}
+	
 
 }

@@ -126,10 +126,9 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		} catch(SessionUnavailableException sue) {
 			//expected if we aren't initialized.
 		}
-		
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+
 		if(loginNeeded) {
-	    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
-	    	
 	    	if("true".equals(prefs.getString("cc-auto-update","false"))) {
 	    		Editor e = prefs.edit();
 	    		e.putLong("last-ota-restore", new Date().getTime());
@@ -210,6 +209,12 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 						InputStream cacheIn = cache.retrieveCache();
 						String syncToken = readInput(cacheIn, factory);
 						updateUserSyncToken(syncToken);
+						
+						//record when we last synced
+			    		Editor e = prefs.edit();
+			    		e.putLong("last-succesful-sync", new Date().getTime());
+			    		e.commit();
+						
 							
 						this.publishProgress(PROGRESS_DONE);
 						return DOWNLOAD_SUCCESS;

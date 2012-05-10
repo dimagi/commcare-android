@@ -1,10 +1,7 @@
 package org.commcare.android.activities;
 
 import java.io.File;
-import java.util.Date;
 import java.util.Vector;
-
-import javax.crypto.SecretKey;
 
 import org.commcare.android.R;
 import org.commcare.android.application.AndroidShortcuts;
@@ -18,17 +15,15 @@ import org.commcare.android.odk.provider.FormsProviderAPI;
 import org.commcare.android.odk.provider.InstanceProviderAPI;
 import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.preferences.CommCarePreferences;
-import org.commcare.android.providers.PreloadContentProvider;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Profile;
@@ -51,6 +46,7 @@ import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -109,9 +105,15 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.out.println("Old home " + CommCareHomeActivity.currentHome + " , new home: " + this);
+
         currentHome = this;
-        setContentView(R.layout.mainnew);
         
+        setContentView(R.layout.mainnew);
+        configUi();
+    }
+    
+    private void configUi() {
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
         
@@ -171,6 +173,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
                 			String label = successfulSends + " Forms Sent to Server!";
                 			Toast.makeText(currentHome, label, Toast.LENGTH_LONG).show();
+                			refreshView();
                 			
                 			//OK, all forms sent, sync time 
                 			syncData();
@@ -190,6 +193,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 
             }
         });
+        
+        refreshView();
     }
     
     private void syncData() {
@@ -226,6 +231,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 					break;
 				}
 				
+				refreshView();
 				//TODO: What if the user info was updated?
 			}
 
@@ -476,11 +482,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         				//TODO: Move this to be a system notification thing
         				mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
         				mProcess.setListeners(this, CommCareApplication._().getSession());
-        				
+
+        				refreshView();
+        				System.out.println("Creating dialog from " + this);
         				showDialog(DIALOG_PROCESS);
         				mProcess.execute(current);
 	        			currentState.reset();
-        				refreshView();
         				return;
 	        		} else {
 	        			//Form record is now stored. 
@@ -691,12 +698,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        	startNextFetch();
 	        	//Only launch shortcuts once per intent
 	        	this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
-	        }
-	        
-	        //Make sure that the review button is properly enabled.
-	        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-	        if(p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-	        	viewOldForms.setVisibility(Button.VISIBLE);
+	        } else {
+	        	refreshView();
 	        }
     	} catch(SessionUnavailableException sue) {
     		//TODO: See how much context we have, and go login
@@ -722,6 +725,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     protected Dialog onCreateDialog(int id) {
     	mCurrentDialog = id;
+		System.out.println("Set dialog from home : " + this);
         switch (id) {
         case DIALOG_PROCESS:
                 mProgressDialog = new ProgressDialog(this);
@@ -838,6 +842,18 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void refreshView() {
+    	
+        TextView version = (TextView)findViewById(R.id.str_version);
+        version.setText(CommCareApplication._().getCurrentVersionString());
+        
+        TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
+        syncMessage.setText(CommCareApplication._().getSyncMessage());
+
+        //Make sure that the review button is properly enabled.
+        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        if(p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
+        	viewOldForms.setVisibility(Button.VISIBLE);
+        }
     }
 
     //Process and send listeners
@@ -860,7 +876,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	
 	public void processTaskAllProcessed() {
 		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
-		currentHome.dismissDialog(mCurrentDialog);
+		System.out.println("Dismissing dialog from " + currentHome);
+		currentHome.removeDialog(mCurrentDialog);
 	}
 	
 	//END - Process and Send Listeners
@@ -911,5 +928,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             	return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+      super.onConfigurationChanged(newConfig);
+      setContentView(R.layout.mainnew);
+      System.out.println("Old home " + CommCareHomeActivity.currentHome + " , new home: " + this);
+      CommCareHomeActivity.currentHome = this;
+      configUi();
     }
 }

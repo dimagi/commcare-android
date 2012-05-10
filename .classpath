@@ -9,6 +9,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare.cases"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="/opendatakit.collect/lib/joda-time-2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/opendatakit.collect/lib/joda-time-2.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
