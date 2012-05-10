@@ -158,7 +158,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	
 	    	adapter = new EntityListAdapter(this, detail, getEC(), references, defaultKey);
 	    	setListAdapter(adapter);
-	    	searchbox.requestFocus();
+	    	
     	} catch(SessionUnavailableException sue) {
     		//TODO: login and return
     	}
