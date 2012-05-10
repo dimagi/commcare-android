@@ -110,7 +110,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentHome = this;
-        setContentView(R.layout.main);
+        setContentView(R.layout.mainnew);
         
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
@@ -118,7 +118,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         platform = CommCareApplication._().getCommCarePlatform();
         
         // enter data button. expects a result.
-        startButton = (Button) findViewById(R.id.start);
+        startButton = (Button) findViewById(R.id.home_start);
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MenuList.class);
@@ -128,7 +128,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         });
         
      // enter data button. expects a result.
-        viewIncomplete = (Button) findViewById(R.id.incomplete);
+        viewIncomplete = (Button) findViewById(R.id.home_forms_incomplete);
         viewIncomplete.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
@@ -138,7 +138,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             }
         });
         
-        logoutButton = (Button) findViewById(R.id.logout);
+        logoutButton = (Button) findViewById(R.id.home_logout);
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().logout();
@@ -148,7 +148,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             }
         });
         
-        viewOldForms = (Button) findViewById(R.id.old);
+        viewOldForms = (Button) findViewById(R.id.home_forms_old);
         viewOldForms.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
@@ -157,7 +157,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             }
         });
         
-        syncButton  = (Button) findViewById(R.id.sync_now);
+        syncButton  = (Button) findViewById(R.id.home_sync);
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {

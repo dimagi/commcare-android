@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/ImageView01"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ccbanner" android:layout_alignParentRight="true"/>
+
+    <Button
+        android:id="@+id/home.logout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Logout of CommCare" android:drawableLeft="@drawable/door"/>
+
+    <TextView
+        android:id="@+id/str_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/home.logout"
+        android:layout_alignParentLeft="true"
+        android:textSize="10dp" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/str_version"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical" android:layout_centerVertical="true" android:padding="20dp">
+
+        <Button
+            android:id="@+id/home.start"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Get Started" android:layout_marginBottom="8dp" android:drawableLeft="@drawable/pencil"/>
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" 
+            android:orientation="vertical" android:layout_marginBottom="15dp">
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Form Records"
+                android:textAppearance="?android:attr/textAppearanceMedium" android:layout_gravity="center_vertical|center_horizontal|center"/>
+
+            <LinearLayout
+                android:id="@+id/linearLayout3"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/home.forms.incomplete"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Incomplete" android:layout_weight="1" android:drawableTop="@drawable/notebook_incomplete"/>
+
+                <Button
+                    android:id="@+id/home.forms.old"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Saved" android:layout_weight="1" android:drawableTop="@drawable/notebook_full"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/LinearLayout01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/home.sync"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/sync"
+                android:text="Sync With Server" android:layout_marginBottom="-6dp"/>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="You have N pending items, and last synced with the server at SOMEDATE"
+                android:textAppearance="?android:attr/textAppearanceSmall" android:layout_gravity="right" android:paddingBottom="5dp" android:paddingLeft="5dp" android:paddingRight="5dp" android:background="@drawable/bubble" android:layout_marginLeft="3dp" android:layout_marginRight="2dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
