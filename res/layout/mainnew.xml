@@ -32,9 +32,8 @@
         android:id="@+id/linearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/str_version"
         android:layout_centerHorizontal="true"
-        android:orientation="vertical" android:layout_centerVertical="true" android:padding="20dp">
+        android:orientation="vertical" android:padding="20dp" android:layout_above="@id/home.logout" android:layout_alignParentTop="true" android:gravity="center_vertical|center_horizontal">
 
         <Button
             android:id="@+id/home.start"
