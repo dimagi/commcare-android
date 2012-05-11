@@ -1,6 +1,8 @@
 package org.commcare.android.activities;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.android.R;
@@ -31,6 +33,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -51,7 +54,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
 import android.util.Base64;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -105,7 +110,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("Old home " + CommCareHomeActivity.currentHome + " , new home: " + this);
 
         currentHome = this;
         
@@ -121,6 +125,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         
         // enter data button. expects a result.
         startButton = (Button) findViewById(R.id.home_start);
+        startButton.setText(Localization.get("home.start"));
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MenuList.class);
@@ -131,6 +136,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         
      // enter data button. expects a result.
         viewIncomplete = (Button) findViewById(R.id.home_forms_incomplete);
+        viewIncomplete.setText(Localization.get("home.forms.incomplete"));
         viewIncomplete.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
@@ -141,6 +147,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         });
         
         logoutButton = (Button) findViewById(R.id.home_logout);
+        logoutButton.setText(Localization.get("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().logout();
@@ -150,7 +157,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             }
         });
         
+        
+        TextView formGroupLabel = (TextView) findViewById(R.id.home_formrecords_label);
+        formGroupLabel.setText(Localization.get("home.forms"));
+        
         viewOldForms = (Button) findViewById(R.id.home_forms_old);
+        viewOldForms.setText(Localization.get("home.forms.saved"));
         viewOldForms.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
@@ -160,6 +172,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         });
         
         syncButton  = (Button) findViewById(R.id.home_sync);
+        syncButton.setText(Localization.get("home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {
@@ -171,7 +184,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 	public void processAndSendFinished(int result, int successfulSends) {
                 		if(currentHome != CommCareHomeActivity.this) { System.out.println("Fixing issue with new activity");}
                 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
-                			String label = successfulSends + " Forms Sent to Server!";
+                			String label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
                 			Toast.makeText(currentHome, label, Toast.LENGTH_LONG).show();
                 			refreshView();
                 			
@@ -180,7 +193,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 			
                 		} else {
                 			currentHome.dismissDialog(mCurrentDialog);
-                			Toast.makeText(currentHome, "Having issues communicating with the server to send forms. Will try again later.", Toast.LENGTH_LONG).show();
+                			Toast.makeText(currentHome, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                 		}
                 	}
 
@@ -212,22 +225,22 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 				switch(status) {
 				case DataPullTask.AUTH_FAILED:
 					Toast.makeText(currentHome, 
-							"Authentication failed on server. Please log out and try to log in again with syncing", 
+							Localization.get("sync.fail.auth.loggedin"), 
 							Toast.LENGTH_LONG).show();
 					break;
 				case DataPullTask.BAD_DATA:
-					Toast.makeText(currentHome, "Server provided improperly formatted data, please try again or contact your supervisor.", 
+					Toast.makeText(currentHome, Localization.get("sync.fail.bad.data"), 
 							Toast.LENGTH_LONG).show();
 					break;
 				case DataPullTask.DOWNLOAD_SUCCESS:
-					Toast.makeText(currentHome, "Sync Success!", Toast.LENGTH_LONG).show();
+					Toast.makeText(currentHome, Localization.get("sync.success.synced"), Toast.LENGTH_LONG).show();
 					break;
 				case DataPullTask.UNREACHABLE_HOST:
-					Toast.makeText(currentHome, "Couldn't contact server. Please make sure an internet connection is available or try again later.", 
+					Toast.makeText(currentHome, Localization.get("sync.fail.bad.network"), 
 							Toast.LENGTH_LONG).show();
 					break;
 				case DataPullTask.UNKNOWN_FAILURE:
-					Toast.makeText(currentHome, "Unknown failure, please try again.", Toast.LENGTH_LONG).show();
+					Toast.makeText(currentHome, Localization.get("sync.fail.unknown"), Toast.LENGTH_LONG).show();
 					break;
 				}
 				
@@ -237,15 +250,15 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 
 			public void progressUpdate(Integer... progress) {
 				if(progress[0] == DataPullTask.PROGRESS_STARTED) {
-					mProgressDialog.setMessage("Cleaning local data");
+					mProgressDialog.setMessage(Localization.get("sync.progress.purge"));
 				} else if(progress[0] == DataPullTask.PROGRESS_CLEANED) {
-					mProgressDialog.setMessage("Contacting server for sync...");
+					mProgressDialog.setMessage(Localization.get("sync.progress.authing"));
 				} else if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
-					mProgressDialog.setMessage("Server contacted, downloading data.");
+					mProgressDialog.setMessage(Localization.get("sync.progress.downloading"));
 				}else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-					mProgressDialog.setMessage("Phone and server have inconsistent data! Starting recovery...");
+					mProgressDialog.setMessage(Localization.get("sync.recover.needed"));
 				} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-					mProgressDialog.setMessage("Recovering local DB State. Please do not turn off the app!");
+					mProgressDialog.setMessage(Localization.get("sync.recover.started"));
 				}
 			}
     		
@@ -406,7 +419,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	            		task.execute(ex);
 	        		}
 	        		
-	        		Toast.makeText(this, "There was an unrecoverable error during form entry! If the problem persists, seek technical support", Toast.LENGTH_LONG);
+	        		Toast.makeText(this, Localization.get("form.entry.segfault"), Toast.LENGTH_LONG);
 	        		
 	        		
 	        		currentState.reset();
@@ -484,7 +497,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         				mProcess.setListeners(this, CommCareApplication._().getSession());
 
         				refreshView();
-        				System.out.println("Creating dialog from " + this);
         				showDialog(DIALOG_PROCESS);
         				mProcess.execute(current);
 	        			currentState.reset();
@@ -515,6 +527,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void startNextFetch() throws SessionUnavailableException {
+    	
+    	//TODO: feels like this logic should... not be in a big disgusting ifghetti. 
+    	//Interface out the transitions, maybe?
+    	
     	CommCareSession session = CommCareApplication._().getCurrentSession();
     	String needed = session.getNeededData();
     	String[] lastPopped = session.getPoppedStep();
@@ -708,7 +724,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void returnToLogin() {
-    	returnToLogin("You were logged out of CommCare, please log back in");
+    	returnToLogin(Localization.get("app.workflow.login.lost"));
     }
     
     private void returnToLogin(String message) {
@@ -729,15 +745,15 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         switch (id) {
         case DIALOG_PROCESS:
                 mProgressDialog = new ProgressDialog(this);
-                mProgressDialog.setTitle("Processing Form");
-                mProgressDialog.setMessage("Processing your Form");
+                mProgressDialog.setTitle(Localization.get("form.entry.processing.title"));
+                mProgressDialog.setMessage(Localization.get("form.entry.processing"));
                 mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
                 return mProgressDialog;
         case DIALOG_SEND_UNSENT:
 	        	mProgressDialog = new ProgressDialog(this);
-	            mProgressDialog.setTitle("Sending...");
-	            mProgressDialog.setMessage("Sending Unsent Data to Server");
+	            mProgressDialog.setTitle(Localization.get("sync.progress.submitting.title"));
+	            mProgressDialog.setMessage(Localization.get("sync.progress.submitting"));
 	            mProgressDialog.setIndeterminate(true);
 	            mProgressDialog.setCancelable(false);
 	            return mProgressDialog;
@@ -748,6 +764,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     public Dialog createAskFixDialog() {
+    	//TODO: Localize this in theory, but really shift it to the upgrade/management state
+    	
     	mAttemptFixDialog = new AlertDialog.Builder(this).create();
     	
     	//Test if this was a botched upgrade.
@@ -807,8 +825,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         mAskOldDialog = new AlertDialog.Builder(this).create();
-        mAskOldDialog.setTitle("Continue Form");
-        mAskOldDialog.setMessage("You've got a saved copy of an incomplete form for this client. Do you want to continue filling out that form?");
+        mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));
+        mAskOldDialog.setMessage(Localization.get("app.workflow.incomplete.continue"));
         DialogInterface.OnClickListener useOldListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
             	try {
@@ -834,9 +852,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             }
         };
         mAskOldDialog.setCancelable(false);
-        mAskOldDialog.setButton("Yes", useOldListener);
-        mAskOldDialog.setButton2("Delete it", useOldListener);
-        mAskOldDialog.setButton3("No", useOldListener);
+        mAskOldDialog.setButton(Localization.get("option.yes"), useOldListener);
+        mAskOldDialog.setButton2(Localization.get("app.workflow.incomplete.continue.option.delete"), useOldListener);
+        mAskOldDialog.setButton3(Localization.get("option.no"), useOldListener);
         
         mAskOldDialog.show();
     }
@@ -847,7 +865,21 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         version.setText(CommCareApplication._().getCurrentVersionString());
         
         TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
-        syncMessage.setText(CommCareApplication._().getSyncMessage());
+        Pair<Long, Integer> syncDetails = CommCareApplication._().getSyncDisplayParameters();
+        
+    	
+    	CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
+    	//TODO: Localize this all
+    	String message = "";
+    	if(syncDetails.second == 1) {
+    		message += Localization.get("home.sync.message.unsent.singular") + "\n";
+    	} else if (syncDetails.second > 1) {
+    		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second)}) + "\n";
+    	}
+    	message += Localization.get("home.sync.message.last", new String[] { syncTime.toString() });
+    	
+    	syncMessage.setText(message);
+
 
         //Make sure that the review button is properly enabled.
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
@@ -861,22 +893,21 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	public void processAndSendFinished(int result, int successfulSends) {
 		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
-			String label = "Form Sent to Server!";
+			String label = Localization.get("sync.success.sent.singular", new String[] {String.valueOf(successfulSends)});
 			if(successfulSends > 1) {
-				label = successfulSends + " Forms Sent to Server!";
+				label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
 			}
 			Toast.makeText(this, label, Toast.LENGTH_LONG).show();
 		} else if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-			returnToLogin("You've been logged out of CommCare, please login again and sync");
+			returnToLogin(Localization.get("app.workflow.login.lost"));
 		} else {
-			Toast.makeText(this, "Having issues communicating with the server to send forms. Will try again later.", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
 		}
 		refreshView();
 	}
 	
 	public void processTaskAllProcessed() {
 		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
-		System.out.println("Dismissing dialog from " + currentHome);
 		currentHome.removeDialog(mCurrentDialog);
 	}
 	
@@ -898,11 +929,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_PREFERENCES, 0, "Settings").setIcon(
+        menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
                 android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_UPDATE, 0, "Update CommCare").setIcon(
+        menu.add(0, MENU_UPDATE, 0, Localization.get("home.menu.update")).setIcon(
         		android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_CALL_LOG, 0, "Call Log").setIcon(
+        menu.add(0, MENU_CALL_LOG, 0, Localization.get("home.menu.call.log")).setIcon(
         		android.R.drawable.ic_menu_recent_history);
         return true;
     }
@@ -934,7 +965,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     public void onConfigurationChanged(Configuration newConfig) {
       super.onConfigurationChanged(newConfig);
       setContentView(R.layout.mainnew);
-      System.out.println("Old home " + CommCareHomeActivity.currentHome + " , new home: " + this);
       CommCareHomeActivity.currentHome = this;
       configUi();
     }

@@ -11,13 +11,13 @@ import java.util.Date;
 import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -94,7 +94,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 				
 				if(false) {
 					Toast.makeText(LoginActivity.this, 
-							"Login or Pasword are incorrect. Please try again.", 
+							Localization.get("login.attempt.badcred"), 
 							Toast.LENGTH_LONG).show();
 					return;
 				}
@@ -135,6 +135,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 			checkServer.setChecked(true);
 			checkServer.setEnabled(false);
 		}
+		checkServer.setText(Localization.get("login.sync"));
     }
     
     /*
@@ -163,9 +164,9 @@ public class LoginActivity extends Activity implements DataPullListener {
     }
     
     private void refreshView() {
-    	passLabel.setText("Password:");
-    	userLabel.setText("Username:");
-    	login.setText("Log In");
+    	userLabel.setText(Localization.get("login.username"));
+    	passLabel.setText(Localization.get("login.password"));
+    	login.setText(Localization.get("login.button"));
     	autoUpdateConfig();
     }
     
@@ -235,13 +236,13 @@ public class LoginActivity extends Activity implements DataPullListener {
 		switch(status) {
 		case DataPullTask.AUTH_FAILED:
 			Toast.makeText(this, 
-					"Authentication failed on server, please check credentials and try again.", 
+					Localization.get("login.attempt.fail.auth"), 
 					Toast.LENGTH_LONG).show();
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.BAD_DATA:
 			Toast.makeText(this, 
-					"Server provided improperly formatted data, please contact your supervisor.", 
+					Localization.get("sync.fail.bad.data"), 
 					Toast.LENGTH_LONG).show();
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
@@ -251,19 +252,19 @@ public class LoginActivity extends Activity implements DataPullListener {
 				break;
 			} else {
 				Toast.makeText(this, 
-						"Your information was fetched, but a problem occured with the log in. Please try again.", 
+						Localization.get("sync.fail.bad.local"), 
 						Toast.LENGTH_LONG).show();
 				break;
 			}
 		case DataPullTask.UNREACHABLE_HOST:
 			Toast.makeText(this, 
-					"Couldn't contact server. Please make sure an internet connection is available or try again later.", 
+					Localization.get("sync.fail.bad.network"), 
 					Toast.LENGTH_LONG).show();
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.UNKNOWN_FAILURE:
 			Toast.makeText(this, 
-					"Unknown failure, please try again.", 
+					Localization.get("sync.fail.unknown"), 
 					Toast.LENGTH_LONG).show();
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
@@ -271,16 +272,17 @@ public class LoginActivity extends Activity implements DataPullListener {
 	}
 
 	public void progressUpdate(Integer ... progress) {
+		//TODO: Unify this into some progress dialog or something? We reuse in a couple of places
 		if(progress[0] == DataPullTask.PROGRESS_STARTED) {
-			mProgressDialog.setMessage("Cleaning local data");
+			mProgressDialog.setMessage(Localization.get("sync.progress.purge"));
 		} else if(progress[0] == DataPullTask.PROGRESS_CLEANED) {
-			mProgressDialog.setMessage("Requesting Data...");
+			mProgressDialog.setMessage(Localization.get("sync.progress.authing"));
 		} else if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
-			mProgressDialog.setMessage("Server contacted, downloading data.");
+			mProgressDialog.setMessage(Localization.get("sync.progress.downloading"));
 		} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-			mProgressDialog.setMessage("Phone and server have inconsistent data! Starting recovery...");
+			mProgressDialog.setMessage(Localization.get("sync.recover.needed"));
 		} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-			mProgressDialog.setMessage("Recovering local DB State. Please do not turn off the app!");
+			mProgressDialog.setMessage(Localization.get("sync.recover.started"));
 		}
 		
 	}
@@ -305,11 +307,11 @@ public class LoginActivity extends Activity implements DataPullListener {
                                 }
                             }
                         };
-                mProgressDialog.setTitle("Communicating with Server");
-                mProgressDialog.setMessage("Requesting Data...");
+                mProgressDialog.setTitle(Localization.get("sync.progress.title"));
+                mProgressDialog.setMessage(Localization.get("sync.progress.starting"));
                 mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
-                mProgressDialog.setButton("cancel", loadingButtonListener);
+                mProgressDialog.setButton(Localization.get("option.cancel"), loadingButtonListener);
                 return mProgressDialog;
         }
         return null;

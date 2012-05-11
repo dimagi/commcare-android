@@ -1,0 +1,59 @@
+option.yes=Yes
+option.no=No
+option.cancel=Cancel
+
+
+app.workflow.login.lost=You were logged out of CommCare, please log back in
+app.workflow.incomplete.continue.title=Continue Form
+app.workflow.incomplete.continue=You've got a saved copy of an incomplete form for this client. Do you want to continue filling out that form?
+app.workflow.incomplete.continue.option.delete=Delete Old Copy
+
+home.start=Get Started
+home.forms=Form Records
+home.forms.incomplete=Incomplete
+home.forms.saved=Saved
+home.sync=Sync with Server
+home.logout=Log out of CommCare
+
+home.sync.message.unsent.singular=You have 1 form which has not been submitted
+home.sync.message.unsent.plural=You have {0} forms which have not been submitted
+home.sync.message.last=You last synced with the server: ${0}
+home.sync.message.last.never=never
+
+home.menu.settings=Settings
+home.menu.update=Update CommCare
+home.menu.call.log=Call Log
+
+sync.success.sent.singular=Form sent to server!
+sync.success.sent=${0} forms sent to server!
+sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
+
+sync.success.synced=Sync Successful! Your information is up to date.
+
+sync.fail.auth.loggedin=Authentication failed on server. Please log out and try to log in again with syncing.
+sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
+sync.fail.bad.local=Your information was fetched, but a problem occured with the log in. Please try again.
+sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
+sync.fail.unknown=Unknown failure, please try again.
+
+sync.progress.title=Communicating with Server
+sync.progress.starting=Requesting Data...
+sync.progress.submitting.title=Submitting Data
+sync.progress.submitting=Sending Unsent Data to Server
+sync.progress.purge=Cleaning local data
+sync.progress.authing=Contacting server for sync...
+sync.progress.downloading=Server contacted, downloading data.
+
+sync.recover.needed=Phone and server have inconsistent data! Starting recovery...
+sync.recover.started=Recovering local DB State. Please do not turn off the app!
+
+form.entry.segfault=There was an unrecoverable error during form entry! If the problem persists, seek technical support
+form.entry.processing=Processing your Form
+form.entry.processing.title=Processing Form
+
+login.attempt.badcred=Login or Pasword are incorrect. Please try again.
+login.attempt.fail.auth=Authentication failed on server, please check credentials and try again.
+login.username=Username:
+login.password=Password:
+login.button=Log In
+login.sync=Synchronize with server

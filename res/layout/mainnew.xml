@@ -48,7 +48,7 @@
             android:orientation="vertical" android:layout_marginBottom="15dp">
 
             <TextView
-                android:id="@+id/textView1"
+                android:id="@+id/home.formrecords.label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Form Records"

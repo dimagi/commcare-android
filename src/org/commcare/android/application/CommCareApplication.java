@@ -30,6 +30,7 @@ import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
+import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.services.CommCareSessionService;
@@ -73,6 +74,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.util.Pair;
 
 /**
  * @author ctsims
@@ -119,6 +121,8 @@ public class CommCareApplication extends Application {
 		
         appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         
+        setupLocalization();
+        
 		int[] version = getCommCareVersion();
 		platform = new AndroidCommCarePlatform(version[0], version[1], this);
 		
@@ -134,7 +138,7 @@ public class CommCareApplication extends Application {
 			}
 		}
 	}
-	
+
 	public void logout() {
 		if(this.sessionWrapper != null) {
 			sessionWrapper.reset();
@@ -234,6 +238,13 @@ public class CommCareApplication extends Application {
 		return appPreferences;
 	}
 	
+	private void setupLocalization() {
+		Localization.registerLanguageReference("default", "jr://asset/locales/messages_ccodk_default.txt");
+		Localization.setDefaultLocale("default");
+		
+		//TODO: Get app preference preferred locale.
+	}
+	
 	public String fsPath(String relative) {
 		return storageRoot() + relative;
 	}
@@ -252,9 +263,12 @@ public class CommCareApplication extends Application {
 		JavaHttpRoot http = new JavaHttpRoot();
 		
 		JavaFileRoot file = new JavaFileRoot(storageRoot());
+		
+		AssetFileRoot afr = new AssetFileRoot(this);
 
 		ReferenceManager._().addReferenceFactory(http);
 		ReferenceManager._().addReferenceFactory(file);
+		ReferenceManager._().addReferenceFactory(afr);
 		//ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",GlobalConstants.MEDIA_REF));
 	}
@@ -618,21 +632,12 @@ public class CommCareApplication extends Application {
 	}
 
 	
-	//TODO: Priorities and such
-	public String getSyncMessage() {
+	public Pair<Long, Integer> getSyncDisplayParameters() {
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	long lastSync = prefs.getLong("last-succesful-sync", 0);
-    	CharSequence syncTime = lastSync == 0? "never" : DateUtils.formatSameDayTime(lastSync, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
     	int unsentForms = this.getStorage(FormRecord.STORAGE_KEY, FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
     	
-    	//TODO: Localize this all
-    	String message = "";
-    	if(unsentForms > 0) {
-    		String pluralmsg = unsentForms > 1 ? " forms which have " : " form which has ";
-    		message += "You have " + unsentForms + pluralmsg + "not been sent to the server.\n";
-    	}
-    	message += "You last synced with the server: " + syncTime;
-    	return message;
+    	return new Pair<Long,Integer>(lastSync, unsentForms);
 	}
 	
 

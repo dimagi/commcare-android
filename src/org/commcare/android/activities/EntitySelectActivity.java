@@ -149,10 +149,6 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    	header.addView(v,params);
 	    	
-	    	for(ACase c : CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class)) {
-	    		System.out.println("Case: " + c.getName() + "[" + c.getTypeId() + "]");
-	    	}
-	    	
 	    	
 	    	Vector<TreeReference> references = getEC().expandReference(XPathReference.getPathExpr(selectDatum.getNodeset()).getReference(true));
 	    	
