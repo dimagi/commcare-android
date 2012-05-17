@@ -121,8 +121,8 @@ public class CommCareApplication extends Application {
 		CommCareApplication.app = this;
 		
         appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        PreferenceChangeListener listener = new PreferenceChangeListener(this);
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
+//        PreferenceChangeListener listener = new PreferenceChangeListener(this);
+//        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
         
         setupLocalization();
         
