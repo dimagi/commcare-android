@@ -16,7 +16,7 @@ home.sync=Sync with Server
 home.logout=Log out of CommCare
 
 home.sync.message.unsent.singular=You have 1 form which has not been submitted
-home.sync.message.unsent.plural=You have {0} forms which have not been submitted
+home.sync.message.unsent.plural=You have ${0} forms which have not been submitted
 home.sync.message.last=You last synced with the server: ${0}
 home.sync.message.last.never=never
 

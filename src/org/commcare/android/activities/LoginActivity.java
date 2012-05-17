@@ -102,6 +102,9 @@ public class LoginActivity extends Activity implements DataPullListener {
 				//We should go digest auth this user on the server and see whether to pull them
 				//down.
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+
+				//TODO: we don't actually always want to do this. We need to have an alternate route where we log in locally and sync 
+				//(with unsent form submissions) more centrally.
 				
 				dataPuller = new DataPullTask(getUsername(), 
 						                             password.getText().toString(),

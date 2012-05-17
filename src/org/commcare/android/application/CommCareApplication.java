@@ -52,6 +52,7 @@ import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -120,6 +121,8 @@ public class CommCareApplication extends Application {
 		CommCareApplication.app = this;
 		
         appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        PreferenceChangeListener listener = new PreferenceChangeListener(this);
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
         
         setupLocalization();
         
@@ -242,7 +245,12 @@ public class CommCareApplication extends Application {
 		Localization.registerLanguageReference("default", "jr://asset/locales/messages_ccodk_default.txt");
 		Localization.setDefaultLocale("default");
 		
-		//TODO: Get app preference preferred locale.
+		//For now. Possibly handle this better in the future
+		try{
+			Localization.setLocale(appPreferences.getString("cur_locale", "default"));
+		}catch(UnregisteredLocaleException urle) {
+			Localization.setLocale("default");
+		}
 	}
 	
 	public String fsPath(String relative) {
