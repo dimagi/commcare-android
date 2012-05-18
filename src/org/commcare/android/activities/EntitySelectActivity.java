@@ -87,8 +87,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
         
-        
         searchbox.addTextChangedListener(this);
+        searchbox.requestFocus();
         
         session = CommCareApplication._().getCurrentSession();
         
@@ -98,7 +98,6 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         setTitle(getString(R.string.app_name) + " > " + " Select");
         
 		selectDatum = session.getNeededDatum();
-
         
         barcodeButton.setOnClickListener(new OnClickListener() {
 
@@ -353,6 +352,5 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         	
         AlertDialog alert = builder.create();
         alert.show();
-
     }
 }
