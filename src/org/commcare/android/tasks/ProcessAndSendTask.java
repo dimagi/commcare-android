@@ -271,7 +271,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				return null;
 			}
 			
-		});
+		}, true);
 		
 		parser.parse();
 		is.close();
