@@ -85,7 +85,7 @@
             </intent-filter>
 
         </activity-alias>
-<activity android:windowSoftInputMode="stateHidden|adjustResize" android:name=".activities.EntitySelectActivity"></activity>
+<activity android:windowSoftInputMode="stateUnchanged|adjustResize" android:name=".activities.EntitySelectActivity"></activity>
 <activity android:windowSoftInputMode="adjustResize" android:name=".activities.EntityDetailActivity"></activity>
 <activity android:name=".activities.FormRecordListActivity" android:windowSoftInputMode="adjustResize"></activity>
 <service android:name=".services.CommCareSessionService" android:enabled="true"></service>
