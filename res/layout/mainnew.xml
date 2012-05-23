@@ -3,15 +3,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/ImageView01"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ccbanner" android:layout_alignParentRight="true"/>
-
     <Button
         android:id="@+id/home.logout"
         android:layout_width="fill_parent"
@@ -30,10 +21,18 @@
 
     <LinearLayout
         android:id="@+id/linearLayout1"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:orientation="vertical" android:layout_above="@id/home.logout" android:layout_alignParentTop="true" android:gravity="center_vertical|center_horizontal" android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/ImageView01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ccbanner_hms"
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/home.start"
