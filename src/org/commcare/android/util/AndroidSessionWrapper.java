@@ -4,14 +4,13 @@
 package org.commcare.android.util;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import org.commcare.android.R;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.FormRecord;
@@ -19,6 +18,9 @@ import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.odk.provider.InstanceProviderAPI;
 import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.xml.util.InvalidStructureException;
@@ -26,6 +28,7 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.Context;
 import android.database.Cursor;
 
 /**
@@ -212,5 +215,34 @@ public class AndroidSessionWrapper {
 
 	public int getSessionDescriptorId() {
 		return sessionStateRecordId;
+	}
+
+	public String getHeaderTitle(Context context, AndroidCommCarePlatform platform) {
+		String descriptor = context.getString(R.string.app_name);
+		Hashtable<String, String> menus = new Hashtable<String, String>();
+		for(Suite s : platform.getInstalledSuites()) {
+			for(Menu m : s.getMenus()) {
+				menus.put(m.getId(), m.getName().evaluate());
+			}
+		}
+		Hashtable<String, Entry> entries = platform.getMenuMap();
+		for(String[] step : session.getSteps()) {
+			String val = null; 
+			if(step[0] == CommCareSession.STATE_COMMAND_ID) {
+				//Menu or form. 
+				if(menus.containsKey(step[1])) {
+					val = menus.get(step[1]);
+				} else if(entries.containsKey(step[1])) {
+					val = entries.get(step[1]).getText().evaluate();
+				}
+			} else if(step[0] == CommCareSession.STATE_DATUM_VAL || step[0] == CommCareSession.STATE_DATUM_COMPUTED) {
+				//nothing much to be done here...
+			}
+			if(val != null) {
+				descriptor += " > " + val;
+			}
+		}
+		
+		return descriptor.trim();
 	}
 }

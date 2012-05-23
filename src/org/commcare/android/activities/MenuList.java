@@ -58,10 +58,12 @@ public class MenuList extends ListActivity {
 	        		}
 	        	}
 	        }
+
 	        setTitle(getString(R.string.app_name) + " > " + m.getName().evaluate());
         } else {
+        	//this is the root menu
         	adapter = new NestedMenuListAdapter(this, platform);
-	        setTitle(getString(R.string.app_name) + " > " + "CommCare ODK");
+	        setTitle(getString(R.string.app_name));
         }
         
         

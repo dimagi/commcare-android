@@ -579,7 +579,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		try {
 			//If this is a new record (never saved before), which currently all should be 
 	    	if(state.getFormRecordId() == -1) {
-	    		
+	    			
 	    		//First, see if we've already started this form before
 	    		SessionStateDescriptor existing = state.searchForDuplicates();
 	    		
@@ -598,7 +598,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    	
 	    	//We should now have a valid record for our state. Time to get to form entry.
 	    	FormRecord record = state.getFormRecord();
-	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record);
+	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record, state.getHeaderTitle(this, CommCareApplication._().getCommCarePlatform()));
 	    	
 		} catch (StorageFullException e) {
 			throw new RuntimeException(e);
@@ -606,6 +606,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
+    	formEntry(formUri, r, null);
+    }
+    
+    private void formEntry(Uri formUri, FormRecord r, String headerTitle) throws SessionUnavailableException{
     	//TODO: This is... just terrible. Specify where external instance data should come from
 		FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
 		
@@ -638,6 +642,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		
 		i.putExtra("form_content_uri", FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
 		i.putExtra("instance_content_uri", InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
+		if(headerTitle != null) {
+			i.putExtra("form_header", headerTitle);
+		}
 		
 		startActivityForResult(i, MODEL_RESULT);
     }
