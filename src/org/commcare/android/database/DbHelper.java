@@ -80,10 +80,8 @@ public abstract class DbHelper {
 		
 		if(e instanceof IMetaData) {
 			IMetaData m = (IMetaData)e;
-			Hashtable<String,Object> data = m.getMetaData();
-			for(Enumeration<String> keys = data.keys() ; keys.hasMoreElements() ;) {
-				String key = keys.nextElement();
-				String value = data.get(key).toString();
+			for(String key : m.getMetaDataFields()) {
+				String value = m.getMetaData(key).toString();
 				if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
 					values.put(TableBuilder.scrubName(key), CryptUtil.encrypt(value.getBytes(), encrypter));
 				} else {

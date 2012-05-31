@@ -444,4 +444,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		//TODO: Implement (although I doubt there's much useful stuff to do)
 	}
 
+	public void registerIndex(String filterIndex) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
