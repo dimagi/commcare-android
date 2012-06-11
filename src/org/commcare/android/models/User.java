@@ -166,8 +166,8 @@ public class User implements Persistable, IMetaData
 		return wrappedKey;
 	}
 	
-	public Enumeration listProperties() {
-		return this.properties.keys();
+	public Hashtable<String, String> getProperties() {
+		return this.properties;
 	}
 	
 	public void setProperty(String key, String val) {

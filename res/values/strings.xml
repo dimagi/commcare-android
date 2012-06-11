@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">CommCare ODK</string>
 	<!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
-	<string name="default_app_server">http://build.dimagi.com/commcare/staging/profile.xml</string>
+	<string name="default_app_server">jr://asset/profile.xml</string>
 	<string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
 	<string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
 	<!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->

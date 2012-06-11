@@ -25,6 +25,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xform.parse.XFormParser;
+import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -63,6 +64,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 	
 	@Override
 	protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+		//Ugh. Really need to sync up the Xform libs between ccodk and odk.
+		XFormParser.registerHandler("intent", new IntentExtensionParser());
 		FormDef formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
 		this.namespace = formDef.getInstance().schema;
 		if(namespace == null) { throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined");}

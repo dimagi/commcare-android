@@ -3,8 +3,6 @@
  */
 package org.commcare.android.util;
 
-import java.util.Vector;
-
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.User;
@@ -15,8 +13,6 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.ArrayUtilities;
 
 /**
  * @author ctsims
@@ -68,7 +64,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 		}
 		if(instance.getReference().indexOf("session") != -1) {
 			User u = app.getSession().getLoggedInUser();
-			TreeElement root = session.getSessionInstance(app.getPhoneId(), app.getCurrentVersionString(), u.getUsername(), u.getUniqueId()).getRoot();
+			TreeElement root = session.getSessionInstance(app.getPhoneId(), app.getCurrentVersionString(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
 			root.setParent(instance.getBase());
 			return root;
 		}
