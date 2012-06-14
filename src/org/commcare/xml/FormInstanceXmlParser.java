@@ -24,6 +24,8 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.odk.provider.InstanceProviderAPI;
+import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -38,7 +40,9 @@ import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 
 /**
  * @author ctsims
@@ -110,6 +114,17 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 			document.write(serializer);
 		
 			storage.write(r);
+			
+			//Now register this instance with the form instance provider;
+            ContentValues values = new ContentValues();
+            values.put(InstanceColumns.DISPLAY_NAME, "Historical Form");
+            values.put(InstanceColumns.SUBMISSION_URI, "");
+            values.put(InstanceColumns.INSTANCE_FILE_PATH, r.getPath());
+            values.put(InstanceColumns.JR_FORM_ID, xmlns);
+            values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
+            values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, false);
+            
+			c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 			
 		} catch (StorageFullException e) {
 			throw new IOException(e.getMessage());

@@ -628,7 +628,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			Cursor c = this.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {r.getPath()}, null);
 			this.startManagingCursor(c);
 			if(!c.moveToFirst()) {
-				throw new RuntimeException("Couldn't find FormInstance for record!");
+				throw new RuntimeException("Couldn't find FormInstance for record at: " + r.getPath());
 			}
 			long id = c.getLong(0);
 			i.setData(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id));
