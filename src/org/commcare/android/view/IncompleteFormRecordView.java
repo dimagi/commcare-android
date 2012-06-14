@@ -10,7 +10,9 @@ import java.util.Hashtable;
 
 import org.commcare.android.R;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
@@ -67,29 +69,14 @@ public class IncompleteFormRecordView extends LinearLayout {
         start = new Date();
 	}
 
-	public void setParams(AndroidCommCarePlatform platform, FormRecord record, Long timestamp) throws SessionUnavailableException{
+	public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
 		Text name = names.get(record.getFormNamespace());
 		mPrimaryTextView.setText(name.evaluate());
 		
-//		if(record.getEntityId() != null && !record.getEntityId().equals(AndroidCommCarePlatform.ENTITY_NONE)) {
-//			SqlIndexedStorageUtility<ACase> storage =  CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class);
-//			try {
-//				ACase c = storage.getRecordForValue(ACase.INDEX_CASE_ID, record.getCaseId());
-//				
-//				//TODO : I am a bad person, _Fix this_
-//				if(c.getProperty("initials") != null) {
-//					mLowerTextView.setText((String)c.getProperty("initials"));
-//				} else{
-//					mLowerTextView.setText(c.getName());
-//				}
-//				
-//			} catch(NoSuchElementException nsee) {
-//				//Not sure what to do about that one.
-//			}
-//		}
-		
-		mLowerTextView.setText("TODO: Update Old Record Labels!");
-		
+		if(dataTitle != null) {
+			mLowerTextView.setText(dataTitle); 
+		}
+				
 		//be careful here...
 		if(timestamp != 0) {
 			mRightTextView.setText(DateUtils.formatSameDayTime(timestamp, start.getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT));

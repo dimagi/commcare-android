@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import javax.crypto.Cipher;
 
+import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.util.CryptUtil;
 
 import android.database.sqlite.SQLiteCursor;
@@ -19,14 +20,15 @@ import android.database.sqlite.SQLiteQuery;
  *
  */
 public class DecryptingCursor extends SQLiteCursor {
-	
 	Cipher cipher;
 	EncryptedModel model;
+	CipherPool pool;
 
-	public DecryptingCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, EncryptedModel model, Cipher cipher) {
+	public DecryptingCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, EncryptedModel model, CipherPool pool) {
 		super(db, driver, editTable, query);
 		this.model = model;
-		this.cipher = cipher;
+		this.pool = pool;
+		this.cipher = pool.borrow();
 	}
 
 	@Override
@@ -147,5 +149,15 @@ public class DecryptingCursor extends SQLiteCursor {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see android.database.sqlite.SQLiteCursor#close()
+	 */
+	@Override
+	public void close() {
+		super.close();
+		pool.remit(cipher);
 	}
 }

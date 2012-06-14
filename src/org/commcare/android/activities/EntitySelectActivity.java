@@ -149,7 +149,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	header.addView(v,params);
 	    	
 	    	
-	    	Vector<TreeReference> references = getEC().expandReference(XPathReference.getPathExpr(selectDatum.getNodeset()).getReference(true));
+	    	Vector<TreeReference> references = getEC().expandReference(selectDatum.getNodeset());
 	    	
 	    	adapter = new EntityListAdapter(this, detail, getEC(), references, defaultKey);
 	    	setListAdapter(adapter);
@@ -203,10 +203,10 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	//The uniqueid here is the value selected, so we can in theory track down the value we're looking for.
     	
     	//Get root nodeset 
-    	TreeReference nodesetRef = XPathReference.getPathExpr(selectDatum.getNodeset()).getReference(true);
-    	Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size());
+    	TreeReference nodesetRef = selectDatum.getNodeset().clone();
+    	Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
     	predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(selectDatum.getValue()), new XPathStringLiteral(uniqueid)));
-    	nodesetRef.addPredicate(nodesetRef.size(), predicates);
+    	nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
     	
     	Vector<TreeReference> elements = getEC().expandReference(nodesetRef);
     	if(elements.size() == 1) {

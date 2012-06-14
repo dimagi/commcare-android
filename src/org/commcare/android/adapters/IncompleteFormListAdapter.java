@@ -3,18 +3,18 @@
  */
 package org.commcare.android.adapters;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Vector;
+import java.util.NoSuchElementException;
 
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 
@@ -35,6 +35,8 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	String filter;
 	private List<FormRecord> records;
 	
+	SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage;
+	
 	public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform) throws SessionUnavailableException{
 		this.platform = platform;
 		this.context = context;
@@ -43,11 +45,10 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	
 	public void resetRecords() throws SessionUnavailableException {		
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		descriptorStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class); 
 		
-		System.out.println("one");
 		if(filter == null) { filter = FormRecord.STATUS_SAVED; }
 		records = storage.getRecordsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {filter} );
-		System.out.println("two");
 		
 		Collections.sort(records,new Comparator<FormRecord>() {
 
@@ -64,7 +65,6 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 			}
 			
 		});
-		System.out.println("three");
 	}
 
 	@Override
@@ -116,6 +116,8 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		return 0;
 	}
 
+	private Hashtable<String,String> descriptorCache = new Hashtable<String,String>();
+	
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
@@ -125,7 +127,26 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		if(ifrv == null) {
 			ifrv = new IncompleteFormRecordView(context, platform);
 		}
-		ifrv.setParams(platform, r, r.lastModified().getTime());
+		SessionStateDescriptor ssd = null;
+		try {
+		 ssd = descriptorStorage.getRecordForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
+		} catch(NoSuchElementException nsee) {
+			//s'all good
+		}
+		String dataTitle = null;
+		if(ssd != null) {
+			String descriptor = ssd.getSessionDescriptor();
+			if(!descriptorCache.containsKey(descriptor)) {
+				AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
+				asw.loadFromStateDescription(ssd);
+				dataTitle = asw.getTitle();
+				dataTitle = dataTitle == null ? "" : dataTitle;
+				descriptorCache.put(descriptor, dataTitle);
+			} else {
+				dataTitle = descriptorCache.get(descriptor);
+			}
+		}
+		ifrv.setParams(r, dataTitle, r.lastModified().getTime());
 		return ifrv;
 	}
 

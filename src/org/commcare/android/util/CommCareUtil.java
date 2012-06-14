@@ -7,8 +7,10 @@ import java.util.Vector;
 
 import org.commcare.android.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.ArrayUtilities;
+import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * Basically Copy+Paste code from CCJ2ME that needs to be unified or re-indexed to somewhere more reasonable.
@@ -52,4 +54,20 @@ public class CommCareUtil {
 		}
 	}
 
+	/**
+	 * Used around to count up the degree of specificity for this reference
+	 * 
+	 * @param reference
+	 * @return
+	 */
+	public static int countPreds(TreeReference reference) {
+		int preds = 0;
+		for(int i =0 ; i < reference.size(); ++i) {
+			Vector<XPathExpression> predicates = reference.getPredicate(i);
+			if(predicates != null) {
+				preds += predicates.size();
+			}
+		}
+		return preds;
+	}
 }

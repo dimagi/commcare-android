@@ -143,7 +143,7 @@ public class FormRecordListActivity extends ListActivity {
 	    	  returnItem(info.position);
 	    	  return true;
 	      case DELETE_RECORD:
-	    	  new FormRecordCleanupTask(this).wipeRecord(CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read((int)info.id));
+	    	  new FormRecordCleanupTask(this, platform).wipeRecord(CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read((int)info.id));
 	    	  this.getListView().post(new Runnable() { public void run() {adapter.notifyDataSetChanged();}});
 	      }
 	      
@@ -193,7 +193,7 @@ public class FormRecordListActivity extends ListActivity {
 						switch(status) {
 						case DataPullTask.DOWNLOAD_SUCCESS:
 							mProgressDialog.setMessage("Forms downloaded. Processing...");
-							FormRecordCleanupTask task = new FormRecordCleanupTask(FormRecordListActivity.this) {
+							FormRecordCleanupTask task = new FormRecordCleanupTask(FormRecordListActivity.this, platform) {
 	
 								@Override
 								protected void onPostExecute(Integer result) {

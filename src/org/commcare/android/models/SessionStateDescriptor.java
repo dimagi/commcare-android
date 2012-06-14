@@ -58,15 +58,15 @@ public class SessionStateDescriptor implements Persistable, IMetaData, Encrypted
 	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+		recordId = ExtUtil.readInt(in);
 		formRecordId = ExtUtil.readInt(in);
 		sessionDescriptor = ExtUtil.readString(in);
-		//ungreat, still need to implement this
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
+		ExtUtil.writeNumeric(out, recordId);
 		ExtUtil.writeNumeric(out, formRecordId);
 		ExtUtil.writeString(out, sessionDescriptor);
-		//ungreat, still need to implement this
 	}
 		
 	public int getFormRecordId() {
@@ -113,6 +113,7 @@ public class SessionStateDescriptor implements Persistable, IMetaData, Encrypted
 	}
 	
 	private String createSessionDescriptor(CommCareSession session) {
+		//TODO: Serialize into something more useful. I dunno. JSON/XML/Something
 		String descriptor = "";
 		for(String[] step : session.getSteps()) {
 			descriptor += step[0] + " ";
@@ -123,5 +124,20 @@ public class SessionStateDescriptor implements Persistable, IMetaData, Encrypted
 			}
 		}
 		return descriptor.trim();
+	}
+	
+	public void loadSession(CommCareSession session) {
+		String[] tokenStream = sessionDescriptor.split(" ");
+		
+		int current = 0;
+		while(current < tokenStream.length) {
+			String action = tokenStream[current];
+			if(action.equals(CommCareSession.STATE_COMMAND_ID)) {
+				session.setCommand(tokenStream[++current]);
+			} else if(action.equals(CommCareSession.STATE_DATUM_VAL) || action.equals(CommCareSession.STATE_DATUM_COMPUTED)) {
+				session.setDatum(tokenStream[++current], tokenStream[++current]);
+			}
+			current++;
+		}
 	}
 }

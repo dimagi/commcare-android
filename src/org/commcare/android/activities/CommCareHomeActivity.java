@@ -476,7 +476,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 						//Something went wrong with all of the connections which should exist. Tell
 						//the user, 
 						Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
-						new FormRecordCleanupTask(this).wipeRecord(currentState);
+						new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
 						
 						//Notify the server of this problem (since we aren't going to crash) 
 						ExceptionReportTask ert = new ExceptionReportTask();
@@ -493,7 +493,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
         				
         				//TODO: Move this to be a system notification thing
-        				mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
+        				mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
         				mProcess.setListeners(this, CommCareApplication._().getSession());
 
         				refreshView();
@@ -509,7 +509,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        		}
 	    		} else {
 	    			//Entry was cancelled.
-	    			new FormRecordCleanupTask(this).wipeRecord(currentState);
+	    			new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
 	    			currentState.reset();
 	    			refreshView();
 	        		return;
@@ -662,7 +662,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     			records[i] = storage.read(ids.elementAt(i).intValue());
     		}
     		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
-    		mProcess = new ProcessAndSendTask(this, settings.getString("PostURL", this.getString(R.string.PostURL)));
+    		mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
     		mProcess.setListeners(this, CommCareApplication._().getSession());
     		showDialog(DIALOG_SEND_UNSENT);
     		mProcess.execute(records);
@@ -844,7 +844,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	                    	formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
 	                        break;
 	                    case DialogInterface.BUTTON2: // no, and delete the old one
-	                    	new FormRecordCleanupTask(CommCareHomeActivity.this).wipeRecord(existing);
+	                    	new FormRecordCleanupTask(CommCareHomeActivity.this, platform).wipeRecord(existing);
 	                		//fallthrough to new now that old record is gone
 	                    case DialogInterface.BUTTON3: // no, create new
 	                    	state.commitStub();

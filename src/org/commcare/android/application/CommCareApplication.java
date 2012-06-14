@@ -18,6 +18,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.R;
+import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.database.CommCareDBCursorFactory;
 import org.commcare.android.database.CommCareOpenHelper;
 import org.commcare.android.database.DbHelper;
@@ -334,14 +335,15 @@ public class CommCareApplication extends Application {
 			//If the session service is available, go grab it
 			CommCareSessionService service = getSession();
 			if(service.isLoggedIn()) {
+				//TODO: Should we ever be able to get here?
 				helper = new DbHelper(this.getApplicationContext(), service.getEncrypter()) {
 					@Override
 					public SQLiteDatabase getHandle() {
 						synchronized(dbHandleLock) {
 							if(database == null || !database.isOpen()) {
-								CursorFactory factory = new CommCareDBCursorFactory(encryptedModels()) {
-									protected Cipher getReadCipher() {
-										return getSession().getDecrypter();
+								CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
+									protected CipherPool getCipherPool() {
+										return mBoundService.getDecrypterPool();
 									}
 								};
 								database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
@@ -564,8 +566,8 @@ public class CommCareApplication extends Application {
 		        	//NOTE: If any of this is updated care should be taken to ensure that none of it depends on
 		        	//the mIsBound service flag, otherwise we could deadlock
 					CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
-						protected Cipher getReadCipher() {
-							return mBoundService.getDecrypter();
+						protected CipherPool getCipherPool() {
+							return mBoundService.getDecrypterPool();
 						}
 					};
 					database = new CommCareOpenHelper(CommCareApplication.this, factory).getWritableDatabase();

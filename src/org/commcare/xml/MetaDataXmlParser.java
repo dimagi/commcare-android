@@ -48,7 +48,9 @@ public class MetaDataXmlParser extends TransactionParser<String[]> {
 			else if("timeend".equals(item.toLowerCase())) {
 				lastModified = parser.nextText().trim();
 			}
-			else if("uid".equals(item.toLowerCase())) {
+			
+			//Ugh. this will make this 2.0 and 1.N compatible, which isn't awesome, but we'll split out versioning later...
+			else if("uid".equals(item.toLowerCase()) || "instanceid".equals(item.toLowerCase())) {
 				uid = parser.nextText().trim();
 			}
 		}

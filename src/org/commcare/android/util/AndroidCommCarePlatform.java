@@ -8,14 +8,12 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.commcare.android.application.CommCareApplication;
+import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 
 import android.content.Context;
 import android.net.Uri;
@@ -118,5 +116,5 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.profile = null;
 		this.installedSuites.clear();
 		super.initialize(global);
-	}
+	}	
 }

@@ -10,9 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -26,6 +25,7 @@ import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
@@ -34,7 +34,10 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.AndroidCaseXmlParser;
+import org.commcare.xml.BestEffortBlockParser;
+import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.MetaDataXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -55,6 +58,7 @@ import android.os.AsyncTask;
  */
 public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	Context context;
+	CommCarePlatform platform;
 	
 	public static final int STATUS_CLEANUP = -1;
 	
@@ -62,8 +66,9 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	private static final int SKIP = -2;
 	private static final int DELETE = -4;
 	
-	public FormRecordCleanupTask(Context context) {
+	public FormRecordCleanupTask(Context context, CommCarePlatform platform) {
 		this.context = context;
+		this.platform = platform;
 	}
 	
 	
@@ -105,7 +110,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 
 	private int cleanupRecord(FormRecord r, SqlIndexedStorageUtility<FormRecord> storage) {
 		try {
-			FormRecord updated = getUpdatedRecord(r, FormRecord.STATUS_SAVED);
+			FormRecord updated = getUpdatedRecord(r, FormRecord.STATUS_SAVED, platform);
 			if(updated == null) {
 				return DELETE;
 			} else {
@@ -157,36 +162,49 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	 * @throws UnfullfilledRequirementsException 
 	 * @throws XmlPullParserException 
 	 */
-	public static FormRecord getUpdatedRecord(FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+	public static FormRecord getUpdatedRecord(FormRecord r, String newStatus, CommCarePlatform platform) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		//Awful. Just... awful
 		final String[] caseIDs = new String[1];
 		final Date[] modified = new Date[] {new Date(0)};
 		final String[] uuid = new String[1];
 		
-		//Note, this factory doesn't handle referral information at all, we're skipping that for now.
 		TransactionParserFactory factory = new TransactionParserFactory() {
 
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 				if(name == null) { return null;}
 				if("case".equals(name)) {
-					return new AndroidCaseXmlParser(parser, CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class)) {
-						
+					//If we have a proper 2.0 namespace, good.
+					if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
+						return new AndroidCaseXmlParser(parser, CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class)) {
+							
+							@Override
+							public void commit(Case parsed) throws IOException, SessionUnavailableException{
+								String incoming = parsed.getCaseId();
+								if(incoming != null && incoming != "") {
+									caseIDs[0] = incoming;
+								}
+							}
+		
+							@Override
+							public ACase retrieve(String entityId) throws SessionUnavailableException{
+								caseIDs[0] = entityId;
+								ACase c = new ACase("","");
+								c.setCaseId(entityId);
+								return c;
+							}
+						};
+					}else {
+					//Otherwise, this gets more tricky. Ideally we'd want to skip this block for compatibility purposes,
+					//but we can at least try to get a caseID (which is all we want)
+					return new BestEffortBlockParser(parser, null, null, new String[] {"case_id"}) {
 						@Override
-						public void commit(Case parsed) throws IOException, SessionUnavailableException{
-							String incoming = parsed.getCaseId();
-							if(incoming != null && incoming != "") {
-								caseIDs[0] = incoming;
+						public void commit(Hashtable<String, String> values) {
+							if(values.containsKey("case_id")) {
+								caseIDs[0] = values.get("case_id");
 							}
 						}
-
-						@Override
-						public ACase retrieve(String entityId) throws SessionUnavailableException{
-							caseIDs[0] = entityId;
-							ACase c = new ACase("","");
-							c.setCaseId(entityId);
-							return c;
-						}
-					};
+					};}
+					
 				}
 				else if("meta".equals(name.toLowerCase())) {
 					return new MetaDataXmlParser(parser) {
@@ -234,11 +252,31 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		DataModelPullParser parser = new DataModelPullParser(is, factory);
 		parser.parse();
 		
+		
+		//TODO: We should be committing all changes to form record models via the ASW objects, not manually.
 		FormRecord parsed = new FormRecord(r.getPath(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
 		parsed.setID(r.getID());
 		
+		//TODO: The platform adds a lot of unfortunate coupling here. Should split out the need to parse completely 
+		//uninitialized form records somewhere else.
+		
+		if(caseIDs[0] != null && r.getStatus().equals(FormRecord.STATUS_UNINDEXED)) {
+			AndroidSessionWrapper asw = AndroidSessionWrapper.mockEasiestRoute(platform, r.getFormNamespace(), caseIDs[0]);
+			asw.setFormRecordId(parsed.getID());
+			
+			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+			
+			//Also bad: this is not synchronous with the parsed record write
+			try {
+				ssdStorage.write(asw.getSessionStateDescriptor());
+			} catch (StorageFullException e) {
+			}
+		}
+		
 		return parsed;
 	}
+	
+	
 
 
 	public void wipeRecord(SessionStateDescriptor existing) {

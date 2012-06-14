@@ -17,6 +17,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.commcare.android.R;
 import org.commcare.android.activities.CommCareHomeActivity;
 import org.commcare.android.activities.LoginActivity;
+import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.FormSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -49,6 +50,7 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
     private static long SESSION_LENGTH = 1000*60*60*24;
     
     private Timer maintenanceTimer;
+    private CipherPool pool;
 
     private User user;
 	private byte[] key = null;
@@ -76,6 +78,34 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
     @Override
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        pool = new CipherPool() {
+
+			@Override
+			public Cipher generateNewCipher() {
+				synchronized(lock) {
+					try {
+						synchronized(key) {
+							SecretKeySpec spec = new SecretKeySpec(key, "AES");
+							Cipher decrypter = Cipher.getInstance("AES");
+							decrypter.init(Cipher.DECRYPT_MODE, spec);
+							
+							return decrypter;
+						}
+					} catch (InvalidKeyException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (NoSuchAlgorithmException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (NoSuchPaddingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				return null;
+			}
+        	
+        };
     }
 
     @Override
@@ -153,7 +183,10 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
     //Start CommCare Specific Functionality
     
 	public void logIn(byte[] symetricKey, User user) {
+		
 		this.key = symetricKey;
+		pool.init();
+		
 		this.user = user;
 		
 		this.sessionExpireDate = new Date(new Date().getTime() + SESSION_LENGTH);
@@ -192,6 +225,7 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
 			key = null;
 			maintenanceTimer.cancel();
 			user = null;
+			pool.expire();
 	        this.stopForeground(true);
 		}
 	}
@@ -232,31 +266,12 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
 		}
 	}
 	
-	public Cipher getDecrypter() throws SessionUnavailableException{
+	public CipherPool getDecrypterPool() throws SessionUnavailableException{
 		synchronized(lock){
 			if(key == null) {
 				throw new SessionUnavailableException();
 			}
-			
-			try {
-				synchronized(key) {
-					SecretKeySpec spec = new SecretKeySpec(key, "AES");
-					Cipher decrypter = Cipher.getInstance("AES");
-					decrypter.init(Cipher.DECRYPT_MODE, spec);
-				
-					return decrypter;
-				}
-			} catch (InvalidKeyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchPaddingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
+			return pool;
 		}
 	}
 	

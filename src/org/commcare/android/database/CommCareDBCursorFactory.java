@@ -5,16 +5,15 @@ package org.commcare.android.database;
 
 import java.util.Hashtable;
 
-import javax.crypto.Cipher;
-
+import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.util.SessionUnavailableException;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteQuery;
 
 /**
  * @author ctsims
@@ -44,11 +43,11 @@ public class CommCareDBCursorFactory implements CursorFactory {
 			return new SQLiteCursor(db, masterQuery, editTable, query);
 		} else {
 			EncryptedModel model = models.get(editTable);
-			return new DecryptingCursor(db, masterQuery, editTable, query, model, getReadCipher());
+			return new DecryptingCursor(db, masterQuery, editTable, query, model, getCipherPool());
 		}
 	} 
 	
-	protected Cipher getReadCipher() throws SessionUnavailableException {
+	protected CipherPool getCipherPool() throws SessionUnavailableException {
 		return null;
 	}
 }

@@ -24,6 +24,7 @@ import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.User;
+import org.commcare.android.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
@@ -54,6 +55,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
@@ -288,6 +290,10 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			}catch (SessionUnavailableException sue) {
 				//TODO: Keys were lost somehow.
 				sue.printStackTrace();
+				
+				//Make sure that we are logged out. We can get into a funny state
+				//here
+				CommCareApplication._().logout();
 			}
 			if(loginNeeded) {
 				CommCareApplication._().logout();
@@ -443,8 +449,14 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		Hashtable<String,String> formNamespaces = new Hashtable<String, String>(); 
 		
 		for(String xmlns : CommCareApplication._().getCommCarePlatform().getInstalledForms()) {
-			//TODO: rewrite this based on content providers
-			//formNamespaces.put(xmlns, CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
+			Cursor cur = c.getContentResolver().query(CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns), new String[] {FormsColumns.FORM_FILE_PATH}, null, null, null);
+			if(cur.moveToFirst()) {
+				String path = cur.getString(cur.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+				formNamespaces.put(xmlns, path);
+			} else {
+				throw new RuntimeException("No form registered for xmlns at content URI: " + CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
+			}
+			cur.close();
 		}
 		factory.initFormInstanceParser(formNamespaces);
 		

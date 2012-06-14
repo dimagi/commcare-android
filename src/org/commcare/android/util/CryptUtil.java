@@ -3,12 +3,11 @@
  */
 package org.commcare.android.util;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -16,8 +15,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Date;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
@@ -74,14 +75,25 @@ public class CryptUtil {
 	
 	public static byte[] decrypt(byte[] input, Cipher cipher) throws IOException {
 		
-		ByteArrayInputStream bis = new ByteArrayInputStream(input);
-		CipherInputStream cis = new CipherInputStream(bis, cipher);
-		
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		
-		AndroidStreamUtil.writeFromInputToOutput(cis, bos);
-		
-		return bos.toByteArray();
+		try {
+			return cipher.doFinal(input);
+		} catch (IllegalBlockSizeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+//		
+//		ByteArrayInputStream bis = new ByteArrayInputStream(input);
+//		CipherInputStream cis = new CipherInputStream(bis, cipher);
+//		
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//		
+//		AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(cis), bos);
+//		
+//		return bos.toByteArray();
 	}
 	
 	public static byte[] wrapKey(SecretKey key, String password) {

@@ -18,7 +18,7 @@ public class AndroidStreamUtil {
 	 * @param os
 	 */
 	public static void writeFromInputToOutput(InputStream is, OutputStream os) throws IOException {
-		byte[] buffer = new byte[2048];
+		byte[] buffer = new byte[8192];
 		
 		try {
 			int count = is.read(buffer);

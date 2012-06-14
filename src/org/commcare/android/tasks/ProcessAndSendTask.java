@@ -23,15 +23,9 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.io.FormSubmissionEntity;
@@ -46,6 +40,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.suite.model.Profile;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -82,6 +77,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	
 	ProcessTaskListener listener;
 	FormSubmissionListener formSubmissionListener;
+	CommCarePlatform platform;
 	
 	SqlIndexedStorageUtility<FormRecord> storage;
 	
@@ -89,10 +85,11 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	
 	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
-	public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
+	public ProcessAndSendTask(Context c, CommCarePlatform platform, String url) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
 		storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		platform = this.platform;
 	}
 	
 	/* (non-Javadoc)
@@ -119,22 +116,22 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 					records[i] = process(record);
 				} catch (InvalidStructureException e) {
 					thrownwhileprocessing.add(e);
-					new FormRecordCleanupTask(c).wipeRecord(record);
+					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					continue;
 				} catch (XmlPullParserException e) {
 					thrownwhileprocessing.add(e);
-					new FormRecordCleanupTask(c).wipeRecord(record);
+					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					continue;
 				} catch (UnfullfilledRequirementsException e) {
 					thrownwhileprocessing.add(e);
-					new FormRecordCleanupTask(c).wipeRecord(record);
+					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					continue;
 				}  catch (StorageFullException e) {
-					new FormRecordCleanupTask(c).wipeRecord(record);
+					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					throw new RuntimeException(e);
 				}   catch (IOException e) {
 					thrownwhileprocessing.add(e);
-					new FormRecordCleanupTask(c).wipeRecord(record);
+					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					continue;
 				} 
 			}
@@ -190,7 +187,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 						folder = new File(record.getPath()).getCanonicalFile().getParentFile();
 					} catch (IOException e) {
 						thrownwhileprocessing.add(e);
-						new FormRecordCleanupTask(c).wipeRecord(record);
+						new FormRecordCleanupTask(c, platform).wipeRecord(record);
 						continue;
 					}
 					
@@ -200,7 +197,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 						results[i] = sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"));
 					} catch (FileNotFoundException e) {
 						thrownwhileprocessing.add(e);
-						new FormRecordCleanupTask(c).wipeRecord(record);
+						new FormRecordCleanupTask(c, platform).wipeRecord(record);
 						continue;
 					}
 					
@@ -209,7 +206,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 					if(results[i].intValue() == FULL_SUCCESS) {
 						//Only delete if this device isn't set up to review.
 					    if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-	                    	new FormRecordCleanupTask(c).wipeRecord(record);
+	                    	new FormRecordCleanupTask(c, platform).wipeRecord(record);
 						} else {
 							//Otherwise save and move appropriately
 							moveRecord(record, CommCareApplication._().fsPath(GlobalConstants.FILE_CC_STORED), FormRecord.STATUS_SAVED);
@@ -218,10 +215,10 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				}
 			}   catch (IOException e) {
 				thrownwhileprocessing.add(e);
-				new FormRecordCleanupTask(c).wipeRecord(record);
+				new FormRecordCleanupTask(c, platform).wipeRecord(record);
 				continue;
 			}  catch (StorageFullException e) {
-				new FormRecordCleanupTask(c).wipeRecord(record);
+				new FormRecordCleanupTask(c, platform).wipeRecord(record);
 				throw new RuntimeException(e);
 			}
 		}

@@ -20,12 +20,19 @@ import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathEqExpr;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathStringLiteral;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
@@ -42,6 +49,7 @@ import android.database.Cursor;
 public class AndroidSessionWrapper {
 	//The state descriptor will need these 
 	protected CommCareSession session;
+	private CommCarePlatform platform;
 	protected int formRecordId = -1;
 	protected int sessionStateRecordId = -1;
 	
@@ -51,6 +59,7 @@ public class AndroidSessionWrapper {
 
 	public AndroidSessionWrapper(CommCarePlatform platform) {
 		session = new CommCareSession(platform);
+		this.platform = platform;
 	}
 	
 	/**
@@ -66,6 +75,7 @@ public class AndroidSessionWrapper {
 	public void loadFromStateDescription(SessionStateDescriptor descriptor) {
 		this.sessionStateRecordId = descriptor.getID();
 		this.formRecordId = descriptor.getFormRecordId();
+		descriptor.loadSession(this.session);
 	}
 	
 	/**
@@ -132,7 +142,7 @@ public class AndroidSessionWrapper {
 		current = current.updateStatus(instancePath, recordStatus);
 		
 		try {
-			FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(current, recordStatus);
+			FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(current, recordStatus, platform);
 			
 			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 			storage.write(updated);	
@@ -245,4 +255,95 @@ public class AndroidSessionWrapper {
 		
 		return descriptor.trim();
 	}
+	
+	public String getTitle() {
+		//TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
+		//and generalize the walking
+		
+		//Walk backwards until we find something with a long detail
+		while(session.getSteps().size() > 0 && (session.getNeededData() != CommCareSession.STATE_DATUM_VAL || session.getNeededDatum().getLongDetail() == null)) {
+			session.stepBack();
+		}
+		if(session.getSteps().size() == 0) { return null;}
+		
+		//Get the value that was chosen for this item
+		String value = session.getPoppedStep()[2];
+		
+		SessionDatum datum = session.getNeededDatum();
+		
+		//Now determine what nodeset that was going to be used to load this select
+    	TreeReference nodesetRef = datum.getNodeset().clone();
+    	Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
+    	predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
+    	
+    	Vector<TreeReference> elements = getEC().expandReference(nodesetRef);
+    	
+    	//If we got our ref, awesome. Otherwise we need to bail.
+    	if(elements.size() != 1 ) { return null;}
+    	
+    	//Now generate a context for our element 
+    	EvaluationContext element = new EvaluationContext(getEC(), elements.firstElement());
+    	
+    	//Now just get the detail title for that element
+    	return session.getDetail(datum.getLongDetail()).getTitle().evaluate(element);
+	}
+	
+	protected EvaluationContext getEC() {
+		return session.getEvaluationContext(getIIF());
+	}
+	
+	CommCareInstanceInitializer initializer;
+	protected CommCareInstanceInitializer getIIF() {
+		if(initializer == null) {
+			initializer = new CommCareInstanceInitializer(session);
+		} 
+		
+		return initializer;
+	}
+
+	public static AndroidSessionWrapper mockEasiestRoute(CommCarePlatform platform, String formNamespace, String selectedValue) {
+		AndroidSessionWrapper wrapper = null;
+		int curPredicates = -1;
+		
+		Hashtable<String, Entry> menuMap = platform.getMenuMap();
+		for(String key : menuMap.keySet()) {
+			Entry e = menuMap.get(key);
+			if(formNamespace.equals(e.getXFormNamespace())) {
+				//We have an entry. Don't worry too much about how we're supposed to get there for now.
+				
+				//The ideal is that we only need one piece of data
+				if(e.getSessionDataReqs().size() == 1) {
+					//This should fit the bill. Single selection.
+					SessionDatum datum = e.getSessionDataReqs().firstElement();
+					
+					//The only thing we need to know now is whether we have a better option available
+					
+					int countPredicates = CommCareUtil.countPreds(datum.getNodeset());
+					
+					if(wrapper == null) {
+						//No previous value! Yay.
+						//Record the degree of specificity of this selection for now (we'll
+						//actually create the wrapper later
+						curPredicates = countPredicates;
+					} else {						
+						//There's already a path to this form. Only keep going 
+						//if the current choice is less specific
+						if(countPredicates >= curPredicates) { continue;}
+					}
+					
+					wrapper = new AndroidSessionWrapper(platform);
+					wrapper.session.setCommand(key);
+					wrapper.session.setCommand(e.getCommandId());
+					wrapper.session.setDatum(datum.getDataId(), selectedValue);
+				}
+				
+				//We don't really have a good thing to do with this yet. For now, just
+				//hope there's another easy path to this form
+				continue;
+			}
+		}
+		
+		return wrapper;
+	}
+
 }
