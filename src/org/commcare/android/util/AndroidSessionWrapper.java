@@ -74,6 +74,7 @@ public class AndroidSessionWrapper {
 	}
 	
 	public void loadFromStateDescription(SessionStateDescriptor descriptor) {
+		this.reset();
 		this.sessionStateRecordId = descriptor.getID();
 		this.formRecordId = descriptor.getFormRecordId();
 		descriptor.loadSession(this.session);
