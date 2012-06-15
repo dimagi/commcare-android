@@ -26,7 +26,6 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.odk.provider.InstanceProviderAPI;
 import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.data.xml.TransactionParser;
@@ -42,7 +41,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
+import android.net.Uri;
 
 /**
  * @author ctsims
@@ -92,10 +91,26 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 		KXmlSerializer serializer = new KXmlSerializer();
 	
 		SecretKey key = CommCareApplication._().createNewSymetricKey();
-		FormRecord r = new FormRecord(getFileDestination(namespaces.get(xmlns), destination), FormRecord.STATUS_UNINDEXED, xmlns, key.getEncoded(),null, new Date(0));
+		
+		
+		String filePath = getFileDestination(namespaces.get(xmlns), destination);
+		
+		//Register this instance for inspection
+        ContentValues values = new ContentValues();
+        values.put(InstanceColumns.DISPLAY_NAME, "Historical Form");
+        values.put(InstanceColumns.SUBMISSION_URI, "");
+        values.put(InstanceColumns.INSTANCE_FILE_PATH, filePath);
+        values.put(InstanceColumns.JR_FORM_ID, xmlns);
+        values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
+        values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, false);
+        
+		Uri instanceRecord = c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
+
+		
+		FormRecord r = new FormRecord(instanceRecord.toString(), FormRecord.STATUS_UNINDEXED, xmlns, key.getEncoded(),null, new Date(0));
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		
-		OutputStream o = new FileOutputStream(r.getPath());
+		OutputStream o = new FileOutputStream(filePath);
 		CipherOutputStream cos = null;
 		BufferedOutputStream bos = null;
 		
@@ -114,17 +129,6 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 			document.write(serializer);
 		
 			storage.write(r);
-			
-			//Now register this instance with the form instance provider;
-            ContentValues values = new ContentValues();
-            values.put(InstanceColumns.DISPLAY_NAME, "Historical Form");
-            values.put(InstanceColumns.SUBMISSION_URI, "");
-            values.put(InstanceColumns.INSTANCE_FILE_PATH, r.getPath());
-            values.put(InstanceColumns.JR_FORM_ID, xmlns);
-            values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
-            values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, false);
-            
-			c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 			
 		} catch (StorageFullException e) {
 			throw new IOException(e.getMessage());

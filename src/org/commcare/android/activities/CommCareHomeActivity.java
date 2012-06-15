@@ -432,7 +432,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        		FormRecord current = currentState.getFormRecord();
 	        		
 	        		//See if we were viewing an old form, in which case we don't want to change the historical record.
-	        		if(current.getStatus() == FormRecord.STATUS_COMPLETE) {
+	        		//TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
+	        		if(current.getStatus() == FormRecord.STATUS_COMPLETE || current.getStatus() == FormRecord.STATUS_SAVED) {
 	        			currentState.reset();
 	        			refreshView();
 		        		return;
@@ -449,12 +450,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		    			return;
 	        		}
 	        		
-	        		//TODO: Feels like it would be cleaner to give the URI here, but we'd also 
-	        		//need to get the wrapper some context with it
 	                Cursor c = managedQuery(resultInstanceURI, null,null,null, null);
 	                boolean complete = false;
 	                try {
-	                	complete = currentState.beginRecordTransaction(c);
+	                	complete = currentState.beginRecordTransaction(resultInstanceURI, c);
 	                } catch(IllegalArgumentException iae) {
 	                	
 	                	iae.printStackTrace();
@@ -622,16 +621,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		
 		//See if there's existing form data that we want to continue entering (note, this should be stored in the form
 		///record as a URI link to the instance provider in the future)
-		if(r.getPath() != "") {
-			//We should just be storing the index to this, not bothering to look it up with the path
-			String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";
-			Cursor c = this.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {r.getPath()}, null);
-			this.startManagingCursor(c);
-			if(!c.moveToFirst()) {
-				throw new RuntimeException("Couldn't find FormInstance for record at: " + r.getPath());
-			}
-			long id = c.getLong(0);
-			i.setData(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id));
+		if(r.getInstanceURI() != null) {
+			i.setData(r.getInstanceURI());
 		} else {
 			i.setData(formUri);
 		}

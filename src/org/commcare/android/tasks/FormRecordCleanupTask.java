@@ -48,6 +48,7 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -110,7 +111,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 
 	private int cleanupRecord(FormRecord r, SqlIndexedStorageUtility<FormRecord> storage) {
 		try {
-			FormRecord updated = getUpdatedRecord(r, FormRecord.STATUS_SAVED, platform);
+			FormRecord updated = getUpdatedRecord(r, FormRecord.STATUS_SAVED);
 			if(updated == null) {
 				return DELETE;
 			} else {
@@ -162,7 +163,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	 * @throws UnfullfilledRequirementsException 
 	 * @throws XmlPullParserException 
 	 */
-	public static FormRecord getUpdatedRecord(FormRecord r, String newStatus, CommCarePlatform platform) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+	public FormRecord getUpdatedRecord(FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		//Awful. Just... awful
 		final String[] caseIDs = new String[1];
 		final Date[] modified = new Date[] {new Date(0)};
@@ -225,12 +226,14 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			
 		};
 		
-		if(!new File(r.getPath()).exists()) {
-			throw new InvalidStateException("No file exists for form record at: " + r.getPath());
+		String path = r.getPath(context);
+		
+		if(path == null || !new File(path).exists()) {
+			throw new InvalidStateException("No file exists for form record at: " + path);
 		}
 		
 		FileInputStream fis;
-		fis = new FileInputStream(r.getPath());
+		fis = new FileInputStream(path);
 		InputStream is = fis;
 		
 		try {
@@ -254,7 +257,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		
 		
 		//TODO: We should be committing all changes to form record models via the ASW objects, not manually.
-		FormRecord parsed = new FormRecord(r.getPath(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
+		FormRecord parsed = new FormRecord(r.getInstanceURI().toString(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
 		parsed.setID(r.getID());
 		
 		//TODO: The platform adds a lot of unfortunate coupling here. Should split out the need to parse completely 
@@ -271,6 +274,13 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 				ssdStorage.write(asw.getSessionStateDescriptor());
 			} catch (StorageFullException e) {
 			}
+		}
+		
+		//Make sure that the instance is no longer editable
+		if(!newStatus.equals(FormRecord.STATUS_INCOMPLETE) && !newStatus.equals(FormRecord.STATUS_UNSTARTED)) {
+			ContentValues cv = new ContentValues();
+			cv.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(false));
+			context.getContentResolver().update(r.getInstanceURI(), cv, null, null);
 		}
 		
 		return parsed;
@@ -322,7 +332,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		if(formRecordId != -1 ) {
 			try {
 				FormRecord r = frStorage.read(formRecordId);
-				dataPath = r.getPath();
+				dataPath = r.getPath(context);
 				
 				//See if there is a hanging session ID for this
 				if(sessionId == -1) {

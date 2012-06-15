@@ -33,6 +33,7 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
@@ -48,6 +49,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -184,7 +186,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
 					File folder;
 					try {
-						folder = new File(record.getPath()).getCanonicalFile().getParentFile();
+						folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
 					} catch (IOException e) {
 						thrownwhileprocessing.add(e);
 						new FormRecordCleanupTask(c, platform).wipeRecord(record);
@@ -253,7 +255,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	}
 	
 	private FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
-		String form = record.getPath();
+		String form = record.getPath(c);
 		
 		DataModelPullParser parser;
 		File f = new File(form);
@@ -277,7 +279,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	}
 	
 	private FormRecord moveRecord(FormRecord record, String newPath, String newStatus) throws IOException, StorageFullException{
-		String form = record.getPath();
+		String form = record.getPath(c);
 		File f = new File(form);
 		//Ok, file's all parsed. Move the instance folder to be ready for sending.
 		File folder = f.getCanonicalFile().getParentFile();
@@ -290,8 +292,14 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				throw new IOException("Couldn't find processed instance");
 			}
 			//update the records to show that the form has been processed and is ready to be sent;
-			record = record.updateStatus(newFormPath, newStatus);
+			record = record.updateStatus(record.getInstanceURI().toString(), newStatus);
 			storage.write(record);
+			
+			//Update the Instance Record
+			ContentValues values = new ContentValues();
+			values.put(InstanceColumns.INSTANCE_FILE_PATH, newFormPath);
+			c.getContentResolver().update(record.getInstanceURI(), values,null, null);
+			
 			return record;
 		} else {
 			throw new IOException("Couldn't move processed files");

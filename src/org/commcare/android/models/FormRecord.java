@@ -11,6 +11,7 @@ import java.util.Hashtable;
 
 import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.EncryptedModel;
+import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.util.CommCareSession;
@@ -20,6 +21,10 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+
 /**
  * @author ctsims
  *
@@ -27,7 +32,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	
 	public static final String STORAGE_KEY = "FORMRECORDS";
-	public static final String META_PATH = "PATH";
+	public static final String META_INSTANCE_URI = "INSTANCE_URI";
 	public static final String META_STATUS = "STATUS";
 	public static final String META_UUID = "UUID";
 	public static final String META_XMLNS = "XMLNS";
@@ -42,7 +47,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	
 	private int id = -1;
 	private String status;
-	private String path;
+	private String instanceURI;
 	private String xmlns;
 	private byte[] aesKey;
 	
@@ -63,8 +68,8 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	 * @param entityId
 	 * @param status
 	 */
-	public FormRecord(String path, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
-		this.path = path;
+	public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
+		this.instanceURI = instanceURI;
 		this.status = status;
 		this.xmlns = xmlns;
 		this.aesKey = aesKey;
@@ -73,8 +78,8 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		this.lastModified = lastModified;
 	}
 	
-	public FormRecord updateStatus(String newPath, String newStatus) {
-		FormRecord fr = new FormRecord(newPath, newStatus, xmlns, aesKey, uuid, lastModified);
+	public FormRecord updateStatus(String instanceURI, String newStatus) {
+		FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified);
 		fr.id = this.id;
 		return fr;
 	}
@@ -93,8 +98,9 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		id = ID;
 	}
 	
-	public String getPath() {
-		return path;
+	public Uri getInstanceURI() {
+		if(instanceURI == "") { return null; }
+		return Uri.parse(instanceURI);
 	}
 	
 	public byte[] getAesKey() {
@@ -123,7 +129,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		id = (int)ExtUtil.readNumeric(in);
 		xmlns = ExtUtil.readString(in);
-		path = ExtUtil.readString(in);
+		instanceURI = ExtUtil.readString(in);
 		status = ExtUtil.readString(in);
 		aesKey = ExtUtil.readBytes(in);
 		uuid = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -136,7 +142,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, id);
 		ExtUtil.writeString(out, xmlns);
-		ExtUtil.writeString(out, path);
+		ExtUtil.writeString(out, instanceURI);
 		ExtUtil.writeString(out, status);
 		ExtUtil.writeBytes(out, aesKey);
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(uuid));
@@ -165,8 +171,8 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	public Object getMetaData(String fieldName) {
 		if(fieldName.equals(META_XMLNS)) {
 			return xmlns;
-		} else if(fieldName.equals(META_PATH)) {
-			return path;
+		} else if(fieldName.equals(META_INSTANCE_URI)) {
+			return instanceURI;
 		} else if(fieldName.equals(META_STATUS)) {
 			return status;
 		}  else if(fieldName.equals(META_UUID)) {
@@ -182,7 +188,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	 * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
 	 */
 	public String[] getMetaDataFields() {
-		return new String [] {META_PATH, META_XMLNS, META_STATUS, META_UUID, META_LAST_MODIFIED};
+		return new String [] {META_INSTANCE_URI, META_XMLNS, META_STATUS, META_UUID, META_LAST_MODIFIED};
 	}
 
 	public boolean isEncrypted(String data) {
@@ -196,5 +202,15 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 	String[] cached;
 	private void decache() throws SessionUnavailableException {
 		
+	}
+
+	public String getPath(Context context) {
+		Uri uri = getInstanceURI();
+		if(uri == null) { return null; }
+		
+		Cursor c = context.getContentResolver().query(uri, new String[] {InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
+		if(!c.moveToFirst()) { return null; }
+		
+		return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
 	}
 }

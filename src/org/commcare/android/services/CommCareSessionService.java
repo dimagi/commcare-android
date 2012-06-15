@@ -339,7 +339,6 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
 		int progressPercent = (int)Math.floor((progress * 1.0 / currentSize) * 100);
 		
 		if(progressPercent - lastUpdate > 5) {
-			System.out.println("Updating progress with " + progress);
 			
 			String progressDetails = "";
 			if(progress < 1024) {

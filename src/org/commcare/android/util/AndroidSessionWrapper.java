@@ -37,6 +37,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 
 /**
  * This is a container class which maintains all of the appropriate hooks for managing the details
@@ -54,7 +55,7 @@ public class AndroidSessionWrapper {
 	protected int sessionStateRecordId = -1;
 	
 	//These are only to be used by the local (not recoverable) session 
-	private String instancePath = null;
+	private String instanceUri = null;
 	private String instanceStatus = null;
 
 	public AndroidSessionWrapper(CommCarePlatform platform) {
@@ -84,7 +85,7 @@ public class AndroidSessionWrapper {
 	public void reset() {
 		this.session.clearState();
 		formRecordId = -1;
-		instancePath = null;
+		instanceUri = null;
 		instanceStatus = null;
 		sessionStateRecordId = -1;
 	}
@@ -114,12 +115,12 @@ public class AndroidSessionWrapper {
 	 * @throws IllegalArgumentException If the cursor provided doesn't point to any records,
 	 * or doesn't point to the appropriate columns
 	 */
-	public boolean beginRecordTransaction(Cursor c) throws IllegalArgumentException {		
+	public boolean beginRecordTransaction(Uri uri, Cursor c) throws IllegalArgumentException {		
         if(!c.moveToFirst()) {
         	throw new IllegalArgumentException("Empty query for instance record!");
         }
         
-        instancePath = c.getString(c.getColumnIndexOrThrow(InstanceColumns.INSTANCE_FILE_PATH));
+        instanceUri = uri.toString();
         instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
 
         if(InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
@@ -139,10 +140,10 @@ public class AndroidSessionWrapper {
         }
 
 
-		current = current.updateStatus(instancePath, recordStatus);
+		current = current.updateStatus(instanceUri, recordStatus);
 		
 		try {
-			FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(current, recordStatus, platform);
+			FormRecord updated = new FormRecordCleanupTask(CommCareApplication._(), platform).getUpdatedRecord(current, recordStatus);
 			
 			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 			storage.write(updated);	

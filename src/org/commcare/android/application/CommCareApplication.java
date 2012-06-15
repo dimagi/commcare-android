@@ -31,6 +31,7 @@ import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
+import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
@@ -66,9 +67,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -471,13 +474,27 @@ public class CommCareApplication extends Application {
 		//Can't load the records outright, since we'd need to be logged in (The key is encrypted)
 		for(SqlStorageIterator iterator = storage.iterate(); iterator.hasMore();) {
 			int id = iterator.nextID();
-			String path = storage.getMetaDataFieldForRecord(id, FormRecord.META_PATH);
-			if(!new File(path).exists()) {
+			String instanceRecordUri = storage.getMetaDataFieldForRecord(id, FormRecord.META_INSTANCE_URI);
+			if(instanceRecordUri == null) {
 				toDelete.add(id);
+				continue;
 			}
+			
+			//otherwise, grab this record and see if the file's around
+			
+			Cursor c = this.getContentResolver().query(Uri.parse(instanceRecordUri), new String[] { InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
+			if(!c.moveToFirst()) { toDelete.add(id);}
+			else {
+				String path = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+				if(path == null || !new File(path).exists()) {
+					toDelete.add(id);
+				}
+			}
+			c.close();
 		}
 		
 		for(int recordid : toDelete) {
+			//this should go to the form record wipe cleanup task
 			storage.remove(recordid);
 		}
 	}
