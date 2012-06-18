@@ -116,8 +116,12 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         if(selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
         	TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
         	
-            Intent i = getDetailIntent(entity);
-            startActivityForResult(i, CONFIRM_SELECT);
+        	if(entity != null) {
+        		Intent i = getDetailIntent(entity);
+        		startActivityForResult(i, CONFIRM_SELECT);
+        	} else {
+        		refreshView();
+        	}
         } else {
             refreshView();
         }

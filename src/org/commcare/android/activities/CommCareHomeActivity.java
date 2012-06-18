@@ -547,7 +547,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             
             i.putExtra(CommCareSession.STATE_COMMAND_ID, session.getCommand());
             if(lastPopped != null && CommCareSession.STATE_DATUM_VAL.equals(lastPopped[0])) {
-            	i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped[1]);
+            	i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped[2]);
             }
             
             startActivityForResult(i, GET_CASE);
