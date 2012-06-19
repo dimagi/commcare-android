@@ -10,9 +10,7 @@ import java.util.Hashtable;
 
 import org.commcare.android.R;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;

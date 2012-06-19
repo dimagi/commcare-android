@@ -125,7 +125,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 */
 	public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
 		String scrubbedName = TableBuilder.scrubName(rawFieldName);
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , scrubbedName + "='" + value.toString() +"'", null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , scrubbedName + "= ? ", new String[] {value.toString()}, null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
 			throw new NoSuchElementException("No element in table " + table + " with name " + scrubbedName +" and value " + value.toString());

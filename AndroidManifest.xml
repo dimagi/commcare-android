@@ -15,7 +15,6 @@
 
 <activity android:name=".activities.ReferenceDetailActivity"></activity>
 
-<provider android:name=".providers.PreloadContentProvider" android:authorities="org.commcare.preloadprovider" />
 <provider android:name=".odk.provider.FormsProvider" android:authorities="org.commcare.android.provider.odk.forms" />
 <provider android:name=".odk.provider.InstanceProvider" android:authorities="org.commcare.android.provider.odk.instances" />
 

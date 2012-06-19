@@ -39,17 +39,22 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 
-public class FormRecordListActivity extends ListActivity {
+public class FormRecordListActivity extends ListActivity implements TextWatcher {
 	
 	private static final int DIALOG_PROCESS = 1;
 	private ProgressDialog mProgressDialog;
@@ -63,12 +68,26 @@ public class FormRecordListActivity extends ListActivity {
 	
 	private IncompleteFormListAdapter adapter;
 	
+	private EditText searchbox;
+	private LinearLayout header;
+	private ImageButton barcodeButton;
+
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
 	        platform = CommCareApplication._().getCommCarePlatform();
-	        setContentView(R.layout.suite_menu_layout);
+	        setContentView(R.layout.entity_select_layout);
+
+	        searchbox = (EditText)findViewById(R.id.searchbox);
+	        header = (LinearLayout)findViewById(R.id.entity_select_header);
+	        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+	        
+	        header.setVisibility(View.GONE);
+	        barcodeButton.setVisibility(View.GONE);
+	        
+	        searchbox.addTextChangedListener(this);
 	
 	        adapter = new IncompleteFormListAdapter(this, platform);
 	        
@@ -309,4 +328,22 @@ public class FormRecordListActivity extends ListActivity {
         }
         return null;
     }
+    
+	public void afterTextChanged(Editable s) {
+		if(searchbox.getText() == s) {
+			adapter.applyTextFilter(s.toString());
+		}
+	}
+
+
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
+		//nothing
+	}
+
+
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+		//nothing		
+	}
+
 }
