@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.commcare.android.R;
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 import android.database.Cursor;

@@ -12,15 +12,15 @@
  * the License.
  */
 
-package org.commcare.android.odk.provider;
+package org.commcare.dalvik.odk.provider;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;

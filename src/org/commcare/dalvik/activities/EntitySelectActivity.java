@@ -1,17 +1,15 @@
 /**
  * 
  */
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import org.commcare.android.R;
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.models.ACase;
-import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
@@ -23,7 +21,6 @@ import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;

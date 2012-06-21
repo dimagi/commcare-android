@@ -9,12 +9,9 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Hashtable;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.EncryptedModel;
-import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.util.CommCareSession;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;

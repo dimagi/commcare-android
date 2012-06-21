@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.User;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;

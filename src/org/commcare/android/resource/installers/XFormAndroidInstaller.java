@@ -9,10 +9,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.odk.provider.FormsProviderAPI;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;

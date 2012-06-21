@@ -1,19 +1,19 @@
 /**
  * 
  */
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.commcare.android.R;
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.model.utils.DateUtils;

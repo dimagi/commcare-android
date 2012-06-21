@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.commcare.android.R;
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 import android.database.Cursor;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.services;
+package org.commcare.dalvik.services;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -14,13 +14,13 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.android.R;
-import org.commcare.android.activities.CommCareHomeActivity;
-import org.commcare.android.activities.LoginActivity;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.FormSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 
@@ -61,8 +61,8 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
     
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
-    private int NOTIFICATION = org.commcare.android.R.string.notificationtitle;
-    private int SUBMISSION_NOTIFICATION = org.commcare.android.R.string.submission_notification_title;
+    private int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
+    private int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
     
     /**
      * Class for clients to access.  Because we know this service always
@@ -136,18 +136,18 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
      * Show a notification while this service is running.
      */
     private void showLoggedInNotification(User user) {
-    	//mNM.cancel(org.commcare.android.R.string.expirenotification);
+    	//mNM.cancel(org.commcare.dalvik.R.string.expirenotification);
     	
         CharSequence text = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
 
         // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(org.commcare.android.R.drawable.notification, text, System.currentTimeMillis());
+        Notification notification = new Notification(org.commcare.dalvik.R.drawable.notification, text, System.currentTimeMillis());
 
         // The PendingIntent to launch our activity if the user selects this notification
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, CommCareHomeActivity.class), 0);
 
         // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, this.getString(org.commcare.android.R.string.notificationtitle), text, contentIntent);
+        notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.notificationtitle), text, contentIntent);
 
         if(user != null) {
         	//Send the notification.
@@ -165,7 +165,7 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
     	String text = "Click here to log back into your session";
     	
         // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(org.commcare.android.R.drawable.notification, text, System.currentTimeMillis());
+        Notification notification = new Notification(org.commcare.dalvik.R.drawable.notification, text, System.currentTimeMillis());
 
         // The PendingIntent to launch our activity if the user selects this notification
         Intent i = new Intent(this, LoginActivity.class);
@@ -173,7 +173,7 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, notification.flags |= Notification.FLAG_AUTO_CANCEL);
 
         // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, this.getString(org.commcare.android.R.string.expirenotification), text, contentIntent);
+        notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.expirenotification), text, contentIntent);
 
         // Send the notification.
         mNM.notify(NOTIFICATION, notification);
@@ -301,7 +301,7 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
 		String text = getSubmissionText(1, totalItems);
 		
         // Set the icon, scrolling text and timestamp
-        submissionNotification = new Notification(org.commcare.android.R.drawable.notification, getTickerText(1, totalItems), System.currentTimeMillis());
+        submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(1, totalItems), System.currentTimeMillis());
         submissionNotification.flags |= (Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
 
         // The PendingIntent to launch our activity if the user selects this notification
@@ -310,13 +310,13 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
 
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.submit_notification);
         contentView.setImageViewResource(R.id.image, R.drawable.notification);
-        contentView.setTextViewText(R.id.submitTitle, getString(org.commcare.android.R.string.submission_notification_title));
+        contentView.setTextViewText(R.id.submitTitle, getString(org.commcare.dalvik.R.string.submission_notification_title));
         contentView.setTextViewText(R.id.progressText, text);
 		contentView.setTextViewText(R.id.submissionDetails,"0b transmitted");
 
         
         // Set the info for the views that show in the notification panel.
-        submissionNotification.setLatestEventInfo(this, getString(org.commcare.android.R.string.submission_notification_title), text, contentIntent);
+        submissionNotification.setLatestEventInfo(this, getString(org.commcare.dalvik.R.string.submission_notification_title), text, contentIntent);
         
         submissionNotification.contentView = contentView;
 

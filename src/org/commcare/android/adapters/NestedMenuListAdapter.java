@@ -6,7 +6,6 @@ package org.commcare.android.adapters;
 import java.util.Vector;
 
 import org.commcare.android.view.SimpleTextView;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;

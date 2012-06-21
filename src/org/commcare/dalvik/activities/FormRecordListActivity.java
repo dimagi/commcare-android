@@ -14,19 +14,22 @@
  * the License.
  */
 
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
-import org.commcare.android.R;
 import org.commcare.android.adapters.IncompleteFormListAdapter;
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.tasks.FormRecordLoadListener;
+import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -54,8 +57,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
-public class FormRecordListActivity extends ListActivity implements TextWatcher {
-	
+public class FormRecordListActivity extends ListActivity implements TextWatcher, FormRecordLoadListener {
 	private static final int DIALOG_PROCESS = 1;
 	private ProgressDialog mProgressDialog;
 	
@@ -88,8 +90,10 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher 
 	        barcodeButton.setVisibility(View.GONE);
 	        
 	        searchbox.addTextChangedListener(this);
+	        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class), platform);
+	        task.setListener(this);
 	
-	        adapter = new IncompleteFormListAdapter(this, platform);
+	        adapter = new IncompleteFormListAdapter(this, platform, task);
 	        
 	        String statusFilter = null;
 	        
@@ -119,12 +123,22 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher 
      * Get form list from database and insert into view.
      */
     private void refreshView() {
+    	disableSearch();
     	adapter.resetRecords();
     	setListAdapter(adapter);
     }
+    
+    protected void disableSearch() {
+    	searchbox.setEnabled(false);
+    }
 
 
-    /**
+    protected void enableSearch() {
+    	searchbox.setEnabled(true);
+	}
+
+
+	/**
      * Stores the path of selected form and finishes.
      */
     @Override
@@ -163,7 +177,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher 
 	    	  return true;
 	      case DELETE_RECORD:
 	    	  new FormRecordCleanupTask(this, platform).wipeRecord(CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read((int)info.id));
-	    	  this.getListView().post(new Runnable() { public void run() {adapter.notifyDataSetChanged();}});
+	    	  this.getListView().post(new Runnable() { public void run() {adapter.notifyDataSetInvalidated();}});
 	      }
 	      
 	      return true;
@@ -305,6 +319,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher 
     @Override
     protected void onDestroy() {
     	super.onDestroy();
+    	adapter.release();
     	//Make sure we're not holding onto the wake lock still, no matter what
     	unlock();
     }
@@ -344,6 +359,18 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher 
 
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
 		//nothing		
+	}
+
+
+	public void notifyPriorityLoaded(Integer record, boolean priority) {
+		if(priority) {
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+
+	public void notifyLoaded() {
+		enableSearch();
 	}
 
 }

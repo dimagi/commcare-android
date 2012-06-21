@@ -5,9 +5,7 @@ package org.commcare.android.resource.installers;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.FileUtil;
@@ -16,15 +14,10 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.javarosa.core.model.FormDef;
-import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xform.parse.XFormParser;
 
 /**
  * @author ctsims

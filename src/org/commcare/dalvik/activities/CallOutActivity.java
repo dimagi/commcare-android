@@ -1,12 +1,11 @@
 /**
  * 
  */
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
 import java.util.Date;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;

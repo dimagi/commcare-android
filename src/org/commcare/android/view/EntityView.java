@@ -7,8 +7,6 @@ import java.io.IOException;
 
 import org.commcare.android.models.Entity;
 import org.commcare.suite.model.Detail;
-import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 

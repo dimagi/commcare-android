@@ -21,12 +21,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.User;
 import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.SharedPreferences;
 import android.net.Uri;

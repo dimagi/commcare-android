@@ -3,10 +3,10 @@
  */
 package org.commcare.android.util;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.User;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;

@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.utils.DateUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
@@ -17,7 +17,6 @@ import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Context;
-import android.telephony.TelephonyManager;
 
 /**
  * @author ctsims

@@ -7,8 +7,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -21,6 +19,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Pair;
 
 /**
  * @author ctsims
@@ -44,15 +43,17 @@ public abstract class DbHelper {
 	public abstract SQLiteDatabase getHandle();
 	
 
-	public String createWhere(String[] fieldNames, Object[] values) {
+	public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values) {
 		String ret = "";
+		String[] arguments = new String[fieldNames.length];
 		for(int i = 0 ; i < fieldNames.length; ++i) {
-			ret += TableBuilder.scrubName(fieldNames[i]) + "='" + values[i].toString() + "'";
+			ret += TableBuilder.scrubName(fieldNames[i]) + "=?";
+			arguments[i] = values[i].toString();
 			if(i + 1 < fieldNames.length) {
 				ret += " AND ";
 			}
 		}
-		return ret;
+		return new Pair<String, String[]>(ret, arguments);
 	}
 	
 	public ContentValues getContentValues(Externalizable e) {

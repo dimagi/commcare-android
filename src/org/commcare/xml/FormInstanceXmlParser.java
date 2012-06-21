@@ -20,14 +20,14 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.odk.provider.InstanceProviderAPI;
-import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;

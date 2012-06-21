@@ -1,9 +1,9 @@
 /**
  * 
  */
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
-import org.commcare.android.R;
+import org.commcare.dalvik.R;
 
 import android.app.TabActivity;
 import android.content.Intent;

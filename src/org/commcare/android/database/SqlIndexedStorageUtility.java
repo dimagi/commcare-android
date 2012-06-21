@@ -22,6 +22,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Pair;
 
 /**
  * @author ctsims
@@ -48,8 +49,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	}
 	
 	public Vector getIDsForValues(String[] fieldNames, Object[] values) {
-		String whereClause = helper.createWhere(fieldNames, values);
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause, null,null, null, null);
+		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
 			return new Vector<Integer>();
@@ -68,8 +69,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	}
 	
 	public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
-		String whereClause = helper.createWhere(fieldNames, values);
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause, null,null, null, null);
+		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
 			return new Vector<T>();
@@ -106,8 +107,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
 	public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
-		String whereClause = helper.createWhere(rawFieldNames, values);
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause, null,null, null, null);
+		Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			throw new NoSuchElementException("No element in table " + table + " with names " + rawFieldNames +" and values " + values.toString());
 		}
@@ -205,7 +206,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
 	 */
 	public boolean exists(int id) {
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"="+String.valueOf(id), null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"= ? ", new String[] {String.valueOf(id)}, null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
 			return false;
@@ -403,7 +404,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			db.update(table, helper.getContentValues(e), DbUtil.ID_COL +"="+ String.valueOf(id), null);
+			db.update(table, helper.getContentValues(e), DbUtil.ID_COL +"=?", new String[] {String.valueOf(id)});
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();

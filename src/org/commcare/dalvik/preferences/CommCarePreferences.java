@@ -14,14 +14,12 @@
  * the License.
  */
 
-package org.commcare.android.preferences;
+package org.commcare.dalvik.preferences;
 
-import org.commcare.android.R;
-import org.commcare.android.activities.LoginActivity;
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.view.Menu;

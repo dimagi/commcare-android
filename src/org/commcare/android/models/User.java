@@ -20,7 +20,6 @@ package org.commcare.android.models;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.javarosa.core.services.storage.IMetaData;

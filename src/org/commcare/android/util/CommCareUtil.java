@@ -5,7 +5,7 @@ package org.commcare.android.util;
 
 import java.util.Vector;
 
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;

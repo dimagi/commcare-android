@@ -14,12 +14,12 @@
  * the License.
  */
 
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
-import org.commcare.android.R;
 import org.commcare.android.adapters.MenuListAdapter;
 import org.commcare.android.adapters.NestedMenuListAdapter;
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;

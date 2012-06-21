@@ -1,27 +1,19 @@
 /**
  * 
  */
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
-import org.commcare.android.R;
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;

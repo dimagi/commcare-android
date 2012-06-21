@@ -1,12 +1,12 @@
 /**
  * 
  */
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
-import org.commcare.android.R;
 import org.commcare.android.adapters.CallRecordAdapter;
 import org.commcare.android.adapters.MessageRecordAdapter;
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.services.storage.Persistable;
 

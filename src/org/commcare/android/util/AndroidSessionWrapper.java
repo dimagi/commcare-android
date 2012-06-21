@@ -10,14 +10,14 @@ import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
-import org.commcare.android.R;
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
-import org.commcare.android.odk.provider.InstanceProviderAPI;
-import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -268,6 +268,8 @@ public class AndroidSessionWrapper {
 		}
 		if(session.getSteps().size() == 0) { return null;}
 		
+		EvaluationContext ec = getEC();
+		
 		//Get the value that was chosen for this item
 		String value = session.getPoppedStep()[2];
 		
@@ -278,13 +280,13 @@ public class AndroidSessionWrapper {
     	Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
     	predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
     	
-    	Vector<TreeReference> elements = getEC().expandReference(nodesetRef);
+    	Vector<TreeReference> elements = ec.expandReference(nodesetRef);
     	
     	//If we got our ref, awesome. Otherwise we need to bail.
     	if(elements.size() != 1 ) { return null;}
     	
     	//Now generate a context for our element 
-    	EvaluationContext element = new EvaluationContext(getEC(), elements.firstElement());
+    	EvaluationContext element = new EvaluationContext(ec, elements.firstElement());
     	
     	//Now just get the detail title for that element
     	return session.getDetail(datum.getLongDetail()).getTitle().evaluate(element);

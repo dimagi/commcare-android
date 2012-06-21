@@ -29,8 +29,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
-import org.commcare.android.R;
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.android.util.DeviceReport;
 import org.commcare.android.util.HttpRequestGenerator;
 

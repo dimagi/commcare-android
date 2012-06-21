@@ -7,8 +7,7 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
-import org.commcare.android.application.CommCareApplication;
-import org.commcare.android.models.SessionStateDescriptor;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;

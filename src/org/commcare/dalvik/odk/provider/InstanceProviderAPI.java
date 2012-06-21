@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commcare.android.odk.provider;
+package org.commcare.dalvik.odk.provider;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

@@ -4,12 +4,11 @@
 package org.commcare.xml;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Hashtable;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.ACase;
 import org.commcare.cases.model.Case;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.util.InvalidStructureException;

@@ -10,9 +10,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import org.commcare.android.R;
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.User;
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
@@ -21,8 +20,6 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import android.content.Context;
 import android.content.Intent;

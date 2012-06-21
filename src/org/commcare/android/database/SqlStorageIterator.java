@@ -7,7 +7,6 @@ import java.util.Iterator;
 
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.database.Cursor;
 

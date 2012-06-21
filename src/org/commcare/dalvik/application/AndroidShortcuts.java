@@ -1,12 +1,12 @@
 /**
  * 
  */
-package org.commcare.android.application;
+package org.commcare.dalvik.application;
 
 import java.util.ArrayList;
 
-import org.commcare.android.R;
-import org.commcare.android.activities.CommCareHomeActivity;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.suite.model.Suite;
 
 import android.app.Activity;
@@ -23,7 +23,7 @@ import android.os.Parcelable;
  */
 public class AndroidShortcuts extends Activity {
 
-    public static final String EXTRA_KEY_SHORTCUT = "org.commcare.android.application.shortcut.command";
+    public static final String EXTRA_KEY_SHORTCUT = "org.commcare.dalvik.application.shortcut.command";
 
     String[] commands;
     String[] names;

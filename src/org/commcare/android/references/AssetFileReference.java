@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import org.javarosa.core.reference.Reference;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 
 /**
  * Reference to an asset file

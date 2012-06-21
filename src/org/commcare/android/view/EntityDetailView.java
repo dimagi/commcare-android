@@ -3,11 +3,10 @@
  */
 package org.commcare.android.view;
 
-import org.commcare.android.R;
 import org.commcare.android.models.Entity;
+import org.commcare.dalvik.R;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.suite.model.Detail;
-import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 
 import android.content.Context;

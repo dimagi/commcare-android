@@ -5,12 +5,11 @@ package org.commcare.android.resource.installers;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;

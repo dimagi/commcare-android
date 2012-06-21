@@ -8,8 +8,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.commcare.android.R;
 import org.commcare.android.models.FormRecord;
+import org.commcare.dalvik.R;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Entry;

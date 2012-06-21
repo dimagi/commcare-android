@@ -5,7 +5,6 @@ package org.commcare.android.util;
 
 import java.util.Date;
 
-import org.commcare.android.util.DotsData.DotsBox;
 import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;

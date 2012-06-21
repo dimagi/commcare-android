@@ -3,9 +3,9 @@
  */
 package org.commcare.android.preloaders;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.models.User;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;

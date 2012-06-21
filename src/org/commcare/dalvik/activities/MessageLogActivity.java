@@ -1,14 +1,13 @@
 /**
  * 
  */
-package org.commcare.android.activities;
+package org.commcare.dalvik.activities;
 
-import org.commcare.android.R;
 import org.commcare.android.adapters.MessageRecordAdapter;
+import org.commcare.dalvik.R;
 import org.commcare.android.util.SessionUnavailableException;
 
 import android.app.ListActivity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;

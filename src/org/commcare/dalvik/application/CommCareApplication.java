@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.application;
+package org.commcare.dalvik.application;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,15 +9,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
-import org.commcare.android.R;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.database.CommCareDBCursorFactory;
 import org.commcare.android.database.CommCareOpenHelper;
@@ -31,12 +27,13 @@ import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
-import org.commcare.android.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
-import org.commcare.android.services.CommCareSessionService;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CallInPhoneListener;
@@ -77,7 +74,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
 
@@ -194,7 +190,7 @@ public class CommCareApplication extends Application {
 	public int versionCode() {
 		try {
 			PackageManager pm = this.getPackageManager();
-			PackageInfo pi = pm.getPackageInfo("org.commcare.android", 0);
+			PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);
 			return pi.versionCode;
 		} catch(NameNotFoundException e) {
 			throw new RuntimeException("Android package name not available.");
@@ -532,7 +528,7 @@ public class CommCareApplication extends Application {
 		PackageManager pm = this.getPackageManager();
 		PackageInfo pi;
 		try {
-			pi = pm.getPackageInfo("org.commcare.android", 0);
+			pi = pm.getPackageInfo(getPackageName(), 0);
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 			return "ERROR! Incorrect package version requested";

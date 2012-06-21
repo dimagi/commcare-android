@@ -8,20 +8,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
+import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
-import org.commcare.cases.model.Case;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.os.AsyncTask.Status;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -44,20 +42,26 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	private Hashtable<Integer, String[]> searchCache;
 	
 	private String currentQuery;
-
 	
-	SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage;
+	FormRecordLoaderTask loader;
 	
-	public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform) throws SessionUnavailableException{
+	
+	public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform, FormRecordLoaderTask loader) throws SessionUnavailableException{
 		this.platform = platform;
 		this.context = context;
 		this.filter = null;
 		observers = new ArrayList<DataSetObserver>();
+		this.loader = loader;
 	}
 	
-	public void resetRecords() throws SessionUnavailableException {		
+	public void resetRecords() throws SessionUnavailableException {
+		if(loader.getStatus() == Status.RUNNING) {
+			loader.cancel(false);
+			loader = loader.spawn();
+		} else if(loader.getStatus() == Status.FINISHED) {
+			loader = loader.spawn();
+		}
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-		descriptorStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class); 
 		
 		if(filter == null) { filter = FormRecord.STATUS_SAVED; }
 		records = storage.getRecordsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {filter} );
@@ -79,15 +83,29 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		
 		searchCache = new Hashtable<Integer, String[]>();
 		current = new ArrayList<FormRecord>();
+
 		
 		this.filterValues(currentQuery);
-
+		
+		loader.init(searchCache);
+		loader.execute(records.toArray(new FormRecord[0]));
 	}
 
 	@Override
 	public void notifyDataSetChanged() {
-		resetRecords();
 		super.notifyDataSetChanged();
+	    for (DataSetObserver observer: observers) {
+	        observer.onChanged();
+	    }
+	}
+	
+	@Override
+	public void notifyDataSetInvalidated() {
+		super.notifyDataSetInvalidated();
+		resetRecords();
+		for (DataSetObserver observer: observers) {
+	        observer.onChanged();
+	    }
 	}
 
 	/* (non-Javadoc)
@@ -133,8 +151,6 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		return 0;
 	}
 
-	private Hashtable<String,String> descriptorCache = new Hashtable<String,String>();
-	
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
@@ -145,33 +161,15 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 			ifrv = new IncompleteFormRecordView(context, platform);
 		}
 		
-		String dataTitle = getRecordTitle(r);
+		if(searchCache.containsKey(r.getID())) {
+			ifrv.setParams(r, searchCache.get(r.getID())[1], r.lastModified().getTime());
+		} else {
+			//notify the loader that we need access to this record immediately
+			loader.registerPriority(r);
+			ifrv.setParams(r, "Loading...", r.lastModified().getTime());
+		}
 		
-		ifrv.setParams(r, dataTitle, r.lastModified().getTime());
 		return ifrv;
-	}
-
-	private String getRecordTitle(FormRecord r) {
-		SessionStateDescriptor ssd = null;
-		try {
-		 ssd = descriptorStorage.getRecordForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
-		} catch(NoSuchElementException nsee) {
-			//s'all good
-		}
-		String dataTitle = null;
-		if(ssd != null) {
-			String descriptor = ssd.getSessionDescriptor();
-			if(!descriptorCache.containsKey(descriptor)) {
-				AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
-				asw.loadFromStateDescription(ssd);
-				dataTitle = asw.getTitle();
-				dataTitle = dataTitle == null ? "" : dataTitle;
-				descriptorCache.put(descriptor, dataTitle);
-			} else {
-				dataTitle = descriptorCache.get(descriptor);
-			}
-		}
-		return dataTitle;
 	}
 
 	/* (non-Javadoc)
@@ -213,14 +211,14 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		
 		String[] pieces = query.toLowerCase().split(" ");
 		
+		
+		//TODO: Don't let this happen until search cache is populated
+		
 		full:
 		for(FormRecord r : records) {
-			if(!searchCache.containsKey(r.getID())) {
-				populateSearchCache(r);
-			}
 			for(String cacheValue : searchCache.get(r.getID())) {
 				for(String piece : pieces) {
-					if(cacheValue.contains(piece)) {
+					if(cacheValue.toLowerCase().contains(piece)) {
 						current.add(r);
 						continue full;
 					}
@@ -228,19 +226,6 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 			}
 		}
 	}
-	
-	protected void populateSearchCache(FormRecord record) {
-		ArrayList<String> cache = new ArrayList<String>();
-		
-		//Only the month
-		cache.add(android.text.format.DateUtils.formatDateTime(context, record.lastModified().getTime(), android.text.format.DateUtils.FORMAT_NO_MONTH_DAY | android.text.format.DateUtils.FORMAT_NO_YEAR).toLowerCase()); 
-		
-		cache.add(getRecordTitle(record).toLowerCase());
-		
-		this.searchCache.put(record.getID(), cache.toArray(new String[0]));
-
-	}
-
 	
 	public void applyTextFilter(String query) {
 		filterValues(query);
@@ -262,5 +247,11 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	 */
 	public void unregisterDataSetObserver(DataSetObserver observer) {
 		this.observers.remove(observer);
+	}
+
+	public void release() {
+		if(loader.getStatus() == Status.RUNNING) {
+			loader.cancel(false);
+		}
 	}
 }

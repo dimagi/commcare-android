@@ -21,7 +21,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-import org.commcare.android.application.CommCareApplication;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 

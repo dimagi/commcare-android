@@ -5,10 +5,9 @@ package org.commcare.android.tasks;
 
 import java.util.Vector;
 
-import org.commcare.android.R;
-import org.commcare.android.application.CommCareApplication;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;

@@ -4,13 +4,10 @@
 package org.commcare.android.preloaders;
 
 import org.commcare.android.models.User;
-import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.IPreloadHandler;
-import org.javarosa.core.model.utils.PreloadUtils;
 
 /**
  * @author ctsims
