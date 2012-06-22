@@ -73,6 +73,7 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		
 		this.uuid = uuid;
 		this.lastModified = lastModified;
+		if(lastModified == null) { lastModified = new Date(); } ;
 	}
 	
 	public FormRecord updateStatus(String instanceURI, String newStatus) {
