@@ -103,6 +103,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	@Override
 	protected void onPostExecute(Integer result) {
+		super.onPostExecute(result);
 		if(listener != null) {
 			listener.finished(result);
 		}
@@ -114,6 +115,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
+		super.onProgressUpdate(values);
 		if(listener != null) {
 			listener.progressUpdate(values);
 		}

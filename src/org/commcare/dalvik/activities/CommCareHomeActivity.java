@@ -16,17 +16,17 @@ import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ProcessTaskListener;
+import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidSessionWrapper;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidSessionWrapper;
-import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
@@ -50,6 +50,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
@@ -93,6 +94,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private int mCurrentDialog;
 	
 	ProcessAndSendTask mProcess;
+	DataPullTask mDataPullTask;
 	
 	static Activity currentHome;
 	
@@ -213,8 +215,16 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-    	DataPullTask pullTask = new DataPullTask(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this);
-    	pullTask.setPullListener(new DataPullListener() {
+		mDataPullTask = new DataPullTask(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this);
+		
+		attachPullTask(mDataPullTask);
+    	
+    	mDataPullTask.execute();
+    	CommCareApplication._().getSession().registerCurrentTask(mDataPullTask, "Sync");
+    }
+    
+    private void attachPullTask(DataPullTask task) {
+    	task.setPullListener(new DataPullListener() {
 
 			public void finished(int status) {
 				currentHome.dismissDialog(mCurrentDialog);
@@ -242,6 +252,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 					break;
 				}
 				
+				CommCareApplication._().getSession().detachTask();
 				refreshView();
 				//TODO: What if the user info was updated?
 			}
@@ -263,8 +274,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	});
     	//possibly already showing
     	currentHome.showDialog(DIALOG_PROCESS);
-    	
-    	pullTask.execute();
     }
     
     /*
@@ -522,8 +531,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		returnToLogin();
 	    	}
     }
-    
-    private void startNextFetch() throws SessionUnavailableException {
+
+	private void startNextFetch() throws SessionUnavailableException {
     	
     	//TODO: feels like this logic should... not be in a big disgusting ifghetti. 
     	//Interface out the transitions, maybe?
@@ -881,6 +890,19 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         if(p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
         	viewOldForms.setVisibility(Button.VISIBLE);
+        }
+        try {
+	        mDataPullTask = CommCareApplication._().getSession().getCurrentTask();
+	        if(mDataPullTask != null) {
+	        	this.attachPullTask(mDataPullTask);
+	        	
+	            //It's now attached. In theory, we might have missed the end signal, though, so double check
+	            if(mDataPullTask.getStatus() == Status.FINISHED) {
+	            	this.dismissDialog(DIALOG_PROCESS);
+	            }
+	        }
+        } catch(SessionUnavailableException sue) {
+        	//TODO: Move this somewhere that this won't happen
         }
     }
 
