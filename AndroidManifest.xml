@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.commcare.dalvik"
       android:versionName="2.0" android:versionCode="106">
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true" android:theme="@android:style/Theme.Light" android:name=".application.CommCareApplication">
         <activity android:label="@string/app_name" android:name=".activities.CommCareHomeActivity" android:configChanges="orientation">
             <intent-filter>
@@ -95,13 +97,17 @@
 <activity android:name="org.odk.collect.android.activities.FormHierarchyActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.activities.GeoPointActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.preferences.PreferencesActivity" android:windowSoftInputMode="adjustResize"></activity>
+
+<uses-library android:name="com.google.android.maps" />
+
+  <uses-feature android:name="android.hardware.telephony" android:required="false" />
+  <activity android:name=".activities.EntityMapActivity"></activity>
+
 </application>
 
 
 <uses-library android:name="org.javarosa" />
 <uses-library android:name="org.commcare" />
-
-  <uses-feature android:name="android.hardware.telephony" android:required="false" />
   
   <uses-permission android:name="android.permission.READ_PHONE_STATE" xmlns:android="http://schemas.android.com/apk/res/android"/>
   <uses-permission android:name="android.permission.INTERNET" xmlns:android="http://schemas.android.com/apk/res/android"/>

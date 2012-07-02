@@ -60,8 +60,10 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	
 	private static final int CONFIRM_SELECT = 0;
 	private static final int BARCODE_FETCH = 1;
+	private static final int MAP_SELECT = 2;
 	
 	private static final int MENU_SORT = Menu.FIRST;
+	private static final int MENU_MAP = Menu.FIRST + 1;
 
 	
 	EditText searchbox;
@@ -263,6 +265,12 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	        }
         		return;
     		}
+    	case MAP_SELECT:
+    		
+    		TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+        	Intent i = this.getDetailIntent(r);
+        	
+            startActivityForResult(i, CONFIRM_SELECT);
     	default:
     		super.onActivityResult(requestCode, resultCode, intent);
     	}
@@ -293,6 +301,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_SORT, 0, "Sort By...").setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
+        menu.add(0, MENU_MAP, 1, "View on Map").setIcon(
+                android.R.drawable.ic_menu_mapmode);
         return true;
     }
 
@@ -303,6 +313,10 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
             case MENU_SORT:
                 createSortMenu();
                 return true;
+            case MENU_MAP:
+            	Intent i = new Intent(this, EntityMapActivity.class);
+            	this.startActivityForResult(i, MAP_SELECT);
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }

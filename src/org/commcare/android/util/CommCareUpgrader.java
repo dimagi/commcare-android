@@ -4,6 +4,7 @@
 package org.commcare.android.util;
 
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.cache.GeocoderDataCache;
 import org.commcare.android.models.FormRecord;
 import org.commcare.resources.model.Resource;
 
@@ -38,9 +39,16 @@ public class CommCareUpgrader {
 			} else { return false;}
 		}
 		
+		if(from == 27) {
+			if(upgradeTwoSeventoTwoEight(database)) {
+				from = 28;
+			} else { return false;}
+		}
+		
 		return from == to; 
 	}
-	
+
+
 	public boolean upgradeOneTwo(SQLiteDatabase database) {
 		database.beginTransaction();
 		TableBuilder builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
@@ -92,6 +100,17 @@ public class CommCareUpgrader {
 		TableBuilder builder = new TableBuilder(FormRecord.STORAGE_KEY);
 		builder.addData(new FormRecord());
 		database.execSQL(builder.getTableCreateString());
+
+		database.setTransactionSuccessful();
+		database.endTransaction();
+		return true;
+	}
+	
+	
+	private boolean upgradeTwoSeventoTwoEight(SQLiteDatabase database) {
+		database.beginTransaction();
+		
+		database.execSQL(GeocoderDataCache.GetTableBuilder().getTableCreateString());
 
 		database.setTransactionSuccessful();
 		database.endTransaction();

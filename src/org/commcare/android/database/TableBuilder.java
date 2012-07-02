@@ -41,6 +41,14 @@ public class TableBuilder {
 		cols.add(DbUtil.DATA_COL + " BLOB");
 	}
 	
+	public void addData(String[] columns) {
+		cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
+
+		for(String c : columns) {
+			cols.add(scrubName(c));
+		}
+	}
+	
 	public String getTableCreateString() {
 		
 		String built = "CREATE TABLE " + scrubName(name) + " (";

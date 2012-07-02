@@ -151,6 +151,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         super.onResume();
         
         try {
+        	//TODO: there is a weirde circumstance where we're logging in somewhere else and this gets locked.
         if(CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
     		Intent i = new Intent();
     		i.putExtra(ALREADY_LOGGED_IN, true);

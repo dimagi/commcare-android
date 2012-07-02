@@ -73,8 +73,9 @@ public class DbUtil {
 	   DexFile df = new DexFile(new File(zpath));
 	   for(Enumeration<String> en = df.entries() ; en.hasMoreElements() ;) {
 		   String cn = en.nextElement();
-		   if(cn.startsWith(packageName) && !cn.contains(".test.")) {
-			   try{
+		   try{
+
+		   if(cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
 				   Class prototype = Class.forName(cn);
 				   if(prototype.isInterface()) {
 					   continue;
@@ -91,12 +92,15 @@ public class DbUtil {
 				   if(Externalizable.class.isAssignableFrom(prototype)) {
 					   classNames.add(cn);
 				   }
-			   } catch(IllegalAccessError e) {
-				   //nothing
-			   } catch (SecurityException e) {
-				   
-			   } catch(Exception e) {
-			   }
+		   		}
+		   } catch(IllegalAccessError e) {
+			   //nothing
+		   } catch (SecurityException e) {
+			   
+		   } catch(Exception e) {
+			   
+		   } catch(ExceptionInInitializerError e) {
+			   
 		   }
 	   }
 	   
