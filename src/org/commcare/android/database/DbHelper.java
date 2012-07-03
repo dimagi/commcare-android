@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
+import org.commcare.android.util.Base64;
 import org.commcare.android.util.CryptUtil;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -43,12 +44,18 @@ public abstract class DbHelper {
 	public abstract SQLiteDatabase getHandle();
 	
 
-	public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values) {
+	public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em) {
 		String ret = "";
 		String[] arguments = new String[fieldNames.length];
 		for(int i = 0 ; i < fieldNames.length; ++i) {
 			ret += TableBuilder.scrubName(fieldNames[i]) + "=?";
-			arguments[i] = values[i].toString();
+			
+			if(em != null && em.isEncrypted(fieldNames[i])) {
+				arguments[i] = encrypt(values[i].toString());
+			} else {
+				arguments[i] = values[i].toString();
+			}
+			
 			if(i + 1 < fieldNames.length) {
 				ret += " AND ";
 			}
@@ -56,6 +63,11 @@ public abstract class DbHelper {
 		return new Pair<String, String[]>(ret, arguments);
 	}
 	
+	private String encrypt(String string) {
+		byte[] encrypted = CryptUtil.encrypt(string.getBytes(), encrypter);
+		return Base64.encode(encrypted);
+	}
+
 	public ContentValues getContentValues(Externalizable e) {
 		boolean encrypt = e instanceof EncryptedModel;
 		assert(!(encrypt) || encrypter != null);
@@ -86,7 +98,7 @@ public abstract class DbHelper {
 				if(o == null ) { continue;}
 				String value = o.toString();
 				if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
-					values.put(TableBuilder.scrubName(key), CryptUtil.encrypt(value.getBytes(), encrypter));
+					values.put(TableBuilder.scrubName(key), encrypt(value));
 				} else {
 					values.put(TableBuilder.scrubName(key), value);
 				}

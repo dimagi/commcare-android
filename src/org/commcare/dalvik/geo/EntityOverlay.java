@@ -23,7 +23,6 @@ public abstract class EntityOverlay extends BalloonItemizedOverlay {
 	private int index = 0;
 	private boolean full = false;
 	private Context context;
-	private OverlayItem previousoverlay;
 
 	public EntityOverlay(Context context, Drawable defaultMarker, MapView view) {
 		super(boundCenterBottom(defaultMarker), view);
@@ -46,19 +45,16 @@ public abstract class EntityOverlay extends BalloonItemizedOverlay {
 	}
 
 	public void addOverlay(OverlayItem overlay, TreeReference reference) {
-		if (previousoverlay != null) {
-			if (index < maxNum) {
-				overlays[index] = previousoverlay;
-			} else {
-				index = 0;
-				full = true;
-				overlays[index] = previousoverlay;
-			}
-			references[index] = reference;
-			index++;
-			populate();
+		if (index < maxNum) {
+			overlays[index] = overlay;
+		} else {
+			index = 0;
+			full = true;
+			overlays[index] = overlay;
 		}
-		this.previousoverlay = overlay;
+		references[index] = reference;
+		index++;
+		populate();
 	}
 	
 	/* (non-Javadoc)
@@ -71,4 +67,8 @@ public abstract class EntityOverlay extends BalloonItemizedOverlay {
 	}
 	
 	protected abstract void selected(TreeReference ref);
+	
+	public static Drawable bcb(Drawable d) {
+		return EntityOverlay.boundCenterBottom(d);
+	}
 }

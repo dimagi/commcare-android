@@ -32,6 +32,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	
 	String table;
 	Class<? extends T> ctype;
+	EncryptedModel em;
 	T t;
 	DbHelper helper;
 	
@@ -39,6 +40,20 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		this.table = table;
 		this.ctype = ctype;
 		this.helper = helper;
+		
+		try {
+			T e = (T)ctype.newInstance();
+			if(e instanceof EncryptedModel) {
+				em = (EncryptedModel)e;
+			}
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	/* (non-Javadoc)
@@ -49,7 +64,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	}
 	
 	public Vector getIDsForValues(String[] fieldNames, Object[] values) {
-		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values);
+		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
@@ -69,7 +84,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	}
 	
 	public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
-		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values);
+		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
@@ -107,7 +122,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
 	public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
-		Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values);
+		Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			throw new NoSuchElementException("No element in table " + table + " with names " + rawFieldNames +" and values " + values.toString());
@@ -125,8 +140,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
 	public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
+		Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em);
 		String scrubbedName = TableBuilder.scrubName(rawFieldName);
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , scrubbedName + "= ? ", new String[] {value.toString()}, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
 			throw new NoSuchElementException("No element in table " + table + " with name " + scrubbedName +" and value " + value.toString());

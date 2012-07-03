@@ -57,6 +57,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	private CommCareSession session;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
+	public static final String EXTRA_IS_MAP = "is_map";
 	
 	private static final int CONFIRM_SELECT = 0;
 	private static final int BARCODE_FETCH = 1;
@@ -64,7 +65,6 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	
 	private static final int MENU_SORT = Menu.FIRST;
 	private static final int MENU_MAP = Menu.FIRST + 1;
-
 	
 	EditText searchbox;
 	EntityListAdapter adapter;
@@ -76,10 +76,16 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	
 	EvaluationContext entityContext;
 	
+	boolean mResultIsMap = false;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        if(savedInstanceState != null) {
+        	mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
+        }
+
         setContentView(R.layout.entity_select_layout);
         searchbox = (EditText)findViewById(R.id.searchbox);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
@@ -257,6 +263,12 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	        finish();
         		return;
     		} else {
+	    		if(mResultIsMap) {
+	    			mResultIsMap = false;
+	            	Intent i = new Intent(this, EntityMapActivity.class);
+	            	this.startActivityForResult(i, MAP_SELECT);
+	            	return;
+	    		}
     	        Intent i = new Intent(this.getIntent());
     	        setResult(RESULT_CANCELED, i);
     	        //If the original calling intent bounced us up immediately, we need to refresh
@@ -266,11 +278,20 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         		return;
     		}
     	case MAP_SELECT:
-    		
-    		TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-        	Intent i = this.getDetailIntent(r);
-        	
-            startActivityForResult(i, CONFIRM_SELECT);
+    		if(resultCode == RESULT_OK) {
+	    		TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+	    		
+	        	Intent i = this.getDetailIntent(r);
+	        	
+	    		//To go back to map mode if confirm is false
+	        	mResultIsMap = true;
+	        	
+	            startActivityForResult(i, CONFIRM_SELECT);
+	            return;
+    		} else {
+    			refreshView();
+    			return;
+    		}
     	default:
     		super.onActivityResult(requestCode, resultCode, intent);
     	}

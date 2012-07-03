@@ -520,6 +520,8 @@ public class CommCareApplication extends Application {
 		//Get rid of any user fixtures
 		getStorage("fixture", FormInstance.class).removeAll();
 		
+		getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
+		
 		
 		
 		//Should be good to go. The app'll log us out now that there's no user details in memory
@@ -643,9 +645,19 @@ public class CommCareApplication extends Application {
 	    }
 	}
 	
+	//Milliseconds to wait for bind
+	private static final int MAX_BIND_TIMEOUT = 5000;
+	
 	public CommCareSessionService getSession() throws SessionUnavailableException {
+		long started = System.currentTimeMillis();
 		//If binding is currently in process, just wait for it.
-		while(mIsBinding);
+		while(mIsBinding) {
+			if(System.currentTimeMillis() - started > MAX_BIND_TIMEOUT) {
+				//Something bad happened
+				doUnbindService();
+				throw new SessionUnavailableException("Timeout binding to session service");
+			}
+		}
 		
 		if(mIsBound) {
 			synchronized(mBoundService) {

@@ -16,6 +16,8 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import com.google.android.maps.GeoPoint;
+
 /**
  * @author ctsims
  *
@@ -27,7 +29,6 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 	public static final String META_LAST_QUERY = "lastquery";
 	public static final String META_LOCATION = "location";
 	public static final String META_HIT = "hit";
-	public static final String META_CACHE_HASH = "hash";
 	
 	public static final String META_HIT_TRUE = "t";
 	public static final String META_HIT_FALSE = "f";
@@ -44,6 +45,10 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 		
 	}
 	
+	public GeocodeCacheModel(String location, int lat, int lon) {
+		this(location, lat, lon, new Date());
+	}
+	
 	public GeocodeCacheModel(String location, int lat, int lon, Date queried) {
 		hit = true;
 		this.location = location;
@@ -52,8 +57,9 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 		this.lastQueried = queried;
 	}
 	
-	public static GeocodeCacheModel NoHitRecord() {
+	public static GeocodeCacheModel NoHitRecord(String val) {
 		GeocodeCacheModel model = new GeocodeCacheModel();
+		model.location = val;
 		model.hit = false;
 		model.lastQueried = new Date();
 		return model;
@@ -61,7 +67,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 	
 
 	public boolean isEncrypted(String data) {
-		if(data.equals(META_LAST_QUERY) || data.equals(META_HIT) || data.equals(META_CACHE_HASH)) {
+		if(data.equals(META_LAST_QUERY) || data.equals(META_HIT)) {
 			return false;
 		}
 		return true;
@@ -84,11 +90,15 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeDate(out, lastQueried);
 		ExtUtil.writeBool(out, hit);
+		ExtUtil.writeString(out,location);
 		if(hit) {
-			ExtUtil.writeString(out,location);
 			ExtUtil.writeNumeric(out,lat);
 			ExtUtil.writeNumeric(out,lon);
 		}
+	}
+	
+	public GeoPoint getGeoPoint() {
+		return new GeoPoint(lat,lon);
 	}
 
 	public void setID(int ID) {
@@ -100,7 +110,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 	}
 
 	public String[] getMetaDataFields() {
-		return new String[] {META_LAST_QUERY, META_LOCATION, META_CACHE_HASH, META_HIT};
+		return new String[] {META_LAST_QUERY, META_LOCATION, META_HIT};
 	}
 
 	public Object getMetaData(String fieldName) {
@@ -112,6 +122,12 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 			if(hit) { return META_HIT_TRUE; } else {return META_HIT_FALSE; }
 		}
 		throw new IllegalArgumentException("No metadata field " + fieldName  + " for Geocoder Cache Models");
+	}
+	/**
+	 * Whether this represents a location which has a geopoint, or one which failed to look up
+	 */
+	public boolean dataExists() {
+		return hit;
 	}
 	
 }
