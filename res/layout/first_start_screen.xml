@@ -2,11 +2,54 @@
 <FrameLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="fill_parent" android:layout_width="fill_parent">
-<ImageView android:id="@+id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="20px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView><LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_gravity="center_vertical|center_horizontal" android:layout_width="fill_parent" android:orientation="vertical"><TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:textSize="18px" android:gravity="center_horizontal" android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin." android:id="@+id/str_setup_message"></TextView>
+<ImageView android:id="@+id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="20px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView><LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_gravity="center_vertical|center_horizontal" android:layout_width="fill_parent" android:orientation="vertical">
 
-<LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:orientation="vertical" android:id="@+id/advanced_panel" android:visibility="gone"><TextView android:id="@+id/TextView02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Application Profile "></TextView><EditText android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_width="fill_parent" android:id="@+id/edit_profile_location"></EditText></LinearLayout>
+<TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:textSize="18px" android:gravity="center_horizontal" android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin." android:id="@+id/str_setup_message"></TextView>
+
+<LinearLayout
+    android:id="@+id/advanced_panel"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:visibility="gone" >
+
+    <TextView
+        android:id="@+id/TextView02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Application Profile " />
+
+    <EditText
+        android:id="@+id/edit_profile_location"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" >
+
+        <requestFocus />
+    </EditText>
 </LinearLayout>
-<Button android:layout_height="wrap_content" android:id="@+id/start_install" android:layout_width="fill_parent" android:layout_gravity="bottom|center_horizontal" android:text="Start Install"></Button>
+</LinearLayout>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" android:layout_gravity="bottom|center_horizontal">
+
+    <Button
+        android:id="@+id/btn_fetch_uri"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:drawableRight="@drawable/barcode"
+        android:text="Scan Application Barcode" />
+
+    <Button
+        android:id="@+id/start_install"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Install" />
+
+</LinearLayout>
 
 
 </FrameLayout>
