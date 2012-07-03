@@ -4,7 +4,7 @@
 package org.commcare.android.util;
 
 import org.commcare.android.database.TableBuilder;
-import org.commcare.android.database.cache.GeocoderDataCache;
+import org.commcare.android.database.cache.GeocodeCacheModel;
 import org.commcare.android.models.FormRecord;
 import org.commcare.resources.model.Resource;
 
@@ -110,7 +110,9 @@ public class CommCareUpgrader {
 	private boolean upgradeTwoSeventoTwoEight(SQLiteDatabase database) {
 		database.beginTransaction();
 		
-		database.execSQL(GeocoderDataCache.GetTableBuilder().getTableCreateString());
+		TableBuilder builder = new TableBuilder(GeocodeCacheModel.STORAGE_KEY);
+		builder.addData(new GeocodeCacheModel());
+		database.execSQL(builder.getTableCreateString());
 
 		database.setTransactionSuccessful();
 		database.endTransaction();

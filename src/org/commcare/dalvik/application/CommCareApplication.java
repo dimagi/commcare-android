@@ -22,6 +22,7 @@ import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
+import org.commcare.android.database.cache.GeocodeCacheModel;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
@@ -31,15 +32,15 @@ import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -411,7 +412,8 @@ public class CommCareApplication extends Application {
 	private Hashtable<String, EncryptedModel> encryptedModels() {
 		Hashtable<String, EncryptedModel> models = new Hashtable<String, EncryptedModel>();
 		models.put(ACase.STORAGE_KEY, new ACase());
-		models.put(FormRecord.STORAGE_KEY, new ACase());
+		models.put(FormRecord.STORAGE_KEY, new FormRecord());
+		models.put(GeocodeCacheModel.STORAGE_KEY, new GeocodeCacheModel());
 		return models;
 	}
 

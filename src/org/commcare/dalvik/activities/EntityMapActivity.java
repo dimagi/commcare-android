@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
+import org.commcare.android.database.cache.GeocodeCacheModel;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
@@ -135,6 +136,9 @@ public class EntityMapActivity extends MapActivity {
 		
 		int legit = 0;
 		int bogus = 0;
+		
+		CommCareApplication._().getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class);
+		
 		for(Entity<TreeReference> e : entities) {
 			for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){
 				if("address".equals(detail.getTemplateForms()[i])) {

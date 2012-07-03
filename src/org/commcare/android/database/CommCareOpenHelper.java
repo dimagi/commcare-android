@@ -3,6 +3,7 @@
  */
 package org.commcare.android.database;
 
+import org.commcare.android.database.cache.GeocodeCacheModel;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
@@ -70,6 +71,11 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			builder = new TableBuilder("fixture");
 			builder.addData(new FormInstance());
 			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(GeocodeCacheModel.STORAGE_KEY);
+			builder.addData(new GeocodeCacheModel());
+			database.execSQL(builder.getTableCreateString());
+			
 			
 			database.setVersion(DATABASE_VERSION);
 					
