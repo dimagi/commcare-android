@@ -51,16 +51,12 @@ public class EntityDetailView extends LinearLayout {
 		
         LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.6f);
         
-        label = new TextView(context);
-        label.setTextAppearance(context, android.R.style.TextAppearance_Medium);
-        label.setPadding(20, 15, 15, 20);
+        label = (TextView)View.inflate(context, R.layout.entity_item_text, null);
         label.setId(1);
 	    addView(label, l);
 	    
 	    dl = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);
-	    data = new TextView(context);
-	    data.setTextAppearance(context, android.R.style.TextAppearance_Medium);
-	    data.setPadding(0, 15, 15, 20);
+	    data = (TextView)View.inflate(context, R.layout.entity_item_text, null);
 	    data.setId(2);
 	    currentView = data;
 	    addView(data, dl);
@@ -72,7 +68,7 @@ public class EntityDetailView extends LinearLayout {
 	    callout.setInputType(InputType.TYPE_CLASS_PHONE);
 	    callout.setId(3);
 	    
-	    addressView = (View)View.inflate(context, R.layout.address_view, null);
+	    addressView = (View)View.inflate(context, R.layout.entity_detail_address_view, null);
 	    addressText = (TextView)addressView.findViewById(R.id.address_text);
 	    addressButton = (Button)addressView.findViewById(R.id.address_button);
 	    addressView.setId(4);

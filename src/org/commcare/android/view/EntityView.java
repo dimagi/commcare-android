@@ -6,6 +6,7 @@ package org.commcare.android.view;
 import java.io.IOException;
 
 import org.commcare.android.models.Entity;
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -74,7 +75,7 @@ public class EntityView extends LinearLayout {
 	private View getView(Context context, String text, String form) {
 		View retVal;
         if("image".equals(form)) {
-        	ImageView iv = new ImageView(context);
+        	ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
         	if(text != null) {
 				try {
@@ -89,16 +90,12 @@ public class EntityView extends LinearLayout {
 				}
         	}
         } else {
-	        TextView tv = new TextView(context);
+        	TextView tv =(TextView)View.inflate(context, R.layout.entity_item_text, null);
 	        retVal = tv;
-	        tv.setTextAppearance(context, android.R.style.TextAppearance_Large);
         	if(text != null) {
         		tv.setText(text);
         	}
         }
-        
-        //For all views
-        retVal.setPadding(20, 15, 15, 20);
         return retVal;
 	}
 	

@@ -57,3 +57,6 @@ login.username=Username:
 login.password=Password:
 login.button=Log In
 login.sync=Synchronize with server
+
+version.id.long=CommCare ODK, version "${0}"(${1}). CommCare Version ${2}. Build ${3}, built on: ${4}
+version.id.short=CCODK:"${0}"(${1}). CC${2}b[${3}] on ${4}
