@@ -8,31 +8,31 @@
       <item name="android:textStyle">bold</item>
     </style>
     <style name="TopPane">
-        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
     </style>
     
     <style name="MiddlePane">
-        <item name="android:layout_marginBottom">15dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
     </style>
     
     <style name="MainSidePaneLeft">
-        <item name="android:paddingRight">10dp</item>
-        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingLeft">5dp</item>
     </style>
     
     <style name="MainSidePaneRight">
-        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingLeft">0dp</item>
     </style>
     
     <style name="MainPane">
-        <item name="android:paddingRight">15dp</item>
+        <item name="android:paddingRight">5dp</item>
     </style>
     
-    <style name="EntityItemTextView">
-        <item name="android:paddingLeft">15dp</item>
-        <item name="android:paddingTop">15dp</item>
-        <item name="android:paddingBottom">15dp</item>
-        <item name="android:paddingRight">15dp</item>
+   <style name="EntityItemTextView">
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingRight">2dp</item>
     </style>
     
    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
@@ -40,7 +40,7 @@
    </style>
    
    <style name="VersionIdText">
-       <item name="android:textSize">10dp</item> 
+       <item name="android:textSize">8dp</item> 
    </style>
     
 </resources>

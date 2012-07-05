@@ -16,35 +16,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/home.logout"
-        android:layout_alignParentLeft="true"
-        android:textSize="10dp" />
+        android:layout_alignParentLeft="true" android:textAppearance="@style/VersionIdText"/>
+
+    <ImageView
+        android:id="@+id/main_top_banner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ccbanner_hms"
+        android:visibility="visible" android:layout_alignParentTop="true"/>
 
     <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
+        android:id="@+id/main_center_pane"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:orientation="vertical" android:layout_above="@id/home.logout" android:layout_alignParentTop="true" android:gravity="center_vertical|center_horizontal" android:padding="20dp">
-
-        <ImageView
-            android:id="@+id/ImageView01"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ccbanner_hms"
-            android:visibility="visible" />
+        android:orientation="vertical" android:layout_above="@id/home.logout" android:gravity="center_vertical|center_horizontal" android:layout_below="@id/main_top_banner">
 
         <Button
             android:id="@+id/home.start"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Get Started" android:layout_marginBottom="8dp" android:drawableLeft="@drawable/pencil"/>
+            android:text="Get Started" android:drawableLeft="@drawable/pencil" style="@style/TopPane"/>
 
         <LinearLayout
             android:id="@+id/linearLayout2"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" 
-            android:orientation="vertical" android:layout_marginBottom="15dp">
+            android:orientation="vertical" style="@style/MiddlePane">
 
             <TextView
                 android:id="@+id/home.formrecords.label"

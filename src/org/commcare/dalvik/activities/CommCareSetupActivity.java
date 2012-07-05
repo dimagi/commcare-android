@@ -8,12 +8,15 @@ import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
+import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,6 +51,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	
 	public static final int DIALOG_PROGRESS = 0;
 	
+	public static final int BARCODE_CAPTURE = 1;
+	
 	int dbState;
 	int resourceState;
 	
@@ -57,6 +62,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	EditText editProfileRef;
 	TextView mainMessage;
 	Button installButton;
+	Button mScanBarcodeButton;
     private ProgressDialog mProgressDialog;
 	
 	boolean advanced = false;
@@ -105,14 +111,29 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
 		installButton = (Button)this.findViewById(R.id.start_install);
+    	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
 		
 		if(incomingRef == null) {
 			mainMessage.setText("Welcome to CommCare! To proceed with installation, please navigate to a CommCare Profile on your Web Browser.");
-			//editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
-			editProfileRef.setText("https://www.commcarehq.org/a/hsph/apps/download/9923d50075b055e32d4aab9706c84b1d/profile.ccpr");
-			installButton.setEnabled(false);
+			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
+			installButton.setVisibility(View.GONE);
+			mScanBarcodeButton.setVisibility(View.VISIBLE);
+			mScanBarcodeButton.setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+	                try {
+	                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
+	                    CommCareSetupActivity.this.startActivityForResult(i, BARCODE_CAPTURE);
+	                } catch (ActivityNotFoundException e) {
+	                    Toast.makeText(CommCareSetupActivity.this,"No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
+	                    mScanBarcodeButton.setVisibility(View.GONE);
+	                }
+
+				}
+				
+			});
 		} else {
 			editProfileRef.setText(incomingRef);
+			mScanBarcodeButton.setVisibility(View.GONE);
 		}
 		
 		installButton.setOnClickListener(new OnClickListener() {
@@ -153,6 +174,27 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
     }
 	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == BARCODE_CAPTURE) {
+			if(resultCode == Activity.RESULT_CANCELED) {
+				//Basically nothing
+			} else if(resultCode == Activity.RESULT_OK) {
+    			String result = data.getStringExtra("SCAN_RESULT");
+				editProfileRef.setText(result);
+				incomingRef = result;
+				//Definitely have a URI now.
+				this.installButton.setVisibility(View.VISIBLE);
+				mainMessage.setText("Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin.");
+				mScanBarcodeButton.setVisibility(View.GONE);
+			}
+		}
+	}
+
 	private void startResourceInstall() {
 		
 		String ref = incomingRef;

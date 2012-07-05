@@ -11,6 +11,7 @@
 	<integer-array name="commcare_version"><item>2</item>
 	<item>0</item>
 </integer-array>
+<string name="app_version_string">version.id.long</string>	
 <string name="notificationtitle">Logged Into Commcare</string>
 <string name="expirenotification">CommCare Login Expired</string>
 <string name="submission_notification_title">Submitting Data</string>

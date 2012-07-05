@@ -549,8 +549,7 @@ public class CommCareApplication extends Application {
 		String buildDate = getString(R.string.app_build_date);
 		String buildNumber = getString(R.string.app_build_number);
 		
-		return "CommCare ODK, version \"" + pi.versionName + "\"(" + pi.versionCode+ "). CommCare Version " +  ccv + ". Build #" + buildNumber + ", built on: " + buildDate;
-		
+		return Localization.get(getString(R.string.app_version_string), new String[] {pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate});
 	}
 	
 	//Start Service code. Will be changed in the future

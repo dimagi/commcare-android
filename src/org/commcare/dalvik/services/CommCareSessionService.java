@@ -16,19 +16,21 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.models.User;
+import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.util.CryptUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.LoginActivity;
-import org.commcare.android.util.CryptUtil;
-import org.commcare.android.util.SessionUnavailableException;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.text.format.DateFormat;
@@ -58,6 +60,8 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
     private Date sessionExpireDate;
     
     private String lock = "Lock";
+    
+    private DataPullTask mCurrentTask;
     
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
@@ -179,6 +183,42 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
         mNM.notify(NOTIFICATION, notification);
 
     }
+    
+    
+    //TODO: Write these as more first-order methods.
+    
+    //Sync task registration/detachment
+    
+    /**
+     * Registers a task to be the current modal task for CommCare.  
+     * 
+     * @param current
+     */
+    public void registerCurrentTask(DataPullTask current, String label) {
+    	if(getCurrentTask() != null) {
+   			throw new RuntimeException("There is already a modal task running! Cannot start a new one.");
+    	}
+    	
+    	mCurrentTask = current;
+    }
+    
+    public DataPullTask getCurrentTask() {
+    	if(mCurrentTask == null) {
+    		return null;
+    	} 
+    	if(mCurrentTask.getStatus() == AsyncTask.Status.FINISHED) {
+    		mCurrentTask = null;
+    		return null;
+    	}
+    	return mCurrentTask;
+    }
+    
+
+	public void detachTask() {
+		mCurrentTask = null;
+	}
+	
+	//END sync task registration/detachment
 
     //Start CommCare Specific Functionality
     

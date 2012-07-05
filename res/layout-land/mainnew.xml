@@ -9,7 +9,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:paddingRight="15dp" android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true" style="@style/MainPane">
 
         <RelativeLayout
             android:id="@+id/home.left"
@@ -36,7 +36,7 @@
                 android:layout_below="@id/home.ccbanner"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:paddingLeft="15dp" android:paddingRight="10dp" android:layout_centerVertical="false">
+                android:layout_centerVertical="false" style="@style/MainSidePaneLeft">
 
                 <Button
                     android:id="@+id/home.start"
@@ -72,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="10dp" android:layout_alignParentBottom="true" android:layout_alignParentLeft="true"/>
+                android:layout_alignParentBottom="true" android:layout_alignParentLeft="true" android:textAppearance="@style/VersionIdText"/>
 
         </RelativeLayout>
 
@@ -81,8 +81,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:paddingLeft="10dp" >
+            android:orientation="horizontal" style="@style/MainSidePaneRight">
 
             <ImageView
                 android:id="@+id/home.banner.placeholder"
