@@ -259,6 +259,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	            case MODE_ADVANCED:
 	            	advanced = true;
 	            	advancedView.setVisibility(View.VISIBLE);
+                    mScanBarcodeButton.setVisibility(View.GONE);
+                    installButton.setVisibility(View.VISIBLE);
 	            	installButton.setEnabled(true);
 	            	return true;
 	        }
