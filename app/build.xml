@@ -40,6 +40,7 @@
     <loadproperties srcFile="project.properties" />
 	
 	<property file="${file.key.properties}" />
+	<property file="${file.remote.properties}" />
 
 
     <!-- quick check on sdk.dir -->
