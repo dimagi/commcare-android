@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CommCare ODK</string>
+	<!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
+	<string name="default_app_server">jr://asset/testing/profile.ccpr</string>
+	<string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
+	<string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
+	<!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
+	<!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
+	<string name="key_server">https://pact.dimagi.com/keys/getkey</string>
+	<integer-array name="commcare_version"><item>2</item>
+	<item>0</item>
+</integer-array>
+<string name="app_version_string">version.id.long</string>	
+<string name="notificationtitle">Logged Into Commcare</string>
+<string name="expirenotification">CommCare Login Expired</string>
+<string name="submission_notification_title">Submitting Data</string>
+<string name="form_record_url"></string>
+<string name="aboutdialog">
+CommCare ODK
+Copyright 2010, Dimagi inc, All rights reserved
+
+Some images in CommCare are graciously used under Creative Commons Licensing
+“Door” symbol by Tak Imoto
+“Pencil” symbol by Creologica
+“Notebook” symbol by Carlo
+“Antenna” symbol by Dima
+“Map Marker” symbol by P.J. Onori
+
+from thenounproject.com collection.
+
+"Android MapView Balloons" project used under the Apache Software License 2.0.
+
+Author: Jeff Gilfelt
+Copyright (c) 2012 readyState Software Ltd.
+
+</string>
+</resources>

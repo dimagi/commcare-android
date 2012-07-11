@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="commcare-odk" default="help">
+
+    <!-- The local.properties file is created and updated by the 'android' tool.
+         It contains the path to the SDK. It should *NOT* be checked into
+         Version Control Systems. -->
+    <property file="local.properties" />
+
+    <!-- The ant.properties file can be created by you. It is only edited by the
+         'android' tool to add properties to it.
+         This is the place to change some Ant specific build properties.
+         Here are some properties you may want to change/update:
+
+         source.dir
+             The name of the source directory. Default is 'src'.
+         out.dir
+             The name of the output directory. Default is 'bin'.
+
+         For other overridable properties, look at the beginning of the rules
+         files in the SDK, at tools/ant/build.xml
+
+         Properties related to the SDK location or the project target should
+         be updated using the 'android' tool with the 'update' action.
+
+         This file is an integral part of the build system for your
+         application and should be checked into Version Control Systems.
+
+         -->
+    <property file="ant.properties" />
+
+    <!-- The project.properties file is created and updated by the 'android'
+         tool, as well as ADT.
+
+         This contains project specific properties such as project target, and library
+         dependencies. Lower level build properties are stored in ant.properties
+         (or in .classpath for Eclipse projects).
+
+         This file is an integral part of the build system for your
+         application and should be checked into Version Control Systems. -->
+    <loadproperties srcFile="project.properties" />
+	
+	<property file="${file.key.properties}" />
+
+
+    <!-- quick check on sdk.dir -->
+    <fail
+            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through an env var"
+            unless="sdk.dir"
+    />
+
+	<target name="-pre-build">
+		<!-- we actually need to wipe out all of our libs now, since they're in ODK's library -->
+        <delete dir="${jar.libs.dir}"/>
+		<mkdir dir="${jar.libs.dir}"/>
+	</target>
+
+    <target name="cc-setup" depends="build-from-source, addversionnumber">
+    	<mkdir dir="${jar.libs.dir}"/>
+    	<!-- copy libraries -->
+		<copy todir="${jar.libs.dir}">
+			<fileset dir="lib" includes="*.jar"/>
+		</copy>	
+    	<!-- update resources -->
+		<tstamp>
+		  <format property="TODAY_TIMESTAMP"
+		          pattern="MMMM-dd-yyyy"/>
+		</tstamp>
+		<mkdir dir="${custom.dir.resource}"/>
+		
+		<copy todir="${custom.dir.resource}">
+			<fileset dir="res"/>
+		</copy>
+		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
+		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${version.code}"/>
+    	<replace file="${custom.dir.resource}/values/external_strings.xml" token="MAPS_KEY" value="${maps.api.key}"/>
+    </target>
+	
+	<target name="odk-setup">
+		<mkdir dir="${odk.libs}"/>
+		
+		<!-- Copy over original odk libs -->
+		<copy todir="${odk.libs}" overwrite="true">
+			<fileset dir="${odk.libs.orig}" includes="*.jar"/>
+		</copy>
+		
+    	<!-- copy CCODK versions (to ensure compatibility) -->
+		<copy todir="${odk.libs}" overwrite="true">
+			<fileset dir="libs" includes="*.jar"/>
+		</copy>
+	</target>
+	
+	<target name="build-from-source" if="build.source">
+    	<mkdir dir="${jar.libs.dir}"/>
+		<!-- todo: that -->
+		<copy todir="${jar.libs.dir}">
+			<fileset dir="${javarosa.libs}" includes="*.jar"/>
+			<fileset dir="${commcare.libs}" includes="*.jar"/>
+		</copy>
+	</target>
+	
+	<target name="addversionnumber" if="build.server">
+		<property name="android.version.code" value="android:versionCode="/>
+		<replaceregexp file="AndroidManifest.xml"
+			match='android:versionCode="(.*)"'
+			replace='${android.version.code}"${version.code}"'/>
+	</target>
+
+	
+<!-- extension targets. Uncomment the ones where you want to do custom work
+     in between standard targets -->
+<!--
+    <target name="-pre-build">
+    </target>
+    <target name="-pre-compile">
+    </target>
+
+    /* This is typically used for code obfuscation.
+       Compiled code location: ${out.classes.absolute.dir}
+       If this is not done in place, override ${out.dex.input.absolute.dir} */
+    <target name="-post-compile">
+    </target>
+-->
+
+    <!-- Import the actual build file.
+
+         To customize existing targets, there are two options:
+         - Customize only one target:
+             - copy/paste the target into this file, *before* the
+               <import> task.
+             - customize it to your needs.
+         - Customize the whole content of build.xml
+             - copy/paste the content of the rules files (minus the top node)
+               into this file, replacing the <import> task.
+             - customize to your needs.
+
+         ***********************
+         ****** IMPORTANT ******
+         ***********************
+         In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
+         in order to avoid having your file be overridden by tools such as "android update project"
+    -->
+    <!-- version-tag: 1 -->
+    <import file="${sdk.dir}/tools/ant/build.xml" />
+	
+	<target name="cc-release" depends="cc-setup, odk-setup, release">
+	</target>
+
+</project>
