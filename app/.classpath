@@ -3,7 +3,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="/javarosa-libs/kxml2-2.3.0.jar" sourcepath="C:/Users/adewinter/workspace/dimagi/library stuff/kxml2/src"/>
+    <classpathentry kind="lib" path="/javarosa-libs/kxml2-2.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/apache-mime4j-0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpmime-4.0.jar"/>
 	<classpathentry kind="src" path="gen"/>
