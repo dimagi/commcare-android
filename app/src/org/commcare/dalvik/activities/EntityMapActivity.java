@@ -66,7 +66,8 @@ public class EntityMapActivity extends MapActivity {
 	@Override
 	protected void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-		map = new MapView(this, "09RUXnG6x4nD5AvytJ9O5zOG_dIPJO3l6sT06Mw");
+		String licenseKey = getLicenseKey();
+		map = new MapView(this, licenseKey);
 		
 		this.setContentView(map);
 		
@@ -242,6 +243,15 @@ public class EntityMapActivity extends MapActivity {
 		System.out.println("Done loading");
 	}
 	
+	private String getLicenseKey() {
+		//If there's a defined debug key in the local environment, use that.
+		int debugId = this.getResources().getIdentifier("maps_api_key_debug","string", this.getPackageName());
+		if(debugId == 0) { 
+			debugId = R.string.maps_api_key;
+		}
+		return this.getString(debugId);
+	}
+
 	EvaluationContext entityContext;
 
     private EvaluationContext getEC() {
