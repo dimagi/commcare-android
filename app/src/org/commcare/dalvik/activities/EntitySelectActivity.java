@@ -78,6 +78,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	
 	boolean mResultIsMap = false;
 	
+	boolean mMappingEnabled = false;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,12 +145,17 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	
 	    	//TODO: Get ec into these text's
 	    	Text[] templates = detail.getHeaders();
+	    	String[] tempForms = detail.getTemplateForms();
 	    	String[] headers = new String[templates.length];
 	    	int defaultKey = -1;
 	    	for(int i = 0 ; i < templates.length ; ++i) {
 	    		headers[i] = templates[i].evaluate();
 	    		if(defaultKey == -1 && !"".equals(headers[i])) {
 	    			defaultKey = i;
+	    		}
+	    		
+	    		if("address".equals(tempForms[i])) {
+	    			this.mMappingEnabled = true;
 	    		}
 	    	}
 	    	
@@ -322,8 +329,10 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_SORT, 0, "Sort By...").setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
-        menu.add(0, MENU_MAP, 1, "View on Map").setIcon(
-                android.R.drawable.ic_menu_mapmode);
+        if(mMappingEnabled) {
+	        menu.add(0, MENU_MAP, 1, "View on Map").setIcon(
+	                android.R.drawable.ic_menu_mapmode);
+        }
         return true;
     }
 
