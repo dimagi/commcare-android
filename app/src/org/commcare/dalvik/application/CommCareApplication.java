@@ -207,7 +207,7 @@ public class CommCareApplication extends Application {
 	}
 	
 	public CommCareSession getCurrentSession() {
-		return sessionWrapper.getSession();
+		return getCurrentSessionWrapper().getSession();
 	}
 
 	public AndroidSessionWrapper getCurrentSessionWrapper() {

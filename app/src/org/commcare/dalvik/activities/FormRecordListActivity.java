@@ -30,6 +30,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.locale.Localization;
 
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -100,12 +101,12 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
 	        	statusFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
 	        	if(statusFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
-	        		setTitle(getString(R.string.app_name) + " > " + "Incomplete Forms");
+	        		setTitle(getString(R.string.app_name) + " > " + Localization.get("app.workflow.incomplete.heading"));
 	        	} else {
-	        		setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
+	        		setTitle(getString(R.string.app_name) + " > " + Localization.get("app.workflow.saved.heading"));
 	        	}
 	        } else {
-	        	setTitle(getString(R.string.app_name) + " > " + "Saved Forms");
+	        	setTitle(getString(R.string.app_name) + " > " + Localization.get("app.workflow.saved.heading"));
 	        }
 	        
 	        if(statusFilter != null) {
@@ -163,8 +164,8 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
         IncompleteFormRecordView ifrv = (IncompleteFormRecordView)adapter.getView(info.position, null, null);
         menu.setHeaderTitle(ifrv.mPrimaryTextView.getText() + " (" + ifrv.mRightTextView.getText() + ")");
         
-        menu.add(Menu.NONE, OPEN_RECORD, OPEN_RECORD, "Open");
-        menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, "Delete Entry");        
+        menu.add(Menu.NONE, OPEN_RECORD, OPEN_RECORD, Localization.get("app.workflow.forms.open"));
+        menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));        
     }
     
     @Override
@@ -196,7 +197,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
     		
     		//If there's nowhere to fetch forms from, we can't really go fetch them
     		if(!(source == null || source.equals(""))) {
-    			menu.add(0, DOWNLOAD_FORMS, 0, "Fetch Forms from Server").setIcon(android.R.drawable.ic_menu_rotate);
+    			menu.add(0, DOWNLOAD_FORMS, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
     		}
 	        return true;
         }
