@@ -98,9 +98,6 @@
 <activity android:name="org.odk.collect.android.activities.GeoPointActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.preferences.PreferencesActivity" android:windowSoftInputMode="adjustResize"></activity>
 
-<uses-library android:name="com.google.android.maps" android:required="false"/>
-
-  <uses-feature android:name="android.hardware.telephony" android:required="false" />
   <activity android:name=".activities.EntityMapActivity"></activity>
 
 </application>
@@ -108,6 +105,13 @@
 
 <uses-library android:name="org.javarosa" />
 <uses-library android:name="org.commcare" />
+
+<uses-library android:name="com.google.android.maps"/>
+<uses-feature android:name="android.hardware.telephony" android:required="false" />
+<uses-feature android:name="android.hardware.location" android:required="false" />
+<uses-feature android:name="android.hardware.location.gps" android:required="false" />
+<uses-feature android:name="android.hardware.location.network" android:required="false" />
+
   
   <uses-permission android:name="android.permission.READ_PHONE_STATE" xmlns:android="http://schemas.android.com/apk/res/android"/>
   <uses-permission android:name="android.permission.INTERNET" xmlns:android="http://schemas.android.com/apk/res/android"/>
