@@ -98,7 +98,7 @@
 <activity android:name="org.odk.collect.android.activities.GeoPointActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.preferences.PreferencesActivity" android:windowSoftInputMode="adjustResize"></activity>
 
-<uses-library android:name="com.google.android.maps" />
+<uses-library android:name="com.google.android.maps" android:required="false"/>
 
   <uses-feature android:name="android.hardware.telephony" android:required="false" />
   <activity android:name=".activities.EntityMapActivity"></activity>
