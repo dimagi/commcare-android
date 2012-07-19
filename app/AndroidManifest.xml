@@ -100,8 +100,8 @@
 
   <activity android:name=".activities.EntityMapActivity"></activity>
   
-<uses-library android:name="org.javarosa" />
-<uses-library android:name="org.commcare" />
+<uses-library android:name="org.javarosa" android:required="false" />
+<uses-library android:name="org.commcare" android:required="false" />
 
 <uses-library android:name="com.google.android.maps" android:required="false" />
 
