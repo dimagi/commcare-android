@@ -47,6 +47,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 					created = new FixtureXmlParser(parser) {
 						//TODO: store these on the file system instead of in DB?
 						private IStorageUtilityIndexed fixtureStorage;
+						
+						@Override
 						public IStorageUtilityIndexed storage() {
 							if(fixtureStorage == null) {
 								fixtureStorage = CommCareApplication._().getStorage("fixture", FormInstance.class);

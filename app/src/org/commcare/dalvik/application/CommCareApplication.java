@@ -52,6 +52,7 @@ import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -134,6 +135,10 @@ public class CommCareApplication extends Application {
 		resourceState = STATE_UNINSTALLED;
 		
 		initializeGlobalResources();
+		
+		//We likely want to do this for all of the storage, this is just a way to deal with fixtures
+		//temporarily. 
+		StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
 		
 		if(dbState != STATE_UNINSTALLED) {
 			CursorFactory factory = new CommCareDBCursorFactory();
