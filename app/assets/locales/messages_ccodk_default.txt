@@ -30,7 +30,7 @@ sync.fail.unsent=Having issues communicating with the server to send forms. Will
 
 sync.success.synced=Sync Successful! Your information is up to date.
 
-sync.fail.auth.loggedin=Authentication failed on server. Please log out and try to log in again with syncing.
+sync.fail.auth.loggedin=Username or password has changed. Please log out and try to log in again with syncing.
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occured with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
@@ -51,8 +51,9 @@ form.entry.segfault=There was an unrecoverable error during form entry! If the p
 form.entry.processing=Processing your Form
 form.entry.processing.title=Processing Form
 
-login.attempt.badcred=Login or Pasword are incorrect. Please try again.
-login.attempt.fail.auth=Authentication failed on server, please check credentials and try again.
+login.attempt.badcred=Username or password are incorrect. Please try again.
+login.attempt.fail.auth=Username or password are incorrect. Please try again.
+
 login.username=Username:
 login.password=Password:
 login.button=Log In
