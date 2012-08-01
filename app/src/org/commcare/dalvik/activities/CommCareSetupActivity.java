@@ -8,6 +8,7 @@ import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.app.Activity;
@@ -325,13 +326,17 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		mainMessage.setText(error);
 	}
 
-	public void failBadReqs(int code) {
+	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
 		this.dismissDialog(DIALOG_PROGRESS);
 		Toast.makeText(this, "Uh oh! There was a problem with the initialization...", Toast.LENGTH_LONG).show();
-		
-		String error = "This version of CommCare is incompatible with the application provided. Error code: "+ code;
-		
-		mainMessage.setText(error);		
+		String error="";
+		if(majorIsProblem){
+			error=Localization.get("install.major.mismatch", new String[] {vRequired,vAvailable});
+		}
+		else{
+			error=Localization.get("install.minor.mismatch", new String[] {vRequired,vAvailable});
+		}
+		mainMessage.setText(error);
 	}
 
 	public void failUnknown() {

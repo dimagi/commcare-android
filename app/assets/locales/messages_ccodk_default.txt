@@ -24,6 +24,12 @@ home.menu.settings=Settings
 home.menu.update=Update CommCare
 home.menu.call.log=Call Log
 
+/*error = "This version of CommCare is incompatible with the application provided. The application requires CommCare version " 
+					+ majorRequiredVersion + "." + minorRequiredVersion + ". You are running " + majorAvailableVersion + "." + minorAvailableVersion + ". Error code: "+ code;*/
+
+install.major.mismatch=The application requires CommCare version ${0}. You are running ${1}. Please uninstall this version, navigate to the marketplace, and install the proper version.
+install.minor.mismatch=The application requires CommCare version ${0}. You are running ${1}. Please update your version of CommCare to run this application. 
+
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.

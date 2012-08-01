@@ -41,6 +41,12 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	private int phase = -1;  
 	boolean upgradeMode = false;
 	
+	String vAvailable;
+	String vRequired;
+	boolean majorIsProblem;
+	
+	//Results passed by inherited AsyncTask functions to determine exit behavior
+	
 	public static final int STATUS_INSTALLED = 0;
 	public static final int STATUS_MISSING = 1;
 	public static final int STATUS_ERROR = 2;
@@ -126,6 +132,10 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 			e.printStackTrace();
 			badReqCode = e.getRequirementCode();
 			
+			vAvailable = e.available;
+			vRequired= e.required;
+			majorIsProblem = e.majorIsProblem;
+			
 			if(!upgradeMode) {
 				cleanupFailure(platform);
 			}
@@ -185,7 +195,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 			} else if(result == STATUS_MISSING){
 				listener.failMissingResource(missingResource);
 			} else if(result == STATUS_ERROR){
-				listener.failBadReqs(badReqCode);
+				listener.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
 			} else if(result == STATUS_FAIL_STATE){
 				listener.failBadState();
 			} else {
