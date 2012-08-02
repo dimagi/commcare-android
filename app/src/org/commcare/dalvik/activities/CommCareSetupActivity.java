@@ -119,7 +119,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
 		
 		if(incomingRef == null) {
-			mainMessage.setText("Welcome to CommCare! To proceed with installation, please navigate to a CommCare Profile on your Web Browser.");
+			mainMessage.setText(Localization.get("updates.welcome2"));
 			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
 			installButton.setVisibility(View.GONE);
 			mScanBarcodeButton.setVisibility(View.VISIBLE);
@@ -161,7 +161,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 		});
 		if(upgradeMode) {
-			mainMessage.setText("Please wait while CommCare checks for upgrades");
+			mainMessage.setText(Localization.get("updates.check"));
 			startResourceInstall();
 		}
 	}
@@ -191,12 +191,12 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			} else if(resultCode == Activity.RESULT_OK) {
     			String result = data.getStringExtra("SCAN_RESULT");
 				editProfileRef.setText(result);
-				//System.out.println("Result: "+editProfileRef.getText().toString());
 				incomingRef = result;
 				//Definitely have a URI now.
 				urlSet=true;
 				this.installButton.setVisibility(View.VISIBLE);
-				mainMessage.setText("Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin.");
+				//Localization.get("install.major.mismatch", new String[] {vRequired,vAvailable});
+				mainMessage.setText(Localization.get("install.welcome"));
 				mScanBarcodeButton.setVisibility(View.GONE);
 			}
 		}
@@ -253,7 +253,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     			advancedOn=false;
     		}
     		if(!basicOn){
-    			menu.add(0, MODE_BASIC, 0, "Basic Mode").setIcon(android.R.drawable.ic_menu_help);
+    			menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
     			basicOn=true;
     		}
     	}
@@ -263,7 +263,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     			basicOn=false;
     		}
     		if(!advancedOn){
-    			menu.add(0, MODE_ADVANCED, 0, "Advanced Mode").setIcon(android.R.drawable.ic_menu_edit);
+    			menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
     			advancedOn=true;
     		}
     	}
@@ -315,11 +315,11 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		if(id == DIALOG_PROGRESS) {
             mProgressDialog = new ProgressDialog(this);
             if(upgradeMode) {
-            	mProgressDialog.setTitle("CommCare App Update");
-            	mProgressDialog.setMessage("Checking for updates...");
+            	mProgressDialog.setTitle(Localization.get("updates.title"));
+            	mProgressDialog.setMessage(Localization.get("updates.checking"));
             } else {
-            	mProgressDialog.setTitle("Initializing Resources");
-            	mProgressDialog.setMessage("Locating application profile...");
+            	mProgressDialog.setTitle(Localization.get("updates.resources.initialization"));
+            	mProgressDialog.setMessage(Localization.get("updates.resources.profile"));
             }
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setCancelable(false);
@@ -334,13 +334,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
             if(upgradeMode) {
 
             	if(phase == ResourceEngineTask.PHASE_DOWNLOAD) {
-            		mProgressDialog.setMessage("Updates found! Downloading new resource " + done + " of " + total);
+            		mProgressDialog.setMessage(Localization.get("updates.found", new String[] {""+done,""+total}));
             	} if(phase == ResourceEngineTask.PHASE_COMMIT) {
-            		mProgressDialog.setMessage("Updates downloaded. Commiting new resources....");
+            		mProgressDialog.setMessage(Localization.get("updates.downloaded"));
             	}
             }
 			else {
-				mProgressDialog.setMessage("Profile found. " + done + " resources loaded, of " + total + " total");
+				mProgressDialog.setMessage(Localization.get("profile.found", new String[]{""+done,""+total}));
 			}
 		}
 	}
@@ -349,23 +349,23 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public void reportSuccess(boolean appChanged) {
 		this.dismissDialog(DIALOG_PROGRESS);
 		if(!appChanged) {
-			Toast.makeText(this, "CommCare is up to date", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
 		}
 		done(appChanged);
 	}
 
 	public void failMissingResource(Resource r) {
 		this.dismissDialog(DIALOG_PROGRESS);
-		Toast.makeText(this, "Uh oh! There was a problem with the initialization...", Toast.LENGTH_LONG).show();
-		
-		String error = "A serious problem occured! Couldn't find the resource with id: " + r.getResourceId() + ". Check the profile url in the advanced mode and make sure you have a network connection.";
+		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
+		//"A serious problem occured! Couldn't find the resource with id: " + r.getResourceId() + ". Check the profile url in the advanced mode and make sure you have a network connection."
+		String error = Localization.get("install.problem.serious",new String[]{r.getResourceId()});
 		
 		mainMessage.setText(error);
 	}
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
 		this.dismissDialog(DIALOG_PROGRESS);
-		Toast.makeText(this, "Uh oh! There was a problem with the initialization...", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		String error="";
 		if(majorIsProblem){
 			error=Localization.get("install.major.mismatch", new String[] {vRequired,vAvailable});
@@ -378,15 +378,15 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 
 	public void failUnknown() {
 		this.dismissDialog(DIALOG_PROGRESS);
-		Toast.makeText(this, "Uh oh! There was a problem with the initialization...", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		
-		String error = "An unexpected error occured! Please try again and contact technical support if the problem persists";
+		String error = Localization.get("install.problem.unexpected");
 		
 		mainMessage.setText(error);
 	}
 
 	public void failBadState() {
 		this.dismissDialog(DIALOG_PROGRESS);
-		mainMessage.setText("There is already an CommCare App installed on this phone. Multiple apps are not currently supported. Please clear the application's data before reinstalling.");
+		mainMessage.setText(Localization.get("install.problem.installed"));
 	}
 }

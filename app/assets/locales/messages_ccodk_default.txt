@@ -2,6 +2,27 @@ option.yes=Yes
 option.no=No
 option.cancel=Cancel
 
+install.welcome=Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin.
+install.welcome2="Welcome to CommCare! To proceed with installation, please navigate to a CommCare Profile on your Web Browser."
+install.problem.initialization=Uh oh! There was a problem with the initialization...
+install.problem.unknown=An unexpected error occured! Please try again and contact technical support if the problem persists
+install.problem.installed=There is already an CommCare App installed on this phone. Multiple apps are not currently supported. Please clear the application's data before reinstalling.
+install.problem.serious=A serious problem occured! Couldn't find the resource with id: ${0}. Check the profile url in the advanced mode and make sure you have a network connection.
+
+updates.check=Please wait while CommCare checks for upgrade
+updates.found=Updates found! Downloading new resource ${0} done of ${1}
+updates.downloaded=Updates downloaded. Committing new resources....
+updates.success="CommCare is up to date"
+updates.title=CommCare App Update
+updates.checking=Checking for updates...
+
+updates.resources.initialization=Initializing Resources
+updates.resources.profile=Locating application profile...
+
+menu.basic="Basic Mode"
+menu.advanced="Advanced Mode"
+
+profile.found=Profile found. ${0} resources loaded, of ${1} total
 
 app.workflow.login.lost=You were logged out of CommCare, please log back in
 app.workflow.incomplete.continue.title=Continue Form
