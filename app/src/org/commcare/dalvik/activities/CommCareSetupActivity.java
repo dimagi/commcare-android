@@ -49,6 +49,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public boolean advancedOn=false;
 	public boolean basicOn=true;
 	
+	public boolean urlSet=false;
+	
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
 	
@@ -189,8 +191,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			} else if(resultCode == Activity.RESULT_OK) {
     			String result = data.getStringExtra("SCAN_RESULT");
 				editProfileRef.setText(result);
+				//System.out.println("Result: "+editProfileRef.getText().toString());
 				incomingRef = result;
 				//Definitely have a URI now.
+				urlSet=true;
 				this.installButton.setVisibility(View.VISIBLE);
 				mainMessage.setText("Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin.");
 				mScanBarcodeButton.setVisibility(View.GONE);
@@ -238,38 +242,64 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if(advanced) {
-        	if(!basicOn){
-        		menu.removeItem(MODE_ADVANCED);
-        		menu.add(0, MODE_BASIC, 0, "Basic Mode").setIcon(android.R.drawable.ic_menu_help);
-        		advancedOn=false;
-        		basicOn=true;
-        	}
-        } else if(!advancedOn){
-            menu.removeItem(MODE_BASIC);
-        	menu.add(0, MODE_ADVANCED, 0, "Advanced Mode").setIcon(android.R.drawable.ic_menu_edit);
-        	advancedOn=true;
-        	basicOn=false;
-        }
-	    return true;
+        manageIcons(menu, advanced);
+        return true;
+    }
+    
+    public void manageIcons(Menu menu, boolean toBasic){
+    	if(toBasic){
+    		if(advancedOn){
+    			menu.removeItem(MODE_ADVANCED);
+    			advancedOn=false;
+    		}
+    		if(!basicOn){
+    			menu.add(0, MODE_BASIC, 0, "Basic Mode").setIcon(android.R.drawable.ic_menu_help);
+    			basicOn=true;
+    		}
+    	}
+    	else{
+    		if(basicOn){
+    			menu.removeItem(MODE_BASIC);
+    			basicOn=false;
+    		}
+    		if(!advancedOn){
+    			menu.add(0, MODE_ADVANCED, 0, "Advanced Mode").setIcon(android.R.drawable.ic_menu_edit);
+    			advancedOn=true;
+    		}
+    	}
+    }
+    
+    public void setModeToBasic(){
+    	editProfileRef.setText("");
+    	urlSet=false;
+    	advanced = false;
+    	advancedView.setVisibility(View.INVISIBLE);
+    	mScanBarcodeButton.setVisibility(View.VISIBLE);
+    	if(urlSet){
+    		installButton.setVisibility(View.VISIBLE);
+    	}
+    	else{
+    		installButton.setVisibility(View.GONE);
+    	}
     }
 
+    public void setModeToAdvanced(){
+    	advanced = true;
+    	advancedView.setVisibility(View.VISIBLE);
+    	mScanBarcodeButton.setVisibility(View.INVISIBLE);
+        installButton.setVisibility(View.VISIBLE);
+    	installButton.setEnabled(true);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	if(!upgradeMode) {
 	        switch (item.getItemId()) {
 	            case MODE_BASIC:
-	            	advanced = false;
-	            	advancedView.setVisibility(View.INVISIBLE);
-	            	mScanBarcodeButton.setVisibility(View.VISIBLE);
+	            	setModeToBasic();
 	                return true;
 	            case MODE_ADVANCED:
-	            	advanced = true;
-	            	advancedView.setVisibility(View.VISIBLE);
-	            	mScanBarcodeButton.setVisibility(View.INVISIBLE);
-                    installButton.setVisibility(View.VISIBLE);
-	            	installButton.setEnabled(true);
+	            	setModeToAdvanced();
 	            	return true;
 	        }
     	}
