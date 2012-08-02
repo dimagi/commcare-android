@@ -46,6 +46,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	
+	public boolean advancedOn=false;
+	public boolean basicOn=true;
 	
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
@@ -237,13 +239,17 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         if(advanced) {
-        	menu.removeItem(MODE_ADVANCED);
-	        //menu.add(0, MODE_BASIC, 0, "Basic Mode").setIcon(
-	                //android.R.drawable.ic_menu_help);
-        } else {
+        	if(!basicOn){
+        		menu.removeItem(MODE_ADVANCED);
+        		menu.add(0, MODE_BASIC, 0, "Basic Mode").setIcon(android.R.drawable.ic_menu_help);
+        		advancedOn=false;
+        		basicOn=true;
+        	}
+        } else if(!advancedOn){
             menu.removeItem(MODE_BASIC);
-        	menu.add(0, MODE_ADVANCED, 0, "Advanced Mode").setIcon(
-	                android.R.drawable.ic_menu_edit);
+        	menu.add(0, MODE_ADVANCED, 0, "Advanced Mode").setIcon(android.R.drawable.ic_menu_edit);
+        	advancedOn=true;
+        	basicOn=false;
         }
 	    return true;
     }
@@ -256,11 +262,12 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	            case MODE_BASIC:
 	            	advanced = false;
 	            	advancedView.setVisibility(View.INVISIBLE);
+	            	mScanBarcodeButton.setVisibility(View.VISIBLE);
 	                return true;
 	            case MODE_ADVANCED:
 	            	advanced = true;
 	            	advancedView.setVisibility(View.VISIBLE);
-                    mScanBarcodeButton.setVisibility(View.GONE);
+	            	mScanBarcodeButton.setVisibility(View.INVISIBLE);
                     installButton.setVisibility(View.VISIBLE);
 	            	installButton.setEnabled(true);
 	            	return true;
