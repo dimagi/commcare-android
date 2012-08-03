@@ -7,6 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -14,6 +16,7 @@ import javax.crypto.CipherOutputStream;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.CryptUtil;
 import org.javarosa.core.services.storage.IMetaData;
+import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -44,11 +47,36 @@ public abstract class DbHelper {
 	public abstract SQLiteDatabase getHandle();
 	
 
-	public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em) {
+	public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p)  throws IllegalArgumentException {
+		Set<String> fields = null;
+		if(p instanceof IMetaData) {
+			IMetaData m = (IMetaData)p;
+			String[] thefields = m.getMetaDataFields();
+			fields = new HashSet<String>();
+			for(String s : thefields) {
+				fields.add(TableBuilder.scrubName(s));
+			}
+		}
+		
+		if(em instanceof IMetaData) {
+			IMetaData m = (IMetaData)em;
+			String[] thefields = m.getMetaDataFields();
+			fields = new HashSet<String>();
+			for(String s : thefields) {
+				fields.add(TableBuilder.scrubName(s));
+			}
+		}
+		
 		String ret = "";
 		String[] arguments = new String[fieldNames.length];
 		for(int i = 0 ; i < fieldNames.length; ++i) {
-			ret += TableBuilder.scrubName(fieldNames[i]) + "=?";
+			String columnName = TableBuilder.scrubName(fieldNames[i]);
+			if(fields != null) {
+				if(!fields.contains(columnName)) {
+					throw new IllegalArgumentException("Model does not contain the column " + columnName + "!");
+				}
+			}
+			ret += columnName + "=?";
 			
 			if(em != null && em.isEncrypted(fieldNames[i])) {
 				arguments[i] = encrypt(values[i].toString());

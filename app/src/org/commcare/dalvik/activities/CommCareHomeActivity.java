@@ -84,6 +84,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private static final int MENU_UPDATE = Menu.FIRST  +1;
 	private static final int MENU_CALL_LOG = Menu.FIRST  +2;
 	
+	
+	public static final String SESSION_REQUEST = "ccodk_session_request";
+	
+	boolean wasExternal = false;
+	
 	View homeScreen;
 	
 	private AndroidCommCarePlatform platform;
@@ -104,17 +109,31 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	Button syncButton;
 	
 	Button viewOldForms;
-
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
+        if(savedInstanceState != null) {
+        	wasExternal = savedInstanceState.getBoolean("was_external");
+        }
+        
         currentHome = this;
         
         setContentView(R.layout.mainnew);
         configUi();
+        
+        Intent startup = this.getIntent();
+        if(startup != null && startup.hasExtra(SESSION_REQUEST)) {
+        	wasExternal = true;
+        	String sessionRequest = startup.getStringExtra(SESSION_REQUEST);
+        	SessionStateDescriptor ssd = new SessionStateDescriptor();
+        	ssd.fromBundle(sessionRequest);
+        	CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+        	this.startNextFetch();
+        	return;
+        }
     }
     
     private void configUi() {
@@ -285,6 +304,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         platform.pack(outState);
+        outState.putBoolean("was_external", wasExternal);
     }
     
     /*
@@ -296,6 +316,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     protected void onRestoreInstanceState(Bundle inState) {
         super.onRestoreInstanceState(inState);
         platform.unpack(inState);
+        if(inState.containsKey("was_external")) {
+        	wasExternal = inState.getBoolean("was_external");
+        }
     }
    
     /*
@@ -442,6 +465,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        		//TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
 	        		if(current.getStatus() == FormRecord.STATUS_COMPLETE || current.getStatus() == FormRecord.STATUS_SAVED) {
 	        			currentState.reset();
+	        			if(wasExternal) {
+	        				this.finish();
+	        			}
 	        			refreshView();
 		        		return;
 	        		}
@@ -453,6 +479,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		        		Toast.makeText(this, "Form entry did not provide a result", Toast.LENGTH_LONG);
 		        		
 		        		currentState.reset();
+	        			if(wasExternal) {
+	        				this.finish();
+	        			}
 		    			refreshView();
 		    			return;
 	        		}
@@ -468,6 +497,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		        		//TODO: Fail more hardcore here? Wipe the form record and its ties?
 		        		
 		        		currentState.reset();
+	        			if(wasExternal) {
+	        				this.finish();
+	        			}
 		    			refreshView();
 		    			return;
 	                } finally {
@@ -489,6 +521,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 						ert.execute(e);
 						
 						currentState.reset();
+	        			if(wasExternal) {
+	        				this.finish();
+	        			}
 	        			refreshView();
         				return;
 					}
@@ -505,11 +540,17 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         				refreshView();
         				showDialog(DIALOG_PROCESS);
         				mProcess.execute(current);
+	        			if(wasExternal) {
+	        				this.finish();
+	        			}
 	        			currentState.reset();
         				return;
 	        		} else {
 	        			//Form record is now stored. 
 	        			currentState.reset();
+	        			if(wasExternal) {
+	        				this.finish();
+	        			}
 	        			refreshView();
         				return;
 	        		}
@@ -517,6 +558,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			//Entry was cancelled.
 	    			new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
 	    			currentState.reset();
+        			if(wasExternal) {
+        				this.finish();
+        			}
 	    			refreshView();
 	        		return;
 	    		}

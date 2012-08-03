@@ -64,7 +64,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	}
 	
 	public Vector getIDsForValues(String[] fieldNames, Object[] values) {
-		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em);
+		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
@@ -84,7 +84,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	}
 	
 	public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
-		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em);
+		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
@@ -122,7 +122,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
 	public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
-		Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em);
+		Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em, t);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			throw new NoSuchElementException("No element in table " + table + " with names " + rawFieldNames +" and values " + values.toString());
@@ -140,7 +140,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
 	 */
 	public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-		Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em);
+		Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
 		String scrubbedName = TableBuilder.scrubName(rawFieldName);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
 		if(c.getCount() == 0) {

@@ -103,6 +103,9 @@ public class SessionStateDescriptor implements Persistable, IMetaData, Encrypted
 		throw new IllegalArgumentException("No metadata field " + fieldName  + " for Session Models");
 	}
 	
+	public void fromBundle(String serializedDescriptor) {
+		this.sessionDescriptor = serializedDescriptor;
+	}
 	
 	public String getHash() {
 		return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
