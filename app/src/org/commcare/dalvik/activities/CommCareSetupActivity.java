@@ -119,7 +119,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
 		
 		if(incomingRef == null) {
-			mainMessage.setText(Localization.get("updates.welcome2"));
+			mainMessage.setText(Localization.get("install.welcome2"));
 			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
 			installButton.setVisibility(View.GONE);
 			mScanBarcodeButton.setVisibility(View.VISIBLE);
