@@ -134,11 +134,11 @@ public class CommCareApplication extends Application {
 		//The fallback in case the db isn't installed 
 		resourceState = STATE_UNINSTALLED;
 		
-		initializeGlobalResources();
-		
 		//We likely want to do this for all of the storage, this is just a way to deal with fixtures
 		//temporarily. 
 		StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
+		
+		initializeGlobalResources();
 		
 		if(dbState != STATE_UNINSTALLED) {
 			CursorFactory factory = new CommCareDBCursorFactory();
