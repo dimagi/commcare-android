@@ -37,6 +37,7 @@ public class NestedMenuListAdapter implements ListAdapter {
 			for(Menu m : s.getMenus()) {
 				if(m.getRoot() == null || m.getRoot() == "" || m.getRoot().equals("root")) {
 					menus.add(m);
+					System.out.println("Adding menu in NestedMenuListAdapter: "+m.getId()+", has root " + m.getRoot());
 				}
 			}
 		}
