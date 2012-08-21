@@ -132,9 +132,9 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 			e.printStackTrace();
 			badReqCode = e.getRequirementCode();
 			
-			vAvailable = e.available;
-			vRequired= e.required;
-			majorIsProblem = e.majorIsProblem;
+			vAvailable = e.getAvailableVesionString();
+			vRequired= e.getRequiredVersionString();
+			majorIsProblem = e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION;
 			
 			if(!upgradeMode) {
 				cleanupFailure(platform);
