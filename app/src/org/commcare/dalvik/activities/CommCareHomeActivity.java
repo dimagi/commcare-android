@@ -870,20 +870,25 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         version.setText(CommCareApplication._().getCurrentVersionString());
         
         TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
-        Pair<Long, Integer> syncDetails = CommCareApplication._().getSyncDisplayParameters();
         
-    	
-    	CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
-    	//TODO: Localize this all
-    	String message = "";
-    	if(syncDetails.second == 1) {
-    		message += Localization.get("home.sync.message.unsent.singular") + "\n";
-    	} else if (syncDetails.second > 1) {
-    		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second)}) + "\n";
-    	}
-    	message += Localization.get("home.sync.message.last", new String[] { syncTime.toString() });
-    	
-    	syncMessage.setText(message);
+        try {
+	        Pair<Long, Integer> syncDetails = CommCareApplication._().getSyncDisplayParameters();
+	        
+	    	
+	    	CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
+	    	//TODO: Localize this all
+	    	String message = "";
+	    	if(syncDetails.second == 1) {
+	    		message += Localization.get("home.sync.message.unsent.singular") + "\n";
+	    	} else if (syncDetails.second > 1) {
+	    		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second)}) + "\n";
+	    	}
+	    	message += Localization.get("home.sync.message.last", new String[] { syncTime.toString() });
+	    	
+	    	syncMessage.setText(message);
+        } catch(SessionUnavailableException sue) {
+        	//TODO: Move this somewhere that this won't happen
+        }
 
 
         //Make sure that the review button is properly enabled.
