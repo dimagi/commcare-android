@@ -84,7 +84,6 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
         }
         
         String payload = new String(data);
-        System.out.println("Outgoing payload: " + payload);
         
         MultipartEntity entity = new MultipartEntity();
         try {
@@ -117,7 +116,6 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
 			HttpResponse response = generator.postData(URI, entity);
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			response.getEntity().writeTo(bos);
-			System.out.println("Response: " + new String(bos.toByteArray()));
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

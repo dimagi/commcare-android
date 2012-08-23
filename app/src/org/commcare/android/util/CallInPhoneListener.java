@@ -192,7 +192,6 @@ public class CallInPhoneListener extends PhoneStateListener {
 								for(int i : phoneIds) {
 									String number = templates[i].evaluate(childContext);
 									if(number != "") {
-										System.out.println(number + "=> " + name);
 										cachedNumbers.put(number, new String[] {name});
 									}
 								}
