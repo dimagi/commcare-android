@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.commcare.dalvik"
-      android:versionName="2.1" android:versionCode="106">
+      android:versionName="2.0alpha" android:versionCode="106">
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true" android:theme="@android:style/Theme.Light" android:name=".application.CommCareApplication">
@@ -9,11 +9,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
-            <intent-filter>
-        		<action android:name="org.commcare.dalvik.action.CommCareSession" />
-		        <category android:name="android.intent.category.DEFAULT" />
-   			</intent-filter>
         </activity>
 
     
@@ -101,7 +96,6 @@
 <activity android:name="org.odk.collect.android.activities.FormEntryActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.activities.FormHierarchyActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.activities.GeoPointActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name="org.odk.collect.android.activities.GeoPointMapActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name="org.odk.collect.android.preferences.PreferencesActivity" android:windowSoftInputMode="adjustResize"></activity>
 
   <activity android:name=".activities.EntityMapActivity"></activity>

@@ -50,29 +50,12 @@ public class MenuList extends ListActivity {
         String menuId = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
         
        if(menuId==null){
-       		System.out.println("menuid is null; this is new root");
-        	//this is the root menu
-        	adapter = new GenericMenuListAdapter(this, platform);
-	        setTitle(getString(R.string.app_name));
-        }
-        else{
-        	System.out.println("menu id is not null: " +menuId);
-	        for(Suite s : platform.getInstalledSuites()) {
-	        	for(Menu m : s.getMenus()) {
-	        		System.out.println("iteration");
-	        		if(m.getId().equals(menuId)) {
-	        			System.out.println("if statement entered");
-	        			this.m = m;
-	        			adapter = new GenericMenuListAdapter(this, platform, m);
-	        		}
-	        	}
-	        }
-
-	        setTitle(getString(R.string.app_name) + " > " + m.getName().evaluate());
-        }
-        
-        
-        refreshView();
+    	   menuId="root";
+       }
+       
+       adapter = new GenericMenuListAdapter(this,platform,menuId);
+       setTitle(getString(R.string.app_name));
+       refreshView();
     }
 
 
