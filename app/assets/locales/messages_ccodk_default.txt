@@ -19,8 +19,8 @@ updates.checking=Checking for updates...
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application profile...
 
-menu.basic="Basic Mode"
-menu.advanced="Advanced Mode"
+menu.basic=Basic Mode
+menu.advanced=Advanced Mode
 
 profile.found=Profile found. ${0} resources loaded, of ${1} total
 
@@ -44,9 +44,6 @@ home.sync.message.last.never=never
 home.menu.settings=Settings
 home.menu.update=Update CommCare
 home.menu.call.log=Call Log
-
-/*error = "This version of CommCare is incompatible with the application provided. The application requires CommCare version " 
-					+ majorRequiredVersion + "." + minorRequiredVersion + ". You are running " + majorAvailableVersion + "." + minorAvailableVersion + ". Error code: "+ code;*/
 
 install.major.mismatch=The application requires CommCare version ${0}. You are running ${1}. Please uninstall this version, navigate to the marketplace, and install the proper version.
 install.minor.mismatch=The application requires CommCare version ${0}. You are running ${1}. Please update your version of CommCare to run this application. 

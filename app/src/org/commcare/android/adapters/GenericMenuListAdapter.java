@@ -3,9 +3,11 @@
  */
 package org.commcare.android.adapters;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.android.view.SimpleTextView;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
@@ -17,33 +19,46 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 /**
- * @author ctsims
+ * Adapter class to handle both Menu and Entry items
+ * @author wspride
  *
  */
-public class NestedMenuListAdapter implements ListAdapter {
+public class GenericMenuListAdapter implements ListAdapter {
 	
 	private CommCarePlatform platform;
 	private Context context;
+	private Object[] objectData;
 	
-	private Menu[] data;
-	
-	public NestedMenuListAdapter(Context context, CommCarePlatform platform) {
+	public GenericMenuListAdapter(Context context, CommCarePlatform platform, String menuID){
+		
+		System.out.println("Creating adapter with menuID: " + menuID);
+		
 		this.platform = platform;
 		this.context = context;
 		
-		Vector<Menu> menus = new Vector<Menu>();
+		Vector<Object> items = new Vector<Object>();
+		
+		Hashtable<String, Entry> map = platform.getMenuMap();
 		
 		for(Suite s : platform.getInstalledSuites()) {
 			for(Menu m : s.getMenus()) {
-				if(m.getRoot() == null || m.getRoot() == "" || m.getRoot().equals("root")) {
-					menus.add(m);
+	    		if(m.getId().equals(menuID)) {
+	    			for(String command : m.getCommandIds()) {
+	    				Entry e = map.get(command);
+	    				items.add(e);
+	    			}
+					continue;
+	    		}
+				if(menuID.equals(m.getRoot())){
+					items.add(m);
 				}
 			}
 		}
-		data= new Menu[menus.size()];
-		menus.copyInto(data);
+		
+		objectData = new Object[items.size()];
+		items.copyInto(objectData);
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see android.widget.ListAdapter#areAllItemsEnabled()
 	 */
@@ -62,24 +77,34 @@ public class NestedMenuListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getCount()
 	 */
 	public int getCount() {
-		return data.length;
+		return (objectData.length);
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItem(int)
 	 */
-	public Menu getItem(int i) {
-		return data[i];
+	public Object getItem(int i) {
+		return objectData[i];
 	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
 	public long getItemId(int i) {
-		return data[i].getId().hashCode();
+		
+		Object tempItem = objectData[i];
+		
+		if(tempItem instanceof Menu){
+			return ((Menu)tempItem).getId().hashCode();
+		}
+		else{
+			return ((Entry)tempItem).getCommandId().hashCode();
+		}
 	}
 
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
 	 * @see android.widget.Adapter#getItemViewType(int)
 	 */
 	public int getItemViewType(int i) {
@@ -90,12 +115,22 @@ public class NestedMenuListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
 	public View getView(int i, View v, ViewGroup vg) {
-		Menu m = data[i];
+		if(objectData[i] instanceof Menu){
+			Menu m = (Menu)objectData[i];
+			SimpleTextView emv =(SimpleTextView)v;
+			if(emv == null) {
+				emv = new SimpleTextView(context, platform, m.getName());
+			} else{
+				emv.setParams(platform, m.getName());
+			}
+			return emv;
+		}
+		Entry e = (Entry)objectData[i];
 		SimpleTextView emv =(SimpleTextView)v;
 		if(emv == null) {
-			emv = new SimpleTextView(context, platform, m.getName());
+			emv = new SimpleTextView(context, platform, e.getText());
 		} else{
-			emv.setParams(platform, m.getName());
+			emv.setParams(platform, e.getText());
 		}
 		return emv;
 	}
@@ -134,5 +169,4 @@ public class NestedMenuListAdapter implements ListAdapter {
 	public void unregisterDataSetObserver(DataSetObserver arg0) {
 
 	}
-
 }

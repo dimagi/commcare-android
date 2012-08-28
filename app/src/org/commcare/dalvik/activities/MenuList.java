@@ -16,8 +16,7 @@
 
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.adapters.MenuListAdapter;
-import org.commcare.android.adapters.NestedMenuListAdapter;
+import org.commcare.android.adapters.GenericMenuListAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
@@ -43,31 +42,20 @@ public class MenuList extends ListActivity {
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	System.out.println("onCreate run");
         super.onCreate(savedInstanceState);
         platform = CommCareApplication._().getCommCarePlatform();
         setContentView(R.layout.suite_menu_layout);
         
         String menuId = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
         
-        if(menuId != null) { 
-	        for(Suite s : platform.getInstalledSuites()) {
-	        	for(Menu m : s.getMenus()) {
-	        		if(m.getId().equals(menuId)) {
-	        			this.m = m;
-	        			adapter = new MenuListAdapter(this, platform, m);
-	        		}
-	        	}
-	        }
-
-	        setTitle(getString(R.string.app_name) + " > " + m.getName().evaluate());
-        } else {
-        	//this is the root menu
-        	adapter = new NestedMenuListAdapter(this, platform);
-	        setTitle(getString(R.string.app_name));
-        }
-        
-        
-        refreshView();
+       if(menuId==null){
+    	   menuId="root";
+       }
+       
+       adapter = new GenericMenuListAdapter(this,platform,menuId);
+       setTitle(getString(R.string.app_name));
+       refreshView();
     }
 
 
