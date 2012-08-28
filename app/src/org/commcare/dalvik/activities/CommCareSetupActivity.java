@@ -236,11 +236,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if(uiState == UiState.advanced) {
-        	menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
-        } else {
-        	menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
-        }
+    	menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
+    	menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
         return true;
     }
     
@@ -265,7 +262,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	this.uiState = UiState.ready;
 		editProfileRef.setText(incomingRef);
     	advancedView.setVisibility(View.INVISIBLE);
-    	mScanBarcodeButton.setVisibility(View.VISIBLE);
+    	mScanBarcodeButton.setVisibility(View.INVISIBLE);
     	installButton.setVisibility(View.VISIBLE);
     }
     
