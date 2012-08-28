@@ -37,7 +37,7 @@ public class GlobalConstants {
     /**
      * How long to wait when opening network connection in milliseconds
      */
-    public static final int CONNECTION_TIMEOUT = 90000;
+    public static final int CONNECTION_TIMEOUT = 400000;
 
     
     //All of the app state is contained in these values

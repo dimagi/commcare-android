@@ -140,10 +140,6 @@ public class CommCareApplication extends Application {
 		
 		initializeGlobalResources();
 		
-		//We likely want to do this for all of the storage, this is just a way to deal with fixtures
-		//temporarily. 
-		StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
-		
 		if(dbState != STATE_UNINSTALLED) {
 			CursorFactory factory = new CommCareDBCursorFactory();
 			synchronized(dbHandleLock) {

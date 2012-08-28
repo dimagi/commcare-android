@@ -9,7 +9,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -40,16 +39,14 @@ import android.widget.Toast;
  */
 public class CommCareSetupActivity extends Activity implements ResourceEngineListener {
 	
-	public static final String DATABASE_STATE = "database_state";
+//	public static final String DATABASE_STATE = "database_state";
 	public static final String RESOURCE_STATE = "resource_state";
 	public static final String KEY_PROFILE_REF = "app_profile_ref";
 	public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	
-	public boolean advancedOn=false;
-	public boolean basicOn=true;
-	
-	public boolean urlSet=false;
+	public enum UiState { advanced, basic, ready };
+	public UiState uiState = UiState.basic;
 	
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
@@ -70,7 +67,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	Button mScanBarcodeButton;
     private ProgressDialog mProgressDialog;
 	
-	boolean advanced = false;
 	boolean upgradeMode = false;
 
 	
@@ -83,7 +79,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
 			upgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
 		} else {
-	        advanced = savedInstanceState.getBoolean("advanced");
+			String uiStateEncoded = savedInstanceState.getString("advanced");
+			this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
 	        incomingRef = savedInstanceState.getString("profileref");
 	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 		}
@@ -94,8 +91,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		//First, identify the binary state
 		dbState = CommCareApplication._().getDatabaseState();
 		resourceState = CommCareApplication._().getAppResourceState();
-		
-    	advancedView.setVisibility(advanced ? View.VISIBLE : View.INVISIBLE);
 		
 		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
 			//We got called from an outside application, it's gonna be a wild ride!
@@ -117,28 +112,32 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
 		installButton = (Button)this.findViewById(R.id.start_install);
     	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
+    	
+		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+                try {
+                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                    CommCareSetupActivity.this.startActivityForResult(i, BARCODE_CAPTURE);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(CommCareSetupActivity.this,"No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
+                    mScanBarcodeButton.setVisibility(View.GONE);
+                }
+
+			}
+			
+		});
 		
 		if(incomingRef == null) {
 			mainMessage.setText(Localization.get("install.welcome2"));
 			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
-			installButton.setVisibility(View.GONE);
-			mScanBarcodeButton.setVisibility(View.VISIBLE);
-			mScanBarcodeButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-	                try {
-	                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
-	                    CommCareSetupActivity.this.startActivityForResult(i, BARCODE_CAPTURE);
-	                } catch (ActivityNotFoundException e) {
-	                    Toast.makeText(CommCareSetupActivity.this,"No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
-	                    mScanBarcodeButton.setVisibility(View.GONE);
-	                }
-
-				}
-				
-			});
+			
+			if(this.uiState == UiState.advanced) {
+				this.setModeToAdvanced();
+			} else {
+				this.setModeToBasic();
+			}
 		} else {
-			editProfileRef.setText(incomingRef);
-			mScanBarcodeButton.setVisibility(View.GONE);
+			this.setModeToReady(incomingRef);
 		}
 		
 		installButton.setOnClickListener(new OnClickListener() {
@@ -174,8 +173,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("advanced", advanced);
-        outState.putString("profileref", advanced ? editProfileRef.getText().toString() : incomingRef);
+        outState.putString("advanced", uiState.toString());
+        outState.putString("profileref", uiState == UiState.advanced ? editProfileRef.getText().toString() : incomingRef);
         outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
     }
 	
@@ -190,14 +189,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 				//Basically nothing
 			} else if(resultCode == Activity.RESULT_OK) {
     			String result = data.getStringExtra("SCAN_RESULT");
-				editProfileRef.setText(result);
 				incomingRef = result;
 				//Definitely have a URI now.
-				urlSet=true;
-				this.installButton.setVisibility(View.VISIBLE);
-				//Localization.get("install.major.mismatch", new String[] {vRequired,vAvailable});
-				mainMessage.setText(Localization.get("install.welcome"));
-				mScanBarcodeButton.setVisibility(View.GONE);
+				this.setModeToReady(result);
 			}
 		}
 	}
@@ -205,7 +199,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	private void startResourceInstall() {
 		
 		String ref = incomingRef;
-		if(advanced) {
+		if(this.uiState == UiState.advanced) {
 			ref = editProfileRef.getText().toString();
 		}
 		
@@ -240,51 +234,48 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 	
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        manageIcons(menu, advanced);
+    	menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
+    	menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
         return true;
     }
     
-    public void manageIcons(Menu menu, boolean toBasic){
-    	if(toBasic){
-    		if(advancedOn){
-    			menu.removeItem(MODE_ADVANCED);
-    			advancedOn=false;
-    		}
-    		if(!basicOn){
-    			menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
-    			basicOn=true;
-    		}
-    	}
-    	else{
-    		if(basicOn){
-    			menu.removeItem(MODE_BASIC);
-    			basicOn=false;
-    		}
-    		if(!advancedOn){
-    			menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
-    			advancedOn=true;
-    		}
-    	}
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        
+        MenuItem basic = menu.findItem(MODE_BASIC);
+        MenuItem advanced = menu.findItem(MODE_ADVANCED);
+        
+        if(uiState == UiState.advanced) {
+        	basic.setVisible(true);
+        	advanced.setVisible(false);
+        } else {
+        	basic.setVisible(false);
+        	advanced.setVisible(true);
+        }
+        return true;
+    }
+    
+    public void setModeToReady(String incomingRef) {
+    	this.uiState = UiState.ready;
+		editProfileRef.setText(incomingRef);
+    	advancedView.setVisibility(View.INVISIBLE);
+    	mScanBarcodeButton.setVisibility(View.INVISIBLE);
+    	installButton.setVisibility(View.VISIBLE);
     }
     
     public void setModeToBasic(){
-    	editProfileRef.setText("");
-    	urlSet=false;
-    	advanced = false;
+    	this.uiState = UiState.basic;
+    	this.incomingRef = null;
     	advancedView.setVisibility(View.INVISIBLE);
     	mScanBarcodeButton.setVisibility(View.VISIBLE);
-    	if(urlSet){
-    		installButton.setVisibility(View.VISIBLE);
-    	}
-    	else{
-    		installButton.setVisibility(View.GONE);
-    	}
+    	installButton.setVisibility(View.GONE);
     }
 
     public void setModeToAdvanced(){
-    	advanced = true;
+    	this.uiState = UiState.advanced;
     	advancedView.setVisibility(View.VISIBLE);
     	mScanBarcodeButton.setVisibility(View.INVISIBLE);
         installButton.setVisibility(View.VISIBLE);
