@@ -36,13 +36,11 @@ import android.widget.ListView;
 public class MenuList extends ListActivity {
 	
 	private CommCarePlatform platform;
-	private Menu m;
 	
 	private ListAdapter adapter;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	System.out.println("onCreate run");
         super.onCreate(savedInstanceState);
         platform = CommCareApplication._().getCommCarePlatform();
         setContentView(R.layout.suite_menu_layout);

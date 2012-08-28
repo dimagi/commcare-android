@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.android.view.SimpleTextView;
+import org.commcare.android.view.TextImageAudioView;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
@@ -14,9 +15,12 @@ import org.commcare.util.CommCarePlatform;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.graphics.Typeface;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 
 /**
  * Adapter class to handle both Menu and Entry items
@@ -30,8 +34,6 @@ public class GenericMenuListAdapter implements ListAdapter {
 	private Object[] objectData;
 	
 	public GenericMenuListAdapter(Context context, CommCarePlatform platform, String menuID){
-		
-		System.out.println("Creating adapter with menuID: " + menuID);
 		
 		this.platform = platform;
 		this.context = context;
@@ -91,7 +93,7 @@ public class GenericMenuListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
 	public long getItemId(int i) {
-		
+
 		Object tempItem = objectData[i];
 		
 		if(tempItem instanceof Menu){
@@ -115,24 +117,53 @@ public class GenericMenuListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
 	public View getView(int i, View v, ViewGroup vg) {
-		if(objectData[i] instanceof Menu){
-			Menu m = (Menu)objectData[i];
-			SimpleTextView emv =(SimpleTextView)v;
-			if(emv == null) {
-				emv = new SimpleTextView(context, platform, m.getName());
-			} else{
-				emv.setParams(platform, m.getName());
-			}
-			return emv;
-		}
-		Entry e = (Entry)objectData[i];
-		SimpleTextView emv =(SimpleTextView)v;
+		Object mObject = objectData[i];
+		TextImageAudioView emv = (TextImageAudioView)v;
+		TextView mQuestionText = textViewHelper(mObject);
 		if(emv == null) {
-			emv = new SimpleTextView(context, platform, e.getText());
+			emv = new TextImageAudioView(context);
+			emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), null, null);
 		} else{
-			emv.setParams(platform, e.getText());
+			emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), null, null);
 		}
+		System.out.println("getting view aURI: " + getAudioURI(mObject) + ", iURI: " + getImageURI(mObject));
 		return emv;
+	}
+	
+	/*
+	 * Helpers to make the getView call Entry/Menu agnostic
+	 */
+	
+	public String getAudioURI(Object e){
+		if(e instanceof Menu){
+			return ((Menu)e).getAudioURI();
+		}
+		return ((Entry)e).getAudioURI();
+	}
+	
+	public String getImageURI(Object e){
+		if(e instanceof Menu){
+			return ((Menu)e).getImageURI();
+		}
+		return ((Entry)e).getImageURI();
+	}
+	
+	/*
+	 * Helper to build the TextView for the TextImageAudioView constructor
+	 */
+	public TextView textViewHelper(Object e){
+		TextView mQuestionText = new TextView(context);
+		if(e instanceof Menu){
+			mQuestionText.setText((CharSequence) ((Menu)e).getName().evaluate());
+		}
+		else{
+			mQuestionText.setText((CharSequence) ((Entry)e).getText().evaluate());
+		}
+	    mQuestionText.setTypeface(null, Typeface.BOLD);
+	    mQuestionText.setPadding(0, 0, 0, 7);
+	    mQuestionText.setId((int)Math.random()*100000000); // assign random id
+	    mQuestionText.setHorizontallyScrolling(false);
+	    return mQuestionText;
 	}
 
 	/* (non-Javadoc)
