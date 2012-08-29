@@ -122,9 +122,9 @@ public class GenericMenuListAdapter implements ListAdapter {
 		TextView mQuestionText = textViewHelper(mObject);
 		if(emv == null) {
 			emv = new TextImageAudioView(context);
-			emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), null, null);
+			emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject));
 		} else{
-			emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), null, null);
+			emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject));
 		}
 		System.out.println("getting view aURI: " + getAudioURI(mObject) + ", iURI: " + getImageURI(mObject));
 		return emv;
