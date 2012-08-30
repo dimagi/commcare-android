@@ -35,4 +35,5 @@ Author: Jeff Gilfelt
 Copyright (c) 2012 readyState Software Ltd.
 
 </string>
+<string name="notification_message_title">CommCare Notification</string>
 </resources>

@@ -1,0 +1,91 @@
+/**
+ * 
+ */
+package org.commcare.android.models.notifications;
+
+import java.util.Date;
+
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
+
+/**
+ * Static holder for generating notification messages which are common 
+ * to the application.
+ * 
+ * Possibly implementation should be replaced in the future with some
+ * sort of external data source, but doesn't seem likely.
+ * 
+ * @author ctsims
+ *
+ */
+public class NotificationMessageFactory {
+	
+	//TODO: Move these to an enum for the task that they represent the return state of
+	public enum StockMessages implements MessageTag {
+		/** The user's credentials weren't accepted on the server **/ 
+		Auth_BadCredentials ("login.attempt.fail.auth"),
+		
+		/** The user's username/password has changed remotely on the server, but
+		 * is are correct on the phone. **/
+		Auth_RemoteCredentialsChanged ("login.attempt.fail.changed"),
+		
+		/** The restore data sent down a password that was different than the one used
+		 * to authenticate
+		 */
+		Auth_CredentialMismatch ("notification.credential.mismatch"),
+		
+		/**
+		 * Server 500 when retrieving data.
+		 */
+		Restore_RemoteError	("notification.restore.remote.error"),
+		
+		/** The phone had a problem parsing the data from the server **/
+		Remote_BadRestore ("notification.restore.baddata"),
+		
+		/** No network connectivity **/
+		Remote_NoNetwork ("notification.restore.nonetwork"),
+		
+		/**Unknown error during restore **/
+		Restore_Unknown ("notification.restore.unknown");
+		
+	
+		StockMessages(String root) {this.root = root;}
+		private final String root;
+		public String getLocaleKeyBase() { return root;}
+		public String getCategory() { return "stock"; }
+		
+	}
+	
+	public static NotificationMessage message(MessageTag message) {
+		return message(message, message.getCategory());
+	}
+
+	public static NotificationMessage message(MessageTag message, String customCategory) {
+		
+		String base = message.getLocaleKeyBase();
+		if(base == null) { throw new NullPointerException("No Locale Key base for message tag!"); }
+		
+		try {
+			String title = Localization.get(base + ".title");
+			String detail = Localization.get(base + ".detail");
+			
+			String action = null;
+			try {
+				action = Localization.get(base + ".action");
+			}catch(Exception e) {
+				//No big deal, key doesn't need to exist
+			}
+			
+			return new NotificationMessage(customCategory,title, detail, action, new Date());
+		}
+		//TODO: Release v. debug mode for these?
+		catch (NoLocalizedTextException e) {
+			throw new NoLocalizedTextException("Notification Message with base " + base + " is underdefined. It does not contain the minimum set of a .title and .detail definition", e.getMissingKeyNames(), e.getLocaleMissingKey());
+		}
+		catch (Exception e) {
+			//Other exceptions are bad, but we don't want to crash on them
+			e.printStackTrace();
+			return new NotificationMessage("system", "Bad Locale Message", "Error getting locale message for base " + message.getLocaleKeyBase(), null, new Date());
+		}
+	}
+}

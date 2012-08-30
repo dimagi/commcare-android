@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -16,6 +17,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.models.User;
+import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -24,6 +26,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.dalvik.activities.MessageActivity;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -67,6 +70,7 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
     // We use it on Notification start, and to cancel it.
     private int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
     private int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
+    
     
     /**
      * Class for clients to access.  Because we know this service always
@@ -324,8 +328,7 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
 			throw new SessionUnavailableException();
 		}
 		return user;
-	}
-	
+	}	
 
 	// START - Submission Listening Hooks
 	int totalItems = -1;

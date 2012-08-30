@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -28,6 +29,8 @@ import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
+import org.commcare.android.models.notifications.NotificationClearReceiver;
+import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
@@ -39,6 +42,7 @@ import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.resources.model.Resource;
@@ -58,6 +62,9 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -681,5 +688,85 @@ public class CommCareApplication extends Application {
     	return new Pair<Long,Integer>(lastSync, unsentForms);
 	}
 	
+
+	// Start - Error message Hooks
+	
+    private int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
+	
+    ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
+	public void reportNotificationMessage(NotificationMessage message) {
+		synchronized(pendingMessages) {
+			//make sure there is no matching message pending
+			for(NotificationMessage msg : pendingMessages) {
+				if(msg.equals(message)) {
+					//If so, bail.
+					return;
+				}
+			}
+			
+			//Otherwise, add it to the queue, and update the notification
+			pendingMessages.add(message);
+			updateMessageNotification();
+		}
+	}
+	
+	public void updateMessageNotification() {
+		NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+		synchronized(pendingMessages) {
+			if(pendingMessages.size() == 0) { 
+				mNM.cancel(MESSAGE_NOTIFICATION);
+				return;
+			}
+			
+			String title = pendingMessages.get(0).getTitle();
+			
+			Notification messageNotification = new Notification(org.commcare.dalvik.R.drawable.notification, title, System.currentTimeMillis());
+			messageNotification.number = pendingMessages.size();
+			
+	        // The PendingIntent to launch our activity if the user selects this notification
+	        Intent i = new Intent(this, MessageActivity.class);
+	        
+	        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+	        
+	        String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[] {String.valueOf(pendingMessages.size() - 1)}) : ""; 
+	        
+	
+	        // Set the info for the views that show in the notification panel.
+	        messageNotification.setLatestEventInfo(this, title, Localization.get("notifications.prompt.details", new String[] {additional}), contentIntent);
+	        
+	        messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0);
+	
+	    	//Send the notification.
+	    	mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
+		}
+
+	}
+	
+	public ArrayList<NotificationMessage> purgeNotifications() {
+		synchronized(pendingMessages) {
+			ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
+			clearNotifications(null);
+			return cloned;
+		}
+	}
+	
+	public void clearNotifications(String category) {
+		synchronized(pendingMessages) {
+			NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+			Vector<NotificationMessage> toRemove = new Vector<NotificationMessage>();
+			for(NotificationMessage message : pendingMessages) {
+				if(category == null || message.getCategory() == category) {
+					toRemove.add(message);
+				}
+			}
+			
+			for(NotificationMessage message : toRemove) { pendingMessages.remove(message); }
+			if(pendingMessages.size() == 0) { mNM.cancel(MESSAGE_NOTIFICATION); }
+			else { updateMessageNotification(); }
+		}
+	}
+	
+	
+	// End - Error Message Hooks
 
 }
