@@ -260,6 +260,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     
     public void setModeToReady(String incomingRef) {
     	this.uiState = UiState.ready;
+    	mainMessage.setText(Localization.get("install.ready"));
 		editProfileRef.setText(incomingRef);
     	advancedView.setVisibility(View.INVISIBLE);
     	mScanBarcodeButton.setVisibility(View.INVISIBLE);
@@ -269,6 +270,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     public void setModeToBasic(){
     	this.uiState = UiState.basic;
     	this.incomingRef = null;
+    	mainMessage.setText(Localization.get("install.barcode"));
     	advancedView.setVisibility(View.INVISIBLE);
     	mScanBarcodeButton.setVisibility(View.VISIBLE);
     	installButton.setVisibility(View.GONE);
@@ -276,6 +278,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 
     public void setModeToAdvanced(){
     	this.uiState = UiState.advanced;
+    	mainMessage.setText(Localization.get("install.manual"));
     	advancedView.setVisibility(View.VISIBLE);
     	mScanBarcodeButton.setVisibility(View.INVISIBLE);
         installButton.setVisibility(View.VISIBLE);
