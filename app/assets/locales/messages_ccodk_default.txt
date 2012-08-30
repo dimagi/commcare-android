@@ -2,8 +2,6 @@ option.yes=Yes
 option.no=No
 option.cancel=Cancel
 
-install.welcome=Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin.
-install.welcome2=Welcome to CommCare! To proceed with installation, please navigate to a CommCare Profile on your Web Browser.
 install.problem.initialization=Uh oh! There was a problem with the initialization...
 install.problem.unknown=An unexpected error occurred! Please try again and contact technical support if the problem persists
 install.problem.installed=There is already an CommCare App installed on this phone. Multiple apps are not currently supported. Please clear the application's data before reinstalling.
@@ -16,9 +14,9 @@ updates.success=CommCare is up to date
 updates.title=CommCare App Update
 updates.checking=Checking for updates...
 
-install.barcode=Please scan a CommCare barcode
-install.manual=Please enter a CommCare URL
-install.ready=Please press the button below to begin installation
+install.barcode=Welcome to CommCare! Please scan your App's CommCare Barcode to begin 
+install.manual=Please enter the URI for your application's Profile file
+install.ready=Welcome to CommCare! Make sure you have an internet connection and press the button below to install your app
 
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application profile...
