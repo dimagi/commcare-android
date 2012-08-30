@@ -126,18 +126,6 @@ public class TextImageAudioView extends RelativeLayout {
                     errorMsg = getContext().getString(R.string.file_missing, imageFile);
                 }
 
-                if (errorMsg != null) {
-                    // errorMsg is only set when an error has occured
-                    Log.e(t, errorMsg);
-                    mMissingImage = new TextView(getContext());
-                    mMissingImage.setText(errorMsg);
-                    //imageParams.addRule(RelativeLayout.BELOW, text.getId());
-                    if (mAudioButton != null)
-                        //imageParams.addRule(RelativeLayout.BELOW, mAudioButton.getId());
-                    mMissingImage.setPadding(10, 10, 10, 10);
-                    mMissingImage.setId(234873453);
-                    addView(mMissingImage, imageParams);
-                }
             } catch (InvalidReferenceException e) {
                 Log.e(t, "image invalid reference exception");
                 e.printStackTrace();
@@ -150,7 +138,7 @@ public class TextImageAudioView extends RelativeLayout {
         if (textVisible) {
         	textParams.addRule(RelativeLayout.CENTER_VERTICAL);
         	textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        	if(imageURI != null && !imageURI.equals("")){
+        	if(imageURI != null && !imageURI.equals("") && mImageView != null){
         		System.out.println("imageURI is: + imageURI");
         		textParams.addRule(RelativeLayout.RIGHT_OF,mImageView.getId());
         	}
