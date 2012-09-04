@@ -49,6 +49,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
@@ -84,6 +86,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private static final int MENU_UPDATE = Menu.FIRST  +1;
 	private static final int MENU_CALL_LOG = Menu.FIRST  +2;
 	
+	public static int unsentFormNumberLimit;
+	public static int unsentFormTimeLimit;
+	
+	public final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
+	public final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
 	
 	public static final String SESSION_REQUEST = "ccodk_session_request";
 	
@@ -912,10 +919,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
-        
+        boolean syncOK = true;
         TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
         Pair<Long, Integer> syncDetails = CommCareApplication._().getSyncDisplayParameters();
         
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	
+    	unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY,"5"));
+    	unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY,"5"));
     	
     	CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
     	//TODO: Localize this all
@@ -925,6 +936,30 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	} else if (syncDetails.second > 1) {
     		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second)}) + "\n";
     	}
+    	
+    	if(syncDetails.second > unsentFormNumberLimit){
+    		syncOK = false;
+    	}
+    	
+    	long then = syncDetails.first;
+    	long now = new Date().getTime();
+    	
+    	int secs_ago = (int)((then-now) / 1000);
+    	int days_ago = secs_ago / 86400;
+    	
+		if(days_ago > unsentFormTimeLimit) {
+			syncOK = false;
+		}
+    	
+    	if(!syncOK){
+    		syncMessage.setTextColor(getResources().getColor(R.color.red));
+    		syncMessage.setTypeface(null, Typeface.BOLD);
+    	}
+    	else{
+    		syncMessage.setTextColor(getResources().getColor(R.color.solid_black));
+    		syncMessage.setTypeface(null, Typeface.NORMAL);
+    	}
+    	
     	message += Localization.get("home.sync.message.last", new String[] { syncTime.toString() });
     	
     	syncMessage.setText(message);
