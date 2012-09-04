@@ -128,7 +128,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		});
 		
 		if(incomingRef == null) {
-			mainMessage.setText(Localization.get("install.welcome2"));
 			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
 			
 			if(this.uiState == UiState.advanced) {
