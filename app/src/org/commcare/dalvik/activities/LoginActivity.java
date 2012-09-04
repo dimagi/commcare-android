@@ -10,6 +10,9 @@ import java.util.Date;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.User;
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.dalvik.R;
@@ -92,13 +95,6 @@ public class LoginActivity extends Activity implements DataPullListener {
 					return;
 				}
 				
-				if(false) {
-					Toast.makeText(LoginActivity.this, 
-							Localization.get("login.attempt.badcred"), 
-							Toast.LENGTH_LONG).show();
-					return;
-				}
-				
 				//We should go digest auth this user on the server and see whether to pull them
 				//down.
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
@@ -157,6 +153,7 @@ public class LoginActivity extends Activity implements DataPullListener {
     		i.putExtra(ALREADY_LOGGED_IN, true);
             setResult(RESULT_OK, i);
             
+            CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
     		finish();
     		return;
         }
@@ -225,7 +222,8 @@ public class LoginActivity extends Activity implements DataPullListener {
     	
 		Intent i = new Intent();
         setResult(RESULT_OK, i);
-        
+     
+        CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 		finish();
     }
     
@@ -239,15 +237,12 @@ public class LoginActivity extends Activity implements DataPullListener {
 	public void finished(int status) {
 		switch(status) {
 		case DataPullTask.AUTH_FAILED:
-			Toast.makeText(this, 
-					Localization.get("login.attempt.fail.auth"), 
-					Toast.LENGTH_LONG).show();
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, NOTIFICATION_MESSAGE_LOGIN));
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.BAD_DATA:
-			Toast.makeText(this, 
-					Localization.get("sync.fail.bad.data"), 
-					Toast.LENGTH_LONG).show();
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, NOTIFICATION_MESSAGE_LOGIN));
+
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.DOWNLOAD_SUCCESS:
@@ -255,21 +250,15 @@ public class LoginActivity extends Activity implements DataPullListener {
 				//success, don't need to do anything
 				break;
 			} else {
-				Toast.makeText(this, 
-						Localization.get("sync.fail.bad.local"), 
-						Toast.LENGTH_LONG).show();
+				raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, NOTIFICATION_MESSAGE_LOGIN));
 				break;
 			}
 		case DataPullTask.UNREACHABLE_HOST:
-			Toast.makeText(this, 
-					Localization.get("sync.fail.bad.network"), 
-					Toast.LENGTH_LONG).show();
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, NOTIFICATION_MESSAGE_LOGIN));
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.UNKNOWN_FAILURE:
-			Toast.makeText(this, 
-					Localization.get("sync.fail.unknown"), 
-					Toast.LENGTH_LONG).show();
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, NOTIFICATION_MESSAGE_LOGIN));
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		}
@@ -321,4 +310,10 @@ public class LoginActivity extends Activity implements DataPullListener {
         return null;
     }
     
+    private void raiseMessage(NotificationMessage message) {
+    	CommCareApplication._().reportNotificationMessage(message);
+		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
+    }
+    
+    public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
 }

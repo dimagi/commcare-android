@@ -189,7 +189,6 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					}
 					return AUTH_FAILED;
 				} else if(responseCode >= 200 && responseCode < 300) {
-					
 					this.publishProgress(PROGRESS_AUTHED,0);
 					
 					int dataSizeGuess = -1;

@@ -2,8 +2,6 @@ option.yes=Yes
 option.no=No
 option.cancel=Cancel
 
-install.welcome=Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin.
-install.welcome2=Welcome to CommCare! To proceed with installation, please navigate to a CommCare Profile on your Web Browser.
 install.problem.initialization=Uh oh! There was a problem with the initialization...
 install.problem.unknown=An unexpected error occurred! Please try again and contact technical support if the problem persists
 install.problem.installed=There is already an CommCare App installed on this phone. Multiple apps are not currently supported. Please clear the application's data before reinstalling.
@@ -16,9 +14,9 @@ updates.success=CommCare is up to date
 updates.title=CommCare App Update
 updates.checking=Checking for updates...
 
-install.barcode=Please scan a CommCare barcode
-install.manual=Please enter a CommCare URL
-install.ready=Please press the button below to begin installation
+install.barcode=Welcome to CommCare! Please scan your App's CommCare Barcode to begin 
+install.manual=Please enter the URI for your application's Profile file
+install.ready=Welcome to CommCare! Make sure you have an internet connection and press the button below to install your app
 
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application profile...
@@ -80,7 +78,6 @@ form.entry.processing=Processing your Form
 form.entry.processing.title=Processing Form
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
-login.attempt.fail.auth=Username or password are incorrect. Please try again.
 
 login.username=Username:
 login.password=Password:
@@ -95,3 +92,30 @@ app.workflow.saved.heading=Saved Forms
 app.workflow.forms.open=Open
 app.workflow.forms.delete=Delete Record
 app.workflow.forms.fetch=Fetch Forms from Server
+
+notifications.prompt.details=Select for details. ${0}
+notifications.prompt.more=(${0} More...)
+
+#Put these into their own file
+
+login.attempt.fail.auth.title=Bad Username or Password
+login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
+
+login.attempt.fail.changed.title=Password Changed on Server
+login.attempt.fail.changed.detail=Your password has changed on the remote server since your last sync
+login.attempt.fail.changed.action=Log out (if you are logged in) of CommCareODK, and make sure to check the "sync with remote server" button on the login screen before logging in with your new password.
+
+notification.credential.mismatch.title=Mismatching Login Credentials
+notification.credential.mismatch.detail=The server recognized your password, but the password it sent to the device does not match 
+notification.credential.mismatch.action=Contact technical support for assistance with your account
+
+notification.restore.remote.error.title=Remote Server Error
+notification.restore.remote.error.detail=The server had a problem trying to generate your sync data.
+notification.restore.remote.error.action=Try to sync again immediately, and then in an hour or so. If the sync still doesn't succeed, contact technical support.
+
+notification.restore.nonetwork.title=Couldn't Reach Server
+notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
+
+notification.restore.unknown.title=Unknown Error during Restore
+notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
+notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
