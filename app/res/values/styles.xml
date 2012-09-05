@@ -42,5 +42,7 @@
    <style name="VersionIdText">
        <item name="android:textSize">10dp</item> 
    </style>
+   
+   <color name="solid_black">#000</color>
     
 </resources>
