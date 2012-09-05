@@ -50,7 +50,6 @@ public class TextImageAudioView extends RelativeLayout {
 
     public TextImageAudioView(Context c) {
         super(c);
-        System.out.println("new TIAview");
         mView_Text = null;
         mAudioButton = null;
         mImageView = null;
@@ -61,7 +60,6 @@ public class TextImageAudioView extends RelativeLayout {
     public void setAVT(TextView text, String audioURI, String imageURI) {
         mView_Text = text;
         mView_Text.setTextSize(fontSize);
-        System.out.println("NEW VERSION 5");
         // Layout configurations for our elements in the relative layout
         RelativeLayout.LayoutParams textParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -87,9 +85,7 @@ public class TextImageAudioView extends RelativeLayout {
         String errorMsg = null;
         if (imageURI != null) {
             try {
-            	System.out.println("image URI is: " + imageURI);
                 String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                System.out.println("imageFilename is " + imageFilename);
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
                     Bitmap b = null;
@@ -139,7 +135,6 @@ public class TextImageAudioView extends RelativeLayout {
         	textParams.addRule(RelativeLayout.CENTER_VERTICAL);
         	textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
         	if(imageURI != null && !imageURI.equals("") && mImageView != null){
-        		System.out.println("imageURI is: + imageURI");
         		textParams.addRule(RelativeLayout.RIGHT_OF,mImageView.getId());
         	}
         	else{

@@ -126,7 +126,6 @@ public class GenericMenuListAdapter implements ListAdapter {
 		} else{
 			emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject));
 		}
-		System.out.println("getting view aURI: " + getAudioURI(mObject) + ", iURI: " + getImageURI(mObject));
 		return emv;
 	}
 	
