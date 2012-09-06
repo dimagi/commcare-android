@@ -353,6 +353,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			return;
 	    		} else if(resultCode == RESULT_OK) {
 	    			if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
+	    				Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
 	    				CommCareApplication._().getSession().logout();
 	    			}
 	    			dispatchHomeScreen();
@@ -752,25 +753,35 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	     	        
 	     	        this.startActivityForResult(i, INIT_APP);
 	        } else if(!CommCareApplication._().getSession().isLoggedIn()) {
-	        	
-	//        	Intent i = new Intent(getApplicationContext(), DotsEntryActivity.class);
-	//        	i.putExtra("regimen", "[1,2]");
-	//       	
-	//        	i.putExtra("currentdose", "['full', 'pillbox']");
-	//        	i.putExtra("currentbox", "0");
-	//
-	//        	i.putExtra("currentdosetwo", "['empty', 'direct']");
-	//        	i.putExtra("currentboxtwo", "0");
-	//        	
-	//        	startActivityForResult(i,LOGIN_USER);
+	        	//We got brought back to this point despite 
 	        	returnToLogin();
 	        } else if(this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-	        	CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
+	        	
 	        	//We were launched in shortcut mode. Get the command and load us up.
+	        	CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
 	        	startNextFetch();
 	        	//Only launch shortcuts once per intent
 	        	this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
-	        } else {
+	        } 
+	        
+	        else if(CommCareApplication._().isUpdatePending()) {
+	        	//We've got an update pending that we need to check on.
+	        	
+	        	//Create the update intent
+            	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+            	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            	String ref = prefs.getString("default_app_server", null);
+            	
+            	i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
+            	i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
+            	i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
+            	
+            	startActivityForResult(i,UPGRADE_APP);
+            	return;
+	        }
+	        
+	        //Normal Home Screen login time! 
+	        else {
 	        	refreshView();
 	        }
     	} catch(SessionUnavailableException sue) {

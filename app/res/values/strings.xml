@@ -37,4 +37,14 @@ Copyright (c) 2012 readyState Software Ltd.
 
 </string>
 <string name="notification_message_title">CommCare Notification</string>
+<string-array name="frequency_vals">
+    <item >freq-never</item>
+    <item >freq-daily</item>
+    <item >freq-weekly</item>
+</string-array>
+<string-array name="frequency_vals_labels">
+    <item >Never</item>
+    <item >Daily</item>
+    <item >Weekly</item>
+</string-array>
 </resources>

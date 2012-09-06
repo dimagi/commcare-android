@@ -26,4 +26,5 @@ the License.
                 
 <EditTextPreference android:key="default_key_server" android:enabled="true" android:title="Key Server" android:defaultValue="@string/key_server"></EditTextPreference>
 <EditTextPreference android:key="form-record-url" android:enabled="true" android:title="Form Record Server" android:defaultValue="@string/form_record_url"></EditTextPreference>
+<ListPreference android:key="cc-autoup-freq" android:enabled="true" android:title="Auto Update Frequency" android:entryValues="@array/frequency_vals" android:entries="@array/frequency_vals_labels"/>
 </PreferenceScreen>

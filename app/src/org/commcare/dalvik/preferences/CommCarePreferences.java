@@ -26,6 +26,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class CommCarePreferences extends PreferenceActivity {
+
+	//So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
+	//out cleanly?
+    public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
+    public final static String FREQUENCY_NEVER = "freq-never";
+    public final static String FREQUENCY_DAILY = "freq-daily";
+    public final static String FREQUENCY_WEEKLY = "freq-weekly";
+
+    public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
 	
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
 	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;

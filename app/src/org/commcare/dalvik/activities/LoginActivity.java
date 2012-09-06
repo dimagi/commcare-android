@@ -15,10 +15,10 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localization;
 
@@ -237,11 +237,11 @@ public class LoginActivity extends Activity implements DataPullListener {
 	public void finished(int status) {
 		switch(status) {
 		case DataPullTask.AUTH_FAILED:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.BAD_DATA:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
@@ -250,15 +250,15 @@ public class LoginActivity extends Activity implements DataPullListener {
 				//success, don't need to do anything
 				break;
 			} else {
-				raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, NOTIFICATION_MESSAGE_LOGIN));
+				raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 				break;
 			}
 		case DataPullTask.UNREACHABLE_HOST:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.UNKNOWN_FAILURE:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		}

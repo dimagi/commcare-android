@@ -3,8 +3,11 @@
  */
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
+import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
@@ -44,6 +47,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final String KEY_PROFILE_REF = "app_profile_ref";
 	public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+	public static final String KEY_AUTO = "is_auto_update";
 	
 	public enum UiState { advanced, basic, ready };
 	public UiState uiState = UiState.basic;
@@ -68,6 +72,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     private ProgressDialog mProgressDialog;
 	
 	boolean upgradeMode = false;
+	
+	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
+	boolean isAuto = false;
 
 	
 	@Override
@@ -78,11 +85,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		if(savedInstanceState == null) {
 			incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
 			upgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
+			isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
 		} else {
 			String uiStateEncoded = savedInstanceState.getString("advanced");
 			this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
 	        incomingRef = savedInstanceState.getString("profileref");
 	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
+	        upgradeMode = savedInstanceState.getBoolean(KEY_AUTO);
 		}
 		
 		advancedView = this.findViewById(R.id.advanced_panel);
@@ -149,7 +158,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 				
 				//Now check on the resources
 				if(resourceState == CommCareApplication.STATE_READY) {
-					//nothing to do, don't sweat it.
+					if(!upgradeMode) {
+						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
+					}
 				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED) {
 					startResourceInstall();
 				} else if(resourceState == CommCareApplication.STATE_UPGRADE && upgradeMode) {
@@ -175,6 +186,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         outState.putString("advanced", uiState.toString());
         outState.putString("profileref", uiState == UiState.advanced ? editProfileRef.getText().toString() : incomingRef);
         outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
+        outState.putBoolean(KEY_AUTO, isAuto);
     }
 	
 	/* (non-Javadoc)
@@ -337,49 +349,72 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 		}
 	}
-    
 
+	public void fail(NotificationMessage message) {
+		fail(message, false);
+	}
+	
+	public void fail(NotificationMessage message, boolean alwaysNotify) {
+		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
+		
+		if(isAuto || alwaysNotify) {
+			CommCareApplication._().reportNotificationMessage(message);
+		}
+		if(isAuto) {
+			done(false);
+		} else {
+			if(alwaysNotify) {
+				mainMessage.setText(Localization.get("install.error.details", new String[] {message.getDetails()}));
+			} else {
+				mainMessage.setText(message.getDetails());
+			}
+		}
+	}
+
+	// All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity) 
+	
 	public void reportSuccess(boolean appChanged) {
 		this.dismissDialog(DIALOG_PROGRESS);
+		
+		//If things worked, go ahead and clear out any warnings to the contrary
+		CommCareApplication._().clearNotifications("install_update");
+		
 		if(!appChanged) {
 			Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
 		}
 		done(appChanged);
 	}
 
-	public void failMissingResource(Resource r) {
+	public void failMissingResource(Resource r, ResourceEngineOutcomes statusMissing) {
 		this.dismissDialog(DIALOG_PROGRESS);
-		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
-		//"A serious problem occured! Couldn't find the resource with id: " + r.getResourceId() + ". Check the profile url in the advanced mode and make sure you have a network connection."
-		String error = Localization.get("install.problem.serious",new String[]{r.getResourceId()});
+		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, r.getResourceId(), null}));
 		
-		mainMessage.setText(error);
 	}
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
 		this.dismissDialog(DIALOG_PROGRESS);
-		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
-		String error="";
+
+		String versionMismatch = Localization.get("install.version.mismatch", new String[] {vRequired,vAvailable});
+		
+		String error = "";
 		if(majorIsProblem){
-			error=Localization.get("install.major.mismatch", new String[] {vRequired,vAvailable});
+			error=Localization.get("install.major.mismatch");
 		}
 		else{
-			error=Localization.get("install.minor.mismatch", new String[] {vRequired,vAvailable});
+			error=Localization.get("install.minor.mismatch");
 		}
-		mainMessage.setText(error);
+		
+		fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusBadReqs, new String[] {null, versionMismatch, error}), true);
 	}
 
-	public void failUnknown() {
+	public void failUnknown(ResourceEngineOutcomes unknown) {
 		this.dismissDialog(DIALOG_PROGRESS);
-		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		
-		String error = Localization.get("install.problem.unexpected");
-		
-		mainMessage.setText(error);
+		fail(NotificationMessageFactory.message(unknown));
 	}
 
-	public void failBadState() {
+	public void failBadState(ResourceEngineOutcomes statusfailstate) {
 		this.dismissDialog(DIALOG_PROGRESS);
-		mainMessage.setText(Localization.get("install.problem.installed"));
+		fail(NotificationMessageFactory.message(statusfailstate), true);
 	}
 }

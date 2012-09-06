@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -44,6 +45,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -91,6 +93,7 @@ import android.util.Pair;
  *
  */
 public class CommCareApplication extends Application {
+
 	
 	public static final int STATE_UNINSTALLED = 0;
 	public static final int STATE_UPGRADE = 1;
@@ -109,6 +112,9 @@ public class CommCareApplication extends Application {
 	private static SQLiteDatabase database; 
 	
 	private SharedPreferences appPreferences;
+	
+	//Kind of an odd way to do this
+	boolean updatePending = false;
 
 	@Override
 	public void onCreate() {
@@ -610,24 +616,11 @@ public class CommCareApplication extends Application {
 				if(user != null) {
 					attachCallListener(user);
 					CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
+					
+					//See if there's an auto-update pending. We only want to be able to turn this
+					//to "True" on login, not any other time
+					updatePending = getPendingUpdateStatus();
 				}
-//				for(String xmlns : platform.getInstalledForms()) {
-//					Uri formURI = platform.getFormContentUri(xmlns);
-//					Cursor c = CommCareApplication.this.getContentResolver().query(formURI, new String[] {FormsColumns.BASE64_RSA_PUBLIC_KEY } ,null, null, null);
-//					if(!c.moveToFirst()) {
-//						// Soooooo bad.
-//						continue;
-//					} else {
-//						//Projection ensures we only have one column here.
-//						//if(c.isNull(0)) {
-//							ContentValues cv = new ContentValues();
-//							PublicKey pk = mBoundService.generateKeyPair(xmlns);
-//							String encodedKey = Base64.encode(pk.getEncoded());
-//							cv.put(FormsColumns.BASE64_RSA_PUBLIC_KEY, encodedKey);
-//							CommCareApplication.this.getContentResolver().update(formURI, cv, null, null);
-//						//}
-//					}
-//				}
 		    }
 
 		    public void onServiceDisconnected(ComponentName className) {
@@ -645,6 +638,34 @@ public class CommCareApplication extends Application {
 	    // supporting component replacement by other applications).
 	    bindService(new Intent(this,  CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
 	    mIsBinding = true;
+	}
+	
+	private boolean getPendingUpdateStatus() {
+		//Establish whether or not an AutoUpdate is Pending
+		String autoUpdateFreq = appPreferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
+
+		//See if auto update is even turned on
+		if(autoUpdateFreq != CommCarePreferences.FREQUENCY_NEVER) {
+			long lastUpdateCheck = appPreferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
+
+			long duration = (24*60*60*100) * (autoUpdateFreq == CommCarePreferences.FREQUENCY_DAILY ? 1 : 7);
+			
+			if(new Date().getTime() - lastUpdateCheck > duration) {
+				return true;
+			} else{
+				return false;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isUpdatePending() {
+		//We only set this to true occasionally, but in theory it could be set to false 
+		//from other factors, so turn it off if it is.
+		if(getPendingUpdateStatus() == false) {
+			updatePending = false;
+		}
+		return updatePending;
 	}
 
 	void doUnbindService() {
