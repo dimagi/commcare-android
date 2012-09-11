@@ -46,7 +46,10 @@ public class NotificationMessageFactory {
 		Remote_NoNetwork ("notification.restore.nonetwork"),
 		
 		/**Unknown error during restore **/
-		Restore_Unknown ("notification.restore.unknown");
+		Restore_Unknown ("notification.restore.unknown"),
+		
+		/**Could not retrieve Form Result **/
+		FormEntry_Unretrievable ("notification.formentry.unretrievable");
 	
 		StockMessages(String root) {this.root = root;}
 		private final String root;

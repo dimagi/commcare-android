@@ -6,10 +6,13 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ExceptionReportTask;
@@ -49,7 +52,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask.Status;
@@ -479,12 +481,15 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        			refreshView();
 		        		return;
 	        		}
-	        		
+	        			        		
 	        		Uri resultInstanceURI = intent.getData();
 	        		
 	        		//TODO: encapsulate this pattern somewhere?
 	        		if(resultInstanceURI == null) {
-		        		Toast.makeText(this, "Form entry did not provide a result", Toast.LENGTH_LONG);
+		    	    	Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Form Entry Did not Return a Form");
+		    	    	
+		    	    	CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+		        		Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
 		        		
 		        		currentState.reset();
 	        			if(wasExternal) {
@@ -501,8 +506,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	                } catch(IllegalArgumentException iae) {
 	                	
 	                	iae.printStackTrace();
-		        		Toast.makeText(this, "There was an unrecoverable error attempting to read the form result! If the problem persists, seek technical support", Toast.LENGTH_LONG);
+	                	CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+		        		Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
+		        		
 		        		//TODO: Fail more hardcore here? Wipe the form record and its ties?
+		    	    	Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unrecoverable error when trying to read form|" + iae.getMessage());
 		        		
 		        		currentState.reset();
 	        			if(wasExternal) {
@@ -517,11 +525,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         			//TODO: Move this logic into the process task?
 	                try {
 						current = currentState.commitRecordTransaction();
-					} catch (InvalidStateException e) {
+					} catch (Exception e) {
 						
 						//Something went wrong with all of the connections which should exist. Tell
 						//the user, 
+	                	CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+	                	
 						Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
+						
 						new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
 						
 						//Notify the server of this problem (since we aren't going to crash) 
@@ -535,15 +546,17 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        			refreshView();
         				return;
 					}
+	                
+	    	    	Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Completed");
+
 	        			        		 
 	                //The form is either ready for processing, or not, depending on how it was saved
 	        		if(complete) {
 	        			//Form record should now be up to date now and stored correctly. Begin processing its content and submitting it. 
         				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
         				
-        				//TODO: Move this to be a system notification thing
         				mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
-        				mProcess.setListeners(this, CommCareApplication._().getSession());
+        				mProcess.setListeners(this, CommCareApplication._().getSession().startDataSubmissionListener());
 
         				refreshView();
         				showDialog(DIALOG_PROCESS);
@@ -563,6 +576,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         				return;
 	        		}
 	    		} else {
+	    	    	Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
+
 	    			//Entry was cancelled.
 	    			new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
 	    			currentState.reset();
@@ -668,6 +683,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void formEntry(Uri formUri, FormRecord r, String headerTitle) throws SessionUnavailableException{
+    	Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
+    	
+    	
     	//TODO: This is... just terrible. Specify where external instance data should come from
 		FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
 		
@@ -713,7 +731,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     		}
     		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
     		mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
-    		mProcess.setListeners(this, CommCareApplication._().getSession());
+    		mProcess.setListeners(this, CommCareApplication._().getSession().startDataSubmissionListener());
     		showDialog(DIALOG_SEND_UNSENT);
     		mProcess.execute(records);
     		return true;
@@ -766,6 +784,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        
 	        else if(CommCareApplication._().isUpdatePending()) {
 	        	//We've got an update pending that we need to check on.
+	        	
+    	    	Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
 	        	
 	        	//Create the update intent
             	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);

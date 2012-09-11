@@ -27,7 +27,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.io.FormSubmissionEntity;
+import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
@@ -58,7 +58,7 @@ import android.util.Log;
  * @author ctsims
  *
  */
-public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> implements FormSubmissionListener {
+public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> implements DataSubmissionListener {
 
 	Context c;
 	String url;
@@ -78,7 +78,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	public static final long PROGRESS_LOGGED_OUT = 256;
 	
 	ProcessTaskListener listener;
-	FormSubmissionListener formSubmissionListener;
+	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
 	
 	SqlIndexedStorageUtility<FormRecord> storage;
@@ -377,7 +377,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		return null;
 	}
 	
-	public void setListeners(ProcessTaskListener listener, FormSubmissionListener submissionListener) {
+	public void setListeners(ProcessTaskListener listener, DataSubmissionListener submissionListener) {
 		this.listener = listener;
 		this.formSubmissionListener = submissionListener;
 	}
@@ -437,7 +437,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
         }
         
         // mime post
-        MultipartEntity entity = new FormSubmissionEntity(this, submissionNumber);
+        MultipartEntity entity = new DataSubmissionEntity(this, submissionNumber);
         
         for (int j = 0; j < files.length; j++) {
             File f = files[j];

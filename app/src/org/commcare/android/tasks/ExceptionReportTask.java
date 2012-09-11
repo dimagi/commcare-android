@@ -29,10 +29,13 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
+import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogSerializer;
+import org.commcare.android.javarosa.DeviceReportWriter;
+import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.android.util.DeviceReport;
-import org.commcare.android.util.HttpRequestGenerator;
+import org.javarosa.core.log.LogEntry;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -49,8 +52,16 @@ import android.preference.PreferenceManager;
 public class ExceptionReportTask extends AsyncTask<Throwable, String, String>  
 {
     @Override
-    protected String doInBackground(Throwable... values) {		
-		DeviceReport report = new DeviceReport(CommCareApplication._());
+    protected String doInBackground(Throwable... values) {
+    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    	
+    	//TODO: This is ridiculous. Just do the normal log submission process
+    	DeviceReportWriter report;
+    	try{
+    		report = new DeviceReportWriter(baos);
+    	} catch(IOException e){
+    		report = null;
+    	}
 		
 
 		String fallbacktext = null;
@@ -61,13 +72,16 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
 			if(fallbacktext == null) {
 				fallbacktext = exceptionText;
 			}
-
-			report.addLogMessage("forceclose", exceptionText, new Date());
+			if(report != null) {
+				report.addReportElement(new AndroidLogSerializer(new AndroidLogEntry("forceclose", exceptionText, new Date())));
+			}
 		}
 		
 		byte[] data;
 		try {
-			data = report.serializeReport();
+			if(report == null) { throw new IOException();}
+			report.write();
+			data = baos.toByteArray();
 		} catch (IOException e) {
 			//_weak_
 			e.printStackTrace();
@@ -83,6 +97,8 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
         	//D-oh. Really?
         }
         
+        
+        //TODO: Send this with the standard logging subsystem
         String payload = new String(data);
         System.out.println("Outgoing payload: " + payload);
         

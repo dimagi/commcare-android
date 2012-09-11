@@ -11,6 +11,7 @@ public class GlobalConstants {
 	public static final String FILE_CC_STORED = FILE_CC_ROOT + "/stored/";
 	public static final String FILE_CC_PROCESSED = FILE_CC_ROOT + "/processed/";
 	public static final String FILE_CC_MEDIA = FILE_CC_ROOT + "/media/";
+	public static final String FILE_CC_LOGS = FILE_CC_ROOT + "/logs/";
 	
 	public static final String CC_DB_NAME = "commcare";
 	

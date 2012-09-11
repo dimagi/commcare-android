@@ -21,6 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.User;
 import org.commcare.android.util.AndroidStreamUtil;
@@ -43,6 +44,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.StreamsUtil;
@@ -145,6 +147,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				DataPullTask.this.publishProgress(PROGRESS_AUTHED,progress);
 			}
 		};
+		Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
 
 		HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
 			
@@ -168,7 +171,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
 				}
 				
-				if(loginNeeded) {
+				if(loginNeeded) {					
 					//This is necessary (currently) to make sure that data
 					//is encoded. Probably a better way to do this.
 					CommCareApplication._().logIn(spec.getEncoded(), null);
@@ -187,9 +190,11 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					if(loginNeeded) {
 						CommCareApplication._().logout();
 					}
+					Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
 					return AUTH_FAILED;
 				} else if(responseCode >= 200 && responseCode < 300) {
 					this.publishProgress(PROGRESS_AUTHED,0);
+					Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 					
 					int dataSizeGuess = -1;
 					if(response.containsHeader("Content-Length")) {
@@ -218,21 +223,28 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			    		e.putLong("last-succesful-sync", new Date().getTime());
 			    		e.commit();
 						
-							
+			    		Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
 						this.publishProgress(PROGRESS_DONE);
 						return DOWNLOAD_SUCCESS;
 					} catch (InvalidStructureException e) {
 						e.printStackTrace();
+						
+						//TODO: Dump more details!!!
+			    		Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
 						return BAD_DATA;
 					} catch (XmlPullParserException e) {
 						e.printStackTrace();
+						Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
 						return BAD_DATA;
 					} catch (UnfullfilledRequirementsException e) {
 						e.printStackTrace();
+						Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
 					} catch (IllegalStateException e) {
 						e.printStackTrace();
+						Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
 					} catch (StorageFullException e) {
 						e.printStackTrace();
+						Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
 					} finally {
 						//destroy temp file
 						cache.release();
@@ -279,15 +291,18 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
 			} catch (UnknownHostException e) {
 				this.publishProgress(PROGRESS_DONE);
 				if(loginNeeded) {
 					CommCareApplication._().logout();
 				}
+				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
 				return UNREACHABLE_HOST;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
 			}catch (SessionUnavailableException sue) {
 				//TODO: Keys were lost somehow.
 				sue.printStackTrace();
@@ -307,6 +322,9 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	//TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
 	private int recover(HttpRequestGenerator requestor, CommCareTransactionParserFactory factory) {
 		this.publishProgress(PROGRESS_RECOVERY_NEEDED);
+		
+		Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
+
 		
 		InputStream cacheIn;
 		BitCache cache = null;
@@ -352,11 +370,13 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				cache.release();
 			}
 			//Ok, well, we're bailing here, but we didn't make any changes
+			Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Failed due to IOException|" + e.getMessage());
 			return PROGRESS_RECOVERY_FAIL_SAFE;
 		}
 		
 		
 		this.publishProgress(PROGRESS_RECOVERY_STARTED);
+		Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery payload downloaded");
 
 		//Ok. Here's where things get real. We now have a stable copy of the fresh data from the
 		//server, so it's "safe" for us to wipe the casedb copy of it.
@@ -369,27 +389,35 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 		
 		
+		String failureReason = "";
 		try { 
 			//Get new data
 			String syncToken = readInput(cacheIn, factory);
 			updateUserSyncToken(syncToken);
+			Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Succesful");
 			return PROGRESS_DONE;
 		} catch (InvalidStructureException e) {
 			e.printStackTrace();
+			failureReason = e.getMessage();
 		} catch (XmlPullParserException e) {
 			e.printStackTrace();
+			failureReason = e.getMessage();
 		} catch (UnfullfilledRequirementsException e) {
 			e.printStackTrace();
+			failureReason = e.getMessage();
 		} catch (StorageFullException e) {
 			e.printStackTrace();
+			failureReason = e.getMessage();
 		} 
 		
 		//These last two aren't a sign that the incoming data is bad, but
 		//we still can't recover from them usefully
 		catch (SessionUnavailableException e) {
 			e.printStackTrace();
+			failureReason = e.getMessage();
 		} catch (IOException e) {
 			e.printStackTrace();
+			failureReason = e.getMessage();
 		} finally {
 			//destroy temp file
 			cache.release();
@@ -399,6 +427,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		//while trying to parse everything out. We need to recover from that error here and rollback the changes
 		
 		//TODO: Roll back changes
+		Logger.log(AndroidLogger.TYPE_USER, "Sync recovery failed|" + failureReason);
 		return PROGRESS_RECOVERY_FAIL_BAD;
 	}
 

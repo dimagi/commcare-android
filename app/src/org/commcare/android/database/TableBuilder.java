@@ -9,6 +9,8 @@ import java.util.Vector;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 
+import android.util.Pair;
+
 /**
  * @author ctsims
  *
@@ -67,13 +69,18 @@ public class TableBuilder {
 		return input.replace("-", "_");
 	}
 	
-	public static String sqlList(Collection<Integer> input) {
-		if (input.size() ==0) { return "()";}
+	public static Pair<String, String[]> sqlList(Collection<Integer> input) {
 		//I want list comprehensions so bad right now.
 		String ret = "(";
 		for(int i : input) {
-			ret += i + ",";
+			ret += "?" + ",";
 		}
-		return ret.substring(0, ret.length()-1) + ")";
+		
+		String[] array = new String[input.size()];
+		int count = 0 ;
+		for(Integer i : input) {
+			array[count++] = String.valueOf(i);
+		}
+		return new Pair<String, String[]>(ret.substring(0, ret.length()-1) + ")", array);
 	}
 }

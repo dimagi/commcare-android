@@ -140,4 +140,17 @@ notification.install.badstate.detail=There is already an CommCare app installed 
 notification.install.badstate.action=If you want to remove the currently installed app: First log in and click Sync to ensure all data is off the phone. Then navigate to the "Applications" menu on the phone's settings, and select CommCare ODK. Click "Clear Data" to wipe all data from the current app. Then try to reinstall.
 
 notification.install.uptodate.title=CommCare is Up to Date
-notification.install.uptodate.details=A newer version of CommCare is not available
+notification.install.uptodate.detail=A newer version of CommCare is not available
+
+notification.logger.submitted.title=Device Logs Submitted
+notification.logger.submitted.detail=Your devices logs have been successfully submitted
+
+notification.logger.serialized.title=Device Logs Pending
+notification.logger.serialized.detail=CommCare had a problem communicating device logs to the server. Will try again later. 
+
+notification.logger.error.title=Error submitting logs!
+notification.logger.error.detail=CommCare ran into an error trying to submit your device logs to the server! Please contact technical support if this persists.
+
+notification.formentry.unretrievable.title=Form Entry Error - Data Lost
+notification.formentry.unretrievable.detail=CommCare couldn't retrieve the data that you just entered. Something went wrong with the app's internal communication.
+notification.formentry.unretrievable.action=Unfortunately, CommCare can't retrieve the form you were entering. You'll almost certainly need to re-enter it. This error has been submitted to the server and is being looked into.

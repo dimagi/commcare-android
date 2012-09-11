@@ -25,6 +25,9 @@ import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.cache.GeocodeCacheModel;
+import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
@@ -36,6 +39,7 @@ import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CallInPhoneListener;
@@ -55,6 +59,7 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
@@ -85,6 +90,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
 
@@ -150,6 +156,8 @@ public class CommCareApplication extends Application {
 		//We likely want to do this for all of the storage, this is just a way to deal with fixtures
 		//temporarily. 
 		StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
+		
+		Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
 		
 		initializeGlobalResources();
 		
@@ -277,7 +285,7 @@ public class CommCareApplication extends Application {
 	}
     
     private void createPaths() {
-    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE, GlobalConstants.FILE_CC_STORED, GlobalConstants.FILE_CC_MEDIA};
+    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE, GlobalConstants.FILE_CC_STORED, GlobalConstants.FILE_CC_MEDIA, GlobalConstants.FILE_CC_LOGS};
     	for(String path : paths) {
     		File f = new File(fsPath(path));
     		if(!f.exists()) {
@@ -432,6 +440,7 @@ public class CommCareApplication extends Application {
 		models.put(ACase.STORAGE_KEY, new ACase());
 		models.put(FormRecord.STORAGE_KEY, new FormRecord());
 		models.put(GeocodeCacheModel.STORAGE_KEY, new GeocodeCacheModel());
+		models.put(DeviceReportRecord.STORAGE_KEY, new DeviceReportRecord());
 		return models;
 	}
 
@@ -620,6 +629,8 @@ public class CommCareApplication extends Application {
 					//See if there's an auto-update pending. We only want to be able to turn this
 					//to "True" on login, not any other time
 					updatePending = getPendingUpdateStatus();
+					
+					doReportMaintenance();
 				}
 		    }
 
@@ -640,6 +651,28 @@ public class CommCareApplication extends Application {
 	    mIsBinding = true;
 	}
 	
+	protected void doReportMaintenance() {
+		//OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
+		
+		
+		//Create a new submission task no matter what. If nothing is pending, it'll see if there are unsent reports
+		//and try to send them. Otherwise, it'll create the report
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+		String url = settings.getString("PostURL", null);
+		
+		if(url == null) {
+			Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
+			return;
+		}
+		
+		LogSubmissionTask task = new LogSubmissionTask(this,
+				isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
+				CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title),
+				url);
+		
+		task.execute();
+	}
+
 	private boolean getPendingUpdateStatus() {
 		//Establish whether or not an AutoUpdate is Pending
 		String autoUpdateFreq = appPreferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
@@ -650,12 +683,31 @@ public class CommCareApplication extends Application {
 
 			long duration = (24*60*60*100) * (autoUpdateFreq == CommCarePreferences.FREQUENCY_DAILY ? 1 : 7);
 			
-			if(new Date().getTime() - lastUpdateCheck > duration) {
-				return true;
-			} else{
-				return false;
-			}
+			return isPending(lastUpdateCheck, duration);
 		}
+		return false;
+	}
+	
+	private boolean isPending(long last, long duration) {
+		Date current = new Date();
+		//There are a couple of conditions in which we want to trigger pending maintenance ops.
+		
+		//1) Straightforward - Time is greater than last + duration 
+		if(current.getTime() - last > duration) {
+			return true;
+		}
+		
+		//2) Major time change - (Phone might have had its calendar day manipulated).
+		//for now we'll simply say that if last was more than a day in the future (timezone blur)
+		//we should also trigger
+		if(current.getTime() < (last - DateUtils.DAY_IN_MILLIS)) {
+			return true;
+		}
+		
+		//TODO: maaaaybe trigger all if there's a substantial time difference
+		//noted between calls to a server
+		
+		//Otherwise we're fine
 		return false;
 	}
 	

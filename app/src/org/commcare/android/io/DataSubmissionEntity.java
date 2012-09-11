@@ -8,18 +8,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.http.entity.mime.MultipartEntity;
-import org.commcare.android.tasks.FormSubmissionListener;
+import org.commcare.android.tasks.DataSubmissionListener;
 
 /**
  * @author ctsims
  *
  */
-public class FormSubmissionEntity extends MultipartEntity {
+public class DataSubmissionEntity extends MultipartEntity {
 	
-	private FormSubmissionListener listener;
+	private DataSubmissionListener listener;
 	private int submissionId;
 	
-	public FormSubmissionEntity(FormSubmissionListener listener, int submissionId) {
+	public DataSubmissionEntity(DataSubmissionListener listener, int submissionId) {
 		super();
 		this.listener = listener;
 		this.submissionId = submissionId;
@@ -35,11 +35,11 @@ public class FormSubmissionEntity extends MultipartEntity {
 	
 	private class CountingOutputStream extends FilterOutputStream {
 
-        private final FormSubmissionListener listener;
+        private final DataSubmissionListener listener;
         private long transferred;
         private int submissionId;
 
-        public CountingOutputStream(final OutputStream out, final FormSubmissionListener listener, int submissionId) {
+        public CountingOutputStream(final OutputStream out, final DataSubmissionListener listener, int submissionId) {
             super(out);
             this.listener = listener;
             this.transferred = 0;

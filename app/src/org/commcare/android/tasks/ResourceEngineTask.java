@@ -6,6 +6,7 @@ package org.commcare.android.tasks;
 import java.util.Date;
 import java.util.Vector;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
@@ -17,6 +18,7 @@ import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.services.Logger;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -94,6 +96,12 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
 		editor.commit();
 		
+		if(upgradeMode) {
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning upgrade attempt for profile " + profileRefs[0]);
+		} else {
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning install attempt for profile " + profileRefs[0]);
+		}
+		
 		
 		try {
 			//This is replicated in the application in a few places.
@@ -137,6 +145,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				//And see where we ended up to see whether an upgrade actually occurred
 	    		Resource newProfile = global.getResourceWithId("commcare-application-profile");
 	    		if(newProfile.getVersion() == previousVersion) {
+	    			Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
 	    			return ResourceEngineOutcomes.StatusUpToDate;
 	    		}
     		} else {
@@ -168,7 +177,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			if(!upgradeMode) {
 				cleanupFailure(platform);
 			}
-			
+			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "App resources are incompatible with this device|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusBadReqs;
 		} catch (UnresolvedResourceException e) {
 			//couldn't find a resource, which isn't good. 
@@ -179,6 +188,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			}
 			
 			missingResource = e.getResource(); 
+			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "A resource couldn't be found, almost certainly due to the network|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusMissing;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -187,6 +197,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				cleanupFailure(platform);
 			}
 			
+			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unknown error ocurred during install|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusFailUnknown;
 		}
 	}

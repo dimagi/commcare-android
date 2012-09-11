@@ -8,7 +8,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -16,17 +15,17 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.crypt.CipherPool;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.User;
-import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.tasks.FormSubmissionListener;
+import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.LoginActivity;
-import org.commcare.dalvik.activities.MessageActivity;
+import org.javarosa.core.services.Logger;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -46,7 +45,7 @@ import android.widget.RemoteViews;
  * @author ctsims
  *
  */
-public class CommCareSessionService extends Service implements FormSubmissionListener {
+public class CommCareSessionService extends Service  {
 
     private NotificationManager mNM;
     
@@ -227,7 +226,9 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
     //Start CommCare Specific Functionality
     
 	public void logIn(byte[] symetricKey, User user) {
-		
+		if(user != null) {
+			Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
+		}
 		this.key = symetricKey;
 		pool.init();
 		
@@ -329,97 +330,110 @@ public class CommCareSessionService extends Service implements FormSubmissionLis
 		}
 		return user;
 	}	
-
-	// START - Submission Listening Hooks
-	int totalItems = -1;
-	long currentSize = -1;
-	long totalSent = -1;
-	Notification submissionNotification;
 	
-	int lastUpdate = 0;
+	public DataSubmissionListener startDataSubmissionListener() {
+		return this.startDataSubmissionListener(SUBMISSION_NOTIFICATION);
+	}
 	
-	public void beginSubmissionProcess(int totalItems) {
-		this.totalItems = totalItems;
-		
-		String text = getSubmissionText(1, totalItems);
-		
-        // Set the icon, scrolling text and timestamp
-        submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(1, totalItems), System.currentTimeMillis());
-        submissionNotification.flags |= (Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
-
-        // The PendingIntent to launch our activity if the user selects this notification
-        //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, CommCareHomeActivity.class), 0);
-
-        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.submit_notification);
-        contentView.setImageViewResource(R.id.image, R.drawable.notification);
-        contentView.setTextViewText(R.id.submitTitle, getString(org.commcare.dalvik.R.string.submission_notification_title));
-        contentView.setTextViewText(R.id.progressText, text);
-		contentView.setTextViewText(R.id.submissionDetails,"0b transmitted");
-
-        
-        // Set the info for the views that show in the notification panel.
-        submissionNotification.setLatestEventInfo(this, getString(org.commcare.dalvik.R.string.submission_notification_title), text, contentIntent);
-        
-        submissionNotification.contentView = contentView;
-
-        if(user != null) {
-        	//Send the notification.
-        	mNM.notify(SUBMISSION_NOTIFICATION, submissionNotification);
-        }
-
-	}
-
-	public void startSubmission(int itemNumber, long length) {
-		currentSize = length;
-		
-		submissionNotification.contentView.setTextViewText(R.id.progressText, getSubmissionText(itemNumber + 1, totalItems));
-		submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, 0, false);
-		mNM.notify(SUBMISSION_NOTIFICATION, submissionNotification);
-	}
-
-	public void notifyProgress(int itemNumber, long progress) {
-		int progressPercent = (int)Math.floor((progress * 1.0 / currentSize) * 100);
-		
-		if(progressPercent - lastUpdate > 5) {
+	public DataSubmissionListener startDataSubmissionListener(final int notificationId) {
+		return new DataSubmissionListener() {
+			// START - Submission Listening Hooks
+			int totalItems = -1;
+			long currentSize = -1;
+			long totalSent = -1;
+			Notification submissionNotification;
 			
-			String progressDetails = "";
-			if(progress < 1024) {
-				progressDetails = progress + "b transmitted";
-			} else if (progress < 1024 * 1024) {
-				progressDetails =  String.format("%1$,.1f", (progress / 1024.0))+ "kb transmitted";
-			} else {
-				progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0)))+ "mb transmitted";
+			int lastUpdate = 0;
+			
+			@Override
+			public void beginSubmissionProcess(int totalItems) {
+				this.totalItems = totalItems;
+				
+				String text = getSubmissionText(1, totalItems);
+				
+		        // Set the icon, scrolling text and timestamp
+		        submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(1, totalItems), System.currentTimeMillis());
+		        submissionNotification.flags |= (Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
+
+		        // The PendingIntent to launch our activity if the user selects this notification
+		        //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
+		        PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, new Intent(CommCareSessionService.this, CommCareHomeActivity.class), 0);
+
+		        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.submit_notification);
+		        contentView.setImageViewResource(R.id.image, R.drawable.notification);
+		        contentView.setTextViewText(R.id.submitTitle, getString(notificationId));
+		        contentView.setTextViewText(R.id.progressText, text);
+				contentView.setTextViewText(R.id.submissionDetails,"0b transmitted");
+
+		        
+		        // Set the info for the views that show in the notification panel.
+		        submissionNotification.setLatestEventInfo(CommCareSessionService.this, getString(notificationId), text, contentIntent);
+		        
+		        submissionNotification.contentView = contentView;
+
+		        if(user != null) {
+		        	//Send the notification.
+		        	mNM.notify(notificationId, submissionNotification);
+		        }
+
+			}
+
+			@Override
+			public void startSubmission(int itemNumber, long length) {
+				currentSize = length;
+				
+				submissionNotification.contentView.setTextViewText(R.id.progressText, getSubmissionText(itemNumber + 1, totalItems));
+				submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, 0, false);
+				mNM.notify(notificationId, submissionNotification);
+			}
+
+			@Override
+			public void notifyProgress(int itemNumber, long progress) {
+				int progressPercent = (int)Math.floor((progress * 1.0 / currentSize) * 100);
+				
+				if(progressPercent - lastUpdate > 5) {
+					
+					String progressDetails = "";
+					if(progress < 1024) {
+						progressDetails = progress + "b transmitted";
+					} else if (progress < 1024 * 1024) {
+						progressDetails =  String.format("%1$,.1f", (progress / 1024.0))+ "kb transmitted";
+					} else {
+						progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0)))+ "mb transmitted";
+					}
+					
+					int pending = ProcessAndSendTask.pending();
+					if(pending > 1) {
+						submissionNotification.contentView.setTextViewText(R.id.submissionsPending, pending -1 + " Pending");
+					}
+					
+					submissionNotification.contentView.setTextViewText(R.id.submissionDetails,progressDetails);
+					submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, progressPercent, false);
+					mNM.notify(notificationId, submissionNotification);
+					lastUpdate = progressPercent;
+				}
+			}
+			@Override
+			public void endSubmissionProcess() {
+				mNM.cancel(notificationId);
+				submissionNotification = null;
+				totalItems = -1;
+				currentSize = -1;
+				totalSent = -1;
+				lastUpdate = 0;
 			}
 			
-			int pending = ProcessAndSendTask.pending();
-			if(pending > 1) {
-				submissionNotification.contentView.setTextViewText(R.id.submissionsPending, pending -1 + " Pending");
+			private String getSubmissionText(int current, int total) {
+		        return current + "/" + total;
 			}
 			
-			submissionNotification.contentView.setTextViewText(R.id.submissionDetails,progressDetails);
-			submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, progressPercent, false);
-			mNM.notify(SUBMISSION_NOTIFICATION, submissionNotification);
-			lastUpdate = progressPercent;
-		}
+			private String getTickerText(int current, int total) {
+		        return "CommCare submitting " + total +" forms";
+			}
+			
+			// END - Submission Listening Hooks
+
+		};
 	}
 
-	public void endSubmissionProcess() {
-		mNM.cancel(SUBMISSION_NOTIFICATION);
-		submissionNotification = null;
-		totalItems = -1;
-		currentSize = -1;
-		totalSent = -1;
-		lastUpdate = 0;
-	}
-	
-	private String getSubmissionText(int current, int total) {
-        return current + "/" + total;
-	}
-	
-	private String getTickerText(int current, int total) {
-        return "CommCare submitting " + total +" forms";
-	}
-	
-	// END - Submission Listening Hooks
 }

@@ -5,6 +5,8 @@ package org.commcare.android.util;
 
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.cache.GeocodeCacheModel;
+import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.models.FormRecord;
 import org.commcare.resources.model.Resource;
 
@@ -43,6 +45,12 @@ public class CommCareUpgrader {
 			if(upgradeTwoSeventoTwoEight(database)) {
 				from = 28;
 			} else { return false;}
+		} 
+		
+		if(from == 28) {
+			if(upgradeTwoEighttoTwoNine(database)) {
+				from = 29;
+			} else { return false; }
 		}
 		
 		return from == to; 
@@ -117,6 +125,24 @@ public class CommCareUpgrader {
 		database.setTransactionSuccessful();
 		database.endTransaction();
 		return true;
+	}
+	
+	private boolean upgradeTwoEighttoTwoNine(SQLiteDatabase database) {
+		database.beginTransaction();
+		
+		TableBuilder builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
+		builder.addData(new AndroidLogEntry());
+		database.execSQL(builder.getTableCreateString());
+		
+		builder = new TableBuilder(DeviceReportRecord.STORAGE_KEY);
+		builder.addData(new DeviceReportRecord());
+		database.execSQL(builder.getTableCreateString());
+		
+
+		database.setTransactionSuccessful();
+		database.endTransaction();
+		return true;
+
 	}
 
 }
