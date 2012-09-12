@@ -21,27 +21,32 @@ public class TableBuilder {
 	private String name;
 	
 	private Vector<String> cols;
+	private Vector<String> rawCols;
 	
 	public TableBuilder(String name) {
 		this.name = name;
 		cols = new Vector<String>();
+		rawCols = new Vector<String>();
 	}
 	
 	public void addData(Persistable p) {
 		cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
+		rawCols.add(DbUtil.ID_COL);
 		
 		if(p instanceof IMetaData) {
 			String[] keys = ((IMetaData)p).getMetaDataFields();
 			for(String key : keys) {
+				String columnName = scrubName(key);
+				rawCols.add(columnName);
 				String columnDef;
 				if(p instanceof EncryptedModel && ((EncryptedModel)p).isEncrypted(key)) {
-					columnDef = scrubName(key) + " BLOB";
+					columnDef = columnName + " BLOB";
 				} else {
-					columnDef = scrubName(key);
+					columnDef = columnName;
 				}
 				
 				//Modifiers
-				if(unique.contains(scrubName(key))) {
+				if(unique.contains(columnName)) {
 					columnDef += " UNIQUE";
 				}
 				cols.add(columnDef);
@@ -49,16 +54,8 @@ public class TableBuilder {
 		}
 		
 		cols.add(DbUtil.DATA_COL + " BLOB");
+		rawCols.add(DbUtil.DATA_COL);
 	}
-	
-	public void addData(String[] columns) {
-		cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
-
-		for(String c : columns) {
-			cols.add(scrubName(c));
-		}
-	}
-	
 	
 	HashSet<String> unique = new HashSet<String>();
 	public void setUnique(String columnName) {
@@ -96,5 +93,16 @@ public class TableBuilder {
 			array[count++] = String.valueOf(i);
 		}
 		return new Pair<String, String[]>(ret.substring(0, ret.length()-1) + ")", array);
+	}
+
+	public String getColumns() {
+		String columns = "";
+		for(int i = 0 ; i < rawCols.size() ; ++i) {
+			columns += rawCols.elementAt(i);
+			if(i < rawCols.size() - 1) {
+				columns += ",";
+			}
+		}
+		return columns;
 	}
 }

@@ -12,6 +12,7 @@ import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.resources.model.Resource;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
@@ -129,32 +130,43 @@ public class CommCareUpgrader {
 	}
 	
 	private boolean upgradeTwoEighttoTwoNine(SQLiteDatabase database) {
-		database.beginTransaction();
-		
-		TableBuilder builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
-		builder.addData(new AndroidLogEntry());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder(DeviceReportRecord.STORAGE_KEY);
-		builder.addData(new DeviceReportRecord());
-		database.execSQL(builder.getTableCreateString());
-
-		database.setTransactionSuccessful();
-		database.endTransaction();
-		
-		database.beginTransaction();
-		
-		//NOTE: This will result in a sliiiightly different constraint index than a non-upgraded phone.
-		//Only in terms of the name of the index, however.
-		
-		//Add uniqueness constraint to the form record id in SSD's
-		String col = TableBuilder.scrubName(SessionStateDescriptor.META_FORM_RECORD_ID);
-		database.execSQL("CREATE UNIQUE INDEX " + col + "index ON " + SessionStateDescriptor.STORAGE_KEY + "(" + col + ")" + " ON CONFLICT REPLACE");
-				
-		database.setTransactionSuccessful();
-		database.endTransaction();
-		return true;
-
+		try {
+			database.beginTransaction();
+			
+			TableBuilder builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
+			builder.addData(new AndroidLogEntry());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(DeviceReportRecord.STORAGE_KEY);
+			builder.addData(new DeviceReportRecord());
+			database.execSQL(builder.getTableCreateString());
+			
+			//SQLite can't add column constraints. You've gotta make a new table, copy everything over, and 
+			//wipe the old one
+			
+			String table = TableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY);
+			String tempTable = TableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY + "temp");
+			
+			database.execSQL(String.format("ALTER TABLE %s RENAME TO %s;", table, tempTable));
+			
+			builder = new TableBuilder(SessionStateDescriptor.STORAGE_KEY);
+			builder.setUnique(SessionStateDescriptor.META_FORM_RECORD_ID);
+			builder.addData(new SessionStateDescriptor());
+			database.execSQL(builder.getTableCreateString());
+			
+			String cols = builder.getColumns();
+			
+			database.execSQL(String.format("INSERT OR REPLACE INTO %s (%s) " +
+							"SELECT %s" +
+							"FROM %s;", table, cols, cols, tempTable));
+			
+			database.execSQL(String.format("DROP TABLE %s;", tempTable));
+					
+			database.setTransactionSuccessful();
+			return true;
+		} finally {
+			database.endTransaction();
+		}
 	}
 
 }
