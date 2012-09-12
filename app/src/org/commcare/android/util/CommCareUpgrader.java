@@ -174,7 +174,7 @@ public class CommCareUpgrader {
 			
 			int newRows = countRows(database, ssdTable);
 			if(oldRows != newRows) {
-				Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Removed %s duplicate SessionStateDescriptor rows during DB Upgrade", String.valueOf(newRows - oldRows)));
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Removed %s duplicate SessionStateDescriptor rows during DB Upgrade", String.valueOf(oldRows - newRows)));
 			}
 			
 			return true;
