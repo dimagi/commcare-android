@@ -157,7 +157,7 @@ public class CommCareUpgrader {
 			String cols = builder.getColumns();
 			
 			database.execSQL(String.format("INSERT OR REPLACE INTO %s (%s) " +
-							"SELECT %s" +
+							"SELECT %s " +
 							"FROM %s;", table, cols, cols, tempTable));
 			
 			database.execSQL(String.format("DROP TABLE %s;", tempTable));
