@@ -174,7 +174,7 @@ public class CommCareUpgrader {
 			
 			int newRows = countRows(database, ssdTable);
 			if(oldRows != newRows) {
-				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Removed %s duplicate SessionStateDescriptor rows during DB Upgrade");
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Removed %s duplicate SessionStateDescriptor rows during DB Upgrade", String.valueOf(newRows - oldRows)));
 			}
 			
 			return true;
@@ -186,6 +186,7 @@ public class CommCareUpgrader {
 	private int countRows(SQLiteDatabase database, String table) {
 		try {
 			Cursor c = database.rawQuery(String.format("SELECT COUNT(*) AS total FROM %s", table), new String[0]);
+			c.moveToFirst();
 			return c.getInt(0);
 		}catch (Exception e) {
 			return -1;

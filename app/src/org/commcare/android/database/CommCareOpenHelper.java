@@ -44,6 +44,7 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
         super(context, GlobalConstants.CC_DB_NAME, factory, DATABASE_VERSION);
         this.context = context;
 	}
+	
 	/* (non-Javadoc)
 	 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
 	 */
