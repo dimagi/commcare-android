@@ -4,6 +4,7 @@
 package org.commcare.android.database;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Vector;
 
 import org.javarosa.core.services.storage.IMetaData;
@@ -32,11 +33,18 @@ public class TableBuilder {
 		if(p instanceof IMetaData) {
 			String[] keys = ((IMetaData)p).getMetaDataFields();
 			for(String key : keys) {
+				String columnDef;
 				if(p instanceof EncryptedModel && ((EncryptedModel)p).isEncrypted(key)) {
-					cols.add(scrubName(key) + " BLOB");
+					columnDef = scrubName(key) + " BLOB";
 				} else {
-					cols.add(scrubName(key));
+					columnDef = scrubName(key);
 				}
+				
+				//Modifiers
+				if(unique.contains(scrubName(key))) {
+					columnDef += " UNIQUE";
+				}
+				cols.add(columnDef);
 			}
 		}
 		
@@ -49,6 +57,12 @@ public class TableBuilder {
 		for(String c : columns) {
 			cols.add(scrubName(c));
 		}
+	}
+	
+	
+	HashSet<String> unique = new HashSet<String>();
+	public void setUnique(String columnName) {
+		unique.add(scrubName(columnName));
 	}
 	
 	public String getTableCreateString() {

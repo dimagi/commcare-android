@@ -8,6 +8,7 @@ import org.commcare.android.database.cache.GeocodeCacheModel;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.resources.model.Resource;
 
 import android.content.Context;
@@ -137,8 +138,19 @@ public class CommCareUpgrader {
 		builder = new TableBuilder(DeviceReportRecord.STORAGE_KEY);
 		builder.addData(new DeviceReportRecord());
 		database.execSQL(builder.getTableCreateString());
-		
 
+		database.setTransactionSuccessful();
+		database.endTransaction();
+		
+		database.beginTransaction();
+		
+		//NOTE: This will result in a sliiiightly different constraint index than a non-upgraded phone.
+		//Only in terms of the name of the index, however.
+		
+		//Add uniqueness constraint to the form record id in SSD's
+		String col = TableBuilder.scrubName(SessionStateDescriptor.META_FORM_RECORD_ID);
+		database.execSQL("CREATE UNIQUE INDEX " + col + "index ON " + SessionStateDescriptor.STORAGE_KEY + "(" + col + ")" + " ON CONFLICT REPLACE");
+				
 		database.setTransactionSuccessful();
 		database.endTransaction();
 		return true;

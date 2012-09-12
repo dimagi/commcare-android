@@ -30,7 +30,7 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 	/*
 	 * Version History:
 	 * 28 - Added the geocaching table
-	 * 29 - Added Logging table
+	 * 29 - Added Logging table. Made SSD FormRecord_ID unique
 	 */
 	
     private static final int DATABASE_VERSION = 29;
@@ -74,6 +74,7 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			database.execSQL(builder.getTableCreateString());
 			
 			builder = new TableBuilder(SessionStateDescriptor.STORAGE_KEY);
+			builder.setUnique(SessionStateDescriptor.META_FORM_RECORD_ID);
 			builder.addData(new SessionStateDescriptor());
 			database.execSQL(builder.getTableCreateString());
 			
