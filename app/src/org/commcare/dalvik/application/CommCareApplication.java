@@ -28,6 +28,7 @@ import org.commcare.android.database.cache.GeocodeCacheModel;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.android.javarosa.PreInitLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
@@ -126,6 +127,10 @@ public class CommCareApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		
+		//TODO: Make this robust
+		PreInitLogger pil = new PreInitLogger();
+		Logger.registerLogger(pil);
+		
 		//Workaround because android is written by 7 year olds.
 		//(reuses http connection pool improperly, so the second https
 		//request in a short time period will flop)
@@ -153,11 +158,17 @@ public class CommCareApplication extends Application {
 		//The fallback in case the db isn't installed 
 		resourceState = STATE_UNINSTALLED;
 		
+		//Init storage
+		dbState = initDb();
+		
 		//We likely want to do this for all of the storage, this is just a way to deal with fixtures
 		//temporarily. 
 		StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
 		
 		Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+		
+		//Dump any logs we've been keeping track of in memory to storage
+		pil.dumpToNewLogger();
 		
 		initializeGlobalResources();
 		
@@ -249,7 +260,6 @@ public class CommCareApplication extends Application {
 	}
 	
 	public void initializeGlobalResources() {
-		dbState = initDb();
 		if(dbState != STATE_UNINSTALLED) {
 			resourceState = initResources();
 		}

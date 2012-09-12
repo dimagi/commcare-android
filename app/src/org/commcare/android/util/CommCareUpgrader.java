@@ -6,12 +6,15 @@ package org.commcare.android.util;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.cache.GeocodeCacheModel;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.services.Logger;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -31,6 +34,7 @@ public class CommCareUpgrader {
 	}
 	
 	public boolean doUpgrade(SQLiteDatabase database, int from, int to) {
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("App DB Upgrade needed! Starting upgrade from %d to %d", from, to));
 		if(from == 1) {
 			if(upgradeOneTwo(database)) {
 				from = 2;
@@ -55,6 +59,8 @@ public class CommCareUpgrader {
 			} else { return false; }
 		}
 		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Upgrade %s",from == to ? "succesful" : "unsuccesful"));
+
 		return from == to; 
 	}
 
@@ -130,6 +136,11 @@ public class CommCareUpgrader {
 	}
 	
 	private boolean upgradeTwoEighttoTwoNine(SQLiteDatabase database) {
+		
+		String ssdTable = TableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY);
+		String tempssdTable = TableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY + "temp");
+
+		int oldRows = countRows(database, ssdTable);
 		try {
 			database.beginTransaction();
 			
@@ -144,10 +155,7 @@ public class CommCareUpgrader {
 			//SQLite can't add column constraints. You've gotta make a new table, copy everything over, and 
 			//wipe the old one
 			
-			String table = TableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY);
-			String tempTable = TableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY + "temp");
-			
-			database.execSQL(String.format("ALTER TABLE %s RENAME TO %s;", table, tempTable));
+			database.execSQL(String.format("ALTER TABLE %s RENAME TO %s;", ssdTable, tempssdTable));
 			
 			builder = new TableBuilder(SessionStateDescriptor.STORAGE_KEY);
 			builder.setUnique(SessionStateDescriptor.META_FORM_RECORD_ID);
@@ -158,14 +166,29 @@ public class CommCareUpgrader {
 			
 			database.execSQL(String.format("INSERT OR REPLACE INTO %s (%s) " +
 							"SELECT %s " +
-							"FROM %s;", table, cols, cols, tempTable));
+							"FROM %s;", ssdTable, cols, cols, tempssdTable));
 			
-			database.execSQL(String.format("DROP TABLE %s;", tempTable));
+			database.execSQL(String.format("DROP TABLE %s;", tempssdTable));
 					
 			database.setTransactionSuccessful();
+			
+			int newRows = countRows(database, ssdTable);
+			if(oldRows != newRows) {
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Removed %s duplicate SessionStateDescriptor rows during DB Upgrade");
+			}
+			
 			return true;
 		} finally {
 			database.endTransaction();
+		}
+	}
+	
+	private int countRows(SQLiteDatabase database, String table) {
+		try {
+			Cursor c = database.rawQuery(String.format("SELECT COUNT(*) AS total FROM %s", table), new String[0]);
+			return c.getInt(0);
+		}catch (Exception e) {
+			return -1;
 		}
 	}
 
