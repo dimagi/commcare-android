@@ -9,5 +9,5 @@ public interface ResourceEngineListener {
 	public void failBadReqs(int code, String vReq, String vAvail, boolean majorIsProblem);
 	public void failUnknown(ResourceEngineOutcomes statusfailunknown);
 	public void updateProgress(int done, int pending, int phase);
-	public void failBadState(ResourceEngineOutcomes statusfailstate);
+	public void failWithNotification(ResourceEngineOutcomes statusfailstate);
 }

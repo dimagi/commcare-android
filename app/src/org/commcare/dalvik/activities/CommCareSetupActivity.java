@@ -413,7 +413,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		fail(NotificationMessageFactory.message(unknown));
 	}
 
-	public void failBadState(ResourceEngineOutcomes statusfailstate) {
+	public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
 		this.dismissDialog(DIALOG_PROGRESS);
 		fail(NotificationMessageFactory.message(statusfailstate), true);
 	}

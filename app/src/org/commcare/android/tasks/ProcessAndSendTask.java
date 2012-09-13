@@ -215,6 +215,9 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 						}
 			        }
 				}
+				
+				
+				//TODO: Improve how we're failing here. It's not great.
 			}   catch (IOException e) {
 				thrownwhileprocessing.add(e);
 				new FormRecordCleanupTask(c, platform).wipeRecord(record);
@@ -288,14 +291,19 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		File f = new File(form);
 		//Ok, file's all parsed. Move the instance folder to be ready for sending.
 		File folder = f.getCanonicalFile().getParentFile();
+		
+		//TODO: This should be atomic with the content value update. 
 
 		String folderName = folder.getName();
 		File newFolder = new File(newPath + folderName);
+		
 		if(folder.renameTo(newFolder)) {
+			
 			String newFormPath = newFolder.getAbsolutePath() + File.separator + f.getName();
 			if(!new File(newFormPath).exists()) {
 				throw new IOException("Couldn't find processed instance");
 			}
+			
 			//update the records to show that the form has been processed and is ready to be sent;
 			record = record.updateStatus(record.getInstanceURI().toString(), newStatus);
 			storage.write(record);

@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
+import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -49,6 +50,9 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		
 		/** There's already an app installed **/
 		StatusFailState("notification.install.badstate"),
+		
+		/** There's already an app installed **/
+		StatusNoLocalStorage("notification.install.nolocal"),
 		
 		/** Install is fine **/
 		StatusUpToDate("notification.install.uptodate");
@@ -166,7 +170,15 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
     		edit.commit();
     		
     		return ResourceEngineOutcomes.StatusInstalled;
-		} catch (UnfullfilledRequirementsException e) {
+		} catch (LocalStorageUnavailableException e) {
+			e.printStackTrace();
+			if(!upgradeMode) {
+				cleanupFailure(platform);
+			}
+			
+			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Couldn't install file to local storage|" + e.getMessage());
+			return ResourceEngineOutcomes.StatusNoLocalStorage;
+		}catch (UnfullfilledRequirementsException e) {
 			e.printStackTrace();
 			badReqCode = e.getRequirementCode();
 			
@@ -237,7 +249,9 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			} else if(result == ResourceEngineOutcomes.StatusBadReqs){
 				listener.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
 			} else if(result == ResourceEngineOutcomes.StatusFailState){
-				listener.failBadState(ResourceEngineOutcomes.StatusFailState);
+				listener.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+			} else if(result == ResourceEngineOutcomes.StatusNoLocalStorage) {
+				listener.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
 			} else {
 				listener.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
 			}
