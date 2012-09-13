@@ -17,8 +17,11 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -217,32 +220,14 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
 		task.setListener(this);
 		
+		wakelock();
+
 		task.execute(ref);
 		
 		this.showDialog(DIALOG_PROGRESS);
 	}
 
-	public void done(boolean requireRefresh) {
-		//TODO: We might have gotten here due to being called from the outside, in which
-		//case we should manually start up the home activity
-		
-		if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
-			//Call out to CommCare Home
- 	       Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
- 	       i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
- 	       startActivity(i);
- 	       finish();
- 	       
- 	       return;
-		} else {
-			//Good to go
-	        Intent i = new Intent(getIntent());
-	        i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
-	        setResult(RESULT_OK, i);
-	        finish();
-	        return;
-		}
-	}
+
 	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -349,12 +334,36 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 		}
 	}
+	
+	public void done(boolean requireRefresh) {
+		unlock();
+		//TODO: We might have gotten here due to being called from the outside, in which
+		//case we should manually start up the home activity
+		
+		if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+			//Call out to CommCare Home
+ 	       Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+ 	       i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+ 	       startActivity(i);
+ 	       finish();
+ 	       
+ 	       return;
+		} else {
+			//Good to go
+	        Intent i = new Intent(getIntent());
+	        i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+	        setResult(RESULT_OK, i);
+	        finish();
+	        return;
+		}
+	}
 
 	public void fail(NotificationMessage message) {
 		fail(message, false);
 	}
 	
 	public void fail(NotificationMessage message, boolean alwaysNotify) {
+		unlock();
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
 		
 		if(isAuto || alwaysNotify) {
@@ -371,7 +380,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		}
 	}
 
-	// All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity) 
+	// All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
+	// Everything here should call one of: fail() or done() 
 	
 	public void reportSuccess(boolean appChanged) {
 		this.dismissDialog(DIALOG_PROGRESS);
@@ -417,4 +427,32 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		this.dismissDialog(DIALOG_PROGRESS);
 		fail(NotificationMessageFactory.message(statusfailstate), true);
 	}
+	
+	
+	
+	//END exit paths
+	
+    //Don't ever lose this reference
+    private static WakeLock wakelock;
+    
+    private void wakelock() {
+    	unlock();
+    	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    	wakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "CommCareAppInstall");
+    	//Twenty minutes max.
+    	wakelock.acquire(1000*60*20);
+    }
+    
+    private void unlock() {
+    	if(wakelock != null && wakelock.isHeld()) {
+    		wakelock.release();
+    	}
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	//Make sure we're not holding onto the wake lock still, no matter what
+    	unlock();
+    }
 }

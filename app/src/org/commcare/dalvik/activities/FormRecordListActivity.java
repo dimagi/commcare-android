@@ -306,7 +306,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
     		}
     	}
     	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    	PowerManager.WakeLock wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CommCareFormSync");
+    	wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CommCareFormSync");
     	//Twenty minutes max.
     	wakelock.acquire(1000*60*20);
     }
