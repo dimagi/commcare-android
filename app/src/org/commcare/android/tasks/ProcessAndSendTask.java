@@ -222,7 +222,12 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 			}  catch (StorageFullException e) {
 				new FormRecordCleanupTask(c, platform).wipeRecord(record);
 				throw new RuntimeException(e);
-			}
+			}   catch (Exception e) {
+				//We can't afford to be blocking on these forms, regardless of the error. 
+				thrownwhileprocessing.add(e);
+				new FormRecordCleanupTask(c, platform).wipeRecord(record);
+				continue;
+			}  
 		}
 		
 		long result = 0;

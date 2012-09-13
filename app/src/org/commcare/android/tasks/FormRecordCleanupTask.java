@@ -227,10 +227,6 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		
 		String path = r.getPath(context);
 		
-		if(path == null || !new File(path).exists()) {
-			throw new InvalidStateException("No file exists for form record at: " + path);
-		}
-		
 		FileInputStream fis;
 		fis = new FileInputStream(path);
 		InputStream is = fis;

@@ -5,6 +5,7 @@ package org.commcare.android.models;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Hashtable;
@@ -202,12 +203,12 @@ public class FormRecord implements Persistable, IMetaData, EncryptedModel {
 		
 	}
 
-	public String getPath(Context context) {
+	public String getPath(Context context) throws FileNotFoundException {
 		Uri uri = getInstanceURI();
-		if(uri == null) { return null; }
+		if(uri == null) { throw new FileNotFoundException("No form instance URI exists for formrecord " + id); }
 		
 		Cursor c = context.getContentResolver().query(uri, new String[] {InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
-		if(!c.moveToFirst()) { return null; }
+		if(!c.moveToFirst()) { throw new FileNotFoundException("No Instances were found at for formrecord " + id + " at isntance URI " + uri.toString()); }
 		
 		return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
 	}
