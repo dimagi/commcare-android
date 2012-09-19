@@ -24,6 +24,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
@@ -52,6 +53,10 @@ public class CommCarePreferences extends PreferenceActivity {
 	
 	public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
 	public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
+	
+	public final static String FORM_MANAGEMENT = "cc-form-management";
+	public final static String PROPERTY_ENABLED = "enabled";
+	public final static String PROPERTY_DISABLED = "disabled";
 
 	
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
@@ -105,4 +110,19 @@ public class CommCarePreferences extends PreferenceActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public static boolean isFormManagementEnabled() {
+    	SharedPreferences properties = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+    	//If there is a setting for form management it takes precedence
+    	if(properties.contains(FORM_MANAGEMENT)) {
+    		return !properties.getString(FORM_MANAGEMENT, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
+    	}
+    	
+    	//otherwise, see if we're in sense mode
+    	if(CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
+    		return false;
+    	} 
+    	
+    	//if not, form management is a go
+    	return true;
+    }
 }

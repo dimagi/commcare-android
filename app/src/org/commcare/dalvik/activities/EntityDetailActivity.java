@@ -86,7 +86,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 	        
-	        setTitle(getString(R.string.app_name) + " > " + "Details");
+	        setTitle(getString(R.string.application_name) + " > " + "Details");
 	        
 	        refreshView();
         } catch(SessionUnavailableException sue) {

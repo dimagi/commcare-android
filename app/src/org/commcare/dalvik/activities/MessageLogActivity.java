@@ -30,7 +30,7 @@ public class MessageLogActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setTitle(getString(R.string.app_name) + " > " + "Message Logs");
+        setTitle(getString(R.string.application_name) + " > " + "Message Logs");
         
         refreshView();
     }

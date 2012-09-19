@@ -101,12 +101,12 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
 	        	statusFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
 	        	if(statusFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
-	        		setTitle(getString(R.string.app_name) + " > " + Localization.get("app.workflow.incomplete.heading"));
+	        		setTitle(getString(R.string.application_name) + " > " + Localization.get("app.workflow.incomplete.heading"));
 	        	} else {
-	        		setTitle(getString(R.string.app_name) + " > " + Localization.get("app.workflow.saved.heading"));
+	        		setTitle(getString(R.string.application_name) + " > " + Localization.get("app.workflow.saved.heading"));
 	        	}
 	        } else {
-	        	setTitle(getString(R.string.app_name) + " > " + Localization.get("app.workflow.saved.heading"));
+	        	setTitle(getString(R.string.application_name) + " > " + Localization.get("app.workflow.saved.heading"));
 	        }
 	        
 	        if(statusFilter != null) {

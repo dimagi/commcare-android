@@ -653,14 +653,17 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			//If this is a new record (never saved before), which currently all should be 
 	    	if(state.getFormRecordId() == -1) {
 	    			
-	    		//First, see if we've already started this form before
-	    		SessionStateDescriptor existing = state.searchForDuplicates();
-	    		
-	    		//I'm not proud of the second clause, here. Basically, only ask if we should continue entry if the
-	    		//saved state actually involved selecting some data.
-	    		if(existing != null && existing.getSessionDescriptor().contains(CommCareSession.STATE_DATUM_VAL)) {
-	    			createAskUseOldDialog(state, existing);
-	    			return;
+	    		//If form management isn't enabled we can't have these old forms around anyway
+	    		if(!CommCarePreferences.isFormManagementEnabled()) {
+		    		//First, see if we've already started this form before
+		    		SessionStateDescriptor existing = state.searchForDuplicates();
+		    		
+		    		//I'm not proud of the second clause, here. Basically, only ask if we should continue entry if the
+		    		//saved state actually involved selecting some data.
+		    		if(existing != null && existing.getSessionDescriptor().contains(CommCareSession.STATE_DATUM_VAL)) {
+		    			createAskUseOldDialog(state, existing);
+		    			return;
+		    		}
 	    		}
 	    		
 	    		//Otherwise, generate a stub record and commit it
@@ -703,6 +706,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		} else {
 			i.setData(formUri);
 		}
+		
+		i.putExtra("org.odk.collect.form.management", CommCarePreferences.isFormManagementEnabled());
 		
 		i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
 		
@@ -1013,6 +1018,13 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        }
         } catch(SessionUnavailableException sue) {
         	//TODO: Move this somewhere that this won't happen
+        }
+        
+        View formRecordPane = this.findViewById(R.id.home_formspanel);
+        if(!CommCarePreferences.isFormManagementEnabled()) {
+        	formRecordPane.setVisibility(View.GONE);
+        } else {
+        	formRecordPane.setVisibility(View.VISIBLE);
         }
     }
 

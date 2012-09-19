@@ -140,7 +140,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	        
 	        showView(home(), AnimationType.fade);
         }
-        setTitle(getString(R.string.app_name) + " > " + " DOTS");
+        setTitle(getString(R.string.application_name) + " > " + " DOTS");
         mGestureDetector = new GestureDetector();
     }
     
@@ -172,7 +172,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     }
     
     private DotsHomeView home() {
-    	setTitle(getString(R.string.app_name) + " > " + " DOTS");
+    	setTitle(getString(R.string.application_name) + " > " + " DOTS");
     	return new DotsHomeView(this, dotsData, this);
     }
     
@@ -211,7 +211,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 		
 		//DateFormat df = DateFormat.getDateFormat(this);
 		
-		setTitle(getString(R.string.app_name) + " > " + "DOTS Details for " + DateFormat.format("MM/dd/yyyy", date));
+		setTitle(getString(R.string.application_name) + " > " + "DOTS Details for " + DateFormat.format("MM/dd/yyyy", date));
 		showView(view, anim);
 	}
 	

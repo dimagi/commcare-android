@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CommCare ODK</string>
+    <string name="application_name">CommCare ODK</string>
 	<!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
 	<string name="default_app_server">jr://asset/testing/profile.ccpr</string>
 	<string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
