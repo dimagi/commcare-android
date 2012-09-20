@@ -55,6 +55,7 @@ import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareSession;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
@@ -583,10 +584,19 @@ public class CommCareApplication extends Application {
 			ccv += vn;
 		}
 		
+		
+		String profileVersion = "";
+		
+		Profile p = this.platform == null ? null : platform.getCurrentProfile();
+		if(p != null) {
+			profileVersion = String.valueOf(p.getVersion());
+		}
+
+		
 		String buildDate = getString(R.string.app_build_date);
 		String buildNumber = getString(R.string.app_build_number);
 		
-		return Localization.get(getString(R.string.app_version_string), new String[] {pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate});
+		return Localization.get(getString(R.string.app_version_string), new String[] {pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
 	}
 	
 	//Start Service code. Will be changed in the future
