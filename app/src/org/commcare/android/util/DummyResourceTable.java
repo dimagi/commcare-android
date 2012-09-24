@@ -194,11 +194,6 @@ public class DummyResourceTable extends ResourceTable {
 	}
 
 	@Override
-	public String getStatus(int status) {
-		return "Dummy Table";
-	}
-
-	@Override
 	public void destroy() {
 	}
 
