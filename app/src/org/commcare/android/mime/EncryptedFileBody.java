@@ -14,7 +14,7 @@ import javax.crypto.CipherInputStream;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.james.mime4j.message.Entity;
-import org.javarosa.core.util.StreamsUtil;
+import org.javarosa.core.io.StreamsUtil;
 
 
 /**
