@@ -46,6 +46,7 @@ public class TextImageAudioView extends RelativeLayout {
     private TextView mMissingImage;
     private final int imageDimension = 100;
     private final int fontSize = 20;
+    private final int MINIMUM_HEIGHT = 100;
 
 
     public TextImageAudioView(Context c) {
@@ -127,7 +128,7 @@ public class TextImageAudioView extends RelativeLayout {
                 e.printStackTrace();
             }
         } else {
-            // There's no imageURI listed, so just ignore it.
+            setMinimumHeight(MINIMUM_HEIGHT);
         }
         
         boolean textVisible = (text.getVisibility() != GONE);

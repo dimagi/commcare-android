@@ -86,7 +86,6 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException{
 		//First, make sure all the file stuff is managed.
 		super.install(r, location, ref, table, instance, upgrade);
-		
 		try {
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
 	

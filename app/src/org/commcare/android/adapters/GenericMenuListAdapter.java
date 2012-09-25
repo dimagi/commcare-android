@@ -6,12 +6,17 @@ package org.commcare.android.adapters;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.view.SimpleTextView;
 import org.commcare.android.view.TextImageAudioView;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareSession;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -29,6 +34,7 @@ import android.widget.TextView;
  */
 public class GenericMenuListAdapter implements ListAdapter {
 	
+	private CommCareSession session;
 	private CommCarePlatform platform;
 	private Context context;
 	private Object[] objectData;
@@ -46,8 +52,16 @@ public class GenericMenuListAdapter implements ListAdapter {
 			for(Menu m : s.getMenus()) {
 	    		if(m.getId().equals(menuID)) {
 	    			for(String command : m.getCommandIds()) {
-	    				Entry e = map.get(command);
-	    				items.add(e);
+	    				XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
+	    				
+	    				session = CommCareApplication._().getCurrentSession();
+	    				EvaluationContext mEC = session.getEvaluationContext(getInstanceInit());
+	    				
+	    				boolean mRelevant = (Boolean)mRelevantCondition.eval(mEC);
+	    				if(!mRelevant){
+	    					Entry e = map.get(command);
+	    					items.add(e);
+	    				}
 	    			}
 					continue;
 	    		}
@@ -117,6 +131,7 @@ public class GenericMenuListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
 	public View getView(int i, View v, ViewGroup vg) {
+		System.out.println("98 getting view in generic");
 		Object mObject = objectData[i];
 		TextImageAudioView emv = (TextImageAudioView)v;
 		TextView mQuestionText = textViewHelper(mObject);
@@ -128,6 +143,10 @@ public class GenericMenuListAdapter implements ListAdapter {
 		}
 		return emv;
 	}
+	
+	private CommCareInstanceInitializer getInstanceInit() {
+    	return new CommCareInstanceInitializer(session);
+    }
 	
 	/*
 	 * Helpers to make the getView call Entry/Menu agnostic

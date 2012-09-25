@@ -954,10 +954,13 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	if(!syncOK){
     		syncMessage.setTextColor(getResources().getColor(R.color.red));
     		syncMessage.setTypeface(null, Typeface.BOLD);
+    		syncMessage.setBackgroundColor(getResources().getColor(R.color.light_grey));
+
     	}
     	else{
     		syncMessage.setTextColor(getResources().getColor(R.color.solid_black));
     		syncMessage.setTypeface(null, Typeface.NORMAL);
+    		syncMessage.setBackgroundColor(getResources().getColor(R.color.solid_blue));
     	}
     	
     	message += Localization.get("home.sync.message.last", new String[] { syncTime.toString() });

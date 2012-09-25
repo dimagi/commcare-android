@@ -8,6 +8,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -21,9 +23,13 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 
@@ -176,6 +182,61 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		super.writeExternal(out);
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(namespace));
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(contentUri));
+	}
+	
+	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+		//Check to see whether the formDef exists and reads correctly
+		FormDef formDef;
+		try {
+			Reference local = ReferenceManager._().DeriveReference(localLocation);
+			formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
+		} catch(Exception e) {
+			problems.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
+			return true;
+		}
+		if(formDef==null){
+			System.out.println("formdef is null");
+		}
+		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
+		//available
+		Localizer localizer = formDef.getLocalizer();
+		//get this out of the memory ASAP!
+		formDef = null;
+		if(localizer == null) {
+			//things are fine
+			return false;
+		}
+		for(String locale : localizer.getAvailableLocales()) {
+			OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
+			for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
+				String key = (String)en.nextElement();
+				if(key.indexOf(";") != -1) {
+					//got some forms here
+					String form = key.substring(key.indexOf(";") + 1, key.length());
+					if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO) || 
+					   form.equals(FormEntryCaption.TEXT_FORM_AUDIO) || 
+					   form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
+						try {
+							String externalMedia = localeData.get(key).render();
+							Reference ref = ReferenceManager._().DeriveReference(externalMedia);
+							String localName = ref.getLocalURI();
+							try {
+								if(!ref.doesBinaryExist()) {
+									problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + localName));
+								}
+							} catch (IOException e) {
+								problems.addElement(new UnresolvedResourceException(r,"Problem reading external media: " + localName));
+							}
+						} catch (InvalidReferenceException e) {
+							//So the problem is that this might be a valid entry that depends on context
+							//in the form, so we'll ignore this situation for now.
+						}
+					}
+				}
+			}
+		}
+		if(problems.size() == 0 ) { return false;}
+		return true;
 	}
 
 

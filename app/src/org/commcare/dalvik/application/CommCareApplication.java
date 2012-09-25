@@ -57,6 +57,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.SizeBoundVector;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -312,6 +313,11 @@ public class CommCareApplication extends Application {
 			if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
 				platform.initialize(global);
 				Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
+				SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
+				if(problems.size()>0){
+					System.out.println("143 resoruce problems!!!");
+				}
+				global.verifyInstallation(problems);
 				return STATE_READY;
 			} else{
 				return STATE_UNINSTALLED;

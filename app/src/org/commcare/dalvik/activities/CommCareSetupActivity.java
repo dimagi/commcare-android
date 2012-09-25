@@ -3,12 +3,20 @@
  */
 package org.commcare.dalvik.activities;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
+import org.commcare.android.tasks.VerificationTask;
+import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.SizeBoundVector;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -37,7 +45,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class CommCareSetupActivity extends Activity implements ResourceEngineListener {
+public class CommCareSetupActivity extends Activity implements ResourceEngineListener, VerificationTaskListener {
 	
 //	public static final String DATABASE_STATE = "database_state";
 	public static final String RESOURCE_STATE = "resource_state";
@@ -51,7 +59,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
 	
-	public static final int DIALOG_PROGRESS = 0;
+	public static final int DIALOG_INSTALL_PROGRESS = 0;
+	public static final int DIALOG_VERIFY_PROGRESS = 1;
 	
 	public static final int BARCODE_CAPTURE = 1;
 	
@@ -66,6 +75,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	Button installButton;
 	Button mScanBarcodeButton;
     private ProgressDialog mProgressDialog;
+    private ProgressDialog vProgressDialog;
 	
 	boolean upgradeMode = false;
 
@@ -207,7 +217,14 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		task.execute(ref);
 		
-		this.showDialog(DIALOG_PROGRESS);
+		this.showDialog(DIALOG_INSTALL_PROGRESS);
+	}
+	
+	public void verifyResourceInstall() {
+		
+		VerificationTask task = new VerificationTask(this);
+		task.setListener(this);
+		task.execute((String[])null);
 	}
 
 	public void done(boolean requireRefresh) {
@@ -305,7 +322,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		if(id == DIALOG_PROGRESS) {
+		if(id == DIALOG_INSTALL_PROGRESS) {
             mProgressDialog = new ProgressDialog(this);
             if(upgradeMode) {
             	mProgressDialog.setTitle(Localization.get("updates.title"));
@@ -318,7 +335,19 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
             mProgressDialog.setCancelable(false);
             return mProgressDialog;
 		}
+		else if(id == DIALOG_VERIFY_PROGRESS) {
+			vProgressDialog=  new ProgressDialog(this);
+			vProgressDialog.setTitle(Localization.get("verification.title"));
+			vProgressDialog.setMessage(Localization.get("verification.checking"));
+			return vProgressDialog;
+		}
 		return null;
+	}
+	
+	public void updateProgressVerification(int done, int total) {
+		if(vProgressDialog != null) {
+			vProgressDialog.setMessage(Localization.get("verify.progress",new String[] {""+done,""+total}));
+		}
 	}
 	
 
@@ -340,7 +369,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     
 
 	public void reportSuccess(boolean appChanged) {
-		this.dismissDialog(DIALOG_PROGRESS);
+		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		if(!appChanged) {
 			Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
 		}
@@ -348,7 +377,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 
 	public void failMissingResource(Resource r) {
-		this.dismissDialog(DIALOG_PROGRESS);
+		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		//"A serious problem occured! Couldn't find the resource with id: " + r.getResourceId() + ". Check the profile url in the advanced mode and make sure you have a network connection."
 		String error = Localization.get("install.problem.serious",new String[]{r.getResourceId()});
@@ -357,7 +386,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
-		this.dismissDialog(DIALOG_PROGRESS);
+		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		String error="";
 		if(majorIsProblem){
@@ -370,7 +399,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 
 	public void failUnknown() {
-		this.dismissDialog(DIALOG_PROGRESS);
+		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		
 		String error = Localization.get("install.problem.unexpected");
@@ -379,7 +408,59 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 
 	public void failBadState() {
-		this.dismissDialog(DIALOG_PROGRESS);
+		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		mainMessage.setText(Localization.get("install.problem.installed"));
+	}
+
+	@Override
+	public void onFinished(SizeBoundVector<UnresolvedResourceException> problems) {
+		if(problems.size() > 0 ) {
+			
+			
+			String message = "Problem with validating resources. Do you want to try to add these reources?";
+			
+			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
+			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
+				UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
+				String res = ure.getResource().getResourceId();
+				Vector<String> list;
+				if(problemList.containsKey(res)) {
+					list = problemList.get(res);
+				} else{
+					list = new Vector<String>();
+				}
+				list.addElement(ure.getMessage());
+				
+				problemList.put(res, list);
+			}
+			
+			for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
+				String resource = (String)en.nextElement();
+				message += "\nResource: " + resource;
+				message += "\n-----------";
+				for(String s : problemList.get(resource)) {
+					message += "\n" + s;
+				}
+			}
+			if(problems.getAdditional() > 0) {
+				message += "\n\n..." + problems.getAdditional() + " more";
+			}
+			
+			//return message;
+		}
+		
+		this.showDialog(DIALOG_VERIFY_PROGRESS);
+	}
+
+	@Override
+	public void failMissingResources() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void success() {
+		// TODO Auto-generated method stub
+		
 	}
 }

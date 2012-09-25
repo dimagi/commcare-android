@@ -44,5 +44,6 @@
    </style>
    
    <color name="solid_black">#000</color>
+   <color name="light_grey">#D3D3D3</color>
     
 </resources>
