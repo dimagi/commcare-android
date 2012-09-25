@@ -11,6 +11,7 @@ import java.util.Vector;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.android.tasks.FormRecordCleanupTask;
@@ -22,6 +23,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.xml.util.InvalidStructureException;
@@ -288,8 +290,41 @@ public class AndroidSessionWrapper {
     	//Now generate a context for our element 
     	EvaluationContext element = new EvaluationContext(ec, elements.firstElement());
     	
-    	//Now just get the detail title for that element
-    	return session.getDetail(datum.getLongDetail()).getTitle().evaluate(element);
+    	
+    	//Ok, so get our Text.
+    	Text t = session.getDetail(datum.getLongDetail()).getTitle();
+    	boolean isPrettyPrint = true;
+    	
+    	//CTS: this is... not awesome.
+    	//But we're going to use this to test whether we _need_ an evaluation context
+    	//for this. (If not, the title doesn't have prettyprint for us)
+    	try {
+    		String outcome = t.evaluate();
+    		if(outcome != null) {
+    			isPrettyPrint = false;
+    		}
+    	} catch(Exception e) {
+    		//Cool. Got us a fancy string.
+    	}
+    	
+    	if(isPrettyPrint) {
+    		//Now just get the detail title for that element
+    		return t.evaluate(element);
+    	} else {
+    		//Otherwise, this is _almost certainly_ a case. See if it is, and 
+    		//if so, grab the case name. otherwise, who knows?
+    		SqlIndexedStorageUtility<ACase> storage = CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class);
+    		try {
+    			ACase ourCase = storage.getRecordForValue(ACase.INDEX_CASE_ID, value);
+    			if(ourCase != null) {
+    				return ourCase.getName();
+    			} else {
+    				return null;
+    			}
+    		} catch(Exception e) {
+    			return null;
+    		}
+    	}
 	}
 	
 	protected EvaluationContext getEC() {
