@@ -2,12 +2,7 @@ option.yes=Yes
 option.no=No
 option.cancel=Cancel
 
-install.problem.initialization=Uh oh! There was a problem with the initialization...
-install.problem.unknown=An unexpected error occurred! Please try again and contact technical support if the problem persists
-install.problem.installed=There is already an CommCare App installed on this phone. Multiple apps are not currently supported. Please clear the application's data before reinstalling.
-install.problem.serious=A serious problem occurred! Couldn't find the resource with id: ${0}. Check the profile url in the advanced mode and make sure you have a network connection.
 install.problem.unexpected=Unexpected install error!
-
 updates.check=Please wait while CommCare checks for upgrade
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.downloaded=Updates downloaded. Committing new resources....
@@ -24,6 +19,8 @@ modules.m0=pregenancy
 install.barcode=Welcome to CommCare! Please scan your App's CommCare Barcode to begin 
 install.manual=Please enter the URI for your application's Profile file
 install.ready=Welcome to CommCare! Make sure you have an internet connection and press the button below to install your app
+
+install.error.details=${0} (See notification for details)
 
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application profile...
@@ -54,8 +51,10 @@ home.menu.settings=Settings
 home.menu.update=Update CommCare
 home.menu.call.log=Call Log
 
-install.major.mismatch=The application requires CommCare version ${0}. You are running ${1}. Please uninstall this version, navigate to the marketplace, and install the proper version.
-install.minor.mismatch=The application requires CommCare version ${0}. You are running ${1}. Please update your version of CommCare to run this application. 
+
+install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
+install.major.mismatch=Please uninstall your CommCare ODK Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
+install.minor.mismatch=Please update your version of CommCareODK from the Android Market to run this application. 
 
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!
@@ -91,8 +90,8 @@ login.password=Password:
 login.button=Log In
 login.sync=Synchronize with server
 
-version.id.long=CommCare ODK, version "${0}"(${1}). CommCare Version ${2}. Build ${3}, built on: ${4}
-version.id.short=CCODK:"${0}"(${1}). CC${2}b[${3}] on ${4}
+version.id.long=CommCare ODK, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
+version.id.short=CCODK:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
 
 app.workflow.incomplete.heading=Incomplete Forms
 app.workflow.saved.heading=Saved Forms
@@ -102,6 +101,8 @@ app.workflow.forms.fetch=Fetch Forms from Server
 
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
+
+update.success.refresh=CommCare has been updated! Please log in again.
 
 #Put these into their own file
 
@@ -126,3 +127,42 @@ notification.restore.nonetwork.detail=Couldn't reach the server due to bad netwo
 notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
+
+notification.install.installed.title=App Succesfully Installed
+notification.install.installed.detail=Your app install is up to date.
+
+notification.install.missing.title=Couldn't locate part of your app
+notification.install.missing.detail=A serious problem occurred while CommCare was trying to download an update (or install your app). CommCare couldn't find the resource with resource with id: ${0}.
+notification.install.missing.action=This failure is generally due to a bad or inconsistent network connection, but may be a sign of a problem with the application if it persists. Try again with a better connection and report to a supervisor if the install still fails.
+
+notification.install.badreqs.title=Incompatible CommCare Version for Install
+notification.install.badreqs.detail=${0}
+notification.install.badreqs.action=${0}
+
+notification.install.unknown.title=Unknown failure during app install
+notification.install.unknown.detail=An unexpected failure happened while trying to install/upgrade your app. Please try again, and contact a supervisor if you cannot install.
+
+notification.install.badstate.title=Attempt to install multiple apps
+notification.install.badstate.detail=There is already an CommCare app installed on this phone. Multiple apps are not currently supported.
+notification.install.badstate.action=If you want to remove the currently installed app: First log in and click Sync to ensure all data is off the phone. Then navigate to the "Applications" menu on the phone's settings, and select CommCare ODK. Click "Clear Data" to wipe all data from the current app. Then try to reinstall.
+
+notification.install.nolocal.title=Couldn't install files to storage
+notification.install.nolocal.detail=CommCare couldn't open your local storage to write your app's files.
+notification.install.nolocal.action=This almost always occurs because the SD card from your device has been removed, or your application is currently connected to a computer in Mass Storage mode. Please ensure that external storage is available for your device. If you have an SD card, ensure it is inserted. If you are connected to USB, set the USB transfer mode to "Charge Only"
+
+
+notification.install.uptodate.title=CommCare is Up to Date
+notification.install.uptodate.detail=A newer version of CommCare is not available
+
+notification.logger.submitted.title=Device Logs Submitted
+notification.logger.submitted.detail=Your devices logs have been successfully submitted
+
+notification.logger.serialized.title=Device Logs Pending
+notification.logger.serialized.detail=CommCare had a problem communicating device logs to the server. Will try again later. 
+
+notification.logger.error.title=Error submitting logs!
+notification.logger.error.detail=CommCare ran into an error trying to submit your device logs to the server! Please contact technical support if this persists.
+
+notification.formentry.unretrievable.title=Form Entry Error - Data Lost
+notification.formentry.unretrievable.detail=CommCare couldn't retrieve the data that you just entered. Something went wrong with the app's internal communication.
+notification.formentry.unretrievable.action=Unfortunately, CommCare can't retrieve the form you were entering. You'll almost certainly need to re-enter it. This error has been submitted to the server and is being looked into.

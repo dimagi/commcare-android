@@ -148,5 +148,13 @@ public class FileUtil {
 	        }
 
 	    }
+	    
+	    private static final String illegalChars = "'*','+'~|<> !?:./\\";
+	    public static String SanitizeFileName(String input) {
+	    	for(char c : illegalChars.toCharArray()) {
+	    		input = input.replace(c, '_');
+	    	} 
+	    	return input;
+	    }
 
 }

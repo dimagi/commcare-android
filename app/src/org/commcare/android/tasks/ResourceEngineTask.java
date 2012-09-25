@@ -3,17 +3,23 @@
  */
 package org.commcare.android.tasks;
 
+import java.util.Date;
 import java.util.Vector;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.notifications.MessageTag;
+import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.services.Logger;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,7 +33,37 @@ import android.preference.PreferenceManager;
  * @author ctsims
  *
  */
-public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implements TableStateListener {
+public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes> implements TableStateListener {
+	
+	public enum ResourceEngineOutcomes implements MessageTag {
+		/** App installed Succesfully **/
+		StatusInstalled("notification.install.installed"),
+		
+		/** Missing resources could not be found during install **/
+		StatusMissing("notification.install.missing"),
+		
+		/** App is not compatible with current installation **/
+		StatusBadReqs("notification.install.badreqs"),
+		
+		/** Unknown Error **/
+		StatusFailUnknown("notification.install.unknown"),
+		
+		/** There's already an app installed **/
+		StatusFailState("notification.install.badstate"),
+		
+		/** There's already an app installed **/
+		StatusNoLocalStorage("notification.install.nolocal"),
+		
+		/** Install is fine **/
+		StatusUpToDate("notification.install.uptodate");
+		
+		ResourceEngineOutcomes(String root) {this.root = root;}
+		private final String root;
+		public String getLocaleKeyBase() { return root;}
+		public String getCategory() { return "install_update"; }
+		
+	}
+
 	
 	ResourceEngineListener listener;
 	Context c;
@@ -45,15 +81,6 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	String vRequired;
 	boolean majorIsProblem;
 	
-	//Results passed by inherited AsyncTask functions to determine exit behavior
-	
-	public static final int STATUS_INSTALLED = 0;
-	public static final int STATUS_MISSING = 1;
-	public static final int STATUS_ERROR = 2;
-	public static final int STATUS_FAIL_UNKNOWN = 4;
-	public static final int STATUS_FAIL_STATE = 8;
-	public static final int STATUS_UP_TO_DATE = 16;
-	
 	public ResourceEngineTask(Context c, boolean upgradeMode) throws SessionUnavailableException{
 		this.c = c;
 		this.upgradeMode = upgradeMode;
@@ -62,9 +89,23 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
-	protected Integer doInBackground(String... profileRefs) {
+	protected ResourceEngineOutcomes doInBackground(String... profileRefs) {
 		String profileRef = profileRefs[0];
 		AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+		
+
+		//First of all, make sure we record that an attempt was started.
+		Editor editor = prefs.edit();
+		editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
+		editor.commit();
+		
+		if(upgradeMode) {
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning upgrade attempt for profile " + profileRefs[0]);
+		} else {
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning install attempt for profile " + profileRefs[0]);
+		}
+		
 		
 		try {
 			//This is replicated in the application in a few places.
@@ -79,13 +120,13 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
     				//Good!
     			} else {
     				//Very bad!
-    				return STATUS_FAIL_STATE;
+    				return ResourceEngineOutcomes.StatusFailState;
     			}
     		} else {
     			//No profile.
     			if(upgradeMode) {
     				//We shouldn't have even been able to get here....
-    				return STATUS_FAIL_STATE;
+    				return ResourceEngineOutcomes.StatusFailState;
     			} else {
     				//Good. 
     			}
@@ -108,7 +149,8 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 				//And see where we ended up to see whether an upgrade actually occurred
 	    		Resource newProfile = global.getResourceWithId("commcare-application-profile");
 	    		if(newProfile.getVersion() == previousVersion) {
-	    			return STATUS_UP_TO_DATE;
+	    			Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+	    			return ResourceEngineOutcomes.StatusUpToDate;
 	    		}
     		} else {
     			platform.init(profileRef, global, false);
@@ -122,13 +164,21 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
     		
     		String authRef = platform.getCurrentProfile().getAuthReference() == null ? profileRef : platform.getCurrentProfile().getAuthReference();
     		
-    		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+    		prefs = PreferenceManager.getDefaultSharedPreferences(c);
     		Editor edit = prefs.edit();
     		edit.putString("default_app_server", authRef);
     		edit.commit();
     		
-    		return STATUS_INSTALLED;
-		} catch (UnfullfilledRequirementsException e) {
+    		return ResourceEngineOutcomes.StatusInstalled;
+		} catch (LocalStorageUnavailableException e) {
+			e.printStackTrace();
+			if(!upgradeMode) {
+				cleanupFailure(platform);
+			}
+			
+			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Couldn't install file to local storage|" + e.getMessage());
+			return ResourceEngineOutcomes.StatusNoLocalStorage;
+		}catch (UnfullfilledRequirementsException e) {
 			e.printStackTrace();
 			badReqCode = e.getRequirementCode();
 			
@@ -139,8 +189,8 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 			if(!upgradeMode) {
 				cleanupFailure(platform);
 			}
-			
-			return STATUS_ERROR;
+			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "App resources are incompatible with this device|" + e.getMessage());
+			return ResourceEngineOutcomes.StatusBadReqs;
 		} catch (UnresolvedResourceException e) {
 			//couldn't find a resource, which isn't good. 
 			e.printStackTrace();
@@ -150,7 +200,8 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 			}
 			
 			missingResource = e.getResource(); 
-			return STATUS_MISSING;
+			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "A resource couldn't be found, almost certainly due to the network|" + e.getMessage());
+			return ResourceEngineOutcomes.StatusMissing;
 		} catch(Exception e) {
 			e.printStackTrace();
 			
@@ -158,7 +209,8 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 				cleanupFailure(platform);
 			}
 			
-			return STATUS_FAIL_UNKNOWN;
+			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unknown error ocurred during install|" + e.getMessage());
+			return ResourceEngineOutcomes.StatusFailUnknown;
 		}
 	}
 	
@@ -186,20 +238,22 @@ public class ResourceEngineTask extends AsyncTask<String, int[], Integer> implem
 	}
 
 	@Override
-	protected void onPostExecute(Integer result) {
+	protected void onPostExecute(ResourceEngineOutcomes result) {
 		if(listener != null) {
-			if(result == STATUS_INSTALLED){
+			if(result == ResourceEngineOutcomes.StatusInstalled){
 				listener.reportSuccess(true);
-			} else if(result == STATUS_UP_TO_DATE){
+			} else if(result == ResourceEngineOutcomes.StatusUpToDate){
 				listener.reportSuccess(false);
-			} else if(result == STATUS_MISSING){
-				listener.failMissingResource(missingResource);
-			} else if(result == STATUS_ERROR){
+			} else if(result == ResourceEngineOutcomes.StatusMissing){
+				listener.failMissingResource(missingResource, ResourceEngineOutcomes.StatusMissing);
+			} else if(result == ResourceEngineOutcomes.StatusBadReqs){
 				listener.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
-			} else if(result == STATUS_FAIL_STATE){
-				listener.failBadState();
+			} else if(result == ResourceEngineOutcomes.StatusFailState){
+				listener.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+			} else if(result == ResourceEngineOutcomes.StatusNoLocalStorage) {
+				listener.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
 			} else {
-				listener.failUnknown();
+				listener.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
 			}
 		}
 		

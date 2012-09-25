@@ -4,10 +4,13 @@
 package org.commcare.android.database;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Vector;
 
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
+
+import android.util.Pair;
 
 /**
  * @author ctsims
@@ -18,35 +21,45 @@ public class TableBuilder {
 	private String name;
 	
 	private Vector<String> cols;
+	private Vector<String> rawCols;
 	
 	public TableBuilder(String name) {
 		this.name = name;
 		cols = new Vector<String>();
+		rawCols = new Vector<String>();
 	}
 	
 	public void addData(Persistable p) {
 		cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
+		rawCols.add(DbUtil.ID_COL);
 		
 		if(p instanceof IMetaData) {
 			String[] keys = ((IMetaData)p).getMetaDataFields();
 			for(String key : keys) {
+				String columnName = scrubName(key);
+				rawCols.add(columnName);
+				String columnDef;
 				if(p instanceof EncryptedModel && ((EncryptedModel)p).isEncrypted(key)) {
-					cols.add(scrubName(key) + " BLOB");
+					columnDef = columnName + " BLOB";
 				} else {
-					cols.add(scrubName(key));
+					columnDef = columnName;
 				}
+				
+				//Modifiers
+				if(unique.contains(columnName)) {
+					columnDef += " UNIQUE";
+				}
+				cols.add(columnDef);
 			}
 		}
 		
 		cols.add(DbUtil.DATA_COL + " BLOB");
+		rawCols.add(DbUtil.DATA_COL);
 	}
 	
-	public void addData(String[] columns) {
-		cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
-
-		for(String c : columns) {
-			cols.add(scrubName(c));
-		}
+	HashSet<String> unique = new HashSet<String>();
+	public void setUnique(String columnName) {
+		unique.add(scrubName(columnName));
 	}
 	
 	public String getTableCreateString() {
@@ -67,13 +80,29 @@ public class TableBuilder {
 		return input.replace("-", "_");
 	}
 	
-	public static String sqlList(Collection<Integer> input) {
-		if (input.size() ==0) { return "()";}
+	public static Pair<String, String[]> sqlList(Collection<Integer> input) {
 		//I want list comprehensions so bad right now.
 		String ret = "(";
 		for(int i : input) {
-			ret += i + ",";
+			ret += "?" + ",";
 		}
-		return ret.substring(0, ret.length()-1) + ")";
+		
+		String[] array = new String[input.size()];
+		int count = 0 ;
+		for(Integer i : input) {
+			array[count++] = String.valueOf(i);
+		}
+		return new Pair<String, String[]>(ret.substring(0, ret.length()-1) + ")", array);
+	}
+
+	public String getColumns() {
+		String columns = "";
+		for(int i = 0 ; i < rawCols.size() ; ++i) {
+			columns += rawCols.elementAt(i);
+			if(i < rawCols.size() - 1) {
+				columns += ",";
+			}
+		}
+		return columns;
 	}
 }

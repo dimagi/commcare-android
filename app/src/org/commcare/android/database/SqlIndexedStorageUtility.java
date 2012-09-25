@@ -283,7 +283,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
 	 */
 	public SqlStorageIterator<T> iterate() {
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, DbUtil.ID_COL);
 		return new SqlStorageIterator<T>(c, this);
 	}
 	
@@ -328,10 +328,12 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	 * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
 	 */
 	public void remove(Collection<Integer> ids) {
+		if(ids.size() == 0 ) { return; }
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			db.delete(table, DbUtil.ID_COL +" in " + TableBuilder.sqlList(ids), null);
+			Pair<String, String[]> whereParams = TableBuilder.sqlList(ids);
+			int rowsRemoved = db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
@@ -378,19 +380,15 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 			}
 		}
 		
-		String ids = "(";
-		for(int i = 0; i < removed.size() ; ++i) { 
-			ids += String.valueOf(removed.elementAt(i));
-			if(i < removed.size() -1) {
-				ids +=", ";
-			}
-		}
-		ids +=")";
+		if(removed.size() == 0) { return removed; }
+		
+		Pair<String, String[]> whereParams = TableBuilder.sqlList(removed);
+
 		
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			db.delete(table, DbUtil.ID_COL +" IN "+ ids,null);
+			db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();

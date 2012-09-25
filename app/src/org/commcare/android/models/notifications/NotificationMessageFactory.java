@@ -46,8 +46,10 @@ public class NotificationMessageFactory {
 		Remote_NoNetwork ("notification.restore.nonetwork"),
 		
 		/**Unknown error during restore **/
-		Restore_Unknown ("notification.restore.unknown");
+		Restore_Unknown ("notification.restore.unknown"),
 		
+		/**Could not retrieve Form Result **/
+		FormEntry_Unretrievable ("notification.formentry.unretrievable");
 	
 		StockMessages(String root) {this.root = root;}
 		private final String root;
@@ -57,21 +59,25 @@ public class NotificationMessageFactory {
 	}
 	
 	public static NotificationMessage message(MessageTag message) {
-		return message(message, message.getCategory());
+		return message(message, new String[3]);
+	}
+	
+	public static NotificationMessage message(MessageTag message, String[] parameters) {
+		return message(message, parameters, message.getCategory());
 	}
 
-	public static NotificationMessage message(MessageTag message, String customCategory) {
+	public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory) {
 		
 		String base = message.getLocaleKeyBase();
 		if(base == null) { throw new NullPointerException("No Locale Key base for message tag!"); }
 		
 		try {
-			String title = Localization.get(base + ".title");
-			String detail = Localization.get(base + ".detail");
+			String title = parameters[0] == null ? Localization.get(base + ".title") :  Localization.get(base + ".title", new String[] {parameters[0]});
+			String detail = parameters[1] == null ? Localization.get(base + ".detail") :  Localization.get(base + ".detail", new String[] {parameters[1]});
 			
 			String action = null;
 			try {
-				action = Localization.get(base + ".action");
+				action = parameters[2] == null ? Localization.get(base + ".action") :  Localization.get(base + ".action", new String[] {parameters[2]});
 			}catch(Exception e) {
 				//No big deal, key doesn't need to exist
 			}

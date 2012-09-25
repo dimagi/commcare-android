@@ -4,6 +4,8 @@
 package org.commcare.android.database;
 
 import org.commcare.android.database.cache.GeocodeCacheModel;
+import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
@@ -24,7 +26,14 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class CommCareOpenHelper extends SQLiteOpenHelper {
 	
-    private static final int DATABASE_VERSION = 28;
+	
+	/*
+	 * Version History:
+	 * 28 - Added the geocaching table
+	 * 29 - Added Logging table. Made SSD FormRecord_ID unique
+	 */
+	
+    private static final int DATABASE_VERSION = 29;
     private Context context;
     
     public CommCareOpenHelper(Context context) {
@@ -35,6 +44,7 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
         super(context, GlobalConstants.CC_DB_NAME, factory, DATABASE_VERSION);
         this.context = context;
 	}
+	
 	/* (non-Javadoc)
 	 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
 	 */
@@ -65,6 +75,7 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			database.execSQL(builder.getTableCreateString());
 			
 			builder = new TableBuilder(SessionStateDescriptor.STORAGE_KEY);
+			builder.setUnique(SessionStateDescriptor.META_FORM_RECORD_ID);
 			builder.addData(new SessionStateDescriptor());
 			database.execSQL(builder.getTableCreateString());
 			
@@ -74,6 +85,14 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			
 			builder = new TableBuilder(GeocodeCacheModel.STORAGE_KEY);
 			builder.addData(new GeocodeCacheModel());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
+			builder.addData(new AndroidLogEntry());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(DeviceReportRecord.STORAGE_KEY);
+			builder.addData(new DeviceReportRecord());
 			database.execSQL(builder.getTableCreateString());
 			
 			

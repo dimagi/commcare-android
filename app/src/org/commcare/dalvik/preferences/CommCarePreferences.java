@@ -16,19 +16,52 @@
 
 package org.commcare.dalvik.preferences;
 
+import org.commcare.android.tasks.DataSubmissionListener;
+import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.Logger;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class CommCarePreferences extends PreferenceActivity {
+
+	//So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
+	//out cleanly?
+    public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
+    public final static String FREQUENCY_NEVER = "freq-never";
+    public final static String FREQUENCY_DAILY = "freq-daily";
+    public final static String FREQUENCY_WEEKLY = "freq-weekly";
+
+    public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
+    
+	public final static String LOG_WEEKLY_SUBMIT = "log_prop_weekly";
+	public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
+	
+	public final static String NEVER = "log_never";
+	public final static String SHORT = "log_short";
+	public final static String FULL = "log_full";
+	
+	public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
+	public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
+	
+	public final static String FORM_MANAGEMENT = "cc-form-management";
+	public final static String PROPERTY_ENABLED = "enabled";
+	public final static String PROPERTY_DISABLED = "disabled";
+
 	
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
 	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
+	private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +77,8 @@ public class CommCarePreferences extends PreferenceActivity {
                 android.R.drawable.ic_menu_delete);
         menu.add(0, ABOUT_COMMCARE, 1, "About CommCare").setIcon(
                 android.R.drawable.ic_menu_help);
+        menu.add(0, FORCE_LOG_SUBMIT, 2, "Force Log Submission").setIcon(
+                android.R.drawable.ic_menu_upload);
         return true;
     }
 
@@ -59,8 +94,35 @@ public class CommCarePreferences extends PreferenceActivity {
             	AlertDialog dialog = new AlertDialog.Builder(this).setMessage(R.string.aboutdialog).create();
             	dialog.show();
             	return true;
+            case FORCE_LOG_SUBMIT:
+        		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+        		String url = settings.getString("PostURL", null);
+        		
+        		if(url == null) {
+	        		//This is mostly for dev purposes
+	        		Toast.makeText(this, "Couldn't submit logs! Invalid submission URL...", Toast.LENGTH_LONG);
+        		} else {
+	            	LogSubmissionTask reportSubmitter = new LogSubmissionTask(CommCareApplication._(), true, CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title), url);
+	            	reportSubmitter.execute();
+        		}
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public static boolean isFormManagementEnabled() {
+    	SharedPreferences properties = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+    	//If there is a setting for form management it takes precedence
+    	if(properties.contains(FORM_MANAGEMENT)) {
+    		return !properties.getString(FORM_MANAGEMENT, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
+    	}
+    	
+    	//otherwise, see if we're in sense mode
+    	if(CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
+    		return false;
+    	} 
+    	
+    	//if not, form management is a go
+    	return true;
+    }
 }

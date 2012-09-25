@@ -40,7 +40,7 @@
             android:text="Get Started" android:drawableLeft="@drawable/pencil" style="@style/TopPane"/>
 
         <LinearLayout
-            android:id="@+id/linearLayout2"
+            android:id="@+id/home.formspanel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" 
             android:orientation="vertical" style="@style/MiddlePane">

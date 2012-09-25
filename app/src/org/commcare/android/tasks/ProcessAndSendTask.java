@@ -27,7 +27,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.io.FormSubmissionEntity;
+import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
@@ -58,7 +58,7 @@ import android.util.Log;
  * @author ctsims
  *
  */
-public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> implements FormSubmissionListener {
+public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> implements DataSubmissionListener {
 
 	Context c;
 	String url;
@@ -78,7 +78,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	public static final long PROGRESS_LOGGED_OUT = 256;
 	
 	ProcessTaskListener listener;
-	FormSubmissionListener formSubmissionListener;
+	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
 	
 	SqlIndexedStorageUtility<FormRecord> storage;
@@ -215,6 +215,9 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 						}
 			        }
 				}
+				
+				
+				//TODO: Improve how we're failing here. It's not great.
 			}   catch (IOException e) {
 				thrownwhileprocessing.add(e);
 				new FormRecordCleanupTask(c, platform).wipeRecord(record);
@@ -222,7 +225,12 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 			}  catch (StorageFullException e) {
 				new FormRecordCleanupTask(c, platform).wipeRecord(record);
 				throw new RuntimeException(e);
-			}
+			}   catch (Exception e) {
+				//We can't afford to be blocking on these forms, regardless of the error. 
+				thrownwhileprocessing.add(e);
+				new FormRecordCleanupTask(c, platform).wipeRecord(record);
+				continue;
+			}  
 		}
 		
 		long result = 0;
@@ -283,14 +291,19 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		File f = new File(form);
 		//Ok, file's all parsed. Move the instance folder to be ready for sending.
 		File folder = f.getCanonicalFile().getParentFile();
+		
+		//TODO: This should be atomic with the content value update. 
 
 		String folderName = folder.getName();
 		File newFolder = new File(newPath + folderName);
+		
 		if(folder.renameTo(newFolder)) {
+			
 			String newFormPath = newFolder.getAbsolutePath() + File.separator + f.getName();
 			if(!new File(newFormPath).exists()) {
 				throw new IOException("Couldn't find processed instance");
 			}
+			
 			//update the records to show that the form has been processed and is ready to be sent;
 			record = record.updateStatus(record.getInstanceURI().toString(), newStatus);
 			storage.write(record);
@@ -377,7 +390,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		return null;
 	}
 	
-	public void setListeners(ProcessTaskListener listener, FormSubmissionListener submissionListener) {
+	public void setListeners(ProcessTaskListener listener, DataSubmissionListener submissionListener) {
 		this.listener = listener;
 		this.formSubmissionListener = submissionListener;
 	}
@@ -437,7 +450,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
         }
         
         // mime post
-        MultipartEntity entity = new FormSubmissionEntity(this, submissionNumber);
+        MultipartEntity entity = new DataSubmissionEntity(this, submissionNumber);
         
         for (int j = 0; j < files.length; j++) {
             File f = files[j];

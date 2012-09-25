@@ -3,8 +3,8 @@
       android:versionName="2.1" android:versionCode="106">
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true" android:theme="@android:style/Theme.Light" android:name=".application.CommCareApplication">
-        <activity android:label="@string/app_name" android:name=".activities.CommCareHomeActivity" android:configChanges="orientation">
+    <application android:icon="@drawable/icon" android:label="@string/application_name" android:debuggable="true" android:theme="@android:style/Theme.Light" android:name=".application.CommCareApplication">
+        <activity android:label="@string/application_name" android:name=".activities.CommCareHomeActivity" android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -17,7 +17,7 @@
         </activity>
 
     
-<activity android:label="@string/app_name" android:name=".activities.LoginActivity" android:windowSoftInputMode="adjustResize"></activity>
+<activity android:label="@string/application_name" android:name=".activities.LoginActivity" android:windowSoftInputMode="adjustResize"></activity>
 <activity android:name=".activities.MenuList"></activity>
 
 <activity android:name=".activities.ReferenceDetailActivity"></activity>
@@ -132,7 +132,7 @@
 
 <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
 
-<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
+<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="8"></uses-sdk>
 
 <uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
 <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>

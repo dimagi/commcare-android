@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Vector;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -64,9 +65,18 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
 		localLocation = (upgrade ? upgradeDestination : localDestination) + "/" + getResourceName(r,location);
 		try {
+			OutputStream os;
+			Reference local;
 			//Stream to location
-			Reference local = ReferenceManager._().DeriveReference(localLocation);
-			AndroidStreamUtil.writeFromInputToOutput(ref.getStream(), local.getOutputStream());
+			try {
+				local = ReferenceManager._().DeriveReference(localLocation);
+				os = local.getOutputStream();
+			} catch(InvalidReferenceException ire) {
+				throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
+			} catch(IOException ioe) {
+				throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
+			}
+			AndroidStreamUtil.writeFromInputToOutput(ref.getStream(), os);
 			
 			int status = customInstall(r, local, upgrade);
 			
@@ -76,9 +86,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 				throw new UnresolvedResourceException(r, "After install there is no local resource location");
 			}
 			return true;
-		} catch (InvalidReferenceException e) {
-			e.printStackTrace();
-			throw new UnresolvedResourceException(r, "Unavailable resource at " + e.getReferenceString());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new UnresolvedResourceException(r, "IOException for resource");

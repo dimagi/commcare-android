@@ -3,12 +3,18 @@
  */
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+
 import java.util.Enumeration;
 import java.util.Hashtable;
+
 import java.util.Vector;
 
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
+import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
@@ -22,8 +28,11 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +61,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final String KEY_PROFILE_REF = "app_profile_ref";
 	public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+	public static final String KEY_AUTO = "is_auto_update";
 	
 	public enum UiState { advanced, basic, ready };
 	public UiState uiState = UiState.basic;
@@ -78,6 +88,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     private ProgressDialog vProgressDialog;
 	
 	boolean upgradeMode = false;
+	
+	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
+	boolean isAuto = false;
 
 	
 	@Override
@@ -88,11 +101,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		if(savedInstanceState == null) {
 			incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
 			upgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
+			isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
 		} else {
 			String uiStateEncoded = savedInstanceState.getString("advanced");
 			this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
 	        incomingRef = savedInstanceState.getString("profileref");
 	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
+	        upgradeMode = savedInstanceState.getBoolean(KEY_AUTO);
 		}
 		
 		advancedView = this.findViewById(R.id.advanced_panel);
@@ -159,7 +174,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 				
 				//Now check on the resources
 				if(resourceState == CommCareApplication.STATE_READY) {
-					//nothing to do, don't sweat it.
+					if(!upgradeMode) {
+						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
+					}
 				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED) {
 					startResourceInstall();
 				} else if(resourceState == CommCareApplication.STATE_UPGRADE && upgradeMode) {
@@ -185,6 +202,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         outState.putString("advanced", uiState.toString());
         outState.putString("profileref", uiState == UiState.advanced ? editProfileRef.getText().toString() : incomingRef);
         outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
+        outState.putBoolean(KEY_AUTO, isAuto);
     }
 	
 	/* (non-Javadoc)
@@ -215,6 +233,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
 		task.setListener(this);
 		
+		wakelock();
+
 		task.execute(ref);
 		
 		this.showDialog(DIALOG_INSTALL_PROGRESS);
@@ -226,6 +246,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		task.setListener(this);
 		task.execute((String[])null);
 	}
+
 
 	public void done(boolean requireRefresh) {
 		//TODO: We might have gotten here due to being called from the outside, in which
@@ -366,18 +387,76 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 		}
 	}
-    
+	
+	public void done(boolean requireRefresh) {
+		unlock();
+		//TODO: We might have gotten here due to being called from the outside, in which
+		//case we should manually start up the home activity
+		
+		if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+			//Call out to CommCare Home
+ 	       Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+ 	       i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+ 	       startActivity(i);
+ 	       finish();
+ 	       
+ 	       return;
+		} else {
+			//Good to go
+	        Intent i = new Intent(getIntent());
+	        i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+	        setResult(RESULT_OK, i);
+	        finish();
+	        return;
+		}
+	}
 
+	public void fail(NotificationMessage message) {
+		fail(message, false);
+	}
+	
+	public void fail(NotificationMessage message, boolean alwaysNotify) {
+		unlock();
+		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
+		
+		if(isAuto || alwaysNotify) {
+			CommCareApplication._().reportNotificationMessage(message);
+		}
+		if(isAuto) {
+			done(false);
+		} else {
+			if(alwaysNotify) {
+				mainMessage.setText(Localization.get("install.error.details", new String[] {message.getDetails()}));
+			} else {
+				mainMessage.setText(message.getDetails());
+			}
+		}
+	}
+	
+	// All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
+	// Everything here should call one of: fail() or done() 
+	
 	public void reportSuccess(boolean appChanged) {
-		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
+		this.dismissDialog(DIALOG_PROGRESS);
+		
+		//If things worked, go ahead and clear out any warnings to the contrary
+		CommCareApplication._().clearNotifications("install_update");
+		
 		if(!appChanged) {
 			Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
 		}
 		done(appChanged);
 	}
 
-	public void failMissingResource(Resource r) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
+		
+		//If things worked, go ahead and clear out any warnings to the contrary
+		CommCareApplication._().clearNotifications("install_update");
+		
+
+	public void failMissingResource(Resource r, ResourceEngineOutcomes statusMissing) {
+		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
+		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, r.getResourceId(), null}));
 		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		//"A serious problem occured! Couldn't find the resource with id: " + r.getResourceId() + ". Check the profile url in the advanced mode and make sure you have a network connection."
 		String error = Localization.get("install.problem.serious",new String[]{r.getResourceId()});
@@ -387,29 +466,33 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
-		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
-		String error="";
+
+		String versionMismatch = Localization.get("install.version.mismatch", new String[] {vRequired,vAvailable});
+		
+		String error = "";
 		if(majorIsProblem){
-			error=Localization.get("install.major.mismatch", new String[] {vRequired,vAvailable});
+			error=Localization.get("install.major.mismatch");
 		}
 		else{
-			error=Localization.get("install.minor.mismatch", new String[] {vRequired,vAvailable});
+			error=Localization.get("install.minor.mismatch");
 		}
-		mainMessage.setText(error);
+		
+		fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusBadReqs, new String[] {null, versionMismatch, error}), true);
 	}
 
-	public void failUnknown() {
+	public void failUnknown(ResourceEngineOutcomes unknown) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		
+		fail(NotificationMessageFactory.message(unknown));
 		String error = Localization.get("install.problem.unexpected");
 		
 		mainMessage.setText(error);
 	}
 
-	public void failBadState() {
+	public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
-		mainMessage.setText(Localization.get("install.problem.installed"));
+		fail(NotificationMessageFactory.message(statusfailstate), true);
 	}
 
 	@Override
@@ -451,6 +534,71 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		this.showDialog(DIALOG_VERIFY_PROGRESS);
 	}
+	
+	    //Don't ever lose this reference
+    private static WakeLock wakelock;
+    
+    private void wakelock() {
+    	unlock();
+    	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    	wakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "CommCareAppInstall");
+    	//Twenty minutes max.
+    	wakelock.acquire(1000*60*20);
+    }
+    
+    private void unlock() {
+    	if(wakelock != null && wakelock.isHeld()) {
+    		wakelock.release();
+    	}
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	//Make sure we're not holding onto the wake lock still, no matter what
+    	unlock();
+
+	
+	@Override
+	public void onFinished(SizeBoundVector<UnresolvedResourceException> problems) {
+		if(problems.size() > 0 ) {
+			
+			
+			String message = "Problem with validating resources. Do you want to try to add these reources?";
+			
+			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
+			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
+				UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
+				String res = ure.getResource().getResourceId();
+				Vector<String> list;
+				if(problemList.containsKey(res)) {
+					list = problemList.get(res);
+				} else{
+					list = new Vector<String>();
+				}
+				list.addElement(ure.getMessage());
+				
+				problemList.put(res, list);
+			}
+			
+			for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
+				String resource = (String)en.nextElement();
+				message += "\nResource: " + resource;
+				message += "\n-----------";
+				for(String s : problemList.get(resource)) {
+					message += "\n" + s;
+				}
+			}
+			if(problems.getAdditional() > 0) {
+				message += "\n\n..." + problems.getAdditional() + " more";
+			}
+			
+			//return message;
+		}
+		
+		this.showDialog(DIALOG_VERIFY_PROGRESS);
+	}
+
 
 	@Override
 	public void failMissingResources() {
@@ -462,5 +610,5 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public void success() {
 		// TODO Auto-generated method stub
 		
-	}
+    }
 }

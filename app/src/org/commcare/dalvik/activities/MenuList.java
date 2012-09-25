@@ -52,7 +52,7 @@ public class MenuList extends ListActivity {
        }
        
        adapter = new GenericMenuListAdapter(this,platform,menuId);
-       setTitle(getString(R.string.app_name));
+       setTitle(getString(R.string.application_name));
        refreshView();
     }
 

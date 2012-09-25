@@ -38,7 +38,7 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setTitle(getString(R.string.app_name) + " > " + "Phone Logs");
+        setTitle(getString(R.string.application_name) + " > " + "Phone Logs");
         
         isMessages = getIntent().getBooleanExtra(EXTRA_MESSAGES, false);
         

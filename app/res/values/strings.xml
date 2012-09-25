@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CommCare ODK</string>
+    <string name="application_name">CommCare ODK</string>
 	<!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
 	<string name="default_app_server">jr://asset/testing/profile.ccpr</string>
 	<string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
@@ -15,6 +15,7 @@
 <string name="notificationtitle">Logged Into Commcare</string>
 <string name="expirenotification">CommCare Login Expired</string>
 <string name="submission_notification_title">Submitting Data</string>
+<string name="submission_logs_title">Submitting CommCare Logs</string>
 <string name="form_record_url"></string>
 <string name="aboutdialog">
     
@@ -37,4 +38,14 @@ Copyright (c) 2012 readyState Software Ltd.
 
 </string>
 <string name="notification_message_title">CommCare Notification</string>
+<string-array name="frequency_vals">
+    <item >freq-never</item>
+    <item >freq-daily</item>
+    <item >freq-weekly</item>
+</string-array>
+<string-array name="frequency_vals_labels">
+    <item >Never</item>
+    <item >Daily</item>
+    <item >Weekly</item>
+</string-array>
 </resources>

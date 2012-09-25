@@ -102,7 +102,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 		Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
 		prototype = entries.elementAt(0);
         
-        setTitle(getString(R.string.app_name) + " > " + " Select");
+        setTitle(getString(R.string.application_name) + " > " + " Select");
         
 		selectDatum = session.getNeededDatum();
         
