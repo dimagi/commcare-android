@@ -987,17 +987,18 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			syncOK = false;
 		}
     	
+		//Need to transplant the padding due to background affecting it
+		int[] padding = {syncMessage.getPaddingLeft(), syncMessage.getPaddingTop(), syncMessage.getPaddingRight(),syncMessage.getPaddingBottom() };
     	if(!syncOK){
     		syncMessage.setTextColor(getResources().getColor(R.color.red));
     		syncMessage.setTypeface(null, Typeface.BOLD);
-    		syncMessage.setBackgroundColor(getResources().getColor(R.color.light_grey));
-
+    		syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble_danger));
     	}
     	else{
-    		syncMessage.setTextColor(getResources().getColor(R.color.solid_black));
     		syncMessage.setTypeface(null, Typeface.NORMAL);
-    		syncMessage.setBackgroundColor(getResources().getColor(R.color.solid_blue));
+    		syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble));
     	}
+    	syncMessage.setPadding(padding[0],padding[1], padding[2], padding[3]);
     	
     	message += Localization.get("home.sync.message.last", new String[] { syncTime.toString() });
     	
