@@ -654,7 +654,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    	if(state.getFormRecordId() == -1) {
 	    			
 	    		//If form management isn't enabled we can't have these old forms around anyway
-	    		if(!CommCarePreferences.isFormManagementEnabled()) {
+	    		if(CommCarePreferences.isFormManagementEnabled()) {
 		    		//First, see if we've already started this form before
 		    		SessionStateDescriptor existing = state.searchForDuplicates();
 		    		
