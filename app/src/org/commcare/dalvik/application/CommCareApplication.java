@@ -338,11 +338,6 @@ public class CommCareApplication extends Application {
 			if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
 				platform.initialize(global);
 				Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
-				SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
-				if(problems.size()>0){
-					System.out.println("143 resoruce problems!!!");
-				}
-				global.verifyInstallation(problems);
 				return STATE_READY;
 			} else{
 				return STATE_UNINSTALLED;

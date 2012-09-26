@@ -197,7 +197,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("advanced", uiState.toString());
-        outState.putString("profileref", uiState == UiState.advanced ? editProfileRef.getText().toString() : incomingRef);
+        outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
         outState.putBoolean(KEY_AUTO, isAuto);
     }
