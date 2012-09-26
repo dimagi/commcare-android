@@ -149,7 +149,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			
 		});
 		
-		if(incomingRef == null) {
+		if(incomingRef == null || uiState == UiState.advanced) {
 			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
 			
 			if(this.uiState == UiState.advanced) {
