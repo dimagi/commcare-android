@@ -247,29 +247,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		task.execute((String[])null);
 	}
 
-
-	public void done(boolean requireRefresh) {
-		//TODO: We might have gotten here due to being called from the outside, in which
-		//case we should manually start up the home activity
-		
-		if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
-			//Call out to CommCare Home
- 	       Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
- 	       i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
- 	       startActivity(i);
- 	       finish();
- 	       
- 	       return;
-		} else {
-			//Good to go
-	        Intent i = new Intent(getIntent());
-	        i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
-	        setResult(RESULT_OK, i);
-	        finish();
-	        return;
-		}
-	}
-	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -437,7 +414,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	// Everything here should call one of: fail() or done() 
 	
 	public void reportSuccess(boolean appChanged) {
-		this.dismissDialog(DIALOG_PROGRESS);
+		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		
 		//If things worked, go ahead and clear out any warnings to the contrary
 		CommCareApplication._().clearNotifications("install_update");
@@ -446,13 +423,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
 		}
 		done(appChanged);
-	}
+	
 
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		
 		//If things worked, go ahead and clear out any warnings to the contrary
 		CommCareApplication._().clearNotifications("install_update");
-		
+	}
 
 	public void failMissingResource(Resource r, ResourceEngineOutcomes statusMissing) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
@@ -557,48 +534,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	super.onDestroy();
     	//Make sure we're not holding onto the wake lock still, no matter what
     	unlock();
-
-	
-	@Override
-	public void onFinished(SizeBoundVector<UnresolvedResourceException> problems) {
-		if(problems.size() > 0 ) {
-			
-			
-			String message = "Problem with validating resources. Do you want to try to add these reources?";
-			
-			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
-			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
-				UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
-				String res = ure.getResource().getResourceId();
-				Vector<String> list;
-				if(problemList.containsKey(res)) {
-					list = problemList.get(res);
-				} else{
-					list = new Vector<String>();
-				}
-				list.addElement(ure.getMessage());
-				
-				problemList.put(res, list);
-			}
-			
-			for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
-				String resource = (String)en.nextElement();
-				message += "\nResource: " + resource;
-				message += "\n-----------";
-				for(String s : problemList.get(resource)) {
-					message += "\n" + s;
-				}
-			}
-			if(problems.getAdditional() > 0) {
-				message += "\n\n..." + problems.getAdditional() + " more";
-			}
-			
-			//return message;
-		}
-		
-		this.showDialog(DIALOG_VERIFY_PROGRESS);
-	}
-
+    }
 
 	@Override
 	public void failMissingResources() {
@@ -611,4 +547,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		// TODO Auto-generated method stub
 		
     }
+	
+	public void failUnknown(){
+		// TODO 
+	}
 }
