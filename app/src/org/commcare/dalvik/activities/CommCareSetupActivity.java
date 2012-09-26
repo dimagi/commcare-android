@@ -104,7 +104,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
 	        incomingRef = savedInstanceState.getString("profileref");
 	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
-	        upgradeMode = savedInstanceState.getBoolean(KEY_AUTO);
+	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
 		}
 		
 		advancedView = this.findViewById(R.id.advanced_panel);
