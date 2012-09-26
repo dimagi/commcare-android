@@ -82,7 +82,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<U
 	protected void onProgressUpdate(int[]... values) {
 		super.onProgressUpdate(values);
 		if(listener != null) {
-			((CommCareSetupActivity)listener).updateProgressVerification(values[0][0], values[0][1]);
+			((CommCareSetupActivity)listener).updateVerifyProgress(values[0][0], values[0][1]);
 		}
 	}
 
@@ -92,7 +92,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<U
 
 	@Override
 	protected void onPostExecute(SizeBoundVector<UnresolvedResourceException> problems) {
-		if(listener != null) {
+		if(listener != null && problems != null) {
 			if(problems.size() == 0){
 				listener.success();
 			} else if(problems.size() > 0){
@@ -100,11 +100,9 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<U
 			} else{
 				listener.failUnknown();
 			}
+			listener.success();
 		}
-		
-		listener.onFinished(problems);
-		
-		//remove all references 
+
 		listener = null;
 		c = null;
 	}

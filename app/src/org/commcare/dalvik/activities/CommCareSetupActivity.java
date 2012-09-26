@@ -235,10 +235,11 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		task.execute(ref);
 		
 		this.showDialog(DIALOG_INSTALL_PROGRESS);
+		
+		//verifyResourceInstall(); on hold
 	}
 	
 	public void verifyResourceInstall() {
-		
 		VerificationTask task = new VerificationTask(this);
 		task.setListener(this);
 		task.execute((String[])null);
@@ -339,7 +340,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		return null;
 	}
 	
-	public void updateProgressVerification(int done, int total) {
+	public void updateVerifyProgress(int done, int total) {
 		if(vProgressDialog != null) {
 			vProgressDialog.setMessage(Localization.get("verify.progress",new String[] {""+done,""+total}));
 		}
