@@ -65,7 +65,8 @@ public class GenericMenuListAdapter implements ListAdapter {
 		    					}
 		    				} catch(XPathTypeMismatchException e) {
 		    					Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "relevancy condition for menu item returned non-boolean value : " + ret);
-		    					//TODO: and crash.
+		    					throw new RuntimeException("relevancy condition for menu item returned non-boolean value : " + ret);
+		    					
 		    				}
 	    				if(!(Boolean)mRelevantCondition.eval(mEC)) { continue;}
 	    				}
