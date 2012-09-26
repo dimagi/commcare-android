@@ -104,7 +104,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
 	        incomingRef = savedInstanceState.getString("profileref");
 	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
-	        upgradeMode = savedInstanceState.getBoolean(KEY_AUTO);
+	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
 		}
 		
 		advancedView = this.findViewById(R.id.advanced_panel);
@@ -149,7 +149,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			
 		});
 		
-		if(incomingRef == null) {
+		if(incomingRef == null || uiState == UiState.advanced) {
 			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
 			
 			if(this.uiState == UiState.advanced) {
@@ -197,7 +197,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("advanced", uiState.toString());
-        outState.putString("profileref", uiState == UiState.advanced ? editProfileRef.getText().toString() : incomingRef);
+        outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
         outState.putBoolean(KEY_AUTO, isAuto);
     }
