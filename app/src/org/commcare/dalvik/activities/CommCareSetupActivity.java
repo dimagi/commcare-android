@@ -3,18 +3,15 @@
  */
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.models.notifications.NotificationMessage;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-
 import java.util.Enumeration;
 import java.util.Hashtable;
-
 import java.util.Vector;
 
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
@@ -409,7 +406,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 		}
 	}
-	
+
 	// All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
 	// Everything here should call one of: fail() or done() 
 	
@@ -423,22 +420,12 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
 		}
 		done(appChanged);
-	
-
-		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
-		
-		//If things worked, go ahead and clear out any warnings to the contrary
-		CommCareApplication._().clearNotifications("install_update");
 	}
 
 	public void failMissingResource(Resource r, ResourceEngineOutcomes statusMissing) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, r.getResourceId(), null}));
-		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
-		//"A serious problem occured! Couldn't find the resource with id: " + r.getResourceId() + ". Check the profile url in the advanced mode and make sure you have a network connection."
-		String error = Localization.get("install.problem.serious",new String[]{r.getResourceId()});
 		
-		mainMessage.setText(error);
 	}
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
@@ -459,24 +446,48 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 
 	public void failUnknown(ResourceEngineOutcomes unknown) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
-		Toast.makeText(this, Localization.get("install.problem.initialization"), Toast.LENGTH_LONG).show();
 		
 		fail(NotificationMessageFactory.message(unknown));
-		String error = Localization.get("install.problem.unexpected");
-		
-		mainMessage.setText(error);
 	}
 
 	public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		fail(NotificationMessageFactory.message(statusfailstate), true);
 	}
+	
+	
+	
+	//END exit paths
+	
+    //Don't ever lose this reference
+    private static WakeLock wakelock;
+    
+    private void wakelock() {
+    	unlock();
+    	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    	wakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "CommCareAppInstall");
+    	//Twenty minutes max.
+    	wakelock.acquire(1000*60*20);
+    }
+    
+    private void unlock() {
+    	if(wakelock != null && wakelock.isHeld()) {
+    		wakelock.release();
+    	}
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	//Make sure we're not holding onto the wake lock still, no matter what
+    	unlock();
+    }
+    
+    //TODO: Implement these
 
 	@Override
 	public void onFinished(SizeBoundVector<UnresolvedResourceException> problems) {
 		if(problems.size() > 0 ) {
-			
-			
 			String message = "Problem with validating resources. Do you want to try to add these reources?";
 			
 			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
@@ -511,30 +522,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		this.showDialog(DIALOG_VERIFY_PROGRESS);
 	}
-	
-	    //Don't ever lose this reference
-    private static WakeLock wakelock;
-    
-    private void wakelock() {
-    	unlock();
-    	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    	wakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "CommCareAppInstall");
-    	//Twenty minutes max.
-    	wakelock.acquire(1000*60*20);
-    }
-    
-    private void unlock() {
-    	if(wakelock != null && wakelock.isHeld()) {
-    		wakelock.release();
-    	}
-    }
-    
-    @Override
-    protected void onDestroy() {
-    	super.onDestroy();
-    	//Make sure we're not holding onto the wake lock still, no matter what
-    	unlock();
-    }
 
 	@Override
 	public void failMissingResources() {
@@ -546,9 +533,11 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public void success() {
 		// TODO Auto-generated method stub
 		
-    }
-	
-	public void failUnknown(){
-		// TODO 
+	}
+
+	@Override
+	public void failUnknown() {
+		// TODO Auto-generated method stub
+		
 	}
 }
