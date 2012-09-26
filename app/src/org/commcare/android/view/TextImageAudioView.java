@@ -46,7 +46,6 @@ public class TextImageAudioView extends RelativeLayout {
     private TextView mMissingImage;
     private final int imageDimension = 100;
     private final int fontSize = 20;
-    private final int MINIMUM_HEIGHT = 100;
 
 
     public TextImageAudioView(Context c) {
@@ -61,6 +60,8 @@ public class TextImageAudioView extends RelativeLayout {
     public void setAVT(TextView text, String audioURI, String imageURI) {
         mView_Text = text;
         mView_Text.setTextSize(fontSize);
+        mView_Text.setPadding(20, 15, 15, 20);
+
         // Layout configurations for our elements in the relative layout
         RelativeLayout.LayoutParams textParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -127,8 +128,6 @@ public class TextImageAudioView extends RelativeLayout {
                 Log.e(t, "image invalid reference exception");
                 e.printStackTrace();
             }
-        } else {
-            setMinimumHeight(MINIMUM_HEIGHT);
         }
         
         boolean textVisible = (text.getVisibility() != GONE);
