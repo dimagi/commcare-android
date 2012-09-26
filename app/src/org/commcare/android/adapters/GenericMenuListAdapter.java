@@ -6,8 +6,8 @@ package org.commcare.android.adapters;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.view.SimpleTextView;
 import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
@@ -16,12 +16,14 @@ import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Typeface;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -53,15 +55,23 @@ public class GenericMenuListAdapter implements ListAdapter {
 	    		if(m.getId().equals(menuID)) {
 	    			for(String command : m.getCommandIds()) {
 	    				XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
-	    				
-	    				session = CommCareApplication._().getCurrentSession();
-	    				EvaluationContext mEC = session.getEvaluationContext(getInstanceInit());
-	    				
-	    				boolean mRelevant = (Boolean)mRelevantCondition.eval(mEC);
-	    				if(!mRelevant){
-	    					Entry e = map.get(command);
-	    					items.add(e);
+	    				if(mRelevantCondition != null) {	    					
+		    				session = CommCareApplication._().getCurrentSession();
+		    				EvaluationContext mEC = session.getEvaluationContext(getInstanceInit());
+		    				Object ret = mRelevantCondition.eval(mEC);
+		    				try {
+		    					if(!XPathFuncExpr.toBoolean(ret)) {
+		    						continue;
+		    					}
+		    				} catch(XPathTypeMismatchException e) {
+		    					Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "relevancy condition for menu item returned non-boolean value : " + ret);
+		    					//TODO: and crash.
+		    				}
+	    				if(!(Boolean)mRelevantCondition.eval(mEC)) { continue;}
 	    				}
+	    				
+    					Entry e = map.get(command);
+    					items.add(e);
 	    			}
 					continue;
 	    		}

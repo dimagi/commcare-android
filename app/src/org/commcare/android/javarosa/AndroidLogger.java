@@ -35,6 +35,10 @@ public class AndroidLogger implements ILogger {
 	/** Some invariant application assumption has been violated */
 	public static final String TYPE_ERROR_WORKFLOW = "error-workflow";
 	
+	/** One of the config files (suite, profile, xform, locale, etc) contains something
+	 * which is invalid and prevented the app from working properly */
+	public static final String TYPE_ERROR_CONFIG_STRUCTURE = "error-config";
+	
 	/** Something bad happened because of network connectivity **/
 	public static final String TYPE_WARNING_NETWORK ="warning-network";
 
