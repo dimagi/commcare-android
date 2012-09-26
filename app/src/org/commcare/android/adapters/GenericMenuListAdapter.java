@@ -142,7 +142,6 @@ public class GenericMenuListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
 	public View getView(int i, View v, ViewGroup vg) {
-		System.out.println("98 getting view in generic");
 		Object mObject = objectData[i];
 		TextImageAudioView emv = (TextImageAudioView)v;
 		TextView mQuestionText = textViewHelper(mObject);

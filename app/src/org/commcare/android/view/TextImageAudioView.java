@@ -69,9 +69,19 @@ public class TextImageAudioView extends RelativeLayout {
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         RelativeLayout.LayoutParams imageParams =
             new RelativeLayout.LayoutParams(imageDimension,imageDimension);
+        
+        String audioFilename = "";
+        try {
+            audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+        } catch (InvalidReferenceException e) {
+            Log.e(t, "Invalid reference exception");
+            e.printStackTrace();
+        }
+
+        File audioFile = new File(audioFilename);
 
         // First set up the audio button
-        if (audioURI != null) {
+        if (audioURI != null && audioFile.exists()) {
             // An audio file is specified
             mAudioButton = new AudioButton(getContext(), audioURI);
             mAudioButton.setId(3245345); // random ID to be used by the relative layout.
