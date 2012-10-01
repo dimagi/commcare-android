@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" android:background="@drawable/grey_bordered_box">
+
+    <TextView
+        android:id="@+id/detail_type_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/EntityItemText" android:text="Text" android:gravity="top|left|center_vertical" android:layout_weight=".6" android:typeface="normal" style="@style/EntityItemTextView" android:background="@drawable/blue_tabbed_box"/>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_weight="0.4" android:id="@+id/detail_value_pane" android:layout_gravity="center_vertical|center_horizontal">
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" android:textAppearance="@style/EntityItemText" android:text="Value" android:layout_gravity="right|center_vertical" android:gravity="left|center_vertical" android:visibility="visible" android:id="@+id/detail_value_text" android:padding="15dp"/>
+        
+        
+        <Button
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content" android:drawableLeft="@drawable/sym_action_call" android:inputType="phone" android:typeface="monospace" android:layout_gravity="left|center_vertical" android:drawablePadding="15dp" android:text="555-555-5555" android:id="@+id/detail_value_phone" android:visibility="gone" android:layout_marginLeft="11dp" android:layout_marginRight="4dp">
+</Button>
+
+        <LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/detail_address_view" android:layout_gravity="left|center_vertical" android:visibility="gone" android:paddingLeft="11dp" android:paddingBottom="4dp" android:paddingTop="4dp" android:paddingRight="4dp">
+<Button android:layout_height="wrap_content" android:id="@+id/detail_address_button" android:drawableLeft="@drawable/sym_action_lookup" android:text="Show Address" android:layout_width="fill_parent" android:layout_gravity="left" android:drawablePadding="15dp"></Button>
+<TextView android:layout_height="wrap_content" android:id="@+id/detail_address_text" android:layout_width="fill_parent" android:inputType="textMultiLine|textPostalAddress" android:text="Sample Address" android:gravity="left" android:paddingLeft="10dp"></TextView>
+</LinearLayout>
+
+    </FrameLayout>
+
+</LinearLayout>

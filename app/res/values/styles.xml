@@ -46,5 +46,12 @@
    <color name="solid_black">#000</color>
    <color name="light_grey">#D3D3D3</color>
    <color name="dark_grey">#A3A3A3</color>
+   
+   <color name="border_grey">#20959699</color>
+   <color name="blue_grad_end">#903867AD</color>
+   <color name="blue_grad_start">#806884AD</color>
+  
+   <color name="grey_grad_start">#80D3D3D3</color>
+   <color name="grey_grad_end">#A0D3D3D3</color>
     
 </resources>
