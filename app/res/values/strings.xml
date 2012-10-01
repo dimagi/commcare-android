@@ -48,4 +48,5 @@ Copyright (c) 2012 readyState Software Ltd.
     <item >Daily</item>
     <item >Weekly</item>
 </string-array>
+<item name="detail_size_cutoff" format="integer" type="integer">500</item>
 </resources>

@@ -26,13 +26,22 @@ public class EntityDetailView extends FrameLayout {
 	
 	private TextView label;
 	private TextView data;
+	private TextView spacer;
 	private Button callout;
 	
 	private View addressView;
 	private Button addressButton;
 	private TextView addressText;
 	
+	private View valuePane;
+	
 	private View currentView;
+	private LinearLayout detailRow;
+	
+	private LinearLayout.LayoutParams origValue;
+	private LinearLayout.LayoutParams origLabel;
+	
+	private LinearLayout.LayoutParams fill;
 	
 	int current = TEXT;
 	private static final int TEXT = 0;
@@ -44,12 +53,15 @@ public class EntityDetailView extends FrameLayout {
 
 	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index) {
 		super(context);
-		View detailRow = View.inflate(context, R.layout.component_entity_detail_item, null);
+		detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
 		
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
+        spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer);
 	    
 	    data = (TextView)detailRow.findViewById(R.id.detail_value_text);
 	    currentView = data;
+	    
+	    valuePane = detailRow.findViewById(R.id.detail_value_pane);
 	    
 	    callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
 	    //TODO: Still useful?
@@ -58,6 +70,11 @@ public class EntityDetailView extends FrameLayout {
 	    addressView = (View)detailRow.findViewById(R.id.detail_address_view);
 	    addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
 	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
+	    
+	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
+	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
+	    
+	    fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    
 	    this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 	    setParams(session, d, e, index);
@@ -68,7 +85,12 @@ public class EntityDetailView extends FrameLayout {
 	}
 
 	public void setParams(CommCareSession session, Detail d, Entity e, int index) {
-		label.setText(d.getHeaders()[index].evaluate());
+		String labelText = d.getHeaders()[index].evaluate();
+		label.setText(labelText);
+		spacer.setText(labelText);
+		
+		boolean veryLong = false;
+		
 		if("phone".equals(d.getTemplateForms()[index])) {
 			callout.setText(e.getFields()[index]);
 			if(current != PHONE) {
@@ -103,12 +125,34 @@ public class EntityDetailView extends FrameLayout {
 				current = ADDRESS;
 			}
 		} else {
-			data.setText(e.getFields()[index]);
+			String text = e.getFields()[index];
+			data.setText(text);
+			if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
+				veryLong = true;
+			}
 			if(current != TEXT) {
 				currentView.setVisibility(View.GONE);
 				data.setVisibility(View.VISIBLE);
 				currentView = data;
 				current = TEXT;
+			}
+		}
+		
+		if(veryLong) {
+			
+			detailRow.setOrientation(LinearLayout.VERTICAL);
+			spacer.setVisibility(View.GONE);
+			label.setLayoutParams(fill);
+			valuePane.setLayoutParams(fill);
+			
+		} else {
+			
+			if(detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
+				
+				detailRow.setOrientation(LinearLayout.HORIZONTAL);
+				spacer.setVisibility(View.INVISIBLE);
+				label.setLayoutParams(origLabel);
+				valuePane.setLayoutParams(origValue);
 			}
 		}
 	}

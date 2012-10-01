@@ -162,6 +162,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	EntityView v = new EntityView(this, detail, headers);
 	    	header.removeAllViews();
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+	    	v.setBackgroundResource(R.drawable.blue_tabbed_box);
 	    	header.addView(v,params);
 	    	
 	    	

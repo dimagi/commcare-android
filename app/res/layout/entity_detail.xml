@@ -3,7 +3,12 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content">
-<ListView android:layout_alignParentTop="true" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_above="@+id/entity_select_button" android:id="@android:id/list">
-</ListView><Button android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:text="Select Client" android:layout_width="fill_parent" android:id="@+id/entity_select_button"></Button>
+<ListView android:layout_alignParentTop="true" android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@android:id/list" android:layout_above="@+id/entity_detail_bottom_pane"/>
+
+<FrameLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" android:id="@+id/entity_detail_bottom_pane" android:layout_alignParentBottom="true" android:background="@drawable/border_top_black" android:paddingTop="1dp">
+    <Button android:layout_height="wrap_content" android:text="Select Client" android:layout_width="fill_parent" android:id="@+id/entity_select_button" android:textSize="@dimen/interactive_font_size"></Button>
+</FrameLayout>
 
 </RelativeLayout>

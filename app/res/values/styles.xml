@@ -43,6 +43,8 @@
        <item name="android:textSize">10dp</item> 
    </style>
    
+   <dimen name="interactive_font_size">20sp</dimen>
+   
    <color name="solid_black">#000</color>
    <color name="light_grey">#D3D3D3</color>
    <color name="dark_grey">#A3A3A3</color>
