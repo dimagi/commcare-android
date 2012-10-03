@@ -8,6 +8,7 @@ import java.util.Hashtable;
 
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -49,10 +50,17 @@ public class NodeEntityFactory {
 		}
 		
 		String[] details = new String[detail.getHeaderForms().length];
+		String[] sortDetails = new String[detail.getHeaderForms().length];
 		int count = 0;
-		for(Text t : this.getDetail().getTemplates()) {
+		for(DetailField f : this.getDetail().getFields()) {
 			try {
-				details[count] = t.evaluate(nodeContext);
+				details[count] = f.getTemplate().evaluate(nodeContext);
+				Text sortText = f.getSort();
+				if(sortText == null) {
+					sortDetails[count] = details[count];
+				} else {
+					sortDetails[count] = sortText.evaluate(nodeContext);
+				}
 			} catch(XPathException xpe) {
 				xpe.printStackTrace();
 				details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
@@ -60,6 +68,6 @@ public class NodeEntityFactory {
 			count++;
 		}
 		
-		return new Entity<TreeReference>(details, data);
+		return new Entity<TreeReference>(details, sortDetails, data);
 	}
 }

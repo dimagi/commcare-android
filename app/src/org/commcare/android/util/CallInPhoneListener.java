@@ -181,7 +181,6 @@ public class CallInPhoneListener extends PhoneStateListener {
 								}
 							}
 							
-							Text[] templates = d.getTemplates();
 							for(TreeReference r : references) {
 								EvaluationContext childContext = new EvaluationContext(ec, r);
 								//TODO: Generate a whole Session that could be used to start up form entry
@@ -190,7 +189,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 								String name = d.getTitle().evaluate(childContext);
 								
 								for(int i : phoneIds) {
-									String number = templates[i].evaluate(childContext);
+									String number = d.getFields()[i].getTemplate().evaluate(childContext);
 									if(number != "") {
 										System.out.println(number + "=> " + name);
 										cachedNumbers.put(number, new String[] {name});

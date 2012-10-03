@@ -12,6 +12,7 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -35,6 +36,7 @@ public class EntityListAdapter implements ListAdapter {
 	List<Entity<TreeReference>> full;
 	List<Entity<TreeReference>> current;
 	List<TreeReference> references;
+	Detail d;
 	
 	int currentSort = -1;
 	boolean reverseSort = false;
@@ -44,6 +46,7 @@ public class EntityListAdapter implements ListAdapter {
 	}
 	
 	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references, int sort) throws SessionUnavailableException {
+		this.d = d;
 		factory = new NodeEntityFactory(d, ec);
 		
 		full = new ArrayList<Entity<TreeReference>>();
@@ -85,18 +88,19 @@ public class EntityListAdapter implements ListAdapter {
 	}
 	
 	private void sort(int field) {
-		if(currentSort == field) {
-			reverseSort = !reverseSort;
-		} else {
-			reverseSort = false;
-		}
+		sort(field, currentSort == field ? !reverseSort : d.getFields()[field].getSortDirection() == DetailField.DIRECTION_DESCENDING);
+	}
+	
+	private void sort(int field, boolean reverse) {
+		
+		this.reverseSort = reverse;
 		
 		currentSort = field;
-		
+
 		java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
 
 			public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-				return (reverseSort ? -1 : 1) * object1.getFields()[currentSort].compareTo(object2.getFields()[currentSort]);
+				return (reverseSort ? -1 : 1) * object1.getSortFields()[currentSort].compareTo(object2.getSortFields()[currentSort]);
 			}
 			
 		});

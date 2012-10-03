@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -144,17 +144,19 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
 	    	
 	    	//TODO: Get ec into these text's
-	    	Text[] templates = detail.getHeaders();
-	    	String[] tempForms = detail.getTemplateForms();
-	    	String[] headers = new String[templates.length];
-	    	int defaultKey = -1;
-	    	for(int i = 0 ; i < templates.length ; ++i) {
-	    		headers[i] = templates[i].evaluate();
+	    	String[] headers = new String[detail.getFields().length];
+	    	int[] order = detail.getSortOrder();
+	    	
+	    	//If we have a default sort order, use it!
+	    	int defaultKey = order.length == 0 ? -1 : order[0];
+	    	
+	    	for(int i = 0 ; i < headers.length ; ++i) {
+	    		headers[i] = detail.getFields()[i].getHeader().evaluate();
 	    		if(defaultKey == -1 && !"".equals(headers[i])) {
 	    			defaultKey = i;
 	    		}
 	    		
-	    		if("address".equals(tempForms[i])) {
+	    		if("address".equals(detail.getFields()[i].getTemplateForm())) {
 	    			this.mMappingEnabled = true;
 	    		}
 	    	}
@@ -357,18 +359,18 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	
         builder.setTitle("Sort by...");
 		SessionDatum datum = session.getNeededDatum();
-    	Text[] templates = session.getDetail(datum.getShortDetail()).getHeaders();
+    	DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
         
     	List<String> namesList = new ArrayList<String>();
     	        
-    	final int[] keyarray = new int[templates.length];
+    	final int[] keyarray = new int[fields.length];
     	
     	int currentSort = adapter.getCurrentSort();
     	boolean reversed = adapter.isCurrentSortReversed();
 
     	int added = 0;
-    	for(int i = 0 ; i < templates.length ; ++i) {
-    		String result = templates[i].evaluate();
+    	for(int i = 0 ; i < fields.length ; ++i) {
+    		String result = fields[i].getHeader().evaluate();
     		if(!"".equals(result)) {
     			String prepend = "";
     			if(currentSort == i) {
