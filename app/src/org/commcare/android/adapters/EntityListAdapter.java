@@ -7,14 +7,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -96,11 +102,58 @@ public class EntityListAdapter implements ListAdapter {
 		this.reverseSort = reverse;
 		
 		currentSort = field;
+		
+		final int i = d.getFields()[currentSort].getSortType();
 
 		java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
 
 			public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-				return (reverseSort ? -1 : 1) * object1.getSortFields()[currentSort].compareTo(object2.getSortFields()[currentSort]);
+				return (reverseSort ? -1 : 1) * getCmp(object1, object2);
+			}
+			
+			private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2) {
+				String a1 = object1.getSortFields()[currentSort];
+				String a2 = object2.getSortFields()[currentSort];
+				
+				//TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
+				//For now, regardless of typing, blanks are always smaller than non-blanks
+				if(a1.equals("")) {
+					if(a2.equals("")) { return 0; }
+					else { return -1; }
+				} else if(a2.equals("")) {
+					return 1;
+				}
+				
+				Comparable c1 = applyType(i, a1);
+				Comparable c2 = applyType(i, a2);
+				
+				if(c1 == null || c2 == null) {
+					//Don't do something smart here, just bail.
+					return -1;
+				}
+				
+				return c1.compareTo(c2);
+			}
+
+			private Comparable applyType(int sortType, String value) {
+				try {
+					if(sortType == Constants.DATATYPE_TEXT) {
+						return value.toLowerCase();
+					} else if(sortType == Constants.DATATYPE_INTEGER) {
+						//Double int compares just fine here and also
+						//deals with NaN's appropriately
+						return XPathFuncExpr.toInt(value);
+					} else if(sortType == Constants.DATATYPE_DECIMAL) {
+						return XPathFuncExpr.toDouble(value);
+					} else {
+						//Hrmmmm :/ Handle better?
+						return value;
+					} 
+				} catch(XPathTypeMismatchException e) {
+					//So right now this will fail 100% silently, which is bad.
+					return null;
+				}
+
 			}
 			
 		});
