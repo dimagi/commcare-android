@@ -44,14 +44,14 @@ public class EntityListAdapter implements ListAdapter {
 	List<TreeReference> references;
 	Detail d;
 	
-	int currentSort = -1;
+	int currentSort[] = {};
 	boolean reverseSort = false;
 	
 	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references)  throws SessionUnavailableException{
-		this(context, d, ec, references, -1);
+		this(context, d, ec, references, new int[0]);
 	}
 	
-	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references, int sort) throws SessionUnavailableException {
+	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references, int[] sort) throws SessionUnavailableException {
 		this.d = d;
 		factory = new NodeEntityFactory(d, ec);
 		
@@ -64,7 +64,7 @@ public class EntityListAdapter implements ListAdapter {
 		this.observers = new ArrayList<DataSetObserver>();
 
 		all();
-		if(sort != -1) {
+		if(sort.length != 0) {
 			sort(sort);
 		}
 		filterValues("");
@@ -93,27 +93,34 @@ public class EntityListAdapter implements ListAdapter {
 		}
 	}
 	
-	private void sort(int field) {
-		sort(field, currentSort == field ? !reverseSort : d.getFields()[field].getSortDirection() == DetailField.DIRECTION_DESCENDING);
+	private void sort(int[] fields) {
+		//The reversing here is only relevant if there's only one sort field and we're on it
+		sort(fields, (currentSort.length == 1 && currentSort[0] == fields[0]) ? !reverseSort : false);
 	}
 	
-	private void sort(int field, boolean reverse) {
+	private void sort(int[] fields, boolean reverse) {
 		
 		this.reverseSort = reverse;
 		
-		currentSort = field;
+		currentSort = fields;
 		
-		final int i = d.getFields()[currentSort].getSortType();
-
 		java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
+			
 
 			public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-				return (reverseSort ? -1 : 1) * getCmp(object1, object2);
+				for(int i = 0 ; i < currentSort.length ; ++i) {
+					boolean reverseLocal = (d.getFields()[currentSort[i]].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
+					int cmp =  (reverseLocal ? -1 : 1) * getCmp(object1, object2, currentSort[i]);
+					if(cmp != 0 ) { return cmp;}
+				}
+				return 0;
 			}
 			
-			private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-				String a1 = object1.getSortFields()[currentSort];
-				String a2 = object2.getSortFields()[currentSort];
+			private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
+				int i = d.getFields()[index].getSortType();
+				
+				String a1 = object1.getSortFields()[index];
+				String a2 = object2.getSortFields()[index];
 				
 				//TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
 				//For now, regardless of typing, blanks are always smaller than non-blanks
@@ -243,11 +250,11 @@ public class EntityListAdapter implements ListAdapter {
 		}
 	}
 	
-	public void sortEntities(int key) {
-		sort(key);
+	public void sortEntities(int[] keys) {
+		sort(keys);
 	}
 	
-	public int getCurrentSort() {
+	public int[] getCurrentSort() {
 		return currentSort;
 	}
 	

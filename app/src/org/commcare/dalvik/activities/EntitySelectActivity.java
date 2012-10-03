@@ -147,13 +147,11 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	String[] headers = new String[detail.getFields().length];
 	    	int[] order = detail.getSortOrder();
 	    	
-	    	//If we have a default sort order, use it!
-	    	int defaultKey = order.length == 0 ? -1 : order[0];
 	    	
 	    	for(int i = 0 ; i < headers.length ; ++i) {
 	    		headers[i] = detail.getFields()[i].getHeader().evaluate();
-	    		if(defaultKey == -1 && !"".equals(headers[i])) {
-	    			defaultKey = i;
+	    		if(order.length == 0 && !"".equals(headers[i])) {
+	    			order = new int[] {i}; 
 	    		}
 	    		
 	    		if("address".equals(detail.getFields()[i].getTemplateForm())) {
@@ -170,7 +168,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	
 	    	Vector<TreeReference> references = getEC().expandReference(selectDatum.getNodeset());
 	    	
-	    	adapter = new EntityListAdapter(this, detail, getEC(), references, defaultKey);
+	    	adapter = new EntityListAdapter(this, detail, getEC(), references, order);
 	    	setListAdapter(adapter);
 	    	
     	} catch(SessionUnavailableException sue) {
@@ -365,7 +363,9 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	        
     	final int[] keyarray = new int[fields.length];
     	
-    	int currentSort = adapter.getCurrentSort();
+    	int[] sorts = adapter.getCurrentSort();
+    	
+    	int currentSort = sorts.length == 1 ? sorts[0] : -1;
     	boolean reversed = adapter.isCurrentSortReversed();
 
     	int added = 0;
@@ -373,8 +373,14 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     		String result = fields[i].getHeader().evaluate();
     		if(!"".equals(result)) {
     			String prepend = "";
-    			if(currentSort == i) {
-    				prepend = reversed ? "(v) " : "(^) ";
+    			if(currentSort == -1) {
+    				for(int j = 0 ; j < sorts.length ; ++ j) {
+    					if(sorts[j] == i) {
+    						prepend = (j+1) + " " + (fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ");
+    					}
+    				}
+    			} else if(currentSort == i) {
+    				prepend = reversed ^ fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ";
     			}
     			namesList.add(prepend + result); 
     			keyarray[added] = i;
@@ -386,7 +392,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	    	
         builder.setItems(names, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-            	adapter.sortEntities(keyarray[item]);
+            	adapter.sortEntities(new int[] { keyarray[item]});
             	adapter.applyFilter(searchbox.getText().toString());
             }
         });
