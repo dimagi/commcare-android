@@ -3,7 +3,7 @@
       android:versionName="2.1" android:versionCode="106">
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <application android:icon="@drawable/icon" android:label="@string/application_name" android:debuggable="true" android:theme="@android:style/Theme.Light" android:name=".application.CommCareApplication">
+    <application android:icon="@drawable/icon" android:label="@string/application_name" android:debuggable="false" android:theme="@android:style/Theme.Light" android:name=".application.CommCareApplication">
         <activity android:label="@string/application_name" android:name=".activities.CommCareHomeActivity" android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
