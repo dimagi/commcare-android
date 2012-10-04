@@ -271,6 +271,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     		}
     		break;
     	case CONFIRM_SELECT:
+	        resuming = true;
     		if(resultCode == RESULT_OK) {
     	        // create intent for return and store path
     	        Intent i = new Intent(this.getIntent());
@@ -287,7 +288,6 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	            	this.startActivityForResult(i, MAP_SELECT);
 	            	return;
 	    		}
-    	        resuming = true;
         		return;
     		}
     	case MAP_SELECT:
