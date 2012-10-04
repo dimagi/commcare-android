@@ -94,9 +94,6 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
         
-        searchbox.addTextChangedListener(this);
-        searchbox.requestFocus();
-        
         session = CommCareApplication._().getCurrentSession();
         
 		Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
@@ -120,18 +117,31 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         	
         });
         
-        if(selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+        searchbox.addTextChangedListener(this);
+        searchbox.requestFocus();
+    }
+    
+    boolean resuming = false;
+    
+    public void onResume() {
+    	super.onResume();
+    	
+        if(!resuming && selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
         	TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
         	
         	if(entity != null) {
+        		//Once we've done the initial dispatch, we don't want to end up triggering it later.
+        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
+        		
         		Intent i = getDetailIntent(entity);
         		startActivityForResult(i, CONFIRM_SELECT);
-        	} else {
-        		refreshView();
+        		return;
         	}
-        } else {
-            refreshView();
-        }
+        } 
+    	
+    	if(adapter == null) {
+            refreshView();	
+    	}
     }
 
 
@@ -277,12 +287,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	            	this.startActivityForResult(i, MAP_SELECT);
 	            	return;
 	    		}
-    	        Intent i = new Intent(this.getIntent());
-    	        setResult(RESULT_CANCELED, i);
-    	        //If the original calling intent bounced us up immediately, we need to refresh
-    	        if(this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-    	        	refreshView();
-    	        }
+    	        resuming = true;
         		return;
     		}
     	case MAP_SELECT:
@@ -308,7 +313,9 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 
 	public void afterTextChanged(Editable s) {
 		if(searchbox.getText() == s) {
-			adapter.applyFilter(s.toString());
+			if(adapter != null) {
+				adapter.applyFilter(s.toString());
+			}
 		}
 	}
 

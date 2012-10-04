@@ -409,7 +409,7 @@ public class CommCareSessionService extends Service  {
 					} else if (progress < 1024 * 1024) {
 						progressDetails =  String.format("%1$,.1f", (progress / 1024.0))+ "kb transmitted";
 					} else {
-						progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0)))+ "mb transmitted";
+						progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0)))+ "mb transmitted";	
 					}
 					
 					int pending = ProcessAndSendTask.pending();
