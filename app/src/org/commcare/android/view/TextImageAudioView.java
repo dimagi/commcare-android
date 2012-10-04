@@ -71,11 +71,13 @@ public class TextImageAudioView extends RelativeLayout {
             new RelativeLayout.LayoutParams(imageDimension,imageDimension);
         
         String audioFilename = "";
-        try {
-            audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
-        } catch (InvalidReferenceException e) {
-            Log.e(t, "Invalid reference exception");
-            e.printStackTrace();
+        if(audioURI != "") {
+		    try {
+		        audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+		    } catch (InvalidReferenceException e) {
+		        Log.e(t, "Invalid reference exception");
+		        e.printStackTrace();
+		    }
         }
 
         File audioFile = new File(audioFilename);
@@ -95,7 +97,7 @@ public class TextImageAudioView extends RelativeLayout {
 
         // Now set up the image view
         String errorMsg = null;
-        if (imageURI != null) {
+        if (imageURI != "") {
             try {
                 String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);

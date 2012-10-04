@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="NotificationText">
       <item name="android:textColor">#FFFFFF</item>
     </style>
@@ -55,5 +55,15 @@
   
    <color name="grey_grad_start">#80D3D3D3</color>
    <color name="grey_grad_end">#A0D3D3D3</color>
-    
+   
+   
+      
+   <style name="Animation" />
+   
+   <style name="Animation.ScreenAnimations">
+    <item name="android:activityOpenEnterAnimation">@anim/push_left_in</item>
+    <item name="android:activityOpenExitAnimation">@anim/push_left_out</item>
+    <item name="android:activityCloseEnterAnimation">@anim/push_right_in</item>
+    <item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
+   </style>
 </resources>

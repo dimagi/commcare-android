@@ -644,7 +644,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 				session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
 			}
 			startNextFetch();
-			return;
+    	}
+    	
+    	if(lastPopped != null) {
+    		//overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
     	}
     }
     

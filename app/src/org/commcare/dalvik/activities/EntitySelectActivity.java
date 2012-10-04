@@ -125,6 +125,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     
     public void onResume() {
     	super.onResume();
+    	//Don't go through making the whole thing if we're finishing anyway.
+    	if(this.isFinishing()) {return;}
     	
         if(!resuming && selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
         	TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
