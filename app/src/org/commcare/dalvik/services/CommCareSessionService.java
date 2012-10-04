@@ -138,7 +138,7 @@ public class CommCareSessionService extends Service  {
     // This is the object that receives interactions from clients.  See
     // RemoteService for a more complete example.
     private final IBinder mBinder = new LocalBinder();
-
+    
     /**
      * Show a notification while this service is running.
      */
@@ -150,8 +150,13 @@ public class CommCareSessionService extends Service  {
         // Set the icon, scrolling text and timestamp
         Notification notification = new Notification(org.commcare.dalvik.R.drawable.notification, text, System.currentTimeMillis());
 
+        //We always want this click to simply bring the live stack back to the top
+        Intent callable = new Intent(this, CommCareHomeActivity.class);
+        callable.setAction("android.intent.action.MAIN");
+        callable.addCategory("android.intent.category.LAUNCHER");  
+
         // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, CommCareHomeActivity.class), 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
 
         // Set the info for the views that show in the notification panel.
         notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.notificationtitle), text, contentIntent);
@@ -355,9 +360,14 @@ public class CommCareSessionService extends Service  {
 		        submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(1, totalItems), System.currentTimeMillis());
 		        submissionNotification.flags |= (Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
 
+		        //We always want this click to simply bring the live stack back to the top
+		        Intent callable = new Intent(CommCareSessionService.this, CommCareHomeActivity.class);
+		        callable.setAction("android.intent.action.MAIN");
+		        callable.addCategory("android.intent.category.LAUNCHER");
+		        
 		        // The PendingIntent to launch our activity if the user selects this notification
 		        //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
-		        PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, new Intent(CommCareSessionService.this, CommCareHomeActivity.class), 0);
+		        PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
 
 		        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.submit_notification);
 		        contentView.setImageViewResource(R.id.image, R.drawable.notification);
