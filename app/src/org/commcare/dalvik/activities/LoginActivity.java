@@ -19,6 +19,7 @@ import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localization;
 
@@ -84,6 +85,15 @@ public class LoginActivity extends Activity implements DataPullListener {
         username = (EditText)findViewById(R.id.edit_username);
         
         password = (EditText)findViewById(R.id.edit_password);
+        
+        //Only on the initial creation
+        if(savedInstanceState ==null) {
+        	String lastUser = PreferenceManager.getDefaultSharedPreferences(this).getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        	if(lastUser != null) {
+        		username.setText(lastUser);
+        		password.requestFocus();
+        	}
+        }        
         
         checkServer = (CheckBox)findViewById(R.id.checkserver);
         

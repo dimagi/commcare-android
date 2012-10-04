@@ -652,6 +652,9 @@ public class CommCareApplication extends Application {
 					updatePending = getPendingUpdateStatus();
 					
 					doReportMaintenance();
+					
+					//Register that this user was the last to succesfully log in
+					CommCareApplication.this.appPreferences.edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, user.getUsername()).commit();
 				}
 		    }
 

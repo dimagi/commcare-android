@@ -57,6 +57,9 @@ public class CommCarePreferences extends PreferenceActivity {
 	public final static String FORM_MANAGEMENT = "cc-form-management";
 	public final static String PROPERTY_ENABLED = "enabled";
 	public final static String PROPERTY_DISABLED = "disabled";
+	
+	
+	public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
 
 	
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
