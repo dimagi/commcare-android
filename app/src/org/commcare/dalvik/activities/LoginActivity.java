@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.User;
 import org.commcare.android.models.notifications.NotificationMessage;
@@ -15,7 +16,6 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;

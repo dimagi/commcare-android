@@ -71,7 +71,7 @@ public class TextImageAudioView extends RelativeLayout {
             new RelativeLayout.LayoutParams(imageDimension,imageDimension);
         
         String audioFilename = "";
-        if(audioURI != "") {
+        if(audioURI != null && !audioURI.equals("")) {
 		    try {
 		        audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
 		    } catch (InvalidReferenceException e) {
@@ -83,7 +83,7 @@ public class TextImageAudioView extends RelativeLayout {
         File audioFile = new File(audioFilename);
 
         // First set up the audio button
-        if (audioURI != null && audioFile.exists()) {
+        if (audioFilename != "" && audioFile.exists()) {
             // An audio file is specified
             mAudioButton = new AudioButton(getContext(), audioURI);
             mAudioButton.setId(3245345); // random ID to be used by the relative layout.
@@ -97,7 +97,7 @@ public class TextImageAudioView extends RelativeLayout {
 
         // Now set up the image view
         String errorMsg = null;
-        if (imageURI != "") {
+        if (imageURI != null && !imageURI.equals("")) {
             try {
                 String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);

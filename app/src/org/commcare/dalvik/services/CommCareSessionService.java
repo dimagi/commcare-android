@@ -15,12 +15,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.crypt.CipherPool;
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;

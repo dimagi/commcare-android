@@ -13,8 +13,8 @@ import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.util.Base64;
-import org.commcare.android.util.CryptUtil;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
