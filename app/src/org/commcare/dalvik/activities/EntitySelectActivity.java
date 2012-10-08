@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.models.Entity;
+import org.commcare.android.tasks.EntityLoaderListener;
+import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
@@ -53,7 +56,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends ListActivity implements TextWatcher {
+public class EntitySelectActivity extends ListActivity implements TextWatcher, EntityLoaderListener {
 	private CommCareSession session;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
@@ -79,6 +82,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	boolean mResultIsMap = false;
 	
 	boolean mMappingEnabled = false;
+	
+	private EntityLoaderTask loader;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -119,6 +124,14 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
+        
+        
+        Object o = this.getLastNonConfigurationInstance();
+        if(o != null && o instanceof EntityListAdapter) {
+        	adapter = (EntityListAdapter)o;
+        	this.setListAdapter(adapter);
+        	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        }
     }
     
     boolean resuming = false;
@@ -147,30 +160,37 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     }
 
 
-    /**
+    /* (non-Javadoc)
+	 * @see android.app.Activity#onRetainNonConfigurationInstance()
+	 */
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		if(adapter != null) { 
+			return adapter;
+		} else {
+			return super.onRetainNonConfigurationInstance();
+		}
+	}
+
+
+	/**
      * Get form list from database and insert into view.
      */
     private void refreshView() {
     	try {
-    		
-	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
+	    	final Detail detail = session.getDetail(selectDatum.getShortDetail());
 	    	
 	    	//TODO: Get ec into these text's
 	    	String[] headers = new String[detail.getFields().length];
-	    	int[] order = detail.getSortOrder();
-	    	
 	    	
 	    	for(int i = 0 ; i < headers.length ; ++i) {
 	    		headers[i] = detail.getFields()[i].getHeader().evaluate();
-	    		if(order.length == 0 && !"".equals(headers[i])) {
-	    			order = new int[] {i}; 
-	    		}
-	    		
 	    		if("address".equals(detail.getFields()[i].getTemplateForm())) {
 	    			this.mMappingEnabled = true;
 	    		}
 	    	}
 	    	
+	    	//Hm, sadly we possibly need to rebuild this each time. 
 	    	EntityView v = new EntityView(this, detail, headers);
 	    	header.removeAllViews();
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -178,11 +198,12 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	    	header.addView(v,params);
 	    	
 	    	
-	    	Vector<TreeReference> references = getEC().expandReference(selectDatum.getNodeset());
-	    	
-	    	adapter = new EntityListAdapter(this, detail, getEC(), references, order);
-	    	setListAdapter(adapter);
-	    	
+	    	if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
+	    		EntityLoaderTask theloader = new EntityLoaderTask(detail, getEC());
+		    	theloader.attachListener(this);
+		    	
+		    	theloader.execute(selectDatum.getNodeset());
+	    	}
     	} catch(SessionUnavailableException sue) {
     		//TODO: login and return
     	}
@@ -416,4 +437,42 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         AlertDialog alert = builder.create();
         alert.show();
     }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	if(loader != null) {
+    		if(isFinishing()) {
+    			loader.cancel(false);
+    		} else {
+    			loader.detachActivity();
+    		}
+    	}
+    }
+
+
+	@Override
+	public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references) {
+		loader = null;
+		Detail detail = session.getDetail(selectDatum.getShortDetail());
+		int[] order = detail.getSortOrder();
+
+    	for(int i = 0 ; i < detail.getFields().length ; ++i) {
+    		String header = detail.getFields()[i].getHeader().evaluate();
+    		if(order.length == 0 && !"".equals(header)) {
+    			order = new int[] {i}; 
+    		}
+    	}
+		
+		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order);
+    	setListAdapter(adapter);
+    	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+	}
+
+
+	@Override
+	public void attach(EntityLoaderTask task) {
+		findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
+		this.loader = task;
+	}
 }

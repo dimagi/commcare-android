@@ -6,6 +6,7 @@ package org.commcare.android.adapters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Vector;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
@@ -38,7 +39,6 @@ public class EntityListAdapter implements ListAdapter {
 	
 	List<DataSetObserver> observers;
 	
-	NodeEntityFactory factory;
 	List<Entity<TreeReference>> full;
 	List<Entity<TreeReference>> current;
 	List<TreeReference> references;
@@ -47,38 +47,23 @@ public class EntityListAdapter implements ListAdapter {
 	int currentSort[] = {};
 	boolean reverseSort = false;
 	
-	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references)  throws SessionUnavailableException{
-		this(context, d, ec, references, new int[0]);
-	}
-	
-	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references, int[] sort) throws SessionUnavailableException {
+	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, List<Entity<TreeReference>> full, int[] sort) throws SessionUnavailableException {
 		this.d = d;
-		factory = new NodeEntityFactory(d, ec);
 		
-		full = new ArrayList<Entity<TreeReference>>();
+		this.full = full;
 		current = new ArrayList<Entity<TreeReference>>();
-		
 		this.references = references;
+		
 		
 		this.context = context;
 		this.observers = new ArrayList<DataSetObserver>();
 
-		all();
 		if(sort.length != 0) {
 			sort(sort);
 		}
 		filterValues("");
 	}
-	
-	private void all() throws SessionUnavailableException{
-		for(TreeReference ref : references) {
-			Entity<TreeReference> e = factory.getEntity(ref);
-			if(e != null) {
-				full.add(e);
-			}
-		}
-	}
-	
+
 	private void filterValues(String filter) {
 		current.clear();
 		
@@ -215,7 +200,7 @@ public class EntityListAdapter implements ListAdapter {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if(emv == null) {
-			emv = new EntityView(context, factory.getDetail(), e);
+			emv = new EntityView(context, d, e);
 		} else{
 			emv.setParams(e);
 		}
