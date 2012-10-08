@@ -6,18 +6,14 @@ package org.commcare.android.tasks;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 import android.os.AsyncTask;
 import android.util.Pair;
-import android.view.View;
 
 
 /**

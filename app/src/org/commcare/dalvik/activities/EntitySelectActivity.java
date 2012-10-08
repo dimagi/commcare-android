@@ -154,9 +154,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
         	}
         } 
     	
-    	if(adapter == null) {
-            refreshView();	
-    	}
+        refreshView();	
     }
 
 
