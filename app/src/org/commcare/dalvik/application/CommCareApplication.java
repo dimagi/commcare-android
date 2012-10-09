@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -66,7 +67,6 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.SizeBoundVector;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -650,6 +650,7 @@ public class CommCareApplication extends Application {
 					//See if there's an auto-update pending. We only want to be able to turn this
 					//to "True" on login, not any other time
 					updatePending = getPendingUpdateStatus();
+					syncPending = getPendingSyncStatus();
 					
 					doReportMaintenance();
 					
@@ -712,19 +713,33 @@ public class CommCareApplication extends Application {
 		return false;
 	}
 	
-	private boolean isPending(long last, long duration) {
+	private boolean isPending(long last, long period) {
 		Date current = new Date();
 		//There are a couple of conditions in which we want to trigger pending maintenance ops.
 		
-		//1) Straightforward - Time is greater than last + duration 
-		if(current.getTime() - last > duration) {
+		long now = current.getTime();
+		
+		//1) Straightforward - Time is greater than last + duration
+		long diff = now - last;
+		if( diff > period) {
 			return true;
 		}
 		
-		//2) Major time change - (Phone might have had its calendar day manipulated).
+		Calendar lastRestoreCalendar = Calendar.getInstance();
+		lastRestoreCalendar.setTimeInMillis(last);
+		
+		//2) For daily stuff, we want it to be the case that if the last time you synced was the day prior, 
+		//you still sync, so people can get into the cycle of doing it once in the morning, which
+		//is more valuable than syncing mid-day.		
+		if(period == DateUtils.DAY_IN_MILLIS && 
+		   (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
+			return true;
+		}
+		
+		//3) Major time change - (Phone might have had its calendar day manipulated).
 		//for now we'll simply say that if last was more than a day in the future (timezone blur)
 		//we should also trigger
-		if(current.getTime() < (last - DateUtils.DAY_IN_MILLIS)) {
+		if(now < (last - DateUtils.DAY_IN_MILLIS)) {
 			return true;
 		}
 		
@@ -862,8 +877,51 @@ public class CommCareApplication extends Application {
 			else { updateMessageNotification(); }
 		}
 	}
-	
-	
+    	
 	// End - Error Message Hooks
+	
+    private boolean syncPending = false;
+    
+    /**
+     * @return True if there is a sync action pending. False otherwise.
+     */
+    private boolean getPendingSyncStatus() {
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	
+    	long period = -1;
+    	
+    	//Old flag, use a day by default
+    	if("true".equals(prefs.getString("cc-auto-update","false"))) { period = DateUtils.DAY_IN_MILLIS;}
+    	
+    	//new flag, read what it is.
+    	String periodic = prefs.getString(CommCarePreferences.AUTO_SYNC_FREQUENCY,CommCarePreferences.NEVER);
+    	
+    	if(!periodic.equals(CommCarePreferences.NEVER)) {
+    		period = DateUtils.DAY_IN_MILLIS * (periodic.equals(CommCarePreferences.FREQUENCY_DAILY) ? 1 : 7);
+    	}
+    	
+    	//If we didn't find a period, bail
+    	if(period == -1 ) { return false; }
 
+		
+		long lastRestore = prefs.getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
+		
+		if(isPending(lastRestore, period)) {
+			return true;
+		}
+		return false;
+    }
+
+	public synchronized boolean isSyncPending(boolean clearFlag) {
+		//We only set this to true occasionally, but in theory it could be set to false 
+		//from other factors, so turn it off if it is.
+		if(getPendingSyncStatus() == false) {
+			syncPending = false;
+		}
+		if(!syncPending) { return false; }
+		if(clearFlag) { syncPending = false; }
+		return true;
+	}
+	
+	public void clearPendingSyncs() { syncPending = false; }
 }

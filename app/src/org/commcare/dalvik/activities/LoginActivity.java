@@ -59,8 +59,6 @@ public class LoginActivity extends Activity implements DataPullListener {
 	EditText username;
 	EditText password;
 	
-	CheckBox checkServer;
-	
 	public static final int DIALOG_CHECKING_SERVER = 0;
 	
 	SqlIndexedStorageUtility<User> storage;
@@ -95,13 +93,11 @@ public class LoginActivity extends Activity implements DataPullListener {
         	}
         }        
         
-        checkServer = (CheckBox)findViewById(R.id.checkserver);
-        
         login.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View arg0) {
-				//If they don't manually want to check the server, try logging in locally
-				if(!checkServer.isChecked() && tryLocalLogin()) {
+				//Try logging in locally
+				if(tryLocalLogin()) {
 					return;
 				}
 				
@@ -127,26 +123,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         TextView versionDisplay = (TextView)findViewById(R.id.str_version);
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
     }
-    
-    private void autoUpdateConfig() {
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
-    	
-    	if(!"true".equals(prefs.getString("cc-auto-update","false"))) { return;}
-		
-		long now = new Date().getTime();
-		
-		long lastRestore = prefs.getLong("last-ota-restore", 0);
-		Calendar lastRestoreCalendar = Calendar.getInstance();
-		lastRestoreCalendar.setTimeInMillis(lastRestore);
-		
-		if(now - lastRestore > DateUtils.DAY_IN_MS || (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
-			//If it's been more than 24 hrs since the last update or if it's the next day. 
-			checkServer.setChecked(true);
-			checkServer.setEnabled(false);
-		}
-		checkServer.setText(Localization.get("login.sync"));
-    }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -178,7 +155,6 @@ public class LoginActivity extends Activity implements DataPullListener {
     	userLabel.setText(Localization.get("login.username"));
     	passLabel.setText(Localization.get("login.password"));
     	login.setText(Localization.get("login.button"));
-    	autoUpdateConfig();
     }
     
     private String getUsername() {
