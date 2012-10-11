@@ -61,7 +61,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 		super(parser, null, null);
 		this.c = c;
 		this.namespaces = namespaces;
-		destination = CommCareApplication._().fsPath(GlobalConstants.FILE_CC_SAVED);
+		destination = CommCareApplication._().fsPath(GlobalConstants.FILE_CC_FORMS);
 	}
 	
 	@Override

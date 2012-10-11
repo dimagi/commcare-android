@@ -703,7 +703,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		i.setAction(Intent.ACTION_EDIT);
 		
 		
-		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_SAVED)));
+		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_FORMS)));
 		
 		//See if there's existing form data that we want to continue entering (note, this should be stored in the form
 		///record as a URI link to the instance provider in the future)

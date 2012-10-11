@@ -297,7 +297,7 @@ public class CommCareApplication extends Application {
 	}
     
     private void createPaths() {
-    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE, GlobalConstants.FILE_CC_STORED, GlobalConstants.FILE_CC_MEDIA, GlobalConstants.FILE_CC_LOGS};
+    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA, GlobalConstants.FILE_CC_LOGS};
     	for(String path : paths) {
     		File f = new File(fsPath(path));
     		if(!f.exists()) {
@@ -652,7 +652,7 @@ public class CommCareApplication extends Application {
 					updatePending = getPendingUpdateStatus();
 					syncPending = getPendingSyncStatus();
 					
-					doReportMaintenance();
+					doReportMaintenance(false);
 					
 					//Register that this user was the last to succesfully log in
 					CommCareApplication.this.appPreferences.edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, user.getUsername()).commit();
@@ -676,7 +676,7 @@ public class CommCareApplication extends Application {
 	    mIsBinding = true;
 	}
 	
-	protected void doReportMaintenance() {
+	protected void doReportMaintenance(boolean force) {
 		//OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
 		
 		
@@ -691,7 +691,7 @@ public class CommCareApplication extends Application {
 		}
 		
 		LogSubmissionTask task = new LogSubmissionTask(this,
-				isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
+				force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
 				CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title),
 				url);
 		
@@ -922,6 +922,21 @@ public class CommCareApplication extends Application {
 		if(clearFlag) { syncPending = false; }
 		return true;
 	}
-	
-	public void clearPendingSyncs() { syncPending = false; }
+
+	public boolean isStorageAvailable() {
+		try {
+			File storageRoot = new File(this.fsPath(GlobalConstants.FILE_CC_ROOT));
+			return storageRoot.exists();
+		} catch(Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Notify the application that something has occurred which has been logged, and which should
+	 * cause log submission to occur as soon as possible.
+	 */
+	public void notifyLogsPending() {
+		doReportMaintenance(true);
+	}
 }
