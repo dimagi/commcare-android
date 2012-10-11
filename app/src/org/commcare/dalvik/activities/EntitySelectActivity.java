@@ -80,6 +80,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	
 	boolean mMappingEnabled = false;
 	
+	boolean mViewMode = false;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +103,11 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         
 		Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
 		prototype = entries.elementAt(0);
+		
+		//(We shouldn't need the "" here, but we're avoiding making changes to commcare core for release issues)
+		if(entries.size() == 1 && prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals("")) {
+			mViewMode = true;
+		}
         
         setTitle(getString(R.string.application_name) + " > " + " Select");
         
@@ -260,7 +267,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     		}
     		break;
     	case CONFIRM_SELECT:
-    		if(resultCode == RESULT_OK) {
+    		if(resultCode == RESULT_OK && !mViewMode) {
     	        // create intent for return and store path
     	        Intent i = new Intent(this.getIntent());
     	        
