@@ -134,7 +134,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 			//to submit.
 			
 			int numberOfLogsToSubmit = storage.getNumRecords();
-			
+			if(numberOfLogsToSubmit == 0) {
+				//Good to go.
+				return LogSubmitOutcomes.Submitted;
+			}
+
 			//Signal to the listener that we're ready to submit
 			this.beginSubmissionProcess(numberOfLogsToSubmit);
 			
