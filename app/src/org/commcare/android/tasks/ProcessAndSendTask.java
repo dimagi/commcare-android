@@ -126,13 +126,6 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 			//Assume failure
 			results[i] = FAILURE;
 		}
-		System.out.println("DO IT NOW!");
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		//The first thing we need to do is make sure everything is processed,
 		//we can't actually proceed before that.
 		for(int i = 0 ; i < records.length ; ++i) {
@@ -143,19 +136,19 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				try {
 					records[i] = process(record);
 				} catch (InvalidStructureException e) {
-					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions));
+					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
 					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					needToSendLogs = true;
 					continue;
 				} catch (XmlPullParserException e) {
-					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions));
+					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
 					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					needToSendLogs = true;
 					continue;
 				} catch (UnfullfilledRequirementsException e) {
-					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions));
+					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
 					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					needToSendLogs = true;
@@ -169,7 +162,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 						Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
 						new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					} else {
-						CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved));
+						CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
 						//Otherwise, the SD card just got removed, and we need to bail anyway.
 						return (int)PROGRESS_SDCARD_REMOVED;
 					}
@@ -245,7 +238,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 							new FormRecordCleanupTask(c, platform).wipeRecord(record);
 						} else {
 							//Otherwise, the SD card just got removed, and we need to bail anyway.
-							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved));
+							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
 							break;
 						}
 						continue;
@@ -320,7 +313,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				return null;
 			}
 			
-		}, true);
+		}, true, true);
 		
 		parser.parse();
 		is.close();

@@ -221,7 +221,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 			//OK, all forms sent, sync time 
                 			syncData();
                 			
-                		} else {
+                		} else if(result == ProcessAndSendTask.FAILURE) {
+                			currentHome.dismissDialog(mCurrentDialog);
+                			//Display your own message otherwise
+                		} else  {
                 			currentHome.dismissDialog(mCurrentDialog);
                 			Toast.makeText(currentHome, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                 		}
@@ -1056,6 +1059,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			Toast.makeText(this, label, Toast.LENGTH_LONG).show();
 		} else if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
 			returnToLogin(Localization.get("app.workflow.login.lost"));
+		} else if(result == ProcessAndSendTask.FAILURE) {
+			//Failures make their own notification box
 		} else {
 			Toast.makeText(this, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
 		}

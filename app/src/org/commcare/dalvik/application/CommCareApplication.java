@@ -88,14 +88,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
 /**
  * @author ctsims
@@ -806,7 +810,21 @@ public class CommCareApplication extends Application {
     private int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
 	
     ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
-	public void reportNotificationMessage(NotificationMessage message) {
+    
+    Handler toaster = new Handler(){
+	    @Override
+	    public void handleMessage(Message m) {
+	    	NotificationMessage message = m.getData().getParcelable("message");
+			Toast.makeText(CommCareApplication.this,
+					Localization.get("install.error.details", new String[] {message.getTitle()}),
+					Toast.LENGTH_LONG).show();
+	    }
+	};
+    
+    public void reportNotificationMessage(NotificationMessage message) {
+    	reportNotificationMessage(message, false);
+    }
+	public void reportNotificationMessage(final NotificationMessage message, boolean notifyUser) {
 		synchronized(pendingMessages) {
 			//make sure there is no matching message pending
 			for(NotificationMessage msg : pendingMessages) {
@@ -814,6 +832,12 @@ public class CommCareApplication extends Application {
 					//If so, bail.
 					return;
 				}
+			}
+			if(notifyUser) {
+				Bundle b = new Bundle(); b.putParcelable("message", message);
+				Message m = Message.obtain(toaster);
+				m.setData(b);
+				toaster.sendMessage(m);
 			}
 			
 			//Otherwise, add it to the queue, and update the notification
