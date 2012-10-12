@@ -58,6 +58,7 @@ public class TextImageAudioView extends RelativeLayout {
 
 
     public void setAVT(TextView text, String audioURI, String imageURI) {
+    	this.removeAllViews();
         mView_Text = text;
         mView_Text.setTextSize(fontSize);
         mView_Text.setPadding(20, 15, 15, 20);
