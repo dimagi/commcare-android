@@ -20,6 +20,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
 import org.commcare.android.models.SessionStateDescriptor;
@@ -316,10 +317,10 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 					formRecordId = ssdFrid;
 				} else if(formRecordId != ssdFrid) {
 					//Not good.
-					Logger.log("record-cleanup", "Inconsistent formRecordId's in session storage");
+					Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Inconsistent formRecordId's in session storage");
 				}
 			} catch(Exception e) {
-				Logger.log("record-cleanup", "Session ID exists, but with no record (or broken record)");
+				Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Session ID exists, but with no record (or broken record)");
 			}
 		}
 		String dataPath = null;
@@ -337,11 +338,11 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 						sessionId = sessionIds.firstElement();
 					} else if(sessionIds.size() > 1) {
 						sessionId = sessionIds.firstElement();
-						Logger.log("record-cleanup", "Multiple session ID's pointing to the same form record");
+						Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Multiple session ID's pointing to the same form record");
 					}
 				}
 			} catch(Exception e) {
-				Logger.log("record-cleanup", "Session ID exists, but with no record (or broken record)");
+				Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Session ID exists, but with no record (or broken record)");
 			}
 		}
 		

@@ -31,6 +31,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.HttpRequestGenerator;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
@@ -39,7 +40,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
 
 /**
  * @author ctsims
@@ -86,101 +86,109 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
 	@Override
 	protected LogSubmitOutcomes doInBackground(Void... params) {
-		SqlIndexedStorageUtility<DeviceReportRecord> storage = CommCareApplication._().getStorage(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class);
-		
-		//First, see if we're supposed to serialize the current logs
-		if(serializeCurrentLogs) {
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+		try {
+			SqlIndexedStorageUtility<DeviceReportRecord> storage = CommCareApplication._().getStorage(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class);
 			
-			//update the last recorded record
-			settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
-
-			
-			//TODO: Test for logged in
-			DeviceReportRecord record = DeviceReportRecord.GenerateNewRecordStub();
-			
-			//Ok, so first, we're going to write the logs to disk in an encrypted file 
-			try {
-				DeviceReportWriter reporter;
+			//First, see if we're supposed to serialize the current logs
+			if(serializeCurrentLogs) {
+				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+				
+				//update the last recorded record
+				settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
+	
+				
+				//TODO: Test for logged in
+				DeviceReportRecord record = DeviceReportRecord.GenerateNewRecordStub();
+				
+				//Ok, so first, we're going to write the logs to disk in an encrypted file 
 				try {
-					//Create a report writer
-					reporter = new DeviceReportWriter(record);
-				} catch(IOException e) {
-					//TODO: Bad local file (almost certainly). Throw a better message! 
+					DeviceReportWriter reporter;
+					try {
+						//Create a report writer
+						reporter = new DeviceReportWriter(record);
+					} catch(IOException e) {
+						//TODO: Bad local file (almost certainly). Throw a better message! 
+						e.printStackTrace();
+						return LogSubmitOutcomes.Error;
+					}
+					
+					//Add the logs as the primary payload
+					AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+					reporter.addReportElement(serializer);
+					
+					//serialize logs
+					reporter.write();
+					
+					//Write the record for where the logs are now saved to.
+					storage.write(record);
+					
+					//The logs are saved and recorded, so we can feel safe clearing the logs we serialized. 
+					serializer.purge();
+				} catch (Exception e) {
+					//Bad times!
 					e.printStackTrace();
 					return LogSubmitOutcomes.Error;
 				}
-				
-				//Add the logs as the primary payload
-				AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
-				reporter.addReportElement(serializer);
-				
-				//serialize logs
-				reporter.write();
-				
-				//Write the record for where the logs are now saved to.
-				storage.write(record);
-				
-				//The logs are saved and recorded, so we can feel safe clearing the logs we serialized. 
-				serializer.purge();
-			} catch (Exception e) {
-				//Bad times!
-				e.printStackTrace();
-				return LogSubmitOutcomes.Error;
 			}
-		}
-		//Alright, now regardless of whether or not we serialized one, we should see how many we have pending
-		//to submit.
-		
-		int numberOfLogsToSubmit = storage.getNumRecords();
-		
-		//Signal to the listener that we're ready to submit
-		this.beginSubmissionProcess(numberOfLogsToSubmit);
-		
-		int index = 0;
-		ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<Integer>();
-		ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<DeviceReportRecord>();
-		for(DeviceReportRecord slr : storage) {
-			try {
-				if(submit(slr, index)) {
-					submittedSuccesfullyIds.add(slr.getID());
-					submittedSuccesfully.add(slr);
+			//Alright, now regardless of whether or not we serialized one, we should see how many we have pending
+			//to submit.
+			
+			int numberOfLogsToSubmit = storage.getNumRecords();
+			if(numberOfLogsToSubmit == 0) {
+				//Good to go.
+				return LogSubmitOutcomes.Submitted;
+			}
+
+			//Signal to the listener that we're ready to submit
+			this.beginSubmissionProcess(numberOfLogsToSubmit);
+			
+			int index = 0;
+			ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<Integer>();
+			ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<DeviceReportRecord>();
+			for(DeviceReportRecord slr : storage) {
+				try {
+					if(submit(slr, index)) {
+						submittedSuccesfullyIds.add(slr.getID());
+						submittedSuccesfully.add(slr);
+					}
+					index++;
+				} catch(Exception e) {
+					
 				}
-				index++;
-			} catch(Exception e) {
-				
 			}
-		}
-		try {
-		//Wipe the DB entries
-		storage.remove(submittedSuccesfullyIds);
-
-		} catch(Exception e) {
-			e.printStackTrace();
-			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Error deleting logs!" + e.getMessage());
-			return LogSubmitOutcomes.Serialized;
-		}
-		//Try to wipe the files, too, now that the file's submitted. (Not a huge deal if this fails, though)
-		for(DeviceReportRecord record : submittedSuccesfully) {
-			try{
-				File f = new File(record.getFilePath());
-				f.delete();
+			try {
+			//Wipe the DB entries
+			storage.remove(submittedSuccesfullyIds);
+	
 			} catch(Exception e) {
-				//TODO: Anything useful here?
+				e.printStackTrace();
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Error deleting logs!" + e.getMessage());
+				return LogSubmitOutcomes.Serialized;
 			}
-		}
-		if(submittedSuccesfully.size() > 0) {
-			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
-		}
-		//Whether this is a full or partial success depends on how many logs were pending
-		if(submittedSuccesfully.size() == numberOfLogsToSubmit) {
-			//Submitted all the logs we had
-			return LogSubmitOutcomes.Submitted;
-		} else {
-			Logger.log(AndroidLogger.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
-
-			//Some remain unsent
-			return LogSubmitOutcomes.Serialized;
+			//Try to wipe the files, too, now that the file's submitted. (Not a huge deal if this fails, though)
+			for(DeviceReportRecord record : submittedSuccesfully) {
+				try{
+					File f = new File(record.getFilePath());
+					f.delete();
+				} catch(Exception e) {
+					//TODO: Anything useful here?
+				}
+			}
+			if(submittedSuccesfully.size() > 0) {
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
+			}
+			//Whether this is a full or partial success depends on how many logs were pending
+			if(submittedSuccesfully.size() == numberOfLogsToSubmit) {
+				//Submitted all the logs we had
+				return LogSubmitOutcomes.Submitted;
+			} else {
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
+	
+				//Some remain unsent
+				return LogSubmitOutcomes.Serialized;
+			}
+		} catch(SessionUnavailableException sue) {
+			return LogSubmitOutcomes.Error;
 		}
 	}
 

@@ -20,6 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.ACase;
@@ -28,7 +29,6 @@ import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
 import org.commcare.android.util.CommCareUtil;
-import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
@@ -133,14 +133,9 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			//expected if we aren't initialized.
 		}
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
-
-		if(loginNeeded) {
-	    	if("true".equals(prefs.getString("cc-auto-update","false"))) {
-	    		Editor e = prefs.edit();
-	    		e.putLong("last-ota-restore", new Date().getTime());
-	    		e.commit();
-	    	}
-		}
+		
+		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
+	    
 		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c) {
 			@Override
 			public void reportProgress(int progress) {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.util;
+package org.commcare.android.crypt;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,6 +23,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+
+import org.commcare.android.util.AndroidStreamUtil;
 
 /**
  * @author ctsims

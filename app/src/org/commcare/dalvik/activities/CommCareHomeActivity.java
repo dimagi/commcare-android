@@ -2,6 +2,8 @@ package org.commcare.dalvik.activities;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
@@ -219,7 +221,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 			//OK, all forms sent, sync time 
                 			syncData();
                 			
-                		} else {
+                		} else if(result == ProcessAndSendTask.FAILURE) {
+                			currentHome.dismissDialog(mCurrentDialog);
+                			//Display your own message otherwise
+                		} else  {
                 			currentHome.dismissDialog(mCurrentDialog);
                 			Toast.makeText(currentHome, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                 		}
@@ -287,6 +292,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 
 			public void progressUpdate(Integer... progress) {
 				if(progress[0] == DataPullTask.PROGRESS_STARTED) {
+					mProgressDialog.setTitle(Localization.get("sync.progress.title"));
 					mProgressDialog.setMessage(Localization.get("sync.progress.purge"));
 				} else if(progress[0] == DataPullTask.PROGRESS_CLEANED) {
 					mProgressDialog.setMessage(Localization.get("sync.progress.authing"));
@@ -351,14 +357,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    	case UPGRADE_APP:
 	    		if(resultCode == RESULT_CANCELED) {
 	    			//This might actually be bad, but try to go about your business
-    				refreshView();
+	    			//The onResume() will take us to the screen
 	    			return;
 	    		} else if(resultCode == RESULT_OK) {
 	    			if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
 	    				Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
 	    				CommCareApplication._().getSession().logout();
 	    			}
-	    			dispatchHomeScreen();
+	    			//The onResume() will take us to the screen
     				return;
 	    		}
 	    		break;
@@ -370,7 +376,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		} else if(resultCode == RESULT_OK) {
 	    			if(intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
 	    				//If we were already logged in just roll with it.
-	    				refreshView();
+		    			//The onResume() will take us to the screen
 	    			} else {
 	    				refreshView();
 	    				checkAndStartUnsentTask(this);
@@ -644,7 +650,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 				session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
 			}
 			startNextFetch();
-			return;
+    	}
+    	
+    	if(lastPopped != null) {
+    		//overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
     	}
     }
     
@@ -697,7 +706,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		i.setAction(Intent.ACTION_EDIT);
 		
 		
-		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_SAVED)));
+		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_FORMS)));
 		
 		//See if there's existing form data that we want to continue entering (note, this should be stored in the form
 		///record as a URI link to the instance provider in the future)
@@ -803,6 +812,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             	
             	startActivityForResult(i,UPGRADE_APP);
             	return;
+	        } else if(CommCareApplication._().isSyncPending(false)) {
+	        	long lastSync = PreferenceManager.getDefaultSharedPreferences(this).getLong("last-ota-restore", 0);
+	        	String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
+	        	Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
+	        	refreshView();
+	        	this.syncData();
 	        }
 	        
 	        //Normal Home Screen login time! 
@@ -837,15 +852,15 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         switch (id) {
         case DIALOG_PROCESS:
                 mProgressDialog = new ProgressDialog(this);
-                mProgressDialog.setTitle(Localization.get("form.entry.processing.title"));
-                mProgressDialog.setMessage(Localization.get("form.entry.processing"));
+                mProgressDialog.setTitle(Localization.get("sync.progress.submitting.title"));
+                mProgressDialog.setMessage(Localization.get("sync.progress.submitting"));
                 mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
                 return mProgressDialog;
         case DIALOG_SEND_UNSENT:
 	        	mProgressDialog = new ProgressDialog(this);
-	            mProgressDialog.setTitle(Localization.get("sync.progress.submitting.title"));
-	            mProgressDialog.setMessage(Localization.get("sync.progress.submitting"));
+	            mProgressDialog.setTitle(Localization.get("form.entry.processing.title"));
+	            mProgressDialog.setMessage(Localization.get("form.entry.processing"));
 	            mProgressDialog.setIndeterminate(true);
 	            mProgressDialog.setCancelable(false);
 	            return mProgressDialog;
@@ -1044,6 +1059,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			Toast.makeText(this, label, Toast.LENGTH_LONG).show();
 		} else if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
 			returnToLogin(Localization.get("app.workflow.login.lost"));
+		} else if(result == ProcessAndSendTask.FAILURE) {
+			//Failures make their own notification box
 		} else {
 			Toast.makeText(this, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
 		}

@@ -14,6 +14,7 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,20 +22,26 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
-public class EntityDetailView extends LinearLayout {
+public class EntityDetailView extends FrameLayout {
 	
 	private TextView label;
 	private TextView data;
+	private TextView spacer;
 	private Button callout;
 	
 	private View addressView;
 	private Button addressButton;
 	private TextView addressText;
 	
-	private View currentView;
+	private View valuePane;
 	
-	LayoutParams pl;
-	LayoutParams dl;
+	private View currentView;
+	private LinearLayout detailRow;
+	
+	private LinearLayout.LayoutParams origValue;
+	private LinearLayout.LayoutParams origLabel;
+	
+	private LinearLayout.LayoutParams fill;
 	
 	int current = TEXT;
 	private static final int TEXT = 0;
@@ -46,36 +53,31 @@ public class EntityDetailView extends LinearLayout {
 
 	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index) {
 		super(context);
+		detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
 		
-		this.setOrientation(HORIZONTAL);
-		
-        LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.6f);
-        
-        label = (TextView)View.inflate(context, R.layout.entity_item_text, null);
-        label.setId(1);
-	    addView(label, l);
+        label = (TextView)detailRow.findViewById(R.id.detail_type_text);
+        spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer);
 	    
-	    dl = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);
-	    data = (TextView)View.inflate(context, R.layout.entity_item_text, null);
-	    data.setId(2);
+	    data = (TextView)detailRow.findViewById(R.id.detail_value_text);
 	    currentView = data;
-	    addView(data, dl);
 	    
-	    pl = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);
-	    pl.gravity = Gravity.CENTER;
+	    valuePane = detailRow.findViewById(R.id.detail_value_pane);
 	    
-	    callout = (Button)Button.inflate(context, R.layout.phone_button, null);
-	    callout.setInputType(InputType.TYPE_CLASS_PHONE);
-	    callout.setId(3);
+	    callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
+	    //TODO: Still useful?
+	    //callout.setInputType(InputType.TYPE_CLASS_PHONE);
 	    
-	    addressView = (View)View.inflate(context, R.layout.entity_detail_address_view, null);
-	    addressText = (TextView)addressView.findViewById(R.id.address_text);
-	    addressButton = (Button)addressView.findViewById(R.id.address_button);
-	    addressView.setId(4);
+	    addressView = (View)detailRow.findViewById(R.id.detail_address_view);
+	    addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
+	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
 	    
-		this.setWeightSum(1.0f);
-	   
-		setParams(session, d, e, index);
+	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
+	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
+	    
+	    fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+	    
+	    this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+	    setParams(session, d, e, index);
 	}
 	
 	public void setCallListener(final DetailCalloutListener listener) {
@@ -83,7 +85,12 @@ public class EntityDetailView extends LinearLayout {
 	}
 
 	public void setParams(CommCareSession session, Detail d, Entity e, int index) {
-		label.setText(d.getHeaders()[index].evaluate());
+		String labelText = d.getFields()[index].getHeader().evaluate();
+		label.setText(labelText);
+		spacer.setText(labelText);
+		
+		boolean veryLong = false;
+		
 		if("phone".equals(d.getTemplateForms()[index])) {
 			callout.setText(e.getFields()[index]);
 			if(current != PHONE) {
@@ -94,7 +101,8 @@ public class EntityDetailView extends LinearLayout {
 					}
 					
 				});
-				this.addView(callout, pl);
+				currentView.setVisibility(View.GONE);
+				callout.setVisibility(View.VISIBLE);
 				this.removeView(currentView);
 				currentView = callout;
 				current = PHONE;
@@ -110,18 +118,41 @@ public class EntityDetailView extends LinearLayout {
 					}
 					
 				});
-				this.addView(addressView, pl);
-				this.removeView(currentView);
+				
+				currentView.setVisibility(View.GONE);
+				addressView.setVisibility(View.VISIBLE);
 				currentView = addressView;
 				current = ADDRESS;
 			}
 		} else {
-			data.setText(e.getFields()[index]);
+			String text = e.getFields()[index];
+			data.setText(text);
+			if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
+				veryLong = true;
+			}
 			if(current != TEXT) {
-				this.addView(data, dl);
-				this.removeView(currentView);
+				currentView.setVisibility(View.GONE);
+				data.setVisibility(View.VISIBLE);
 				currentView = data;
 				current = TEXT;
+			}
+		}
+		
+		if(veryLong) {
+			
+			detailRow.setOrientation(LinearLayout.VERTICAL);
+			spacer.setVisibility(View.GONE);
+			label.setLayoutParams(fill);
+			valuePane.setLayoutParams(fill);
+			
+		} else {
+			
+			if(detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
+				
+				detailRow.setOrientation(LinearLayout.HORIZONTAL);
+				spacer.setVisibility(View.INVISIBLE);
+				label.setLayoutParams(origLabel);
+				valuePane.setLayoutParams(origValue);
 			}
 		}
 	}

@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
@@ -28,10 +29,13 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.io.DataSubmissionEntity;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
+import org.commcare.android.models.notifications.MessageTag;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
@@ -45,6 +49,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -64,6 +69,21 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	String url;
 	Long[] results;
 	
+	public enum ProcessIssues implements MessageTag {
+		
+		/** Logs successfully submitted **/
+		BadTransactions("notification.processing.badstructure"),
+		
+		/** Logs saved, but not actually submitted **/
+		StorageRemoved("notification.processing.nosdcard");
+		
+		ProcessIssues(String root) {this.root = root;}
+		private final String root;
+		public String getLocaleKeyBase() { return root;}
+		public String getCategory() { return "processing"; }
+		
+	}
+	
 	public static final long FULL_SUCCESS = 0;
 	public static final long PARTIAL_SUCCESS = 1;
 	public static final long FAILURE = 2;
@@ -76,6 +96,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	public static final long SUBMISSION_DONE = 128;
 	
 	public static final long PROGRESS_LOGGED_OUT = 256;
+	public static final long PROGRESS_SDCARD_REMOVED = 512;
 	
 	ProcessTaskListener listener;
 	DataSubmissionListener formSubmissionListener;
@@ -98,17 +119,15 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
 	protected Integer doInBackground(FormRecord... records) {
-		try { 
+		boolean needToSendLogs = false;
+		try {
 		results = new Long[records.length];
 		for(int i = 0; i < records.length ; ++i ) {
 			//Assume failure
 			results[i] = FAILURE;
 		}
-		Vector<Exception> thrownwhileprocessing = new Vector<Exception>();
-		
 		//The first thing we need to do is make sure everything is processed,
 		//we can't actually proceed before that.
-		
 		for(int i = 0 ; i < records.length ; ++i) {
 			FormRecord record = records[i];
 
@@ -117,23 +136,39 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				try {
 					records[i] = process(record);
 				} catch (InvalidStructureException e) {
-					thrownwhileprocessing.add(e);
+					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
 					new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					needToSendLogs = true;
 					continue;
 				} catch (XmlPullParserException e) {
-					thrownwhileprocessing.add(e);
+					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
 					new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					needToSendLogs = true;
 					continue;
 				} catch (UnfullfilledRequirementsException e) {
-					thrownwhileprocessing.add(e);
+					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
 					new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					needToSendLogs = true;
 					continue;
 				}  catch (StorageFullException e) {
-					new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
 					throw new RuntimeException(e);
+				} catch (FileNotFoundException e) {
+					if(CommCareApplication._().isStorageAvailable()) {
+						//If storage is available generally, this is a bug in the app design
+						Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+						new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					} else {
+						CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+						//Otherwise, the SD card just got removed, and we need to bail anyway.
+						return (int)PROGRESS_SDCARD_REMOVED;
+					}
+					continue;
 				}   catch (IOException e) {
-					thrownwhileprocessing.add(e);
-					new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. Tentatively not removing in case they are resolvable|" + getExceptionText(e));
 					continue;
 				} 
 			}
@@ -188,8 +223,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 					try {
 						folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
 					} catch (IOException e) {
-						thrownwhileprocessing.add(e);
-						new FormRecordCleanupTask(c, platform).wipeRecord(record);
+						Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
 						continue;
 					}
 					
@@ -198,8 +232,15 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 					try {
 						results[i] = sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"));
 					} catch (FileNotFoundException e) {
-						thrownwhileprocessing.add(e);
-						new FormRecordCleanupTask(c, platform).wipeRecord(record);
+						if(CommCareApplication._().isStorageAvailable()) {
+							//If storage is available generally, this is a bug in the app design
+							Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+							new FormRecordCleanupTask(c, platform).wipeRecord(record);
+						} else {
+							//Otherwise, the SD card just got removed, and we need to bail anyway.
+							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+							break;
+						}
 						continue;
 					}
 					
@@ -211,23 +252,18 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	                    	new FormRecordCleanupTask(c, platform).wipeRecord(record);
 						} else {
 							//Otherwise save and move appropriately
-							moveRecord(record, CommCareApplication._().fsPath(GlobalConstants.FILE_CC_STORED), FormRecord.STATUS_SAVED);
+							updateRecordStatus(record, FormRecord.STATUS_SAVED);
 						}
 			        }
 				}
 				
 				
-				//TODO: Improve how we're failing here. It's not great.
-			}   catch (IOException e) {
-				thrownwhileprocessing.add(e);
-				new FormRecordCleanupTask(c, platform).wipeRecord(record);
-				continue;
-			}  catch (StorageFullException e) {
-				new FormRecordCleanupTask(c, platform).wipeRecord(record);
+			} catch (StorageFullException e) {
+				Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
 				throw new RuntimeException(e);
 			}   catch (Exception e) {
-				//We can't afford to be blocking on these forms, regardless of the error. 
-				thrownwhileprocessing.add(e);
+				//This is very bad, but we can't really afford to be blocking on these forms.
+				Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission. Wiping form as a precaution.|" + getExceptionText(e));
 				new FormRecordCleanupTask(c, platform).wipeRecord(record);
 				continue;
 			}  
@@ -240,11 +276,6 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 			}
 		}
 		
-		if(thrownwhileprocessing.size() > 0) {
-			//although some may have succeeded, we need to know that we failed, so send something to the server;
-			ExceptionReportTask ert = new ExceptionReportTask();
-			ert.execute(thrownwhileprocessing.toArray(new Exception[0]));
-		}
 		this.endSubmissionProcess();
 		synchronized(processTasks) {
 			processTasks.remove(this);
@@ -253,6 +284,10 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		return (int)result;
 		} catch(SessionUnavailableException sue) {
 			return (int)PROGRESS_LOGGED_OUT;
+		} finally {
+			if(needToSendLogs) {
+				CommCareApplication._().notifyLogsPending();
+			}
 		}
 	}
 	
@@ -278,45 +313,19 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				return null;
 			}
 			
-		}, true);
+		}, true, true);
 		
 		parser.parse();
 		is.close();
 		
-		return moveRecord(record, CommCareApplication._().fsPath(GlobalConstants.FILE_CC_PROCESSED), FormRecord.STATUS_UNSENT);
+		return updateRecordStatus(record, FormRecord.STATUS_UNSENT);
 	}
 	
-	private FormRecord moveRecord(FormRecord record, String newPath, String newStatus) throws IOException, StorageFullException{
-		String form = record.getPath(c);
-		File f = new File(form);
-		//Ok, file's all parsed. Move the instance folder to be ready for sending.
-		File folder = f.getCanonicalFile().getParentFile();
-		
-		//TODO: This should be atomic with the content value update. 
-
-		String folderName = folder.getName();
-		File newFolder = new File(newPath + folderName);
-		
-		if(folder.renameTo(newFolder)) {
-			
-			String newFormPath = newFolder.getAbsolutePath() + File.separator + f.getName();
-			if(!new File(newFormPath).exists()) {
-				throw new IOException("Couldn't find processed instance");
-			}
-			
-			//update the records to show that the form has been processed and is ready to be sent;
-			record = record.updateStatus(record.getInstanceURI().toString(), newStatus);
-			storage.write(record);
-			
-			//Update the Instance Record
-			ContentValues values = new ContentValues();
-			values.put(InstanceColumns.INSTANCE_FILE_PATH, newFormPath);
-			c.getContentResolver().update(record.getInstanceURI(), values,null, null);
-			
-			return record;
-		} else {
-			throw new IOException("Couldn't move processed files");
-		}
+	private FormRecord updateRecordStatus(FormRecord record, String newStatus) throws IOException, StorageFullException{
+		//update the records to show that the form has been processed and is ready to be sent;
+		record = record.updateStatus(record.getInstanceURI().toString(), newStatus);
+		storage.write(record);
+		return record;
 	}
 	
 	/* (non-Javadoc)
@@ -561,6 +570,16 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 
 	public void endSubmissionProcess() {
 		this.publishProgress(SUBMISSION_DONE);
+	}
+	
+	private String getExceptionText (Exception e) {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			e.printStackTrace(new PrintStream(bos));
+			return new String(bos.toByteArray());
+		} catch(Exception ex) {
+			return null;
+		}
 	}
 
 }

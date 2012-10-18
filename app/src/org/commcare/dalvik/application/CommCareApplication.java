@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -66,7 +67,6 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.SizeBoundVector;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -88,14 +88,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
 /**
  * @author ctsims
@@ -297,7 +301,7 @@ public class CommCareApplication extends Application {
 	}
     
     private void createPaths() {
-    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_SAVED, GlobalConstants.FILE_CC_PROCESSED, GlobalConstants.FILE_CC_INCOMPLETE, GlobalConstants.FILE_CC_STORED, GlobalConstants.FILE_CC_MEDIA, GlobalConstants.FILE_CC_LOGS};
+    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA, GlobalConstants.FILE_CC_LOGS};
     	for(String path : paths) {
     		File f = new File(fsPath(path));
     		if(!f.exists()) {
@@ -650,8 +654,12 @@ public class CommCareApplication extends Application {
 					//See if there's an auto-update pending. We only want to be able to turn this
 					//to "True" on login, not any other time
 					updatePending = getPendingUpdateStatus();
+					syncPending = getPendingSyncStatus();
 					
-					doReportMaintenance();
+					doReportMaintenance(false);
+					
+					//Register that this user was the last to succesfully log in
+					CommCareApplication.this.appPreferences.edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, user.getUsername()).commit();
 				}
 		    }
 
@@ -672,7 +680,7 @@ public class CommCareApplication extends Application {
 	    mIsBinding = true;
 	}
 	
-	protected void doReportMaintenance() {
+	protected void doReportMaintenance(boolean force) {
 		//OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
 		
 		
@@ -687,7 +695,7 @@ public class CommCareApplication extends Application {
 		}
 		
 		LogSubmissionTask task = new LogSubmissionTask(this,
-				isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
+				force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
 				CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title),
 				url);
 		
@@ -709,19 +717,33 @@ public class CommCareApplication extends Application {
 		return false;
 	}
 	
-	private boolean isPending(long last, long duration) {
+	private boolean isPending(long last, long period) {
 		Date current = new Date();
 		//There are a couple of conditions in which we want to trigger pending maintenance ops.
 		
-		//1) Straightforward - Time is greater than last + duration 
-		if(current.getTime() - last > duration) {
+		long now = current.getTime();
+		
+		//1) Straightforward - Time is greater than last + duration
+		long diff = now - last;
+		if( diff > period) {
 			return true;
 		}
 		
-		//2) Major time change - (Phone might have had its calendar day manipulated).
+		Calendar lastRestoreCalendar = Calendar.getInstance();
+		lastRestoreCalendar.setTimeInMillis(last);
+		
+		//2) For daily stuff, we want it to be the case that if the last time you synced was the day prior, 
+		//you still sync, so people can get into the cycle of doing it once in the morning, which
+		//is more valuable than syncing mid-day.		
+		if(period == DateUtils.DAY_IN_MILLIS && 
+		   (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
+			return true;
+		}
+		
+		//3) Major time change - (Phone might have had its calendar day manipulated).
 		//for now we'll simply say that if last was more than a day in the future (timezone blur)
 		//we should also trigger
-		if(current.getTime() < (last - DateUtils.DAY_IN_MILLIS)) {
+		if(now < (last - DateUtils.DAY_IN_MILLIS)) {
 			return true;
 		}
 		
@@ -788,7 +810,21 @@ public class CommCareApplication extends Application {
     private int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
 	
     ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
-	public void reportNotificationMessage(NotificationMessage message) {
+    
+    Handler toaster = new Handler(){
+	    @Override
+	    public void handleMessage(Message m) {
+	    	NotificationMessage message = m.getData().getParcelable("message");
+			Toast.makeText(CommCareApplication.this,
+					Localization.get("install.error.details", new String[] {message.getTitle()}),
+					Toast.LENGTH_LONG).show();
+	    }
+	};
+    
+    public void reportNotificationMessage(NotificationMessage message) {
+    	reportNotificationMessage(message, false);
+    }
+	public void reportNotificationMessage(final NotificationMessage message, boolean notifyUser) {
 		synchronized(pendingMessages) {
 			//make sure there is no matching message pending
 			for(NotificationMessage msg : pendingMessages) {
@@ -796,6 +832,12 @@ public class CommCareApplication extends Application {
 					//If so, bail.
 					return;
 				}
+			}
+			if(notifyUser) {
+				Bundle b = new Bundle(); b.putParcelable("message", message);
+				Message m = Message.obtain(toaster);
+				m.setData(b);
+				toaster.sendMessage(m);
 			}
 			
 			//Otherwise, add it to the queue, and update the notification
@@ -859,8 +901,66 @@ public class CommCareApplication extends Application {
 			else { updateMessageNotification(); }
 		}
 	}
-	
-	
+    	
 	// End - Error Message Hooks
+	
+    private boolean syncPending = false;
+    
+    /**
+     * @return True if there is a sync action pending. False otherwise.
+     */
+    private boolean getPendingSyncStatus() {
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	
+    	long period = -1;
+    	
+    	//Old flag, use a day by default
+    	if("true".equals(prefs.getString("cc-auto-update","false"))) { period = DateUtils.DAY_IN_MILLIS;}
+    	
+    	//new flag, read what it is.
+    	String periodic = prefs.getString(CommCarePreferences.AUTO_SYNC_FREQUENCY,CommCarePreferences.NEVER);
+    	
+    	if(!periodic.equals(CommCarePreferences.NEVER)) {
+    		period = DateUtils.DAY_IN_MILLIS * (periodic.equals(CommCarePreferences.FREQUENCY_DAILY) ? 1 : 7);
+    	}
+    	
+    	//If we didn't find a period, bail
+    	if(period == -1 ) { return false; }
 
+		
+		long lastRestore = prefs.getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
+		
+		if(isPending(lastRestore, period)) {
+			return true;
+		}
+		return false;
+    }
+
+	public synchronized boolean isSyncPending(boolean clearFlag) {
+		//We only set this to true occasionally, but in theory it could be set to false 
+		//from other factors, so turn it off if it is.
+		if(getPendingSyncStatus() == false) {
+			syncPending = false;
+		}
+		if(!syncPending) { return false; }
+		if(clearFlag) { syncPending = false; }
+		return true;
+	}
+
+	public boolean isStorageAvailable() {
+		try {
+			File storageRoot = new File(this.fsPath(GlobalConstants.FILE_CC_ROOT));
+			return storageRoot.exists();
+		} catch(Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Notify the application that something has occurred which has been logged, and which should
+	 * cause log submission to occur as soon as possible.
+	 */
+	public void notifyLogsPending() {
+		doReportMaintenance(true);
+	}
 }

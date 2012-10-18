@@ -6,12 +6,18 @@ public class GlobalConstants {
 	public static final String FILE_CC_INSTALL = FILE_CC_ROOT + "/install";
 	public static final String FILE_CC_UPGRADE = FILE_CC_ROOT + "/upgrade";
 	public static final String FILE_CC_CACHE = FILE_CC_ROOT + "/cache";
-	public static final String FILE_CC_INCOMPLETE = FILE_CC_ROOT + "/incomplete/";
-	public static final String FILE_CC_SAVED = FILE_CC_ROOT + "/saved/";
-	public static final String FILE_CC_STORED = FILE_CC_ROOT + "/stored/";
-	public static final String FILE_CC_PROCESSED = FILE_CC_ROOT + "/processed/";
 	public static final String FILE_CC_MEDIA = FILE_CC_ROOT + "/media/";
 	public static final String FILE_CC_LOGS = FILE_CC_ROOT + "/logs/";
+	
+	public static final String FILE_CC_FORMS = FILE_CC_ROOT + "/formdata/";
+			
+	//2012-10-10 - ctsims: We're going to stop moving our form data around like this, because
+	//we lack a way to do it atomically. We still need to know that these exist for legacy purposes,
+	//but we don't really want to use them for new code.
+	public static final String FILE_CC_INCOMPLETE_OBSELETE = FILE_CC_ROOT + "/incomplete/";
+	public static final String FILE_CC_SAVED_OBSELETE = FILE_CC_ROOT + "/saved/";
+	public static final String FILE_CC_STORED_OBSELETE = FILE_CC_ROOT + "/stored/";
+	public static final String FILE_CC_PROCESSED_OBSELETE = FILE_CC_ROOT + "/processed/";
 	
 	public static final String CC_DB_NAME = "commcare";
 	

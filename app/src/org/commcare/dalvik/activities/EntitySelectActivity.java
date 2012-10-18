@@ -8,15 +8,18 @@ import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.android.models.Entity;
+import org.commcare.android.tasks.EntityLoaderListener;
+import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -53,7 +56,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends ListActivity implements TextWatcher {
+public class EntitySelectActivity extends ListActivity implements TextWatcher, EntityLoaderListener {
 	private CommCareSession session;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
@@ -80,6 +83,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	
 	boolean mMappingEnabled = false;
 	
+	private EntityLoaderTask loader;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,9 +98,6 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         header = (LinearLayout)findViewById(R.id.entity_select_header);
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-        
-        searchbox.addTextChangedListener(this);
-        searchbox.requestFocus();
         
         session = CommCareApplication._().getCurrentSession();
         
@@ -120,56 +122,86 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         	
         });
         
-        if(selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+        searchbox.addTextChangedListener(this);
+        searchbox.requestFocus();
+        
+        
+        Object o = this.getLastNonConfigurationInstance();
+        if(o != null && o instanceof EntityListAdapter) {
+        	adapter = (EntityListAdapter)o;
+        	this.setListAdapter(adapter);
+        	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        }
+    }
+    
+    boolean resuming = false;
+    
+    public void onResume() {
+    	super.onResume();
+    	//Don't go through making the whole thing if we're finishing anyway.
+    	if(this.isFinishing()) {return;}
+    	
+        if(!resuming && selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
         	TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
         	
         	if(entity != null) {
+        		//Once we've done the initial dispatch, we don't want to end up triggering it later.
+        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
+        		
         		Intent i = getDetailIntent(entity);
         		startActivityForResult(i, CONFIRM_SELECT);
-        	} else {
-        		refreshView();
+        		return;
         	}
-        } else {
-            refreshView();
-        }
+        } 
+    	
+        refreshView();	
     }
 
 
-    /**
+    /* (non-Javadoc)
+	 * @see android.app.Activity#onRetainNonConfigurationInstance()
+	 */
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		if(adapter != null) { 
+			return adapter;
+		} else {
+			return super.onRetainNonConfigurationInstance();
+		}
+	}
+
+
+	/**
      * Get form list from database and insert into view.
      */
     private void refreshView() {
     	try {
-    		
-	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
+	    	final Detail detail = session.getDetail(selectDatum.getShortDetail());
 	    	
 	    	//TODO: Get ec into these text's
-	    	Text[] templates = detail.getHeaders();
-	    	String[] tempForms = detail.getTemplateForms();
-	    	String[] headers = new String[templates.length];
-	    	int defaultKey = -1;
-	    	for(int i = 0 ; i < templates.length ; ++i) {
-	    		headers[i] = templates[i].evaluate();
-	    		if(defaultKey == -1 && !"".equals(headers[i])) {
-	    			defaultKey = i;
-	    		}
-	    		
-	    		if("address".equals(tempForms[i])) {
+	    	String[] headers = new String[detail.getFields().length];
+	    	
+	    	for(int i = 0 ; i < headers.length ; ++i) {
+	    		headers[i] = detail.getFields()[i].getHeader().evaluate();
+	    		if("address".equals(detail.getFields()[i].getTemplateForm())) {
 	    			this.mMappingEnabled = true;
 	    		}
 	    	}
 	    	
+	    	//Hm, sadly we possibly need to rebuild this each time. 
 	    	EntityView v = new EntityView(this, detail, headers);
 	    	header.removeAllViews();
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+	    	v.setBackgroundResource(R.drawable.blue_tabbed_box);
 	    	header.addView(v,params);
 	    	
 	    	
-	    	Vector<TreeReference> references = getEC().expandReference(selectDatum.getNodeset());
-	    	
-	    	adapter = new EntityListAdapter(this, detail, getEC(), references, defaultKey);
-	    	setListAdapter(adapter);
-	    	
+	    	if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
+	    		EntityLoaderTask theloader = new EntityLoaderTask(detail, getEC());
+		    	theloader.attachListener(this);
+		    	
+		    	theloader.execute(selectDatum.getNodeset());
+	    	}
     	} catch(SessionUnavailableException sue) {
     		//TODO: login and return
     	}
@@ -260,6 +292,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     		}
     		break;
     	case CONFIRM_SELECT:
+	        resuming = true;
     		if(resultCode == RESULT_OK) {
     	        // create intent for return and store path
     	        Intent i = new Intent(this.getIntent());
@@ -276,12 +309,6 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 	            	this.startActivityForResult(i, MAP_SELECT);
 	            	return;
 	    		}
-    	        Intent i = new Intent(this.getIntent());
-    	        setResult(RESULT_CANCELED, i);
-    	        //If the original calling intent bounced us up immediately, we need to refresh
-    	        if(this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-    	        	refreshView();
-    	        }
         		return;
     		}
     	case MAP_SELECT:
@@ -307,7 +334,9 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
 
 	public void afterTextChanged(Editable s) {
 		if(searchbox.getText() == s) {
-			adapter.applyFilter(s.toString());
+			if(adapter != null) {
+				adapter.applyFilter(s.toString());
+			}
 		}
 	}
 
@@ -356,22 +385,30 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	
         builder.setTitle("Sort by...");
 		SessionDatum datum = session.getNeededDatum();
-    	Text[] templates = session.getDetail(datum.getShortDetail()).getHeaders();
+    	DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
         
     	List<String> namesList = new ArrayList<String>();
     	        
-    	final int[] keyarray = new int[templates.length];
+    	final int[] keyarray = new int[fields.length];
     	
-    	int currentSort = adapter.getCurrentSort();
+    	int[] sorts = adapter.getCurrentSort();
+    	
+    	int currentSort = sorts.length == 1 ? sorts[0] : -1;
     	boolean reversed = adapter.isCurrentSortReversed();
 
     	int added = 0;
-    	for(int i = 0 ; i < templates.length ; ++i) {
-    		String result = templates[i].evaluate();
+    	for(int i = 0 ; i < fields.length ; ++i) {
+    		String result = fields[i].getHeader().evaluate();
     		if(!"".equals(result)) {
     			String prepend = "";
-    			if(currentSort == i) {
-    				prepend = reversed ? "(v) " : "(^) ";
+    			if(currentSort == -1) {
+    				for(int j = 0 ; j < sorts.length ; ++ j) {
+    					if(sorts[j] == i) {
+    						prepend = (j+1) + " " + (fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ");
+    					}
+    				}
+    			} else if(currentSort == i) {
+    				prepend = reversed ^ fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ";
     			}
     			namesList.add(prepend + result); 
     			keyarray[added] = i;
@@ -383,7 +420,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
     	    	
         builder.setItems(names, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-            	adapter.sortEntities(keyarray[item]);
+            	adapter.sortEntities(new int[] { keyarray[item]});
             	adapter.applyFilter(searchbox.getText().toString());
             }
         });
@@ -398,4 +435,42 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher {
         AlertDialog alert = builder.create();
         alert.show();
     }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	if(loader != null) {
+    		if(isFinishing()) {
+    			loader.cancel(false);
+    		} else {
+    			loader.detachActivity();
+    		}
+    	}
+    }
+
+
+	@Override
+	public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references) {
+		loader = null;
+		Detail detail = session.getDetail(selectDatum.getShortDetail());
+		int[] order = detail.getSortOrder();
+
+    	for(int i = 0 ; i < detail.getFields().length ; ++i) {
+    		String header = detail.getFields()[i].getHeader().evaluate();
+    		if(order.length == 0 && !"".equals(header)) {
+    			order = new int[] {i}; 
+    		}
+    	}
+		
+		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order);
+    	setListAdapter(adapter);
+    	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+	}
+
+
+	@Override
+	public void attach(EntityLoaderTask task) {
+		findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
+		this.loader = task;
+	}
 }

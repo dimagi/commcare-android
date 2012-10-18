@@ -8,7 +8,7 @@ import java.io.IOException;
 import javax.crypto.Cipher;
 
 import org.commcare.android.crypt.CipherPool;
-import org.commcare.android.util.CryptUtil;
+import org.commcare.android.crypt.CryptUtil;
 
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;

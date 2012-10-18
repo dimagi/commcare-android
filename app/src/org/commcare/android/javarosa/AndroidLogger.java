@@ -39,8 +39,12 @@ public class AndroidLogger implements ILogger {
 	 * which is invalid and prevented the app from working properly */
 	public static final String TYPE_ERROR_CONFIG_STRUCTURE = "error-config";
 	
+	/** Something bad happened which the app should not have allowed to happen. This 
+	 * category of error should be aggressively caught and addressed by the software team **/
+	public static final String TYPE_ERROR_DESIGN ="error-design";
+	
 	/** Something bad happened because of network connectivity **/
-	public static final String TYPE_WARNING_NETWORK ="warning-network";
+	public static final String TYPE_WARNING_NETWORK ="warning-network";	
 
 	/** Logs relating to user events (login/logout/restore, etc) **/
 	public static final String TYPE_USER = "user";

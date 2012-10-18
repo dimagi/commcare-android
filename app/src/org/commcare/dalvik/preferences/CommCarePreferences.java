@@ -37,12 +37,14 @@ public class CommCarePreferences extends PreferenceActivity {
 
 	//So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
 	//out cleanly?
+	public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
     public final static String FREQUENCY_WEEKLY = "freq-weekly";
 
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
+    public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
     
 	public final static String LOG_WEEKLY_SUBMIT = "log_prop_weekly";
 	public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
@@ -57,6 +59,9 @@ public class CommCarePreferences extends PreferenceActivity {
 	public final static String FORM_MANAGEMENT = "cc-form-management";
 	public final static String PROPERTY_ENABLED = "enabled";
 	public final static String PROPERTY_DISABLED = "disabled";
+	
+	
+	public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
 
 	
 	private static final int CLEAR_USER_DATA = Menu.FIRST;

@@ -6,14 +6,22 @@ package org.commcare.android.adapters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Vector;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -31,45 +39,31 @@ public class EntityListAdapter implements ListAdapter {
 	
 	List<DataSetObserver> observers;
 	
-	NodeEntityFactory factory;
 	List<Entity<TreeReference>> full;
 	List<Entity<TreeReference>> current;
 	List<TreeReference> references;
+	Detail d;
 	
-	int currentSort = -1;
+	int currentSort[] = {};
 	boolean reverseSort = false;
 	
-	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references)  throws SessionUnavailableException{
-		this(context, d, ec, references, -1);
-	}
-	
-	public EntityListAdapter(Context context, Detail d, EvaluationContext ec, List<TreeReference> references, int sort) throws SessionUnavailableException {
-		factory = new NodeEntityFactory(d, ec);
+	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, List<Entity<TreeReference>> full, int[] sort) throws SessionUnavailableException {
+		this.d = d;
 		
-		full = new ArrayList<Entity<TreeReference>>();
+		this.full = full;
 		current = new ArrayList<Entity<TreeReference>>();
-		
 		this.references = references;
+		
 		
 		this.context = context;
 		this.observers = new ArrayList<DataSetObserver>();
 
-		all();
-		if(sort != -1) {
+		if(sort.length != 0) {
 			sort(sort);
 		}
 		filterValues("");
 	}
-	
-	private void all() throws SessionUnavailableException{
-		for(TreeReference ref : references) {
-			Entity<TreeReference> e = factory.getEntity(ref);
-			if(e != null) {
-				full.add(e);
-			}
-		}
-	}
-	
+
 	private void filterValues(String filter) {
 		current.clear();
 		
@@ -84,19 +78,74 @@ public class EntityListAdapter implements ListAdapter {
 		}
 	}
 	
-	private void sort(int field) {
-		if(currentSort == field) {
-			reverseSort = !reverseSort;
-		} else {
-			reverseSort = false;
-		}
+	private void sort(int[] fields) {
+		//The reversing here is only relevant if there's only one sort field and we're on it
+		sort(fields, (currentSort.length == 1 && currentSort[0] == fields[0]) ? !reverseSort : false);
+	}
+	
+	private void sort(int[] fields, boolean reverse) {
 		
-		currentSort = field;
+		this.reverseSort = reverse;
+		
+		currentSort = fields;
 		
 		java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
+			
 
 			public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-				return (reverseSort ? -1 : 1) * object1.getFields()[currentSort].compareTo(object2.getFields()[currentSort]);
+				for(int i = 0 ; i < currentSort.length ; ++i) {
+					boolean reverseLocal = (d.getFields()[currentSort[i]].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
+					int cmp =  (reverseLocal ? -1 : 1) * getCmp(object1, object2, currentSort[i]);
+					if(cmp != 0 ) { return cmp;}
+				}
+				return 0;
+			}
+			
+			private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
+				int i = d.getFields()[index].getSortType();
+				
+				String a1 = object1.getSortFields()[index];
+				String a2 = object2.getSortFields()[index];
+				
+				//TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
+				//For now, regardless of typing, blanks are always smaller than non-blanks
+				if(a1.equals("")) {
+					if(a2.equals("")) { return 0; }
+					else { return -1; }
+				} else if(a2.equals("")) {
+					return 1;
+				}
+				
+				Comparable c1 = applyType(i, a1);
+				Comparable c2 = applyType(i, a2);
+				
+				if(c1 == null || c2 == null) {
+					//Don't do something smart here, just bail.
+					return -1;
+				}
+				
+				return c1.compareTo(c2);
+			}
+
+			private Comparable applyType(int sortType, String value) {
+				try {
+					if(sortType == Constants.DATATYPE_TEXT) {
+						return value.toLowerCase();
+					} else if(sortType == Constants.DATATYPE_INTEGER) {
+						//Double int compares just fine here and also
+						//deals with NaN's appropriately
+						return XPathFuncExpr.toInt(value);
+					} else if(sortType == Constants.DATATYPE_DECIMAL) {
+						return XPathFuncExpr.toDouble(value);
+					} else {
+						//Hrmmmm :/ Handle better?
+						return value;
+					} 
+				} catch(XPathTypeMismatchException e) {
+					//So right now this will fail 100% silently, which is bad.
+					return null;
+				}
+
 			}
 			
 		});
@@ -151,7 +200,7 @@ public class EntityListAdapter implements ListAdapter {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if(emv == null) {
-			emv = new EntityView(context, factory.getDetail(), e);
+			emv = new EntityView(context, d, e);
 		} else{
 			emv.setParams(e);
 		}
@@ -186,11 +235,11 @@ public class EntityListAdapter implements ListAdapter {
 		}
 	}
 	
-	public void sortEntities(int key) {
-		sort(key);
+	public void sortEntities(int[] keys) {
+		sort(keys);
 	}
 	
-	public int getCurrentSort() {
+	public int[] getCurrentSort() {
 		return currentSort;
 	}
 	

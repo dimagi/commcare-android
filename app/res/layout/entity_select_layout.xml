@@ -2,11 +2,26 @@
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="wrap_content" android:layout_width="fill_parent">
+
 <LinearLayout android:layout_height="wrap_content" android:orientation="horizontal" android:layout_alignParentTop="true" android:layout_width="fill_parent" android:id="@+id/entity_select_header">
+
 </LinearLayout>
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent" android:layout_above="@+id/searchfooter" android:layout_below="@id/entity_select_header">
+
+    <ProgressBar
+        android:id="@+id/entity_select_loading"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_centerInParent="true"/>
+
+</RelativeLayout>
+
 <ListView android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@android:id/list" android:layout_above="@+id/searchfooter" android:layout_below="@+id/entity_select_header"></ListView>
 
-<LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:id="@+id/searchfooter" android:orientation="horizontal">
+<LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:id="@+id/searchfooter" android:orientation="horizontal" android:background="@drawable/border_top_black" android:paddingTop="1dp">
 	<TextView android:id="@+id/TextView02" android:layout_below="@+id/TextView01" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Search:" android:layout_gravity="center_vertical"></TextView>
 	<RelativeLayout android:id="@+id/relativeLayout1" android:layout_height="wrap_content" android:layout_width="fill_parent">
 		<EditText android:id="@+id/searchbox" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_toLeftOf="@+id/barcodeButton"></EditText>

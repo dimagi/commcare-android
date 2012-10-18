@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.User;
 import org.commcare.android.models.notifications.NotificationMessage;
@@ -15,10 +16,10 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.util.CryptUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localization;
 
@@ -58,8 +59,6 @@ public class LoginActivity extends Activity implements DataPullListener {
 	EditText username;
 	EditText password;
 	
-	CheckBox checkServer;
-	
 	public static final int DIALOG_CHECKING_SERVER = 0;
 	
 	SqlIndexedStorageUtility<User> storage;
@@ -85,13 +84,20 @@ public class LoginActivity extends Activity implements DataPullListener {
         
         password = (EditText)findViewById(R.id.edit_password);
         
-        checkServer = (CheckBox)findViewById(R.id.checkserver);
+        //Only on the initial creation
+        if(savedInstanceState ==null) {
+        	String lastUser = PreferenceManager.getDefaultSharedPreferences(this).getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        	if(lastUser != null) {
+        		username.setText(lastUser);
+        		password.requestFocus();
+        	}
+        }        
         
         login.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View arg0) {
-				//If they don't manually want to check the server, try logging in locally
-				if(!checkServer.isChecked() && tryLocalLogin()) {
+				//Try logging in locally
+				if(tryLocalLogin()) {
 					return;
 				}
 				
@@ -117,26 +123,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         TextView versionDisplay = (TextView)findViewById(R.id.str_version);
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
     }
-    
-    private void autoUpdateConfig() {
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
-    	
-    	if(!"true".equals(prefs.getString("cc-auto-update","false"))) { return;}
-		
-		long now = new Date().getTime();
-		
-		long lastRestore = prefs.getLong("last-ota-restore", 0);
-		Calendar lastRestoreCalendar = Calendar.getInstance();
-		lastRestoreCalendar.setTimeInMillis(lastRestore);
-		
-		if(now - lastRestore > DateUtils.DAY_IN_MS || (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
-			//If it's been more than 24 hrs since the last update or if it's the next day. 
-			checkServer.setChecked(true);
-			checkServer.setEnabled(false);
-		}
-		checkServer.setText(Localization.get("login.sync"));
-    }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -168,7 +155,6 @@ public class LoginActivity extends Activity implements DataPullListener {
     	userLabel.setText(Localization.get("login.username"));
     	passLabel.setText(Localization.get("login.password"));
     	login.setText(Localization.get("login.button"));
-    	autoUpdateConfig();
     }
     
     private String getUsername() {

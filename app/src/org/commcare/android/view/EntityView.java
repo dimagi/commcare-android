@@ -135,8 +135,10 @@ public class EntityView extends LinearLayout {
 	        	ImageView iv = (ImageView)views[i];
 				Bitmap b;
 				try {
-					b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(fields[i]).getStream());
-					iv.setImageBitmap(b);
+					if(!fields[i].equals("")) {
+						b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(fields[i]).getStream());
+						iv.setImageBitmap(b);
+					}
 				} catch (IOException ex) {
 					ex.printStackTrace();
 					//Error loading image
