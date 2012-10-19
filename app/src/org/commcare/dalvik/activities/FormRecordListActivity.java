@@ -82,6 +82,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
         try {
 	        platform = CommCareApplication._().getCommCarePlatform();
 	        setContentView(R.layout.entity_select_layout);
+        	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
 	        searchbox = (EditText)findViewById(R.id.searchbox);
 	        header = (LinearLayout)findViewById(R.id.entity_select_header);
