@@ -139,6 +139,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			public void onClick(View v) {
                 try {
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                	//Barcode only
+                    i.putExtra("SCAN_FORMATS","QR_CODE, DATA_MATRIX");
                     CommCareSetupActivity.this.startActivityForResult(i, BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(CommCareSetupActivity.this,"No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();

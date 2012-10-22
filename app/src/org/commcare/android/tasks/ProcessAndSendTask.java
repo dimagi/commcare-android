@@ -75,7 +75,10 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		BadTransactions("notification.processing.badstructure"),
 		
 		/** Logs saved, but not actually submitted **/
-		StorageRemoved("notification.processing.nosdcard");
+		StorageRemoved("notification.processing.nosdcard"),
+		
+		/** You were logged out while something was occurring **/
+		LoggedOut("notification.sending.loggedout");
 		
 		ProcessIssues(String root) {this.root = root;}
 		private final String root;
@@ -261,10 +264,11 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 			} catch (StorageFullException e) {
 				Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
 				throw new RuntimeException(e);
-			}   catch (Exception e) {
-				//This is very bad, but we can't really afford to be blocking on these forms.
-				Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission. Wiping form as a precaution.|" + getExceptionText(e));
-				new FormRecordCleanupTask(c, platform).wipeRecord(record);
+			} catch(SessionUnavailableException sue) {
+				throw sue;
+			} catch (Exception e) {
+				//Just try to skip for now. Hopefully this doesn't wreck the model :/
+				Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
 				continue;
 			}  
 		}
@@ -283,6 +287,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		
 		return (int)result;
 		} catch(SessionUnavailableException sue) {
+			this.cancel(false);
 			return (int)PROGRESS_LOGGED_OUT;
 		} finally {
 			if(needToSendLogs) {
@@ -580,6 +585,18 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		} catch(Exception ex) {
 			return null;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see android.os.AsyncTask#onCancelled()
+	 */
+	@Override
+	protected void onCancelled() {
+		super.onCancelled();
+		if(this.formSubmissionListener != null) {
+			formSubmissionListener.endSubmissionProcess();
+		}
+		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
 	}
 
 }

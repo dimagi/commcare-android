@@ -174,3 +174,6 @@ notification.processing.badstructure.action=The form unfortunately can't be reco
 notification.processing.nosdcard.title=Problem Processing or Submitting Forms 
 notification.processing.nosdcard.detail=File storage was unavailable
 notification.processing.nosdcard.action=A USB Cable was probably plugged in and the device's usb setting is mass storage, alternatively the SD card could have been removed. CommCare cannot proceed until storage is available again.
+
+notification.sending.loggedout.title=Logged out while processing/submitting
+notification.sending.loggedout.detail=You were logged out while CommCare was processing or submitting data. Your forms will be processed/sent when you log back in.
