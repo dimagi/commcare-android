@@ -14,7 +14,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -30,7 +29,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.FormRecord;
@@ -40,7 +38,6 @@ import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -54,9 +51,9 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -435,6 +432,17 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	private long sendInstance(int submissionNumber, File folder, SecretKeySpec key) throws FileNotFoundException {
 		
         File[] files = folder.listFiles();
+        
+        if(files == null) {
+        	//make sure external storage is available to begin with.
+        	String state = Environment.getExternalStorageState();
+        	if (!Environment.MEDIA_MOUNTED.equals(state)) {
+        		//If so, just bail as if the user had logged out.
+        		throw new SessionUnavailableException("External Storage Removed");
+        	} else {
+        		throw new FileNotFoundException("No directory found at: " + folder.getAbsoluteFile());
+        	}
+        } 
 
         //If we're listening, figure out how much (roughly) we have to send
 		long bytes = 0;
