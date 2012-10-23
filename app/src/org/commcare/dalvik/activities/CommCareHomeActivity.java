@@ -239,8 +239,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 
             }
         });
-        
-        refreshView();
+        try {
+        	refreshView();
+        } catch(SessionUnavailableException sue) {
+        	this.returnToLogin(Localization.get("home.logged.out"));
+        }
     }
     
     private void syncData() {
@@ -285,8 +288,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 					break;
 				}
 				
-				CommCareApplication._().getSession().detachTask();
-				refreshView();
+				try {
+					CommCareApplication._().getSession().detachTask();
+					refreshView();
+				} catch(SessionUnavailableException sue) {
+					CommCareHomeActivity.this.returnToLogin();
+				}
 				//TODO: What if the user info was updated?
 			}
 
@@ -966,7 +973,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         mAskOldDialog.show();
     }
     
-    private void refreshView() {
+    private void refreshView() throws SessionUnavailableException{
     	
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
@@ -1025,19 +1032,16 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         if(p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
         	viewOldForms.setVisibility(Button.VISIBLE);
         }
-        try {
-	        mDataPullTask = CommCareApplication._().getSession().getCurrentTask();
-	        if(mDataPullTask != null) {
-	        	this.attachPullTask(mDataPullTask);
-	        	
-	            //It's now attached. In theory, we might have missed the end signal, though, so double check
-	            if(mDataPullTask.getStatus() == Status.FINISHED) {
-	            	this.dismissDialog(DIALOG_PROCESS);
-	            }
-	        }
-        } catch(SessionUnavailableException sue) {
-        	//TODO: Move this somewhere that this won't happen
+        mDataPullTask = CommCareApplication._().getSession().getCurrentTask();
+        if(mDataPullTask != null) {
+        	this.attachPullTask(mDataPullTask);
+        	
+            //It's now attached. In theory, we might have missed the end signal, though, so double check
+            if(mDataPullTask.getStatus() == Status.FINISHED) {
+            	this.dismissDialog(DIALOG_PROCESS);
+            }
         }
+
         
         View formRecordPane = this.findViewById(R.id.home_formspanel);
         if(!CommCarePreferences.isFormManagementEnabled()) {
@@ -1068,6 +1072,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			refreshView();
 		}catch(SessionUnavailableException sue) {
 			//might have logged out, don't really worry about it.
+        	this.returnToLogin(Localization.get("home.logged.out"));
 		}
 	}
 	
