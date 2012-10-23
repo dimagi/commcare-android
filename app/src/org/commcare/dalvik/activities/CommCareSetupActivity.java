@@ -187,6 +187,22 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			startResourceInstall();
 		}
 	}
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		super.onResume();
+		wakelock();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+    	//Make sure we're not holding onto the wake lock still
+    	unlock();
+	}
 	
     /*
      * (non-Javadoc)
@@ -230,8 +246,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
 		task.setListener(this);
 		
-		wakelock();
-
 		task.execute(ref);
 		
 		this.showDialog(DIALOG_INSTALL_PROGRESS);
@@ -474,13 +488,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	if(wakelock != null && wakelock.isHeld()) {
     		wakelock.release();
     	}
-    }
-    
-    @Override
-    protected void onDestroy() {
-    	super.onDestroy();
-    	//Make sure we're not holding onto the wake lock still, no matter what
-    	unlock();
     }
     
     //TODO: Implement these
