@@ -49,14 +49,13 @@ public class GenericMenuListAdapter implements ListAdapter {
 		Vector<Object> items = new Vector<Object>();
 		
 		Hashtable<String, Entry> map = platform.getMenuMap();
-		
+		session = CommCareApplication._().getCurrentSession();
 		for(Suite s : platform.getInstalledSuites()) {
 			for(Menu m : s.getMenus()) {
 	    		if(m.getId().equals(menuID)) {
 	    			for(String command : m.getCommandIds()) {
 	    				XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
 	    				if(mRelevantCondition != null) {	    					
-		    				session = CommCareApplication._().getCurrentSession();
 		    				EvaluationContext mEC = session.getEvaluationContext(getInstanceInit());
 		    				Object ret = mRelevantCondition.eval(mEC);
 		    				try {
@@ -72,6 +71,15 @@ public class GenericMenuListAdapter implements ListAdapter {
 	    				}
 	    				
     					Entry e = map.get(command);
+    					if(e.getXFormNamespace() == null) {
+    						//If this is a "view", not an "entry"
+    						//we only want to display it if all of its 
+    						//datums are not already present
+    						if(session.getNeededDatum(e) == null) {
+    							continue;
+    						}
+    					}
+    					
     					items.add(e);
 	    			}
 					continue;
