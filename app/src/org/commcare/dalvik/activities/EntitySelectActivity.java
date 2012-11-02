@@ -83,6 +83,8 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
 	
 	boolean mMappingEnabled = false;
 	
+	boolean mViewMode = false;
+	
 	private EntityLoaderTask loader;
 	
     @Override
@@ -103,6 +105,11 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
         
 		Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
 		prototype = entries.elementAt(0);
+		
+		//(We shouldn't need the "" here, but we're avoiding making changes to commcare core for release issues)
+		if(entries.size() == 1 && prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals("")) {
+			mViewMode = true;
+		}
         
         setTitle(getString(R.string.application_name) + " > " + " Select");
         
@@ -293,7 +300,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
     		break;
     	case CONFIRM_SELECT:
 	        resuming = true;
-    		if(resultCode == RESULT_OK) {
+	        if(resultCode == RESULT_OK && !mViewMode) {
     	        // create intent for return and store path
     	        Intent i = new Intent(this.getIntent());
     	        
