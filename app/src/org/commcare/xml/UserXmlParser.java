@@ -51,6 +51,11 @@ public class UserXmlParser extends TransactionParser<User> {
 		if(u == null) {
 			u = new User(username, passwordHash, uuid);
 			u.setWrappedKey(wrappedKey);
+		} else {
+			if(passwordHash != null && !passwordHash.equals(u.getPassword())) {
+				u.setPassword(passwordHash);
+				u.setWrappedKey(wrappedKey);
+			} 
 		}
 		
 		//Now look for optional components
