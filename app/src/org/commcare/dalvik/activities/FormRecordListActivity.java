@@ -51,10 +51,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -74,6 +78,31 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	private EditText searchbox;
 	private LinearLayout header;
 	private ImageButton barcodeButton;
+	private Spinner filterSelect;
+	
+	public enum FormRecordFilter {
+		
+		/** Processed and Pending **/ 
+		SubmittedAndPending("form.record.filter.subandpending", new String[] {FormRecord.STATUS_SAVED, FormRecord.STATUS_UNSENT}),
+		
+		/** Submitted Only **/ 
+		Submitted("form.record.filter.submitted", new String[] {FormRecord.STATUS_SAVED}),
+		
+		/** Pending Submission **/
+		Pending("form.record.filter.pending", new String[] {FormRecord.STATUS_UNSENT}),
+		
+		/** Incomplete forms **/
+		Incomplete("form.record.filter.incomplete", new String[] {FormRecord.STATUS_INCOMPLETE}, false);
+		
+		FormRecordFilter(String message, String[] statuses) {this(message, statuses, true);}
+		FormRecordFilter(String message, String[] statuses, boolean visible) {this.message = message; this.statuses = statuses; this.visible = visible;}
+		private final String message;
+		private final String[] statuses;
+		public boolean visible;
+		public String getMessage() { return message;}
+		public String[] getStatus() { return statuses; }
+		
+	}
 
 	
     @Override
@@ -88,6 +117,8 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	        header = (LinearLayout)findViewById(R.id.entity_select_header);
 	        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 	        
+	        filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
+	        
 	        header.setVisibility(View.GONE);
 	        barcodeButton.setVisibility(View.GONE);
 	        
@@ -97,21 +128,48 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	
 	        adapter = new IncompleteFormListAdapter(this, platform, task);
 	        
-	        String statusFilter = null;
+	        FormRecordFilter filter = null;
 	        
 	        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
-	        	statusFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
-	        	if(statusFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
+	        	String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
+	        	if(incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
 	        		setTitle(getString(R.string.application_name) + " > " + Localization.get("app.workflow.incomplete.heading"));
-	        	} else {
-	        		setTitle(getString(R.string.application_name) + " > " + Localization.get("app.workflow.saved.heading"));
+	        		//special case, no special filtering options
+	        		filter = FormRecordFilter.Incomplete;
 	        	}
 	        } else {
 	        	setTitle(getString(R.string.application_name) + " > " + Localization.get("app.workflow.saved.heading"));
+	        	
+	        	filter = FormRecordFilter.SubmittedAndPending; 
+
+	        	FormRecordFilter[] filters = FormRecordFilter.values();
+	        	String[] names = new String[filters.length];
+	        	for(int i = 0 ; i < filters.length; ++i ) {
+	        		names[i] = Localization.get(filters[i].getMessage());
+	        	}
+	        	ArrayAdapter<String> spinneritems = new ArrayAdapter<String>(this, R.layout.form_filter_display, names);
+	        	filterSelect.setAdapter(spinneritems);
+	        	spinneritems.setDropDownViewResource(R.layout.form_filter_item);
+	        	filterSelect.setOnItemSelectedListener(new OnItemSelectedListener() {
+	        		
+					@Override
+					public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long id) {
+						adapter.setFormFilter(FormRecordFilter.values()[index]);
+						adapter.resetRecords();
+						adapter.notifyDataSetChanged();
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+	        	});
+	        	filterSelect.setVisibility(View.VISIBLE);
 	        }
 	        
-	        if(statusFilter != null) {
-	        	adapter.setFormFilter(statusFilter);
+	        if(filter != null) {
+	        	adapter.setFormFilter(filter);
 	        }
 	        this.registerForContextMenu(this.getListView());
 	        refreshView();
@@ -192,7 +250,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
-        if(!FormRecord.STATUS_INCOMPLETE.equals(adapter.getFilter())) {
+        if(!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
         	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     		String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
     		

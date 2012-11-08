@@ -17,6 +17,8 @@ import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,7 @@ public class IncompleteFormRecordView extends LinearLayout {
 	public TextView mPrimaryTextView;
 	public TextView mLowerTextView;
 	public TextView mRightTextView;
+	public TextView mUpperRight;
 	
 	Hashtable<String,Text> names;
 	Date start;
@@ -57,8 +60,10 @@ public class IncompleteFormRecordView extends LinearLayout {
         mPrimaryTextView = (TextView)vg.findViewById(R.id.formrecord_txt_main);
         mLowerTextView = (TextView)vg.findViewById(R.id.formrecord_txt_btm);
         mRightTextView = (TextView)vg.findViewById(R.id.formrecord_txt_right);
+        mUpperRight = (TextView)vg.findViewById(R.id.formrecord_txt_upp_right);
         
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
+        mUpperRight.setTextAppearance(context, android.R.style.TextAppearance_Large);
         
         
         LayoutParams l =new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
@@ -80,6 +85,13 @@ public class IncompleteFormRecordView extends LinearLayout {
 			mRightTextView.setText(DateUtils.formatSameDayTime(timestamp, start.getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT));
 		} else {
 			mRightTextView.setText("Never");
+		}
+		if(record.getStatus() == FormRecord.STATUS_UNSENT) {
+			mUpperRight.setText("Unsent");
+			mUpperRight.setTextColor(getResources().getColor(R.color.red));
+			mUpperRight.setTypeface(null, Typeface.BOLD);
+		} else {
+			mUpperRight.setText("");
 		}
 	}
 }

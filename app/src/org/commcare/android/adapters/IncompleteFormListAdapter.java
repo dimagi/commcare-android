@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Vector;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.models.FormRecord;
@@ -15,6 +16,7 @@ import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
+import org.commcare.dalvik.activities.FormRecordListActivity.FormRecordFilter;
 import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
@@ -35,7 +37,7 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	
 	List<DataSetObserver> observers;
 	
-	String filter;
+	FormRecordFilter filter;
 	private List<FormRecord> records;
 	private List<FormRecord> current;
 	
@@ -63,8 +65,11 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		}
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
 		
-		if(filter == null) { filter = FormRecord.STATUS_SAVED; }
-		records = storage.getRecordsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {filter} );
+		if(filter == null) { filter = FormRecordFilter.SubmittedAndPending;}
+		records = new Vector<FormRecord>();
+		for(String status : filter.getStatus()) {
+			records.addAll(storage.getRecordsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {status} ));
+		}
 		
 		Collections.sort(records,new Comparator<FormRecord>() {
 
@@ -193,11 +198,11 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		return getCount() > 0;
 	}
 	
-	public void setFormFilter(String filter) throws SessionUnavailableException {
+	public void setFormFilter(FormRecordFilter filter) throws SessionUnavailableException {
 		this.filter = filter;
 	}
 	
-	public String getFilter() {
+	public FormRecordFilter getFilter() {
 		return this.filter;
 	}
 	private void filterValues(String query) {
