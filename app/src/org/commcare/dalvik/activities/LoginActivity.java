@@ -5,8 +5,6 @@ package org.commcare.dalvik.activities;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.Calendar;
-import java.util.Date;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
@@ -20,7 +18,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
@@ -33,8 +30,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +55,9 @@ public class LoginActivity extends Activity implements DataPullListener {
 	
 	EditText username;
 	EditText password;
+	View banner;
+	
+	TextView versionDisplay;
 	
 	public static final int DIALOG_CHECKING_SERVER = 0;
 	
@@ -72,7 +72,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         
         currentActivity = this;
         
-        setContentView(R.layout.login);
+        setContentView(R.layout.screen_login);
         
         login = (Button)findViewById(R.id.login_button);
         
@@ -83,6 +83,8 @@ public class LoginActivity extends Activity implements DataPullListener {
         username = (EditText)findViewById(R.id.edit_username);
         
         password = (EditText)findViewById(R.id.edit_password);
+        
+        banner = findViewById(R.id.screen_login_banner_pane);
         
         //Only on the initial creation
         if(savedInstanceState ==null) {
@@ -120,8 +122,30 @@ public class LoginActivity extends Activity implements DataPullListener {
 			}
         });
         
-        TextView versionDisplay = (TextView)findViewById(R.id.str_version);
+        versionDisplay = (TextView)findViewById(R.id.str_version);
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
+        
+        
+        final View activityRootView = findViewById(R.id.screen_login_main);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+            	int hideAll = LoginActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
+            	int hideBanner = LoginActivity.this.getResources().getInteger(R.integer.login_screen_hide_banner_cuttoff);
+                int height = activityRootView.getHeight();
+                
+                if(height < hideAll) {
+                	versionDisplay.setVisibility(View.GONE);
+                	banner.setVisibility(View.GONE);
+                } else if(height < hideBanner) {
+                	versionDisplay.setVisibility(View.VISIBLE);
+                	banner.setVisibility(View.GONE);
+                }  else {
+                	versionDisplay.setVisibility(View.VISIBLE);
+                	banner.setVisibility(View.VISIBLE);
+                }
+             }
+        });
     }
 
     /*
@@ -134,7 +158,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         super.onResume();
         
         try {
-        	//TODO: there is a weirde circumstance where we're logging in somewhere else and this gets locked.
+        	//TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
         if(CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
     		Intent i = new Intent();
     		i.putExtra(ALREADY_LOGGED_IN, true);
