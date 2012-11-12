@@ -1,0 +1,35 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+    
+    <ImageView android:id="@+id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="0px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
+
+    <TextView
+        android:id="@+id/ReportPrompt01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/hello_world"
+        android:layout_below="@+id/ImageView01"
+        tools:context=".ReportProblemActivity" />
+    
+    <EditText 
+        android:id="@+id/ReportText01"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ReportPrompt01"
+        android:hint="@string/your_comment"
+        android:textColor="#000000"
+        android:lines="5" />
+    
+    <Button
+        android:id="@+id/ReportButton01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit Report"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/ReportText01"/>
+
+</RelativeLayout>
