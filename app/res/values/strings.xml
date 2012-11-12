@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="application_name">CommCare ODK</string>
-	<!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
-	<string name="default_app_server">jr://asset/testing/profile.ccpr</string>
-	<string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
-	<string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
-	<!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
-	<!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
-	<string name="key_server">https://pact.dimagi.com/keys/getkey</string>
-	<integer-array name="commcare_version"><item>2</item>
-	<item>2</item>
-</integer-array>
-<string name="app_version_string">version.id.long</string>	
-<string name="notificationtitle">Logged Into Commcare</string>
-<string name="expirenotification">CommCare Login Expired</string>
-<string name="submission_notification_title">Submitting Data</string>
-<string name="submission_logs_title">Submitting CommCare Logs</string>
-<string name="form_record_url"></string>
-<string name="aboutdialog">
-    
-CommCare ODK
+    <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
+    <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
+    <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
+    <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
+    <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
+    <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
+    <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
+    <string name="your_comment">Your comment</string>
+
+    <integer-array name="commcare_version">
+        <item>2</item>
+        <item>2</item>
+    </integer-array>
+
+    <string name="app_version_string">version.id.long</string>
+    <string name="notificationtitle">Logged Into Commcare</string>
+    <string name="expirenotification">CommCare Login Expired</string>
+    <string name="submission_notification_title">Submitting Data</string>
+    <string name="submission_logs_title">Submitting CommCare Logs</string>
+    <string name="form_record_url"></string>
+    <string name="aboutdialog">CommCare ODK
 Copyright 2010, Dimagi inc, All rights reserved
 
 Some images in CommCare are graciously used under Creative Commons Licensing
@@ -34,19 +37,24 @@ from thenounproject.com collection.
 "Android MapView Balloons" project used under the Apache Software License 2.0.
 
 Author: Jeff Gilfelt
-Copyright (c) 2012 readyState Software Ltd.
+Copyright (c) 2012 readyState Software Ltd.</string>
+    <string name="notification_message_title">CommCare Notification</string>
 
-</string>
-<string name="notification_message_title">CommCare Notification</string>
-<string-array name="frequency_vals">
-    <item >freq-never</item>
-    <item >freq-daily</item>
-    <item >freq-weekly</item>
-</string-array>
-<string-array name="frequency_vals_labels">
-    <item >Never</item>
-    <item >Daily</item>
-    <item >Weekly</item>
-</string-array>
-<item name="detail_size_cutoff" format="integer" type="integer">500</item>
+    <string-array name="frequency_vals">
+        <item>freq-never</item>
+        <item>freq-daily</item>
+        <item>freq-weekly</item>
+    </string-array>
+    <string-array name="frequency_vals_labels">
+        <item>Never</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+    </string-array>
+
+    <item name="detail_size_cutoff" format="integer" type="integer">500</item>
+
+    <string name="hello_world">Please enter your issues below</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_report_problem">ReportProblemActivity</string>
+
 </resources>
