@@ -13,16 +13,17 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>2</item>
-    </integer-array>
-
-    <string name="app_version_string">version.id.long</string>
-    <string name="notificationtitle">Logged Into Commcare</string>
-    <string name="expirenotification">CommCare Login Expired</string>
-    <string name="submission_notification_title">Submitting Data</string>
-    <string name="submission_logs_title">Submitting CommCare Logs</string>
-    <string name="form_record_url"></string>
-    <string name="aboutdialog">CommCare ODK
+        <item>3</item>
+</integer-array>
+<string name="app_version_string">version.id.long</string>	
+<string name="notificationtitle">Logged Into Commcare</string>
+<string name="expirenotification">CommCare Login Expired</string>
+<string name="submission_notification_title">Submitting Data</string>
+<string name="submission_logs_title">Submitting CommCare Logs</string>
+<string name="form_record_url"></string>
+<string name="aboutdialog">
+    
+CommCare ODK
 Copyright 2010, Dimagi inc, All rights reserved
 
 Some images in CommCare are graciously used under Creative Commons Licensing

@@ -104,6 +104,8 @@ notifications.prompt.more=(${0} More...)
 
 update.success.refresh=CommCare has been updated! Please log in again.
 
+home.logged.out=You were logged out. Please log back in to continue
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username/Password Combination

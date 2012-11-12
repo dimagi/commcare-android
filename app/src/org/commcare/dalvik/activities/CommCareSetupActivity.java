@@ -191,6 +191,21 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			startResourceInstall();
 		}
 	}
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+    	//Make sure we're not holding onto the wake lock still
+    	unlock();
+	}
 	
     /*
      * (non-Javadoc)
@@ -238,9 +253,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
 		task.setListener(this);
 		
-		wakelock();
-
 		task.execute(ref);
+		wakelock();
 		
 		this.showDialog(DIALOG_INSTALL_PROGRESS);
 		
@@ -483,22 +497,18 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     private void wakelock() {
     	unlock();
     	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    	wakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "CommCareAppInstall");
-    	//Twenty minutes max.
-    	wakelock.acquire(1000*60*20);
+    	if(wakelock == null) {
+    		wakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "CommCareAppInstall");
+    	}
+    	//CTS: We used to have a timeout here, but apparently Android straight up crashes if you acquire a timed wakelock
+    	//and then release it before the timeout.
+    	wakelock.acquire();
     }
     
     private void unlock() {
     	if(wakelock != null && wakelock.isHeld()) {
     		wakelock.release();
     	}
-    }
-    
-    @Override
-    protected void onDestroy() {
-    	super.onDestroy();
-    	//Make sure we're not holding onto the wake lock still, no matter what
-    	unlock();
     }
     
     //TODO: Implement these

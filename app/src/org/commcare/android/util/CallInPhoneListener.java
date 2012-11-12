@@ -129,6 +129,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 								}
 								SessionDatum datum = e.getSessionDataReqs().firstElement();
 								String detailId = datum.getLongDetail();
+								if(detailId == null) { continue; }
 								
 								for(String form : s.getDetail(detailId).getTemplateForms()) {
 									if("phone".equals(form)) {
