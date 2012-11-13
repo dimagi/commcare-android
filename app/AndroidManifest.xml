@@ -1,140 +1,253 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.commcare.dalvik"
-      android:versionName="2.3" android:versionCode="106">
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <application android:icon="@drawable/icon" android:label="@string/application_name" android:debuggable="true" android:theme="@android:style/Theme.Light" android:name=".application.CommCareApplication">
-        <activity android:label="@string/application_name" android:name=".activities.CommCareHomeActivity" android:configChanges="orientation">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.commcare.dalvik"
+    android:versionCode="106"
+    android:versionName="2.3" >
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application
+        android:name=".application.CommCareApplication"
+        android:debuggable="true"
+        android:icon="@drawable/icon"
+        android:label="@string/application_name"
+        android:theme="@android:style/Theme.Light" >
+        <activity
+            android:name=".activities.CommCareHomeActivity"
+            android:configChanges="orientation"
+            android:label="@string/application_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
             <intent-filter>
-        		<action android:name="org.commcare.dalvik.action.CommCareSession" />
-		        <category android:name="android.intent.category.DEFAULT" />
-   			</intent-filter>
+                <action android:name="org.commcare.dalvik.action.CommCareSession" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.LoginActivity"
+            android:label="@string/application_name"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity android:name=".activities.MenuList" >
+        </activity>
+        <activity android:name=".activities.ReferenceDetailActivity" >
         </activity>
 
-    
-<activity android:label="@string/application_name" android:name=".activities.LoginActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name=".activities.MenuList"></activity>
+        <provider
+            android:name=".odk.provider.FormsProvider"
+            android:authorities="org.commcare.android.provider.odk.forms" />
+        <provider
+            android:name=".odk.provider.InstanceProvider"
+            android:authorities="org.commcare.android.provider.odk.instances" />
 
-<activity android:name=".activities.ReferenceDetailActivity"></activity>
+        <activity android:name=".preferences.CommCarePreferences" >
+        </activity>
+        <activity android:name=".activities.DotsEntryActivity" >
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.action.DotsEntry" />
 
-<provider android:name=".odk.provider.FormsProvider" android:authorities="org.commcare.android.provider.odk.forms" />
-<provider android:name=".odk.provider.InstanceProvider" android:authorities="org.commcare.android.provider.odk.instances" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.CallOutActivity" >
+        </activity>
+        <activity
+            android:name=".activities.CommCareSetupActivity"
+            android:configChanges="orientation"
+            android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-<activity android:name=".preferences.CommCarePreferences"></activity>
-<activity android:name=".activities.DotsEntryActivity">
-    <intent-filter>
-    	<action android:name="org.commcare.dalvik.action.DotsEntry"/>
-		<category android:name="android.intent.category.DEFAULT"/>
-    </intent-filter>
-</activity>
-<activity android:name=".activities.CallOutActivity"></activity>
-<activity android:name=".activities.CommCareSetupActivity" android:configChanges="orientation" android:windowSoftInputMode="adjustResize">
-    <intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-	    <data android:scheme="http"/>
-	    <data android:scheme="https"/>
-	    <data android:host="*" />
-	    <data android:mimeType="commcare/profile"/> 
-	</intent-filter>
-	<intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="http"/>
-        <data android:host="*" />
-        <data android:pathPattern=".*\\.ccpr"/>
-	</intent-filter>
-	<intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="https"/>
-        <data android:host="*" />
-        <data android:pathPattern=".*\\.ccpr"/>
-	</intent-filter>
-	<intent-filter>
-    	<action android:name="android.intent.action.VIEW" />
-    	<category android:name="android.intent.category.DEFAULT" />
-    	<data android:scheme="file" />
-    	<data android:host="*" />
-    	<data android:pathPattern=".*\\.ccpr" />
-    </intent-filter>
-	
-</activity>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:mimeType="commcare/profile" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-		<!-- Enable Shortcuts for Command Actions -->
-		<activity android:name=".application.AndroidShortcuts"
-                  android:theme="@android:style/Theme.Translucent.NoTitleBar">
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.ccpr" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.ccpr" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.ccpr" />
+            </intent-filter>
+        </activity>
+
+        <!-- Enable Shortcuts for Command Actions -->
+        <activity
+            android:name=".application.AndroidShortcuts"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity>
 
-        <activity-alias android:name=".application.ShortcutGenerator"
-            android:targetActivity=".application.AndroidShortcuts"
-            android:label="CommCare Action">
+        <activity-alias
+            android:name=".application.ShortcutGenerator"
+            android:label="CommCare Action"
+            android:targetActivity=".application.AndroidShortcuts" >
 
-            <!--  This intent-filter allows your shortcuts to be created in the launcher. -->
+            <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity-alias>
-<activity android:windowSoftInputMode="stateUnchanged|adjustResize" android:name=".activities.EntitySelectActivity"></activity>
-<activity android:windowSoftInputMode="adjustResize" android:name=".activities.EntityDetailActivity"></activity>
-<activity android:name=".activities.FormRecordListActivity" android:windowSoftInputMode="adjustResize"></activity>
-<service android:name=".services.CommCareSessionService" android:enabled="true"></service>
-<activity android:name=".activities.CallLogActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name=".activities.MessageLogActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name=".activities.PhoneLogActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name="org.odk.collect.android.activities.FormEntryActivity" android:windowSoftInputMode="adjustResize" android:launchMode="singleTop"></activity>
-<activity android:name="org.odk.collect.android.activities.FormHierarchyActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name="org.odk.collect.android.activities.GeoPointActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name="org.odk.collect.android.activities.GeoPointMapActivity" android:windowSoftInputMode="adjustResize"></activity>
-<activity android:name="org.odk.collect.android.preferences.PreferencesActivity" android:windowSoftInputMode="adjustResize"></activity>
 
-  <activity android:name=".activities.EntityMapActivity"></activity>
-  
-<uses-library android:name="org.javarosa" android:required="false" />
-<uses-library android:name="org.commcare" android:required="false" />
+        <activity
+            android:name=".activities.EntitySelectActivity"
+            android:windowSoftInputMode="stateUnchanged|adjustResize" >
+        </activity>
+        <activity
+            android:name=".activities.EntityDetailActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name=".activities.FormRecordListActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
 
-<uses-library android:name="com.google.android.maps" android:required="false" />
-<activity android:name=".activities.MessageActivity">
-</activity>
-<receiver android:name="org.commcare.android.models.notifications.NotificationClearReceiver"></receiver>
+        <service
+            android:name=".services.CommCareSessionService"
+            android:enabled="true" >
+        </service>
 
-</application>
+        <activity
+            android:name=".activities.CallLogActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name=".activities.MessageLogActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name=".activities.PhoneLogActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name="org.odk.collect.android.activities.FormEntryActivity"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name="org.odk.collect.android.activities.FormHierarchyActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name="org.odk.collect.android.activities.GeoPointActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name="org.odk.collect.android.activities.GeoPointMapActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name="org.odk.collect.android.preferences.PreferencesActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity android:name=".activities.EntityMapActivity" >
+        </activity>
 
-<uses-feature android:name="android.hardware.telephony" android:required="false" />
-<uses-feature android:name="android.hardware.location" android:required="false" />
-<uses-feature android:name="android.hardware.location.gps" android:required="false" />
-<uses-feature android:name="android.hardware.location.network" android:required="false" />
+        <uses-library
+            android:name="org.javarosa"
+            android:required="false" />
+        <uses-library
+            android:name="org.commcare"
+            android:required="false" />
+        <uses-library
+            android:name="com.google.android.maps"
+            android:required="false" />
 
-  
-  <uses-permission android:name="android.permission.READ_PHONE_STATE" xmlns:android="http://schemas.android.com/apk/res/android"/>
-  <uses-permission android:name="android.permission.INTERNET" xmlns:android="http://schemas.android.com/apk/res/android"/>
-  <uses-permission android:name="android.permission.ACCESS_SURFACE_FLINGER" xmlns:android="http://schemas.android.com/apk/res/android"/>
-  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" xmlns:android="http://schemas.android.com/apk/res/android"/>
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" xmlns:android="http://schemas.android.com/apk/res/android"/>
+        <activity android:name=".activities.MessageActivity" >
+        </activity>
 
-<uses-permission android:name="android.permission.CALL_PHONE"></uses-permission>
+        <receiver android:name="org.commcare.android.models.notifications.NotificationClearReceiver" >
+        </receiver>
 
-<uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+        <activity
+            android:name=".activities.ReportProblemActivity"
+            android:label="@string/title_activity_report_problem" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.commcare.dalvik.activities.CommCareSetupActivity" />
+        </activity>
+    </application>
 
-<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="8"></uses-sdk>
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.network"
+        android:required="false" />
 
-<uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
-<uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
-<uses-permission android:name="android.permission.READ_SMS"></uses-permission>
-</manifest> 
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.INTERNET" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.ACCESS_SURFACE_FLINGER" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" >
+    </uses-permission>
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="8" >
+    </uses-sdk>
+
+    <uses-permission android:name="android.permission.READ_CONTACTS" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.WAKE_LOCK" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.READ_SMS" >
+    </uses-permission>
+
+</manifest>

@@ -39,7 +39,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.util.Log;
 /**
  * The CommCareStartupActivity is purely responsible for identifying
  * the state of the application (uninstalled, installed) and performing
@@ -65,11 +65,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
+	public static final int REPORT_PROBLEM = Menu.FIRST + 2;
 	
 	public static final int DIALOG_INSTALL_PROGRESS = 0;
 	public static final int DIALOG_VERIFY_PROGRESS = 1;
 	
 	public static final int BARCODE_CAPTURE = 1;
+	public static final int REPORT_PROBLEM_ACTIVITY = 2;
 	
 	int dbState;
 	int resourceState;
@@ -235,6 +237,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 				this.setModeToReady(result);
 			}
 		}
+		if(requestCode == REPORT_PROBLEM_ACTIVITY){
+			String reportEntry = data.getStringExtra("result");
+			Log.i("USER-FEEDBACK", "U: " + reportEntry);
+		}
 	}
 
 	private void startResourceInstall() {
@@ -266,6 +272,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         super.onCreateOptionsMenu(menu);
     	menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
     	menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
+    	menu.add(0, REPORT_PROBLEM, 0, Localization.get("problem.report.menuitem")).setIcon(android.R.drawable.ic_menu_report_image);
         return true;
     }
     
@@ -323,12 +330,20 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	            case MODE_ADVANCED:
 	            	setModeToAdvanced();
 	            	return true;
+	            case REPORT_PROBLEM:
+	            	startReportActivity();
+	            	return true;
 	        }
     	}
         return super.onOptionsItemSelected(item);
     }
     
 	
+	private void startReportActivity() {
+        Intent i = new Intent(this, ReportProblemActivity.class);
+        CommCareSetupActivity.this.startActivityForResult(i, REPORT_PROBLEM_ACTIVITY);
+	}
+
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreateDialog(int)
 	 */

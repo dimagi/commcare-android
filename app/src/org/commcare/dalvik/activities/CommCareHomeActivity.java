@@ -1017,6 +1017,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     		syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble_danger));
     	}
     	else{
+    		syncMessage.setTextColor(getResources().getColor(R.color.solid_black));
     		syncMessage.setTypeface(null, Typeface.NORMAL);
     		syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble));
     	}
