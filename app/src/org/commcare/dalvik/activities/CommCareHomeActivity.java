@@ -61,6 +61,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -80,6 +81,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	public static final int GET_INCOMPLETE_FORM = 16;
 	public static final int GET_REFERRAL = 32;
 	public static final int UPGRADE_APP = 64;
+	public static final int REPORT_PROBLEM_ACTIVITY = 128;
 	
 	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
@@ -89,6 +91,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private static final int MENU_PREFERENCES = Menu.FIRST;
 	private static final int MENU_UPDATE = Menu.FIRST  +1;
 	private static final int MENU_CALL_LOG = Menu.FIRST  +2;
+	public static final int REPORT_PROBLEM = Menu.FIRST + 3;
 	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;
@@ -350,6 +353,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	try {
+    		// if handling new return code (want to return to home screen) but a return at the end of your statement
 	    	switch(requestCode) {
 	    	case INIT_APP:
 	    		if(resultCode == RESULT_CANCELED) {
@@ -375,6 +379,17 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     				return;
 	    		}
 	    		break;
+	    	case REPORT_PROBLEM_ACTIVITY:
+	    		if(resultCode == RESULT_CANCELED) {
+	    			return;
+	    		}
+	    		else if(resultCode == RESULT_OK){
+		    		String reportEntry = intent.getStringExtra("result");
+		    		Log.i("USER-FEEDBACK", "U: " + reportEntry);
+		    		CommCareApplication._().notifyLogsPending();
+		    		refreshView();
+		    		return;	
+	    		}
 	    	case LOGIN_USER:
 	    		if(resultCode == RESULT_CANCELED) {
 	    			//quit somehow.
@@ -1106,6 +1121,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         		android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_CALL_LOG, 0, Localization.get("home.menu.call.log")).setIcon(
         		android.R.drawable.ic_menu_recent_history);
+        menu.add(0, REPORT_PROBLEM, 0, Localization.get("problem.report.menuitem")).setIcon(
+        		android.R.drawable.ic_menu_report_image);
         return true;
     }
 
@@ -1128,9 +1145,18 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             case MENU_CALL_LOG:
             	createCallLogActivity();
             	return true;
+            case REPORT_PROBLEM:
+            	System.out.println("entered proper case");
+            	startReportActivity();
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
+    
+	private void startReportActivity() {
+        Intent i = new Intent(this, ReportProblemActivity.class);
+        CommCareHomeActivity.this.startActivityForResult(i, REPORT_PROBLEM_ACTIVITY);
+	}
     
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
