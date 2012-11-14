@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:id="@+id/screen_login_main">
+
+    <LinearLayout
+        android:id="@+id/screen_login_bottom_pane"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_alignParentBottom="true">
+
+        <TextView
+            android:id="@+id/str_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/VersionIdText" />
+
+        <Button
+            android:id="@+id/login_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:nextFocusUp="@+id/edit_password" />
+    </LinearLayout>
+
+
+    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" android:orientation="vertical" android:layout_alignParentTop="true" android:layout_above="@id/screen_login_bottom_pane">
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0px" android:layout_weight=".2" android:id="@+id/screen_login_banner_pane">
+
+            <ImageView
+                android:id="@+id/screen_login_top_banner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitStart"
+                android:src="@drawable/ccbanner" android:adjustViewBounds="true"/>
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/LinearLayout01"
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight=".8"
+            android:gravity="center_vertical|center_horizontal"
+            android:orientation="vertical"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp" >
+
+            <TextView
+                android:id="@+id/text_username"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="@+id/TextView02" />
+
+            <EditText
+                android:id="@+id/edit_username"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:nextFocusDown="@+id/edit_password" android:contentDescription="Username">
+
+                <requestFocus />
+            </EditText>
+
+            <TextView
+                android:id="@+id/text_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_horizontal"
+                android:text="@+id/TextView03" />
+
+            <EditText
+                android:id="@+id/edit_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:nextFocusDown="@+id/checkserver"
+                android:nextFocusUp="@+id/edit_username" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

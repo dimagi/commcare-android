@@ -7,9 +7,14 @@
 
 </LinearLayout>
 
+<Spinner
+    android:id="@+id/entity_select_filter_dropdown"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:layout_below="@id/entity_select_header" android:visibility="gone"/>
+
 <RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="fill_parent" android:layout_above="@+id/searchfooter" android:layout_below="@id/entity_select_header">
+    android:layout_height="fill_parent" android:layout_above="@+id/searchfooter" android:layout_below="@id/entity_select_filter_dropdown">
 
     <ProgressBar
         android:id="@+id/entity_select_loading"
@@ -19,7 +24,7 @@
 
 </RelativeLayout>
 
-<ListView android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@android:id/list" android:layout_above="@+id/searchfooter" android:layout_below="@+id/entity_select_header"></ListView>
+<ListView android:layout_height="fill_parent" android:layout_width="fill_parent" android:id="@android:id/list" android:layout_above="@+id/searchfooter" android:layout_below="@+id/entity_select_filter_dropdown"></ListView>
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:id="@+id/searchfooter" android:orientation="horizontal" android:background="@drawable/border_top_black" android:paddingTop="1dp">
 	<TextView android:id="@+id/TextView02" android:layout_below="@+id/TextView01" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Search:" android:layout_gravity="center_vertical"></TextView>
