@@ -239,11 +239,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 
             }
         });
-        try {
-        	refreshView();
-        } catch(SessionUnavailableException sue) {
-        	this.returnToLogin(Localization.get("home.logged.out"));
-        }
     }
     
     private void syncData() {
@@ -357,7 +352,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			this.finish();
 	    			return;
 	    		} else if(resultCode == RESULT_OK) {
-	    			CommCareApplication._().initializeGlobalResources();
+	    			//CTS - Removed a call to initializing resources here. The engine takes care of that.
 	    			return;
 	    		}
 	    		break;
