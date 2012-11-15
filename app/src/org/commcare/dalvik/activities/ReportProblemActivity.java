@@ -19,9 +19,9 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_problem);
         Button submitButton = (Button)findViewById(R.id.ReportButton01);
-        submitButton.setText(Localization.get("report.problem.button"));
+        submitButton.setText(Localization.get("problem.report.button"));
         submitButton.setOnClickListener(this);
-        ((TextView)findViewById(R.id.ReportPrompt01)).setText("report.problem.prompt");
+        ((TextView)findViewById(R.id.ReportPrompt01)).setText(Localization.get("problem.report.prompt"));
     }
 
 	@Override
@@ -30,7 +30,7 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
 		String reportEntry = mEdit.getText().toString();
 		Intent mIntent = new Intent();
 		mIntent.putExtra("result",reportEntry);
-		setResult(1,mIntent);
+		setResult(RESULT_OK,mIntent);
 		finish();
 	}
 
