@@ -385,7 +385,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		}
 	    		else if(resultCode == RESULT_OK){
 		    		String reportEntry = intent.getStringExtra("result");
-		    		Log.i("USER-FEEDBACK", "U: " + reportEntry);
+		    		Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, "U: " + reportEntry);
 		    		CommCareApplication._().notifyLogsPending();
 		    		refreshView();
 		    		return;	
@@ -1146,7 +1146,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             	createCallLogActivity();
             	return true;
             case REPORT_PROBLEM:
-            	System.out.println("entered proper case");
             	startReportActivity();
             	return true;
         }

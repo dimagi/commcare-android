@@ -58,6 +58,9 @@ public class AndroidLogger implements ILogger {
 	/** Form Entry workflow messages **/
 	public static final String TYPE_FORM_ENTRY = "form-entry";
 	
+	/** Problem reported via report activity at home screen **/
+	public static final String USER_REPORTED_PROBLEM = "user-report";
+	
 	//TODO: Currently assumes that it gets back iterated records in RecordID order.
 	//when serializing a limited number of records then clearing
 
