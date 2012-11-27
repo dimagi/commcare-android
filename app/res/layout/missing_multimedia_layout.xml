@@ -17,10 +17,12 @@
     
     <Button
         android:id="@+id/RetryButton01"
+        
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:text="Retry"
         android:layout_centerHorizontal="true"
-        android:layout_width="fill_parent"
-        android:layout_below="@+id/MissingMediaPrompt01"/>
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>
