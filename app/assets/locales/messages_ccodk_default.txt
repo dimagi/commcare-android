@@ -188,3 +188,8 @@ notification.sending.loggedout.detail=You were logged out while CommCare was pro
 problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below
 problem.report.menuitem=Report Problem
+
+verification.title=Verification Title
+verification.checking=Verification checking
+verification.progress=Verified ${0} out of ${1} resources found
+verification.fail.message=There was a problem validating missing media resources. Do you want to try to add these resources?

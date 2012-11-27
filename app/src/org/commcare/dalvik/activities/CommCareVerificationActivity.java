@@ -9,12 +9,15 @@ import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
 
 import android.view.View;
 import android.view.View.OnClickListener;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -22,18 +25,20 @@ import android.widget.TextView;
 
 public class CommCareVerificationActivity extends Activity implements VerificationTaskListener, OnClickListener {
 	
-	TextView missingMediaStatus;
 	TextView missingMediaPrompt;
+	
+	private ProgressDialog vProgressDialog;
 	
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	
 	public static int RESULT_RETRY = 2;
 	public static int RESULT_IGNORE = 3;
 	
+	public static int DIALOG_VERIFY_PROGRESS = 0;
+	
 	public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         
-        System.out.println("In onCreate");
         
         Bundle extras = getIntent().getExtras();
         setContentView(R.layout.missing_multimedia_layout);
@@ -45,23 +50,23 @@ public class CommCareVerificationActivity extends Activity implements Verificati
         retryButton.setOnClickListener(this);
         
         missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt01);
-        missingMediaStatus = (TextView)findViewById(R.id.MissingMediaStatus01);
         
         missingMediaPrompt.setText("Verifying media...");
-        setStatusString(0,0);
         verifyResourceInstall();
 	}
 	
 	public void verifyResourceInstall() {
 		VerificationTask task = new VerificationTask(this);
 		task.setListener(this);
+		this.showDialog(DIALOG_VERIFY_PROGRESS);
 		task.execute((String[])null);
 	}
 
 	@Override
 	public void onFinished(SizeBoundVector<UnresolvedResourceException> problems) {
+		vProgressDialog.dismiss();
 		if(problems.size() > 0 ) {
-			String message = "Problem with validating resources. Do you want to try to add these reources?";
+			String message = Localization.get("verification.fail.message");
 			
 			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
 			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
@@ -76,14 +81,14 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 				list.addElement(ure.getMessage());
 				
 				problemList.put(res, list);
+				
 			}
 			
 			for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
 				String resource = (String)en.nextElement();
-				message += "\nResource: " + resource;
 				message += "\n-----------";
 				for(String s : problemList.get(resource)) {
-					message += "\n" + s;
+					message += "\n" + prettyString(s);
 				}
 			}
 			if(problems.getAdditional() > 0) {
@@ -96,13 +101,19 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 		//this.showDialog(DIALOG_VERIFY_PROGRESS);
 	}
 	
-	public void setStatusString(int done, int pending){
-		missingMediaStatus.setText("verified " + done + " out of " + pending + " files.");
+	protected Dialog onCreateDialog(int id) {
+		if(id == DIALOG_VERIFY_PROGRESS) {
+			vProgressDialog = new ProgressDialog(this);
+			vProgressDialog.setTitle(Localization.get("verification.title"));
+			vProgressDialog.setMessage(Localization.get("verification.checking"));
+			return vProgressDialog;
+		}
+		return null;
 	}
 
 	@Override
 	public void updateVerifyProgress(int done, int pending) {
-		setStatusString(done, pending);
+		vProgressDialog.setMessage(Localization.get("verification.progress",new String[] {""+done,""+pending}));
 		
 	}
 	
@@ -140,6 +151,12 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 	public void failUnknown() {
 		missingMediaPrompt.setText("Validation failed for an unknown reason");
 		
+	}
+	
+	public String prettyString(String rawString){
+		int marker = rawString.indexOf("/sdcard");
+		if(marker<0){return rawString;}
+		else{return rawString.substring(marker);}
 	}
 
 	@Override

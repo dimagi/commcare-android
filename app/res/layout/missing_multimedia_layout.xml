@@ -15,22 +15,12 @@
         android:layout_below="@+id/ImageView01"
         tools:context=".ReportProblemActivity" />
     
-    <TextView
-        android:id="@+id/MissingMediaStatus01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/hello_world"
-        android:layout_below="@+id/MissingMediaPrompt01"
-        tools:context=".ReportProblemActivity" />
-    
     <Button
         android:id="@+id/RetryButton01"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Retry"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/MissingMediaStatus01"/>
+        android:layout_width="fill_parent"
+        android:layout_below="@+id/MissingMediaPrompt01"/>
 
 </RelativeLayout>
