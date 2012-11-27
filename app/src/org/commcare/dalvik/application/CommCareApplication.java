@@ -115,6 +115,7 @@ public class CommCareApplication extends Application {
 	
 	private int dbState;
 	private int resourceState;
+	private boolean resourcesValidated;
 	
 	private static CommCareApplication app;
 	
@@ -153,6 +154,7 @@ public class CommCareApplication extends Application {
 		CommCareApplication.app = this;
 		
         appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        
 //        PreferenceChangeListener listener = new PreferenceChangeListener(this);
 //        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
         
@@ -163,6 +165,8 @@ public class CommCareApplication extends Application {
 		
 		//The fallback in case the db isn't installed 
 		resourceState = STATE_UNINSTALLED;
+		
+		resourcesValidated = false;
 		
 		//Init storage
 		dbState = initDb();
@@ -962,5 +966,15 @@ public class CommCareApplication extends Application {
 	 */
 	public void notifyLogsPending() {
 		doReportMaintenance(true);
+	}
+	
+	public boolean areResourcesValidated(){
+		return appPreferences.getBoolean("isValidated",false);
+	}
+	
+	public void setResourcesValidated(boolean isValidated){
+		SharedPreferences.Editor editor = appPreferences.edit();
+		editor.putBoolean("isValidated", isValidated);
+		editor.commit();
 	}
 }

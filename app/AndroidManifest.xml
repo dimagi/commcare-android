@@ -179,6 +179,8 @@
         </activity>
         <activity android:name=".activities.EntityMapActivity" >
         </activity>
+        <activity android:name=".activities.CommCareVerificationActivity">
+        </activity>
 
         <uses-library
             android:name="org.javarosa"
@@ -202,6 +204,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.commcare.dalvik.activities.CommCareSetupActivity" />
+        </activity>
+        <activity
+            android:name=".CommCareVerificationActivity"
+            android:label="@string/title_activity_comm_care_verification" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

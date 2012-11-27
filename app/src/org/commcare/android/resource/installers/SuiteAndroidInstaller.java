@@ -148,6 +148,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+		System.out.println("1126 entering suite verifyInstallation");
 
 		try{
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
@@ -159,11 +160,23 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 			Vector<Menu> menus = mSuite.getMenus();
 			Enumeration e = menus.elements();
 			while(e.hasMoreElements()){
+				System.out.println("1126 iterating throguh elements verifyInstallation");
 				Menu mMenu = (Menu)e.nextElement();
 				String aURI = mMenu.getAudioURI();
 				String iURI = mMenu.getImageURI();
 				Reference aRef = ReferenceManager._().DeriveReference(aURI);
 				Reference iRef = ReferenceManager._().DeriveReference(iURI);
+				
+				if(!aRef.doesBinaryExist()){
+					System.out.println("1126: adding audio");
+					String audioLocalReference = aRef.getLocalURI();
+					problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + audioLocalReference));
+				}
+				if(!iRef.doesBinaryExist()){
+					System.out.println("1126: adding image");
+					String imageLocalReference = iRef.getLocalURI();
+					problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + imageLocalReference));
+				}
 			}
 		}
 		catch(Exception e){

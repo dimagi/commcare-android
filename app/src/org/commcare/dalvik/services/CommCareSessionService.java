@@ -59,6 +59,8 @@ public class CommCareSessionService extends Service  {
     private User user;
 	private byte[] key = null;
 	
+	private boolean multimediaIsVerified=false;
+	
     private Date sessionExpireDate;
     
     private String lock = "Lock";
@@ -444,6 +446,14 @@ public class CommCareSessionService extends Service  {
 			// END - Submission Listening Hooks
 
 		};
+	}
+	
+	public boolean isMultimediaVerified(){
+		return multimediaIsVerified;
+	}
+	
+	public void setMultiMediaVerified(boolean toggle){
+		multimediaIsVerified = toggle;
 	}
 
 }
