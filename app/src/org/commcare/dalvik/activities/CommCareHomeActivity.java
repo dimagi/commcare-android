@@ -82,6 +82,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	public static final int GET_REFERRAL = 32;
 	public static final int UPGRADE_APP = 64;
 	public static final int REPORT_PROBLEM_ACTIVITY = 128;
+	public static final int MISSING_MEDIA_ACTIVITY=256;
 	
 	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
@@ -374,11 +375,21 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     				return;
 	    		}
 	    		break;
+	    	case MISSING_MEDIA_ACTIVITY:
+	    		if(resultCode == RESULT_CANCELED){
+	    			this.finish();
+	    			return;
+	    		}
+	    		else if(resultCode == RESULT_OK){
+	    			return;
+	    		}
 	    	case REPORT_PROBLEM_ACTIVITY:
 	    		if(resultCode == RESULT_CANCELED) {
 	    			return;
 	    		}
 	    		else if(resultCode == RESULT_OK){
+		    		String reportEntry = intent.getStringExtra("result");
+		    		Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, "U: " + reportEntry);
 		    		CommCareApplication._().notifyLogsPending();
 		    		refreshView();
 		    		return;	
@@ -799,6 +810,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	     	        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
 	     	        
 	     	        this.startActivityForResult(i, INIT_APP);
+	        } else if(!CommCareApplication._().areResourcesValidated()){
+	        	
+	            Intent i = new Intent(this, CommCareVerificationActivity.class);
+	            this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+	        	
 	        } else if(!CommCareApplication._().getSession().isLoggedIn()) {
 	        	//We got brought back to this point despite 
 	        	returnToLogin();
@@ -1139,7 +1155,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             	createCallLogActivity();
             	return true;
             case REPORT_PROBLEM:
-            	System.out.println("entered proper case");
             	startReportActivity();
             	return true;
         }

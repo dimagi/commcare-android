@@ -51,7 +51,7 @@ import android.util.Log;
  * @author ctsims
  *
  */
-public class CommCareSetupActivity extends Activity implements ResourceEngineListener, VerificationTaskListener {
+public class CommCareSetupActivity extends Activity implements ResourceEngineListener{
 	
 //	public static final String DATABASE_STATE = "database_state";
 	public static final String RESOURCE_STATE = "resource_state";
@@ -70,6 +70,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final int DIALOG_VERIFY_PROGRESS = 1;
 	
 	public static final int BARCODE_CAPTURE = 1;
+	public static final int MISSING_MEDIA_ACTIVITY=2;
 	
 	int dbState;
 	int resourceState;
@@ -255,10 +256,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		//verifyResourceInstall(); on hold
 	}
 	
-	public void verifyResourceInstall() {
-		VerificationTask task = new VerificationTask(this);
-		task.setListener(this);
-		task.execute((String[])null);
+	private void startReportActivity(String failureMessage) {
+        Intent i = new Intent(this, CommCareVerificationActivity.class);
+        i.putExtra("msg",failureMessage);
+        CommCareSetupActivity.this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
 	}
 
     @Override
@@ -494,62 +495,4 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     		wakelock.release();
     	}
     }
-    
-    //TODO: Implement these
-
-	@Override
-	public void onFinished(SizeBoundVector<UnresolvedResourceException> problems) {
-		if(problems.size() > 0 ) {
-			String message = "Problem with validating resources. Do you want to try to add these reources?";
-			
-			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
-			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
-				UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
-				String res = ure.getResource().getResourceId();
-				Vector<String> list;
-				if(problemList.containsKey(res)) {
-					list = problemList.get(res);
-				} else{
-					list = new Vector<String>();
-				}
-				list.addElement(ure.getMessage());
-				
-				problemList.put(res, list);
-			}
-			
-			for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
-				String resource = (String)en.nextElement();
-				message += "\nResource: " + resource;
-				message += "\n-----------";
-				for(String s : problemList.get(resource)) {
-					message += "\n" + s;
-				}
-			}
-			if(problems.getAdditional() > 0) {
-				message += "\n\n..." + problems.getAdditional() + " more";
-			}
-			
-			//return message;
-		}
-		
-		this.showDialog(DIALOG_VERIFY_PROGRESS);
-	}
-
-	@Override
-	public void failMissingResources() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void success() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void failUnknown() {
-		// TODO Auto-generated method stub
-		
-	}
 }

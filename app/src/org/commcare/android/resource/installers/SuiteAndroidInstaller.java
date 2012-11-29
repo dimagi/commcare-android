@@ -164,6 +164,15 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 				String iURI = mMenu.getImageURI();
 				Reference aRef = ReferenceManager._().DeriveReference(aURI);
 				Reference iRef = ReferenceManager._().DeriveReference(iURI);
+				
+				if(!aRef.doesBinaryExist()){
+					String audioLocalReference = aRef.getLocalURI();
+					problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + audioLocalReference));
+				}
+				if(!iRef.doesBinaryExist()){
+					String imageLocalReference = iRef.getLocalURI();
+					problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + imageLocalReference));
+				}
 			}
 		}
 		catch(Exception e){

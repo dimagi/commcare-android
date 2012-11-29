@@ -8,6 +8,7 @@ import java.util.Vector;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
+import org.commcare.dalvik.activities.CommCareVerificationActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -62,11 +63,11 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<U
 			//This is replicated in the application in a few places.
     		ResourceTable global = platform.getGlobalResourceTable();
 			SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
+			global.setStateListener(this);
 			global.verifyInstallation(problems);
 			if(problems.size()>0){
 				return problems;
 			}
-    		
     		return null;
 		}
 		catch(Exception e) {
@@ -82,7 +83,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<U
 	protected void onProgressUpdate(int[]... values) {
 		super.onProgressUpdate(values);
 		if(listener != null) {
-			((CommCareSetupActivity)listener).updateVerifyProgress(values[0][0], values[0][1]);
+			((CommCareVerificationActivity)listener).updateVerifyProgress(values[0][0], values[0][1]);
 		}
 	}
 
@@ -92,15 +93,17 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<U
 
 	@Override
 	protected void onPostExecute(SizeBoundVector<UnresolvedResourceException> problems) {
-		if(listener != null && problems != null) {
+		if(problems == null){
+			listener.success();
+		}
+		else if(listener != null) {
 			if(problems.size() == 0){
 				listener.success();
 			} else if(problems.size() > 0){
-				listener.failMissingResources();
+				listener.onFinished(problems);
 			} else{
 				listener.failUnknown();
 			}
-			listener.success();
 		}
 
 		listener = null;
