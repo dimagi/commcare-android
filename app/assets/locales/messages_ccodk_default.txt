@@ -191,5 +191,5 @@ problem.report.menuitem=Report Problem
 
 verification.title=Verifying Resources
 verification.checking=Verifying...
-verification.progress=Verified ${0} out of ${1} resources found
-verification.fail.message=There was a problem validating missing media resources. Do you want to try to add these resources?
+verification.progress=Checked ${0} out of ${1} resources
+verification.fail.message=Some of your application's multimedia has not been installed. Please make sure the following files are present in the device, and press retry.

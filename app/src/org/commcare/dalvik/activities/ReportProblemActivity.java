@@ -31,7 +31,7 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		EditText mEdit = (EditText)findViewById(R.id.ReportText01);
 		String reportEntry = mEdit.getText().toString();
-		Logger.log(AndroidLogger.TYPE_FEEDBACK_REPORT, reportEntry);
+		Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, reportEntry);
 		setResult(RESULT_OK);
 		finish();
 	}

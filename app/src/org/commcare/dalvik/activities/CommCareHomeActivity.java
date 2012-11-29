@@ -388,8 +388,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			return;
 	    		}
 	    		else if(resultCode == RESULT_OK){
-		    		String reportEntry = intent.getStringExtra("result");
-		    		Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, "U: " + reportEntry);
 		    		CommCareApplication._().notifyLogsPending();
 		    		refreshView();
 		    		return;	
