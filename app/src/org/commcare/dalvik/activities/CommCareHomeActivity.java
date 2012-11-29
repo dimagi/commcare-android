@@ -379,8 +379,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			return;
 	    		}
 	    		else if(resultCode == RESULT_OK){
-		    		String reportEntry = intent.getStringExtra("result");
-		    		Log.i("USER-FEEDBACK", "U: " + reportEntry);
 		    		CommCareApplication._().notifyLogsPending();
 		    		refreshView();
 		    		return;	

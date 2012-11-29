@@ -197,8 +197,7 @@
         </receiver>
 
         <activity
-            android:name=".activities.ReportProblemActivity"
-            android:label="@string/title_activity_report_problem" >
+            android:name=".activities.ReportProblemActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.commcare.dalvik.activities.CommCareSetupActivity" />

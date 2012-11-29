@@ -153,6 +153,10 @@ public class TextImageAudioView extends RelativeLayout {
         	else{
         		textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         	}
+        	
+        	if(mAudioButton != null) {
+        		textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+        	}
             addView(text, textParams);
         }
     }
