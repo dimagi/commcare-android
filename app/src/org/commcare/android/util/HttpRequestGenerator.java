@@ -147,7 +147,7 @@ public class HttpRequestGenerator {
 	private HttpClient client() {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
-        HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_SO_TIMEOUT);
         HttpClientParams.setRedirecting(params, false);
         
         DefaultHttpClient client = new DefaultHttpClient(params);
