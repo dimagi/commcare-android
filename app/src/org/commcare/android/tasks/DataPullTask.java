@@ -127,6 +127,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		publishProgress(PROGRESS_STARTED);
 		
 		boolean loginNeeded = true;
+		boolean useRequestFlags = false;
 		try {
 			loginNeeded = !CommCareApplication._().getSession().isLoggedIn();
 		} catch(SessionUnavailableException sue) {
@@ -164,21 +165,22 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					factory.initUserParser(wrappedKey);
 				} else {
 					factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
+					
+					//Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
+					purgeCases();
+					useRequestFlags = true;
 				}
+				//Either way, don't re-do this step
+				this.publishProgress(PROGRESS_CLEANED);
 				
 				if(loginNeeded) {					
 					//This is necessary (currently) to make sure that data
 					//is encoded. Probably a better way to do this.
 					CommCareApplication._().logIn(spec.getEncoded(), null);
 				}
-				
-				//Purge
-				
-				purgeCases();
-				this.publishProgress(PROGRESS_CLEANED);
 					
 				
-				HttpResponse response = requestor.makeCaseFetchRequest(server);
+				HttpResponse response = requestor.makeCaseFetchRequest(server, useRequestFlags);
 				int responseCode = response.getStatusLine().getStatusCode();
 				if(responseCode == 401) {
 					//If we logged in, we need to drop those credentials
