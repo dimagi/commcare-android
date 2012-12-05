@@ -1160,6 +1160,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 createPreferencesMenu();
                 return true;
             case MENU_UPDATE:
+            	if(isAirplaneModeOn()){
+            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
+            		return true;
+            	}
             	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
             	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             	String ref = prefs.getString("default_app_server", null);
