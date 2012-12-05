@@ -9,16 +9,17 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.commcare.android.models.FormRecord;
-import org.commcare.dalvik.R;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
+import org.javarosa.core.services.locale.Localization;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,8 @@ public class IncompleteFormRecordView extends LinearLayout {
 	
 	Hashtable<String,Text> names;
 	Date start;
+	
+	Drawable rightHandSync;
 
 	public IncompleteFormRecordView(Context context, AndroidCommCarePlatform platform) {
 		super(context);
@@ -70,6 +73,8 @@ public class IncompleteFormRecordView extends LinearLayout {
         addView(vg, l);
 
         start = new Date();
+        
+        rightHandSync = context.getResources().getDrawable(android.R.drawable.stat_notify_sync_noanim);
 	}
 
 	public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
@@ -87,11 +92,13 @@ public class IncompleteFormRecordView extends LinearLayout {
 			mRightTextView.setText("Never");
 		}
 		if(record.getStatus() == FormRecord.STATUS_UNSENT) {
-			mUpperRight.setText("Unsent");
+			mUpperRight.setText(Localization.get("form.record.unsent"));
 			mUpperRight.setTextColor(getResources().getColor(R.color.red));
 			mUpperRight.setTypeface(null, Typeface.BOLD);
+			mUpperRight.setCompoundDrawablesWithIntrinsicBounds(null, null, rightHandSync, null);
 		} else {
 			mUpperRight.setText("");
+			mUpperRight.setCompoundDrawables(null, null, null, null);
 		}
 	}
 }

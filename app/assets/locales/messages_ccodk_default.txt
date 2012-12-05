@@ -110,6 +110,7 @@ form.record.filter.subandpending=Filter By: All Completed Forms
 form.record.filter.submitted=Filter By: Only Submitted Forms
 form.record.filter.pending=Filter By: Only Unsent Forms
 form.record.filter.incomplete=Only Incomplete Forms
+form.record.unsent=Unsent
 
 #Put these into their own file
 
