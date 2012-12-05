@@ -619,9 +619,16 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        		}
 	    		} else {
 	    	    	Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
+	    	    	
+	    	    	//This is the state we were in when we _Started_ form entry
+	        		FormRecord current = currentState.getFormRecord();
+	        		
+	        		//If the form was unstarted, we want to wipe the record. 
+	        		if(current.getStatus() == FormRecord.STATUS_UNSTARTED) {
+		    			//Entry was cancelled.
+		    			new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
+	        		}
 
-	    			//Entry was cancelled.
-	    			new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
 	    			currentState.reset();
         			if(wasExternal) {
         				this.finish();
