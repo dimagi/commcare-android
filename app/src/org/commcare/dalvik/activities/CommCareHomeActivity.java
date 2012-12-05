@@ -59,6 +59,7 @@ import android.net.Uri;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -209,6 +210,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         syncButton.setText(Localization.get("home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+            	
+            	if(isAirplaneModeOn()){
+            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
+            		return;
+            	}
+            	
                 boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {
 
 					public void processTaskAllProcessed() {
@@ -1173,4 +1180,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
       CommCareHomeActivity.currentHome = this;
       configUi();
     }
+    
+    private boolean isAirplaneModeOn() {
+    	
+    	   return Settings.System.getInt(getApplicationContext().getContentResolver(),
+    	           Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+
+    	}
 }

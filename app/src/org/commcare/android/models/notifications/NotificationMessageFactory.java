@@ -49,7 +49,10 @@ public class NotificationMessageFactory {
 		Restore_Unknown ("notification.restore.unknown"),
 		
 		/**Could not retrieve Form Result **/
-		FormEntry_Unretrievable ("notification.formentry.unretrievable");
+		FormEntry_Unretrievable ("notification.formentry.unretrievable"),
+		
+		/**In airplane mode while trying to sync**/
+		Sync_AirplaneMode("notification.sync.airplane");
 	
 		StockMessages(String root) {this.root = root;}
 		private final String root;
