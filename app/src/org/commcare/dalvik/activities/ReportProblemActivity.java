@@ -1,11 +1,14 @@
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -28,9 +31,8 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		EditText mEdit = (EditText)findViewById(R.id.ReportText01);
 		String reportEntry = mEdit.getText().toString();
-		Intent mIntent = new Intent();
-		mIntent.putExtra("result",reportEntry);
-		setResult(RESULT_OK,mIntent);
+		Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, reportEntry);
+		setResult(RESULT_OK);
 		finish();
 	}
 

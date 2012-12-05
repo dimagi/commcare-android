@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -31,6 +32,8 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 	
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	
+	VerificationTask task;
+	
 	public static int RESULT_RETRY = 2;
 	public static int RESULT_IGNORE = 3;
 	
@@ -39,24 +42,40 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 	public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         
-        
         Bundle extras = getIntent().getExtras();
         setContentView(R.layout.missing_multimedia_layout);
         
-        Button retryButton = (Button)findViewById(R.id.RetryButton01);
-        
-        retryButton.setText("Retry");
+        Button retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
         
         retryButton.setOnClickListener(this);
         
-        missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt01);
+        missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
         
-        missingMediaPrompt.setText("Verifying media...");
-        verifyResourceInstall();
+        
+        CommCareVerificationActivity last = (CommCareVerificationActivity)this.getLastNonConfigurationInstance();
+        if(last == null) {
+            missingMediaPrompt.setText("Verifying media...");
+            retryButton.setText("Retry");
+            verifyResourceInstall();
+        } else {
+        	//For some reason android just isn't recovering our prompt text here, which 
+        	//is super obnoxious
+        	missingMediaPrompt.setText(last.missingMediaPrompt.getText());
+        	if(last.task != null && last.task.getStatus() == Status.RUNNING) {
+        		this.task = last.task;
+        		last.task.setListener(this);
+        	} else {
+        		//don't worry about it
+        	}
+        }
+	}
+	
+	public Object onRetainNonConfigurationInstance() {
+		return this;
 	}
 	
 	public void verifyResourceInstall() {
-		VerificationTask task = new VerificationTask(this);
+		task = new VerificationTask(this);
 		task.setListener(this);
 		this.showDialog(DIALOG_VERIFY_PROGRESS);
 		task.execute((String[])null);
@@ -165,10 +184,9 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 		Intent mIntent = new Intent();
 		
 		switch(v.getId()){
-		case R.id.RetryButton01:
+		case R.id.screen_multimedia_retry:
 			verifyResourceInstall();
 			return;
 		}
-		finish();
 	}
 }
