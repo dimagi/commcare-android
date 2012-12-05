@@ -112,12 +112,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	ProgressDialog mProgressDialog;
 	AlertDialog mAskOldDialog;
 	AlertDialog mAttemptFixDialog;
-	private int mCurrentDialog;
+	private int mCurrentDialog = -1;
 	
 	ProcessAndSendTask mProcess;
 	DataPullTask mDataPullTask;
 	
-	static Activity currentHome;
+	static CommCareHomeActivity currentHome;
 	
 	Button startButton;
 	Button logoutButton;
@@ -135,6 +135,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         	wasExternal = savedInstanceState.getBoolean("was_external");
         }
         
+        //TODO: Retainlastnonconfigurationinstance, not this.
+        if(currentHome != null) {
+        	this.mCurrentDialog = currentHome.mCurrentDialog;
+        }
         currentHome = this;
         
         setContentView(R.layout.mainnew);
@@ -225,6 +229,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 	public void processAndSendFinished(int result, int successfulSends) {
                 		if(currentHome != CommCareHomeActivity.this) { System.out.println("Fixing issue with new activity");}
                 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
+                			currentHome.dismissDialog(mCurrentDialog);
                 			String label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
                 			Toast.makeText(currentHome, label, Toast.LENGTH_LONG).show();
                 			refreshView();
@@ -395,8 +400,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			return;
 	    		}
 	    		else if(resultCode == RESULT_OK){
-		    		String reportEntry = intent.getStringExtra("result");
-		    		Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, "U: " + reportEntry);
 		    		CommCareApplication._().notifyLogsPending();
 		    		refreshView();
 		    		return;	
@@ -778,7 +781,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     		}
     		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
     		mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
-    		mProcess.setListeners(this, CommCareApplication._().getSession().startDataSubmissionListener());
+    		mProcess.setListeners(listener, CommCareApplication._().getSession().startDataSubmissionListener());
     		showDialog(DIALOG_SEND_UNSENT);
     		mProcess.execute(records);
     		return true;
@@ -1150,10 +1153,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 createPreferencesMenu();
                 return true;
             case MENU_UPDATE:
-            	if(isAirplaneModeOn()){
-            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
-            		return true;
-            	}
             	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
             	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             	String ref = prefs.getString("default_app_server", null);
@@ -1181,11 +1180,15 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     public void onConfigurationChanged(Configuration newConfig) {
       super.onConfigurationChanged(newConfig);
       setContentView(R.layout.mainnew);
+      if(currentHome != null) {
+      	this.mCurrentDialog = currentHome.mCurrentDialog;
+      }
       CommCareHomeActivity.currentHome = this;
       configUi();
+      refreshView();
     }
     
-    public boolean isAirplaneModeOn() {
+    private boolean isAirplaneModeOn() {
     	
     	   return Settings.System.getInt(getApplicationContext().getContentResolver(),
     	           Settings.System.AIRPLANE_MODE_ON, 0) != 0;
