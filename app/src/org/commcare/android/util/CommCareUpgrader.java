@@ -14,9 +14,11 @@ import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.Logger;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 
 /**
  * 
@@ -59,11 +61,23 @@ public class CommCareUpgrader {
 			} else { return false; }
 		}
 		
+		if(from == 29) {
+			if(upgradeTwoNineToThreeOh(database)) {
+				from = 30;
+			} else { return false; }
+		}
+		
 		Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Upgrade %s",from == to ? "succesful" : "unsuccesful"));
 
 		return from == to; 
 	}
 
+
+	private boolean upgradeTwoNineToThreeOh(SQLiteDatabase database) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		prefs.edit().putBoolean("isValidated", true).commit();
+		return true;
+	}
 
 	public boolean upgradeOneTwo(SQLiteDatabase database) {
 		database.beginTransaction();

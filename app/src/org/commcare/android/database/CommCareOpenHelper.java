@@ -31,9 +31,10 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 	 * Version History:
 	 * 28 - Added the geocaching table
 	 * 29 - Added Logging table. Made SSD FormRecord_ID unique
+	 * 30 - Added validation, need to pre-flag validation
 	 */
 	
-    private static final int DATABASE_VERSION = 29;
+    private static final int DATABASE_VERSION = 30;
     private Context context;
     
     public CommCareOpenHelper(Context context) {
