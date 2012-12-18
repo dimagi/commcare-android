@@ -62,6 +62,11 @@ public class CommCarePreferences extends PreferenceActivity {
 	
 	
 	public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
+    public final static String CONTENT_VALIDATED = "cc-content-valid";
+    
+    public final static String YES = "yes";
+    public final static String NO = "no";
+
 
 	
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
