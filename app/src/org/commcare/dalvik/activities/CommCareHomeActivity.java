@@ -89,6 +89,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	public static final int USE_OLD_DIALOG = 1;
 	public static final int DIALOG_SEND_UNSENT =2;
 	public static final int DIALOG_CORRUPTED = 4;
+	public static final int DIALOG_NO_STORAGE = 8;
 	
 	private static final int MENU_PREFERENCES = Menu.FIRST;
 	private static final int MENU_UPDATE = Menu.FIRST  +1;
@@ -815,9 +816,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        //First make sure nothing catastrophic has happened
 	        if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
 	           CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
-	        	
-	        	//If so, ask the user if they want to wipe and recover (Possibly try to send everything first?)
-	        	showDialog(DIALOG_CORRUPTED);
+	        	if(!CommCareApplication._().isStorageAvailable()) {
+	        		showDialog(DIALOG_NO_STORAGE);
+	        	} else {
+		        	//If so, ask the user if they want to wipe and recover (Possibly try to send everything first?)
+		        	showDialog(DIALOG_CORRUPTED);
+	        	}
 	        }
 	        
 	        //Now we need to catch any resource or database upgrade flags and make sure that the application
@@ -914,6 +918,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	            return mProgressDialog;
         case DIALOG_CORRUPTED:
         		return createAskFixDialog();
+        case DIALOG_NO_STORAGE:
+        		return createNoStorageDialog();
         }
         return null;
     }
@@ -961,6 +967,30 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         
         return mAttemptFixDialog;
     }
+    
+    public Dialog createNoStorageDialog() {
+    	//TODO: Localize this in theory, but really shift it to the upgrade/management state
+    	
+    	AlertDialog mNoStorageDialog = new AlertDialog.Builder(this).create();
+    	mNoStorageDialog.setTitle(Localization.get("app.storage.missing.title"));
+    	mNoStorageDialog.setMessage(Localization.get("app.storage.missing.message"));
+		
+        DialogInterface.OnClickListener noStorageButton = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int i) {
+            	killapp();
+            }
+        };
+        mNoStorageDialog.setCancelable(false);
+        mNoStorageDialog.setButton(Localization.get("app.storage.missing.button"), noStorageButton);
+        
+        return mNoStorageDialog;
+    }
+    
+    private void killapp() {
+       System.runFinalizersOnExit(true);
+       System.exit(0);
+    }
+
     
     private boolean testBotchedUpgrade() {
     	//If the install folder is empty, we know that commcare wiped out our stuff.

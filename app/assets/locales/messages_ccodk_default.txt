@@ -112,6 +112,10 @@ form.record.filter.pending=Filter By: Only Unsent Forms
 form.record.filter.incomplete=Only Incomplete Forms
 form.record.unsent=Unsent
 
+app.storage.missing.title=SD Card Missing
+app.storage.missing.message=Your device's SD card has been removed, please return the SD card to continue using CommCare
+app.storage.missing.button=Shutdown CommCare 
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
