@@ -115,7 +115,6 @@ public class CommCareApplication extends Application {
 	
 	private int dbState;
 	private int resourceState;
-	private boolean resourcesValidated;
 	
 	private static CommCareApplication app;
 	
@@ -165,8 +164,6 @@ public class CommCareApplication extends Application {
 		
 		//The fallback in case the db isn't installed 
 		resourceState = STATE_UNINSTALLED;
-		
-		resourcesValidated = false;
 		
 		//Init storage
 		dbState = initDb();
@@ -969,7 +966,7 @@ public class CommCareApplication extends Application {
 	}
 	
 	public boolean areResourcesValidated(){
-		return appPreferences.getBoolean("isValidated",false);
+		return appPreferences.getBoolean("isValidated",false) || appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES);
 	}
 	
 	public void setResourcesValidated(boolean isValidated){
