@@ -83,7 +83,14 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:nextFocusDown="@+id/checkserver"
-                android:nextFocusUp="@+id/edit_username" />
+                android:nextFocusUp="@+id/edit_username" android:layout_marginBottom="-6dp"/>
+
+            <TextView
+                android:id="@+id/screen_login_bad_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Incorrect Username or Password" android:background="@drawable/bubble_danger" android:paddingTop="2dp" android:paddingBottom="2dp" android:textColor="@color/red" android:textStyle="bold" android:visibility="gone" android:layout_marginLeft="2dp" android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_marginRight="2dp" android:gravity="center"/>
+
         </LinearLayout>
 
     </LinearLayout>

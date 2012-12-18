@@ -53,6 +53,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 	
 	TextView userLabel;
 	TextView passLabel;
+	TextView errorBox;
 	
 	EditText username;
 	EditText password;
@@ -87,6 +88,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         password = (EditText)findViewById(R.id.edit_password);
         
         banner = findViewById(R.id.screen_login_banner_pane);
+        errorBox = (TextView)this.findViewById(R.id.screen_login_bad_password);
         
         //Only on the initial creation
         if(savedInstanceState ==null) {
@@ -95,11 +97,17 @@ public class LoginActivity extends Activity implements DataPullListener {
         		username.setText(lastUser);
         		password.requestFocus();
         	}
-        }        
+        }
+        LoginActivity oldThis = (LoginActivity)this.getLastNonConfigurationInstance();
+        if(oldThis != null) {
+        	this.errorBox.setVisibility(oldThis.errorBox.getVisibility());
+        	this.errorBox.setText(oldThis.errorBox.getText());
+        }
         
         login.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View arg0) {
+				errorBox.setVisibility(View.GONE);
 				//Try logging in locally
 				if(tryLocalLogin()) {
 					return;
@@ -150,7 +158,15 @@ public class LoginActivity extends Activity implements DataPullListener {
         });
     }
 
-    /*
+    /* (non-Javadoc)
+	 * @see android.app.Activity#onRetainNonConfigurationInstance()
+	 */
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return this;
+	}
+
+	/*
      * (non-Javadoc)
      * 
      * @see android.app.Activity#onResume()
@@ -249,7 +265,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 	public void finished(int status) {
 		switch(status) {
 		case DataPullTask.AUTH_FAILED:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.BAD_DATA:
@@ -323,7 +339,16 @@ public class LoginActivity extends Activity implements DataPullListener {
     }
     
     private void raiseMessage(NotificationMessage message) {
-    	CommCareApplication._().reportNotificationMessage(message);
+    	raiseMessage(message, true);
+    }
+    
+    private void raiseMessage(NotificationMessage message, boolean showTop) {
+    	if(showTop) {
+    		CommCareApplication._().reportNotificationMessage(message);
+    	} else {
+    		errorBox.setVisibility(View.VISIBLE);
+    		errorBox.setText(message.getTitle());
+    	}
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
     }
     

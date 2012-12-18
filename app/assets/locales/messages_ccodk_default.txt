@@ -114,7 +114,7 @@ form.record.unsent=Unsent
 
 #Put these into their own file
 
-login.attempt.fail.auth.title=Invalid Username/Password Combination
+login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
 login.attempt.fail.changed.title=Password Changed on Server
