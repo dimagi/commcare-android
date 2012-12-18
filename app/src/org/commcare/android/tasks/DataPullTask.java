@@ -73,6 +73,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	String password;
 	Context c;
 	
+	private boolean wasKeyLoggedIn = false;
+	
 	DataPullListener listener;
 	
 	public static final int DOWNLOAD_SUCCESS = 0;
@@ -113,6 +115,18 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		c = null;
 		server = null;
 		password = null;
+	}
+	
+
+	/* (non-Javadoc)
+	 * @see android.os.AsyncTask#onCancelled()
+	 */
+	@Override
+	protected void onCancelled() {
+		super.onCancelled();
+		if(wasKeyLoggedIn) {
+			CommCareApplication._().logout();
+		}
 	}
 
 	@Override
@@ -177,6 +191,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					//This is necessary (currently) to make sure that data
 					//is encoded. Probably a better way to do this.
 					CommCareApplication._().logIn(spec.getEncoded(), null);
+					wasKeyLoggedIn = true;
 				}
 					
 				
