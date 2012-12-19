@@ -114,7 +114,10 @@ form.record.unsent=Unsent
 
 app.storage.missing.title=SD Card Missing
 app.storage.missing.message=Your device's SD card has been removed, please return the SD card to continue using CommCare
-app.storage.missing.button=Shutdown CommCare 
+app.storage.missing.button=Shutdown CommCare
+ 
+cchq.case=Case
+select.placeholder.message=Please select a ${0}
 
 #Put these into their own file
 

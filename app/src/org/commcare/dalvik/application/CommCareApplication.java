@@ -432,6 +432,7 @@ public class CommCareApplication extends Application {
 	}
 	
 	public <T extends Externalizable> T deserializeFromIntent(Intent i, String name, Class<T> type) {
+		if(!i.hasExtra(name)) { return null;}
 		T t;
 		try {
 			t = type.newInstance();

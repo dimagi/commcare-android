@@ -8,29 +8,32 @@ import java.util.Vector;
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.TreeReference;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
 /**
  * @author ctsims
  *
  */
-public class EntityDetailActivity extends ListActivity implements DetailCalloutListener {
+public class EntityDetailActivity extends Activity implements DetailCalloutListener {
 	private CommCareSession session;
 	
 	private static final int CALL_OUT = 0;
@@ -53,6 +56,17 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        if(this.getString(R.string.panes).equals("two")) {
+        	if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        		//this occurs when the screen was rotated to be vertical on the select activity. We
+        		//want to navigate back to that screen now.
+        		this.setResult(RESULT_CANCELED, this.getIntent());
+        		this.finish();
+        		return;
+        	}
+        }
+
         
         try{
 	        setContentView(R.layout.entity_detail);
@@ -100,16 +114,7 @@ public class EntityDetailActivity extends ListActivity implements DetailCalloutL
      */
     private void refreshView() {
     	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this);
-    	setListAdapter(adapter);
-    }
-
-
-    /**
-     * Stores the path of selected form and finishes.
-     */
-    @Override
-    protected void onListItemClick(ListView listView, View view, int position, long id) {
-        //Shouldn't be possible
+    	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }
         
     protected void loadOutgoingIntent(Intent i) {

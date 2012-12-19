@@ -3,7 +3,13 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content">
-<ListView android:layout_alignParentTop="true" android:layout_width="fill_parent" android:layout_height="fill_parent" android:id="@android:id/list" android:layout_above="@+id/entity_detail_bottom_pane"/>
+
+<ListView
+    android:id="@+id/screen_entity_detail_list"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_above="@+id/entity_detail_bottom_pane"
+    android:layout_alignParentTop="true" />
 
 <FrameLayout
     android:layout_width="fill_parent"

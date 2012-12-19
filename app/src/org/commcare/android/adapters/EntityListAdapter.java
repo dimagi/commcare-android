@@ -44,6 +44,8 @@ public class EntityListAdapter implements ListAdapter {
 	List<TreeReference> references;
 	Detail d;
 	
+	private TreeReference selected;
+	
 	int currentSort[] = {};
 	boolean reverseSort = false;
 	
@@ -202,7 +204,7 @@ public class EntityListAdapter implements ListAdapter {
 		if(emv == null) {
 			emv = new EntityView(context, d, e);
 		} else{
-			emv.setParams(e);
+			emv.setParams(e, e.getElement().equals(selected));
 		}
 		return emv;
 	}
@@ -230,6 +232,10 @@ public class EntityListAdapter implements ListAdapter {
 	
 	public void applyFilter(String s) {
 		filterValues(s);
+		update();
+	}
+	
+	private void update() {
 		for(DataSetObserver o : observers) {
 			o.onChanged();
 		}
@@ -261,4 +267,18 @@ public class EntityListAdapter implements ListAdapter {
 		this.observers.remove(observer);
 	}
 
+	public void notifyCurrentlyHighlighted(TreeReference chosen) {
+		this.selected = chosen;
+		update();
+	}
+
+	public int getPosition(TreeReference chosen) {
+		for(int i = 0 ; i < current.size() ; ++i) {
+			Entity<TreeReference> e = current.get(i);
+			if(e.getElement().equals(chosen)) {
+				return i;
+			}
+		}
+		return -1;
+	}
 }

@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
@@ -24,6 +26,7 @@ import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -31,11 +34,11 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -43,10 +46,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -56,7 +65,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends ListActivity implements TextWatcher, EntityLoaderListener {
+public class EntitySelectActivity extends Activity implements TextWatcher, EntityLoaderListener, OnItemClickListener {
 	private CommCareSession session;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
@@ -87,15 +96,53 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
 	
 	private EntityLoaderTask loader;
 	
+	private boolean inAwesomeMode = false;
+	FrameLayout rightFrame;
+	
+	Intent selectedIntent = null;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getLastNonConfigurationInstance();
+        
         if(savedInstanceState != null) {
         	mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
         }
-
-        setContentView(R.layout.entity_select_layout);
+        
+        if(this.getString(R.string.panes).equals("two")) {
+        	//See if we're on a big 'ol screen.
+        	
+        	if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        		//If we're in landscape mode, we can display this with the awesome UI.
+        		
+        		//Inflate and set up the normal view for now.
+        		setContentView(R.layout.screen_compound_select);
+        		View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
+        		inAwesomeMode = true;
+        		
+        		rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
+        		
+        		TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
+        		message.setText(Localization.get("select.placeholder.message", new String[] {Localization.get("cchq.case")}));
+        	} else {
+        		setContentView(R.layout.entity_select_layout);
+        		//So we're not in landscape mode anymore, but were before. If we had something selected, we 
+        		//need to go to the detail screen instead.
+                if(oldActivity != null) {
+                	if(oldActivity.selectedIntent != null) {
+                		startActivityForResult(oldActivity.selectedIntent, CONFIRM_SELECT);
+                		startOther = true;
+                	}
+                }
+        	}
+        } else {
+        	setContentView(R.layout.entity_select_layout);
+        }
+        ((ListView)this.findViewById(R.id.screen_entity_select_list)).setOnItemClickListener(this);
+        
+        
         searchbox = (EditText)findViewById(R.id.searchbox);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
         
@@ -131,33 +178,37 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
         
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
-        
-        
-        Object o = this.getLastNonConfigurationInstance();
-        if(o != null && o instanceof EntityListAdapter) {
-        	adapter = (EntityListAdapter)o;
-        	this.setListAdapter(adapter);
+
+        if(oldActivity != null) {
+        	adapter = oldActivity.adapter;
+    	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
         	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         }
     }
     
     boolean resuming = false;
+    boolean startOther = false;
     
     public void onResume() {
     	super.onResume();
     	//Don't go through making the whole thing if we're finishing anyway.
-    	if(this.isFinishing()) {return;}
+    	if(this.isFinishing() || startOther) {return;}
     	
         if(!resuming && selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
         	TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
         	
         	if(entity != null) {
-        		//Once we've done the initial dispatch, we don't want to end up triggering it later.
-        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
-        		
-        		Intent i = getDetailIntent(entity);
-        		startActivityForResult(i, CONFIRM_SELECT);
-        		return;
+        		if(inAwesomeMode) {
+        			displayReferenceAwesome(entity);
+        			updateSelectedItem(entity, true);
+        		} else {
+	        		//Once we've done the initial dispatch, we don't want to end up triggering it later.
+	        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
+	        		
+	        		Intent i = getDetailIntent(entity);
+	        		startActivityForResult(i, CONFIRM_SELECT);
+	        		return;
+        		}
         	}
         } 
     	
@@ -170,11 +221,7 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
 	 */
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		if(adapter != null) { 
-			return adapter;
-		} else {
-			return super.onRetainNonConfigurationInstance();
-		}
+		return this;
 	}
 
 
@@ -275,17 +322,21 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
     }
 
 
-    /**
-     * Stores the path of selected form and finishes.
-     */
-    @Override
-    protected void onListItemClick(ListView listView, View view, int position, long id) {
-        Intent i = getDetailIntent(adapter.getItem(position));
-        startActivityForResult(i, CONFIRM_SELECT);
-        
-    }
     
-    /*
+
+	@Override
+	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+    	TreeReference selection = adapter.getItem(position);
+    	if(inAwesomeMode) {
+    		displayReferenceAwesome(selection);
+    		updateSelectedItem(selection, false);
+    	} else {
+    		Intent i = getDetailIntent(selection);
+    		startActivityForResult(i, CONFIRM_SELECT);
+    	}
+	}
+
+	/*
      * (non-Javadoc)
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
@@ -310,11 +361,21 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
     	        finish();
         		return;
     		} else {
+    			//Did we enter the detail from mapping mode? If so, go back to that
 	    		if(mResultIsMap) {
 	    			mResultIsMap = false;
 	            	Intent i = new Intent(this, EntityMapActivity.class);
 	            	this.startActivityForResult(i, MAP_SELECT);
 	            	return;
+	    		} 
+	    		
+	    		//Otherwise, if we're in awesome mode, make sure we retain the original selection
+	    		if(inAwesomeMode) {
+		    		TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+		    		if(r != null) {
+		    			this.displayReferenceAwesome(r);
+		    			updateSelectedItem(r, true);
+		    		}
 	    		}
         		return;
     		}
@@ -322,13 +383,17 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
     		if(resultCode == RESULT_OK) {
 	    		TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
 	    		
-	        	Intent i = this.getDetailIntent(r);
-	        	
-	    		//To go back to map mode if confirm is false
-	        	mResultIsMap = true;
-	        	
-	            startActivityForResult(i, CONFIRM_SELECT);
-	            return;
+	    		if(inAwesomeMode) {
+	    			this.displayReferenceAwesome(r);
+	    		} else {
+		        	Intent i = this.getDetailIntent(r);
+		        	
+		    		//To go back to map mode if confirm is false
+		        	mResultIsMap = true;
+		        	
+		            startActivityForResult(i, CONFIRM_SELECT);
+		            return;
+	    		}
     		} else {
     			refreshView();
     			return;
@@ -469,9 +534,36 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
     		}
     	}
 		
+    	ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
 		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order);
-    	setListAdapter(adapter);
-    	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+		view.setAdapter(adapter);
+		
+		findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+		
+		//In landscape we want to select something now. Either the top item, or the most recently selected one
+		if(inAwesomeMode) {
+			updateSelectedItem(true);
+		}
+	}
+
+	private void updateSelectedItem(boolean forceMove) {
+		TreeReference chosen = null;
+		if(selectedIntent != null) {
+			chosen = CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+		}
+		updateSelectedItem(chosen, forceMove);
+	}
+		
+	private void updateSelectedItem(TreeReference selected, boolean forceMove) {
+		if(adapter == null) {return;}
+		if(selected != null) {
+			adapter.notifyCurrentlyHighlighted(selected);
+			if(forceMove) {
+		    	ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+				view.setSelection(adapter.getPosition(selected));
+			}
+			return;
+		}
 	}
 
 
@@ -480,4 +572,51 @@ public class EntitySelectActivity extends ListActivity implements TextWatcher, E
 		findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
 		this.loader = task;
 	}
+	
+	boolean rightFrameSetup = false;
+	NodeEntityFactory factory;
+	
+	public void displayReferenceAwesome(final TreeReference selection) {
+        selectedIntent = getDetailIntent(selection);
+		//this should be 100% "fragment" able
+		if(!rightFrameSetup) {
+    		findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
+	        View.inflate(this, R.layout.entity_detail, rightFrame);
+	        Button next = (Button)findViewById(R.id.entity_select_button);
+	        next.setOnClickListener(new OnClickListener() {
+
+				public void onClick(View v) {
+	    	        // create intent for return and store path
+	    	        Intent i = new Intent(EntitySelectActivity.this.getIntent());
+	    	        
+	    	    	i.putExtra(CommCareSession.STATE_DATUM_VAL, selectedIntent.getStringExtra(CommCareSession.STATE_DATUM_VAL));
+	    	        setResult(RESULT_OK, i);
+
+	    	        finish();
+	        		return;
+
+				}
+	        	
+	        });
+	        
+	        if(getIntent().getBooleanExtra(EntityDetailActivity.IS_DEAD_END, false)) {
+	        	next.setText("Done");
+	        }
+	        
+	        String passedCommand = selectedIntent.getStringExtra(CommCareSession.STATE_COMMAND_ID);
+	        
+			Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
+			prototype = entries.elementAt(0);
+
+			factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));			
+		    rightFrameSetup = true;
+		}
+		
+		Entity entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
+
+		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null);
+	    ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
+	}
+
+
 }

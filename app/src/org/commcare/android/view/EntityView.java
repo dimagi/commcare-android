@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.commcare.android.models.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -47,7 +48,7 @@ public class EntityView extends LinearLayout {
 			}
 		}
         
-		setParams(e);
+		setParams(e, false);
 	}
 	
 	public EntityView(Context context, Detail d, String[] headerText) {
@@ -121,7 +122,7 @@ public class EntityView extends LinearLayout {
 		return weights;
 	}
 
-	public void setParams(Entity e) {
+	public void setParams(Entity e, boolean currentlySelected) {
 		String[] fields = e.getFields();
 		
 		for(int i = 0; i < e.getFields().length ; ++i) {
@@ -151,6 +152,12 @@ public class EntityView extends LinearLayout {
 	        } else {
 		        ((TextView)views[i]).setText(fields[i]);
 	        }
+		}
+		
+		if(currentlySelected) {
+			this.setBackgroundResource(R.drawable.grey_bordered_box);
+		} else{
+			this.setBackgroundDrawable(null);
 		}
 	}
 }
