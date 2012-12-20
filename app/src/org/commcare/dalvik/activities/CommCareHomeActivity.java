@@ -630,12 +630,17 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		    			new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
 	        		}
 
-	    			currentState.reset();
         			if(wasExternal) {
         				this.finish();
+        				currentState.reset();
+    	    			refreshView();
+    	        		return;
+        			} else {
+    	        		//If we cancelled form entry we want to go back to where were were right before we started 
+    	        		//entering the form.
+        				currentState.getSession().stepBack();
+        				currentState.setFormRecordId(-1);
         			}
-	    			refreshView();
-	        		return;
 	    		}
 	    	}     		
 	    	
@@ -1073,6 +1078,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	
     	if(syncDetails.second[1] > 0) {
     		viewIncomplete.setText(Localization.get("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
+    	} else {
     		viewIncomplete.setText(Localization.get("home.forms.incomplete"));
     	}
     	
