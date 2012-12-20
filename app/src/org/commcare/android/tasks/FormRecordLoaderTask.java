@@ -38,20 +38,27 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 	private HashSet<Integer> loaded;
 	
 	public FormRecordLoaderTask(Context c, SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage, AndroidCommCarePlatform platform) {
+		this(c, descriptorStorage, null, platform);
+	}
+	
+	public FormRecordLoaderTask(Context c, SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage, Hashtable<String,String> descriptorCache, AndroidCommCarePlatform platform) {
 		this.context = c;
 		this.descriptorStorage = descriptorStorage;
+		this.descriptorCache = descriptorCache;
 		this.platform = platform;
 	}
 	
 	public FormRecordLoaderTask spawn() {
-		FormRecordLoaderTask task = new FormRecordLoaderTask(context, descriptorStorage, platform);
+		FormRecordLoaderTask task = new FormRecordLoaderTask(context, descriptorStorage, descriptorCache, platform);
 		task.setListener(listener);
 		return task;
 	}
 	
 	public void init(Hashtable<Integer, String[]> searchCache) {
 		this.searchCache = searchCache;
-		descriptorCache = new Hashtable<String,String>(); 
+		if(descriptorCache == null) {
+			descriptorCache = new Hashtable<String,String>();
+		}
 		priorityQueue = new LinkedList<FormRecord>();
 		loaded = new HashSet<Integer>();
 	}
@@ -136,8 +143,7 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 			listener.notifyLoaded();
 		}
 		
-		//free up everything
-		descriptorCache = null;
+		//free up everything except the cache, which we might use later.
 		SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage = null;
 		AndroidCommCarePlatform platform = null;
 		Hashtable<Integer, String[]> searchCache = null;
