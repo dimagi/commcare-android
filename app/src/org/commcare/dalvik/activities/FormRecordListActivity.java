@@ -32,8 +32,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
+import android.app.Activity;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -51,6 +51,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -58,11 +59,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class FormRecordListActivity extends ListActivity implements TextWatcher, FormRecordLoadListener {
+public class FormRecordListActivity extends Activity implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
 	private static final int DIALOG_PROCESS = 1;
 	private ProgressDialog mProgressDialog;
 	
@@ -79,6 +79,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	private LinearLayout header;
 	private ImageButton barcodeButton;
 	private Spinner filterSelect;
+	private ListView listView;
 	
 	public enum FormRecordFilter {
 		
@@ -118,6 +119,9 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 	        
 	        filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
+	        
+	        listView = (ListView)findViewById(R.id.screen_entity_select_list);
+	        listView.setOnItemClickListener(this);
 	        
 	        header.setVisibility(View.GONE);
 	        barcodeButton.setVisibility(View.GONE);
@@ -171,7 +175,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	        if(filter != null) {
 	        	adapter.setFormFilter(filter);
 	        }
-	        this.registerForContextMenu(this.getListView());
+	        this.registerForContextMenu(listView);
 	        refreshView();
         } catch(SessionUnavailableException sue) {
         	//TODO: session is dead, login and return
@@ -185,7 +189,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
     private void refreshView() {
     	disableSearch();
     	adapter.resetRecords();
-    	setListAdapter(adapter);
+    	listView.setAdapter(adapter);
     }
     
     protected void disableSearch() {
@@ -201,13 +205,13 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	/**
      * Stores the path of selected form and finishes.
      */
-    @Override
-    protected void onListItemClick(ListView listView, View view, int position, long id) {
+	@Override
+	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
     	returnItem(position);
     }
     
     private void returnItem(int position) {
-    	FormRecord value = (FormRecord)getListAdapter().getItem(position);
+    	FormRecord value = (FormRecord)adapter.getItem(position);
     	
         // We want to actually launch an interactive form entry.
         Intent i = new Intent();
@@ -237,7 +241,7 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	    	  return true;
 	      case DELETE_RECORD:
 	    	  new FormRecordCleanupTask(this, platform).wipeRecord(CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read((int)info.id));
-	    	  this.getListView().post(new Runnable() { public void run() {adapter.notifyDataSetInvalidated();}});
+	    	  listView.post(new Runnable() { public void run() {adapter.notifyDataSetInvalidated();}});
 	      }
 	      
 	      return true;
@@ -432,5 +436,4 @@ public class FormRecordListActivity extends ListActivity implements TextWatcher,
 	public void notifyLoaded() {
 		enableSearch();
 	}
-
 }

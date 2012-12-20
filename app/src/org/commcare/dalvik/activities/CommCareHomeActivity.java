@@ -1050,7 +1050,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
         TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
-        Pair<Long, Integer> syncDetails = CommCareApplication._().getSyncDisplayParameters();
+        Pair<Long, int[]> syncDetails = CommCareApplication._().getSyncDisplayParameters();
         
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	
@@ -1060,13 +1060,23 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
     	//TODO: Localize this all
     	String message = "";
-    	if(syncDetails.second == 1) {
+    	if(syncDetails.second[0] == 1) {
     		message += Localization.get("home.sync.message.unsent.singular") + "\n";
-    	} else if (syncDetails.second > 1) {
+    	} else if (syncDetails.second[0] > 1) {
     		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second)}) + "\n";
     	}
+    	if(syncDetails.second[0] > 0) {
+    		syncButton.setText(Localization.get("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get("home.sync")}));
+    	} else {
+    		syncButton.setText(Localization.get("home.sync"));
+    	}
     	
-    	if(syncDetails.second > unsentFormNumberLimit){
+    	if(syncDetails.second[1] > 0) {
+    		viewIncomplete.setText(Localization.get("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
+    		viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+    	}
+    	
+    	if(syncDetails.second[0] > unsentFormNumberLimit){
     		syncOK = false;
     	}
     	

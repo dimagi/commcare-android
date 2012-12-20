@@ -38,8 +38,10 @@ app.workflow.incomplete.continue.option.delete=Delete Old Copy
 home.start=Get Started
 home.forms=Form Records
 home.forms.incomplete=Incomplete
+home.forms.incomplete.indicator=${1} (${0})  
 home.forms.saved=Saved
 home.sync=Sync with Server
+home.sync.indicator=${1} (${0})
 home.logout=Log out of CommCare
 
 home.sync.message.unsent.singular=You have 1 form which has not been submitted

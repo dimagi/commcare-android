@@ -798,12 +798,13 @@ public class CommCareApplication extends Application {
 	}
 
 	
-	public Pair<Long, Integer> getSyncDisplayParameters() {
+	public Pair<Long, int[]> getSyncDisplayParameters() {
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	long lastSync = prefs.getLong("last-succesful-sync", 0);
     	int unsentForms = this.getStorage(FormRecord.STORAGE_KEY, FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+    	int incompleteForms = this.getStorage(FormRecord.STORAGE_KEY, FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
     	
-    	return new Pair<Long,Integer>(lastSync, unsentForms);
+    	return new Pair<Long,int[]>(lastSync, new int[] {unsentForms, incompleteForms});
 	}
 	
 
