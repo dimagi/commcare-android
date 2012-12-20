@@ -179,10 +179,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         viewIncomplete.setText(Localization.get("home.forms.incomplete"));
         viewIncomplete.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
-                i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
-                
-                startActivityForResult(i, GET_INCOMPLETE_FORM);
+            	goToFormArchive(true);
             }
         });
         
@@ -205,9 +202,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         viewOldForms.setText(Localization.get("home.forms.saved"));
         viewOldForms.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
-                
-                startActivityForResult(i, GET_INCOMPLETE_FORM);
+                goToFormArchive(false);
             }
         });
         
@@ -256,6 +251,20 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 
             }
         });
+    }
+
+    private void goToFormArchive(boolean incomplete) {
+    	goToFormArchive(incomplete, null);
+    }
+    private void goToFormArchive(boolean incomplete, FormRecord record) {
+    	Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
+    	if(incomplete) {
+            i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
+    	}
+    	if(record != null) {
+    		i.putExtra(FormRecordListActivity.KEY_INITIAL_RECORD_ID, record.getID());
+    	}
+        startActivityForResult(i, GET_INCOMPLETE_FORM);
     }
     
     private void syncData() {
@@ -509,22 +518,26 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			refreshView();
 	        		break;
 	        	}
-	        	else if(resultCode == RESULT_OK) {
-	        		
-	                //This is the state we were in when we _Started_ form entry
-	        		FormRecord current = currentState.getFormRecord();
-	        		
-	        		//See if we were viewing an old form, in which case we don't want to change the historical record.
-	        		//TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-	        		if(current.getStatus() == FormRecord.STATUS_COMPLETE || current.getStatus() == FormRecord.STATUS_SAVED) {
-	        			currentState.reset();
-	        			if(wasExternal) {
-	        				this.finish();
-	        			}
-	        			refreshView();
-		        		return;
-	        		}
-	        			        		
+	        	
+                //This is the state we were in when we _Started_ form entry
+        		FormRecord current = currentState.getFormRecord();
+        		
+        		//See if we were viewing an old form, in which case we don't want to change the historical record
+        		//regardless of the exit code
+        		//TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
+        		if(current.getStatus() == FormRecord.STATUS_COMPLETE || current.getStatus() == FormRecord.STATUS_SAVED || current.getStatus() == FormRecord.STATUS_UNSENT) {
+        			currentState.reset();
+        			if(wasExternal) {
+        				this.finish();
+        			} else {
+	        			//Return to where we started
+        				goToFormArchive(false, current);
+        			}
+	        		return;
+        		}
+	        	
+	        	
+	        	if(resultCode == RESULT_OK) {
 	        		Uri resultInstanceURI = intent.getData();
 	        		
 	        		//TODO: encapsulate this pattern somewhere?
@@ -621,10 +634,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		} else {
 	    	    	Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
 	    	    	
-	    	    	//This is the state we were in when we _Started_ form entry
-	        		FormRecord current = currentState.getFormRecord();
-	        		
-	        		//If the form was unstarted, we want to wipe the record. 
+	    	    	//If the form was unstarted, we want to wipe the record. 
 	        		if(current.getStatus() == FormRecord.STATUS_UNSTARTED) {
 		    			//Entry was cancelled.
 		    			new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
@@ -633,13 +643,20 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         			if(wasExternal) {
         				this.finish();
         				currentState.reset();
-    	    			refreshView();
     	        		return;
         			} else {
-    	        		//If we cancelled form entry we want to go back to where were were right before we started 
-    	        		//entering the form.
-        				currentState.getSession().stepBack();
-        				currentState.setFormRecordId(-1);
+    	        		if(current.getStatus() == FormRecord.STATUS_INCOMPLETE) {
+    	        			//We should head back to the incomplete forms screen
+    	        			currentState.reset();
+    	        			goToFormArchive(true, current);
+    	        			return;
+    	        		} else {
+	    	        		//If we cancelled form entry from a normal menu entry 
+    	        			//we want to go back to where were were right before we started 
+	    	        		//entering the form.
+	        				currentState.getSession().stepBack();
+	        				currentState.setFormRecordId(-1);
+    	        		}
         			}
 	    		}
 	    	}     		

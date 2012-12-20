@@ -95,6 +95,16 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		loader.init(searchCache);
 		loader.execute(records.toArray(new FormRecord[0]));
 	}
+	
+	public int findRecordPosition(int formRecordId) {
+		for(int i = 0 ; i < current.size() ; ++i) {
+			FormRecord record = current.get(i);
+			if(record.getID() == formRecordId) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
 	@Override
 	public void notifyDataSetChanged() {

@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageModifiedException;
 
 import android.database.Cursor;
 
@@ -18,6 +19,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 
 	Cursor c;
 	SqlIndexedStorageUtility<T> storage;
+	boolean isClosedByProgress = false;
 
 	public SqlStorageIterator(Cursor c, SqlIndexedStorageUtility<T> storage) {
 		this.c = c;
@@ -31,8 +33,15 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 	public boolean hasMore() {
 		if(!c.isClosed()) {
 			return !c.isAfterLast();
-		} 
-		return false;
+		}  else {
+			if(isClosedByProgress) {
+				return false;
+			} else {
+				//If we didn't close the cursor as part of the iterator, it means that it
+				//was forcibly invalidated externally, fail accordingly.
+				throw new StorageModifiedException("Storage Iterator [" + storage.table + "]" + " was invalidated");
+			}
+		}
 	}
 
 	/* (non-Javadoc)
@@ -43,6 +52,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 		c.moveToNext();
 		if(c.isAfterLast()) {
 			c.close();
+			isClosedByProgress = true;
 		}
 		return id;
 	}

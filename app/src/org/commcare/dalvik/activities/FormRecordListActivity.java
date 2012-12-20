@@ -71,9 +71,13 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
 	
 	private static final int DOWNLOAD_FORMS = Menu.FIRST;
 	
+	public static final String KEY_INITIAL_RECORD_ID = "cc_initial_rec_id";
+	
 	private AndroidCommCarePlatform platform;
 	
 	private IncompleteFormListAdapter adapter;
+	
+	private int initialSelection = -1;
 	
 	private EditText searchbox;
 	private LinearLayout header;
@@ -134,6 +138,8 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
 	        
 	        FormRecordFilter filter = null;
 	        
+	        initialSelection = this.getIntent().getIntExtra(KEY_INITIAL_RECORD_ID, -1);
+	        
 	        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
 	        	String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
 	        	if(incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
@@ -190,6 +196,13 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
     	disableSearch();
     	adapter.resetRecords();
     	listView.setAdapter(adapter);
+    }
+    
+    protected void onResume() {
+    	super.onResume();
+    	if(adapter != null && initialSelection != -1) {
+    		listView.setSelection(adapter.findRecordPosition(initialSelection));
+    	}
     }
     
     protected void disableSearch() {
@@ -370,7 +383,8 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
     	}
     	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     	wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CommCareFormSync");
-    	//Twenty minutes max.
+    	//TODO: We need to remove this time limit. Android has a bug that crashes
+    	//if you release with a time limit
     	wakelock.acquire(1000*60*20);
     }
     
