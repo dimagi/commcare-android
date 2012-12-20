@@ -113,6 +113,9 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 					
 					descriptorCache.put(descriptor, dataTitle);
 				}
+				else {
+					dataTitle = descriptorCache.get(descriptor);
+				}
 			}
 			
 			cache.add(dataTitle);
