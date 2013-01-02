@@ -48,6 +48,7 @@ public class UnrecoverableErrorActivity extends Activity {
        		   //Make sure that the new stack starts with a home activity, and clear everything between.
     		   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
     		   UnrecoverableErrorActivity.this.startActivity(intent);
+    		   UnrecoverableErrorActivity.this.moveTaskToBack(true);
 
                System.runFinalizersOnExit(true);
                System.exit(0);

@@ -663,12 +663,13 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    	
 	    	startNextFetch();
 	    	
-	    	super.onActivityResult(requestCode, resultCode, intent);
     	}
-	    	catch (SessionUnavailableException sue) {
-	    		//TODO: Cache current return, login, and try again
-	    		returnToLogin();
-	    	}
+    	catch (SessionUnavailableException sue) {
+    		//TODO: Cache current return, login, and try again
+    		returnToLogin();
+    	}
+    	super.onActivityResult(requestCode, resultCode, intent);
+
     }
 
 	private void startNextFetch() throws SessionUnavailableException {
@@ -911,6 +912,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     private void returnToLogin(String message) {
     	Toast.makeText(this, message, Toast.LENGTH_LONG);
     	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+    	i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     	startActivityForResult(i,LOGIN_USER);
 	}
 
