@@ -439,9 +439,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		done(appChanged);
 	}
 
-	public void failMissingResource(Resource r, ResourceEngineOutcomes statusMissing) {
+	public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
 		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
-		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, r.getResourceId(), null}));
+		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getResourceId(), ure.getMessage()}), ure.isMessageUseful());
 		
 	}
 

@@ -17,9 +17,12 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -54,33 +57,45 @@ public class GenericMenuListAdapter implements ListAdapter {
 			for(Menu m : s.getMenus()) {
 	    		if(m.getId().equals(menuID)) {
 	    			for(String command : m.getCommandIds()) {
-	    				XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
-	    				if(mRelevantCondition != null) {	    					
-		    				EvaluationContext mEC = session.getEvaluationContext(getInstanceInit());
-		    				Object ret = mRelevantCondition.eval(mEC);
-		    				try {
-		    					if(!XPathFuncExpr.toBoolean(ret)) {
-		    						continue;
-		    					}
-		    				} catch(XPathTypeMismatchException e) {
-		    					Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "relevancy condition for menu item returned non-boolean value : " + ret);
-		    					throw new RuntimeException("relevancy condition for menu item returned non-boolean value : " + ret);
-		    					
+	    				try {
+		    				XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
+		    				if(mRelevantCondition != null) {	    					
+			    				EvaluationContext mEC = session.getEvaluationContext(getInstanceInit());
+			    				Object ret = mRelevantCondition.eval(mEC);
+			    				try {
+			    					if(!XPathFuncExpr.toBoolean(ret)) {
+			    						continue;
+			    					}
+			    				} catch(XPathTypeMismatchException e) {
+			    					Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "relevancy condition for menu item returned non-boolean value : " + ret);
+			    					throw new RuntimeException("relevancy condition for menu item returned non-boolean value : " + ret);
+			    					
+			    				}
+		    				if(!XPathFuncExpr.toBoolean(ret)) { continue;}
 		    				}
-	    				if(!(Boolean)mRelevantCondition.eval(mEC)) { continue;}
+		    				
+	    					Entry e = map.get(command);
+	    					if(e.getXFormNamespace() == null) {
+	    						//If this is a "view", not an "entry"
+	    						//we only want to display it if all of its 
+	    						//datums are not already present
+	    						if(session.getNeededDatum(e) == null) {
+	    							continue;
+	    						}
+	    					}
+	    					
+	    					items.add(e);
+	    				} catch(XPathSyntaxException xpse) {
+	    					String xpathExpression = m.getRelevantConditionRaw(m.indexOfCommand(command));
+	    					CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[] {xpathExpression, xpse.getMessage()}));
+	    					objectData = new Object[0];
+	    					return;
+	    				} catch(XPathException xpe) {
+	    					String xpathExpression = m.getRelevantConditionRaw(m.indexOfCommand(command));
+	    					CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[] {xpathExpression, xpe.getMessage()}));
+	    					objectData = new Object[0];
+	    					return;
 	    				}
-	    				
-    					Entry e = map.get(command);
-    					if(e.getXFormNamespace() == null) {
-    						//If this is a "view", not an "entry"
-    						//we only want to display it if all of its 
-    						//datums are not already present
-    						if(session.getNeededDatum(e) == null) {
-    							continue;
-    						}
-    					}
-    					
-    					items.add(e);
 	    			}
 					continue;
 	    		}

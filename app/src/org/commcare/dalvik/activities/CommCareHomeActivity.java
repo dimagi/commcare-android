@@ -839,7 +839,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
 	           CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
 	        	if(!CommCareApplication._().isStorageAvailable()) {
-	        		showDialog(DIALOG_NO_STORAGE);
+	        		createNoStorageDialog();
 	        	} else {
 		        	//If so, ask the user if they want to wipe and recover (Possibly try to send everything first?)
 		        	showDialog(DIALOG_CORRUPTED);
@@ -940,8 +940,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	            return mProgressDialog;
         case DIALOG_CORRUPTED:
         		return createAskFixDialog();
-        case DIALOG_NO_STORAGE:
-        		return createNoStorageDialog();
         }
         return null;
     }
@@ -990,28 +988,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         return mAttemptFixDialog;
     }
     
-    public Dialog createNoStorageDialog() {
-    	//TODO: Localize this in theory, but really shift it to the upgrade/management state
-    	
-    	AlertDialog mNoStorageDialog = new AlertDialog.Builder(this).create();
-    	mNoStorageDialog.setTitle(Localization.get("app.storage.missing.title"));
-    	mNoStorageDialog.setMessage(Localization.get("app.storage.missing.message"));
-		
-        DialogInterface.OnClickListener noStorageButton = new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int i) {
-            	killapp();
-            }
-        };
-        mNoStorageDialog.setCancelable(false);
-        mNoStorageDialog.setButton(Localization.get("app.storage.missing.button"), noStorageButton);
-        
-        return mNoStorageDialog;
+    public void createNoStorageDialog() {
+    	CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));        
     }
-    
-    private void killapp() {
-       System.runFinalizersOnExit(true);
-       System.exit(0);
-    }
+
 
     
     private boolean testBotchedUpgrade() {

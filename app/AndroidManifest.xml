@@ -204,6 +204,7 @@
                 android:value="org.commcare.dalvik.activities.CommCareSetupActivity" />
         </activity>
         <activity android:name=".activities.CommCareVerificationActivity" android:windowSoftInputMode="adjustResize"></activity>
+        <activity android:theme="@style/Theme.Transparent" android:name=".activities.UnrecoverableErrorActivity"></activity>
     </application>
 
     <uses-feature
