@@ -94,6 +94,8 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
 	
 	boolean mViewMode = false;
 	
+	boolean mNoDetailMode = false;
+	
 	private EntityLoaderTask loader;
 	
 	private boolean inAwesomeMode = false;
@@ -111,7 +113,12 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         	mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
         }
         
-        if(this.getString(R.string.panes).equals("two")) {
+        session = CommCareApplication._().getCurrentSession();
+		selectDatum = session.getNeededDatum();
+		
+		mNoDetailMode = selectDatum.getLongDetail() == null;
+        
+        if(this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
         	//See if we're on a big 'ol screen.
         	
         	if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -148,8 +155,6 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
         
-        session = CommCareApplication._().getCurrentSession();
-        
 		Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
 		prototype = entries.elementAt(0);
 		
@@ -159,9 +164,7 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
 		}
         
         setTitle(getString(R.string.application_name) + " > " + " Select");
-        
-		selectDatum = session.getNeededDatum();
-        
+                
         barcodeButton.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
@@ -194,7 +197,7 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     	//Don't go through making the whole thing if we're finishing anyway.
     	if(this.isFinishing() || startOther) {return;}
     	
-        if(!resuming && selectDatum.getLongDetail() != null && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+        if(!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
         	TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
         	
         	if(entity != null) {
@@ -282,15 +285,16 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     	if(element != null && element.getValue() != null) {
     		value = element.getValue().uncast().getString();
     	}
+   
+    	Intent i = new Intent(getApplicationContext(), EntityDetailActivity.class);
     	
     	//See if we even have a long datum
     	if(selectDatum.getLongDetail() != null) {
-    		//We do, 
+    		//If so, add this. otherwise that'll be the queue to just return
+    		i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
     	}
-    	
-    	Intent i = new Intent(getApplicationContext(), EntityDetailActivity.class);
+   
     	i.putExtra(CommCareSession.STATE_DATUM_VAL, value);
-    	i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail());
     	CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
     	
     	return i;
@@ -332,7 +336,11 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     		updateSelectedItem(selection, false);
     	} else {
     		Intent i = getDetailIntent(selection);
-    		startActivityForResult(i, CONFIRM_SELECT);
+    		if(mNoDetailMode) {
+        		returnWithResult(i);
+        	} else  {
+        		startActivityForResult(i, CONFIRM_SELECT);
+        	}
     	}
 	}
 
@@ -353,12 +361,7 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
 	        resuming = true;
 	        if(resultCode == RESULT_OK && !mViewMode) {
     	        // create intent for return and store path
-    	        Intent i = new Intent(this.getIntent());
-    	        
-    	        i.putExtras(intent.getExtras());
-    	        setResult(RESULT_OK, i);
-
-    	        finish();
+	        	returnWithResult(intent);
         		return;
     		} else {
     			//Did we enter the detail from mapping mode? If so, go back to that
@@ -387,11 +390,14 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
 	    			this.displayReferenceAwesome(r);
 	    		} else {
 		        	Intent i = this.getDetailIntent(r);
-		        	
-		    		//To go back to map mode if confirm is false
-		        	mResultIsMap = true;
-		        	
-		            startActivityForResult(i, CONFIRM_SELECT);
+		        	if(mNoDetailMode) {
+		        		returnWithResult(i);
+		        	} else  {
+			    		//To go back to map mode if confirm is false
+			        	mResultIsMap = true;
+			        	
+			            startActivityForResult(i, CONFIRM_SELECT);
+		        	}
 		            return;
 	    		}
     		} else {
@@ -402,6 +408,16 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     		super.onActivityResult(requestCode, resultCode, intent);
     	}
     }
+
+
+	private void returnWithResult(Intent intent) {
+        Intent i = new Intent(this.getIntent());
+        
+        i.putExtras(intent.getExtras());
+        setResult(RESULT_OK, i);
+
+        finish();
+	}
 
 
 	public void afterTextChanged(Editable s) {
