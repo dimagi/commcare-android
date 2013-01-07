@@ -42,6 +42,9 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		/** Missing resources could not be found during install **/
 		StatusMissing("notification.install.missing"),
 		
+		/** Missing resources could not be found during install **/
+		StatusMissingDetails("notification.install.missing.withmessage"),
+		
 		/** App is not compatible with current installation **/
 		StatusBadReqs("notification.install.badreqs"),
 		
@@ -72,7 +75,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	public static final int PHASE_DOWNLOAD = 1;
 	public static final int PHASE_COMMIT = 2;
 	
-	Resource missingResource = null;
+	UnresolvedResourceException missingResourceException = null;
 	int badReqCode = -1;
 	private int phase = -1;  
 	boolean upgradeMode = false;
@@ -199,9 +202,13 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				cleanupFailure(platform);
 			}
 			
-			missingResource = e.getResource(); 
+			missingResourceException = e; 
 			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "A resource couldn't be found, almost certainly due to the network|" + e.getMessage());
-			return ResourceEngineOutcomes.StatusMissing;
+			if(e.isMessageUseful()) {
+				return ResourceEngineOutcomes.StatusMissingDetails;
+			} else {
+				return ResourceEngineOutcomes.StatusMissing;
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 			
@@ -244,8 +251,8 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				listener.reportSuccess(true);
 			} else if(result == ResourceEngineOutcomes.StatusUpToDate){
 				listener.reportSuccess(false);
-			} else if(result == ResourceEngineOutcomes.StatusMissing){
-				listener.failMissingResource(missingResource, ResourceEngineOutcomes.StatusMissing);
+			} else if(result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
+				listener.failMissingResource(missingResourceException, result);
 			} else if(result == ResourceEngineOutcomes.StatusBadReqs){
 				listener.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
 			} else if(result == ResourceEngineOutcomes.StatusFailState){

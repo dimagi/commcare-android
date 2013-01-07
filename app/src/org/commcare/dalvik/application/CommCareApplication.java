@@ -50,6 +50,7 @@ import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.MessageActivity;
+import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
@@ -71,12 +72,14 @@ import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
+import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -185,6 +188,21 @@ public class CommCareApplication extends Application {
 				database = new CommCareOpenHelper(this, factory).getWritableDatabase();
 			}
 		}
+	}
+	
+	public void triggerHandledAppExit(Context c, String message) {
+		triggerHandledAppExit(c, message, Localization.get("app.handled.error.title"));
+	}
+	
+	public void triggerHandledAppExit(Context c, String message, String title) {
+		Intent i = new Intent(c, UnrecoverableErrorActivity.class);
+		i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
+		i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
+
+		//start a new stack and forget where we were (so we don't restart the app from there)
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		
+		c.startActivity(i);
 	}
 
 	public void logout() {

@@ -19,6 +19,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -89,6 +90,12 @@ public class LoginActivity extends Activity implements DataPullListener {
         
         banner = findViewById(R.id.screen_login_banner_pane);
         errorBox = (TextView)this.findViewById(R.id.screen_login_bad_password);
+
+        try{
+        	setTitle(getString(R.string.application_name) + " > " + Localization.get("app.display.name"));
+        } catch(NoLocalizedTextException nlte) {
+        	//nothing, app display name is optional for now.
+        }
         
         //Only on the initial creation
         if(savedInstanceState ==null) {

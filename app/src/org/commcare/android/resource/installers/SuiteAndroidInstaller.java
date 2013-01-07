@@ -111,8 +111,8 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidStructureException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new UnresolvedResourceException(r, e.getMessage(), true);
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
