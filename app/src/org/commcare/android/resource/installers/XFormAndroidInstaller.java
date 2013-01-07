@@ -185,7 +185,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
-		System.out.println("1126 verifying in xform installer");
 		//Check to see whether the formDef exists and reads correctly
 		FormDef formDef;
 		try {

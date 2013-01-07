@@ -94,7 +94,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private static final int MENU_PREFERENCES = Menu.FIRST;
 	private static final int MENU_UPDATE = Menu.FIRST  +1;
 	private static final int MENU_CALL_LOG = Menu.FIRST  +2;
-	public static final int REPORT_PROBLEM = Menu.FIRST + 3;
+	private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 3;
+	private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 4;
 	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;
@@ -403,6 +404,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			return;
 	    		}
 	    		else if(resultCode == RESULT_OK){
+	    			Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
 	    			return;
 	    		}
 	    	case REPORT_PROBLEM_ACTIVITY:
@@ -1210,8 +1212,10 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         		android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_CALL_LOG, 0, Localization.get("home.menu.call.log")).setIcon(
         		android.R.drawable.ic_menu_recent_history);
-        menu.add(0, REPORT_PROBLEM, 0, Localization.get("problem.report.menuitem")).setIcon(
+        menu.add(0, MENU_REPORT_PROBLEM, 0, Localization.get("problem.report.menuitem")).setIcon(
         		android.R.drawable.ic_menu_report_image);
+        menu.add(0, MENU_VALIDATE_MEDIA, 0, Localization.get("home.menu.validate")).setIcon(
+        		android.R.drawable.ic_menu_gallery);
         return true;
     }
 
@@ -1238,8 +1242,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             case MENU_CALL_LOG:
             	createCallLogActivity();
             	return true;
-            case REPORT_PROBLEM:
+            case MENU_REPORT_PROBLEM:
             	startReportActivity();
+            	return true;
+            case MENU_VALIDATE_MEDIA:
+            	startValidationActivity();
             	return true;
         }
         return super.onOptionsItemSelected(item);
@@ -1250,6 +1257,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         CommCareHomeActivity.this.startActivityForResult(i, REPORT_PROBLEM_ACTIVITY);
 	}
     
+	private void startValidationActivity(){
+		Intent i = new Intent(this, CommCareVerificationActivity.class);
+		CommCareHomeActivity.this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+	}
+	
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
       super.onConfigurationChanged(newConfig);
