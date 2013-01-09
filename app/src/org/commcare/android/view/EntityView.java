@@ -34,7 +34,7 @@ public class EntityView extends LinearLayout {
 
 		this.setWeightSum(1);
 		
-		views = new View[e.getFields().length];
+		views = new View[e.getNumFields()];
 		forms = d.getTemplateForms();
 		
 		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
@@ -123,21 +123,19 @@ public class EntityView extends LinearLayout {
 	}
 
 	public void setParams(Entity e, boolean currentlySelected) {
-		String[] fields = e.getFields();
-		
-		for(int i = 0; i < e.getFields().length ; ++i) {
+		for(int i = 0; i < e.getNumFields() ; ++i) {
 			//Empty (width = 0) field
 			if(views[i] == null) { continue;}
 			
-			if(fields[i] == null) {
+			if(e.getField(i) == null) {
 				continue;
 			}
 	        if("image".equals(forms[i])) {
 	        	ImageView iv = (ImageView)views[i];
 				Bitmap b;
 				try {
-					if(!fields[i].equals("")) {
-						b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(fields[i]).getStream());
+					if(!e.getField(i).equals("")) {
+						b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(e.getField(i)).getStream());
 						iv.setImageBitmap(b);
 					}
 				} catch (IOException ex) {
@@ -150,7 +148,7 @@ public class EntityView extends LinearLayout {
 					iv.setImageBitmap(null);
 				}
 	        } else {
-		        ((TextView)views[i]).setText(fields[i]);
+		        ((TextView)views[i]).setText(e.getField(i));
 	        }
 		}
 		

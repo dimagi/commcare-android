@@ -57,6 +57,7 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			
 			TableBuilder builder = new TableBuilder(ACase.STORAGE_KEY);
 			builder.addData(new ACase());
+			builder.setUnique(ACase.INDEX_CASE_ID);
 			database.execSQL(builder.getTableCreateString());
 			
 			builder = new TableBuilder(User.STORAGE_KEY);

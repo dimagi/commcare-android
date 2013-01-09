@@ -447,7 +447,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		//Now we need to put the id into the record
 		
 		p.setID(id);
-		db.update(table, helper.getContentValues(p), DbUtil.ID_COL +"="+ String.valueOf(id), null);
+		db.update(table, helper.getContentValues(p), DbUtil.ID_COL +"=?" , new String[] {String.valueOf(id)});
 		
 		db.setTransactionSuccessful();
 		} finally {
