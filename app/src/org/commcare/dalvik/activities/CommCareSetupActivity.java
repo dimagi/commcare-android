@@ -35,6 +35,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -86,6 +88,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	Button mScanBarcodeButton;
     private ProgressDialog mProgressDialog;
     private ProgressDialog vProgressDialog;
+    
+    String [] urlVals;
 	
 	boolean upgradeMode = false;
 	
@@ -110,10 +114,29 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
 		}
 		
+		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
 		advancedView = this.findViewById(R.id.advanced_panel);
 		mainMessage = (TextView)this.findViewById(R.id.str_setup_message);
 		urlSpinner = (Spinner)this.findViewById(R.id.url_spinner);
+		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int arg2, long arg3) {
+				String prepend = urlVals[arg2];
+				editProfileRef.setText(prepend);
+				if(prepend==""){
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		urlVals = getResources().getStringArray(R.array.url_vals); 
 		//First, identify the binary state
 		dbState = CommCareApplication._().getDatabaseState();
 		resourceState = CommCareApplication._().getAppResourceState();
@@ -135,7 +158,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		}
 		
 		
-		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
+		
 		installButton = (Button)this.findViewById(R.id.start_install);
     	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
     	
@@ -249,17 +272,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		if(this.uiState == UiState.advanced) {
 			ref = editProfileRef.getText().toString();
-			System.out.println("ref is: " + ref);
-			int entityChosenIndex = urlSpinner.getSelectedItemPosition();
-			switch (entityChosenIndex){
-				case 0: 
-					ref = "http://bit.ly/" + ref;
-					break;
-				case 1:
-					ref = "http://tinyurl.com/" + ref;
-					break;
-				case 2: break;
-			}
 		}
 		
 		System.out.println("ref is: " + ref);
