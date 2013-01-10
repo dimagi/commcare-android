@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
@@ -80,6 +81,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	View advancedView;
 	EditText editProfileRef;
 	TextView mainMessage;
+	Spinner urlSpinner;
 	Button installButton;
 	Button mScanBarcodeButton;
     private ProgressDialog mProgressDialog;
@@ -110,6 +112,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		advancedView = this.findViewById(R.id.advanced_panel);
 		mainMessage = (TextView)this.findViewById(R.id.str_setup_message);
+		urlSpinner = (Spinner)this.findViewById(R.id.url_spinner);
 
 		//First, identify the binary state
 		dbState = CommCareApplication._().getDatabaseState();
@@ -241,9 +244,25 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	private void startResourceInstall() {
 		
 		String ref = incomingRef;
+		
+		
+		
 		if(this.uiState == UiState.advanced) {
 			ref = editProfileRef.getText().toString();
+			System.out.println("ref is: " + ref);
+			int entityChosenIndex = urlSpinner.getSelectedItemPosition();
+			switch (entityChosenIndex){
+				case 0: 
+					ref = "http://bit.ly/" + ref;
+					break;
+				case 1:
+					ref = "http://tinyurl.com/" + ref;
+					break;
+				case 2: break;
+			}
 		}
+		
+		System.out.println("ref is: " + ref);
 		
 		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
 		task.setListener(this);
@@ -253,7 +272,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		this.showDialog(DIALOG_INSTALL_PROGRESS);
 		
-		//verifyResourceInstall(); on hold
 	}
 	
 	private void startReportActivity(String failureMessage) {

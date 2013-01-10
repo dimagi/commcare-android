@@ -18,6 +18,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Application Profile " />
+    
+    <Spinner
+        android:id="@+id/url_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/url_list"
+        android:prompt="@string/url_prompt" />
 
     <EditText
         android:id="@+id/edit_profile_location"
@@ -25,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" >
 
-        <requestFocus />
+
     </EditText>
 </LinearLayout>
 </LinearLayout>

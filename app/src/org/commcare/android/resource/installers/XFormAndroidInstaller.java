@@ -200,6 +200,11 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
 			formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
 		} catch(Exception e) {
+			// something weird/bad happened here. first make sure storage is available
+        	if(!CommCareApplication._().isStorageAvailable()) {
+        		problems.addElement(new UnresolvedResourceException(r, "Couldn't access your persisent storage. Please make sure your SD card is connected properly"));
+        	}
+			
 			problems.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
 			return true;
 		}
