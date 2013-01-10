@@ -92,7 +92,7 @@ public class EntityDetailView extends FrameLayout {
 		boolean veryLong = false;
 		
 		if("phone".equals(d.getTemplateForms()[index])) {
-			callout.setText(e.getFields()[index]);
+			callout.setText(e.getField(index));
 			if(current != PHONE) {
 				callout.setOnClickListener(new OnClickListener() {
 
@@ -108,7 +108,7 @@ public class EntityDetailView extends FrameLayout {
 				current = PHONE;
 			}
 		} else if("address".equals(d.getTemplateForms()[index])) {
-			final String address = e.getFields()[index];
+			final String address = e.getField(index);
 			addressText.setText(address);
 			if(current != ADDRESS) {
 				addressButton.setOnClickListener(new OnClickListener() {
@@ -125,7 +125,7 @@ public class EntityDetailView extends FrameLayout {
 				current = ADDRESS;
 			}
 		} else {
-			String text = e.getFields()[index];
+			String text = e.getField(index);
 			data.setText(text);
 			if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
 				veryLong = true;

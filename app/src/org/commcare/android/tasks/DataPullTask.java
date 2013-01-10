@@ -58,6 +58,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
@@ -152,9 +153,13 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 	    
 		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c) {
+			boolean publishedAuth = false;
 			@Override
 			public void reportProgress(int progress) {
-				DataPullTask.this.publishProgress(PROGRESS_AUTHED,progress);
+				if(!publishedAuth) {
+					DataPullTask.this.publishProgress(PROGRESS_AUTHED,progress);
+					publishedAuth = true;
+				}
 			}
 		};
 		Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
@@ -508,8 +513,17 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 //			
 //		}
 		
-		parser = new DataModelPullParser(stream, factory);
-		parser.parse();
+		//this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
+		SQLiteDatabase db = CommCareApplication._().getRawEncryptingDbHandle(c);
+		try {
+			db.beginTransaction();
+			parser = new DataModelPullParser(stream, factory);
+			parser.parse();
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+		}
+		
 		
 		//Return the sync token ID
 		return factory.getSyncToken();

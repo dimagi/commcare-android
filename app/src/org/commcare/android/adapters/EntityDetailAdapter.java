@@ -38,8 +38,8 @@ public class EntityDetailAdapter implements ListAdapter {
 		this.entity = entity;
 		this.listener = listener;
 		valid = new ArrayList<Integer>(); 
-		for(int i = 0 ; i < entity.getFields().length ; ++i ) {
-			if(!entity.getFields()[i].equals("")) {
+		for(int i = 0 ; i < entity.getNumFields() ; ++i ) {
+			if(!entity.getField(i).equals("")) {
 				valid.add(i);
 			}
 		}
@@ -70,7 +70,7 @@ public class EntityDetailAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getItem(int)
 	 */
 	public Object getItem(int position) {
-		return entity.getFields()[valid.get(position)];
+		return entity.getField(valid.get(position));
 	}
 
 	/* (non-Javadoc)

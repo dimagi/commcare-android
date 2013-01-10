@@ -390,6 +390,20 @@ public class CommCareApplication extends Application {
 	
 	public Object dbHandleLock = new Object();
 	
+	public SQLiteDatabase getRawEncryptingDbHandle(Context c) {
+		synchronized(dbHandleLock) {
+			if(database == null || !database.isOpen()) {
+				CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
+					protected CipherPool getCipherPool() {
+						return mBoundService.getDecrypterPool();
+					}
+				};
+				database = (new CommCareOpenHelper(c, factory)).getWritableDatabase();
+			}
+			return database;
+		}
+	}
+	
 	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String storage, Class<T> c) throws SessionUnavailableException {
 		DbHelper helper = null;
 		try {
@@ -400,17 +414,7 @@ public class CommCareApplication extends Application {
 				helper = new DbHelper(this.getApplicationContext(), service.getEncrypter()) {
 					@Override
 					public SQLiteDatabase getHandle() {
-						synchronized(dbHandleLock) {
-							if(database == null || !database.isOpen()) {
-								CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
-									protected CipherPool getCipherPool() {
-										return mBoundService.getDecrypterPool();
-									}
-								};
-								database = (new CommCareOpenHelper(this.c, factory)).getWritableDatabase();
-							}
-							return database;
-						}
+						return getRawEncryptingDbHandle(this.c);
 					}
 					
 				};

@@ -3,6 +3,9 @@
  */
 package org.commcare.android.util;
 
+import java.util.HashSet;
+import java.util.Vector;
+
 import org.commcare.android.models.ACase;
 import org.commcare.android.models.User;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
@@ -13,6 +16,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.util.DataUtil;
 
 /**
  * @author ctsims
@@ -34,7 +38,25 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 		String ref = instance.getReference();
 		if(ref.indexOf("case") != -1) {
 			if(casebase == null) {
-				casebase =  new CaseInstanceTreeElement(instance.getBase(), app.getStorage(ACase.STORAGE_KEY, ACase.class), false);
+				casebase =  new CaseInstanceTreeElement(instance.getBase(), app.getStorage(ACase.STORAGE_KEY, ACase.class), false) {
+					@Override
+					protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
+						//This is kind of (ok, so really) awkward looking, but we can't use sets in 
+						//ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
+						//j2me (thanks Sun!) so this is what we get.
+						HashSet<Integer> selected = new HashSet<Integer>(selectedCases);
+						selected.addAll(selectedCases);
+						
+						HashSet<Integer> other = new HashSet<Integer>();
+						other.addAll(cases);
+						
+						selected.retainAll(selected);
+						
+						selectedCases.clear();
+						selectedCases.addAll(selected);
+						return selectedCases;
+					}
+				};
 			} else {
 				casebase.rebase(instance.getBase());
 			}

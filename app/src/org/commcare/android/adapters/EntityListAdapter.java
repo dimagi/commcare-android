@@ -71,7 +71,13 @@ public class EntityListAdapter implements ListAdapter {
 		
 		full:
 		for(Entity<TreeReference> e : full) {
-			for(String field : e.getFields()) {
+			if("".equals(filter)) {
+				current.add(e);
+				continue;
+			}
+			
+			for(int i = 0 ; i < e.getNumFields(); ++i) {
+				String field = e.getField(i);
 				if(field.toLowerCase().contains(filter.toLowerCase())) {
 					current.add(e);
 					continue full;
@@ -106,8 +112,8 @@ public class EntityListAdapter implements ListAdapter {
 			private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
 				int i = d.getFields()[index].getSortType();
 				
-				String a1 = object1.getSortFields()[index];
-				String a2 = object2.getSortFields()[index];
+				String a1 = object1.getSortField(index);
+				String a2 = object2.getSortField(index);
 				
 				//TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
 				//For now, regardless of typing, blanks are always smaller than non-blanks

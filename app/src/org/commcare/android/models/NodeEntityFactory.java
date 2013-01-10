@@ -49,6 +49,8 @@ public class NodeEntityFactory {
 			nodeContext.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(nodeContext)));
 		}
 		
+		//return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
+		
 		String[] details = new String[detail.getHeaderForms().length];
 		String[] sortDetails = new String[detail.getHeaderForms().length];
 		int count = 0;

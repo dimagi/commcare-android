@@ -1252,8 +1252,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
       	this.mCurrentDialog = currentHome.mCurrentDialog;
       }
       CommCareHomeActivity.currentHome = this;
-      configUi();
-      refreshView();
+      try {
+    	  configUi();
+    	  refreshView();
+      } catch(SessionUnavailableException sue) {
+    	  //we'll handle this in resume?
+      }
     }
     
     private boolean isAirplaneModeOn() {
