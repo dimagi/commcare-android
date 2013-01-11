@@ -13,6 +13,8 @@ import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.util.Base64;
 import org.javarosa.core.services.storage.IMetaData;
@@ -22,7 +24,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 /**
@@ -78,11 +79,11 @@ public abstract class DbHelper {
 			}
 			ret += columnName + "=?";
 			
-			if(em != null && em.isEncrypted(fieldNames[i])) {
-				arguments[i] = encrypt(values[i].toString());
-			} else {
+			//if(em != null && em.isEncrypted(fieldNames[i])) {
+				//arguments[i] = encrypt(values[i].toString());
+			//} else {
 				arguments[i] = values[i].toString();
-			}
+			//}
 			
 			if(i + 1 < fieldNames.length) {
 				ret += " AND ";
@@ -104,9 +105,9 @@ public abstract class DbHelper {
 		OutputStream out = bos;
 		
 		
-		if(encrypt && ((EncryptedModel)e).isBlobEncrypted()) {
-			out = new CipherOutputStream(bos, encrypter);
-		}
+//		if(encrypt && ((EncryptedModel)e).isBlobEncrypted()) {
+//			out = new CipherOutputStream(bos, encrypter);
+//		}
 		
 		try {
 			e.writeExternal(new DataOutputStream(out));
@@ -125,11 +126,11 @@ public abstract class DbHelper {
 				Object o = m.getMetaData(key);
 				if(o == null ) { continue;}
 				String value = o.toString();
-				if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
-					values.put(TableBuilder.scrubName(key), encrypt(value));
-				} else {
+				//if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
+//					values.put(TableBuilder.scrubName(key), encrypt(value));
+	//			} else {
 					values.put(TableBuilder.scrubName(key), value);
-				}
+				//}
 			}
 		}
 		

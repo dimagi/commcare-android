@@ -17,6 +17,10 @@ import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
+import net.sqlcipher.database.SQLiteException;
+
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.database.CommCareDBCursorFactory;
 import org.commcare.android.database.CommCareOpenHelper;
@@ -70,16 +74,15 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -87,9 +90,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -149,6 +149,7 @@ public class CommCareApplication extends Application {
 		
 		PropertyManager.setPropertyManager(new ODKPropertyManager());
 		
+        SQLiteDatabase.loadLibs(this);
 		
 		createPaths();
 		setRoots();
@@ -185,7 +186,7 @@ public class CommCareApplication extends Application {
 		if(dbState != STATE_UNINSTALLED) {
 			CursorFactory factory = new CommCareDBCursorFactory();
 			synchronized(dbHandleLock) {
-				database = new CommCareOpenHelper(this, factory).getWritableDatabase();
+				database = new CommCareOpenHelper(this, factory).getWritableDatabase("test");
 			}
 		}
 	}
@@ -379,7 +380,7 @@ public class CommCareApplication extends Application {
 	private int initDb() {
 		SQLiteDatabase database;
 		try {
-			database = new CommCareOpenHelper(this).getWritableDatabase();
+			database = new CommCareOpenHelper(this).getWritableDatabase("test");
 			database.close();
 			return STATE_READY;
 		} catch(SQLiteException e) {
@@ -398,7 +399,7 @@ public class CommCareApplication extends Application {
 						return mBoundService.getDecrypterPool();
 					}
 				};
-				database = (new CommCareOpenHelper(c, factory)).getWritableDatabase();
+				database = (new CommCareOpenHelper(c, factory)).getWritableDatabase("test");
 			}
 			return database;
 		}
@@ -431,7 +432,7 @@ public class CommCareApplication extends Application {
 					synchronized(dbHandleLock) {
 						if(database == null || !database.isOpen()) {
 							CursorFactory factory = new CommCareDBCursorFactory();
-							database = new CommCareOpenHelper(this.c, factory).getWritableDatabase();
+							database = new CommCareOpenHelper(this.c, factory).getWritableDatabase("test");
 						}
 						return database;
 					}
@@ -662,7 +663,7 @@ public class CommCareApplication extends Application {
 							return mBoundService.getDecrypterPool();
 						}
 					};
-					database = new CommCareOpenHelper(CommCareApplication.this, factory).getWritableDatabase();
+					database = new CommCareOpenHelper(CommCareApplication.this, factory).getWritableDatabase("test");
 				}
 		        
 				//service available

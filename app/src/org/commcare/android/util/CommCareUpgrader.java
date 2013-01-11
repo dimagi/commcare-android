@@ -3,6 +3,8 @@
  */
 package org.commcare.android.util;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.cache.GeocodeCacheModel;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -16,8 +18,6 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
 /**

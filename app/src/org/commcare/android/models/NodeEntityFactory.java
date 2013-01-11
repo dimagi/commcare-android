@@ -49,27 +49,27 @@ public class NodeEntityFactory {
 			nodeContext.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(nodeContext)));
 		}
 		
-		//return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
+		return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 		
-		String[] details = new String[detail.getHeaderForms().length];
-		String[] sortDetails = new String[detail.getHeaderForms().length];
-		int count = 0;
-		for(DetailField f : this.getDetail().getFields()) {
-			try {
-				details[count] = f.getTemplate().evaluate(nodeContext);
-				Text sortText = f.getSort();
-				if(sortText == null) {
-					sortDetails[count] = details[count];
-				} else {
-					sortDetails[count] = sortText.evaluate(nodeContext);
-				}
-			} catch(XPathException xpe) {
-				xpe.printStackTrace();
-				details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
-			}
-			count++;
-		}
-		
-		return new Entity<TreeReference>(details, sortDetails, data);
+//		String[] details = new String[detail.getHeaderForms().length];
+//		String[] sortDetails = new String[detail.getHeaderForms().length];
+//		int count = 0;
+//		for(DetailField f : this.getDetail().getFields()) {
+//			try {
+//				details[count] = f.getTemplate().evaluate(nodeContext);
+//				Text sortText = f.getSort();
+//				if(sortText == null) {
+//					sortDetails[count] = details[count];
+//				} else {
+//					sortDetails[count] = sortText.evaluate(nodeContext);
+//				}
+//			} catch(XPathException xpe) {
+//				xpe.printStackTrace();
+//				details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
+//			}
+//			count++;
+//		}
+//		
+//		return new Entity<TreeReference>(details, sortDetails, data);
 	}
 }
