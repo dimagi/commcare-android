@@ -42,6 +42,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.text.InputType;
 import android.util.Log;
 /**
  * The CommCareStartupActivity is purely responsible for identifying
@@ -86,10 +87,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	Spinner urlSpinner;
 	Button installButton;
 	Button mScanBarcodeButton;
+	Button addressEntryButton;
+	Button startOverButton;
     private ProgressDialog mProgressDialog;
     private ProgressDialog vProgressDialog;
     
     String [] urlVals;
+    int previousUrlPosition=0;
 	
 	boolean upgradeMode = false;
 	
@@ -115,18 +119,24 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		}
 		
 		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
+		editProfileRef.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
 		advancedView = this.findViewById(R.id.advanced_panel);
 		mainMessage = (TextView)this.findViewById(R.id.str_setup_message);
 		urlSpinner = (Spinner)this.findViewById(R.id.url_spinner);
+		
 		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
-				String prepend = urlVals[arg2];
-				editProfileRef.setText(prepend);
-				if(prepend==""){
+				System.out.println("item selected, previous is: " + previousUrlPosition + ", new is: " + arg2);
+				if((previousUrlPosition == 0 || previousUrlPosition == 1) && arg2 == 2){
+					editProfileRef.setText(R.string.default_app_server);
 				}
+				else if(previousUrlPosition == 2 && (arg2 == 0 || arg2 == 1)){
+					editProfileRef.setText("");
+				}
+				previousUrlPosition = arg2;
 			}
 
 			@Override
@@ -161,6 +171,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		installButton = (Button)this.findViewById(R.id.start_install);
     	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
+    	addressEntryButton = (Button)this.findViewById(R.id.enter_app_location);
+    	startOverButton = (Button)this.findViewById(R.id.start_over);
     	
 		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -178,9 +190,23 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			
 		});
 		
-		if(incomingRef == null || uiState == UiState.advanced) {
-			editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
+		addressEntryButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				setModeToAdvanced();
+			}
 			
+		});
+		
+		startOverButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				setModeToBasic();
+			}
+			
+		});
+		
+		if(incomingRef == null || uiState == UiState.advanced) {
+			//editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
+			editProfileRef.setText("");
 			if(this.uiState == UiState.advanced) {
 				this.setModeToAdvanced();
 			} else {
@@ -268,13 +294,11 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		String ref = incomingRef;
 		
-		
-		
 		if(this.uiState == UiState.advanced) {
-			ref = editProfileRef.getText().toString();
+			int selectedIndex = urlSpinner.getSelectedItemPosition();
+			String selectedString = urlVals[selectedIndex];
+			ref = selectedString + editProfileRef.getText().toString();
 		}
-		
-		System.out.println("ref is: " + ref);
 		
 		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
 		task.setListener(this);
@@ -310,7 +334,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         if(uiState == UiState.advanced) {
         	basic.setVisible(true);
         	advanced.setVisible(false);
-        } else {
+        } else if(uiState == UiState.ready){
+        	basic.setVisible(true);
+        	advanced.setVisible(true);
+        } else{
         	basic.setVisible(false);
         	advanced.setVisible(true);
         }
@@ -322,16 +349,20 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	mainMessage.setText(Localization.get("install.ready"));
 		editProfileRef.setText(incomingRef);
     	advancedView.setVisibility(View.INVISIBLE);
-    	mScanBarcodeButton.setVisibility(View.INVISIBLE);
+    	mScanBarcodeButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.VISIBLE);
+    	startOverButton.setVisibility(View.VISIBLE);
+    	addressEntryButton.setVisibility(View.GONE);
     }
     
     public void setModeToBasic(){
     	this.uiState = UiState.basic;
     	this.incomingRef = null;
     	mainMessage.setText(Localization.get("install.barcode"));
+    	addressEntryButton.setVisibility(View.VISIBLE);
     	advancedView.setVisibility(View.INVISIBLE);
     	mScanBarcodeButton.setVisibility(View.VISIBLE);
+    	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
     }
 
@@ -339,8 +370,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	this.uiState = UiState.advanced;
     	mainMessage.setText(Localization.get("install.manual"));
     	advancedView.setVisibility(View.VISIBLE);
-    	mScanBarcodeButton.setVisibility(View.INVISIBLE);
+    	mScanBarcodeButton.setVisibility(View.GONE);
+    	addressEntryButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
+        startOverButton.setVisibility(View.VISIBLE);
     	installButton.setEnabled(true);
     }
 

@@ -208,7 +208,7 @@ public class GenericMenuListAdapter implements ListAdapter {
 		else{
 			mQuestionText.setText((CharSequence) ((Entry)e).getText().evaluate());
 		}
-	    mQuestionText.setTypeface(null, Typeface.BOLD);
+	    mQuestionText.setTypeface(null, Typeface.NORMAL);
 	    mQuestionText.setPadding(0, 0, 0, 7);
 	    mQuestionText.setId((int)Math.random()*100000000); // assign random id
 	    mQuestionText.setHorizontallyScrolling(false);

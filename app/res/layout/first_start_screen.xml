@@ -2,7 +2,8 @@
 <FrameLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="fill_parent" android:layout_width="fill_parent">
-<ImageView android:id="@+id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="20px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView><LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_gravity="center_vertical|center_horizontal" android:layout_width="fill_parent" android:orientation="vertical">
+<ImageView android:id="@+id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="20px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
+<LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_gravity="center_vertical|center_horizontal" android:layout_width="fill_parent" android:orientation="vertical">
 
 <TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:textSize="18px" android:gravity="center_horizontal" android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin." android:id="@+id/str_setup_message"></TextView>
 
@@ -31,8 +32,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" >
-
-
     </EditText>
 </LinearLayout>
 </LinearLayout>
@@ -55,6 +54,18 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Start Install" />
+    
+    <Button
+        android:id="@+id/enter_app_location"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter App Location" />
+    
+    <Button
+        android:id="@+id/start_over"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Over" />
 
 </LinearLayout>
 

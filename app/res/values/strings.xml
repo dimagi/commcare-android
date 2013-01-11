@@ -26,14 +26,14 @@
     <item name="login_screen_hide_banner_cuttoff" type="integer">250</item>
     <string name="url_prompt">Choose a URL</string>
     <string-array name="url_list">
-        <item>Raw</item>
         <item>bit.ly</item>
         <item>tinyurl</item>
+        <item>Raw</item>
     </string-array>
     <string-array name="url_vals">
-        <item>@string/default_app_server</item>
         <item>http://bit.ly/</item>
         <item>http://tinyurl.com/</item>
+        <item>@string/default_app_server</item>
     </string-array>
       
     <string name="aboutdialog">         
