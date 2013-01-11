@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.commcare.util.externalizable.ImprovedPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -45,7 +46,7 @@ public class DbUtil {
 		}
 		
 		
-		factory = new PrototypeFactory(tree);
+		factory = new ImprovedPrototypeFactory(tree);
 		return factory;
 		
 	}
