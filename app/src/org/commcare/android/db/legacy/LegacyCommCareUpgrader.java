@@ -1,17 +1,16 @@
 /**
  * 
  */
-package org.commcare.android.util;
+package org.commcare.android.db.legacy;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.TableBuilder;
-import org.commcare.android.database.cache.GeocodeCacheModel;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.Logger;
 
@@ -27,11 +26,11 @@ import android.preference.PreferenceManager;
  * 
  * @author ctsims
  */
-public class CommCareUpgrader {
+public class LegacyCommCareUpgrader {
 	
 	Context context;
 	
-	public CommCareUpgrader(Context c) {
+	public LegacyCommCareUpgrader(Context c) {
 		this.context = c;
 	}
 	
@@ -81,7 +80,7 @@ public class CommCareUpgrader {
 
 	public boolean upgradeOneTwo(SQLiteDatabase database) {
 		database.beginTransaction();
-		TableBuilder builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
+		LegacyTableBuilder builder = new LegacyTableBuilder("UPGRADE_RESOURCE_TABLE");
 		builder.addData(new Resource());
 		database.execSQL(builder.getTableCreateString());
 		
@@ -127,7 +126,7 @@ public class CommCareUpgrader {
 		database.execSQL("drop table " + FormRecord.STORAGE_KEY);
 		
 		//Build us a new one with the new structure
-		TableBuilder builder = new TableBuilder(FormRecord.STORAGE_KEY);
+		LegacyTableBuilder builder = new LegacyTableBuilder(FormRecord.STORAGE_KEY);
 		builder.addData(new FormRecord());
 		database.execSQL(builder.getTableCreateString());
 
@@ -140,7 +139,7 @@ public class CommCareUpgrader {
 	private boolean upgradeTwoSeventoTwoEight(SQLiteDatabase database) {
 		database.beginTransaction();
 		
-		TableBuilder builder = new TableBuilder(GeocodeCacheModel.STORAGE_KEY);
+		LegacyTableBuilder builder = new LegacyTableBuilder(GeocodeCacheModel.STORAGE_KEY);
 		builder.addData(new GeocodeCacheModel());
 		database.execSQL(builder.getTableCreateString());
 
@@ -151,18 +150,18 @@ public class CommCareUpgrader {
 	
 	private boolean upgradeTwoEighttoTwoNine(SQLiteDatabase database) {
 		
-		String ssdTable = TableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY);
-		String tempssdTable = TableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY + "temp");
+		String ssdTable = LegacyTableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY);
+		String tempssdTable = LegacyTableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY + "temp");
 
 		int oldRows = countRows(database, ssdTable);
 		try {
 			database.beginTransaction();
 			
-			TableBuilder builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
+			LegacyTableBuilder builder = new LegacyTableBuilder(AndroidLogEntry.STORAGE_KEY);
 			builder.addData(new AndroidLogEntry());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(DeviceReportRecord.STORAGE_KEY);
+			builder = new LegacyTableBuilder(DeviceReportRecord.STORAGE_KEY);
 			builder.addData(new DeviceReportRecord());
 			database.execSQL(builder.getTableCreateString());
 			
@@ -171,7 +170,7 @@ public class CommCareUpgrader {
 			
 			database.execSQL(String.format("ALTER TABLE %s RENAME TO %s;", ssdTable, tempssdTable));
 			
-			builder = new TableBuilder(SessionStateDescriptor.STORAGE_KEY);
+			builder = new LegacyTableBuilder(SessionStateDescriptor.STORAGE_KEY);
 			builder.setUnique(SessionStateDescriptor.META_FORM_RECORD_ID);
 			builder.addData(new SessionStateDescriptor());
 			database.execSQL(builder.getTableCreateString());

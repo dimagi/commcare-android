@@ -1,58 +1,50 @@
 /**
  * 
  */
-package org.commcare.android.database;
+package org.commcare.android.database.user;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
-import net.sqlcipher.database.SQLiteOpenHelper;
-
+import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.db.legacy.LegacyCommCareUpgrader;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.User;
-import org.commcare.resources.model.Resource;
-import org.javarosa.core.model.instance.FormInstance;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteOpenHelper;
 
 /**
+ * The central db point for 
+ * 
  * @author ctsims
  *
  */
-public class CommCareOpenHelper extends SQLiteOpenHelper {
-	
-	
-	/*
-	 * Version History:
-	 * 28 - Added the geocaching table
-	 * 29 - Added Logging table. Made SSD FormRecord_ID unique
-	 * 30 - Added validation, need to pre-flag validation
-	 */
-	
-    private static final int DATABASE_VERSION = 30;
-    private Context context;
-    
-    public CommCareOpenHelper(Context context) {
-    	this(context, null);
-    }
+public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
-	public CommCareOpenHelper(Context context, CursorFactory factory) {
-        super(context, GlobalConstants.CC_DB_NAME, factory, DATABASE_VERSION);
-        this.context = context;
+	private static final int USER_DB_VERSION = 1;
+	
+	private static final String USER_DB_LOCATOR = "database_user";
+
+
+	
+	public CommCareUserOpenHelper(Context context, String userId) {
+		super(context, getDbName(userId), null, USER_DB_VERSION);
 	}
 	
+	private static String getDbName(String userId) {
+		return USER_DB_LOCATOR + userId;
+	}
+
 	/* (non-Javadoc)
 	 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
 	 */
 	@Override
 	public void onCreate(SQLiteDatabase database) {
-		
+
 		try {
 			database.beginTransaction();
 			
@@ -64,6 +56,8 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			builder = new TableBuilder(User.STORAGE_KEY);
 			builder.addData(new User());
 			database.execSQL(builder.getTableCreateString());
+			
+
 			
 			builder = new TableBuilder(FormRecord.class);
 			database.execSQL(builder.getTableCreateString());
@@ -84,7 +78,7 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 			database.execSQL(builder.getTableCreateString());
 			
 			
-			database.setVersion(DATABASE_VERSION);
+			database.setVersion(USER_DB_VERSION);
 					
 			database.setTransactionSuccessful();
 		} finally {
@@ -96,12 +90,9 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 	 * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
 	 */
 	@Override
-	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-		LegacyCommCareUpgrader upgrader = new LegacyCommCareUpgrader(context);
-		
-		//Evaluate success here somehow. Also, we'll need to log in to
-		//mess with anything in the DB, or any old encrypted files, we need a hook for that...
-		upgrader.doUpgrade(database, oldVersion, newVersion);
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

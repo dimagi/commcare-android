@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.database;
+package org.commcare.android.db.legacy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -16,6 +16,9 @@ import javax.crypto.CipherOutputStream;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.DbUtil;
+import org.commcare.android.database.EncryptedModel;
+import org.commcare.android.database.TableBuilder;
 import org.commcare.android.util.Base64;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -30,16 +33,17 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public abstract class DbHelper {
+public abstract class LegacyDbHelper {
 	
 	protected Context c;
 	private Cipher encrypter;
+	//private Hashtable<String, EncryptedModel> encryptedModels;
 	
-	public DbHelper(Context c) {
+	public LegacyDbHelper(Context c) {
 		this.c = c;
 	}
 	
-	public DbHelper(Context c, Cipher encrypter) {
+	public LegacyDbHelper(Context c, Cipher encrypter) {
 		this.c = c;
 		this.encrypter = encrypter;
 	}
@@ -54,7 +58,7 @@ public abstract class DbHelper {
 			String[] thefields = m.getMetaDataFields();
 			fields = new HashSet<String>();
 			for(String s : thefields) {
-				fields.add(TableBuilder.scrubName(s));
+				fields.add(LegacyTableBuilder.scrubName(s));
 			}
 		}
 		
@@ -63,14 +67,14 @@ public abstract class DbHelper {
 			String[] thefields = m.getMetaDataFields();
 			fields = new HashSet<String>();
 			for(String s : thefields) {
-				fields.add(TableBuilder.scrubName(s));
+				fields.add(LegacyTableBuilder.scrubName(s));
 			}
 		}
 		
 		String ret = "";
 		String[] arguments = new String[fieldNames.length];
 		for(int i = 0 ; i < fieldNames.length; ++i) {
-			String columnName = TableBuilder.scrubName(fieldNames[i]);
+			String columnName = LegacyTableBuilder.scrubName(fieldNames[i]);
 			if(fields != null) {
 				if(!fields.contains(columnName)) {
 					throw new IllegalArgumentException("Model does not contain the column " + columnName + "!");
@@ -78,7 +82,11 @@ public abstract class DbHelper {
 			}
 			ret += columnName + "=?";
 			
-			arguments[i] = values[i].toString();
+			if(em != null && em.isEncrypted(fieldNames[i])) {
+				arguments[i] = encrypt(values[i].toString());
+			} else {
+				arguments[i] = values[i].toString();
+			}
 			
 			if(i + 1 < fieldNames.length) {
 				ret += " AND ";
@@ -87,12 +95,22 @@ public abstract class DbHelper {
 		return new Pair<String, String[]>(ret, arguments);
 	}
 	
+	private String encrypt(String string) {
+		byte[] encrypted = CryptUtil.encrypt(string.getBytes(), encrypter);
+		return Base64.encode(encrypted);
+	}
+
 	public ContentValues getContentValues(Externalizable e) {
 		boolean encrypt = e instanceof EncryptedModel;
 		assert(!(encrypt) || encrypter != null);
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		OutputStream out = bos;
+		
+		
+		if(encrypt && ((EncryptedModel)e).isBlobEncrypted()) {
+			out = new CipherOutputStream(bos, encrypter);
+		}
 		
 		try {
 			e.writeExternal(new DataOutputStream(out));
@@ -111,7 +129,11 @@ public abstract class DbHelper {
 				Object o = m.getMetaData(key);
 				if(o == null ) { continue;}
 				String value = o.toString();
-				values.put(TableBuilder.scrubName(key), value);
+				if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
+					values.put(TableBuilder.scrubName(key), encrypt(value));
+				} else {
+					values.put(LegacyTableBuilder.scrubName(key), value);
+				}
 			}
 		}
 		

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.util;
+package org.commcare.android.models;
 
 import java.io.IOException;
 import java.util.Date;
@@ -11,10 +11,14 @@ import java.util.Vector;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.models.ACase;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.InvalidStateException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;

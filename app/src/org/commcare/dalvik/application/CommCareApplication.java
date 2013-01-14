@@ -22,32 +22,33 @@ import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.crypt.CipherPool;
-import org.commcare.android.database.CommCareDBCursorFactory;
 import org.commcare.android.database.CommCareOpenHelper;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.database.cache.GeocodeCacheModel;
-import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.db.legacy.LegacyCommCareDBCursorFactory;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.javarosa.PreInitLogger;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.ACase;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
+import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.User;
 import org.commcare.android.models.notifications.NotificationClearReceiver;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.references.AssetFileRoot;
-import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
+import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.ODKPropertyManager;
@@ -58,7 +59,6 @@ import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
-import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
@@ -71,10 +71,8 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.app.Application;
@@ -121,9 +119,12 @@ public class CommCareApplication extends Application {
 	
 	private static CommCareApplication app;
 	
-	private AndroidCommCarePlatform platform;
+	private CommCareApp currentApp;
 	
 	private AndroidSessionWrapper sessionWrapper;
+	
+	private Object globalDbHandleLock = new Object();
+	private SQLiteDatabase globalDatabase; 
 	
 	private static SQLiteDatabase database; 
 	
@@ -151,40 +152,37 @@ public class CommCareApplication extends Application {
 		
         SQLiteDatabase.loadLibs(this);
 		
-		createPaths();
 		setRoots();
 		
 		CommCareApplication.app = this;
 		
         appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         
+        
 //        PreferenceChangeListener listener = new PreferenceChangeListener(this);
 //        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
         
-        setupLocalization();
+        defaultLocalizations();
         
-		int[] version = getCommCareVersion();
-		platform = new AndroidCommCarePlatform(version[0], version[1], this);
-		
 		//The fallback in case the db isn't installed 
 		resourceState = STATE_UNINSTALLED;
 		
 		//Init storage
-		dbState = initDb();
+		dbState = initGlobalDb();
 		
 		//We likely want to do this for all of the storage, this is just a way to deal with fixtures
 		//temporarily. 
-		StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
+		//StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
 		
-		Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+//		Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+//		
+//		//Dump any logs we've been keeping track of in memory to storage
+//		pil.dumpToNewLogger();
 		
-		//Dump any logs we've been keeping track of in memory to storage
-		pil.dumpToNewLogger();
-		
-		initializeGlobalResources();
+		initializeAppResources();
 		
 		if(dbState != STATE_UNINSTALLED) {
-			CursorFactory factory = new CommCareDBCursorFactory();
+			CursorFactory factory = new LegacyCommCareDBCursorFactory();
 			synchronized(dbHandleLock) {
 				database = new CommCareOpenHelper(this, factory).getWritableDatabase("test");
 			}
@@ -266,7 +264,11 @@ public class CommCareApplication extends Application {
 	}
 
 	public AndroidCommCarePlatform getCommCarePlatform() {
-		return platform;
+		if(this.currentApp == null) {
+			throw new RuntimeException("No App installed!!!");
+		} else {
+			return this.currentApp.getCommCarePlatform();
+		}
 	}
 	
 	public CommCareSession getCurrentSession() {
@@ -287,7 +289,7 @@ public class CommCareApplication extends Application {
 	
 	public void initializeGlobalResources() {
 		if(dbState != STATE_UNINSTALLED) {
-			resourceState = initResources();
+			resourceState = initializeAppResources();
 		}
 	}
 	
@@ -304,7 +306,7 @@ public class CommCareApplication extends Application {
 		return appPreferences;
 	}
 	
-	private void setupLocalization() {
+	private void defaultLocalizations() {
 		Localization.registerLanguageReference("default", "jr://asset/locales/messages_ccodk_default.txt");
 		Localization.setDefaultLocale("default");
 		
@@ -316,56 +318,33 @@ public class CommCareApplication extends Application {
 		}
 	}
 	
-	public String fsPath(String relative) {
-		return storageRoot() + relative;
-	}
-    
-    private void createPaths() {
-    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA, GlobalConstants.FILE_CC_LOGS};
-    	for(String path : paths) {
-    		File f = new File(fsPath(path));
-    		if(!f.exists()) {
-    			f.mkdirs();
-    		}
-    	}
-    }
-	
 	private void setRoots() {
 		JavaHttpRoot http = new JavaHttpRoot();
-		
-		JavaFileRoot file = new JavaFileRoot(storageRoot());
 		
 		AssetFileRoot afr = new AssetFileRoot(this);
 
 		ReferenceManager._().addReferenceFactory(http);
-		ReferenceManager._().addReferenceFactory(file);
 		ReferenceManager._().addReferenceFactory(afr);
 		//ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",GlobalConstants.MEDIA_REF));
 	}
-	
-	private String storageRoot() {
-		//This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
-		//it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
-		//to rely on the fact that the phone knows how to fix missing/corrupt directories every time it upgrades.
-		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ this.getPackageName() +"/files/";
-	}
-	
-	private int initResources() {
+
+	private int initializeAppResources() {
 		try {
-			
-			//Now, we need to identify the state of the application resources
-			AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform(); 
-			ResourceTable global = platform.getGlobalResourceTable();
-			//TODO: This, but better.
-			Resource profile = global.getResourceWithId("commcare-application-profile");
-			if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-				platform.initialize(global);
-				Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
-				return STATE_READY;
-			} else{
-				return STATE_UNINSTALLED;
+			//There should be exactly one of these for now
+			for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
+				if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+					//We have an app record ready to go
+					currentApp = new CommCareApp(record);
+					if(currentApp.initializeApplication()) {
+						return STATE_READY;
+					} else {
+						//????
+						return STATE_CORRUPTED;
+					}
+				}
 			}
+			return STATE_UNINSTALLED;
 		}
 		catch(Exception e) {
 			Log.i("FAILURE", "Problem with loading");
@@ -377,10 +356,10 @@ public class CommCareApplication extends Application {
 		}
 	}
 
-	private int initDb() {
+	private int initGlobalDb() {
 		SQLiteDatabase database;
 		try {
-			database = new CommCareOpenHelper(this).getWritableDatabase("test");
+			database = new DatabaseGlobalOpenHelper(this).getWritableDatabase(null);
 			database.close();
 			return STATE_READY;
 		} catch(SQLiteException e) {
@@ -394,7 +373,7 @@ public class CommCareApplication extends Application {
 	public SQLiteDatabase getRawEncryptingDbHandle(Context c) {
 		synchronized(dbHandleLock) {
 			if(database == null || !database.isOpen()) {
-				CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
+				CursorFactory factory = new LegacyCommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
 					protected CipherPool getCipherPool() {
 						return mBoundService.getDecrypterPool();
 					}
@@ -403,6 +382,20 @@ public class CommCareApplication extends Application {
 			}
 			return database;
 		}
+	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getGlobalStorage(Class<T> c) throws SessionUnavailableException {
+		return new SqlIndexedStorageUtility<T>(c.getAnnotation(Table.class).value(), c, new DbHelper(this.getApplicationContext()){
+			@Override
+			public SQLiteDatabase getHandle() {
+				synchronized(globalDbHandleLock) {
+					if(globalDatabase == null || !globalDatabase.isOpen()) {
+						globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase(null);
+					}
+					return globalDatabase;
+				}
+			}
+		});
 	}
 	
 	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String storage, Class<T> c) throws SessionUnavailableException {
@@ -431,7 +424,7 @@ public class CommCareApplication extends Application {
 				public SQLiteDatabase getHandle() {
 					synchronized(dbHandleLock) {
 						if(database == null || !database.isOpen()) {
-							CursorFactory factory = new CommCareDBCursorFactory();
+							CursorFactory factory = new LegacyCommCareDBCursorFactory();
 							database = new CommCareOpenHelper(this.c, factory).getWritableDatabase("test");
 						}
 						return database;
@@ -476,10 +469,11 @@ public class CommCareApplication extends Application {
 		return t;
 	}
 	
+	//LEGACY
 	private Hashtable<String, EncryptedModel> encryptedModels() {
 		Hashtable<String, EncryptedModel> models = new Hashtable<String, EncryptedModel>();
 		models.put(ACase.STORAGE_KEY, new ACase());
-		models.put(FormRecord.STORAGE_KEY, new FormRecord());
+		models.put("FORMRECORDS", new FormRecord());
 		models.put(GeocodeCacheModel.STORAGE_KEY, new GeocodeCacheModel());
 		models.put(DeviceReportRecord.STORAGE_KEY, new DeviceReportRecord());
 		return models;
@@ -507,12 +501,12 @@ public class CommCareApplication extends Application {
 	 * It may mess up the app, so it shouldn't be called upon trivially.
 	 */
 	public boolean resetApplicationResources() {
-		ResourceTable global = platform.getGlobalResourceTable();
+		ResourceTable global = getCommCarePlatform().getGlobalResourceTable();
 		global.clear();
 		String profile = appPreferences.getString("default_app_server", this.getString(R.string.default_app_server));
 		try {
-			platform.init(profile, global, false);
-			resourceState = this.initResources();
+			getCommCarePlatform().init(profile, global, false);
+			resourceState = this.initializeAppResources();
 			return true;
 		} catch (UnfullfilledRequirementsException e) {
 			ExceptionReportTask ert = new ExceptionReportTask();
@@ -617,7 +611,7 @@ public class CommCareApplication extends Application {
 		
 		String profileVersion = "";
 		
-		Profile p = this.platform == null ? null : platform.getCurrentProfile();
+		Profile p = this.getCommCarePlatform() == null ? null : this.getCommCarePlatform().getCurrentProfile();
 		if(p != null) {
 			profileVersion = String.valueOf(p.getVersion());
 		}
@@ -658,7 +652,7 @@ public class CommCareApplication extends Application {
 		        	
 		        	//NOTE: If any of this is updated care should be taken to ensure that none of it depends on
 		        	//the mIsBound service flag, otherwise we could deadlock
-					CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
+					CursorFactory factory = new LegacyCommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
 						protected CipherPool getCipherPool() {
 							return mBoundService.getDecrypterPool();
 						}
@@ -975,7 +969,7 @@ public class CommCareApplication extends Application {
 
 	public boolean isStorageAvailable() {
 		try {
-			File storageRoot = new File(this.fsPath(GlobalConstants.FILE_CC_ROOT));
+			File storageRoot = new File(getAndroidFsRoot());
 			return storageRoot.exists();
 		} catch(Exception e) {
 			return false;
@@ -989,14 +983,8 @@ public class CommCareApplication extends Application {
 	public void notifyLogsPending() {
 		doReportMaintenance(true);
 	}
-	
-	public boolean areResourcesValidated(){
-		return appPreferences.getBoolean("isValidated",false) || appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES);
-	}
-	
-	public void setResourcesValidated(boolean isValidated){
-		SharedPreferences.Editor editor = appPreferences.edit();
-		editor.putBoolean("isValidated", isValidated);
-		editor.commit();
+
+	public String getAndroidFsRoot() {
+		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/files/";
 	}
 }

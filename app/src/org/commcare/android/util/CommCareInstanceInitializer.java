@@ -6,7 +6,7 @@ package org.commcare.android.util;
 import java.util.HashSet;
 import java.util.Vector;
 
-import org.commcare.android.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.models.User;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.dalvik.application.CommCareApplication;

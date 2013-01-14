@@ -1,22 +1,15 @@
 /**
  * 
  */
-package org.commcare.android.models;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Hashtable;
+package org.commcare.android.database.user.models;
 
 import org.commcare.android.database.EncryptedModel;
-import org.commcare.android.util.AndroidSessionWrapper;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.storage.framework.MetaField;
+import org.commcare.android.storage.framework.Persisted;
+import org.commcare.android.storage.framework.Persisting;
 import org.commcare.util.CommCareSession;
-import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.MD5;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A Session State Descriptor contains all of the information that can be persisted
@@ -25,16 +18,19 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  *
  */
-public class SessionStateDescriptor implements Persistable, IMetaData, EncryptedModel {
+public class SessionStateDescriptor extends Persisted implements EncryptedModel {
 	
 	public static final String META_DESCRIPTOR_HASH = "descriptorhash";
 	
 	public static final String META_FORM_RECORD_ID = "form_record_id";
 	
 	public static final String STORAGE_KEY = "android_cc_session";
-	
-	private int recordId = -1;
+
+	@Persisting
+	@MetaField(value=META_FORM_RECORD_ID, unique=true)
 	private int formRecordId = -1;
+	
+	@Persisting
 	private String sessionDescriptor = null;
 	
 	//Wrapper for serialization (STILL SKETCHY)
@@ -57,50 +53,8 @@ public class SessionStateDescriptor implements Persistable, IMetaData, Encrypted
 		return false;
 	}
 
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		recordId = ExtUtil.readInt(in);
-		formRecordId = ExtUtil.readInt(in);
-		sessionDescriptor = ExtUtil.readString(in);
-	}
-
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeNumeric(out, recordId);
-		ExtUtil.writeNumeric(out, formRecordId);
-		ExtUtil.writeString(out, sessionDescriptor);
-	}
-		
 	public int getFormRecordId() {
 		return formRecordId;
-	}
-
-	public void setID(int ID) {
-		recordId = ID;
-	}
-
-	public int getID() {
-		return recordId;
-	}
-
-	public String[] getMetaDataFields() {
-		return new String[] { META_DESCRIPTOR_HASH, META_FORM_RECORD_ID};
-	}
-
-	public Hashtable getMetaData() {
-		Hashtable data = new Hashtable();
-		for(String key : getMetaDataFields()) {
-			data.put(key, getMetaData(key));
-		}
-		return data;
-	}
-
-	public Object getMetaData(String fieldName) {
-		if(fieldName.equals(META_DESCRIPTOR_HASH)) {
-			return getHash();
-		}
-		if(fieldName.equals(META_FORM_RECORD_ID)) {
-			return getFormRecordId();
-		}
-		throw new IllegalArgumentException("No metadata field " + fieldName  + " for Session Models");
 	}
 	
 	public void fromBundle(String serializedDescriptor) {

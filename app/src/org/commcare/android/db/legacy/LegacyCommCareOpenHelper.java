@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.database;
+package org.commcare.android.db.legacy;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
@@ -11,7 +11,6 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.db.legacy.LegacyCommCareUpgrader;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.logic.GlobalConstants;
@@ -25,7 +24,7 @@ import android.content.Context;
  * @author ctsims
  *
  */
-public class CommCareOpenHelper extends SQLiteOpenHelper {
+public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
 	
 	
 	/*
@@ -38,11 +37,11 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 30;
     private Context context;
     
-    public CommCareOpenHelper(Context context) {
+    public LegacyCommCareOpenHelper(Context context) {
     	this(context, null);
     }
 
-	public CommCareOpenHelper(Context context, CursorFactory factory) {
+	public LegacyCommCareOpenHelper(Context context, CursorFactory factory) {
         super(context, GlobalConstants.CC_DB_NAME, factory, DATABASE_VERSION);
         this.context = context;
 	}
@@ -56,30 +55,45 @@ public class CommCareOpenHelper extends SQLiteOpenHelper {
 		try {
 			database.beginTransaction();
 			
-			TableBuilder builder = new TableBuilder(ACase.STORAGE_KEY);
+			LegacyTableBuilder builder = new LegacyTableBuilder(ACase.STORAGE_KEY);
 			builder.addData(new ACase());
 			builder.setUnique(ACase.INDEX_CASE_ID);
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(User.STORAGE_KEY);
+			builder = new LegacyTableBuilder(User.STORAGE_KEY);
 			builder.addData(new User());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(FormRecord.class);
+			builder = new LegacyTableBuilder("GLOBAL_RESOURCE_TABLE");
+			builder.addData(new Resource());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(SessionStateDescriptor.class);
+			builder = new LegacyTableBuilder("UPGRADE_RESOURCE_TABLE");
+			builder.addData(new Resource());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(GeocodeCacheModel.STORAGE_KEY);
+			builder = new LegacyTableBuilder(FormRecord.STORAGE_KEY);
+			builder.addData(new FormRecord());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new LegacyTableBuilder(SessionStateDescriptor.STORAGE_KEY);
+			builder.setUnique(SessionStateDescriptor.META_FORM_RECORD_ID);
+			builder.addData(new SessionStateDescriptor());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new LegacyTableBuilder("fixture");
+			builder.addData(new FormInstance());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new LegacyTableBuilder(GeocodeCacheModel.STORAGE_KEY);
 			builder.addData(new GeocodeCacheModel());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
+			builder = new LegacyTableBuilder(AndroidLogEntry.STORAGE_KEY);
 			builder.addData(new AndroidLogEntry());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(DeviceReportRecord.STORAGE_KEY);
+			builder = new LegacyTableBuilder(DeviceReportRecord.STORAGE_KEY);
 			builder.addData(new DeviceReportRecord());
 			database.execSQL(builder.getTableCreateString());
 			

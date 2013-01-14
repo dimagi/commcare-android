@@ -17,8 +17,8 @@
 package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.IncompleteFormListAdapter;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;

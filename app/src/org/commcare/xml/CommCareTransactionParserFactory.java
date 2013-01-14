@@ -6,7 +6,7 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import org.commcare.android.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;

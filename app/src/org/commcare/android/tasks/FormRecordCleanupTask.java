@@ -20,11 +20,11 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.ACase;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
-import org.commcare.android.util.AndroidSessionWrapper;
+import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.database;
+package org.commcare.android.db.legacy;
 
 import java.io.IOException;
 
@@ -14,6 +14,8 @@ import net.sqlcipher.database.SQLiteQuery;
 
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.DbUtil;
+import org.commcare.android.database.EncryptedModel;
 /**
  * @author ctsims
  *

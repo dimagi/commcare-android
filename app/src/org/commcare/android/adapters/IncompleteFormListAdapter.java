@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;

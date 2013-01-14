@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.database.cache.GeocodeCacheModel;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;

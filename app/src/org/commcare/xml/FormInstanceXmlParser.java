@@ -21,8 +21,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.FormRecord;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
