@@ -3,15 +3,15 @@
  */
 package org.commcare.android.database.app;
 
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteOpenHelper;
+
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for CommCare.
@@ -40,20 +40,26 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onCreate(SQLiteDatabase database) {
-		TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
-		builder.addData(new Resource());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
-		builder.addData(new Resource());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder("fixture");
-		builder.addData(new FormInstance());
-		database.execSQL(builder.getTableCreateString());
-		
-		builder = new TableBuilder(UserKeyRecord.class);
-		database.execSQL(builder.getTableCreateString());
+		try {
+			database.beginTransaction();
+			TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
+			builder.addData(new Resource());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
+			builder.addData(new Resource());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder("fixture");
+			builder.addData(new FormInstance());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(UserKeyRecord.class);
+			database.execSQL(builder.getTableCreateString());
+			database.setTransactionSuccessful();
+		} finally {
+			database.endTransaction();
+		}
 	}
 
 	/* (non-Javadoc)

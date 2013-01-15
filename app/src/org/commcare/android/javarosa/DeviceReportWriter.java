@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.models.User;
+import org.commcare.android.database.user.models.User;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
@@ -100,7 +100,7 @@ public class DeviceReportWriter {
 	}
 	
 	private void writeUserReport() throws IllegalArgumentException, IllegalStateException, IOException {
-		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
+		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getUserStorage(User.class);
 		
 		serializer.startTag(XMLNS, "user_subreport");
         

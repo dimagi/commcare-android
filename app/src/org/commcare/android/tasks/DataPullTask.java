@@ -25,8 +25,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.User;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
@@ -36,6 +36,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.data.xml.DataModelPullParser;
@@ -61,7 +62,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 
 /**
  * @author ctsims
@@ -149,7 +149,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		} catch(SessionUnavailableException sue) {
 			//expected if we aren't initialized.
 		}
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+		CommCareApp app = CommCareApplication._().getCurrentApp();
+    	SharedPreferences prefs = app.getAppPreferences();
 		
 		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 	    
@@ -403,8 +404,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		//this is the temporary implementation of everything past this point
 		
 		//Wipe storage
-		//TODO: move table instead.
-		CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
+		//TODO: move table instead. Should be straightforward with sandboxed db's
+		CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 		
 		
 		String failureReason = "";
@@ -450,7 +451,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	private void updateUserSyncToken(String syncToken) throws StorageFullException {
-		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
+		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getUserStorage(User.class);
 		try {
 			User u = storage.getRecordForValue(User.META_USERNAME, username);
 			u.setSyncToken(syncToken);
@@ -464,7 +465,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		//We need to determine if we're using ownership for purging. For right now, only in sync mode
 		Vector<String> owners = new Vector<String>();
 		Vector<String> users = new Vector<String>(); 
-		for(IStorageIterator<User> userIterator = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore();) {
+		for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.class).iterate(); userIterator.hasMore();) {
 			String id = userIterator.nextRecord().getUniqueId();
 			owners.addElement(id);
 			users.addElement(id);
@@ -484,7 +485,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			}
 		}
 			
-		SqlIndexedStorageUtility<ACase> storage = CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class);
+		SqlIndexedStorageUtility<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
 		CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
 		storage.removeAll(filter);		
 	}
@@ -515,7 +516,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 //		}
 		
 		//this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
-		SQLiteDatabase db = CommCareApplication._().getRawEncryptingDbHandle(c);
+		SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
 		try {
 			db.beginTransaction();
 			parser = new DataModelPullParser(stream, factory);

@@ -107,7 +107,7 @@ public class LegacyCommCareUpgrader {
 		
 		database.execSQL("delete from GLOBAL_RESOURCE_TABLE");
 		database.execSQL("delete from UPGRADE_RESOURCE_TABLE");
-		database.execSQL("delete from " + FormRecord.STORAGE_KEY);
+		database.execSQL("delete from android_cc_session");
 		database.setTransactionSuccessful();
 		database.endTransaction();
 	}
@@ -123,10 +123,10 @@ public class LegacyCommCareUpgrader {
 		database.beginTransaction();
 		
 		//wipe out old Form Record table
-		database.execSQL("drop table " + FormRecord.STORAGE_KEY);
+		database.execSQL("drop table FORMRECORDS");
 		
 		//Build us a new one with the new structure
-		LegacyTableBuilder builder = new LegacyTableBuilder(FormRecord.STORAGE_KEY);
+		LegacyTableBuilder builder = new LegacyTableBuilder("FORMRECORDS");
 		builder.addData(new FormRecord());
 		database.execSQL(builder.getTableCreateString());
 
@@ -150,8 +150,8 @@ public class LegacyCommCareUpgrader {
 	
 	private boolean upgradeTwoEighttoTwoNine(SQLiteDatabase database) {
 		
-		String ssdTable = LegacyTableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY);
-		String tempssdTable = LegacyTableBuilder.scrubName(SessionStateDescriptor.STORAGE_KEY + "temp");
+		String ssdTable = LegacyTableBuilder.scrubName("android_cc_session");
+		String tempssdTable = LegacyTableBuilder.scrubName("android_cc_session" + "temp");
 
 		int oldRows = countRows(database, ssdTable);
 		try {
@@ -161,7 +161,7 @@ public class LegacyCommCareUpgrader {
 			builder.addData(new AndroidLogEntry());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new LegacyTableBuilder(DeviceReportRecord.STORAGE_KEY);
+			builder = new LegacyTableBuilder("log_records");
 			builder.addData(new DeviceReportRecord());
 			database.execSQL(builder.getTableCreateString());
 			
@@ -170,7 +170,7 @@ public class LegacyCommCareUpgrader {
 			
 			database.execSQL(String.format("ALTER TABLE %s RENAME TO %s;", ssdTable, tempssdTable));
 			
-			builder = new LegacyTableBuilder(SessionStateDescriptor.STORAGE_KEY);
+			builder = new LegacyTableBuilder("android_cc_session");
 			builder.setUnique(SessionStateDescriptor.META_FORM_RECORD_ID);
 			builder.addData(new SessionStateDescriptor());
 			database.execSQL(builder.getTableCreateString());

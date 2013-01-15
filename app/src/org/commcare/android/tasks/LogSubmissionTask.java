@@ -87,11 +87,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 	@Override
 	protected LogSubmitOutcomes doInBackground(Void... params) {
 		try {
-			SqlIndexedStorageUtility<DeviceReportRecord> storage = CommCareApplication._().getStorage(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class);
+			SqlIndexedStorageUtility<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
 			
 			//First, see if we're supposed to serialize the current logs
 			if(serializeCurrentLogs) {
-				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+				SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 				
 				//update the last recorded record
 				settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
@@ -113,7 +113,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 					}
 					
 					//Add the logs as the primary payload
-					AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+					AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
 					reporter.addReportElement(serializer);
 					
 					//serialize logs

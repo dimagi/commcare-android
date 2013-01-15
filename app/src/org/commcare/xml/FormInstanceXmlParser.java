@@ -50,18 +50,18 @@ import android.net.Uri;
 public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
 	Context c;
-	IStorageUtilityIndexed storage;
+	IStorageUtilityIndexed<FormRecord> storage;
 	Hashtable<String, String> namespaces;
 	int counter = 0;
 	Cipher encrypter;
 	
 	private String destination;
 	
-	public FormInstanceXmlParser(KXmlParser parser, Context c, Hashtable<String, String> namespaces) {
+	public FormInstanceXmlParser(KXmlParser parser, Context c, Hashtable<String, String> namespaces, String destination) {
 		super(parser, null, null);
 		this.c = c;
 		this.namespaces = namespaces;
-		destination = CommCareApplication._().fsPath(GlobalConstants.FILE_CC_FORMS);
+		this.destination = destination;
 	}
 	
 	@Override
@@ -108,7 +108,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
 		
 		FormRecord r = new FormRecord(instanceRecord.toString(), FormRecord.STATUS_UNINDEXED, xmlns, key.getEncoded(),null, new Date(0));
-		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		IStorageUtilityIndexed<FormRecord> storage =  storage();
 		
 		OutputStream o = new FileOutputStream(filePath);
 		CipherOutputStream cos = null;
@@ -151,9 +151,9 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 		return r;
 	}
 	
-	public IStorageUtilityIndexed storage() throws SessionUnavailableException{
+	public IStorageUtilityIndexed<FormRecord> storage() throws SessionUnavailableException{
 		if(storage == null) {
-			storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+			storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		} 
 		return storage;
 	}

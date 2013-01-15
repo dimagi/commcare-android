@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -36,7 +37,7 @@ import android.preference.PreferenceManager;
  *
  */
 public class ProfileAndroidInstaller extends FileSystemInstaller {
-	
+		
 	public ProfileAndroidInstaller() {
 		
 	}
@@ -119,7 +120,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	private void initProperties(Profile profile) {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+		//Baaaaaad. Encapsulate this better!!!
+		SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
 		Editor editor = prefs.edit();
 		for(PropertySetter p : profile.getPropertySetters()) {
 			editor.putString(p.getKey(), p.isForce() ? p.getValue() : prefs.getString(p.getKey(), p.getValue()));

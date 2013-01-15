@@ -105,7 +105,7 @@ public class AndroidSessionWrapper {
 		if(formRecordId == -1) {
 			return null;
 		}
-		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		return storage.read(formRecordId);
 	}
 	
@@ -152,7 +152,7 @@ public class AndroidSessionWrapper {
 		try {
 			FormRecord updated = new FormRecordCleanupTask(CommCareApplication._(), platform).getUpdatedRecord(current, recordStatus);
 			
-			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+			SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 			storage.write(updated);	
 			
 			return updated;
@@ -182,8 +182,8 @@ public class AndroidSessionWrapper {
 	 * null otherwise. 
 	 */
 	public SessionStateDescriptor searchForDuplicates() {
-		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-		SqlIndexedStorageUtility<SessionStateDescriptor> sessionStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+		SqlIndexedStorageUtility<SessionStateDescriptor> sessionStorage = CommCareApplication._().getAppStorage(SessionStateDescriptor.class);
 		
 		//TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
 		
@@ -215,8 +215,8 @@ public class AndroidSessionWrapper {
 
 	public void commitStub() throws StorageFullException {
 		//TODO: This should now be locked somehow
-		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-		SqlIndexedStorageUtility<SessionStateDescriptor> sessionStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+		SqlIndexedStorageUtility<SessionStateDescriptor> sessionStorage = CommCareApplication._().getAppStorage(SessionStateDescriptor.class);
 
 		SecretKey key = CommCareApplication._().createNewSymetricKey();
 		
@@ -317,7 +317,7 @@ public class AndroidSessionWrapper {
     	} else {
     		//Otherwise, this is _almost certainly_ a case. See if it is, and 
     		//if so, grab the case name. otherwise, who knows?
-    		SqlIndexedStorageUtility<ACase> storage = CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class);
+    		SqlIndexedStorageUtility<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
     		try {
     			ACase ourCase = storage.getRecordForValue(ACase.INDEX_CASE_ID, value);
     			if(ourCase != null) {

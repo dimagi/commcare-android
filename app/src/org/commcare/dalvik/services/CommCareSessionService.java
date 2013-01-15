@@ -14,10 +14,14 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -25,6 +29,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 import android.app.Notification;
@@ -56,7 +61,6 @@ public class CommCareSessionService extends Service  {
     private Timer maintenanceTimer;
     private CipherPool pool;
 
-    private User user;
 	private byte[] key = null;
 	
 	private boolean multimediaIsVerified=false;
@@ -66,6 +70,11 @@ public class CommCareSessionService extends Service  {
     private String lock = "Lock";
     
     private DataPullTask mCurrentTask;
+    
+    private User user;
+    
+	public Object userDbHandleLock = new Object();
+	private SQLiteDatabase userDatabase; 
     
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
@@ -229,15 +238,40 @@ public class CommCareSessionService extends Service  {
 	}
 	
 	//END sync task registration/detachment
-
+	
     //Start CommCare Specific Functionality
+	
+	
+	public SQLiteDatabase getUserDbHandle() {
+		synchronized(lock){
+			return userDatabase;
+		}
+	}
+
+
+	private String getKeyVal(byte[] bytes) {
+		String hexString = "x'";
+		for (int i = 0; i < bytes.length; i++) {
+		    hexString += Integer.toHexString(0xFF & bytes[i]).toUpperCase();
+		}    
+		return hexString;
+	}
+	
+	public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
+		synchronized(lock){
+			this.key = symetricKey;
+			pool.init();
+        	if(userDatabase != null && userDatabase.isOpen()) {
+        		userDatabase.close();
+        	}
+	        userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(getKeyVal(key));
+		}
+	}
     
-	public void logIn(byte[] symetricKey, User user) {
+	public void logIn(User user) {
 		if(user != null) {
 			Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
 		}
-		this.key = symetricKey;
-		pool.init();
 		
 		this.user = user;
 		
@@ -275,8 +309,13 @@ public class CommCareSessionService extends Service  {
 	public void logout() {
 		synchronized(lock){
 			key = null;
+	        synchronized(userDbHandleLock) {
+	        	if(userDatabase != null && userDatabase.isOpen()) {
+	        		userDatabase.close();
+				}
+	        	userDatabase = null;
+			}
 			maintenanceTimer.cancel();
-			user = null;
 			pool.expire();
 	        this.stopForeground(true);
 		}

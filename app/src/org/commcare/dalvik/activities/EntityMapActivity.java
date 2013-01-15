@@ -146,7 +146,7 @@ public class EntityMapActivity extends MapActivity {
 		
 		EntityOverlayItemFactory overlayFactory = new EntityOverlayItemFactory(detail, defaultMarker);
 		
-		SqlIndexedStorageUtility<GeocodeCacheModel> geoCache = CommCareApplication._().getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class);
+		SqlIndexedStorageUtility<GeocodeCacheModel> geoCache = CommCareApplication._().getUserStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class);
 		
 		for(Entity<TreeReference> e : entities) {
 			for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){

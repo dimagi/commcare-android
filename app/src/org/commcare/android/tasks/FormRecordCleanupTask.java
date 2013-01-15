@@ -75,7 +75,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	
 	@Override
 	protected Integer doInBackground(Void... params) {
-		SqlIndexedStorageUtility<FormRecord> storage = CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		SqlIndexedStorageUtility<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
 		
 		Vector<Integer> recordsToRemove = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_SAVED });
 		
@@ -99,7 +99,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		}
 		
 		this.publishProgress(STATUS_CLEANUP);
-		SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+		SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 		
 		for(int recordID : recordsToRemove) {
 			this.wipeRecord(-1, recordID, storage, ssdStorage);
@@ -176,7 +176,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 				if("case".equals(name)) {
 					//If we have a proper 2.0 namespace, good.
 					if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
-						return new AndroidCaseXmlParser(parser, CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class)) {
+						return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
 							
 							@Override
 							public void commit(Case parsed) throws IOException, SessionUnavailableException{
@@ -263,7 +263,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			AndroidSessionWrapper asw = AndroidSessionWrapper.mockEasiestRoute(platform, r.getFormNamespace(), caseIDs[0]);
 			asw.setFormRecordId(parsed.getID());
 			
-			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 			
 			//Also bad: this is not synchronous with the parsed record write
 			try {
@@ -303,7 +303,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	}
 	
 	private void wipeRecord(int sessionId, int formRecordId) {
-		wipeRecord(sessionId, formRecordId, CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class), CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class));
+		wipeRecord(sessionId, formRecordId, CommCareApplication._().getUserStorage(FormRecord.class), CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
 	}
 	
 	private void wipeRecord(int sessionId, int formRecordId, SqlIndexedStorageUtility<FormRecord> frStorage, SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage) {

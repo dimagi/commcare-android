@@ -8,6 +8,7 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
+import org.commcare.android.storage.framework.Table;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.util.MD5;
 
@@ -18,13 +19,12 @@ import org.javarosa.core.util.MD5;
  * @author ctsims
  *
  */
+@Table("android_cc_session")
 public class SessionStateDescriptor extends Persisted implements EncryptedModel {
 	
 	public static final String META_DESCRIPTOR_HASH = "descriptorhash";
 	
 	public static final String META_FORM_RECORD_ID = "form_record_id";
-	
-	public static final String STORAGE_KEY = "android_cc_session";
 
 	@Persisting
 	@MetaField(value=META_FORM_RECORD_ID, unique=true)

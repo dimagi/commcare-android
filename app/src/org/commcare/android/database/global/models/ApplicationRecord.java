@@ -19,8 +19,12 @@ import org.commcare.android.storage.framework.Table;
 public class ApplicationRecord extends Persisted {
 	public static final String META_STATUS = "status";
 	
-	public static final int STATUS_INITIALIZED = 0;
+	public static final int STATUS_UNINITIALIZED = 0;
 	public static final int STATUS_INSTALLED = 1;
+	/**
+	 * The app needs to be upgraded from an old version
+	 */
+	public static final int STATUS_SPECIAL_LEGACY = 2;
 	
 	
 	@Persisting
@@ -47,5 +51,9 @@ public class ApplicationRecord extends Persisted {
 	
 	public int getStatus() {
 		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 }

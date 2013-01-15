@@ -9,6 +9,7 @@ import org.commcare.android.resource.installers.MediaFileAndroidInstaller;
 import org.commcare.android.resource.installers.ProfileAndroidInstaller;
 import org.commcare.android.resource.installers.SuiteAndroidInstaller;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.ResourceInstaller;
 
@@ -18,6 +19,12 @@ import org.commcare.resources.model.ResourceInstaller;
  */
 public class AndroidResourceInstallerFactory extends InstallerFactory {
 
+	CommCareApp app;
+	
+	public AndroidResourceInstallerFactory(CommCareApp app ) {
+		this.app = app;
+	}
+	
 	@Override
 	public ResourceInstaller getXFormInstaller() {
 		return new XFormAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);

@@ -6,6 +6,7 @@ package org.commcare.android.models;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;

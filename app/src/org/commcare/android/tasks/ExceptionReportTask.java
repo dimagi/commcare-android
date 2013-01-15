@@ -91,7 +91,7 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
 		
         String URI = CommCareApplication._().getString(R.string.PostURL);
         try {
-        	SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+        	SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         	URI = settings.getString("PostURL", CommCareApplication._().getString(R.string.PostURL));
         } catch(Exception e) {
         	//D-oh. Really?

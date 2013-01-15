@@ -111,7 +111,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	public ProcessAndSendTask(Context c, CommCarePlatform platform, String url) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
-		storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		platform = this.platform;
 	}
 	
@@ -310,7 +310,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 			
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 				if(name.toLowerCase().equals("case")) {
-					return new AndroidCaseXmlParser(parser, CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class));
+					return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
 				} 
 				return null;
 			}

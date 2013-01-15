@@ -3,19 +3,19 @@
  */
 package org.commcare.android.database.user;
 
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteOpenHelper;
+
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
-import org.commcare.android.models.User;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * The central db point for 
@@ -53,11 +53,9 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 			builder.setUnique(ACase.INDEX_CASE_ID);
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(User.STORAGE_KEY);
+			builder = new TableBuilder("USER");
 			builder.addData(new User());
 			database.execSQL(builder.getTableCreateString());
-			
-
 			
 			builder = new TableBuilder(FormRecord.class);
 			database.execSQL(builder.getTableCreateString());
@@ -73,8 +71,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 			builder.addData(new AndroidLogEntry());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(DeviceReportRecord.STORAGE_KEY);
-			builder.addData(new DeviceReportRecord());
+			builder = new TableBuilder(DeviceReportRecord.class);
 			database.execSQL(builder.getTableCreateString());
 			
 			

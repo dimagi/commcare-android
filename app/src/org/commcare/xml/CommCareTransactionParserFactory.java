@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.logic.GlobalConstants;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
@@ -51,7 +52,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 						@Override
 						public IStorageUtilityIndexed storage() {
 							if(fixtureStorage == null) {
-								fixtureStorage = CommCareApplication._().getStorage("fixture", FormInstance.class);
+								fixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
 							} 
 							return fixtureStorage;
 						}
@@ -140,7 +141,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			
 			public TransactionParser<Case> getParser(String name, String namespace, KXmlParser parser) {
 				if(created == null) {
-					created = new AndroidCaseXmlParser(parser, tallies, true, CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class));
+					created = new AndroidCaseXmlParser(parser, tallies, true, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
 				}
 				
 				return created;
@@ -155,7 +156,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 				if(created == null) {
-					created = new FormInstanceXmlParser(parser, context, formInstanceNamespaces);
+					//TODO: We really don't wanna keep using fsPath eventually
+					created = new FormInstanceXmlParser(parser, context, formInstanceNamespaces, CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
 				}
 				
 				return created;
