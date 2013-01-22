@@ -31,6 +31,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 	private int formRecordId = -1;
 	
 	@Persisting
+	@MetaField(value=META_DESCRIPTOR_HASH)
 	private String sessionDescriptor = null;
 	
 	//Wrapper for serialization (STILL SKETCHY)

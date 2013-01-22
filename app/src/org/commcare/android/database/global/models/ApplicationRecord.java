@@ -28,10 +28,10 @@ public class ApplicationRecord extends Persisted {
 	
 	
 	@Persisting
-	private String applicationId;
+	String applicationId;
 	@Persisting
 	@MetaField(META_STATUS)
-	protected int status;
+	int status;
 	
 	/*
 	 * Deserialization only

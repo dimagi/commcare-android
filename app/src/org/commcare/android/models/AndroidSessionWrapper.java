@@ -183,7 +183,7 @@ public class AndroidSessionWrapper {
 	 */
 	public SessionStateDescriptor searchForDuplicates() {
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-		SqlIndexedStorageUtility<SessionStateDescriptor> sessionStorage = CommCareApplication._().getAppStorage(SessionStateDescriptor.class);
+		SqlIndexedStorageUtility<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 		
 		//TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
 		
@@ -216,7 +216,7 @@ public class AndroidSessionWrapper {
 	public void commitStub() throws StorageFullException {
 		//TODO: This should now be locked somehow
 		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-		SqlIndexedStorageUtility<SessionStateDescriptor> sessionStorage = CommCareApplication._().getAppStorage(SessionStateDescriptor.class);
+		SqlIndexedStorageUtility<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
 		SecretKey key = CommCareApplication._().createNewSymetricKey();
 		

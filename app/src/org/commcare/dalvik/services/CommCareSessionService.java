@@ -67,13 +67,12 @@ public class CommCareSessionService extends Service  {
 	
     private Date sessionExpireDate;
     
-    private String lock = "Lock";
+    private Object lock = new Object();
     
     private DataPullTask mCurrentTask;
     
     private User user;
     
-	public Object userDbHandleLock = new Object();
 	private SQLiteDatabase userDatabase; 
     
     // Unique Identification Number for the Notification.
@@ -250,10 +249,15 @@ public class CommCareSessionService extends Service  {
 
 
 	private String getKeyVal(byte[] bytes) {
-		String hexString = "x'";
+		String hexString = "x\"";
 		for (int i = 0; i < bytes.length; i++) {
-		    hexString += Integer.toHexString(0xFF & bytes[i]).toUpperCase();
-		}    
+		    String hexDigits = Integer.toHexString(0xFF & bytes[i]).toUpperCase();
+		    while(hexDigits.length() < 2) { 
+		    	hexDigits = "0" + hexDigits;
+		    }
+		    hexString += hexDigits; 
+		}
+		hexString = hexString + "\"";
 		return hexString;
 	}
 	
@@ -269,26 +273,28 @@ public class CommCareSessionService extends Service  {
 	}
     
 	public void logIn(User user) {
-		if(user != null) {
-			Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
-		}
-		
-		this.user = user;
-		
-		this.sessionExpireDate = new Date(new Date().getTime() + SESSION_LENGTH);
-		
-        // Display a notification about us starting.  We put an icon in the status bar.
-        showLoggedInNotification(user);
-        
-        maintenanceTimer = new Timer("CommCareService");
-        maintenanceTimer.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				maintenance();
+		synchronized(lock){
+			if(user != null) {
+				Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
 			}
-        	
-        }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
+			
+			this.user = user;
+			
+			this.sessionExpireDate = new Date(new Date().getTime() + SESSION_LENGTH);
+			
+	        // Display a notification about us starting.  We put an icon in the status bar.
+	        showLoggedInNotification(user);
+	        
+	        maintenanceTimer = new Timer("CommCareService");
+	        maintenanceTimer.schedule(new TimerTask() {
+	
+				@Override
+				public void run() {
+					maintenance();
+				}
+	        	
+	        }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
+		}
 	}
 	
 	private void maintenance() {
@@ -309,13 +315,14 @@ public class CommCareSessionService extends Service  {
 	public void logout() {
 		synchronized(lock){
 			key = null;
-	        synchronized(userDbHandleLock) {
-	        	if(userDatabase != null && userDatabase.isOpen()) {
-	        		userDatabase.close();
-				}
-	        	userDatabase = null;
+        	if(userDatabase != null && userDatabase.isOpen()) {
+        		userDatabase.close();
 			}
-			maintenanceTimer.cancel();
+        	userDatabase = null;
+        	//this is null if we aren't actually in the foreground
+        	if(maintenanceTimer != null) {
+        		maintenanceTimer.cancel();
+        	}
 			pool.expire();
 	        this.stopForeground(true);
 		}

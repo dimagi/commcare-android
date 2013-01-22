@@ -15,6 +15,8 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.ManageKeyRecordTask;
+import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -118,26 +120,10 @@ public class LoginActivity extends Activity implements DataPullListener {
 				errorBox.setVisibility(View.GONE);
 				//Try logging in locally
 				if(tryLocalLogin()) {
-					done();
 					return;
 				}
-				
-				//We should go digest auth this user on the server and see whether to pull them
-				//down.
-				SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-				//TODO: we don't actually always want to do this. We need to have an alternate route where we log in locally and sync 
-				//(with unsent form submissions) more centrally.
-				
-				dataPuller = new DataPullTask(getUsername(), 
-						                             password.getText().toString(),
-						                             prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
-						                             prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
-						                             LoginActivity.this);
-				
-				dataPuller.setPullListener(LoginActivity.this);
-				LoginActivity.this.showDialog(DIALOG_CHECKING_SERVER);
-				dataPuller.execute();
+				startOta();
 			}
         });
         
@@ -166,6 +152,27 @@ public class LoginActivity extends Activity implements DataPullListener {
              }
         });
     }
+
+	private void startOta() {
+		
+		//We should go digest auth this user on the server and see whether to pull them
+		//down.
+		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+		
+		// TODO Auto-generated method stub
+		//TODO: we don't actually always want to do this. We need to have an alternate route where we log in locally and sync 
+		//(with unsent form submissions) more centrally.
+		
+		dataPuller = new DataPullTask(getUsername(), 
+				                             password.getText().toString(),
+				                             prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
+				                             prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
+				                             LoginActivity.this);
+		
+		dataPuller.setPullListener(LoginActivity.this);
+		LoginActivity.this.showDialog(DIALOG_CHECKING_SERVER);
+		dataPuller.execute();
+	}
 
     /* (non-Javadoc)
 	 * @see android.app.Activity#onRetainNonConfigurationInstance()
@@ -215,6 +222,7 @@ public class LoginActivity extends Activity implements DataPullListener {
     private boolean tryLocalLogin() {
     	try{
 	    	String passwd = password.getText().toString();
+	    	UserKeyRecord matchingRecord = null;
 	    	for(UserKeyRecord record : storage()) {
 	    		if(!record.getUsername().equals(getUsername())) {
 	    			continue;
@@ -233,18 +241,36 @@ public class LoginActivity extends Activity implements DataPullListener {
 	        		}
 	        		
 	        		if(hash.equals(alg + "$" + salt + "$" + hashed)) {
-	        			byte[] key = CryptUtil.unWrapKey(record.getEncryptedKey(), passwd);
-	        			User u = CommCareApplication._().logIn(key, record);
-	        			if(u == null) {
-	        				CommCareApplication._().logout();
-	        				return false;
-	        			}
-	    				u.setCachedPwd(passwd);
-	        			return true;
+	        			matchingRecord = record;
 	        		}
 	        	}
 	    	}
-	    	return false;
+	    	if(matchingRecord == null) {
+	    		return false;
+	    	}
+	    	//TODO: Extract this
+			byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), passwd);
+			
+			
+			CommCareApplication._().logIn(key, matchingRecord);
+			new ManageKeyRecordTask(this, matchingRecord.getUsername(), passwd) {
+
+				/* (non-Javadoc)
+				 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+				 */
+				@Override
+				protected void onPostExecute(HttpCalloutOutcomes result) {
+					super.onPostExecute(result);
+					if(this.proceed) {
+						done();
+					} else {
+						//Need to fetch!
+						startOta();
+					}
+				}
+				
+			}.execute();
+			return true;
     	}catch (Exception e) {
     		e.printStackTrace();
     		return false;

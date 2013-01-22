@@ -29,9 +29,9 @@ public class Persisted implements Persistable, IMetaData {
 	 */
 	@Override
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		ExtUtil.readInt(in);
+		recordId = ExtUtil.readInt(in);
 		try {
-			for(Field f : this.getClass().getFields()) {
+			for(Field f : this.getClass().getDeclaredFields()) {
 				if(f.isAnnotationPresent(Persisting.class)) {
 					readVal(f, this, in, pf);
 				}
@@ -48,13 +48,13 @@ public class Persisted implements Persistable, IMetaData {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, recordId);
 		try {
-			for(Field f : this.getClass().getFields()) {
+			for(Field f : this.getClass().getDeclaredFields()) {
 				if(f.isAnnotationPresent(Persisting.class)) {
 					writeVal(f, this, out);
 				}
 			}
 		} catch(IllegalAccessException iae) {
-			throw new RuntimeException(iae.getMessage());
+			throw new RuntimeException(iae);
 		}
 	}
 
@@ -77,23 +77,31 @@ public class Persisted implements Persistable, IMetaData {
 	
 	private void readVal(Field f, Object o, DataInputStream in, PrototypeFactory pf) throws DeserializationException, IOException, IllegalAccessException {		
 		Persisting p = f.getAnnotation(Persisting.class);
-		
 		Class type = f.getType();
-
-		if(type == String.class) {
-			String read = ExtUtil.readString(in);
-			f.set(o, p.nullable() ? ExtUtil.nullIfEmpty(read) : read);
-		} else if(type == Integer.TYPE) {
-			//Primitive Integers
-			f.setInt(o, ExtUtil.readInt(in));
-		} else if(type == Date.class) {
-			f.set(o, ExtUtil.readDate(in));
-		} else if(type.isArray()){
+		try {
+			f.setAccessible(true);
 			
-			//We only support byte arrays for now
-			if(type.getComponentType().equals(Byte.TYPE)) {
-				f.set(o, ExtUtil.readBytes(in));
+			if(type.equals(String.class)) {
+				String read = ExtUtil.readString(in);
+				f.set(o, p.nullable() ? ExtUtil.nullIfEmpty(read) : read);
+				return;
+			} else if(type.equals(Integer.TYPE)) {
+				//Primitive Integers
+				f.setInt(o, ExtUtil.readInt(in));
+				return;
+			} else if(type.equals(Date.class)) {
+				f.set(o, ExtUtil.readDate(in));
+				return;
+			} else if(type.isArray()){
+				
+				//We only support byte arrays for now
+				if(type.getComponentType().equals(Byte.TYPE)) {
+					f.set(o, ExtUtil.readBytes(in));
+					return;
+				}
 			}
+		} finally {
+			f.setAccessible(false);
 		}
 		
 		//By Default
@@ -101,21 +109,30 @@ public class Persisted implements Persistable, IMetaData {
 	}
 	
 	private void writeVal(Field f, Object o, DataOutputStream out) throws IOException, IllegalAccessException {
-		Persisting p = f.getAnnotation(Persisting.class);
-		Class type = f.getType();
-
-		if(type == String.class) {
-			String s = (String)f.get(o);
-			ExtUtil.writeString(out, p.nullable() ? ExtUtil.emptyIfNull(s) : s);
-		} else if(type == Integer.TYPE) {
-			ExtUtil.writeNumeric(out,f.getInt(o));
-		} else if(type == Date.class) {
-			ExtUtil.writeDate(out, (Date)f.get(o));
-		}  else if(type.isArray()){
-			//We only support byte arrays for now
-			if(type.getComponentType().equals(Byte.TYPE)) {
-				ExtUtil.writeBytes(out,(byte[])f.get(o));
+		try {
+			Persisting p = f.getAnnotation(Persisting.class);
+			Class type = f.getType();
+			f.setAccessible(true);
+	
+			if(type.equals(String.class)) {
+				String s = (String)f.get(o);
+				ExtUtil.writeString(out, p.nullable() ? ExtUtil.emptyIfNull(s) : s);
+				return;
+			} else if(type.equals(Integer.TYPE)) {
+				ExtUtil.writeNumeric(out,f.getInt(o));
+				return;
+			} else if(type.equals(Date.class)) {
+				ExtUtil.writeDate(out, (Date)f.get(o));
+				return;
+			}  else if(type.isArray()){
+				//We only support byte arrays for now
+				if(type.getComponentType().equals(Byte.TYPE)) {
+					ExtUtil.writeBytes(out,(byte[])f.get(o));
+					return;
+				}
 			}
+		} finally {
+			f.setAccessible(false);
 		}
 		
 		//By Default
@@ -125,11 +142,18 @@ public class Persisted implements Persistable, IMetaData {
 	@Override
 	public String[] getMetaDataFields() {
 		ArrayList<String> fields = new ArrayList<String>();
-		for(Field f : this.getClass().getFields()) {
+		for(Field f : this.getClass().getDeclaredFields()) {
+			try {
+			f.setAccessible(true);
+
 			if(f.isAnnotationPresent(MetaField.class)) {
 				MetaField mf = f.getAnnotation(MetaField.class);
 				fields.add(mf.value());
 			}
+			} finally {
+				f.setAccessible(false);
+			}
+
 		}
 		return fields.toArray(new String[0]);
 	}
@@ -137,12 +161,18 @@ public class Persisted implements Persistable, IMetaData {
 	@Override
 	public Object getMetaData(String fieldName) {
 		try {
-			for(Field f : this.getClass().getFields()) {
+			for(Field f : this.getClass().getDeclaredFields()) {
+				try {
+				f.setAccessible(true);
+
 				if(f.isAnnotationPresent(MetaField.class)) {
 					MetaField mf = f.getAnnotation(MetaField.class);
 					if(mf.value().equals(fieldName)) {
 						return f.get(this);
 					}
+				}}
+				finally {
+					f.setAccessible(false);
 				}
 			}
 		} catch(IllegalAccessException iae) {

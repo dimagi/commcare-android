@@ -3,12 +3,16 @@
  */
 package org.commcare.android.database.app.models;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.javarosa.core.util.PropertyUtils;
 
 /**
  * @author ctsims
@@ -90,5 +94,28 @@ public class UserKeyRecord extends Persisted {
 	 */
 	public String getUuid() {
 		return uuid;
+	}
+	
+	public static String generatePwdHash(String pwd) {
+		String alg = "sha1";
+		
+		int saltLength = 6;
+		int hashLength = 41;
+		
+		String salt = PropertyUtils.genGUID(saltLength).toLowerCase();
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+		BigInteger number = new BigInteger(1, md.digest((salt+pwd).getBytes()));
+		String hashed = number.toString(16);
+		
+		while(hashed.length() < hashLength) {
+			hashed = "0" + hashed;
+		}
+		
+		return alg + "$" + salt + "$" + hashed;
 	}
 }

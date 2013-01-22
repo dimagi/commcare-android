@@ -24,6 +24,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -141,6 +142,9 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	protected Integer doInBackground(Void... params) {
 		publishProgress(PROGRESS_STARTED);
+		CommCareApp app = CommCareApplication._().getCurrentApp();
+		
+		boolean useExternalKeys = app.getAppPreferences().getString("test", "false").equals("true");
 		
 		boolean loginNeeded = true;
 		boolean useRequestFlags = false;
@@ -149,7 +153,6 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		} catch(SessionUnavailableException sue) {
 			//expected if we aren't initialized.
 		}
-		CommCareApp app = CommCareApplication._().getCurrentApp();
     	SharedPreferences prefs = app.getAppPreferences();
 		
 		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
@@ -166,19 +169,28 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		};
 		Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
 
+		UserKeyRecord ukr = null;
+		
 		HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
 			
 			try {
 				//This is a dangerous way to do this (the null settings), should revisit later
 				SecretKeySpec spec = null;
 				if(loginNeeded) {
-					//Get the key 
-					//SecretKeySpec spec = getKeyForDevice();
-					spec = generateTestKey();
 					
-					if(spec == null) {
-						this.publishProgress(PROGRESS_DONE);
-						return UNKNOWN_FAILURE;
+					if(!useExternalKeys) {
+						//Get the key 
+						//SecretKeySpec spec = getKeyForDevice();
+						spec = generateTestKey();
+						
+						if(spec == null) {
+							this.publishProgress(PROGRESS_DONE);
+							return UNKNOWN_FAILURE;
+						}
+						ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(spec,password), new Date(0), new Date(Long.MAX_VALUE), username);
+						
+					} else {
+						//Go fetch the keys
 					}
 					
 					//add to transaction parser factory
@@ -194,14 +206,6 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				//Either way, don't re-do this step
 				this.publishProgress(PROGRESS_CLEANED);
 				
-				if(loginNeeded) {					
-					//This is necessary (currently) to make sure that data
-					//is encoded. Probably a better way to do this.
-					CommCareApplication._().logIn(spec.getEncoded(), null);
-					wasKeyLoggedIn = true;
-				}
-					
-				
 				HttpResponse response = requestor.makeCaseFetchRequest(server, useRequestFlags);
 				int responseCode = response.getStatusLine().getStatusCode();
 				if(responseCode == 401) {
@@ -212,6 +216,15 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
 					return AUTH_FAILED;
 				} else if(responseCode >= 200 && responseCode < 300) {
+					
+					if(loginNeeded && !useExternalKeys) {						
+						//This is necessary (currently) to make sure that data
+						//is encoded. Probably a better way to do this.
+						CommCareApplication._().logIn(spec.getEncoded(), ukr);
+						wasKeyLoggedIn = true;
+					}
+					
+					
 					this.publishProgress(PROGRESS_AUTHED,0);
 					Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 					
@@ -241,6 +254,11 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			    		Editor e = prefs.edit();
 			    		e.putLong("last-succesful-sync", new Date().getTime());
 			    		e.commit();
+			    		
+						if(loginNeeded) {						
+							CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
+						}
+
 						
 			    		Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
 						this.publishProgress(PROGRESS_DONE);

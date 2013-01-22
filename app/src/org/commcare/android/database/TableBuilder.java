@@ -41,7 +41,7 @@ public class TableBuilder {
 		cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
 		rawCols.add(DbUtil.ID_COL);
 		
-		for(Field f : c.getFields()) {
+		for(Field f : c.getDeclaredFields()) {
 			if(f.isAnnotationPresent(MetaField.class)) {
 				MetaField mf = f.getAnnotation(MetaField.class);
 				

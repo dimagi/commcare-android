@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
@@ -31,7 +33,6 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
@@ -56,19 +57,15 @@ import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareSession;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -91,7 +88,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -170,7 +166,7 @@ public class CommCareApplication extends Application {
 //		//Dump any logs we've been keeping track of in memory to storage
 //		pil.dumpToNewLogger();
 		
-		initializeAppResources();
+		resourceState = initializeAppResources();
 	}
 	
 	public void triggerHandledAppExit(Context c, String message) {
@@ -189,51 +185,27 @@ public class CommCareApplication extends Application {
 	}
 
 	public void logout() {
-		if(this.sessionWrapper != null) {
-			sessionWrapper.reset();
+		synchronized(serviceLock) {
+
+			if(this.sessionWrapper != null) {
+				sessionWrapper.reset();
+			}
+	        
+	        doUnbindService();
 		}
-        
-        doUnbindService();
 	}
 	
-	public User logIn(byte[] symetricKey, UserKeyRecord record) {
-		if(this.mIsBound) {
-			logout();
-		}
-		doBindService(symetricKey, record);
-		
-		User user = null;
-		//Ok, so we have a login that was successful, but do we have a user model in the DB?
-		for(User u :this.getUserStorage(User.class) ){
-			if(record.getUsername().equals(u.getUsername())) {
-				user = u;
+	public void logIn(byte[] symetricKey, UserKeyRecord record) {
+		synchronized(serviceLock) {
+			if(this.mIsBound) {
+				logout();
 			}
+			doBindService(symetricKey, record);
 		}
-		
-		if(user != null) {
-			this.getSession().logIn(user);
-			attachCallListener();
-			CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
-			
-			//See if there's an auto-update pending. We only want to be able to turn this
-			//to "True" on login, not any other time
-			//TODO: this should be associated with the app itself, not the global settings
-			updatePending = getPendingUpdateStatus();
-			syncPending = getPendingSyncStatus();
-			
-			doReportMaintenance(false);
-			
-			//Register that this user was the last to succesfully log in
-			getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
-		}
-		
-		return user;
 	}
 	
 	public SecretKey createNewSymetricKey() {
-		synchronized(mBoundService) {
-			return mBoundService.createNewSymetricKey();
-		}
+		return getSession().createNewSymetricKey();
 	}
 	
 	private CallInPhoneListener listener = null;
@@ -413,10 +385,24 @@ public class CommCareApplication extends Application {
 		return new SqlIndexedStorageUtility<T>(storage, c, new DbHelper(this.getApplicationContext()){
 			@Override
 			public SQLiteDatabase getHandle() {
-				return getUserDbHandle();
+				SQLiteDatabase database = getUserDbHandle();
+				if(database == null) {
+					throw new NullPointerException("Somehow didn't get a database handle!");
+				}
+				return database;
 			}
 		});
 	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
+		return new SqlIndexedStorageUtility<T>(storage, c, new DbHelper(this.getApplicationContext()){
+			@Override
+			public SQLiteDatabase getHandle() {
+				return handle;
+			}
+		});
+	}
+	
 		
 	public void serializeToIntent(Intent i, String name, Externalizable data) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -539,10 +525,27 @@ public class CommCareApplication extends Application {
 //		
 //		getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 		
-		//TODO: We can just delete the db entirely. 
+		final String username = this.getSession().getLoggedInUser().getUsername();
 		
+		final Set<String> dbIdsToRemove = new HashSet<String>();
+		
+		this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
+
+			@Override
+			public boolean matches(UserKeyRecord ukr) {
+				dbIdsToRemove.add(ukr.getUuid());
+				return ukr.getUsername().toLowerCase().equals(username.toLowerCase());
+			}
+			
+		});
+		
+		//TODO: We can just delete the db entirely. 
 		//Should be good to go. The app'll log us out now that there's no user details in memory
 		logout();
+		
+		for(String id : dbIdsToRemove) {
+			this.getDatabasePath("database_user" + id).delete();
+		}
 	}
 
 	public String getCurrentVersionString() {
@@ -583,6 +586,7 @@ public class CommCareApplication extends Application {
 
 	private ServiceConnection mConnection;
 
+	private Object serviceLock = new Object();
 	boolean mIsBound = false;
 	boolean mIsBinding = false;
 	void doBindService(final byte[] key, final UserKeyRecord record) {
@@ -593,18 +597,46 @@ public class CommCareApplication extends Application {
 		        // interact with the service.  Because we have bound to a explicit
 		        // service that we know is running in our own process, we can
 		        // cast its IBinder to a concrete class and directly access it.
-		        mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
-		        
-				synchronized(mBoundService) {
+		    	User user = null;
+				synchronized(serviceLock) {
+					mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
+
 					//Don't let anyone touch this until it's logged in
 					mBoundService.prepareStorage(key, record);
+			    
+				    if(record != null) {
+						//Ok, so we have a login that was successful, but do we have a user model in the DB?
+				    	//We need to check before we're logged in, so we get the handle raw, here
+						for(User u : getRawStorage("USER", User.class, mBoundService.getUserDbHandle()) ){
+							if(record.getUsername().equals(u.getUsername())) {
+								user = u;
+							}
+						}
+				    }
+				    
+					//service available
+				    mIsBound = true;
+			        
+			        //Don't signal bind completion until the db is initialized.
+				    mIsBinding = false;
+				
+				if(user != null) {
+					getSession().logIn(user);
+					attachCallListener();
+					CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
+					
+					//See if there's an auto-update pending. We only want to be able to turn this
+					//to "True" on login, not any other time
+					//TODO: this should be associated with the app itself, not the global settings
+					updatePending = getPendingUpdateStatus();
+					syncPending = getPendingSyncStatus();
+					
+					doReportMaintenance(false);
+					
+					//Register that this user was the last to succesfully log in
+					getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
 				}
-		        
-				//service available
-			    mIsBound = true;
-		        
-		        //Don't signal bind completion until the db is initialized.
-			    mIsBinding = false;
+				}
 		    }
 
 		    public void onServiceDisconnected(ComponentName className) {
@@ -709,12 +741,14 @@ public class CommCareApplication extends Application {
 	}
 
 	void doUnbindService() {
-	    if (mIsBound) {
-	    	mBoundService.logout();
-	        // Detach our existing connection.
-	        unbindService(mConnection);
-	        mIsBound = false;
-	    }
+		synchronized(serviceLock) {
+		    if (mIsBound) {
+		        mIsBound = false;
+		    	mBoundService.logout();
+		        // Detach our existing connection.
+		        unbindService(mConnection);
+		    }
+		}
 	}
 	
 	//Milliseconds to wait for bind
@@ -732,7 +766,7 @@ public class CommCareApplication extends Application {
 		}
 		
 		if(mIsBound) {
-			synchronized(mBoundService) {
+			synchronized(serviceLock) {
 				return mBoundService;
 			}
 		} else {

@@ -14,6 +14,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.javarosa.core.model.instance.FormInstance;
 
 import android.content.Context;
 
@@ -74,6 +75,9 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 			builder = new TableBuilder(DeviceReportRecord.class);
 			database.execSQL(builder.getTableCreateString());
 			
+			builder = new TableBuilder("fixture");
+			builder.addData(new FormInstance());
+			database.execSQL(builder.getTableCreateString());
 			
 			database.setVersion(USER_DB_VERSION);
 					
