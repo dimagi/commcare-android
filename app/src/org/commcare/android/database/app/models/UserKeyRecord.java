@@ -23,6 +23,10 @@ public class UserKeyRecord extends Persisted {
 	
 	public static final String META_USERNAME = "username";
 	
+	public static final int TYPE_NORMAL = 1;
+	public static final int TYPE_LEGACY_TRANSITION = 2;
+	public static final int TYPE_LEGACY_TRANSITION_PARTIAL = 3;
+	
 	@Persisting
 	@MetaField(META_USERNAME)
 	private String username;
@@ -37,6 +41,8 @@ public class UserKeyRecord extends Persisted {
 	@Persisting
 	/** The unique ID of the data sandbox covered by this key **/
 	private String uuid;
+	@Persisting
+	private int type;
 	
 	/**
 	 * Serialization Only!
@@ -46,12 +52,17 @@ public class UserKeyRecord extends Persisted {
 	}
 	
 	public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey, Date validFrom, Date validTo, String uuid) {
+		this(username, passwordHash, encryptedKey, validFrom, validTo, uuid, TYPE_NORMAL);
+	}
+	
+	public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey, Date validFrom, Date validTo, String uuid, int type) {
 		this.username = username;
 		this.passwordHash = passwordHash;
 		this.encryptedKey = encryptedKey;
 		this.validFrom = validFrom;
 		this.validTo = validTo;
 		this.uuid = uuid;
+		this.type = type;
 	}
 
 	/**
@@ -96,6 +107,10 @@ public class UserKeyRecord extends Persisted {
 		return uuid;
 	}
 	
+	public int getType() {
+		return type;
+	}
+	
 	public static String generatePwdHash(String pwd) {
 		String alg = "sha1";
 		
@@ -117,5 +132,9 @@ public class UserKeyRecord extends Persisted {
 		}
 		
 		return alg + "$" + salt + "$" + hashed;
+	}
+
+	public void setType(int typeNormal) {
+		this.type = typeNormal;
 	}
 }

@@ -58,6 +58,11 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel{
 		
 	}
 	
+	public DeviceReportRecord(String fileName, byte[] aesKey) {
+		this.fileName = fileName;
+		this.aesKey = aesKey;
+	}
+	
 	public static DeviceReportRecord GenerateNewRecordStub() {
 		DeviceReportRecord slr = new DeviceReportRecord();
 		slr.fileName = new File(CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS)) + FileUtil.SanitizeFileName(File.separator + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();

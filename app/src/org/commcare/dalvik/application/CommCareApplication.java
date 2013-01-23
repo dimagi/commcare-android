@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
@@ -24,18 +23,15 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.User;
+import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.javarosa.PreInitLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -66,6 +62,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -146,6 +143,15 @@ public class CommCareApplication extends Application {
 		
 		setRoots();
 		
+		//Init global storage (Just application records, etc)
+		dbState = initGlobalDb();
+		
+		try {
+			LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
+		} catch(StorageFullException sfe) {
+			throw new RuntimeException(sfe);
+		}
+		
 //        PreferenceChangeListener listener = new PreferenceChangeListener(this);
 //        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
         
@@ -153,9 +159,6 @@ public class CommCareApplication extends Application {
         
 		//The fallback in case the db isn't installed 
 		resourceState = STATE_UNINSTALLED;
-		
-		//Init storage
-		dbState = initGlobalDb();
 		
 		//We likely want to do this for all of the storage, this is just a way to deal with fixtures
 		//temporarily. 
@@ -436,17 +439,6 @@ public class CommCareApplication extends Application {
 		}
 		return t;
 	}
-	
-	//LEGACY
-	private Hashtable<String, EncryptedModel> encryptedModels() {
-		Hashtable<String, EncryptedModel> models = new Hashtable<String, EncryptedModel>();
-		models.put(ACase.STORAGE_KEY, new ACase());
-		models.put("FORMRECORDS", new FormRecord());
-		models.put(GeocodeCacheModel.STORAGE_KEY, new GeocodeCacheModel());
-		models.put("log_records", new DeviceReportRecord());
-		return models;
-	}
-
 
 	@Override
 	public void onLowMemory() {

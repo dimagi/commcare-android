@@ -1,24 +1,25 @@
 /**
  * 
  */
-package org.commcare.android.database;
+package org.commcare.android.db.legacy;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
+import org.commcare.android.database.DbUtil;
+import org.commcare.android.database.EncryptedModel;
+import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorageIterator;
+import org.commcare.android.database.TableBuilder;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
@@ -32,17 +33,15 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
+public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlIndexedStorageUtility<T> {
 	
 	String table;
 	Class<? extends T> ctype;
 	EncryptedModel em;
 	T t;
-	DbHelper helper;
+	LegacyDbHelper helper;
 	
-	protected SqlIndexedStorageUtility() {}
-	
-	public SqlIndexedStorageUtility(String table, Class<? extends T> ctype, DbHelper helper) {
+	public LegacySqlIndexedStorageUtility(String table, Class<? extends T> ctype, LegacyDbHelper helper) {
 		this.table = table;
 		this.ctype = ctype;
 		this.helper = helper;
@@ -332,7 +331,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
 	 */
-	public void remove(Collection<Integer> ids) {
+	public void remove(Collection ids) {
 		if(ids.size() == 0 ) { return; }
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
@@ -466,34 +465,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
 	public void registerIndex(String filterIndex) {
 		// TODO Auto-generated method stub
-	}
-	
-	public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlIndexedStorageUtility<T> from, SqlIndexedStorageUtility<T> to) throws StorageFullException {
-		return cleanCopy(from, to, null);
-	}
-	
-	public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlIndexedStorageUtility<T> from, SqlIndexedStorageUtility<T> to, CopyMapper<T> mapper) throws StorageFullException {
-		to.removeAll();
-		SQLiteDatabase toDb = to.helper.getHandle();
-		try{
-			Hashtable<Integer, Integer> idMapping = new Hashtable<Integer, Integer>();
-			toDb.beginTransaction();
-			
-			for(T t : from) {
-				int key = t.getID();
-				//Clear the ID, we don't wanna guarantee it
-				t.setID(-1);
-				if(mapper != null){
-					t = mapper.transform(t);
-				}
-				to.write(t);
-				idMapping.put(key, t.getID());
-			}
-			toDb.setTransactionSuccessful();
-			return idMapping;
-		} finally {
-			toDb.endTransaction();
-		}
+		
 	}
 
 }

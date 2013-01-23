@@ -248,7 +248,7 @@ public class CommCareSessionService extends Service  {
 	}
 
 
-	private String getKeyVal(byte[] bytes) {
+	public static String getKeyVal(byte[] bytes) {
 		String hexString = "x\"";
 		for (int i = 0; i < bytes.length; i++) {
 		    String hexDigits = Integer.toHexString(0xFF & bytes[i]).toUpperCase();

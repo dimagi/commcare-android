@@ -153,6 +153,10 @@ public class CommCareApp {
 	}
 	
 
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(Class<T> c) throws SessionUnavailableException {
+		return getStorage(c.getAnnotation(Table.class).value(), c); 
+	}
+	
 	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String name, Class<T> c) throws SessionUnavailableException {
 		return new SqlIndexedStorageUtility<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()){
 			@Override
