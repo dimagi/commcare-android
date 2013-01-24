@@ -27,9 +27,9 @@ public class ApplicationRecord extends Persisted {
 	public static final int STATUS_SPECIAL_LEGACY = 2;
 	
 	
-	@Persisting
+	@Persisting(1)
 	String applicationId;
-	@Persisting
+	@Persisting(2)
 	@MetaField(META_STATUS)
 	int status;
 	

@@ -17,4 +17,5 @@ import java.lang.annotation.Target;
 public @interface Persisting {
 	public PersistedType customType() default PersistedType.normal;
 	public boolean nullable() default false;
+	public int value();
 }

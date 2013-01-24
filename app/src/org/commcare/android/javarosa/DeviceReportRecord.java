@@ -46,9 +46,9 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 @Table("log_records")
 public class DeviceReportRecord extends Persisted implements EncryptedModel{
 
-	@Persisting
+	@Persisting(1)
 	private String fileName;
-	@Persisting
+	@Persisting(2)
 	private byte[] aesKey;
 	
 	/**

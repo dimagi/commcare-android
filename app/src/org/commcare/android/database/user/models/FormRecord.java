@@ -39,21 +39,21 @@ public class FormRecord extends Persisted implements EncryptedModel {
 	public static final String STATUS_SAVED = "saved";
 	public static final String STATUS_UNINDEXED = "unindexed";
 	
-	@Persisting
+	@Persisting(1)
 	@MetaField(META_XMLNS)
 	private String xmlns;
-	@Persisting
+	@Persisting(2)
 	@MetaField(META_INSTANCE_URI)
 	private String instanceURI;
-	@Persisting
+	@Persisting(3)
 	@MetaField(META_STATUS)
 	private String status;
-	@Persisting
+	@Persisting(4)
 	private byte[] aesKey;
-	@Persisting(nullable=true)
+	@Persisting(value=5, nullable=true)
 	@MetaField(META_UUID)
 	private String uuid;
-	@Persisting
+	@Persisting(6)
 	@MetaField(META_LAST_MODIFIED)
 	private Date lastModified;
 	

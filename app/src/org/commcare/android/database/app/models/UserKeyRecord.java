@@ -27,21 +27,21 @@ public class UserKeyRecord extends Persisted {
 	public static final int TYPE_LEGACY_TRANSITION = 2;
 	public static final int TYPE_LEGACY_TRANSITION_PARTIAL = 3;
 	
-	@Persisting
+	@Persisting(1)
 	@MetaField(META_USERNAME)
 	private String username;
-	@Persisting
+	@Persisting(2)
 	private String passwordHash;
-	@Persisting
+	@Persisting(3)
 	private byte[] encryptedKey;
-	@Persisting
+	@Persisting(4)
 	private Date validFrom;
-	@Persisting
+	@Persisting(5)
 	private Date validTo;
-	@Persisting
+	@Persisting(6)
 	/** The unique ID of the data sandbox covered by this key **/
 	private String uuid;
-	@Persisting
+	@Persisting(7)
 	private int type;
 	
 	/**

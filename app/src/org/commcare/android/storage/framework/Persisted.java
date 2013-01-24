@@ -8,6 +8,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import org.javarosa.core.services.storage.IMetaData;
@@ -31,15 +33,36 @@ public class Persisted implements Persistable, IMetaData {
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		recordId = ExtUtil.readInt(in);
 		try {
-			for(Field f : this.getClass().getDeclaredFields()) {
-				if(f.isAnnotationPresent(Persisting.class)) {
-					readVal(f, this, in, pf);
-				}
+			for(Field f : getPersistedFieldsInOrder()) {
+				readVal(f, this, in, pf);
 			}
 		} catch(IllegalAccessException iae) {
 			throw new DeserializationException(iae.getMessage());
 		}
 	}
+	
+	private ArrayList<Field> getPersistedFieldsInOrder() {
+		//TODO: This might substantially increase our to/from serialization time
+		ArrayList<Field> fields = new ArrayList<Field>();
+		for(Field f : this.getClass().getDeclaredFields()) {
+			if(f.isAnnotationPresent(Persisting.class)) {
+				fields.add(f);
+			}
+		}
+		Collections.sort(fields, orderedComparator);
+		return fields;
+	}
+	
+	public static final Comparator<Field> orderedComparator = new Comparator<Field>() {
+
+		@Override
+		public int compare(Field f1, Field f2) {
+			int i1 = f1.getAnnotation(Persisting.class).value();
+			int i2 = f2.getAnnotation(Persisting.class).value();
+			return (i1<i2 ? -1 : (i1==i2 ? 0 : 1));
+		}
+		
+	};
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
@@ -48,10 +71,8 @@ public class Persisted implements Persistable, IMetaData {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, recordId);
 		try {
-			for(Field f : this.getClass().getDeclaredFields()) {
-				if(f.isAnnotationPresent(Persisting.class)) {
-					writeVal(f, this, out);
-				}
+			for(Field f: getPersistedFieldsInOrder()) {
+				writeVal(f, this, out);
 			}
 		} catch(IllegalAccessException iae) {
 			throw new RuntimeException(iae);

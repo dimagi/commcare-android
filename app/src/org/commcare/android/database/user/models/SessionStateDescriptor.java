@@ -26,11 +26,11 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 	
 	public static final String META_FORM_RECORD_ID = "form_record_id";
 
-	@Persisting
+	@Persisting(1)
 	@MetaField(value=META_FORM_RECORD_ID, unique=true)
 	private int formRecordId = -1;
 	
-	@Persisting
+	@Persisting(2)
 	@MetaField(value=META_DESCRIPTOR_HASH)
 	private String sessionDescriptor = null;
 	
