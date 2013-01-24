@@ -11,8 +11,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
@@ -27,6 +25,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 /**

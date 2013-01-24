@@ -5,17 +5,16 @@ package org.commcare.android.db.legacy;
 
 import java.util.Hashtable;
 
-import net.sqlcipher.database.SQLiteCursor;
-import net.sqlcipher.database.SQLiteCursorDriver;
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
-import net.sqlcipher.database.SQLiteQuery;
-
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.util.SessionUnavailableException;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteQuery;
 
 /**
  * @author ctsims

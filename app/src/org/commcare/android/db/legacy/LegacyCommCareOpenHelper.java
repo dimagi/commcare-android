@@ -3,10 +3,6 @@
  */
 package org.commcare.android.db.legacy;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
-import net.sqlcipher.database.SQLiteOpenHelper;
-
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
@@ -19,6 +15,9 @@ import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * @author ctsims

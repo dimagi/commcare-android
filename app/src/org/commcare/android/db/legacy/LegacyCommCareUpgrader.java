@@ -3,8 +3,6 @@
  */
 package org.commcare.android.db.legacy;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -17,6 +15,7 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
 /**

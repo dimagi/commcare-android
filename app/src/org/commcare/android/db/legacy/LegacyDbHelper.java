@@ -13,8 +13,6 @@ import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
@@ -27,6 +25,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 /**

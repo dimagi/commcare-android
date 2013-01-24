@@ -7,15 +7,15 @@ import java.io.IOException;
 
 import javax.crypto.Cipher;
 
-import net.sqlcipher.database.SQLiteCursor;
-import net.sqlcipher.database.SQLiteCursorDriver;
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteQuery;
-
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
+
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
 /**
  * @author ctsims
  *

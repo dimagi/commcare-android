@@ -115,10 +115,10 @@ public class LegacyInstallUtils {
 		
 		
 		//get the legacy storage
-		final SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c).getReadableDatabase(null);
+		final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c).getReadableDatabase();
 		LegacyDbHelper ldbh = new LegacyDbHelper(c) {
 			@Override
-			public SQLiteDatabase getHandle() {
+			public android.database.sqlite.SQLiteDatabase getHandle() {
 				return olddb;
 			}
 		};
@@ -232,7 +232,7 @@ public class LegacyInstallUtils {
 		//go through all of the old users and generate key records for them
 		for(User u : oldUsers) {
 			//make sure we haven't already handled this user somehow
-			if(newUserKeyRecords.getIDsForValue(User.META_UID, u.getUniqueId()).size() > 0 ) {
+			if(newUserKeyRecords.getIDsForValue(UserKeyRecord.META_USERNAME, u.getUsername()).size() > 0 ) {
 				continue;
 			} 
 			
@@ -242,13 +242,14 @@ public class LegacyInstallUtils {
 			}
 			
 			//There's not specific reason to thing this might happen, but might be valuable to double check
-			if(newUserKeyRecords.getIDsForValue(User.META_UID, u.getUniqueId()).size() == 0) {
+			if(newUserKeyRecords.getIDsForValue(UserKeyRecord.META_USERNAME, u.getUsername()).size() == 0) {
 				UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPassword(), u.getWrappedKey(), new Date(0), new Date(Long.MAX_VALUE), u.getUniqueId(), UserKeyRecord.TYPE_LEGACY_TRANSITION);
 				newUserKeyRecords.write(ukr);
 			}
 		}
 		
-		//First off: All of the app resources are now transitioned. We can continue to handle data transitions at login if the following fails 
+		//First off: All of the app resources are now transitioned. We can continue to handle data transitions at login if the following fails
+		app.writeInstalled();
 		globalPreferences.edit().putString(LEGACY_UPGRADE_PROGRESS, UPGRADE_COMPLETE).commit();
 		
 		//Now, we should try to transition over legacy user storage if any of the previous users are on test data
@@ -284,6 +285,7 @@ public class LegacyInstallUtils {
 		
 		//Okay! Whew. We're now all set. Anything else that needs to happen should happen when the user logs in and we
 		//can unwrap their keys
+		app.teardownSandbox();
 	}
 	
 	private static String getOldFileSystemRoot() {
@@ -326,15 +328,15 @@ public class LegacyInstallUtils {
 	        
 	        
 			//get the legacy storage
-			final SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
+			final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
 				protected CipherPool getCipherPool() throws SessionUnavailableException {
 					return pool;
 				}
-			}).getReadableDatabase(null);
+			}).getReadableDatabase();
 	        
 			LegacyDbHelper ldbh = new LegacyDbHelper(c) {
 				@Override
-				public SQLiteDatabase getHandle() {
+				public android.database.sqlite.SQLiteDatabase getHandle() {
 					return olddb;
 				}
 			};
