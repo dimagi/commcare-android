@@ -10,6 +10,7 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.User;
+import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
@@ -250,7 +251,10 @@ public class LoginActivity extends Activity implements DataPullListener {
 	    	}
 	    	//TODO: Extract this
 			byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), passwd);
-			
+			if(matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
+				LegacyInstallUtils.transitionLegacyUserStorage(this, CommCareApplication._().getCurrentApp(), key, matchingRecord);
+			}
+			//TODO: See if it worked first?
 			
 			CommCareApplication._().logIn(key, matchingRecord);
 			new ManageKeyRecordTask(this, matchingRecord.getUsername(), passwd) {

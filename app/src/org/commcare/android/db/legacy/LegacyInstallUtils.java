@@ -5,6 +5,7 @@ package org.commcare.android.db.legacy;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -370,7 +371,7 @@ public class LegacyInstallUtils {
 				}
 			};
 			
-			final String newFileSystemRoot = app.storageRoot();
+			final String newFileSystemRoot = app.fsPath("commcare/");
 			final String oldRoot = getOldFileSystemRoot();
 			
 			LegacySqlIndexedStorageUtility<User> legacyUserStorage = new LegacySqlIndexedStorageUtility<User>("User", User.class, ldbh);
@@ -479,10 +480,19 @@ public class LegacyInstallUtils {
 	}
 	
 	protected static String replaceOldRoot(String filePath, String oldRoot, String newFileSystemRoot) {
-		if(filePath.contains(oldRoot)) {
-			return filePath.replace(oldRoot, newFileSystemRoot);
+		try{
+			//TODO: It's really bad if these don't cannonicalize the same.
+			oldRoot = new File(oldRoot).getCanonicalPath();
+			filePath = new File(filePath).getCanonicalPath();
+			if(filePath.contains(oldRoot)) {
+				return filePath.replace(oldRoot, newFileSystemRoot);
+			}
+			return filePath;
+		}catch(IOException ioe) {
+			//This shouldn't happen and kind of sucks if it does. Should only occur if the file paths are invalid
+			Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Couldn't cannonicalize " + oldRoot + " or " + filePath);
+			return filePath;
 		}
-		return filePath;
 	}
 
 	private static Hashtable<String, EncryptedModel> getLegacyEncryptedModels() {
