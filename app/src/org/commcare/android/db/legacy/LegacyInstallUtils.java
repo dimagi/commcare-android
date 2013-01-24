@@ -205,7 +205,7 @@ public class LegacyInstallUtils {
 			String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
 			if(!newFilePath.equals(filePath)) {
 				Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
-				toReplace.add(new Pair(uri, newFilePath));
+				toReplace.add(new Pair<Uri, String>(uri, newFilePath));
 			}
 		}
 		for(Pair<Uri, String> p : toReplace) {
