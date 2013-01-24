@@ -210,6 +210,8 @@ public class LegacyInstallUtils {
 				e.putFloat(k, (Float)o);
 			}
 		}
+		e.commit();
+		
 		//4) Finally, we need to register a new UserKeyRecord which will prepare the user-facing records for transition
 		//when the user logs in again
 		
