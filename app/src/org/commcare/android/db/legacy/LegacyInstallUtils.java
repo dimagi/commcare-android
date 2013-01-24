@@ -40,6 +40,7 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
@@ -49,11 +50,15 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.util.Pair;
 
 /**
  * @author ctsims
@@ -188,7 +193,29 @@ public class LegacyInstallUtils {
 		
 		//Copy over the old file root
 		File oldRoot = new File(getOldFileSystemRoot());
-		oldRoot.renameTo(new File(app.fsPath("commcare/")));
+		String newRoot = app.fsPath("commcare/");
+		oldRoot.renameTo(new File(newRoot));
+		
+		//We also need to tell the XForm Provider that any/all of its forms have been moved
+		
+		Cursor ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI,new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
+		ArrayList<Pair<Uri, String>> toReplace = new ArrayList<Pair<Uri, String>>();
+		while(ef.moveToNext()) {
+			String filePath = ef.getString(ef.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
+			String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
+			if(!newFilePath.equals(filePath)) {
+				Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
+				toReplace.add(new Pair(uri, newFilePath));
+			}
+		}
+		for(Pair<Uri, String> p : toReplace) {
+			ContentValues cv = new ContentValues();
+			cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, p.second);
+			c.getContentResolver().update(p.first, cv, null, null);
+		}
+	
+		
+
 		
 		//3) Ok, so now we have app settings to copy over. Basically everything in the SharedPreferences should get put in the new app
 		//preferences
