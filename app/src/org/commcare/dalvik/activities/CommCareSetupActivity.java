@@ -263,12 +263,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 					//This record must have just not installed fully.
 					ApplicationRecord record = storage.iterate().next();
 					if(record.getStatus() != ApplicationRecord.STATUS_UNINITIALIZED) {
-						throw new RuntimeException("There's already an installed app! How are we installing a new one?");
+						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
+						return;
 					}
 					app = new CommCareApp(record);
 					app.clearInstallData();
 				} else {
-					throw new RuntimeException("Too many application records! How did that happen?");
+					fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
 				}
 			}
 		}

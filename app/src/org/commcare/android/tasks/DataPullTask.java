@@ -155,6 +155,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		}
     	SharedPreferences prefs = app.getAppPreferences();
 		
+    	//This should be per _user_, not per app
 		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 	    
 		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c) {
