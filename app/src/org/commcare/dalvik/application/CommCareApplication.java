@@ -86,6 +86,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.Settings.Secure;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -200,7 +201,6 @@ public class CommCareApplication extends Application {
 
 	public void logout() {
 		synchronized(serviceLock) {
-
 			if(this.sessionWrapper != null) {
 				sessionWrapper.reset();
 			}
@@ -298,7 +298,7 @@ public class CommCareApplication extends Application {
 		TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
 		String imei = manager.getDeviceId();
 		if(imei == null) {
-			imei = android.provider.Settings.Secure.ANDROID_ID;
+			imei = Secure.getString(getContentResolver(),Secure.ANDROID_ID);
 		}
 		return imei;
 	}

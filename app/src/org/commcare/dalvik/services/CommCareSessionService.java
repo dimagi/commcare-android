@@ -315,10 +315,21 @@ public class CommCareSessionService extends Service  {
 	public void logout() {
 		synchronized(lock){
 			key = null;
+			
+			String username = null; 
+			
+			if(user != null) {
+				username = user.getUsername();
+			}
+			
+			String msg = username != null ? "Logging out user " + username  : "Logging out service login";
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
+			
         	if(userDatabase != null && userDatabase.isOpen()) {
         		userDatabase.close();
 			}
         	userDatabase = null;
+        	user = null;
         	//this is null if we aren't actually in the foreground
         	if(maintenanceTimer != null) {
         		maintenanceTimer.cancel();
