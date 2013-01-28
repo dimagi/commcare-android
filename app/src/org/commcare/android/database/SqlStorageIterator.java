@@ -20,11 +20,18 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 	Cursor c;
 	SqlIndexedStorageUtility<T> storage;
 	boolean isClosedByProgress = false;
+	int count;
 
 	public SqlStorageIterator(Cursor c, SqlIndexedStorageUtility<T> storage) {
 		this.c = c;
 		this.storage = storage;
-		c.moveToFirst();
+		count = c.getCount();
+		if(count == 0) {
+			c.close();
+			isClosedByProgress = true;
+		} else {
+			c.moveToFirst();
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -68,7 +75,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 	 * @see org.javarosa.core.services.storage.IStorageIterator#numRecords()
 	 */
 	public int numRecords() {
-		return c.getCount();
+		return count;
 	}
 
 	public boolean hasNext() {

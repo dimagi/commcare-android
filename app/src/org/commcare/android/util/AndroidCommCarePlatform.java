@@ -14,6 +14,8 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 import android.content.Context;
 import android.net.Uri;
@@ -118,5 +120,9 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.profile = null;
 		this.installedSuites.clear();
 		super.initialize(global);
+	}
+
+	public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
+		return app.getStorage("fixture", FormInstance.class);
 	}	
 }

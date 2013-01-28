@@ -182,7 +182,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					if(!useExternalKeys) {
 						//Get the key 
 						//SecretKeySpec spec = getKeyForDevice();
-						spec = generateTestKey();
+						spec = generateNewRandomAESKey();
 						
 						if(spec == null) {
 							this.publishProgress(PROGRESS_DONE);
@@ -576,12 +576,12 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		return null;
 		//return generateTestKey();
 	}
-	
-	private SecretKeySpec generateTestKey() {
+
+	private SecretKeySpec generateNewRandomAESKey() {
 		KeyGenerator generator;
 		try {
 			generator = KeyGenerator.getInstance("AES");
-			generator.init(256, new SecureRandom(CommCareApplication._().getPhoneId().getBytes()));
+			generator.init(256, new SecureRandom());
 			return new SecretKeySpec(generator.generateKey().getEncoded(), "AES");
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
