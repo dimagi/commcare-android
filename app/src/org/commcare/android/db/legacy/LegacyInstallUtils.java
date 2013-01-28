@@ -196,7 +196,7 @@ public class LegacyInstallUtils {
 		if(legacyLogs.isEmpty()) {
 			//old logs are empty, no need to wipe new storage 
 		} else {
-			SqlIndexedStorageUtility<AndroidLogEntry> newLogs = app.getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class);
+			SqlIndexedStorageUtility<AndroidLogEntry> newLogs = CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class);
 			SqlIndexedStorageUtility.cleanCopy(legacyLogs, newLogs);
 			
 			//logs are copied over, wipe the old ones.
@@ -313,6 +313,9 @@ public class LegacyInstallUtils {
 		//First off: All of the app resources are now transitioned. We can continue to handle data transitions at login if the following fails
 		app.writeInstalled();
 		globalPreferences.edit().putString(LEGACY_UPGRADE_PROGRESS, UPGRADE_COMPLETE).commit();
+		
+		//Trigger all new resends
+		app.getAppPreferences().edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0).commit();
 		
 		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| App labelled. Attempting user transition");
 		
@@ -499,12 +502,7 @@ public class LegacyInstallUtils {
 			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, ldbh),
 					new SqlIndexedStorageUtility<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, newDbHelper));
 			
-			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| geocaches copied. Copying logs.");
-			
-			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<AndroidLogEntry>(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class, ldbh),
-					new SqlIndexedStorageUtility<AndroidLogEntry>(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class, newDbHelper));
-			
-			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| logs copied. Copying serialized log submissions.");
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| geocaches copied. Copying serialized log submissions.");
 			
 			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, ldbh),
 						new SqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, newDbHelper), new CopyMapper<DeviceReportRecord>() {
