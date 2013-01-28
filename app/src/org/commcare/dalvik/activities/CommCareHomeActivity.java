@@ -1067,7 +1067,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	if(syncDetails.second[0] == 1) {
     		message += Localization.get("home.sync.message.unsent.singular") + "\n";
     	} else if (syncDetails.second[0] > 1) {
-    		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second)}) + "\n";
+    		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
     	}
     	if(syncDetails.second[0] > 0) {
     		syncButton.setText(Localization.get("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get("home.sync")}));
