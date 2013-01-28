@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.javarosa.AndroidLogEntry;
 
 import android.content.Context;
 
@@ -39,6 +40,10 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 			database.beginTransaction();
 			
 			TableBuilder builder = new TableBuilder(ApplicationRecord.class);
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
+			builder.addData(new AndroidLogEntry());
 			database.execSQL(builder.getTableCreateString());
 			
 			database.setVersion(GLOBAL_DB_VERSION);

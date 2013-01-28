@@ -113,7 +113,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 					}
 					
 					//Add the logs as the primary payload
-					AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+					AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
 					reporter.addReportElement(serializer);
 					
 					//serialize logs

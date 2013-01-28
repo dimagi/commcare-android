@@ -80,6 +80,8 @@ public class LegacyInstallUtils {
 			return;
 		}
 		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| DB Detected");
+		
 		//There is a legacy DB. First, check whether we've already moved things over (whether a new
 		//app is already installed)
 		int installedApps = currentAppStorage.getNumRecords();
@@ -101,7 +103,7 @@ public class LegacyInstallUtils {
 			//installed, we don't need to proceed.
 			if(record == null) {
 				globalPreferences.edit().putString(LEGACY_UPGRADE_PROGRESS, UPGRADE_COMPLETE).commit();
-				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy app was detected, but new install already covers it");
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| app was detected, but new install already covers it");
 				return;
 			}
 			
@@ -109,7 +111,7 @@ public class LegacyInstallUtils {
 			//there's more than one app installed, which means we 
 			//must have passed through here.
 			globalPreferences.edit().putString(LEGACY_UPGRADE_PROGRESS, UPGRADE_COMPLETE).commit();
-			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "More than one app record installed, skipping legacy app detection");
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| More than one app record installed, skipping legacy app detection");
 			return;
 		}
 		
@@ -154,6 +156,8 @@ public class LegacyInstallUtils {
 			return;
 		}
 		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| application installed. Beginning transition");
+		
 		//So if we've gotten this far, we definitely have an app we need to copy over. See if we have an application record, and create
 		//one if not.
 		
@@ -175,7 +179,7 @@ public class LegacyInstallUtils {
 		//5) Stubbed out user keys
 		
 		//1) DB Records
-		//   The following models need to be moved: Resource Table entries and fixtures
+		//   The following models need to be moved: Resource Table entries, fixtures, and logs
 		SqlIndexedStorageUtility<Resource> newInstallTable = app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class);
 		SqlIndexedStorageUtility.cleanCopy(legacyResources, newInstallTable);
 		
@@ -184,6 +188,23 @@ public class LegacyInstallUtils {
 		SqlIndexedStorageUtility<FormInstance> newFixtures = app.getStorage("fixture", FormInstance.class);
 		SqlIndexedStorageUtility.cleanCopy(legacyFixtures, newFixtures);
 		
+		//Logs
+		
+		//There's a twist, here. We only wanna copy over logs once to get a nice clear time-based record ordering.
+		LegacySqlIndexedStorageUtility<AndroidLogEntry> legacyLogs = new LegacySqlIndexedStorageUtility<AndroidLogEntry>(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class, ldbh);
+		
+		if(legacyLogs.isEmpty()) {
+			//old logs are empty, no need to wipe new storage 
+		} else {
+			SqlIndexedStorageUtility<AndroidLogEntry> newLogs = app.getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class);
+			SqlIndexedStorageUtility.cleanCopy(legacyLogs, newLogs);
+			
+			//logs are copied over, wipe the old ones.
+			legacyLogs.removeAll();
+		}
+
+		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| Global resources copied");
 		//TODO: Record Progress?
 		
 		
@@ -197,6 +218,8 @@ public class LegacyInstallUtils {
 		String newRoot = app.fsPath("commcare/");
 		oldRoot.renameTo(new File(newRoot));
 		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| Files moved. Updating Handles");
+		
 		//We also need to tell the XForm Provider that any/all of its forms have been moved
 		
 		Cursor ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI,new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
@@ -209,14 +232,18 @@ public class LegacyInstallUtils {
 				toReplace.add(new Pair<Uri, String>(uri, newFilePath));
 			}
 		}
+		
 		for(Pair<Uri, String> p : toReplace) {
 			ContentValues cv = new ContentValues();
 			cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, p.second);
-			c.getContentResolver().update(p.first, cv, null, null);
+			int updated = c.getContentResolver().update(p.first, cv, null, null);
+			if(updated != 1) {
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| Warning: wrong number of xform content URI's updated: " + updated);
+
+			}
 		}
 	
-		
-
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| " + toReplace.size() + " xform content file paths updated. Moving prefs");
 		
 		//3) Ok, so now we have app settings to copy over. Basically everything in the SharedPreferences should get put in the new app
 		//preferences
@@ -240,6 +267,7 @@ public class LegacyInstallUtils {
 		}
 		e.commit();
 		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| Prefs updated. Adding user records...");
 		//4) Finally, we need to register a new UserKeyRecord which will prepare the user-facing records for transition
 		//when the user logs in again
 		
@@ -254,6 +282,7 @@ public class LegacyInstallUtils {
 		for(User u : legacyUsers) {
 			oldUsers.add(u);
 		}
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| " + oldUsers.size() + " old user records detected");
 		
 		//we're done with the old storage now.
 		olddb.close();
@@ -263,6 +292,7 @@ public class LegacyInstallUtils {
 		for(User u : oldUsers) {
 			//make sure we haven't already handled this user somehow
 			if(newUserKeyRecords.getIDsForValue(UserKeyRecord.META_USERNAME, u.getUsername()).size() > 0 ) {
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| Skipping key record for "+ u.getUsername() + " . One already exists?");
 				continue;
 			} 
 			
@@ -278,9 +308,13 @@ public class LegacyInstallUtils {
 			}
 		}
 		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| App succesfully Transitioned! Writing progress");
+		
 		//First off: All of the app resources are now transitioned. We can continue to handle data transitions at login if the following fails
 		app.writeInstalled();
 		globalPreferences.edit().putString(LEGACY_UPGRADE_PROGRESS, UPGRADE_COMPLETE).commit();
+		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| App labelled. Attempting user transition");
 		
 		//Now, we should try to transition over legacy user storage if any of the previous users are on test data
 		
@@ -324,6 +358,8 @@ public class LegacyInstallUtils {
 	}
 
 	public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException{
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Beginning transition attempt for " + ukr.getUsername());
+		
 		try {
 			final CipherPool pool = new CipherPool() {
 				Object lock = new Object();
@@ -363,8 +399,10 @@ public class LegacyInstallUtils {
 					return pool;
 				}
 			}).getReadableDatabase();
+			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Legacy DB Opened");
 	        
-			LegacyDbHelper ldbh = new LegacyDbHelper(c) {
+			LegacyDbHelper ldbh = new LegacyDbHelper(c, pool.borrow()) {
 				@Override
 				public android.database.sqlite.SQLiteDatabase getHandle() {
 					return olddb;
@@ -374,6 +412,8 @@ public class LegacyInstallUtils {
 			final String newFileSystemRoot = app.fsPath("commcare/");
 			final String oldRoot = getOldFileSystemRoot();
 			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Testing keys by attempting to open storage");
+			
 			LegacySqlIndexedStorageUtility<User> legacyUserStorage = new LegacySqlIndexedStorageUtility<User>("User", User.class, ldbh);
 			try {
 				//Test to see if the old db worked
@@ -381,9 +421,13 @@ public class LegacyInstallUtils {
 					
 				}
 			} catch(RuntimeException e) {
+				e.printStackTrace();
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Exception " + e.getMessage() + " when testing storage. Keys are probably no good");
 				//This almost certainly means that we don't have the right key;
 				return;
 			}
+			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Old keys look good! Creating new DB");
 			
 			//If we were able to iterate over the users, the key was fine, so let's use it to open our db
 			final SQLiteDatabase currentUserDatabase = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(CommCareSessionService.getKeyVal(oldKey));
@@ -394,15 +438,25 @@ public class LegacyInstallUtils {
 				}
 			};
 			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| All set to get going. Beginning storage copy");
+
+			
 			try {
 				
 			//So we need to copy over a bunch of storage and also make some incidental changes along the way.
 			
-			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<ACase>(ACase.STORAGE_KEY, ACase.class, ldbh),
+			LegacySqlIndexedStorageUtility<ACase> legacyCases = new LegacySqlIndexedStorageUtility<ACase>(ACase.STORAGE_KEY, ACase.class, ldbh);
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| " + legacyCases.getNumRecords() + " old cases detected");
+			
+			Map m = SqlIndexedStorageUtility.cleanCopy(legacyCases,
 					   new SqlIndexedStorageUtility<ACase>(ACase.STORAGE_KEY, ACase.class, newDbHelper));
+			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| " + m.size() + " cases copied. Copying Users");
 			
 			SqlIndexedStorageUtility.cleanCopy(legacyUserStorage,
 					new SqlIndexedStorageUtility<User>("USER", User.class, newDbHelper));
+			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Users copied. Copying form records");
 			
 			final Map<Integer, Integer> formRecordMapping = SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, ldbh),
 					new SqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, newDbHelper), new CopyMapper<FormRecord>() {
@@ -429,6 +483,8 @@ public class LegacyInstallUtils {
 				
 			});
 			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Form records copied. Copying sessions.");
+			
 			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, ldbh),
 					new SqlIndexedStorageUtility<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, newDbHelper), new CopyMapper<SessionStateDescriptor>() {
 	
@@ -438,13 +494,17 @@ public class LegacyInstallUtils {
 						}
 				
 			});
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Sessions copied. Copying geocaches.");
 			
 			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, ldbh),
 					new SqlIndexedStorageUtility<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, newDbHelper));
 			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| geocaches copied. Copying logs.");
+			
 			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<AndroidLogEntry>(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class, ldbh),
 					new SqlIndexedStorageUtility<AndroidLogEntry>(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class, newDbHelper));
 			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| logs copied. Copying serialized log submissions.");
 			
 			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, ldbh),
 						new SqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, newDbHelper), new CopyMapper<DeviceReportRecord>() {
@@ -455,6 +515,8 @@ public class LegacyInstallUtils {
 				
 			});
 			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| serialized log submissions copied. Copying fixtures");
+			
 			SqlIndexedStorageUtility.cleanCopy(new LegacySqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, ldbh),
 					new SqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, newDbHelper));
 			
@@ -462,15 +524,21 @@ public class LegacyInstallUtils {
 				throw new RuntimeException(sfe);
 			}
 			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Whew, storage copied! Updating key record");
+			
 			//Now we can update this key record to confirm that it is fully installed
 			ukr.setType(UserKeyRecord.TYPE_NORMAL);
 			app.getStorage(UserKeyRecord.class).write(ukr);
+			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Eliminating shared data from old install, since new users can't access it");
 			
 			//Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
 			//data that is linked to specific files, since individual users might delete them out of their sandboxes.
 			new LegacySqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, ldbh).removeAll();
 			new LegacySqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, ldbh).removeAll();
 			new LegacySqlIndexedStorageUtility<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, ldbh).removeAll();
+			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| User transitioned! Closing db handles.");
 			
 			olddb.close();
 			currentUserDatabase.close();

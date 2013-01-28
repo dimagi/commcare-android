@@ -68,10 +68,6 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 			builder.addData(new GeocodeCacheModel());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
-			builder.addData(new AndroidLogEntry());
-			database.execSQL(builder.getTableCreateString());
-			
 			builder = new TableBuilder(DeviceReportRecord.class);
 			database.execSQL(builder.getTableCreateString());
 			

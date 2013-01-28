@@ -31,6 +31,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.PreInitLogger;
 import org.commcare.android.logic.GlobalConstants;
@@ -143,13 +144,23 @@ public class CommCareApplication extends Application {
 		
 		setRoots();
 		
-		//Init global storage (Just application records, etc)
+		//Init global storage (Just application records, logs, etc)
 		dbState = initGlobalDb();
 		
+		//This is where we go through and check for updates between major transitions.
+		//Soon we should start doing this differently, and actually go to an activity
+		//first which tells the user what's going on.
+		//
+		//The rule about this transition is that if the user had logs pending, we still want them in order, so
+		//we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
 		try {
 			LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
 		} catch(StorageFullException sfe) {
 			throw new RuntimeException(sfe);
+		} finally {
+			//No matter what happens, set up our new logger, we want those logs!
+			Logger.registerLogger(new AndroidLogger(this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+			pil.dumpToNewLogger();
 		}
 		
 //        PreferenceChangeListener listener = new PreferenceChangeListener(this);
@@ -359,7 +370,11 @@ public class CommCareApplication extends Application {
 	}
 	
 	public <T extends Persistable> SqlIndexedStorageUtility<T> getGlobalStorage(Class<T> c) {
-		return new SqlIndexedStorageUtility<T>(c.getAnnotation(Table.class).value(), c, new DbHelper(this.getApplicationContext()){
+		return getGlobalStorage(c.getAnnotation(Table.class).value(), c);
+	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getGlobalStorage(String table, Class<T> c) {
+		return new SqlIndexedStorageUtility<T>(table, c, new DbHelper(this.getApplicationContext()){
 			@Override
 			public SQLiteDatabase getHandle() {
 				synchronized(globalDbHandleLock) {
