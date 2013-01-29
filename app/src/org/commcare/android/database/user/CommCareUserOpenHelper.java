@@ -28,7 +28,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
 	private static final int USER_DB_VERSION = 1;
 	
-	private static final String USER_DB_LOCATOR = "database_user";
+	private static final String USER_DB_LOCATOR = "database_sandbox_";
 
 
 	
@@ -36,8 +36,8 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 		super(context, getDbName(userId), null, USER_DB_VERSION);
 	}
 	
-	private static String getDbName(String userId) {
-		return USER_DB_LOCATOR + userId;
+	public static String getDbName(String sandboxId) {
+		return USER_DB_LOCATOR + sandboxId;
 	}
 
 	/* (non-Javadoc)

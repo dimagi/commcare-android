@@ -52,6 +52,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.model.xform.XPathReference;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -188,7 +189,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 							this.publishProgress(PROGRESS_DONE);
 							return UNKNOWN_FAILURE;
 						}
-						ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(spec,password), new Date(0), new Date(Long.MAX_VALUE), username);
+						String sandboxId = PropertyUtils.genUUID().replace("-", "");
+						ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(spec,password), new Date(), new Date(Long.MAX_VALUE), sandboxId);
 						
 					} else {
 						//Go fetch the keys

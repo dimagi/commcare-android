@@ -28,6 +28,7 @@ import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
@@ -551,7 +552,9 @@ public class CommCareApplication extends Application {
 		logout();
 		
 		for(String id : dbIdsToRemove) {
-			this.getDatabasePath("database_user" + id).delete();
+			//TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
+			//(Eventually)
+			this.getDatabasePath(CommCareUserOpenHelper.getDbName(id));
 		}
 	}
 
@@ -803,7 +806,7 @@ public class CommCareApplication extends Application {
 	    public void handleMessage(Message m) {
 	    	NotificationMessage message = m.getData().getParcelable("message");
 			Toast.makeText(CommCareApplication.this,
-					Localization.get("install.error.details", new String[] {message.getTitle()}),
+					Localization.get("notification.for.details.wrapper", new String[] {message.getTitle()}),
 					Toast.LENGTH_LONG).show();
 	    }
 	};

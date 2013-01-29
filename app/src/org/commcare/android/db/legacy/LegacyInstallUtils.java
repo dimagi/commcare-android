@@ -50,6 +50,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.PropertyUtils;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -303,7 +304,8 @@ public class LegacyInstallUtils {
 			
 			//There's not specific reason to thing this might happen, but might be valuable to double check
 			if(newUserKeyRecords.getIDsForValue(UserKeyRecord.META_USERNAME, u.getUsername()).size() == 0) {
-				UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPassword(), u.getWrappedKey(), new Date(0), new Date(Long.MAX_VALUE), u.getUniqueId(), UserKeyRecord.TYPE_LEGACY_TRANSITION);
+				String sandboxId = PropertyUtils.genUUID().replace("-", ""); 
+				UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPassword(), u.getWrappedKey(), new Date(), new Date(Long.MAX_VALUE), sandboxId, UserKeyRecord.TYPE_LEGACY_TRANSITION);
 				newUserKeyRecords.write(ukr);
 			}
 		}
