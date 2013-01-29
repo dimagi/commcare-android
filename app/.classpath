@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="/javarosa-libs/kxml2-2.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/apache-mime4j-0.6.jar"/>

@@ -10,7 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import org.commcare.android.models.User;
+import org.commcare.android.database.user.models.User;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -44,7 +44,6 @@ public class CallInPhoneListener extends PhoneStateListener {
 	private AndroidCommCarePlatform platform;
 	
 	private Hashtable<String, String[]> cachedNumbers;
-	private User user;
 	
 	private Toast currentToast;
 	
@@ -52,11 +51,10 @@ public class CallInPhoneListener extends PhoneStateListener {
 	
 	private boolean running = false;
 	
-	public CallInPhoneListener(Context context, AndroidCommCarePlatform platform, User user) {
+	public CallInPhoneListener(Context context, AndroidCommCarePlatform platform) {
 		this.context = context;
 		this.platform = platform;
 		cachedNumbers = new Hashtable<String, String[]>();
-		this.user = user;
 		toastTimer = new Timer("toastTimer");
 	}
 

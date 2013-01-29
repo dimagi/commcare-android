@@ -7,10 +7,15 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
+import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -21,7 +26,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 /**
@@ -35,6 +39,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	EncryptedModel em;
 	T t;
 	DbHelper helper;
+	
+	protected SqlIndexedStorageUtility() {}
 	
 	public SqlIndexedStorageUtility(String table, Class<? extends T> ctype, DbHelper helper) {
 		this.table = table;
@@ -53,7 +59,6 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 
 	/* (non-Javadoc)
@@ -461,7 +466,34 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
 	public void registerIndex(String filterIndex) {
 		// TODO Auto-generated method stub
-		
+	}
+	
+	public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlIndexedStorageUtility<T> from, SqlIndexedStorageUtility<T> to) throws StorageFullException {
+		return cleanCopy(from, to, null);
+	}
+	
+	public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlIndexedStorageUtility<T> from, SqlIndexedStorageUtility<T> to, CopyMapper<T> mapper) throws StorageFullException {
+		to.removeAll();
+		SQLiteDatabase toDb = to.helper.getHandle();
+		try{
+			Hashtable<Integer, Integer> idMapping = new Hashtable<Integer, Integer>();
+			toDb.beginTransaction();
+			
+			for(T t : from) {
+				int key = t.getID();
+				//Clear the ID, we don't wanna guarantee it
+				t.setID(-1);
+				if(mapper != null){
+					t = mapper.transform(t);
+				}
+				to.write(t);
+				idMapping.put(key, t.getID());
+			}
+			toDb.setTransactionSuccessful();
+			return idMapping;
+		} finally {
+			toDb.endTransaction();
+		}
 	}
 
 }

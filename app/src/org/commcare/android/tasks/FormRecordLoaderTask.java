@@ -11,10 +11,10 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidSessionWrapper;
 
 import android.content.Context;
 import android.os.AsyncTask;

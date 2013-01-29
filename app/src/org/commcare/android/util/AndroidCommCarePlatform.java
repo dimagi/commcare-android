@@ -7,12 +7,15 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 import android.content.Context;
 import android.net.Uri;
@@ -34,14 +37,16 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	private Profile profile;
 	private Vector<Suite> installedSuites;
+	CommCareApp app;
 	
 	private long callDuration = 0;
 	
-	public AndroidCommCarePlatform(int majorVersion, int minorVersion, Context c) {
+	public AndroidCommCarePlatform(int majorVersion, int minorVersion, Context c, CommCareApp app) {
 		super(majorVersion, minorVersion);
 		xmlnstable = new Hashtable<String, String>();
 		this.c = c;
 		installedSuites = new Vector<Suite>();
+		this.app = app;
 	}
 	
 	public void registerXmlns(String xmlns, String filepath) {
@@ -63,14 +68,14 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 	
 	public ResourceTable getGlobalResourceTable() {
 		if(global == null) {
-			global = ResourceTable.RetrieveTable( CommCareApplication._().getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+			global = ResourceTable.RetrieveTable( app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
 		}
 		return global;
 	}
 	
 	public ResourceTable getUpgradeResourceTable() {
 		if(upgrade == null) {
-			upgrade = ResourceTable.RetrieveTable( CommCareApplication._().getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+			upgrade = ResourceTable.RetrieveTable( app.getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
 		}
 		return upgrade;
 	}
@@ -115,5 +120,9 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		this.profile = null;
 		this.installedSuites.clear();
 		super.initialize(global);
+	}
+
+	public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
+		return app.getStorage("fixture", FormInstance.class);
 	}	
 }

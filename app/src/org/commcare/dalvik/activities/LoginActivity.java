@@ -8,12 +8,16 @@ import java.security.MessageDigest;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.models.User;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.User;
+import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.ManageKeyRecordTask;
+import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -64,7 +68,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 	
 	public static final int DIALOG_CHECKING_SERVER = 0;
 	
-	SqlIndexedStorageUtility<User> storage;
+	SqlIndexedStorageUtility<UserKeyRecord> storage;
 	
 	DataPullTask dataPuller;
 	
@@ -99,7 +103,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         
         //Only on the initial creation
         if(savedInstanceState ==null) {
-        	String lastUser = PreferenceManager.getDefaultSharedPreferences(this).getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        	String lastUser = CommCareApplication._().getCurrentApp().getAppPreferences().getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         	if(lastUser != null) {
         		username.setText(lastUser);
         		password.requestFocus();
@@ -119,23 +123,8 @@ public class LoginActivity extends Activity implements DataPullListener {
 				if(tryLocalLogin()) {
 					return;
 				}
-				
-				//We should go digest auth this user on the server and see whether to pull them
-				//down.
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
 
-				//TODO: we don't actually always want to do this. We need to have an alternate route where we log in locally and sync 
-				//(with unsent form submissions) more centrally.
-				
-				dataPuller = new DataPullTask(getUsername(), 
-						                             password.getText().toString(),
-						                             prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
-						                             prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
-						                             LoginActivity.this);
-				
-				dataPuller.setPullListener(LoginActivity.this);
-				LoginActivity.this.showDialog(DIALOG_CHECKING_SERVER);
-				dataPuller.execute();
+				startOta();
 			}
         });
         
@@ -164,6 +153,27 @@ public class LoginActivity extends Activity implements DataPullListener {
              }
         });
     }
+
+	private void startOta() {
+		
+		//We should go digest auth this user on the server and see whether to pull them
+		//down.
+		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+		
+		// TODO Auto-generated method stub
+		//TODO: we don't actually always want to do this. We need to have an alternate route where we log in locally and sync 
+		//(with unsent form submissions) more centrally.
+		
+		dataPuller = new DataPullTask(getUsername(), 
+				                             password.getText().toString(),
+				                             prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
+				                             prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
+				                             LoginActivity.this);
+		
+		dataPuller.setPullListener(LoginActivity.this);
+		LoginActivity.this.showDialog(DIALOG_CHECKING_SERVER);
+		dataPuller.execute();
+	}
 
     /* (non-Javadoc)
 	 * @see android.app.Activity#onRetainNonConfigurationInstance()
@@ -212,49 +222,66 @@ public class LoginActivity extends Activity implements DataPullListener {
     
     private boolean tryLocalLogin() {
     	try{
-    	String passwd = password.getText().toString();
-    	for(User u : storage()) {
-    		if(!u.getUsername().equals(getUsername())) {
-    			continue;
-    		}
-    		String hash = u.getPassword();
-    		if(hash.contains("$")) {
-        		String alg = "sha1";
-        		String salt = hash.split("\\$")[1];
-        		String check = hash.split("\\$")[2];
-        		MessageDigest md = MessageDigest.getInstance("SHA-1");
-        		BigInteger number = new BigInteger(1, md.digest((salt+passwd).getBytes()));
-        		String hashed = number.toString(16);
-        		
-        		while(hashed.length() < check.length()) {
-        			hashed = "0" + hashed;
-        		}
-        		
-        		if(hash.equals(alg + "$" + salt + "$" + hashed)) {
-        			byte[] key = CryptUtil.unWrapKey(u.getWrappedKey(), passwd);
-        			u.setCachedPwd(passwd);
-        			logIn(u, key);
-        			return true;
-        		}
-        	} else {
-        		if(u.getPassword().equals(passwd)) {
-        			byte[] key = CryptUtil.unWrapKey(u.getWrappedKey(), passwd);
-        			u.setCachedPwd(passwd);
-        			logIn(u, key);
-        			return true;
-    			}
-        	}
-    	}
-    	return false;
+	    	String passwd = password.getText().toString();
+	    	UserKeyRecord matchingRecord = null;
+	    	for(UserKeyRecord record : storage()) {
+	    		if(!record.getUsername().equals(getUsername())) {
+	    			continue;
+	    		}
+	    		String hash = record.getPasswordHash();
+	    		if(hash.contains("$")) {
+	        		String alg = "sha1";
+	        		String salt = hash.split("\\$")[1];
+	        		String check = hash.split("\\$")[2];
+	        		MessageDigest md = MessageDigest.getInstance("SHA-1");
+	        		BigInteger number = new BigInteger(1, md.digest((salt+passwd).getBytes()));
+	        		String hashed = number.toString(16);
+	        		
+	        		while(hashed.length() < check.length()) {
+	        			hashed = "0" + hashed;
+	        		}
+	        		
+	        		if(hash.equals(alg + "$" + salt + "$" + hashed)) {
+	        			matchingRecord = record;
+	        		}
+	        	}
+	    	}
+	    	if(matchingRecord == null) {
+	    		return false;
+	    	}
+	    	//TODO: Extract this
+			byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), passwd);
+			if(matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
+				LegacyInstallUtils.transitionLegacyUserStorage(this, CommCareApplication._().getCurrentApp(), key, matchingRecord);
+			}
+			//TODO: See if it worked first?
+			
+			CommCareApplication._().logIn(key, matchingRecord);
+			new ManageKeyRecordTask(this, matchingRecord.getUsername(), passwd) {
+
+				/* (non-Javadoc)
+				 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+				 */
+				@Override
+				protected void onPostExecute(HttpCalloutOutcomes result) {
+					super.onPostExecute(result);
+					if(this.proceed) {
+						done();
+					} else {
+						//Need to fetch!
+						startOta();
+					}
+				}
+				
+			}.execute();
+			return true;
     	}catch (Exception e) {
     		e.printStackTrace();
     		return false;
     	}
     }
     
-    private void logIn(User u, byte[] key) {
-    	CommCareApplication._().logIn(key, u);
-    	
+    private void done() {
 		Intent i = new Intent();
         setResult(RESULT_OK, i);
      
@@ -262,9 +289,9 @@ public class LoginActivity extends Activity implements DataPullListener {
 		finish();
     }
     
-    private SqlIndexedStorageUtility<User> storage() throws SessionUnavailableException{
+    private SqlIndexedStorageUtility<UserKeyRecord> storage() throws SessionUnavailableException{
     	if(storage == null) {
-    		storage=  CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
+    		storage=  CommCareApplication._().getAppStorage(UserKeyRecord.class);
     	}
     	return storage;
     }
@@ -282,7 +309,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 			break;
 		case DataPullTask.DOWNLOAD_SUCCESS:
 			if(tryLocalLogin()) {
-				//success, don't need to do anything
+				done();
 				break;
 			} else {
 				raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3], NOTIFICATION_MESSAGE_LOGIN));

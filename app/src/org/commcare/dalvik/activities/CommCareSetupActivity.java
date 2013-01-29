@@ -7,6 +7,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
@@ -15,10 +17,12 @@ import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.SizeBoundVector;
 
 import android.app.Activity;
@@ -300,7 +304,32 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			ref = selectedString + editProfileRef.getText().toString();
 		}
 		
-		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
+		CommCareApp app = null;
+		if(this.upgradeMode) {
+			app = CommCareApplication._().getCurrentApp();
+		} else {
+			SqlIndexedStorageUtility<ApplicationRecord> storage = CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+			if(storage.getNumRecords() == 0) {
+				ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
+				app = new CommCareApp(newRecord);
+			} else {
+				//There should be _at most_ one other record
+				if(storage.getNumRecords() == 1) {
+					//This record must have just not installed fully.
+					ApplicationRecord record = storage.iterate().next();
+					if(record.getStatus() != ApplicationRecord.STATUS_UNINITIALIZED) {
+						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
+						return;
+					}
+					app = new CommCareApp(record);
+					app.clearInstallData();
+				} else {
+					fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
+				}
+			}
+		}
+		
+		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode, app);
 		task.setListener(this);
 		
 		task.execute(ref);

@@ -11,6 +11,7 @@ import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
@@ -70,6 +71,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	
 	ResourceEngineListener listener;
 	Context c;
+	CommCareApp app;
 	
 	public static final int PHASE_CHECKING = 0;
 	public static final int PHASE_DOWNLOAD = 1;
@@ -84,9 +86,10 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	String vRequired;
 	boolean majorIsProblem;
 	
-	public ResourceEngineTask(Context c, boolean upgradeMode) throws SessionUnavailableException{
+	public ResourceEngineTask(Context c, boolean upgradeMode, CommCareApp app) throws SessionUnavailableException{
 		this.c = c;
 		this.upgradeMode = upgradeMode;
+		this.app = app;
 	}
 	
 	/* (non-Javadoc)
@@ -94,14 +97,16 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	 */
 	protected ResourceEngineOutcomes doInBackground(String... profileRefs) {
 		String profileRef = profileRefs[0];
-		AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+		AndroidCommCarePlatform platform = app.getCommCarePlatform();
+		SharedPreferences prefs =app.getAppPreferences();
 		
 
 		//First of all, make sure we record that an attempt was started.
 		Editor editor = prefs.edit();
 		editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
 		editor.commit();
+		
+		app.setupSandbox();
 		
 		if(upgradeMode) {
 			Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning upgrade attempt for profile " + profileRefs[0]);
@@ -159,15 +164,20 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
     			platform.init(profileRef, global, false);
     		}
     		
+    		//Installation complete, mark it
+    		if(!upgradeMode) {
+    			app.writeInstalled();
+    		}
+    		
 			//Initialize them now that they're installed
-			CommCareApplication._().initializeGlobalResources();
+			CommCareApplication._().initializeGlobalResources(app);
     		
     		//Alll goood, we need to set our current profile ref to either the one
     		//just used, or the auth ref, if one is available.
     		
     		String authRef = platform.getCurrentProfile().getAuthReference() == null ? profileRef : platform.getCurrentProfile().getAuthReference();
     		
-    		prefs = PreferenceManager.getDefaultSharedPreferences(c);
+    		prefs = app.getAppPreferences();
     		Editor edit = prefs.edit();
     		edit.putString("default_app_server", authRef);
     		edit.commit();
@@ -176,7 +186,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		} catch (LocalStorageUnavailableException e) {
 			e.printStackTrace();
 			if(!upgradeMode) {
-				cleanupFailure(platform);
+				app.clearInstallData();
 			}
 			
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Couldn't install file to local storage|" + e.getMessage());
@@ -190,7 +200,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			majorIsProblem = e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION;
 			
 			if(!upgradeMode) {
-				cleanupFailure(platform);
+				app.clearInstallData();
 			}
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "App resources are incompatible with this device|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusBadReqs;
@@ -199,7 +209,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			e.printStackTrace();
 			
 			if(!upgradeMode) {
-				cleanupFailure(platform);
+				app.clearInstallData();
 			}
 			
 			missingResourceException = e; 
@@ -213,7 +223,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			e.printStackTrace();
 			
 			if(!upgradeMode) {
-				cleanupFailure(platform);
+				app.clearInstallData();
 			}
 			
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unknown error ocurred during install|" + e.getMessage());
@@ -230,14 +240,6 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		if(listener != null) {
 			listener.updateProgress(values[0][0], values[0][1], values[0][2]);
 		}
-	}
-
-	private void cleanupFailure(AndroidCommCarePlatform platform) {
-		ResourceTable global = platform.getGlobalResourceTable();
-		
-		//Install was botched, clear anything left lying around....
-		global.clear();
-
 	}
 		
 	public void setListener(ResourceEngineListener listener) {

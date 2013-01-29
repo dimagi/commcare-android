@@ -8,11 +8,12 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
-import org.commcare.android.models.User;
+import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
@@ -22,7 +23,6 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
@@ -161,9 +161,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     private void configUi() {
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
-        
-        platform = CommCareApplication._().getCommCarePlatform();
-        
+                
         // enter data button. expects a result.
         startButton = (Button) findViewById(R.id.home_start);
         startButton.setText(Localization.get("home.start"));
@@ -271,7 +269,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     private void syncData() {
     	User u = CommCareApplication._().getSession().getLoggedInUser();
     	
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
 		mDataPullTask = new DataPullTask(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this);
 		
@@ -347,7 +345,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        platform.pack(outState);
         outState.putBoolean("was_external", wasExternal);
     }
     
@@ -359,7 +356,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     protected void onRestoreInstanceState(Bundle inState) {
         super.onRestoreInstanceState(inState);
-        platform.unpack(inState);
         if(inState.containsKey("was_external")) {
         	wasExternal = inState.getBoolean("was_external");
         }
@@ -442,15 +438,15 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			return;
 	    		}
 	    		else if(resultCode == RESULT_OK) {
-	    			int record = intent.getIntExtra(FormRecord.STORAGE_KEY, -1);
+	    			int record = intent.getIntExtra("FORMRECORDS", -1);
 	    			if(record == -1) {
 	    				//Hm, what to do here?
 	    				break;
 	    			}
-	    			FormRecord r = CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read(record);
+	    			FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
 	    			
 	    			//Retrieve and load the appropriate ssd
-	    			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class);
+	    			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 	    			Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
 	    			if(ssds.size() == 1) {
 	    				currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
@@ -611,7 +607,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	                //The form is either ready for processing, or not, depending on how it was saved
 	        		if(complete) {
 	        			//Form record should now be up to date now and stored correctly. Begin processing its content and submitting it. 
-        				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+        				SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         				
         				mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
         				mProcess.setListeners(this, CommCareApplication._().getSession().startDataSubmissionListener());
@@ -775,7 +771,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		i.setAction(Intent.ACTION_EDIT);
 		
 		
-		i.putExtra("instancedestination", CommCareApplication._().fsPath((GlobalConstants.FILE_CC_FORMS)));
+		i.putExtra("instancedestination", CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
 		
 		//See if there's existing form data that we want to continue entering (note, this should be stored in the form
 		///record as a URI link to the instance provider in the future)
@@ -802,7 +798,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     
     
     protected boolean checkAndStartUnsentTask(ProcessTaskListener listener) throws SessionUnavailableException {
-    	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+    	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
     	
     	//Get all forms which are either unsent or unprocessed
     	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
@@ -812,7 +808,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     		for(int i = 0 ; i < ids.size() ; ++i) {
     			records[i] = storage.read(ids.elementAt(i).intValue());
     		}
-    		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
     		mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
     		mProcess.setListeners(listener, CommCareApplication._().getSession().startDataSubmissionListener());
     		showDialog(DIALOG_SEND_UNSENT);
@@ -833,6 +829,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     protected void onResume() {
         super.onResume();
         dispatchHomeScreen();
+        platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
     }
     
     private void dispatchHomeScreen() {
@@ -856,7 +853,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	     	        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
 	     	        
 	     	        this.startActivityForResult(i, INIT_APP);
-	        } else if(!CommCareApplication._().areResourcesValidated()){
+	        } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()){
 	        	
 	            Intent i = new Intent(this, CommCareVerificationActivity.class);
 	            this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
@@ -880,7 +877,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        	
 	        	//Create the update intent
             	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-            	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            	SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             	String ref = prefs.getString("default_app_server", null);
             	
             	i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
@@ -890,7 +887,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             	startActivityForResult(i,UPGRADE_APP);
             	return;
 	        } else if(CommCareApplication._().isSyncPending(false)) {
-	        	long lastSync = PreferenceManager.getDefaultSharedPreferences(this).getLong("last-ota-restore", 0);
+	        	long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
 	        	String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
 	        	Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
 	        	refreshView();
@@ -967,7 +964,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             	try {
 	                switch (i) {
 	                    case DialogInterface.BUTTON1: // attempt repair
-	                    	CommCareApplication._().resetApplicationResources();
+	                    	//TODO: We are gonna make this a different process
+	                    	//CommCareApplication._().resetApplicationResources();
 	                    	CommCareApplication._().cleanUpDatabaseFileLinkages();
 	                    	dispatchHomeScreen();
 	                        break;
@@ -997,10 +995,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
 
 
-    
+    /*
+     * NOTE: This is probably not valid anymore
+     */
     private boolean testBotchedUpgrade() {
     	//If the install folder is empty, we know that commcare wiped out our stuff.
-    	File install = new File(CommCareApplication._().fsPath(GlobalConstants.FILE_CC_INSTALL));
+    	File install = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_INSTALL));
     	File[] installed = install.listFiles();
     	if(installed == null || installed.length == 0) {
     		return true;
@@ -1058,7 +1058,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
         Pair<Long, int[]> syncDetails = CommCareApplication._().getSyncDisplayParameters();
         
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
     	
     	unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY,"5"));
     	unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY,"5"));
@@ -1069,7 +1069,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	if(syncDetails.second[0] == 1) {
     		message += Localization.get("home.sync.message.unsent.singular") + "\n";
     	} else if (syncDetails.second[0] > 1) {
-    		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second)}) + "\n";
+    		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
     	}
     	if(syncDetails.second[0] > 0) {
     		syncButton.setText(Localization.get("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get("home.sync")}));
@@ -1214,7 +1214,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             		return true;
             	}
             	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-            	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            	SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             	String ref = prefs.getString("default_app_server", null);
             	i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
             	i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);

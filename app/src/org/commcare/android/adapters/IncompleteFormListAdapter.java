@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
@@ -63,7 +63,7 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		} else if(loader.getStatus() == Status.FINISHED) {
 			loader = loader.spawn();
 		}
-		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		
 		if(filter == null) { filter = FormRecordFilter.SubmittedAndPending;}
 		records = new Vector<FormRecord>();

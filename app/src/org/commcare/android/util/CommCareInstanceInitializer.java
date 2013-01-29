@@ -6,8 +6,9 @@ package org.commcare.android.util;
 import java.util.HashSet;
 import java.util.Vector;
 
-import org.commcare.android.models.ACase;
-import org.commcare.android.models.User;
+import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.User;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCareSession;
@@ -38,7 +39,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 		String ref = instance.getReference();
 		if(ref.indexOf("case") != -1) {
 			if(casebase == null) {
-				casebase =  new CaseInstanceTreeElement(instance.getBase(), app.getStorage(ACase.STORAGE_KEY, ACase.class), false) {
+				SqlIndexedStorageUtility<ACase> storage = app.getUserStorage(ACase.STORAGE_KEY, ACase.class);
+				casebase =  new CaseInstanceTreeElement(instance.getBase(), storage, false) {
 					@Override
 					protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
 						//This is kind of (ok, so really) awkward looking, but we can't use sets in 

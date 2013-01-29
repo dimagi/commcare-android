@@ -169,4 +169,17 @@ public class CryptUtil {
 		}
 		return null;
 	}
+	
+	public static byte[] generateSemiRandomKey() {
+		KeyGenerator generator;
+		try {
+			generator = KeyGenerator.getInstance("AES");
+			generator.init(256, new SecureRandom());
+			return generator.generateKey().getEncoded();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

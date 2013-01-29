@@ -22,9 +22,9 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.ACase;
-import org.commcare.android.models.User;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 
@@ -48,7 +48,7 @@ public class HttpRequestGenerator {
 	public HttpRequestGenerator(String username, String password) {
     	String domainedUsername = username; 
     	
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 		
 		//TODO: We do this in a lot of places, we should wrap it somewhere
 		if(prefs.contains("cc_user_domain")) {
@@ -120,7 +120,7 @@ public class HttpRequestGenerator {
 		if(username == null) { 
 			return null;
 		}
-		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
+		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getUserStorage(User.class);
 		Vector<Integer> users = storage.getIDsForValue(User.META_USERNAME, username);
 		//should be exactly one user
 		if(users.size() != 1) {
@@ -131,7 +131,7 @@ public class HttpRequestGenerator {
 	}
 	
 	private String getDigest() {
-		return CaseDBUtils.computeHash(CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class));
+		return CaseDBUtils.computeHash(CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
 	}
 	public HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException {
         // setup client

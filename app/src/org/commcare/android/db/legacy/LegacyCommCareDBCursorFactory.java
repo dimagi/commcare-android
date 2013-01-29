@@ -1,11 +1,12 @@
 /**
  * 
  */
-package org.commcare.android.database;
+package org.commcare.android.db.legacy;
 
 import java.util.Hashtable;
 
 import org.commcare.android.crypt.CipherPool;
+import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.util.SessionUnavailableException;
 
 import android.database.Cursor;
@@ -19,7 +20,7 @@ import android.database.sqlite.SQLiteQuery;
  * @author ctsims
  *
  */
-public class CommCareDBCursorFactory implements CursorFactory {
+public class LegacyCommCareDBCursorFactory implements CursorFactory {
 	
 	private Hashtable<String, EncryptedModel> models;
 	
@@ -27,11 +28,11 @@ public class CommCareDBCursorFactory implements CursorFactory {
 	 * Creates a cursor factory which is incapable of dealing with 
 	 * Encrypted data
 	 */
-	public CommCareDBCursorFactory() {
+	public LegacyCommCareDBCursorFactory() {
 		
 	}
 	
-	public CommCareDBCursorFactory(Hashtable<String, EncryptedModel> models) {
+	public LegacyCommCareDBCursorFactory(Hashtable<String, EncryptedModel> models) {
 		this.models = models;
 	}
 

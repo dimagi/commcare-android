@@ -105,7 +105,7 @@ public class CommCarePreferences extends PreferenceActivity {
             	dialog.show();
             	return true;
             case FORCE_LOG_SUBMIT:
-        		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+        		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         		String url = settings.getString("PostURL", null);
         		
         		if(url == null) {
@@ -121,7 +121,7 @@ public class CommCarePreferences extends PreferenceActivity {
     }
 
     public static boolean isFormManagementEnabled() {
-    	SharedPreferences properties = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
     	//If there is a setting for form management it takes precedence
     	if(properties.contains(FORM_MANAGEMENT)) {
     		return !properties.getString(FORM_MANAGEMENT, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
