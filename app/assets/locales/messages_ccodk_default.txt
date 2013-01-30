@@ -121,6 +121,13 @@ cchq.case=Case
 select.placeholder.message=Please select a ${0}
 notification.for.details.wrapper=${0} (See notification for details)
 
+app.handled.error.title=Unrecoverable Error
+app.menu.display.cond.bad.xpath=Invalid form display condition (${0}): ${1}
+app.menu.display.cond.xpath.err=Error evaluating form display condition (${0}): ${1}
+
+app.handled.error.explanation=CommCare will now restart. You may need to correct this error in your application design.
+
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
@@ -151,6 +158,10 @@ notification.install.installed.detail=Your app install is up to date.
 notification.install.missing.title=Couldn't locate part of your app
 notification.install.missing.detail=A serious problem occurred while CommCare was trying to download an update (or install your app). CommCare couldn't find the resource with resource with id: ${0}.
 notification.install.missing.action=This failure is generally due to a bad or inconsistent network connection, but may be a sign of a problem with the application if it persists. Try again with a better connection and report to a supervisor if the install still fails.
+
+notification.install.missing.withmessage.title=Part of your app is not valid
+notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
+notification.install.missing.withmessage.action=Installation error: ${0}
 
 notification.install.badreqs.title=Incompatible CommCare Version for Install
 notification.install.badreqs.detail=${0}
