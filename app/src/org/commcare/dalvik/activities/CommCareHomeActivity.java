@@ -1264,6 +1264,5 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	
     	   return Settings.System.getInt(getApplicationContext().getContentResolver(),
     	           Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-
-    	}
+    }
 }

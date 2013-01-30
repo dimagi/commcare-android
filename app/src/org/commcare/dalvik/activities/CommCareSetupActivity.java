@@ -129,7 +129,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
-				System.out.println("item selected, previous is: " + previousUrlPosition + ", new is: " + arg2);
 				if((previousUrlPosition == 0 || previousUrlPosition == 1) && arg2 == 2){
 					editProfileRef.setText(R.string.default_app_server);
 				}
@@ -293,11 +292,18 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	private void startResourceInstall() {
 		
 		String ref = incomingRef;
+		System.out.println("initial ref is: " + ref);
 		
 		if(this.uiState == UiState.advanced) {
 			int selectedIndex = urlSpinner.getSelectedItemPosition();
 			String selectedString = urlVals[selectedIndex];
-			ref = selectedString + editProfileRef.getText().toString();
+			if(previousUrlPosition != 2){
+				ref = selectedString + editProfileRef.getText().toString();
+			}
+			else{
+				ref = editProfileRef.getText().toString();
+			}
+			System.out.println("ref is: " + ref);
 		}
 		
 		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode);
@@ -557,5 +563,16 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	if(wakelock != null && wakelock.isHeld()) {
     		wakelock.release();
     	}
+    }
+    
+    @Override
+    public void onBackPressed(){
+        if(uiState == UiState.advanced) {
+        	setModeToBasic();
+        } else if(uiState == UiState.ready){
+        	setModeToBasic();
+        } else{
+        	super.onBackPressed();
+        }
     }
 }

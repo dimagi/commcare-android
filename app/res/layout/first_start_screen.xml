@@ -20,19 +20,25 @@
         android:layout_height="wrap_content"
         android:text="Application Profile " />
     
-    <Spinner
-        android:id="@+id/url_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:entries="@array/url_list"
-        android:prompt="@string/url_prompt" />
+    <LinearLayout
+    	android:id="@+id/spinner_panel"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+    	<Spinner
+        	android:id="@+id/url_spinner"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:entries="@array/url_list"
+        	android:prompt="@string/url_prompt" />
 
-    <EditText
-        android:id="@+id/edit_profile_location"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" >
-    </EditText>
+    	<EditText
+        	android:id="@+id/edit_profile_location"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_gravity="center_horizontal" >
+    	</EditText>
+</LinearLayout>
 </LinearLayout>
 </LinearLayout>
 

@@ -93,8 +93,7 @@ public class IncompleteFormRecordView extends LinearLayout {
 		}
 		if(record.getStatus() == FormRecord.STATUS_UNSENT) {
 			mUpperRight.setText(Localization.get("form.record.unsent"));
-			mUpperRight.setTextColor(getResources().getColor(R.color.red));
-			mUpperRight.setTypeface(null, Typeface.BOLD);
+			mUpperRight.setTextAppearance(getContext(), R.style.WarningTextStyle);
 			mUpperRight.setCompoundDrawablesWithIntrinsicBounds(null, null, rightHandSync, null);
 		} else {
 			mUpperRight.setText("");
