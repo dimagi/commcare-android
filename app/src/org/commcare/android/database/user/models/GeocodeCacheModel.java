@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.database.cache;
+package org.commcare.android.database.user.models;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

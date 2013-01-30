@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.commcare.android.models;
+package org.commcare.android.database.user.models;
 
 
 import java.io.DataInputStream;
@@ -22,6 +22,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.commcare.android.storage.framework.Table;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -30,11 +31,9 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 
-
+@Table("USER")
 public class User implements Persistable, IMetaData
 {
-	public static final String STORAGE_KEY = "USER";
-	
 	public static final String ADMINUSER = "admin";
 	public static final String STANDARD = "standard";
 	public static final String KEY_USER_TYPE = "user_type";

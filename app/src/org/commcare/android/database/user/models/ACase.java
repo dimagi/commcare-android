@@ -17,7 +17,7 @@
 /**
  * 
  */
-package org.commcare.android.models;
+package org.commcare.android.database.user.models;
 
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.cases.model.Case;

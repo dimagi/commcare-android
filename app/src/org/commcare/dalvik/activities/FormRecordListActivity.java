@@ -17,9 +17,9 @@
 package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.IncompleteFormListAdapter;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
-import org.commcare.android.models.User;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
@@ -131,7 +131,7 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
 	        barcodeButton.setVisibility(View.GONE);
 	        
 	        searchbox.addTextChangedListener(this);
-	        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class), platform);
+	        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
 	        task.setListener(this);
 	
 	        adapter = new IncompleteFormListAdapter(this, platform, task);
@@ -228,7 +228,7 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
     	
         // We want to actually launch an interactive form entry.
         Intent i = new Intent();
-        i.putExtra(FormRecord.STORAGE_KEY, value.getID());
+        i.putExtra("FORMRECORDS", value.getID());
         setResult(RESULT_OK, i);
 
         finish();
@@ -253,7 +253,7 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
 	    	  returnItem(info.position);
 	    	  return true;
 	      case DELETE_RECORD:
-	    	  new FormRecordCleanupTask(this, platform).wipeRecord(CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class).read((int)info.id));
+	    	  new FormRecordCleanupTask(this, platform).wipeRecord(CommCareApplication._().getUserStorage(FormRecord.class).read((int)info.id));
 	    	  listView.post(new Runnable() { public void run() {adapter.notifyDataSetInvalidated();}});
 	      }
 	      
@@ -268,7 +268,7 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
         if(!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-        	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        	SharedPreferences prefs =CommCareApplication._().getCurrentApp().getAppPreferences();
     		String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
     		
     		//If there's nowhere to fetch forms from, we can't really go fetch them
@@ -288,7 +288,7 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
             case DOWNLOAD_FORMS:
             	this.showDialog(DIALOG_PROCESS);
             	
-        		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             	
             	User u = CommCareApplication._().getSession().getLoggedInUser();
             	

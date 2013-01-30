@@ -21,11 +21,13 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.storage.framework.Persisted;
+import org.commcare.android.storage.framework.Persisting;
+import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -40,13 +42,13 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  *
  */
-public class DeviceReportRecord implements Persistable, EncryptedModel{
-	
-	public static final String STORAGE_KEY = "log_records";
-	
-	int recordId = -1;
-	
+
+@Table("log_records")
+public class DeviceReportRecord extends Persisted implements EncryptedModel{
+
+	@Persisting(1)
 	private String fileName;
+	@Persisting(2)
 	private byte[] aesKey;
 	
 	/**
@@ -56,47 +58,16 @@ public class DeviceReportRecord implements Persistable, EncryptedModel{
 		
 	}
 	
+	public DeviceReportRecord(String fileName, byte[] aesKey) {
+		this.fileName = fileName;
+		this.aesKey = aesKey;
+	}
+	
 	public static DeviceReportRecord GenerateNewRecordStub() {
 		DeviceReportRecord slr = new DeviceReportRecord();
-		slr.fileName = new File(CommCareApplication._().fsPath((GlobalConstants.FILE_CC_LOGS)) + FileUtil.SanitizeFileName(File.separator + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
+		slr.fileName = new File(CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS)) + FileUtil.SanitizeFileName(File.separator + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
 		slr.aesKey = CommCareApplication._().createNewSymetricKey().getEncoded();
 		return slr;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	@Override
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		recordId = ExtUtil.readInt(in);
-		fileName = ExtUtil.readString(in);
-		aesKey = ExtUtil.readBytes(in);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	@Override
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeNumeric(out, recordId);
-		ExtUtil.writeString(out, fileName);
-		ExtUtil.writeBytes(out, aesKey);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.Persistable#setID(int)
-	 */
-	@Override
-	public void setID(int ID) {
-		this.recordId = ID;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.Persistable#getID()
-	 */
-	@Override
-	public int getID() {
-		return recordId;
 	}
 
 	@Override

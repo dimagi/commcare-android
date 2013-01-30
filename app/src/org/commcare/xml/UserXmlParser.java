@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
-import org.commcare.android.models.User;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
@@ -108,7 +108,7 @@ public class UserXmlParser extends TransactionParser<User> {
 	
 	public IStorageUtilityIndexed storage() throws SessionUnavailableException{
 		if(storage == null) {
-			storage =  CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
+			storage =  CommCareApplication._().getUserStorage(User.class);
 		} 
 		return storage;
 	}

@@ -18,13 +18,16 @@ import java.util.Vector;
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.ACase;
-import org.commcare.android.models.User;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
@@ -34,6 +37,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.data.xml.DataModelPullParser;
@@ -58,9 +62,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 
 /**
  * @author ctsims
@@ -140,6 +142,9 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 
 	protected Integer doInBackground(Void... params) {
 		publishProgress(PROGRESS_STARTED);
+		CommCareApp app = CommCareApplication._().getCurrentApp();
+		
+		boolean useExternalKeys = app.getAppPreferences().getString("test", "false").equals("true");
 		
 		boolean loginNeeded = true;
 		boolean useRequestFlags = false;
@@ -148,8 +153,9 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		} catch(SessionUnavailableException sue) {
 			//expected if we aren't initialized.
 		}
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+    	SharedPreferences prefs = app.getAppPreferences();
 		
+    	//This should be per _user_, not per app
 		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 	    
 		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c) {
@@ -164,19 +170,28 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		};
 		Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
 
+		UserKeyRecord ukr = null;
+		
 		HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
 			
 			try {
 				//This is a dangerous way to do this (the null settings), should revisit later
 				SecretKeySpec spec = null;
 				if(loginNeeded) {
-					//Get the key 
-					//SecretKeySpec spec = getKeyForDevice();
-					spec = generateTestKey();
 					
-					if(spec == null) {
-						this.publishProgress(PROGRESS_DONE);
-						return UNKNOWN_FAILURE;
+					if(!useExternalKeys) {
+						//Get the key 
+						//SecretKeySpec spec = getKeyForDevice();
+						spec = generateNewRandomAESKey();
+						
+						if(spec == null) {
+							this.publishProgress(PROGRESS_DONE);
+							return UNKNOWN_FAILURE;
+						}
+						ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(spec,password), new Date(0), new Date(Long.MAX_VALUE), username);
+						
+					} else {
+						//Go fetch the keys
 					}
 					
 					//add to transaction parser factory
@@ -192,14 +207,6 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 				//Either way, don't re-do this step
 				this.publishProgress(PROGRESS_CLEANED);
 				
-				if(loginNeeded) {					
-					//This is necessary (currently) to make sure that data
-					//is encoded. Probably a better way to do this.
-					CommCareApplication._().logIn(spec.getEncoded(), null);
-					wasKeyLoggedIn = true;
-				}
-					
-				
 				HttpResponse response = requestor.makeCaseFetchRequest(server, useRequestFlags);
 				int responseCode = response.getStatusLine().getStatusCode();
 				if(responseCode == 401) {
@@ -210,6 +217,15 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
 					return AUTH_FAILED;
 				} else if(responseCode >= 200 && responseCode < 300) {
+					
+					if(loginNeeded && !useExternalKeys) {						
+						//This is necessary (currently) to make sure that data
+						//is encoded. Probably a better way to do this.
+						CommCareApplication._().logIn(spec.getEncoded(), ukr);
+						wasKeyLoggedIn = true;
+					}
+					
+					
 					this.publishProgress(PROGRESS_AUTHED,0);
 					Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 					
@@ -239,6 +255,11 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			    		Editor e = prefs.edit();
 			    		e.putLong("last-succesful-sync", new Date().getTime());
 			    		e.commit();
+			    		
+						if(loginNeeded) {						
+							CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
+						}
+
 						
 			    		Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
 						this.publishProgress(PROGRESS_DONE);
@@ -402,8 +423,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		//this is the temporary implementation of everything past this point
 		
 		//Wipe storage
-		//TODO: move table instead.
-		CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
+		//TODO: move table instead. Should be straightforward with sandboxed db's
+		CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 		
 		
 		String failureReason = "";
@@ -449,7 +470,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	private void updateUserSyncToken(String syncToken) throws StorageFullException {
-		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class);
+		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getUserStorage(User.class);
 		try {
 			User u = storage.getRecordForValue(User.META_USERNAME, username);
 			u.setSyncToken(syncToken);
@@ -463,7 +484,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		//We need to determine if we're using ownership for purging. For right now, only in sync mode
 		Vector<String> owners = new Vector<String>();
 		Vector<String> users = new Vector<String>(); 
-		for(IStorageIterator<User> userIterator = CommCareApplication._().getStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore();) {
+		for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.class).iterate(); userIterator.hasMore();) {
 			String id = userIterator.nextRecord().getUniqueId();
 			owners.addElement(id);
 			users.addElement(id);
@@ -483,7 +504,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			}
 		}
 			
-		SqlIndexedStorageUtility<ACase> storage = CommCareApplication._().getStorage(ACase.STORAGE_KEY, ACase.class);
+		SqlIndexedStorageUtility<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
 		CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
 		storage.removeAll(filter);		
 	}
@@ -514,7 +535,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 //		}
 		
 		//this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
-		SQLiteDatabase db = CommCareApplication._().getRawEncryptingDbHandle(c);
+		SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
 		try {
 			db.beginTransaction();
 			parser = new DataModelPullParser(stream, factory);
@@ -555,12 +576,12 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		return null;
 		//return generateTestKey();
 	}
-	
-	private SecretKeySpec generateTestKey() {
+
+	private SecretKeySpec generateNewRandomAESKey() {
 		KeyGenerator generator;
 		try {
 			generator = KeyGenerator.getInstance("AES");
-			generator.init(256, new SecureRandom(CommCareApplication._().getPhoneId().getBytes()));
+			generator.init(256, new SecureRandom());
 			return new SecretKeySpec(generator.generateKey().getEncoded(), "AES");
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block

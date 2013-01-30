@@ -14,10 +14,14 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.User;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -25,6 +29,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 import android.app.Notification;
@@ -56,16 +61,19 @@ public class CommCareSessionService extends Service  {
     private Timer maintenanceTimer;
     private CipherPool pool;
 
-    private User user;
 	private byte[] key = null;
 	
 	private boolean multimediaIsVerified=false;
 	
     private Date sessionExpireDate;
     
-    private String lock = "Lock";
+    private Object lock = new Object();
     
     private DataPullTask mCurrentTask;
+    
+    private User user;
+    
+	private SQLiteDatabase userDatabase; 
     
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
@@ -229,32 +237,64 @@ public class CommCareSessionService extends Service  {
 	}
 	
 	//END sync task registration/detachment
-
+	
     //Start CommCare Specific Functionality
-    
-	public void logIn(byte[] symetricKey, User user) {
-		if(user != null) {
-			Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
+	
+	
+	public SQLiteDatabase getUserDbHandle() {
+		synchronized(lock){
+			return userDatabase;
 		}
-		this.key = symetricKey;
-		pool.init();
-		
-		this.user = user;
-		
-		this.sessionExpireDate = new Date(new Date().getTime() + SESSION_LENGTH);
-		
-        // Display a notification about us starting.  We put an icon in the status bar.
-        showLoggedInNotification(user);
-        
-        maintenanceTimer = new Timer("CommCareService");
-        maintenanceTimer.schedule(new TimerTask() {
+	}
 
-			@Override
-			public void run() {
-				maintenance();
+
+	public static String getKeyVal(byte[] bytes) {
+		String hexString = "x\"";
+		for (int i = 0; i < bytes.length; i++) {
+		    String hexDigits = Integer.toHexString(0xFF & bytes[i]).toUpperCase();
+		    while(hexDigits.length() < 2) { 
+		    	hexDigits = "0" + hexDigits;
+		    }
+		    hexString += hexDigits; 
+		}
+		hexString = hexString + "\"";
+		return hexString;
+	}
+	
+	public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
+		synchronized(lock){
+			this.key = symetricKey;
+			pool.init();
+        	if(userDatabase != null && userDatabase.isOpen()) {
+        		userDatabase.close();
+        	}
+	        userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(getKeyVal(key));
+		}
+	}
+    
+	public void logIn(User user) {
+		synchronized(lock){
+			if(user != null) {
+				Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
 			}
-        	
-        }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
+			
+			this.user = user;
+			
+			this.sessionExpireDate = new Date(new Date().getTime() + SESSION_LENGTH);
+			
+	        // Display a notification about us starting.  We put an icon in the status bar.
+	        showLoggedInNotification(user);
+	        
+	        maintenanceTimer = new Timer("CommCareService");
+	        maintenanceTimer.schedule(new TimerTask() {
+	
+				@Override
+				public void run() {
+					maintenance();
+				}
+	        	
+	        }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
+		}
 	}
 	
 	private void maintenance() {
@@ -275,8 +315,25 @@ public class CommCareSessionService extends Service  {
 	public void logout() {
 		synchronized(lock){
 			key = null;
-			maintenanceTimer.cancel();
-			user = null;
+			
+			String username = null; 
+			
+			if(user != null) {
+				username = user.getUsername();
+			}
+			
+			String msg = username != null ? "Logging out user " + username  : "Logging out service login";
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
+			
+        	if(userDatabase != null && userDatabase.isOpen()) {
+        		userDatabase.close();
+			}
+        	userDatabase = null;
+        	user = null;
+        	//this is null if we aren't actually in the foreground
+        	if(maintenanceTimer != null) {
+        		maintenanceTimer.cancel();
+        	}
 			pool.expire();
 	        this.stopForeground(true);
 		}

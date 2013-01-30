@@ -12,38 +12,38 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
-import org.commcare.android.crypt.CipherPool;
-import org.commcare.android.database.CommCareDBCursorFactory;
-import org.commcare.android.database.CommCareOpenHelper;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
+
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.database.cache.GeocodeCacheModel;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.User;
+import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.javarosa.PreInitLogger;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.ACase;
-import org.commcare.android.models.FormRecord;
-import org.commcare.android.models.SessionStateDescriptor;
-import org.commcare.android.models.User;
+import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationClearReceiver;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.references.AssetFileRoot;
-import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
+import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidSessionWrapper;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.ODKPropertyManager;
@@ -54,32 +54,25 @@ import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareSession;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.UnregisteredLocaleException;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -87,16 +80,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -121,13 +111,13 @@ public class CommCareApplication extends Application {
 	
 	private static CommCareApplication app;
 	
-	private AndroidCommCarePlatform platform;
+	private CommCareApp currentApp;
 	
 	private AndroidSessionWrapper sessionWrapper;
 	
-	private static SQLiteDatabase database; 
-	
-	private SharedPreferences appPreferences;
+	/** Generalize **/
+	private Object globalDbHandleLock = new Object();
+	private SQLiteDatabase globalDatabase;
 	
 	//Kind of an odd way to do this
 	boolean updatePending = false;
@@ -135,6 +125,8 @@ public class CommCareApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		CommCareApplication.app = this;
 		
 		//TODO: Make this robust
 		PreInitLogger pil = new PreInitLogger();
@@ -149,45 +141,47 @@ public class CommCareApplication extends Application {
 		
 		PropertyManager.setPropertyManager(new ODKPropertyManager());
 		
+        SQLiteDatabase.loadLibs(this);
 		
-		createPaths();
 		setRoots();
 		
-		CommCareApplication.app = this;
+		//Init global storage (Just application records, logs, etc)
+		dbState = initGlobalDb();
 		
-        appPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        
+		//This is where we go through and check for updates between major transitions.
+		//Soon we should start doing this differently, and actually go to an activity
+		//first which tells the user what's going on.
+		//
+		//The rule about this transition is that if the user had logs pending, we still want them in order, so
+		//we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
+		try {
+			LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
+		} catch(StorageFullException sfe) {
+			throw new RuntimeException(sfe);
+		} finally {
+			//No matter what happens, set up our new logger, we want those logs!
+			Logger.registerLogger(new AndroidLogger(this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+			pil.dumpToNewLogger();
+		}
+		
 //        PreferenceChangeListener listener = new PreferenceChangeListener(this);
 //        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
         
-        setupLocalization();
+        defaultLocalizations();
         
-		int[] version = getCommCareVersion();
-		platform = new AndroidCommCarePlatform(version[0], version[1], this);
-		
 		//The fallback in case the db isn't installed 
 		resourceState = STATE_UNINSTALLED;
 		
-		//Init storage
-		dbState = initDb();
-		
 		//We likely want to do this for all of the storage, this is just a way to deal with fixtures
 		//temporarily. 
-		StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
+		//StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
 		
-		Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+//		Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+//		
+//		//Dump any logs we've been keeping track of in memory to storage
+//		pil.dumpToNewLogger();
 		
-		//Dump any logs we've been keeping track of in memory to storage
-		pil.dumpToNewLogger();
-		
-		initializeGlobalResources();
-		
-		if(dbState != STATE_UNINSTALLED) {
-			CursorFactory factory = new CommCareDBCursorFactory();
-			synchronized(dbHandleLock) {
-				database = new CommCareOpenHelper(this, factory).getWritableDatabase();
-			}
-		}
+		resourceState = initializeAppResources();
 	}
 	
 	public void triggerHandledAppExit(Context c, String message) {
@@ -206,32 +200,34 @@ public class CommCareApplication extends Application {
 	}
 
 	public void logout() {
-		if(this.sessionWrapper != null) {
-			sessionWrapper.reset();
+		synchronized(serviceLock) {
+			if(this.sessionWrapper != null) {
+				sessionWrapper.reset();
+			}
+	        
+	        doUnbindService();
 		}
-        
-        doUnbindService();
 	}
 	
-	public void logIn(byte[] symetricKey, User user) {
-		if(this.mIsBound) {
-			logout();
+	public void logIn(byte[] symetricKey, UserKeyRecord record) {
+		synchronized(serviceLock) {
+			if(this.mIsBound) {
+				logout();
+			}
+			doBindService(symetricKey, record);
 		}
-		doBindService(symetricKey, user);
 	}
 	
 	public SecretKey createNewSymetricKey() {
-		synchronized(mBoundService) {
-			return mBoundService.createNewSymetricKey();
-		}
+		return getSession().createNewSymetricKey();
 	}
 	
 	private CallInPhoneListener listener = null;
 	
-	private void attachCallListener(User user) {
+	private void attachCallListener() {
 		TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
 		
-		listener = new CallInPhoneListener(this, this.getCommCarePlatform(), user);
+		listener = new CallInPhoneListener(this, this.getCommCarePlatform());
 		listener.startCache();
         
         tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -265,7 +261,15 @@ public class CommCareApplication extends Application {
 	}
 
 	public AndroidCommCarePlatform getCommCarePlatform() {
-		return platform;
+		if(this.currentApp == null) {
+			throw new RuntimeException("No App installed!!!");
+		} else {
+			return this.currentApp.getCommCarePlatform();
+		}
+	}
+	
+	public CommCareApp getCurrentApp() {
+		return this.currentApp;
 	}
 	
 	public CommCareSession getCurrentSession() {
@@ -284,9 +288,9 @@ public class CommCareApplication extends Application {
 		return resourceState;
 	}
 	
-	public void initializeGlobalResources() {
+	public void initializeGlobalResources(CommCareApp app) {
 		if(dbState != STATE_UNINSTALLED) {
-			resourceState = initResources();
+			resourceState = initializeAppResources(app);
 		}
 	}
 	
@@ -294,76 +298,49 @@ public class CommCareApplication extends Application {
 		TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
 		String imei = manager.getDeviceId();
 		if(imei == null) {
-			imei = android.provider.Settings.Secure.ANDROID_ID;
+			imei = Secure.getString(getContentResolver(),Secure.ANDROID_ID);
 		}
 		return imei;
 	}
 	
-	public SharedPreferences preferences() {
-		return appPreferences;
-	}
-	
-	private void setupLocalization() {
+	private void defaultLocalizations() {
 		Localization.registerLanguageReference("default", "jr://asset/locales/messages_ccodk_default.txt");
 		Localization.setDefaultLocale("default");
 		
 		//For now. Possibly handle this better in the future
-		try{
-			Localization.setLocale(appPreferences.getString("cur_locale", "default"));
-		}catch(UnregisteredLocaleException urle) {
-			Localization.setLocale("default");
-		}
+		Localization.setLocale("default");
 	}
-	
-	public String fsPath(String relative) {
-		return storageRoot() + relative;
-	}
-    
-    private void createPaths() {
-    	String[] paths = new String[] {GlobalConstants.FILE_CC_ROOT, GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA, GlobalConstants.FILE_CC_LOGS};
-    	for(String path : paths) {
-    		File f = new File(fsPath(path));
-    		if(!f.exists()) {
-    			f.mkdirs();
-    		}
-    	}
-    }
 	
 	private void setRoots() {
 		JavaHttpRoot http = new JavaHttpRoot();
 		
-		JavaFileRoot file = new JavaFileRoot(storageRoot());
-		
 		AssetFileRoot afr = new AssetFileRoot(this);
 
 		ReferenceManager._().addReferenceFactory(http);
-		ReferenceManager._().addReferenceFactory(file);
 		ReferenceManager._().addReferenceFactory(afr);
 		//ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",GlobalConstants.MEDIA_REF));
 	}
 	
-	private String storageRoot() {
-		//This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
-		//it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
-		//to rely on the fact that the phone knows how to fix missing/corrupt directories every time it upgrades.
-		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ this.getPackageName() +"/files/";
+	private int initializeAppResources() {
+		//There should be exactly one of these for now
+		for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
+			if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+				//We have an app record ready to go
+				return initializeAppResources(new CommCareApp(record));
+			}
+		}
+		return STATE_UNINSTALLED;
 	}
-	
-	private int initResources() {
+
+	private int initializeAppResources(CommCareApp app) {
 		try {
-			
-			//Now, we need to identify the state of the application resources
-			AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform(); 
-			ResourceTable global = platform.getGlobalResourceTable();
-			//TODO: This, but better.
-			Resource profile = global.getResourceWithId("commcare-application-profile");
-			if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-				platform.initialize(global);
-				Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
+			currentApp = app;
+			if(currentApp.initializeApplication()) {
 				return STATE_READY;
-			} else{
-				return STATE_UNINSTALLED;
+			} else {
+				//????
+				return STATE_CORRUPTED;
 			}
 		}
 		catch(Exception e) {
@@ -376,10 +353,10 @@ public class CommCareApplication extends Application {
 		}
 	}
 
-	private int initDb() {
+	private int initGlobalDb() {
 		SQLiteDatabase database;
 		try {
-			database = new CommCareOpenHelper(this).getWritableDatabase();
+			database = new DatabaseGlobalOpenHelper(this).getWritableDatabase(null);
 			database.close();
 			return STATE_READY;
 		} catch(SQLiteException e) {
@@ -387,61 +364,64 @@ public class CommCareApplication extends Application {
 			return STATE_UNINSTALLED;
 		}
 	}
-	
-	public Object dbHandleLock = new Object();
-	
-	public SQLiteDatabase getRawEncryptingDbHandle(Context c) {
-		synchronized(dbHandleLock) {
-			if(database == null || !database.isOpen()) {
-				CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
-					protected CipherPool getCipherPool() {
-						return mBoundService.getDecrypterPool();
-					}
-				};
-				database = (new CommCareOpenHelper(c, factory)).getWritableDatabase();
-			}
-			return database;
-		}
-	}
-	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String storage, Class<T> c) throws SessionUnavailableException {
-		DbHelper helper = null;
-		try {
-			//If the session service is available, go grab it
-			CommCareSessionService service = getSession();
-			if(service.isLoggedIn()) {
-				//TODO: Should we ever be able to get here?
-				helper = new DbHelper(this.getApplicationContext(), service.getEncrypter()) {
-					@Override
-					public SQLiteDatabase getHandle() {
-						return getRawEncryptingDbHandle(this.c);
-					}
-					
-				};
-			}
-		} catch(SessionUnavailableException sue) {
-			//Not logged in, proceed with unencrypted storage
-		}
 		
-		//If we didn't get the decrypting DB helper, we should grab the normal one
-		if(helper == null) {
-			helper = new DbHelper(this.getApplicationContext()) {
-				@Override
-				public SQLiteDatabase getHandle() {
-					synchronized(dbHandleLock) {
-						if(database == null || !database.isOpen()) {
-							CursorFactory factory = new CommCareDBCursorFactory();
-							database = new CommCareOpenHelper(this.c, factory).getWritableDatabase();
-						}
-						return database;
-					}
-				}
-				
-			};
-		}
-		return new SqlIndexedStorageUtility<T>(storage, c, helper);
+	public SQLiteDatabase getUserDbHandle() {
+		return this.getSession().getUserDbHandle();
 	}
 	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getGlobalStorage(Class<T> c) {
+		return getGlobalStorage(c.getAnnotation(Table.class).value(), c);
+	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getGlobalStorage(String table, Class<T> c) {
+		return new SqlIndexedStorageUtility<T>(table, c, new DbHelper(this.getApplicationContext()){
+			@Override
+			public SQLiteDatabase getHandle() {
+				synchronized(globalDbHandleLock) {
+					if(globalDatabase == null || !globalDatabase.isOpen()) {
+						globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase(null);
+					}
+					return globalDatabase;
+				}
+			}
+		});
+	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getAppStorage(Class<T> c) throws SessionUnavailableException {
+		return getAppStorage(c.getAnnotation(Table.class).value(), c);
+	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getAppStorage(String name, Class<T> c) throws SessionUnavailableException {
+		return currentApp.getStorage(name, c);
+	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getUserStorage(Class<T> c) throws SessionUnavailableException {
+		return getUserStorage(c.getAnnotation(Table.class).value(), c);
+	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getUserStorage(String storage, Class<T> c) throws SessionUnavailableException {
+		return new SqlIndexedStorageUtility<T>(storage, c, new DbHelper(this.getApplicationContext()){
+			@Override
+			public SQLiteDatabase getHandle() {
+				SQLiteDatabase database = getUserDbHandle();
+				if(database == null) {
+					throw new NullPointerException("Somehow didn't get a database handle!");
+				}
+				return database;
+			}
+		});
+	}
+	
+	public <T extends Persistable> SqlIndexedStorageUtility<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
+		return new SqlIndexedStorageUtility<T>(storage, c, new DbHelper(this.getApplicationContext()){
+			@Override
+			public SQLiteDatabase getHandle() {
+				return handle;
+			}
+		});
+	}
+	
+		
 	public void serializeToIntent(Intent i, String name, Externalizable data) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
@@ -474,16 +454,6 @@ public class CommCareApplication extends Application {
 		}
 		return t;
 	}
-	
-	private Hashtable<String, EncryptedModel> encryptedModels() {
-		Hashtable<String, EncryptedModel> models = new Hashtable<String, EncryptedModel>();
-		models.put(ACase.STORAGE_KEY, new ACase());
-		models.put(FormRecord.STORAGE_KEY, new FormRecord());
-		models.put(GeocodeCacheModel.STORAGE_KEY, new GeocodeCacheModel());
-		models.put(DeviceReportRecord.STORAGE_KEY, new DeviceReportRecord());
-		return models;
-	}
-
 
 	@Override
 	public void onLowMemory() {
@@ -498,33 +468,6 @@ public class CommCareApplication extends Application {
 	public static CommCareApplication _() {
 		return app;
 	}
-
-	/**
-	 * This method is a shortcut to wiping out the profile/suite/xforms/etc, and 
-	 * regathering the application resources in the case of something bad happening.
-	 * 
-	 * It may mess up the app, so it shouldn't be called upon trivially.
-	 */
-	public boolean resetApplicationResources() {
-		ResourceTable global = platform.getGlobalResourceTable();
-		global.clear();
-		String profile = appPreferences.getString("default_app_server", this.getString(R.string.default_app_server));
-		try {
-			platform.init(profile, global, false);
-			resourceState = this.initResources();
-			return true;
-		} catch (UnfullfilledRequirementsException e) {
-			ExceptionReportTask ert = new ExceptionReportTask();
-			ert.execute(e);
-			e.printStackTrace();
-			return false;
-		} catch (UnresolvedResourceException e) {
-			ExceptionReportTask ert = new ExceptionReportTask();
-			ert.execute(e);
-			e.printStackTrace();
-			return false;
-		}
-	}
 	
 	/**
 	 * This method goes through and identifies whether there are elements in the
@@ -534,7 +477,7 @@ public class CommCareApplication extends Application {
 	public void cleanUpDatabaseFileLinkages() throws SessionUnavailableException{
 		Vector<Integer> toDelete = new Vector<Integer>();
 		
-		SqlIndexedStorageUtility<FormRecord> storage = getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
+		SqlIndexedStorageUtility<FormRecord> storage = getUserStorage(FormRecord.class);
 		
 		//Can't load the records outright, since we'd need to be logged in (The key is encrypted)
 		for(SqlStorageIterator iterator = storage.iterate(); iterator.hasMore();) {
@@ -572,27 +515,44 @@ public class CommCareApplication extends Application {
 	 * it shouldn't be used lightly.
 	 */
 	public void clearUserData() throws SessionUnavailableException {
-		//First clear anything that will require the user's key, since we're going to wipe it out!
-		getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
+//		//First clear anything that will require the user's key, since we're going to wipe it out!
+//		getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
+//		
+//		//TODO: We should really be wiping out the _stored_ instances here, too
+//		getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
+//		
+//		//Also, any of the sessions we've got saved
+//		getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class).removeAll();
+//		
+//		//Now we wipe out the user entirely
+//		getStorage(User.STORAGE_KEY, User.class).removeAll();
+//		
+//		//Get rid of any user fixtures
+//		getStorage("fixture", FormInstance.class).removeAll();
+//		
+//		getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 		
-		//TODO: We should really be wiping out the _stored_ instances here, too
-		getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
+		final String username = this.getSession().getLoggedInUser().getUsername();
 		
-		//Also, any of the sessions we've got saved
-		getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class).removeAll();
+		final Set<String> dbIdsToRemove = new HashSet<String>();
 		
-		//Now we wipe out the user entirely
-		getStorage(User.STORAGE_KEY, User.class).removeAll();
+		this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
+
+			@Override
+			public boolean matches(UserKeyRecord ukr) {
+				dbIdsToRemove.add(ukr.getUuid());
+				return ukr.getUsername().toLowerCase().equals(username.toLowerCase());
+			}
+			
+		});
 		
-		//Get rid of any user fixtures
-		getStorage("fixture", FormInstance.class).removeAll();
-		
-		getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
-		
-		
-		
+		//TODO: We can just delete the db entirely. 
 		//Should be good to go. The app'll log us out now that there's no user details in memory
 		logout();
+		
+		for(String id : dbIdsToRemove) {
+			this.getDatabasePath("database_user" + id).delete();
+		}
 	}
 
 	public String getCurrentVersionString() {
@@ -616,7 +576,7 @@ public class CommCareApplication extends Application {
 		
 		String profileVersion = "";
 		
-		Profile p = this.platform == null ? null : platform.getCurrentProfile();
+		Profile p = this.currentApp == null ? null : this.getCommCarePlatform().getCurrentProfile();
 		if(p != null) {
 			profileVersion = String.valueOf(p.getVersion());
 		}
@@ -633,9 +593,10 @@ public class CommCareApplication extends Application {
 
 	private ServiceConnection mConnection;
 
+	private Object serviceLock = new Object();
 	boolean mIsBound = false;
 	boolean mIsBinding = false;
-	void doBindService(final byte[] key, final User user) {
+	void doBindService(final byte[] key, final UserKeyRecord record) {
 		mConnection = new ServiceConnection() {
 		    public void onServiceConnected(ComponentName className, IBinder service) {
 		        // This is called when the connection with the service has been
@@ -643,47 +604,45 @@ public class CommCareApplication extends Application {
 		        // interact with the service.  Because we have bound to a explicit
 		        // service that we know is running in our own process, we can
 		        // cast its IBinder to a concrete class and directly access it.
-		        mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
-		        
-				synchronized(mBoundService) {
-					//Don't let anyone touch this until it's logged in
-					mBoundService.logIn(key, user);
-				}
+		    	User user = null;
+				synchronized(serviceLock) {
+					mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 
-		        synchronized(dbHandleLock) {
-		        	if(database != null && database.isOpen()) {
-						database.close();
-					}
-		        	
-		        	//NOTE: If any of this is updated care should be taken to ensure that none of it depends on
-		        	//the mIsBound service flag, otherwise we could deadlock
-					CursorFactory factory = new CommCareDBCursorFactory(CommCareApplication.this.encryptedModels()) {
-						protected CipherPool getCipherPool() {
-							return mBoundService.getDecrypterPool();
-						}
-					};
-					database = new CommCareOpenHelper(CommCareApplication.this, factory).getWritableDatabase();
-				}
-		        
-				//service available
-			    mIsBound = true;
-		        
-		        //Don't signal bind completion until the db is initialized.
-			    mIsBinding = false;
+					//Don't let anyone touch this until it's logged in
+					mBoundService.prepareStorage(key, record);
 			    
+				    if(record != null) {
+						//Ok, so we have a login that was successful, but do we have a user model in the DB?
+				    	//We need to check before we're logged in, so we get the handle raw, here
+						for(User u : getRawStorage("USER", User.class, mBoundService.getUserDbHandle()) ){
+							if(record.getUsername().equals(u.getUsername())) {
+								user = u;
+							}
+						}
+				    }
+				    
+					//service available
+				    mIsBound = true;
+			        
+			        //Don't signal bind completion until the db is initialized.
+				    mIsBinding = false;
+				
 				if(user != null) {
-					attachCallListener(user);
+					getSession().logIn(user);
+					attachCallListener();
 					CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 					
 					//See if there's an auto-update pending. We only want to be able to turn this
 					//to "True" on login, not any other time
+					//TODO: this should be associated with the app itself, not the global settings
 					updatePending = getPendingUpdateStatus();
 					syncPending = getPendingSyncStatus();
 					
 					doReportMaintenance(false);
 					
 					//Register that this user was the last to succesfully log in
-					CommCareApplication.this.appPreferences.edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, user.getUsername()).commit();
+					getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
+				}
 				}
 		    }
 
@@ -710,7 +669,7 @@ public class CommCareApplication extends Application {
 		
 		//Create a new submission task no matter what. If nothing is pending, it'll see if there are unsent reports
 		//and try to send them. Otherwise, it'll create the report
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication._());
+		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 		String url = settings.getString("PostURL", null);
 		
 		if(url == null) {
@@ -727,12 +686,13 @@ public class CommCareApplication extends Application {
 	}
 
 	private boolean getPendingUpdateStatus() {
+		SharedPreferences preferences = getCurrentApp().getAppPreferences();
 		//Establish whether or not an AutoUpdate is Pending
-		String autoUpdateFreq = appPreferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
+		String autoUpdateFreq = preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
 
 		//See if auto update is even turned on
 		if(autoUpdateFreq != CommCarePreferences.FREQUENCY_NEVER) {
-			long lastUpdateCheck = appPreferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
+			long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
 
 			long duration = (24*60*60*100) * (autoUpdateFreq == CommCarePreferences.FREQUENCY_DAILY ? 1 : 7);
 			
@@ -788,12 +748,14 @@ public class CommCareApplication extends Application {
 	}
 
 	void doUnbindService() {
-	    if (mIsBound) {
-	    	mBoundService.logout();
-	        // Detach our existing connection.
-	        unbindService(mConnection);
-	        mIsBound = false;
-	    }
+		synchronized(serviceLock) {
+		    if (mIsBound) {
+		        mIsBound = false;
+		    	mBoundService.logout();
+		        // Detach our existing connection.
+		        unbindService(mConnection);
+		    }
+		}
 	}
 	
 	//Milliseconds to wait for bind
@@ -811,7 +773,7 @@ public class CommCareApplication extends Application {
 		}
 		
 		if(mIsBound) {
-			synchronized(mBoundService) {
+			synchronized(serviceLock) {
 				return mBoundService;
 			}
 		} else {
@@ -821,10 +783,10 @@ public class CommCareApplication extends Application {
 
 	
 	public Pair<Long, int[]> getSyncDisplayParameters() {
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
     	long lastSync = prefs.getLong("last-succesful-sync", 0);
-    	int unsentForms = this.getStorage(FormRecord.STORAGE_KEY, FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-    	int incompleteForms = this.getStorage(FormRecord.STORAGE_KEY, FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
+    	int unsentForms = this.getUserStorage(FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+    	int incompleteForms = this.getUserStorage(FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
     	
     	return new Pair<Long,int[]>(lastSync, new int[] {unsentForms, incompleteForms});
 	}
@@ -935,7 +897,7 @@ public class CommCareApplication extends Application {
      * @return True if there is a sync action pending. False otherwise.
      */
     private boolean getPendingSyncStatus() {
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
     	
     	long period = -1;
     	
@@ -943,9 +905,9 @@ public class CommCareApplication extends Application {
     	if("true".equals(prefs.getString("cc-auto-update","false"))) { period = DateUtils.DAY_IN_MILLIS;}
     	
     	//new flag, read what it is.
-    	String periodic = prefs.getString(CommCarePreferences.AUTO_SYNC_FREQUENCY,CommCarePreferences.NEVER);
+    	String periodic = prefs.getString(CommCarePreferences.AUTO_SYNC_FREQUENCY,CommCarePreferences.FREQUENCY_NEVER);
     	
-    	if(!periodic.equals(CommCarePreferences.NEVER)) {
+    	if(!periodic.equals(CommCarePreferences.FREQUENCY_NEVER)) {
     		period = DateUtils.DAY_IN_MILLIS * (periodic.equals(CommCarePreferences.FREQUENCY_DAILY) ? 1 : 7);
     	}
     	
@@ -974,7 +936,7 @@ public class CommCareApplication extends Application {
 
 	public boolean isStorageAvailable() {
 		try {
-			File storageRoot = new File(this.fsPath(GlobalConstants.FILE_CC_ROOT));
+			File storageRoot = new File(getAndroidFsRoot());
 			return storageRoot.exists();
 		} catch(Exception e) {
 			return false;
@@ -988,14 +950,8 @@ public class CommCareApplication extends Application {
 	public void notifyLogsPending() {
 		doReportMaintenance(true);
 	}
-	
-	public boolean areResourcesValidated(){
-		return appPreferences.getBoolean("isValidated",false) || appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES);
-	}
-	
-	public void setResourcesValidated(boolean isValidated){
-		SharedPreferences.Editor editor = appPreferences.edit();
-		editor.putBoolean("isValidated", isValidated);
-		editor.commit();
+
+	public String getAndroidFsRoot() {
+		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/files/";
 	}
 }

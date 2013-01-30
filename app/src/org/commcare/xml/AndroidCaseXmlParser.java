@@ -4,7 +4,7 @@
 package org.commcare.xml;
 
 import org.commcare.android.database.SqlIndexedStorageUtility;
-import org.commcare.android.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.kxml2.io.KXmlParser;

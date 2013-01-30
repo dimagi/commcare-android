@@ -13,6 +13,8 @@ import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.util.Base64;
 import org.javarosa.core.services.storage.IMetaData;
@@ -22,7 +24,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 /**
@@ -33,7 +34,6 @@ public abstract class DbHelper {
 	
 	protected Context c;
 	private Cipher encrypter;
-	//private Hashtable<String, EncryptedModel> encryptedModels;
 	
 	public DbHelper(Context c) {
 		this.c = c;
@@ -78,11 +78,7 @@ public abstract class DbHelper {
 			}
 			ret += columnName + "=?";
 			
-			if(em != null && em.isEncrypted(fieldNames[i])) {
-				arguments[i] = encrypt(values[i].toString());
-			} else {
-				arguments[i] = values[i].toString();
-			}
+			arguments[i] = values[i].toString();
 			
 			if(i + 1 < fieldNames.length) {
 				ret += " AND ";
@@ -91,22 +87,12 @@ public abstract class DbHelper {
 		return new Pair<String, String[]>(ret, arguments);
 	}
 	
-	private String encrypt(String string) {
-		byte[] encrypted = CryptUtil.encrypt(string.getBytes(), encrypter);
-		return Base64.encode(encrypted);
-	}
-
 	public ContentValues getContentValues(Externalizable e) {
 		boolean encrypt = e instanceof EncryptedModel;
 		assert(!(encrypt) || encrypter != null);
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		OutputStream out = bos;
-		
-		
-		if(encrypt && ((EncryptedModel)e).isBlobEncrypted()) {
-			out = new CipherOutputStream(bos, encrypter);
-		}
 		
 		try {
 			e.writeExternal(new DataOutputStream(out));
@@ -125,11 +111,7 @@ public abstract class DbHelper {
 				Object o = m.getMetaData(key);
 				if(o == null ) { continue;}
 				String value = o.toString();
-				if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
-					values.put(TableBuilder.scrubName(key), encrypt(value));
-				} else {
-					values.put(TableBuilder.scrubName(key), value);
-				}
+				values.put(TableBuilder.scrubName(key), value);
 			}
 		}
 		

@@ -21,34 +21,34 @@ import org.javarosa.xpath.expr.XPathExpression;
 public class CommCareUtil {
 
 	public static FormInstance loadFixture(String refId, String userId) {
-		IStorageUtilityIndexed storage = CommCareApplication._().getStorage("fixture", FormInstance.class);
+		IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
+		IStorageUtilityIndexed<FormInstance> appFixtureStorage = CommCareApplication._().getAppStorage("fixture", FormInstance.class);
 		
-		Vector<Integer> relevantFixtures = storage.getIDsForValue(FormInstance.META_ID, refId);
-		
+		Vector<Integer> userFixtures = userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
 		///... Nooooot so clean.
-		if(relevantFixtures.size() == 1) {
+		if(userFixtures.size() == 1) {
 			//easy case, one fixture, use it
-			return (FormInstance)storage.read(relevantFixtures.elementAt(0).intValue());
+			return (FormInstance)userFixtureStorage.read(userFixtures.elementAt(0).intValue());
 			//TODO: Userid check anyway?
-		} else if(relevantFixtures.size() > 1){
+		} else if(userFixtures.size() > 1){
 			//intersect userid and fixtureid set.
 			//TODO: Replace context call here with something from the session, need to stop relying on that coupling
 			
-			Vector<Integer> relevantUserFixtures = storage.getIDsForValue(FormInstance.META_XMLNS, userId);
+			Vector<Integer> relevantUserFixtures = userFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId);
 			
 			if(relevantUserFixtures.size() != 0) {
-				Integer userFixture = ArrayUtilities.intersectSingle(relevantFixtures, relevantUserFixtures);
+				Integer userFixture = ArrayUtilities.intersectSingle(userFixtures, relevantUserFixtures);
 				if(userFixture != null) {
-					return (FormInstance)storage.read(userFixture.intValue());
+					return (FormInstance)userFixtureStorage.read(userFixture.intValue());
 				}
 			}
-			//Oooookay, so there aren't any fixtures for this user, see if there's a global fixture.				
-			Integer globalFixture = ArrayUtilities.intersectSingle(storage.getIDsForValue(FormInstance.META_XMLNS, ""), relevantFixtures);
-			if(globalFixture == null) {
-				//No fixtures?! What is this. Fail somehow. This method should really have an exception contract.
-				return null;
-			}
-			return (FormInstance)storage.read(globalFixture.intValue());
+		}
+		
+		//ok, so if we've gotten here there were no fixtures for the user, let's try the app fixtures.
+		Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
+		Integer globalFixture = ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
+		if(globalFixture != null) {
+			return (FormInstance)userFixtureStorage.read(globalFixture.intValue());
 		} else {
 			return null;
 		}

@@ -162,7 +162,7 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 
 	@Override
 	public void success() {
-		CommCareApplication._().setResourcesValidated(true);
+		CommCareApplication._().getCurrentApp().setResourcesValidated(true);
 		done(true);
 	}
 
