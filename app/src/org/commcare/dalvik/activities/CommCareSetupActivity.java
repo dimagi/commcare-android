@@ -515,7 +515,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			done(false);
 		} else {
 			if(alwaysNotify) {
-				mainMessage.setText(Localization.get("install.error.details", new String[] {message.getDetails()}));
+				mainMessage.setText(Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()}));
 			} else {
 				mainMessage.setText(message.getDetails());
 			}

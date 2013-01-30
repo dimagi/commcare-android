@@ -11,6 +11,7 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
@@ -22,6 +23,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -221,13 +223,19 @@ public class LoginActivity extends Activity implements DataPullListener {
     }
     
     private boolean tryLocalLogin() {
+    	return tryLocalLogin(false);
+    }
+    	
+    private boolean tryLocalLogin(final boolean warnMultipleAccounts) {
     	try{
 	    	String passwd = password.getText().toString();
 	    	UserKeyRecord matchingRecord = null;
+	    	int count = 0;
 	    	for(UserKeyRecord record : storage()) {
 	    		if(!record.getUsername().equals(getUsername())) {
 	    			continue;
 	    		}
+	    		count++;
 	    		String hash = record.getPasswordHash();
 	    		if(hash.contains("$")) {
 	        		String alg = "sha1";
@@ -246,6 +254,9 @@ public class LoginActivity extends Activity implements DataPullListener {
 	        		}
 	        	}
 	    	}
+	    	
+	    	final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
+	    	
 	    	if(matchingRecord == null) {
 	    		return false;
 	    	}
@@ -257,6 +268,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 			//TODO: See if it worked first?
 			
 			CommCareApplication._().logIn(key, matchingRecord);
+			final String username = matchingRecord.getUsername();
 			new ManageKeyRecordTask(this, matchingRecord.getUsername(), passwd) {
 
 				/* (non-Javadoc)
@@ -266,6 +278,14 @@ public class LoginActivity extends Activity implements DataPullListener {
 				protected void onPostExecute(HttpCalloutOutcomes result) {
 					super.onPostExecute(result);
 					if(this.proceed) {
+						
+						if(triggerTooManyUsers) {
+							//We've successfully pulled down new user data. 
+							//Should see if the user already has a sandbox and let them know that their old data doesn't transition
+							raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3]), true);
+							Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
+						}
+						
 						done();
 					} else {
 						//Need to fetch!
@@ -274,6 +294,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 				}
 				
 			}.execute();
+			
 			return true;
     	}catch (Exception e) {
     		e.printStackTrace();
@@ -308,11 +329,9 @@ public class LoginActivity extends Activity implements DataPullListener {
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.DOWNLOAD_SUCCESS:
-			if(tryLocalLogin()) {
-				done();
-				break;
+			if(!tryLocalLogin(true)) {
+				raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_CredentialMismatch, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 			} else {
-				raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 				break;
 			}
 		case DataPullTask.UNREACHABLE_HOST:
@@ -377,13 +396,16 @@ public class LoginActivity extends Activity implements DataPullListener {
     }
     
     private void raiseMessage(NotificationMessage message, boolean showTop) {
+    	String toastText = message.getTitle();
     	if(showTop) {
     		CommCareApplication._().reportNotificationMessage(message);
+    		toastText = Localization.get("notification.for.details.wrapper", new String[] {toastText});
     	} else {
     		errorBox.setVisibility(View.VISIBLE);
     		errorBox.setText(message.getTitle());
     	}
-		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
+    	
+		Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
     }
     
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";

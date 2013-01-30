@@ -20,8 +20,6 @@ install.barcode=Welcome to CommCare! Please scan your App's CommCare Barcode to 
 install.manual=Please enter the URI for your application's Profile file
 install.ready=Welcome to CommCare! Make sure you have an internet connection and press the button below to install your app
 
-install.error.details=${0} (See notification for details)
-
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application profile...
 
@@ -121,15 +119,23 @@ app.storage.missing.button=Shutdown CommCare
  
 cchq.case=Case
 select.placeholder.message=Please select a ${0}
+notification.for.details.wrapper=${0} (See notification for details)
+
+app.handled.error.title=Unrecoverable Error
+app.menu.display.cond.bad.xpath=Invalid form display condition (${0}): ${1}
+app.menu.display.cond.xpath.err=Error evaluating form display condition (${0}): ${1}
+
+app.handled.error.explanation=CommCare will now restart. You may need to correct this error in your application design.
+
 
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
-login.attempt.fail.changed.title=Password Changed on Server
-login.attempt.fail.changed.detail=Your password has changed on the remote server since your last sync
-login.attempt.fail.changed.action=Log out (if you are logged in) of CommCareODK, and make sure to check the "sync with remote server" button on the login screen before logging in with your new password.
+login.attempt.fail.changed.title=Password Changed since Last Login
+login.attempt.fail.changed.detail=You've logged in with a new password since you're last login. You may need to log in with your old credentials to ensure you have no unsent data.
+login.attempt.fail.changed.action=If you had unsent data or incomplete forms on the phone before you logged in with your new password you should log out, and log in with your old password. Make sure all your unsent forms are sent and incomplete forms are submitted, then log in again with your new password and sync. 
 
 notification.credential.mismatch.title=Mismatching Login Credentials
 notification.credential.mismatch.detail=The server recognized your password, but the password it sent to the device does not match 
@@ -152,6 +158,10 @@ notification.install.installed.detail=Your app install is up to date.
 notification.install.missing.title=Couldn't locate part of your app
 notification.install.missing.detail=A serious problem occurred while CommCare was trying to download an update (or install your app). CommCare couldn't find the resource with id: ${0}. This is often due to a bad internet connection.
 notification.install.missing.action=This failure is generally due to a bad or inconsistent network connection, but may be a sign of a problem with the application if it persists. Try again with a better connection and report to a supervisor if the install still fails.
+
+notification.install.missing.withmessage.title=Part of your app is not valid
+notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
+notification.install.missing.withmessage.action=Installation error: ${0}
 
 notification.install.badreqs.title=Incompatible CommCare Version for Install
 notification.install.badreqs.detail=${0}
