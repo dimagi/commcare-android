@@ -205,6 +205,15 @@
         </activity>
         <activity android:name=".activities.CommCareVerificationActivity" android:windowSoftInputMode="adjustResize"></activity>
         <activity android:theme="@style/Theme.Transparent" android:name=".activities.UnrecoverableErrorActivity"></activity>
+        <activity android:name=".activities.KeyAccessRequestActivity"><intent-filter>
+                <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <receiver android:name="org.commcare.android.api.ExternalApiReceiver">
+            <intent-filter><action android:name="org.commcare.dalvik.api.action.ExternalAction" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
+        </receiver>
     </application>
 
     <uses-feature

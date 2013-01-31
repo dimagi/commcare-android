@@ -58,6 +58,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.format.DateUtils;

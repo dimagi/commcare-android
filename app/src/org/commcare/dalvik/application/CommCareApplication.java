@@ -27,6 +27,7 @@ import org.commcare.android.database.SqlIndexedStorageUtility;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
+import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.FormRecord;
@@ -143,6 +144,8 @@ public class CommCareApplication extends Application {
 		PropertyManager.setPropertyManager(new ODKPropertyManager());
 		
         SQLiteDatabase.loadLibs(this);
+        
+        AndroidSharedKeyRecord.generateNewSharingKey();
 		
 		setRoots();
 		

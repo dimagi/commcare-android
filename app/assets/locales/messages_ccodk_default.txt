@@ -126,7 +126,9 @@ app.menu.display.cond.bad.xpath=Invalid form display condition (${0}): ${1}
 app.menu.display.cond.xpath.err=Error evaluating form display condition (${0}): ${1}
 
 app.handled.error.explanation=CommCare will now restart. You may need to correct this error in your application design.
-
+app.key.request.message=Another android application has requested the ability to communicate securely with CommCare. This application will be able to pass information to CommCare and trigger actions (submission, login, etc). Do you want to grant access?
+app.key.request.grant=Grant Access
+app.key.request.deny=Deny Access
 
 #Put these into their own file
 

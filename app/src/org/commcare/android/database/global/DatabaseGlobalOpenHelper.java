@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 
@@ -42,6 +43,10 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 			TableBuilder builder = new TableBuilder(ApplicationRecord.class);
 			database.execSQL(builder.getTableCreateString());
 			
+			builder = new TableBuilder(AndroidSharedKeyRecord.class);
+			database.execSQL(builder.getTableCreateString());
+
+			
 			builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
 			builder.addData(new AndroidLogEntry());
 			database.execSQL(builder.getTableCreateString());
@@ -60,7 +65,6 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		
 	}
 
 }
