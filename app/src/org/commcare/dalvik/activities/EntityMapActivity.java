@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -146,7 +146,7 @@ public class EntityMapActivity extends MapActivity {
 		
 		EntityOverlayItemFactory overlayFactory = new EntityOverlayItemFactory(detail, defaultMarker);
 		
-		SqlIndexedStorageUtility<GeocodeCacheModel> geoCache = CommCareApplication._().getUserStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class);
+		SqlStorage<GeocodeCacheModel> geoCache = CommCareApplication._().getUserStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class);
 		
 		for(Entity<TreeReference> e : entities) {
 			for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){

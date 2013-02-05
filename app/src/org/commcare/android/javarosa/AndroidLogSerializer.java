@@ -6,7 +6,7 @@ package org.commcare.android.javarosa;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
@@ -20,7 +20,7 @@ import org.xmlpull.v1.XmlSerializer;
  *
  */
 public class AndroidLogSerializer extends StreamLogSerializer implements DeviceReportElement {
-	SqlIndexedStorageUtility<AndroidLogEntry> storage;
+	SqlStorage<AndroidLogEntry> storage;
 	LogEntry entry;
 	
 	XmlSerializer serializer;
@@ -29,7 +29,7 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
 		this.entry = entry;
 	}
 
-	public AndroidLogSerializer(SqlIndexedStorageUtility<AndroidLogEntry> logStorage) throws IOException {
+	public AndroidLogSerializer(SqlStorage<AndroidLogEntry> logStorage) throws IOException {
 		super();
 		this.storage = logStorage;
 		

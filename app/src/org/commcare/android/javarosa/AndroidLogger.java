@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.LogEntry;
@@ -64,14 +64,14 @@ public class AndroidLogger implements ILogger {
 	//TODO: Currently assumes that it gets back iterated records in RecordID order.
 	//when serializing a limited number of records then clearing
 
-	SqlIndexedStorageUtility<AndroidLogEntry> storage;
+	SqlStorage<AndroidLogEntry> storage;
 	
 	private int lastEntry = -1;
 	private boolean serializing = false;
 	
 	private final Object serializationLock = new Object();
 	
-	public AndroidLogger(SqlIndexedStorageUtility<AndroidLogEntry> storage) {
+	public AndroidLogger(SqlStorage<AndroidLogEntry> storage) {
 		this.storage = storage;
 	}
 	

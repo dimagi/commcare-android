@@ -9,26 +9,22 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import android.content.BroadcastReceiver;
@@ -39,7 +35,10 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 /**
- * Broadcast receiver to clear pending notifications.
+ * This broadcast receiver is the central point for incoming API calls from other apps.
+ * 
+ * Right now it's a mess, but at some point we'll go ahead and pull out most of the 
+ * things you can do here as 
  * 
  * @author ctsims
  *
@@ -56,7 +55,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 		}
 		
 		String keyId = intent.getStringExtra(AndroidSharedKeyRecord.EXTRA_KEY_ID);
-		SqlIndexedStorageUtility<AndroidSharedKeyRecord> storage = CommCareApplication._().getGlobalStorage(AndroidSharedKeyRecord.class);
+		SqlStorage<AndroidSharedKeyRecord> storage = CommCareApplication._().getGlobalStorage(AndroidSharedKeyRecord.class);
 		AndroidSharedKeyRecord sharingKey;
 		try {
 			sharingKey = storage.getRecordForValue(AndroidSharedKeyRecord.META_KEY_ID, keyId);
@@ -108,7 +107,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 	
     
     protected boolean checkAndStartUnsentTask(Context c, ProcessTaskListener listener) throws SessionUnavailableException {
-    	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+    	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
     	
     	//Get all forms which are either unsent or unprocessed
     	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
@@ -196,21 +195,28 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 			//TODO: See if it worked first?
 			
 			CommCareApplication._().logIn(key, matchingRecord);
-			new ManageKeyRecordTask(context, matchingRecord.getUsername(), password) {
+			new ManageKeyRecordTask(context, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
-				/* (non-Javadoc)
-				 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-				 */
 				@Override
-				protected void onPostExecute(HttpCalloutOutcomes result) {
-					super.onPostExecute(result);
-					if(this.proceed) {
-						//something
-					} else {
-						//something else
-					}
+				public void keysLoginComplete() {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void keysReadyForSync() {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void keysDoneOther(HttpCalloutOutcomes outcome) {
+					// TODO Auto-generated method stub
+					
 				}
 				
+			}) {
+
 			}.execute();
 			
 			return true;

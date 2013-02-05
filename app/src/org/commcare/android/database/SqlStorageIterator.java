@@ -18,11 +18,11 @@ import android.database.Cursor;
 public class SqlStorageIterator<T extends Persistable> implements IStorageIterator, Iterator<T> {
 
 	Cursor c;
-	SqlIndexedStorageUtility<T> storage;
+	SqlStorage<T> storage;
 	boolean isClosedByProgress = false;
 	int count;
 
-	public SqlStorageIterator(Cursor c, SqlIndexedStorageUtility<T> storage) {
+	public SqlStorageIterator(Cursor c, SqlStorage<T> storage) {
 		this.c = c;
 		this.storage = storage;
 		count = c.getCount();

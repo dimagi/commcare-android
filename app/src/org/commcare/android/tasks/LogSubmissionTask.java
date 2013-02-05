@@ -18,7 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogSerializer;
@@ -87,7 +87,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 	@Override
 	protected LogSubmitOutcomes doInBackground(Void... params) {
 		try {
-			SqlIndexedStorageUtility<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
+			SqlStorage<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
 			
 			//First, see if we're supposed to serialize the current logs
 			if(serializeCurrentLogs) {

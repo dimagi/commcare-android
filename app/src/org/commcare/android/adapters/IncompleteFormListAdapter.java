@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -63,7 +63,7 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		} else if(loader.getStatus() == Status.FINISHED) {
 			loader = loader.spawn();
 		}
-		SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+		SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		
 		if(filter == null) { filter = FormRecordFilter.SubmittedAndPending;}
 		records = new Vector<FormRecord>();

@@ -23,7 +23,7 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
@@ -373,12 +373,12 @@ public class CommCareApplication extends Application {
 		return this.getSession().getUserDbHandle();
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getGlobalStorage(Class<T> c) {
+	public <T extends Persistable> SqlStorage<T> getGlobalStorage(Class<T> c) {
 		return getGlobalStorage(c.getAnnotation(Table.class).value(), c);
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getGlobalStorage(String table, Class<T> c) {
-		return new SqlIndexedStorageUtility<T>(table, c, new DbHelper(this.getApplicationContext()){
+	public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
+		return new SqlStorage<T>(table, c, new DbHelper(this.getApplicationContext()){
 			@Override
 			public SQLiteDatabase getHandle() {
 				synchronized(globalDbHandleLock) {
@@ -391,20 +391,20 @@ public class CommCareApplication extends Application {
 		});
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getAppStorage(Class<T> c) throws SessionUnavailableException {
+	public <T extends Persistable> SqlStorage<T> getAppStorage(Class<T> c) throws SessionUnavailableException {
 		return getAppStorage(c.getAnnotation(Table.class).value(), c);
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getAppStorage(String name, Class<T> c) throws SessionUnavailableException {
+	public <T extends Persistable> SqlStorage<T> getAppStorage(String name, Class<T> c) throws SessionUnavailableException {
 		return currentApp.getStorage(name, c);
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getUserStorage(Class<T> c) throws SessionUnavailableException {
+	public <T extends Persistable> SqlStorage<T> getUserStorage(Class<T> c) throws SessionUnavailableException {
 		return getUserStorage(c.getAnnotation(Table.class).value(), c);
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getUserStorage(String storage, Class<T> c) throws SessionUnavailableException {
-		return new SqlIndexedStorageUtility<T>(storage, c, new DbHelper(this.getApplicationContext()){
+	public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) throws SessionUnavailableException {
+		return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()){
 			@Override
 			public SQLiteDatabase getHandle() {
 				SQLiteDatabase database = getUserDbHandle();
@@ -416,8 +416,8 @@ public class CommCareApplication extends Application {
 		});
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
-		return new SqlIndexedStorageUtility<T>(storage, c, new DbHelper(this.getApplicationContext()){
+	public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
+		return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()){
 			@Override
 			public SQLiteDatabase getHandle() {
 				return handle;
@@ -481,7 +481,7 @@ public class CommCareApplication extends Application {
 	public void cleanUpDatabaseFileLinkages() throws SessionUnavailableException{
 		Vector<Integer> toDelete = new Vector<Integer>();
 		
-		SqlIndexedStorageUtility<FormRecord> storage = getUserStorage(FormRecord.class);
+		SqlStorage<FormRecord> storage = getUserStorage(FormRecord.class);
 		
 		//Can't load the records outright, since we'd need to be logged in (The key is encrypted)
 		for(SqlStorageIterator iterator = storage.iterate(); iterator.hasMore();) {

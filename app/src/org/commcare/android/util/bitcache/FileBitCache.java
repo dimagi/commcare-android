@@ -21,6 +21,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
@@ -46,7 +47,7 @@ public class FileBitCache implements BitCache {
 		
 		//generate temp file
 		temp = File.createTempFile("commcare_pull_" + new Date().getTime(), "xml",cacheLocation);
-		key = CommCareApplication._().getSession().createNewSymetricKey();
+		key = CryptUtil.generateSemiRandomKey();
 	}
 
 	/* (non-Javadoc)

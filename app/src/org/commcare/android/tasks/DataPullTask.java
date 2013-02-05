@@ -3,34 +3,28 @@
  */
 package org.commcare.android.tasks;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.SecretKey;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.android.util.Base64;
-import org.commcare.android.util.Base64DecoderException;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
@@ -44,7 +38,6 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.xml.CommCareTransactionParserFactory;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -54,9 +47,6 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.model.xform.XPathReference;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
@@ -144,8 +134,12 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	protected Integer doInBackground(Void... params) {
 		publishProgress(PROGRESS_STARTED);
 		CommCareApp app = CommCareApplication._().getCurrentApp();
+    	SharedPreferences prefs = app.getAppPreferences();
 		
-		boolean useExternalKeys = app.getAppPreferences().getString("test", "false").equals("true");
+		String keyServer = prefs.getString("key_server", null);
+		
+		//Whether or not we should be generating the first key
+		boolean useExternalKeys  = !(keyServer == null || keyServer.equals(""));
 		
 		boolean loginNeeded = true;
 		boolean useRequestFlags = false;
@@ -154,7 +148,6 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		} catch(SessionUnavailableException sue) {
 			//expected if we aren't initialized.
 		}
-    	SharedPreferences prefs = app.getAppPreferences();
 		
     	//This should be per _user_, not per app
 		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
@@ -177,27 +170,29 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			
 			try {
 				//This is a dangerous way to do this (the null settings), should revisit later
-				SecretKeySpec spec = null;
 				if(loginNeeded) {
-					
 					if(!useExternalKeys) {
 						//Get the key 
-						//SecretKeySpec spec = getKeyForDevice();
-						spec = generateNewRandomAESKey();
+						SecretKey newKey = CryptUtil.generateSemiRandomKey();
 						
-						if(spec == null) {
+						if(newKey == null) {
 							this.publishProgress(PROGRESS_DONE);
 							return UNKNOWN_FAILURE;
 						}
 						String sandboxId = PropertyUtils.genUUID().replace("-", "");
-						ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(spec,password), new Date(), new Date(Long.MAX_VALUE), sandboxId);
+						ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(newKey.getEncoded(),password), new Date(), new Date(Long.MAX_VALUE), sandboxId);
 						
 					} else {
-						//Go fetch the keys
+						ukr = ManageKeyRecordTask.getCurrentValidRecord(app, username, password, true);
+						if(ukr == null) {
+							Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
+							this.publishProgress(PROGRESS_DONE);
+							return UNKNOWN_FAILURE;
+						}
 					}
 					
 					//add to transaction parser factory
-					byte[] wrappedKey = CryptUtil.wrapKey(spec,password);
+					byte[] wrappedKey = CryptUtil.wrapKey(ukr.getEncryptedKey(),password);
 					factory.initUserParser(wrappedKey);
 				} else {
 					factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
@@ -220,10 +215,10 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 					return AUTH_FAILED;
 				} else if(responseCode >= 200 && responseCode < 300) {
 					
-					if(loginNeeded && !useExternalKeys) {						
+					if(loginNeeded) {						
 						//This is necessary (currently) to make sure that data
 						//is encoded. Probably a better way to do this.
-						CommCareApplication._().logIn(spec.getEncoded(), ukr);
+						CommCareApplication._().logIn(CryptUtil.unWrapKey(ukr.getEncryptedKey(), password), ukr);
 						wasKeyLoggedIn = true;
 					}
 					
@@ -472,7 +467,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	private void updateUserSyncToken(String syncToken) throws StorageFullException {
-		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getUserStorage(User.class);
+		SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
 		try {
 			User u = storage.getRecordForValue(User.META_USERNAME, username);
 			u.setSyncToken(syncToken);
@@ -506,7 +501,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			}
 		}
 			
-		SqlIndexedStorageUtility<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+		SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
 		CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
 		storage.removeAll(filter);		
 	}
@@ -550,45 +545,5 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		
 		//Return the sync token ID
 		return factory.getSyncToken();
-	}
-		
-	private SecretKeySpec getKeyForDevice(HttpRequestGenerator generator) throws ClientProtocolException, IOException {
-		//Fetch the symetric key for this phone.
-		HttpResponse response = generator.makeKeyFetchRequest(keyProvider);
-		InputStream input = response.getEntity().getContent();
-		
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		StreamsUtil.writeFromInputToOutput(input, bos);
-		byte[] bytes = bos.toByteArray();
-		
-		try {
-			JSONObject json = new JSONObject(new JSONTokener(new String(bytes)));
-			
-			String aesKey = json.getString("aesKeyString");
-			
-			byte[] encoded = Base64.decodeWebSafe(aesKey);
-			SecretKeySpec spec = new SecretKeySpec(encoded, "AES");
-			return spec;
-		} catch(JSONException e) {
-			e.printStackTrace();
-		} catch (Base64DecoderException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-		//return generateTestKey();
-	}
-
-	private SecretKeySpec generateNewRandomAESKey() {
-		KeyGenerator generator;
-		try {
-			generator = KeyGenerator.getInstance("AES");
-			generator.init(256, new SecureRandom());
-			return new SecretKeySpec(generator.generateKey().getEncoded(), "AES");
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
 	}
 }

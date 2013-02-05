@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
@@ -22,10 +23,15 @@ import org.javarosa.core.util.PropertyUtils;
 public class UserKeyRecord extends Persisted {
 	
 	public static final String META_USERNAME = "username";
+	public static final String META_SANDBOX_ID = "sandbox_id";
+	public static final String META_KEY_STATUS = "status";
 	
+	/** This is a normal sandbox record that is ready to be used **/
 	public static final int TYPE_NORMAL = 1;
+	/** This is a record representing a legacy database that should be transfered over **/
 	public static final int TYPE_LEGACY_TRANSITION = 2;
-	public static final int TYPE_LEGACY_TRANSITION_PARTIAL = 3;
+	/** This is a new record that hasn't been evaluated for usage yet **/
+	public static final int TYPE_NEW = 3;
 	
 	@Persisting(1)
 	@MetaField(META_USERNAME)
@@ -40,7 +46,9 @@ public class UserKeyRecord extends Persisted {
 	private Date validTo;
 	@Persisting(6)
 	/** The unique ID of the data sandbox covered by this key **/
+	@MetaField(META_SANDBOX_ID)
 	private String uuid;
+	@MetaField(META_KEY_STATUS)
 	@Persisting(7)
 	private int type;
 	
@@ -136,5 +144,47 @@ public class UserKeyRecord extends Persisted {
 
 	public void setType(int typeNormal) {
 		this.type = typeNormal;
+	}
+
+	public boolean isPasswordValid(String password) {
+		try {
+			String hash = this.getPasswordHash();
+			if(hash.contains("$")) {
+	    		String alg = "sha1";
+	    		String salt = hash.split("\\$")[1];
+	    		String check = hash.split("\\$")[2];
+	    		MessageDigest md = MessageDigest.getInstance("SHA-1");
+	    		BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
+	    		String hashed = number.toString(16);
+	    		
+	    		while(hashed.length() < check.length()) {
+	    			hashed = "0" + hashed;
+	    		}
+	    		
+	    		if(hash.equals(alg + "$" + salt + "$" + hashed)) {
+	    			return true;
+	    		}
+	    	}
+			return false;
+		} catch (NoSuchAlgorithmException  nsae) {
+			throw new RuntimeException("SHA-1 support not present!");
+		}
+	}
+
+	public byte[] unWrapKey(String password) {
+		if(isPasswordValid(password)) {
+			return CryptUtil.unWrapKey(getEncryptedKey(), password);
+		} else {
+			//throw exception?
+			return null;
+		}
+	}
+	
+	public boolean isCurrentlyValid() {
+		Date today = new Date();
+		if(validFrom.before(today) && validTo == null || validTo.after(today)) {
+			return true;
+		}
+		return false;
 	}
 }

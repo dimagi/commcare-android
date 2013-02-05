@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -308,7 +308,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		if(this.upgradeMode) {
 			app = CommCareApplication._().getCurrentApp();
 		} else {
-			SqlIndexedStorageUtility<ApplicationRecord> storage = CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+			SqlStorage<ApplicationRecord> storage = CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
 			if(storage.getNumRecords() == 0) {
 				ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
 				app = new CommCareApp(newRecord);

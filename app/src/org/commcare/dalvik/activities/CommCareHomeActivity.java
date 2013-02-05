@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
@@ -447,7 +447,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
 	    			
 	    			//Retrieve and load the appropriate ssd
-	    			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+	    			SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 	    			Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
 	    			if(ssds.size() == 1) {
 	    				currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
@@ -799,7 +799,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     
     
     protected boolean checkAndStartUnsentTask(ProcessTaskListener listener) throws SessionUnavailableException {
-    	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+    	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
     	
     	//Get all forms which are either unsent or unprocessed
     	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});

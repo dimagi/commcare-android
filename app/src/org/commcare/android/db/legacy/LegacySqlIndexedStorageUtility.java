@@ -13,7 +13,7 @@ import java.util.Vector;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.TableBuilder;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -32,7 +32,7 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlIndexedStorageUtility<T> {
+public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlStorage<T> {
 	
 	String table;
 	Class<? extends T> ctype;

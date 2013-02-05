@@ -4,6 +4,7 @@
 package org.commcare.android.util;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
@@ -21,16 +22,16 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.utils.DateUtils;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 
 /**
  * @author ctsims
@@ -97,11 +98,18 @@ public class HttpRequestGenerator {
 		return client.execute(request);
 	}
 	
-	public HttpResponse makeKeyFetchRequest(String baseUri) throws ClientProtocolException, IOException {
+	public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
 		HttpClient client = client();
 
-		HttpGet get = new HttpGet(baseUri);
-		addHeaders(get, getSyncToken(username));
+		
+		Uri url = Uri.parse(baseUri);
+		
+		if(lastRequest != null) {
+			url = url.buildUpon().appendQueryParameter("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601)).build();
+		}
+		
+		HttpGet get = new HttpGet(url.toString());
+		
 		return client.execute(get);
 	}
 
@@ -120,7 +128,7 @@ public class HttpRequestGenerator {
 		if(username == null) { 
 			return null;
 		}
-		SqlIndexedStorageUtility<User> storage = CommCareApplication._().getUserStorage(User.class);
+		SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
 		Vector<Integer> users = storage.getIDsForValue(User.META_USERNAME, username);
 		//should be exactly one user
 		if(users.size() != 1) {

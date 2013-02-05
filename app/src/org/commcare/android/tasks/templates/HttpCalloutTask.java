@@ -12,16 +12,14 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.xml.CommCareTransactionParserFactory;
+import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.services.Logger;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
@@ -34,7 +32,6 @@ import android.os.AsyncTask;
 public abstract class HttpCalloutTask extends AsyncTask<Void, Integer, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes>{
 	
 	public enum HttpCalloutOutcomes {
-		CalloutUneeded,
 		NetworkFailure,
 		BadResponse,
 		AuthFailed,
@@ -48,77 +45,96 @@ public abstract class HttpCalloutTask extends AsyncTask<Void, Integer, org.commc
 		this.c = c;
 	}
 	
+	protected Context getContext() {
+		return c;
+	}
+	
 	
 	@Override
 	protected HttpCalloutOutcomes doInBackground(Void... params) {
-		if(doSetupTaskBeforeRequest()) {
-			return HttpCalloutOutcomes.CalloutUneeded;
+		HttpCalloutOutcomes preHttpOutcome = doSetupTaskBeforeRequest();
+		if(preHttpOutcome != null) {
+			return preHttpOutcome;
 		}
 		
-		HttpResponse response = doHttpRequest();
-		
-		int responseCode = response.getStatusLine().getStatusCode();
-		
-		HttpCalloutOutcomes outcome;
-		
-		try {
-		
-			if(responseCode >= 200 && responseCode < 300) {
-				outcome = doResponseSuccess(response);
-				if(outcome == HttpCalloutOutcomes.Success) {
-					doCleanupSuccess();
-					return outcome;
+		//Since we can proceed with the task either way, but we 
+		//still wanna know whether it failed
+		boolean calloutFailed  = false;
+		if(HttpCalloutNeeded()) {
+			HttpCalloutOutcomes outcome;
+
+			try {
+
+				HttpResponse response = doHttpRequest();
+				
+				int responseCode = response.getStatusLine().getStatusCode();
+				
+				if(responseCode >= 200 && responseCode < 300) {
+					outcome = doResponseSuccess(response);
+				} else if(responseCode  == 401) {
+					outcome = doResponseAuthFailed(response);
+				} else {
+					outcome = doResponseOther(response);
 				}
-			} else if(responseCode  == 401) {
-				outcome = doResponseAuthFailed(response);
-			} else {
-				outcome = doResponseOther(response);
+			} catch (ClientProtocolException e) {
+				//This is a general HTTP exception, basically 
+				outcome = HttpCalloutOutcomes.NetworkFailure;
+			} catch (UnknownHostException e) {
+				//HTTP Error 
+				outcome = HttpCalloutOutcomes.NetworkFailure;
+			} catch (IOException e) {
+				//This is probably related to local files, actually 
+				outcome = HttpCalloutOutcomes.NetworkFailure;
+			} finally {
+				
 			}
-		
-		} catch (ClientProtocolException e) {
-			//This is a general HTTP exception, basically 
-			outcome = HttpCalloutOutcomes.NetworkFailure;
-		} catch (UnknownHostException e) {
-			//HTTP Error 
-			outcome = HttpCalloutOutcomes.NetworkFailure;
-		} catch (IOException e) {
-			//This is probably related to local files, actually 
-			outcome = HttpCalloutOutcomes.NetworkFailure;
-		} finally {
 			
+			//If we needed the callout to succeed and it didn't, return our failure.
+			if(outcome != HttpCalloutOutcomes.Success) {
+				//TODO:Cleanup?
+				if(HttpCalloutRequired()) {
+					return outcome;
+				} else {
+					calloutFailed = true;
+				}
+			} else {
+				if(!processSuccesfulRequest()) {
+					return HttpCalloutOutcomes.BadResponse;
+				}
+			}
 		}
 		
-		doCleanupFailure();
-		return outcome;
+		//So either we didn't need our our HTTP callout or we succeeded. Either way, move on
+		//to the next step
+	
+		return doPostCalloutTask(calloutFailed);
 	}
 	
-	protected void doCleanupSuccess() {}
-	protected void doCleanupFailure() {}
+	protected boolean processSuccesfulRequest() {
+		return true;
+	}
 
 	/**
-	 * Set up any relevant parameters,
+	 * 
 	 * @return
 	 */
-	protected boolean doSetupTaskBeforeRequest() {
-		return false;
+	protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
+		return null;
 	}
 	
-	protected abstract HttpResponse doHttpRequest();
+	protected abstract HttpResponse doHttpRequest() throws ClientProtocolException, IOException;
 	
 	protected HttpCalloutOutcomes doResponseSuccess(HttpResponse response) throws IOException {
 		beginResponseHandling(response);
 		
 		InputStream input = cacheResponseOpenHandle(response);
 		
-		CommCareTransactionParserFactory factory = getTransactionParserFactory();
+		TransactionParserFactory factory = getTransactionParserFactory();
 		
 		//this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
-		SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
 		try {
-			db.beginTransaction();
-			DataModelPullParser parser = new DataModelPullParser(input, factory);
+			DataModelPullParser parser = new DataModelPullParser(input, factory, true, false);
 			parser.parse();
-			db.setTransactionSuccessful();
 			return HttpCalloutOutcomes.Success;
 			
 			//TODO: These are not great, long term
@@ -129,11 +145,11 @@ public abstract class HttpCalloutTask extends AsyncTask<Void, Integer, org.commc
 		} catch (UnfullfilledRequirementsException e) {
 			return HttpCalloutOutcomes.BadResponse;
 		} finally {
-			db.endTransaction();
+			
 		}
 	}
 	
-	protected abstract CommCareTransactionParserFactory getTransactionParserFactory();
+	protected abstract TransactionParserFactory getTransactionParserFactory();
 	
 	protected InputStream cacheResponseOpenHandle(HttpResponse response) throws IOException {
 		int dataSizeGuess = -1;
@@ -161,11 +177,16 @@ public abstract class HttpCalloutTask extends AsyncTask<Void, Integer, org.commc
 	}
 	
 	protected HttpCalloutOutcomes doResponseAuthFailed(HttpResponse response) {
-		return doResponseOther(response);
+		return HttpCalloutOutcomes.AuthFailed;
 	}
 	
 	protected abstract HttpCalloutOutcomes doResponseOther(HttpResponse response);
 	
-
+	
+	protected abstract boolean HttpCalloutNeeded();
+	
+	protected abstract boolean HttpCalloutRequired();
+	
+	protected abstract HttpCalloutOutcomes doPostCalloutTask(boolean httpFailed);
 	
 }

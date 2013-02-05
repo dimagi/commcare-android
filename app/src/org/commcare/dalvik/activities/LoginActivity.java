@@ -7,9 +7,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
@@ -17,6 +16,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
@@ -34,7 +34,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -70,7 +69,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 	
 	public static final int DIALOG_CHECKING_SERVER = 0;
 	
-	SqlIndexedStorageUtility<UserKeyRecord> storage;
+	SqlStorage<UserKeyRecord> storage;
 	
 	DataPullTask dataPuller;
 	
@@ -228,11 +227,13 @@ public class LoginActivity extends Activity implements DataPullListener {
     	
     private boolean tryLocalLogin(final boolean warnMultipleAccounts) {
     	try{
+    		
+    		final String username = getUsername();
 	    	String passwd = password.getText().toString();
 	    	UserKeyRecord matchingRecord = null;
 	    	int count = 0;
 	    	for(UserKeyRecord record : storage()) {
-	    		if(!record.getUsername().equals(getUsername())) {
+	    		if(!record.getUsername().equals(username)) {
 	    			continue;
 	    		}
 	    		count++;
@@ -257,43 +258,58 @@ public class LoginActivity extends Activity implements DataPullListener {
 	    	
 	    	final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
 	    	
-	    	if(matchingRecord == null) {
-	    		return false;
-	    	}
-	    	//TODO: Extract this
-			byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), passwd);
-			if(matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-				LegacyInstallUtils.transitionLegacyUserStorage(this, CommCareApplication._().getCurrentApp(), key, matchingRecord);
-			}
-			//TODO: See if it worked first?
+	    	if(matchingRecord != null) {
+	
+		    	//TODO: Extract this
+				byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), passwd);
+				if(matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
+					LegacyInstallUtils.transitionLegacyUserStorage(this, CommCareApplication._().getCurrentApp(), key, matchingRecord);
+				}
+				//TODO: See if it worked first?
+				
+				//We shouldn't need this anymore, right?
+				//CommCareApplication._().logIn(key, matchingRecord);
+				
+	    	} 
 			
-			CommCareApplication._().logIn(key, matchingRecord);
-			final String username = matchingRecord.getUsername();
-			new ManageKeyRecordTask(this, matchingRecord.getUsername(), passwd) {
+			new ManageKeyRecordTask(this, username, passwd, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
-				/* (non-Javadoc)
-				 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-				 */
 				@Override
-				protected void onPostExecute(HttpCalloutOutcomes result) {
-					super.onPostExecute(result);
-					if(this.proceed) {
-						
-						if(triggerTooManyUsers) {
-							//We've successfully pulled down new user data. 
-							//Should see if the user already has a sandbox and let them know that their old data doesn't transition
-							raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3]), true);
-							Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
-						}
-						
-						done();
-					} else {
-						//Need to fetch!
-						startOta();
+				public void keysLoginComplete() {
+					if(triggerTooManyUsers) {
+						//We've successfully pulled down new user data. 
+						//Should see if the user already has a sandbox and let them know that their old data doesn't transition
+						raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3]), true);
+						Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
+					}
+					done();
+				}
+
+				@Override
+				public void keysReadyForSync() {
+					//TODO: we only wanna do this on the _first_ try. Not subsequent ones (IE: On return from startOta)
+					startOta();
+				}
+
+				@Override
+				public void keysDoneOther(HttpCalloutOutcomes outcome) {
+					switch(outcome) {
+					case AuthFailed:
+						Logger.log(AndroidLogger.TYPE_USER, "auth failed");
+						break;
+					case BadResponse:
+						Logger.log(AndroidLogger.TYPE_USER, "bad response");
+						break;
+					case NetworkFailure:
+						Logger.log(AndroidLogger.TYPE_USER, "bad network");
+						break;
+					case UnkownError:
+						Logger.log(AndroidLogger.TYPE_USER, "unknown");
+						break;
 					}
 				}
 				
-			}.execute();
+			}).execute();
 			
 			return true;
     	}catch (Exception e) {
@@ -310,7 +326,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 		finish();
     }
     
-    private SqlIndexedStorageUtility<UserKeyRecord> storage() throws SessionUnavailableException{
+    private SqlStorage<UserKeyRecord> storage() throws SessionUnavailableException{
     	if(storage == null) {
     		storage=  CommCareApplication._().getAppStorage(UserKeyRecord.class);
     	}

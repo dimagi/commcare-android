@@ -101,10 +101,14 @@ public class CryptUtil {
 //		return bos.toByteArray();
 	}
 	
+	
 	public static byte[] wrapKey(SecretKey key, String password) {
+		return wrapKey(key.getEncoded(), password);
+	}
+	
+	public static byte[] wrapKey(byte[] secretKey, String password) {
 		try{
 			//SecretKeySpec spec = (SecretKeySpec)SecretKeyFactory.getInstance("AES").getKeySpec(key, javax.crypto.spec.SecretKeySpec.class);
-			byte[] secretKey = key.getEncoded();
 			byte[] encrypted = encrypt(secretKey, encodingCipher(password));
 			return encrypted;
 		}catch (InvalidKeySpecException e) {
@@ -172,12 +176,12 @@ public class CryptUtil {
 		return null;
 	}
 	
-	public static byte[] generateSemiRandomKey() {
+	public static SecretKey generateSemiRandomKey() {
 		KeyGenerator generator;
 		try {
 			generator = KeyGenerator.getInstance("AES");
 			generator.init(256, new SecureRandom());
-			return generator.generateKey().getEncoded();
+			return generator.generateKey();
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
