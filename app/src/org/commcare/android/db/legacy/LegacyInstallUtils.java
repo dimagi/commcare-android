@@ -22,13 +22,13 @@ import javax.crypto.spec.SecretKeySpec;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.CipherPool;
-import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
@@ -44,7 +44,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
@@ -435,7 +434,7 @@ public class LegacyInstallUtils {
 			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Old keys look good! Creating new DB");
 			
 			//If we were able to iterate over the users, the key was fine, so let's use it to open our db
-			final SQLiteDatabase currentUserDatabase = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(CommCareSessionService.getKeyVal(oldKey));
+			final SQLiteDatabase currentUserDatabase = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
 			DbHelper newDbHelper = new DbHelper(c) {
 				@Override
 				public SQLiteDatabase getHandle() {

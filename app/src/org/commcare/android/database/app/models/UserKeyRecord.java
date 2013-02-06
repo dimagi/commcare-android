@@ -32,6 +32,8 @@ public class UserKeyRecord extends Persisted {
 	public static final int TYPE_LEGACY_TRANSITION = 2;
 	/** This is a new record that hasn't been evaluated for usage yet **/
 	public static final int TYPE_NEW = 3;
+	/** This is a new record that hasn't been evaluated for usage yet **/
+	public static final int TYPE_PENDING_DELETE = 4;
 	
 	@Persisting(1)
 	@MetaField(META_USERNAME)

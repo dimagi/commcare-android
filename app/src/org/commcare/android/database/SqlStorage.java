@@ -248,9 +248,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
 	 */
-	public Object getAccessLock() {
-		// TODO Auto-generated method stub
-		return null;
+	public SQLiteDatabase getAccessLock() {
+		return helper.getHandle();
 	}
 
 	/* (non-Javadoc)

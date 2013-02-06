@@ -43,8 +43,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 
-@Table("log_records")
+@Table(DeviceReportRecord.STORAGE_KEY)
 public class DeviceReportRecord extends Persisted implements EncryptedModel{
+	
+	public static final String STORAGE_KEY = "log_records";
 
 	@Persisting(1)
 	private String fileName;

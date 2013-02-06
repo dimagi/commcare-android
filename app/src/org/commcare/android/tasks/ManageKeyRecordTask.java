@@ -10,8 +10,10 @@ import java.util.NoSuchElementException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -196,8 +198,11 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 					record.setType(UserKeyRecord.TYPE_NORMAL);
 					storage.write(record);
 				}
+			} else if (record.getType() == UserKeyRecord.TYPE_PENDING_DELETE) {
+				//TODO: See whether there are any other sandboxes with this id. If so, just delete the entry.
+				//If not, wipe all of the relevant data, _then_ delete the entry
+				//TODO: HOW? We need the key, right?
 			}
-			//TODO: Look for derelict entries and expire them?
 			//TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
 		}
 		} catch(StorageFullException sfe) {
@@ -321,15 +326,17 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		if(current.getType() != UserKeyRecord.TYPE_NORMAL) {
 			if(current.getType() == UserKeyRecord.TYPE_NEW) {
 				//See if we can migrate an old sandbox's data to the new sandbox.
-				lookForAndMigrateOldSandbox(current);
+				if(!lookForAndMigrateOldSandbox(current)) {
+					//Problem during migration! We should try again? Maybe?
+					//Or just leave the old one?
+					
+					//For now, fail.
+					return HttpCalloutTask.HttpCalloutOutcomes.UnkownError;
+				}
 			} else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
 				//Transition the legacy storage to the new format. We don't have a new record, so don't 
 				//worry
-				try {
-					LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
-				} catch (StorageFullException e) {
-					throw new RuntimeException(e);
-				}
+				LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
 			}
 		}
 		
@@ -351,8 +358,8 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		return HttpCalloutTask.HttpCalloutOutcomes.Success;
 	}
 
-	private void lookForAndMigrateOldSandbox(UserKeyRecord newRecord) {
-		try{
+	//TODO: This can be its own method/process somewhere
+	private boolean lookForAndMigrateOldSandbox(UserKeyRecord newRecord) {
 		//So we have a new record here. We want to look through our old records now and see if we can
 		//(A) Migrate over any of their old data to this new sandbox.
 		//(B) Wipe that old record once the migrated record is completed (and see if we should wipe the 
@@ -387,25 +394,29 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		if(oldSandboxToMigrate == null) {
 			newRecord.setType(UserKeyRecord.TYPE_NORMAL);
 			storage.write(newRecord);
-			return;
+			//No worries
+			return true;
 		}
 		
 		//Otherwise we should start migrating that data over.
+		byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
+		
 		
 		//First see if the old sandbox is legacy and needs to be transfered over.
 		if(oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
 			//transition the old storage into the new format before we copy the DB over.
-			LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), oldSandboxToMigrate.unWrapKey(password), oldSandboxToMigrate);
+			LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), oldKey, oldSandboxToMigrate);
 		}
 
-		
-		//Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
-		
-		
-		
-		
-		} catch(StorageFullException sfe) {
-			throw new RuntimeException(sfe);
+		//TODO: Ok, so what error handling do we need here? 
+		try {
+			//Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
+			UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord, CryptUtil.unWrapKey(newRecord.getEncryptedKey(), password));
+			return true;
+		} catch(IOException ioe) {
+			ioe.printStackTrace();
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
+			return false;
 		}
 	}
 

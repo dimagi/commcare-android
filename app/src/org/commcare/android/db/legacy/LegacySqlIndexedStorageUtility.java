@@ -241,7 +241,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
 	 */
-	public Object getAccessLock() {
+	public net.sqlcipher.database.SQLiteDatabase getAccessLock() {
 		// TODO Auto-generated method stub
 		return null;
 	}

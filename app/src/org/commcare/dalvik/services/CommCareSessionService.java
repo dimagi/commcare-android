@@ -20,6 +20,7 @@ import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataPullTask;
@@ -247,20 +248,6 @@ public class CommCareSessionService extends Service  {
 		}
 	}
 
-
-	public static String getKeyVal(byte[] bytes) {
-		String hexString = "x\"";
-		for (int i = 0; i < bytes.length; i++) {
-		    String hexDigits = Integer.toHexString(0xFF & bytes[i]).toUpperCase();
-		    while(hexDigits.length() < 2) { 
-		    	hexDigits = "0" + hexDigits;
-		    }
-		    hexString += hexDigits; 
-		}
-		hexString = hexString + "\"";
-		return hexString;
-	}
-	
 	public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
 		synchronized(lock){
 			this.key = symetricKey;
@@ -268,7 +255,7 @@ public class CommCareSessionService extends Service  {
         	if(userDatabase != null && userDatabase.isOpen()) {
         		userDatabase.close();
         	}
-	        userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(getKeyVal(key));
+	        userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
 		}
 	}
     
