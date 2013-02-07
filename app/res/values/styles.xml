@@ -43,6 +43,11 @@
        <item name="android:textSize">10dp</item> 
    </style>
    
+   <style name = "WarningTextStyle">
+       <item name ="android:textStyle">bold</item>
+       <item name ="android:textColor">#FFFFFF</item>
+   </style>
+   
    <dimen name="interactive_font_size">20sp</dimen>
    
    <color name="solid_black">#000</color>

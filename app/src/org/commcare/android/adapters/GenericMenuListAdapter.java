@@ -167,7 +167,7 @@ public class GenericMenuListAdapter implements ListAdapter {
 	public View getView(int i, View v, ViewGroup vg) {
 		Object mObject = objectData[i];
 		TextImageAudioView emv = (TextImageAudioView)v;
-		TextView mQuestionText = textViewHelper(mObject);
+		String mQuestionText = textViewHelper(mObject);
 		if(emv == null) {
 			emv = new TextImageAudioView(context);
 		}
@@ -200,19 +200,19 @@ public class GenericMenuListAdapter implements ListAdapter {
 	/*
 	 * Helper to build the TextView for the TextImageAudioView constructor
 	 */
-	public TextView textViewHelper(Object e){
-		TextView mQuestionText = new TextView(context);
+	public String textViewHelper(Object e){
+		String displayText;
 		if(e instanceof Menu){
-			mQuestionText.setText((CharSequence) ((Menu)e).getName().evaluate());
+			displayText = ((Menu)e).getName().evaluate();
 		}
 		else{
-			mQuestionText.setText((CharSequence) ((Entry)e).getText().evaluate());
+			displayText = ((Entry)e).getText().evaluate();
 		}
-	    mQuestionText.setTypeface(null, Typeface.NORMAL);
-	    mQuestionText.setPadding(0, 0, 0, 7);
-	    mQuestionText.setId((int)Math.random()*100000000); // assign random id
-	    mQuestionText.setHorizontallyScrolling(false);
-	    return mQuestionText;
+	    //mQuestionText.setTypeface(null, Typeface.NORMAL);
+	    //mQuestionText.setPadding(0, 0, 0, 7);
+	    //mQuestionText.setId((int)Math.random()*100000000); // assign random id
+	    //mQuestionText.setHorizontallyScrolling(false);
+	    return displayText;
 	}
 
 	/* (non-Javadoc)

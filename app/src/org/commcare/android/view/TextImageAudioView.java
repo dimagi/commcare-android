@@ -20,6 +20,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -40,7 +41,7 @@ import android.widget.RelativeLayout.LayoutParams;
 public class TextImageAudioView extends RelativeLayout {
     private static final String t = "AVTLayout";
 
-    private TextView mView_Text;
+    private TextView mTextView;
     private AudioButton mAudioButton;
     private ImageView mImageView;
     private TextView mMissingImage;
@@ -50,19 +51,24 @@ public class TextImageAudioView extends RelativeLayout {
 
     public TextImageAudioView(Context c) {
         super(c);
-        mView_Text = null;
+        mTextView = null;
         mAudioButton = null;
         mImageView = null;
         mMissingImage = null;
     }
-
-
-    public void setAVT(TextView text, String audioURI, String imageURI) {
+    
+    //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
+    public void setAVT(String displayText, String audioURI, String imageURI) {
     	this.removeAllViews();
-        mView_Text = text;
-        mView_Text.setTextSize(fontSize);
-        mView_Text.setPadding(20, 15, 15, 20);
-
+    	
+        String mDisplayText = displayText;
+        
+        LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        
+        mTextView = (TextView)inflater.inflate(R.layout.entity_item_text, null);
+        
+        mTextView.setText(displayText);
+        
         // Layout configurations for our elements in the relative layout
         RelativeLayout.LayoutParams textParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -143,22 +149,20 @@ public class TextImageAudioView extends RelativeLayout {
             }
         }
         
-        boolean textVisible = (text.getVisibility() != GONE);
-        if (textVisible) {
-        	textParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        	textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        	if(imageURI != null && !imageURI.equals("") && mImageView != null){
-        		textParams.addRule(RelativeLayout.RIGHT_OF,mImageView.getId());
-        	}
-        	else{
-        		textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        	}
-        	
-        	if(mAudioButton != null) {
-        		textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
-        	}
-            addView(text, textParams);
+        textParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        if(imageURI != null && !imageURI.equals("") && mImageView != null){
+        	textParams.addRule(RelativeLayout.RIGHT_OF,mImageView.getId());
         }
+        else{
+        	textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        }
+        	
+        if(mAudioButton != null) {
+        	textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+        }
+        addView(mTextView, textParams);
+        System.out.println("116 exiting setAVT");
     }
 
 
@@ -177,9 +181,9 @@ public class TextImageAudioView extends RelativeLayout {
         }
         else if (mAudioButton != null) {
             dividerParams.addRule(RelativeLayout.BELOW, mAudioButton.getId());
-        } else if (mView_Text != null) {
+        } else if (mTextView != null) {
             // No picture
-            dividerParams.addRule(RelativeLayout.BELOW, mView_Text.getId());
+            dividerParams.addRule(RelativeLayout.BELOW, mTextView.getId());
         } else {
             Log.e(t, "Tried to add divider to uninitialized ATVWidget");
             return;

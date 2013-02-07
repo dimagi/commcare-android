@@ -37,6 +37,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xpath.XPathParseTool;
@@ -1084,7 +1085,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     		viewIncomplete.setText(Localization.get("home.forms.incomplete"));
     	}
     	
-    	if(syncDetails.second[0] > unsentFormNumberLimit){
+    	if(syncDetails.second[0] > unsentFormNumberLimit && (prefs.getString("server-tether","push-only")=="sync")){
     		syncOK = false;
     	}
     	
@@ -1265,6 +1266,5 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	
     	   return Settings.System.getInt(getApplicationContext().getContentResolver(),
     	           Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-
-    	}
+    }
 }

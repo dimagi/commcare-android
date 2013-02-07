@@ -74,6 +74,7 @@ public class EntityView extends LinearLayout {
 	}
 	
 	private View getView(Context context, String text, String form) {
+		System.out.println("116: Get Entity View");
 		View retVal;
         if("image".equals(form)) {
         	ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
