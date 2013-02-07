@@ -25,6 +25,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.javarosa.core.services.Logger;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -183,6 +184,79 @@ public class UserSandboxUtils {
 		}
 		hexString = hexString + "\"";
 		return hexString;
+	}
+
+
+	public static void purgeSandbox(Context context, CommCareApp app, UserKeyRecord sandbox, byte[] key) {
+		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Wiping sandbox " + sandbox.getUuid());
+		
+		//Ok, three steps here. Wipe files out, wipe database, remove key record
+		
+		//If the db is gone already, just remove the record and move on (something odd has happened)
+		if(!context.getDatabasePath(CommCareUserOpenHelper.getDbName(sandbox.getUuid())).exists()) {
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Sandbox " + sandbox.getUuid() + " has already been purged. removing the record");
+			
+			SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
+			ukr.remove(sandbox);
+		}
+		
+		final SQLiteDatabase db = new CommCareUserOpenHelper(CommCareApplication._(), sandbox.getUuid()).getWritableDatabase(getSqlCipherEncodedKey(key));
+		
+		try {
+			DbHelper dbh = new DbHelper(context) {
+				@Override
+				public SQLiteDatabase getHandle() {
+					return db;
+				}
+			};
+			
+			SqlStorage<DeviceReportRecord> reports = new SqlStorage<DeviceReportRecord>(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class, dbh);
+			
+			//Log records
+			for(DeviceReportRecord r : reports) {
+				File oldPath = new File(r.getFilePath());
+				if(oldPath.exists()) {
+					FileUtil.deleteFile(oldPath);
+				}
+			}
+			
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Device Report files removed");
+			
+			//Form records are sadly a bit more complex. We need to both move all of the files, 
+			//insert a new record in the content provider, and then update the form record.
+			SqlStorage<FormRecord> formRecords = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, dbh);
+			for(FormRecord record : formRecords) {
+				Uri formUri = record.getInstanceURI();
+				if(formUri == null) { continue; }
+				Cursor c = context.getContentResolver().query(formUri, new String[] {InstanceColumns._ID}, null, null, null);
+				try {
+					//See if the record is still here
+					if(c.moveToFirst()) {
+						//If so, just grab the ID and delete this record (it'll take the files with it)
+						long id = c.getLong(0);
+						context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
+					}
+				} finally {
+					c.close();
+				}
+			}
+			
+		} finally {
+			db.close();
+		}
+		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "All files removed for sandbox. Deleting DB");
+		
+		context.getDatabasePath(CommCareUserOpenHelper.getDbName(sandbox.getUuid())).delete();
+		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Database is gone. Get rid of this record");
+		
+		//OK! So we should be all set, here. Mark the new sandbox as ready and the old sandbox as ready for cleanup.
+		SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
+		ukr.remove(sandbox);
+		
+		Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Purge complete");
 	}
 	
 }

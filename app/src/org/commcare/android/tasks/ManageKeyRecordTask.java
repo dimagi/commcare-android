@@ -204,10 +204,22 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 					storage.write(record);
 				}
 			} else if (record.getType() == UserKeyRecord.TYPE_PENDING_DELETE) {
-				//TODO: See whether there are any other sandboxes with this id. If so, just delete the entry.
-				//If not, wipe all of the relevant data, _then_ delete the entry
-				//TODO: HOW? We need the key, right?
 				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
+				
+				//See if there are more records in this sandbox. (If so, we can just wipe this record and move on) 
+				if(storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, record.getUuid()).size() > 2) {
+					Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + record.getUuid() + " has siblings. Removing record");
+					
+					//TODO: Will this invalidate our iterator?
+					storage.remove(record);
+				} else {
+					//Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
+					if(record.isPasswordValid(password)) {
+						Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + record.getUuid() + ". Wiping that sandbox");
+						UserSandboxUtils.purgeSandbox(this.getContext(), app, record,record.unWrapKey(password));
+					}
+					//Do we do anything here if we couldn't open the sandbox?
+				}
 			}
 			//TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
 		}
