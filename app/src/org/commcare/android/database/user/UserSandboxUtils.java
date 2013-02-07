@@ -78,19 +78,6 @@ public class UserSandboxUtils {
 					return db;
 				}
 			};
-	
-			Cipher incoming;
-			Cipher outgoing;
-			try {
-				//For moving around files
-				incoming = CryptUtil.getAesKeyCipher(unwrappedOldKey, Cipher.DECRYPT_MODE);
-				outgoing = CryptUtil.getAesKeyCipher(unwrappedNewKey, Cipher.DECRYPT_MODE);
-			} catch(GeneralSecurityException gse) {
-				gse.printStackTrace();
-				//if we got this far with messed up keys we have much bigger problems.
-				Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Crypto error during sandbox migration");
-				throw new RuntimeException(gse);
-			}
 			
 			//TODO: At some point we should really just encode the existence/operations on files in the record models themselves
 			//Models with Files: Form Record. Log Record
@@ -102,7 +89,7 @@ public class UserSandboxUtils {
 				File newPath = FileUtil.getNewFileLocation(oldPath, newSandbox.getUuid(), true);
 				
 				//Copy to a new location while re-encrypting
-				FileUtil.copyFile(oldPath, newPath, incoming, outgoing);
+				FileUtil.copyFile(oldPath, newPath);
 			}
 			
 			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Copied over all of the device reports. Moving on to the form records");
@@ -119,11 +106,12 @@ public class UserSandboxUtils {
 				if(instanceURI == null) { continue; }
 				
 				ContentValues values = new ContentValues();
-				File oldFolder;
+				File oldForm;
 				{
 					
 					//otherwise read and prepare the record
-					Cursor oldRecord = cr.query(instanceURI, null, null, null, null);
+					Cursor oldRecord = cr.query(instanceURI, new String[] {InstanceColumns.INSTANCE_FILE_PATH, InstanceColumns.DISPLAY_NAME, InstanceColumns.SUBMISSION_URI, InstanceColumns.JR_FORM_ID, InstanceColumns.STATUS, InstanceColumns.CAN_EDIT_WHEN_COMPLETE,InstanceColumns.LAST_STATUS_CHANGE_DATE,  InstanceColumns.DISPLAY_SUBTEXT}, null, null, null);
+					if(!oldRecord.moveToFirst()) { throw new IOException("Non existant form record at URI " + instanceURI.toString()); }
 					
 					values.put(InstanceColumns.DISPLAY_NAME, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.DISPLAY_NAME)));
 					values.put(InstanceColumns.SUBMISSION_URI, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.SUBMISSION_URI)));
@@ -136,25 +124,27 @@ public class UserSandboxUtils {
 					
 					//Copy over the other metadata
 					
-					oldFolder = new File(oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH)));
+					oldForm = new File(oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH)));
 					
 					oldRecord.close();
 				}
 				
+				File oldFolder = oldForm.getParentFile();
+				
 				//find a new spot for it
 				File newFolder = FileUtil.getNewFileLocation(oldFolder, newSandbox.getUuid(), true);
 				
-				//Create the new folder
-				newFolder.mkdir();
+				FileUtil.copyFileDeep(oldFolder, newFolder);
 				
-				//Start copying over files
-				for(File oldFile : oldFolder.listFiles()) {
-					File newFile = new File(newFolder.getPath() + File.separator + oldFile.getName());
-					FileUtil.copyFile(oldFile, newFile, incoming, outgoing);
+				File newfileToWrite = null;
+				for(File f : newFolder.listFiles()) {
+					if(f.getName().equals(oldForm.getName())) {
+						newfileToWrite = f;
+					}
 				}
 				
 				//ok, new directory totally ready. Create a new instanceURI
-				values.put(InstanceColumns.INSTANCE_FILE_PATH, newFolder.getAbsolutePath());
+				values.put(InstanceColumns.INSTANCE_FILE_PATH, newfileToWrite.getAbsolutePath());
 				Uri newUri = cr.insert(InstanceColumns.CONTENT_URI, values);
 				record = record.updateStatus(newUri.toString(), record.getStatus());
 				formRecords.write(record);

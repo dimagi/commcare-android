@@ -20,6 +20,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.database.DbHelper;
@@ -59,6 +60,8 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
 import android.util.Pair;
 
 /**
@@ -304,7 +307,7 @@ public class LegacyInstallUtils {
 			//There's not specific reason to thing this might happen, but might be valuable to double check
 			if(newUserKeyRecords.getIDsForValue(UserKeyRecord.META_USERNAME, u.getUsername()).size() == 0) {
 				String sandboxId = PropertyUtils.genUUID().replace("-", ""); 
-				UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPassword(), u.getWrappedKey(), new Date(), new Date(Long.MAX_VALUE), sandboxId, UserKeyRecord.TYPE_LEGACY_TRANSITION);
+				UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPassword(), u.getWrappedKey(), new Date(), new Date(), sandboxId, UserKeyRecord.TYPE_LEGACY_TRANSITION);
 				newUserKeyRecords.write(ukr);
 			}
 		}
@@ -328,7 +331,7 @@ public class LegacyInstallUtils {
 			for(UserKeyRecord ukr : newUserKeyRecords.getRecordsForValues(new String[]{UserKeyRecord.META_USERNAME}, new String[]{preferred.getUsername()})) {
 				if(ukr.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
 					try {
-						transitionLegacyUserStorage(c, app, generateOldTestKey().getEncoded(), ukr );
+						transitionLegacyUserStorage(c, app, generateOldTestKey(c).getEncoded(), ukr );
 					} catch(RuntimeException re){
 						//expected if they used a real key
 						re.printStackTrace();
@@ -342,7 +345,7 @@ public class LegacyInstallUtils {
 			if(ukr.getUsername().equals(toSkip)) {continue;}
 			if(ukr.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
 				try {
-					transitionLegacyUserStorage(c, app, generateOldTestKey().getEncoded(), ukr );
+					transitionLegacyUserStorage(c, app, generateOldTestKey(c).getEncoded(), ukr );
 				} catch(RuntimeException re){
 					//expected if they used a real key
 					re.printStackTrace();
@@ -418,6 +421,7 @@ public class LegacyInstallUtils {
 			
 			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Testing keys by attempting to open storage");
 			
+			//TODO: This doesn't work. 
 			LegacySqlIndexedStorageUtility<User> legacyUserStorage = new LegacySqlIndexedStorageUtility<User>("User", User.class, ldbh);
 			try {
 				//Test to see if the old db worked
@@ -433,8 +437,19 @@ public class LegacyInstallUtils {
 			
 			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Old keys look good! Creating new DB");
 			
+			SQLiteDatabase ourDb;
 			//If we were able to iterate over the users, the key was fine, so let's use it to open our db
-			final SQLiteDatabase currentUserDatabase = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+			try {
+				ourDb = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+			} catch(SQLiteException sle) {
+				//Our database got corrupted. Fortunately this represents a new record, so we can't actually need it.
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Attempted migrated database got corrupted. Deleting it and starting over");
+				c.getDatabasePath(CommCareUserOpenHelper.getDbName(ukr.getUuid())).delete();
+				ourDb = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+			}
+			
+			final SQLiteDatabase currentUserDatabase = ourDb;
+			
 			DbHelper newDbHelper = new DbHelper(c) {
 				@Override
 				public SQLiteDatabase getHandle() {
@@ -575,17 +590,26 @@ public class LegacyInstallUtils {
 		public T transform(T t);
 	}
 
-	private static SecretKeySpec generateOldTestKey() {
+	private static SecretKeySpec generateOldTestKey(Context c) {
 		KeyGenerator generator;
 		try {
 			generator = KeyGenerator.getInstance("AES");
-			generator.init(256, new SecureRandom(CommCareApplication._().getPhoneId().getBytes()));
+			generator.init(256, new SecureRandom(getPhoneIdOld(c).getBytes()));
 			return new SecretKeySpec(generator.generateKey().getEncoded(), "AES");
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static String getPhoneIdOld(Context c) {
+		TelephonyManager manager = (TelephonyManager)c.getSystemService(c.TELEPHONY_SERVICE);
+		String imei = manager.getDeviceId();
+		if(imei == null) {
+			imei = Secure.ANDROID_ID;
+		}
+		return imei;
 	}
 	
 }

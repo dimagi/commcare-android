@@ -258,20 +258,6 @@ public class LoginActivity extends Activity implements DataPullListener {
 	    	
 	    	final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
 	    	
-	    	if(matchingRecord != null) {
-	
-		    	//TODO: Extract this
-				byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), passwd);
-				if(matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-					LegacyInstallUtils.transitionLegacyUserStorage(this, CommCareApplication._().getCurrentApp(), key, matchingRecord);
-				}
-				//TODO: See if it worked first?
-				
-				//We shouldn't need this anymore, right?
-				//CommCareApplication._().logIn(key, matchingRecord);
-				
-	    	} 
-			
 			new ManageKeyRecordTask(this, username, passwd, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
 				@Override

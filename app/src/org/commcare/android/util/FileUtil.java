@@ -187,7 +187,7 @@ public class FileUtil {
 	            	os = new CipherOutputStream(os, newWrite);
 	            }
 	            
-            	StreamsUtil.writeFromInputToOutput(is, os);
+	            AndroidStreamUtil.writeFromInputToOutput(is, os);
             } finally {
             	try{
             		if(is != null) {
@@ -236,11 +236,28 @@ public class FileUtil {
 	    	File newLocation = new File(f.getParent() + File.separator + name);
 	    	if(newLocation.exists()) {
 	    		if(removeExisting) {
-	    			newLocation.delete();
+	    			deleteFile(newLocation);
 	    		} else {
 	    			return getNewFileLocation(newLocation, null, removeExisting);
 	    		}
 	    	}
 	    	return newLocation;
 	    }
+
+		public static void copyFileDeep(File oldFolder, File newFolder) throws IOException {
+			//Create the new folder
+			newFolder.mkdir();
+			
+			if(oldFolder.listFiles() != null) {
+				//Start copying over files
+				for(File oldFile : oldFolder.listFiles()) {
+					File newFile = new File(newFolder.getPath() + File.separator + oldFile.getName());
+					if(oldFile.isDirectory()) {
+						copyFileDeep(oldFile, newFile);
+					} else {
+						FileUtil.copyFile(oldFile, newFile);
+					}
+				}
+			}
+		}
 }

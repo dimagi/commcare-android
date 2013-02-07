@@ -183,8 +183,11 @@ public class UserKeyRecord extends Persisted {
 	}
 	
 	public boolean isCurrentlyValid() {
-		Date today = new Date();
-		if(validFrom.before(today) && validTo == null || validTo.after(today)) {
+		//currentTimeMillis is UTC
+		Date today = new Date(System.currentTimeMillis());
+		
+		//Our validity dates are all in UTC
+		if(validFrom.before(today) && (validTo == null || (validTo.getTime() != Long.MAX_VALUE && validTo.after(today)))) {
 			return true;
 		}
 		return false;

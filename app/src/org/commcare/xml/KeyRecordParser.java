@@ -14,6 +14,7 @@ import org.commcare.android.util.Base64DecoderException;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.joda.time.format.ISODateTimeFormat;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -78,4 +79,10 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
 		commit(keyRecords);
 		return keyRecords;
 	}
+	
+	
+	protected Date parseDateTime(String dateValue) {
+		return ISODateTimeFormat.dateTimeNoMillis().parseDateTime(dateValue).toDate();
+	}
+
 }

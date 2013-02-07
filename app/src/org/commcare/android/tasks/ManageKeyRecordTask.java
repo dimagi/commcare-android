@@ -148,7 +148,7 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 			hasRecord = true;
 			
 			//ok, now check whether this record is fully valid, or we need to look for an update
-			if(ukr.getValidFrom().before(now) && (ukr.getValidTo() == null || ukr.getValidTo().after(now))) {
+			if(ukr.isCurrentlyValid()) {
 				valid = ukr;
 			}
 		}
@@ -160,7 +160,11 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		//If we don't have any records, we need to do a callout
 		calloutRequired = !hasRecord;
 		
-		calloutNeeded = calloutRequired || valid == null; 
+		calloutNeeded = (calloutRequired || valid == null) && keyServerUrl != null; 
+		
+		if(calloutNeeded) {
+			Logger.log(AndroidLogger.TYPE_USER, "Performing key record callout." + (calloutRequired ? " Success is required for login" : ""));
+		}
 		
 		return null;
 	}
@@ -175,6 +179,7 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		//which shares the sandbox ID, we can set the status of the new record to be
 		//the same as the old record.
 		
+		//TODO: We dont' need to read these records, we can read the metadata straight.
 		SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
 		for(UserKeyRecord record : storage) {
 			if(record.getType() == UserKeyRecord.TYPE_NORMAL) {
@@ -202,6 +207,7 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 				//TODO: See whether there are any other sandboxes with this id. If so, just delete the entry.
 				//If not, wipe all of the relevant data, _then_ delete the entry
 				//TODO: HOW? We need the key, right?
+				Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
 			}
 			//TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
 		}
@@ -314,7 +320,7 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		cleanupUserKeyRecords();
 		
 		//Now identify the current record (If we didn't get one, something bad happened)
-		UserKeyRecord current = getCurrentValidRecord(app, username, password, calloutFailed);
+		UserKeyRecord current = getCurrentValidRecord(app, username, password, !HttpCalloutNeeded() || (calloutFailed && !HttpCalloutRequired()));
 		
 		if(current == null)  {
 			//TODO: What is this failure mode
@@ -336,7 +342,17 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 			} else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
 				//Transition the legacy storage to the new format. We don't have a new record, so don't 
 				//worry
-				LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
+				try {
+					LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
+				} catch(Exception e) {
+					e.printStackTrace();
+					//Ugh, high level trap catch
+					//Problem during migration! We should try again? Maybe?
+					//Or just leave the old one?
+					Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
+					//For now, fail.
+					return HttpCalloutTask.HttpCalloutOutcomes.UnkownError;
+				}
 			}
 		}
 		

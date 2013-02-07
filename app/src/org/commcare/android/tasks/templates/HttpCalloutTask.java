@@ -12,6 +12,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
@@ -20,6 +21,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.services.Logger;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
@@ -139,10 +141,16 @@ public abstract class HttpCalloutTask extends AsyncTask<Void, Integer, org.commc
 			
 			//TODO: These are not great, long term
 		} catch(InvalidStructureException ise) {
+			ise.printStackTrace();
+			Logger.log(AndroidLogger.TYPE_USER, "Invalid response for auth keys: " + ise.getMessage());
 			return HttpCalloutOutcomes.BadResponse;
 		} catch (XmlPullParserException e) {
+			e.printStackTrace();
+			Logger.log(AndroidLogger.TYPE_USER, "Invalid xml response for auth keys: " + e.getMessage());
 			return HttpCalloutOutcomes.BadResponse;
 		} catch (UnfullfilledRequirementsException e) {
+			e.printStackTrace();
+			Logger.log(AndroidLogger.TYPE_USER, "Missing requirements when fetching auth keys: " + e.getMessage());
 			return HttpCalloutOutcomes.BadResponse;
 		} finally {
 			
