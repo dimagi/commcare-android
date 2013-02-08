@@ -5,6 +5,7 @@ package org.commcare.dalvik.activities;
 
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -22,6 +23,7 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
+@ManagedUi(R.layout.screen_permission_request)
 public class KeyAccessRequestActivity extends CommCareActivity {
 	
 	@UiElement(value = R.id.screen_permission_grant_text_message, locale="app.key.request.message")
@@ -85,10 +87,4 @@ public class KeyAccessRequestActivity extends CommCareActivity {
 		// TODO Auto-generated method stub
 		super.onResume();
 	}
-
-	@Override
-	protected int getContentView() {
-		return R.layout.screen_permission_request;
-	}
-	
 }

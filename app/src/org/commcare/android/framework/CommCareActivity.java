@@ -5,13 +5,11 @@ package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
 
-import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -28,10 +26,10 @@ public abstract class CommCareActivity extends Activity {
 		//TODO: We can really handle much of this framework without needing to 
 		//be a superclass.
 		super.onCreate(savedInstanceState);
-		
-		this.setContentView(getContentView());
-		
-		loadFields();
+		if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
+			this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
+			loadFields();
+		}
 	}
 	
 	private void loadFields() {
@@ -65,6 +63,29 @@ public abstract class CommCareActivity extends Activity {
 		}
 	}
 	
-	protected abstract int getContentView();
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onDestroy()
+	 */
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onRetainNonConfigurationInstance()
+	 */
+	@Override
+	public final Object onRetainNonConfigurationInstance() {
+		return this;
+	}
+	
 }

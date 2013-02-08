@@ -108,6 +108,7 @@ public class CommCareApp {
 	public boolean initializeApplication() {
 		setupSandbox();
 
+		this.getAppPreferences().edit().putString("key_server", "http://staging.commcarehq.org/a/corpora/phone/keys/").commit();
 		ResourceTable global = platform.getGlobalResourceTable();
 		
 		//TODO: This, but better.

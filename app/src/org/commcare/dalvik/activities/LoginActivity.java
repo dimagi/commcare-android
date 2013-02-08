@@ -6,10 +6,11 @@ package org.commcare.dalvik.activities;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
-import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.db.legacy.LegacyInstallUtils;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -47,7 +48,8 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class LoginActivity extends Activity implements DataPullListener {
+@ManagedUi(R.layout.screen_login)
+public class LoginActivity extends CommCareActivity implements DataPullListener {
 	
 	public static String ALREADY_LOGGED_IN = "la_loggedin";
 	
@@ -55,16 +57,26 @@ public class LoginActivity extends Activity implements DataPullListener {
 	
 	private static LoginActivity currentActivity;
 	
+	@UiElement(value=R.id.login_button, locale="login.button")
 	Button login;
 	
+	@UiElement(value=R.id.text_username, locale="login.username")
 	TextView userLabel;
+	@UiElement(value=R.id.text_password, locale="login.password")
 	TextView passLabel;
+	@UiElement(R.id.screen_login_bad_password)
 	TextView errorBox;
 	
+	@UiElement(R.id.edit_username)
 	EditText username;
+	
+	@UiElement(R.id.edit_password)
 	EditText password;
+	
+	@UiElement(R.id.screen_login_banner_pane)
 	View banner;
 	
+	@UiElement(R.id.str_version)
 	TextView versionDisplay;
 	
 	public static final int DIALOG_CHECKING_SERVER = 0;
@@ -79,22 +91,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         super.onCreate(savedInstanceState);
         
         currentActivity = this;
-        
-        setContentView(R.layout.screen_login);
-        
-        login = (Button)findViewById(R.id.login_button);
-        
-        userLabel = (TextView)findViewById(R.id.text_username);
-        
-        passLabel = (TextView)findViewById(R.id.text_password);
-        
-        username = (EditText)findViewById(R.id.edit_username);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        
-        password = (EditText)findViewById(R.id.edit_password);
-        
-        banner = findViewById(R.id.screen_login_banner_pane);
-        errorBox = (TextView)this.findViewById(R.id.screen_login_bad_password);
 
         try{
         	setTitle(getString(R.string.application_name) + " > " + Localization.get("app.display.name"));
@@ -129,7 +126,6 @@ public class LoginActivity extends Activity implements DataPullListener {
 			}
         });
         
-        versionDisplay = (TextView)findViewById(R.id.str_version);
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
         
         
@@ -176,14 +172,6 @@ public class LoginActivity extends Activity implements DataPullListener {
 		dataPuller.execute();
 	}
 
-    /* (non-Javadoc)
-	 * @see android.app.Activity#onRetainNonConfigurationInstance()
-	 */
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		return this;
-	}
-
 	/*
      * (non-Javadoc)
      * 
@@ -212,9 +200,6 @@ public class LoginActivity extends Activity implements DataPullListener {
     }
     
     private void refreshView() {
-    	userLabel.setText(Localization.get("login.username"));
-    	passLabel.setText(Localization.get("login.password"));
-    	login.setText(Localization.get("login.button"));
     }
     
     private String getUsername() {
