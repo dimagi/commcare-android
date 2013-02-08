@@ -86,7 +86,7 @@
 		
     	<!-- copy CCODK versions (to ensure compatibility) -->
 		<copy todir="${odk.libs}" overwrite="true">
-			<fileset dir="libs" includes="*.jar"/>
+			<fileset dir="libs"/>
 		</copy>
 	</target>
 	
