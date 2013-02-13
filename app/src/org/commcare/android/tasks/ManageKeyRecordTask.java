@@ -18,6 +18,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.HttpCalloutTask;
+import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
@@ -26,6 +27,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.KeyRecordParser;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 
@@ -46,7 +48,7 @@ import android.content.Context;
  * @author ctsims
  *
  */
-public class ManageKeyRecordTask extends HttpCalloutTask {
+public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 	String username; 
 	String password;
 	
@@ -56,14 +58,14 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 	
 	ArrayList<UserKeyRecord> keyRecords;
 	
-	ManageKeyRecordListener listener;
+	ManageKeyRecordListener<R> listener;
 	
 	boolean calloutNeeded = false;
 	boolean calloutRequired = false;
 	
 	User loggedIn = null;
 	
-	public ManageKeyRecordTask(Context c, String username, String password, CommCareApp app, ManageKeyRecordListener listener) {
+	public ManageKeyRecordTask(Context c, int taskId, String username, String password, CommCareApp app, ManageKeyRecordListener<R> listener) {
 		super(c);
 		this.username = username;
 		this.password = password;
@@ -74,6 +76,7 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
 		
 		this.listener = listener;
+		this.taskId = taskId;
 	}
 
 	/* (non-Javadoc)
@@ -83,14 +86,13 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 	protected void onCancelled() {
 		super.onCancelled();
 	}
+	
 
 	/* (non-Javadoc)
-	 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+	 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	protected void onPostExecute(HttpCalloutOutcomes result) {
-		super.onPostExecute(result);
-		
+	protected void deliverResult(R receiver, HttpCalloutOutcomes result) {		
 		//If this task completed and we logged in.
 		if(result == HttpCalloutOutcomes.Success) {
 			
@@ -99,10 +101,10 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 				//functional sandbox, but this user has never been synced, so we aren't
 				//really "logged in".
 				CommCareApplication._().logout();
-				listener.keysReadyForSync();
+				listener.keysReadyForSync(receiver);
 				return;
 			} else {
-				listener.keysLoginComplete();
+				listener.keysLoginComplete(receiver);
 				return;
 			}
 		}
@@ -112,10 +114,8 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		
 		//TODO: Do we wanna split this up at all? Seems unlikely. We don't have, like, a ton
 		//more context that the receiving activity will
-		listener.keysDoneOther(result);
+		listener.keysDoneOther(receiver, result);
 	}
-	
-	
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.HttpCalloutTask#doSetupTaskBeforeRequest()
@@ -164,6 +164,7 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		
 		if(calloutNeeded) {
 			Logger.log(AndroidLogger.TYPE_USER, "Performing key record callout." + (calloutRequired ? " Success is required for login" : ""));
+			this.publishProgress(Localization.get("key.manage.callout"));
 		}
 		
 		return null;
@@ -336,7 +337,6 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		
 		if(current == null)  {
 			//TODO: What is this failure mode
-			
 		}
 		
 		
@@ -355,6 +355,7 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 				//Transition the legacy storage to the new format. We don't have a new record, so don't 
 				//worry
 				try {
+					this.publishProgress(Localization.get("key.manage.legacy.begin"));
 					LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -434,12 +435,14 @@ public class ManageKeyRecordTask extends HttpCalloutTask {
 		if(oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
 			//transition the old storage into the new format before we copy the DB over.
 			LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), oldKey, oldSandboxToMigrate);
+			publishProgress(Localization.get("key.manage.legacy.begin"));
 		}
 
 		//TODO: Ok, so what error handling do we need here? 
 		try {
 			//Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
 			UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord, CryptUtil.unWrapKey(newRecord.getEncryptedKey(), password));
+			publishProgress(Localization.get("key.manage.migrate"));
 			return true;
 		} catch(IOException ioe) {
 			ioe.printStackTrace();

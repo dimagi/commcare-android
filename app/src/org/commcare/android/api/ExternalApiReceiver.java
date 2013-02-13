@@ -24,6 +24,7 @@ import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
@@ -195,28 +196,30 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 			//TODO: See if it worked first?
 			
 			CommCareApplication._().logIn(key, matchingRecord);
-			new ManageKeyRecordTask(context, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
+			new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
 				@Override
-				public void keysLoginComplete() {
+				public void keysLoginComplete(Object o) {
 					// TODO Auto-generated method stub
 					
 				}
 
 				@Override
-				public void keysReadyForSync() {
+				public void keysReadyForSync(Object o) {
 					// TODO Auto-generated method stub
 					
 				}
 
 				@Override
-				public void keysDoneOther(HttpCalloutOutcomes outcome) {
+				public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
 					// TODO Auto-generated method stub
 					
 				}
 				
 			}) {
-
+				@Override
+				protected void deliverUpdate(Object r, String... update) {
+				}
 			}.execute();
 			
 			return true;

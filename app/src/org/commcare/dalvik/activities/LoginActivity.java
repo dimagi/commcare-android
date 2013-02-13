@@ -28,7 +28,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -49,7 +48,7 @@ import android.widget.Toast;
  *
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivity extends CommCareActivity implements DataPullListener {
+public class LoginActivity extends CommCareActivity<LoginActivity> implements DataPullListener {
 	
 	public static String ALREADY_LOGGED_IN = "la_loggedin";
 	
@@ -80,6 +79,7 @@ public class LoginActivity extends CommCareActivity implements DataPullListener 
 	TextView versionDisplay;
 	
 	public static final int DIALOG_CHECKING_SERVER = 0;
+	public static final int TASK_KEY_EXCHANGE = 1;
 	
 	SqlStorage<UserKeyRecord> storage;
 	
@@ -243,10 +243,10 @@ public class LoginActivity extends CommCareActivity implements DataPullListener 
 	    	
 	    	final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
 	    	
-			new ManageKeyRecordTask(this, username, passwd, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
+	    	ManageKeyRecordTask<LoginActivity> task = new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username, passwd, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener<LoginActivity>() {
 
 				@Override
-				public void keysLoginComplete() {
+				public void keysLoginComplete(LoginActivity r) {
 					if(triggerTooManyUsers) {
 						//We've successfully pulled down new user data. 
 						//Should see if the user already has a sandbox and let them know that their old data doesn't transition
@@ -257,30 +257,42 @@ public class LoginActivity extends CommCareActivity implements DataPullListener 
 				}
 
 				@Override
-				public void keysReadyForSync() {
+				public void keysReadyForSync(LoginActivity r) {
 					//TODO: we only wanna do this on the _first_ try. Not subsequent ones (IE: On return from startOta)
 					startOta();
 				}
 
 				@Override
-				public void keysDoneOther(HttpCalloutOutcomes outcome) {
+				public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
 					switch(outcome) {
 					case AuthFailed:
 						Logger.log(AndroidLogger.TYPE_USER, "auth failed");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
 						break;
 					case BadResponse:
 						Logger.log(AndroidLogger.TYPE_USER, "bad response");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 						break;
 					case NetworkFailure:
 						Logger.log(AndroidLogger.TYPE_USER, "bad network");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 						break;
 					case UnkownError:
 						Logger.log(AndroidLogger.TYPE_USER, "unknown");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN));
 						break;
 					}
 				}
 				
-			}).execute();
+			}) {
+				@Override
+				protected void deliverUpdate(LoginActivity receiver, String... update) {
+					receiver.updateProgress(this.getTaskId(), update[0]);
+				}
+			};
+			
+			task.connect(this);
+			task.execute();
 			
 			return true;
     	}catch (Exception e) {
@@ -356,6 +368,25 @@ public class LoginActivity extends CommCareActivity implements DataPullListener 
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
+        case TASK_KEY_EXCHANGE:
+        	ProgressDialog progress = new ProgressDialog(this);
+        	//Add cancelling
+//            DialogInterface.OnClickListener loadingButtonListener =
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();
+//                            //If it is null, this is tricky to recover from? 
+//                            if(dataPuller != null) {
+//                            	dataPuller.cancel(true);
+//                            }
+//                        }
+//                    };
+        	progress.setTitle(Localization.get("key.manage.title"));
+        	progress.setMessage(Localization.get("key.manage.start"));
+        	progress.setIndeterminate(true);
+        	progress.setCancelable(false);
+            return progress;
+        	
             case DIALOG_CHECKING_SERVER:
                 mProgressDialog = new ProgressDialog(this);
                 DialogInterface.OnClickListener loadingButtonListener =
@@ -377,8 +408,8 @@ public class LoginActivity extends CommCareActivity implements DataPullListener 
         }
         return null;
     }
-    
-    private void raiseMessage(NotificationMessage message) {
+
+	private void raiseMessage(NotificationMessage message) {
     	raiseMessage(message, true);
     }
     

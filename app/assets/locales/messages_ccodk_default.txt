@@ -130,6 +130,16 @@ app.key.request.message=Another android application has requested the ability to
 app.key.request.grant=Grant Access
 app.key.request.deny=Deny Access
 
+key.manage.title=Initalizing Sandbox
+key.manage.start=Setting up your data sandbox
+
+key.manage.callout=Fetching new encryption keys from server
+
+key.manage.legacy.begin=An old installation has been detected on your device! Updating database structure.
+key.manage.migrate=The server has provided new encryption keys. Migrating your data. Please do not turn off the phone!
+
+key.manage.purge=Purging expired data from your local device
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
@@ -153,6 +163,9 @@ notification.restore.nonetwork.detail=Couldn't reach the server due to bad netwo
 notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
+
+notification.restore.baddata.title=Bad Server Response
+notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again. 
 
 notification.install.installed.title=App Succesfully Installed
 notification.install.installed.detail=Your app install is up to date.

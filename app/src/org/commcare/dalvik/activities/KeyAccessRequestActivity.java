@@ -24,7 +24,7 @@ import android.widget.TextView;
  *
  */
 @ManagedUi(R.layout.screen_permission_request)
-public class KeyAccessRequestActivity extends CommCareActivity {
+public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestActivity> {
 	
 	@UiElement(value = R.id.screen_permission_grant_text_message, locale="app.key.request.message")
 	TextView message;

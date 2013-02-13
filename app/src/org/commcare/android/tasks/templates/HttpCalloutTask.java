@@ -31,7 +31,7 @@ import android.os.AsyncTask;
  * @author ctsims
  *
  */
-public abstract class HttpCalloutTask extends AsyncTask<Void, Integer, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes>{
+public abstract class HttpCalloutTask<R> extends CommCareTask<Void, String, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes, R>{
 	
 	public enum HttpCalloutOutcomes {
 		NetworkFailure,
@@ -53,7 +53,7 @@ public abstract class HttpCalloutTask extends AsyncTask<Void, Integer, org.commc
 	
 	
 	@Override
-	protected HttpCalloutOutcomes doInBackground(Void... params) {
+	protected HttpCalloutOutcomes doTaskBackground(Void... params) {
 		HttpCalloutOutcomes preHttpOutcome = doSetupTaskBeforeRequest();
 		if(preHttpOutcome != null) {
 			return preHttpOutcome;

@@ -5,9 +5,16 @@ package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -19,8 +26,13 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
-public abstract class CommCareActivity extends Activity {
+public abstract class CommCareActivity<R> extends Activity implements CommCareTaskConnector<R> {
 	
+	protected final static int DIALOG_PROGRESS = 32;
+	protected final static String DIALOG_TEXT = "cca_dialog_text";
+	
+	CommCareTask currentTask;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//TODO: We can really handle much of this framework without needing to 
@@ -70,6 +82,12 @@ public abstract class CommCareActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Object o = this.getLastNonConfigurationInstance();
+		if(o != null && o instanceof CommCareActivity) {
+			//Time to reconnect with our roots
+			CommCareActivity a = (CommCareActivity)o;
+			this.connectTask(a.currentTask);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -88,4 +106,79 @@ public abstract class CommCareActivity extends Activity {
 		return this;
 	}
 	
+	
+	protected void updateProgress(int taskId, String updateText) {
+		Bundle b = new Bundle();
+		b.putString(DIALOG_TEXT, updateText);
+		this.showDialog(taskId, b);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#connectTask(org.commcare.android.tasks.templates.CommCareTask)
+	 */
+	@Override
+	public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
+		currentTask = task;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#getReceiver()
+	 */
+	@Override
+	public R getReceiver() {
+		return (R)this;
+	}
+	
+	/**
+	 * Override these to control the UI for your task
+	 */
+
+	/* (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask()
+	 */
+	@Override
+	public void startBlockingForTask(int id) {
+		this.showDialog(id);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopBlockingForTask()
+	 */
+	@Override
+	public void stopBlockingForTask(int id) {
+		this.dismissDialog(id);
+	}
+	
+    
+    /* (non-Javadoc)
+	 * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog, android.os.Bundle)
+	 */
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		super.onPrepareDialog(id, dialog, args);
+		if(dialog instanceof ProgressDialog) {
+			if(args != null && args.containsKey(CommCareActivity.DIALOG_TEXT)) {
+				((ProgressDialog)dialog).setMessage(args.getString(CommCareActivity.DIALOG_TEXT));
+			}
+		}
+	}
+	
+
+	/* (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
+	 */
+	@Override
+	public void taskCancelled(int id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#onUnknownTaskFailure(java.lang.Exception)
+	 */
+	@Override
+	public void onUnknownTaskFailure(Exception unknownError) {
+		Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + unknownError.getMessage());
+	}
 }
