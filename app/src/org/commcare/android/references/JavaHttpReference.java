@@ -11,6 +11,7 @@ import java.net.URL;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.util.HttpRequestGenerator;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 
@@ -64,28 +65,12 @@ public class JavaHttpReference implements Reference {
 		}
 		
 		//Don't allow redirects _from_ https _to_ https unless they are redirecting to the same server.
-		if(!isValidRedirect(url, con.getURL())) {
+		if(!HttpRequestGenerator.isValidRedirect(url, con.getURL())) {
 			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + uri + " to " + con.getURL().toString());
 			throw new IOException("Invalid redirect from secure server to insecure server");
 		}
 		
 		return con.getInputStream();
-	}
-	
-	private boolean isValidRedirect(URL url, URL newUrl) {
-		//unless it's https, don't worry about it
-		if(!url.getProtocol().equals("https")) {
-			return true;
-		}
-		
-		//if it is, verify that we're on the same server.
-		if(url.getHost().equals(newUrl.getHost())) {
-			return true;
-		} else {
-			//otherwise we got redirected from a secure link to a different
-			//link, which isn't acceptable for now.
-			return false;
-		}
 	}
 
 	private void setup(HttpURLConnection con) throws IOException {
