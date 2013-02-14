@@ -147,17 +147,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         
         setContentView(R.layout.mainnew);
         configUi();
-        
-        Intent startup = this.getIntent();
-        if(startup != null && startup.hasExtra(SESSION_REQUEST)) {
-        	wasExternal = true;
-        	String sessionRequest = startup.getStringExtra(SESSION_REQUEST);
-        	SessionStateDescriptor ssd = new SessionStateDescriptor();
-        	ssd.fromBundle(sessionRequest);
-        	CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        	this.startNextFetch();
-        	return;
-        }
     }
     
     private void configUi() {
@@ -830,8 +819,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     protected void onResume() {
         super.onResume();
-        dispatchHomeScreen();
         platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+        dispatchHomeScreen();
     }
     
     private void dispatchHomeScreen() {
@@ -863,6 +852,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        } else if(!CommCareApplication._().getSession().isLoggedIn()) {
 	        	//We got brought back to this point despite 
 	        	returnToLogin();
+	        } else if(this.getIntent().hasExtra(SESSION_REQUEST)) {
+	        	wasExternal = true;
+	        	String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
+	        	SessionStateDescriptor ssd = new SessionStateDescriptor();
+	        	ssd.fromBundle(sessionRequest);
+	        	CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+	        	this.startNextFetch();
+	        	return;
 	        } else if(this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
 	        	
 	        	//We were launched in shortcut mode. Get the command and load us up.
