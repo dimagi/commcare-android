@@ -169,6 +169,8 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		final Date[] modified = new Date[] {new Date(0)};
 		final String[] uuid = new String[1];
 		
+		//NOTE: This does _not_ parse and process the case data. It's only for getting meta information
+		//about the entry session.
 		TransactionParserFactory factory = new TransactionParserFactory() {
 
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {

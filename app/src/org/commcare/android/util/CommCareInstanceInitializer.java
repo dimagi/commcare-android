@@ -52,7 +52,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 						HashSet<Integer> other = new HashSet<Integer>();
 						other.addAll(cases);
 						
-						selected.retainAll(selected);
+						selected.retainAll(other);
 						
 						selectedCases.clear();
 						selectedCases.addAll(selected);
