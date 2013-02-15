@@ -212,7 +212,7 @@ notification.formentry.unretrievable.action=Unfortunately, CommCare can't retrie
 
 notification.processing.badstructure.title=Problem with your App
 notification.processing.badstructure.detail=CommCare couldn't process a form you completed because it contains invalid information.
-notification.processing.badstructure.action=The form unfortunately can't be recovered. You can try to re-enter it, but it is likely that the form is designed incorrectly. Please contact a supervisor or tech support. The error will be sent to your submission server as a log.
+notification.processing.badstructure.action=The form unfortunately can't be recovered. You can try to re-enter it, but it is likely that the form is designed incorrectly. If you were completing an incomplete form, that Form's data had become invalid and the form couldn't be used. Otherwise, please contact a supervisor or tech support. The error will be sent to your submission server as a log.
 
 notification.processing.nosdcard.title=Problem Processing or Submitting Forms 
 notification.processing.nosdcard.detail=File storage was unavailable
