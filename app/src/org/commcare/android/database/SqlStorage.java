@@ -32,7 +32,7 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
+public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
 	
 	String table;
 	Class<? extends T> ctype;
@@ -40,9 +40,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	T t;
 	DbHelper helper;
 	
-	protected SqlIndexedStorageUtility() {}
+	protected SqlStorage() {}
 	
-	public SqlIndexedStorageUtility(String table, Class<? extends T> ctype, DbHelper helper) {
+	public SqlStorage(String table, Class<? extends T> ctype, DbHelper helper) {
 		this.table = table;
 		this.ctype = ctype;
 		this.helper = helper;
@@ -86,6 +86,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 			c.close();
 			return indices;
 		}
+	}
+	
+
+	public Vector<T> getRecordsForValue(String fieldName, Object value) {
+		return getRecordsForValues(new String[] {fieldName}, new Object[] {value});
 	}
 	
 	public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
@@ -243,9 +248,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
 	 */
-	public Object getAccessLock() {
-		// TODO Auto-generated method stub
-		return null;
+	public SQLiteDatabase getAccessLock() {
+		return helper.getHandle();
 	}
 
 	/* (non-Javadoc)
@@ -468,11 +472,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 		// TODO Auto-generated method stub
 	}
 	
-	public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlIndexedStorageUtility<T> from, SqlIndexedStorageUtility<T> to) throws StorageFullException {
+	public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws StorageFullException {
 		return cleanCopy(from, to, null);
 	}
 	
-	public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlIndexedStorageUtility<T> from, SqlIndexedStorageUtility<T> to, CopyMapper<T> mapper) throws StorageFullException {
+	public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException {
 		to.removeAll();
 		SQLiteDatabase toDb = to.helper.getHandle();
 		try{
@@ -495,5 +499,4 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 			toDb.endTransaction();
 		}
 	}
-
 }

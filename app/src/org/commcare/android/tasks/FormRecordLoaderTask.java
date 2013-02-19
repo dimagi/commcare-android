@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -27,7 +27,7 @@ import android.util.Pair;
 public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, ArrayList<String>>, Integer> {
 
 	private Hashtable<String,String> descriptorCache;
-	private SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage;
+	private SqlStorage<SessionStateDescriptor> descriptorStorage;
 	private AndroidCommCarePlatform platform;
 	private Hashtable<Integer, String[]> searchCache;
 	private Context context;
@@ -37,11 +37,11 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 	private Queue<FormRecord> priorityQueue;
 	private HashSet<Integer> loaded;
 	
-	public FormRecordLoaderTask(Context c, SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage, AndroidCommCarePlatform platform) {
+	public FormRecordLoaderTask(Context c, SqlStorage<SessionStateDescriptor> descriptorStorage, AndroidCommCarePlatform platform) {
 		this(c, descriptorStorage, null, platform);
 	}
 	
-	public FormRecordLoaderTask(Context c, SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage, Hashtable<String,String> descriptorCache, AndroidCommCarePlatform platform) {
+	public FormRecordLoaderTask(Context c, SqlStorage<SessionStateDescriptor> descriptorStorage, Hashtable<String,String> descriptorCache, AndroidCommCarePlatform platform) {
 		this.context = c;
 		this.descriptorStorage = descriptorStorage;
 		this.descriptorCache = descriptorCache;
@@ -144,7 +144,7 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 		}
 		
 		//free up everything except the cache, which we might use later.
-		SqlIndexedStorageUtility<SessionStateDescriptor> descriptorStorage = null;
+		SqlStorage<SessionStateDescriptor> descriptorStorage = null;
 		AndroidCommCarePlatform platform = null;
 		Hashtable<Integer, String[]> searchCache = null;
 		Context context = null;

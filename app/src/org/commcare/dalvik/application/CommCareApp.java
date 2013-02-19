@@ -8,7 +8,7 @@ import java.io.File;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.logic.GlobalConstants;
@@ -107,6 +107,7 @@ public class CommCareApp {
 	
 	public boolean initializeApplication() {
 		setupSandbox();
+
 		ResourceTable global = platform.getGlobalResourceTable();
 		
 		//TODO: This, but better.
@@ -153,12 +154,12 @@ public class CommCareApp {
 	}
 	
 
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(Class<T> c) throws SessionUnavailableException {
+	public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) throws SessionUnavailableException {
 		return getStorage(c.getAnnotation(Table.class).value(), c); 
 	}
 	
-	public <T extends Persistable> SqlIndexedStorageUtility<T> getStorage(String name, Class<T> c) throws SessionUnavailableException {
-		return new SqlIndexedStorageUtility<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()){
+	public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) throws SessionUnavailableException {
+		return new SqlStorage<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()){
 			@Override
 			public SQLiteDatabase getHandle() {
 				synchronized(appDbHandleLock) {

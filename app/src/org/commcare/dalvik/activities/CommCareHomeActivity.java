@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
@@ -59,6 +59,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.format.DateUtils;
@@ -146,17 +147,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         
         setContentView(R.layout.mainnew);
         configUi();
-        
-        Intent startup = this.getIntent();
-        if(startup != null && startup.hasExtra(SESSION_REQUEST)) {
-        	wasExternal = true;
-        	String sessionRequest = startup.getStringExtra(SESSION_REQUEST);
-        	SessionStateDescriptor ssd = new SessionStateDescriptor();
-        	ssd.fromBundle(sessionRequest);
-        	CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        	this.startNextFetch();
-        	return;
-        }
     }
     
     private void configUi() {
@@ -447,7 +437,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
 	    			
 	    			//Retrieve and load the appropriate ssd
-	    			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+	    			SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 	    			Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
 	    			if(ssds.size() == 1) {
 	    				currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
@@ -799,7 +789,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     
     
     protected boolean checkAndStartUnsentTask(ProcessTaskListener listener) throws SessionUnavailableException {
-    	SqlIndexedStorageUtility<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+    	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
     	
     	//Get all forms which are either unsent or unprocessed
     	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
@@ -829,8 +819,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     @Override
     protected void onResume() {
         super.onResume();
-        dispatchHomeScreen();
         platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+        dispatchHomeScreen();
     }
     
     private void dispatchHomeScreen() {
@@ -862,6 +852,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        } else if(!CommCareApplication._().getSession().isLoggedIn()) {
 	        	//We got brought back to this point despite 
 	        	returnToLogin();
+	        } else if(this.getIntent().hasExtra(SESSION_REQUEST)) {
+	        	wasExternal = true;
+	        	String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
+	        	SessionStateDescriptor ssd = new SessionStateDescriptor();
+	        	ssd.fromBundle(sessionRequest);
+	        	CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+	        	this.startNextFetch();
+	        	return;
 	        } else if(this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
 	        	
 	        	//We were launched in shortcut mode. Get the command and load us up.

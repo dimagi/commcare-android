@@ -3,7 +3,7 @@
  */
 package org.commcare.xml;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -19,7 +19,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 	}
 	
 
-	public AndroidCaseXmlParser(KXmlParser parser, int[] tallies, boolean b, SqlIndexedStorageUtility<ACase> storage) {
+	public AndroidCaseXmlParser(KXmlParser parser, int[] tallies, boolean b, SqlStorage<ACase> storage) {
 		super(parser, tallies, b, storage);
 	}
 

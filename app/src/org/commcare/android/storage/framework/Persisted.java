@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Hashtable;
 
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -23,6 +24,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class Persisted implements Persistable, IMetaData {
+	
+	private static Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<Class, ArrayList<Field>>();
 	
 	protected int recordId = -1; 
 
@@ -42,15 +45,25 @@ public class Persisted implements Persistable, IMetaData {
 	}
 	
 	private ArrayList<Field> getPersistedFieldsInOrder() {
-		//TODO: This might substantially increase our to/from serialization time
-		ArrayList<Field> fields = new ArrayList<Field>();
-		for(Field f : this.getClass().getDeclaredFields()) {
-			if(f.isAnnotationPresent(Persisting.class)) {
-				fields.add(f);
+		ArrayList<Field> orderings;
+		synchronized(fieldOrderings) {
+			orderings = fieldOrderings.get(this.getClass());
+			if(orderings == null) {
+				orderings = new ArrayList<Field>();
+				fieldOrderings.put(this.getClass(), orderings);
 			}
 		}
-		Collections.sort(fields, orderedComparator);
-		return fields;
+		synchronized(orderings) {
+			if(orderings.size() == 0) {
+				for(Field f : this.getClass().getDeclaredFields()) {
+					if(f.isAnnotationPresent(Persisting.class)) {
+						orderings.add(f);
+					}
+				}
+				Collections.sort(orderings, orderedComparator);
+			}
+			return orderings;
+		}
 	}
 	
 	public static final Comparator<Field> orderedComparator = new Comparator<Field>() {

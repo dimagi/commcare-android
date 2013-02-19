@@ -19,7 +19,7 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -75,7 +75,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	
 	@Override
 	protected Integer doInBackground(Void... params) {
-		SqlIndexedStorageUtility<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+		SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
 		
 		Vector<Integer> recordsToRemove = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_SAVED });
 		
@@ -99,7 +99,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		}
 		
 		this.publishProgress(STATUS_CLEANUP);
-		SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+		SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 		
 		for(int recordID : recordsToRemove) {
 			this.wipeRecord(-1, recordID, storage, ssdStorage);
@@ -109,7 +109,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		return SUCCESS;
 	}
 
-	private int cleanupRecord(FormRecord r, SqlIndexedStorageUtility<FormRecord> storage) {
+	private int cleanupRecord(FormRecord r, SqlStorage<FormRecord> storage) {
 		try {
 			FormRecord updated = getUpdatedRecord(r, FormRecord.STATUS_SAVED);
 			if(updated == null) {
@@ -169,6 +169,8 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		final Date[] modified = new Date[] {new Date(0)};
 		final String[] uuid = new String[1];
 		
+		//NOTE: This does _not_ parse and process the case data. It's only for getting meta information
+		//about the entry session.
 		TransactionParserFactory factory = new TransactionParserFactory() {
 
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
@@ -263,7 +265,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 			AndroidSessionWrapper asw = AndroidSessionWrapper.mockEasiestRoute(platform, r.getFormNamespace(), caseIDs[0]);
 			asw.setFormRecordId(parsed.getID());
 			
-			SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+			SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 			
 			//Also bad: this is not synchronous with the parsed record write
 			try {
@@ -306,7 +308,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		wipeRecord(sessionId, formRecordId, CommCareApplication._().getUserStorage(FormRecord.class), CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
 	}
 	
-	private void wipeRecord(int sessionId, int formRecordId, SqlIndexedStorageUtility<FormRecord> frStorage, SqlIndexedStorageUtility<SessionStateDescriptor> ssdStorage) {
+	private void wipeRecord(int sessionId, int formRecordId, SqlStorage<FormRecord> frStorage, SqlStorage<SessionStateDescriptor> ssdStorage) {
 
 		if(sessionId != -1) {
 			try {

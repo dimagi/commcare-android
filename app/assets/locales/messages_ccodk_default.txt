@@ -126,7 +126,19 @@ app.menu.display.cond.bad.xpath=Invalid form display condition (${0}): ${1}
 app.menu.display.cond.xpath.err=Error evaluating form display condition (${0}): ${1}
 
 app.handled.error.explanation=CommCare will now restart. You may need to correct this error in your application design.
+app.key.request.message=Another android application has requested the ability to communicate securely with CommCare. This application will be able to pass information to CommCare and trigger actions (submission, login, etc). Do you want to grant access?
+app.key.request.grant=Grant Access
+app.key.request.deny=Deny Access
 
+key.manage.title=Initalizing Sandbox
+key.manage.start=Setting up your data sandbox
+
+key.manage.callout=Fetching new encryption keys from server
+
+key.manage.legacy.begin=An old installation has been detected on your device! Updating database structure.
+key.manage.migrate=The server has provided new encryption keys. Migrating your data. Please do not turn off the phone!
+
+key.manage.purge=Purging expired data from your local device
 
 #Put these into their own file
 
@@ -145,12 +157,15 @@ notification.restore.remote.error.title=Remote Server Error
 notification.restore.remote.error.detail=The server had a problem trying to generate your sync data.
 notification.restore.remote.error.action=Try to sync again immediately, and then in an hour or so. If the sync still doesn't succeed, contact technical support.
 
-notification.restore.nonetwork.title=Couldn't Reach Server
+notification.restore.nonetwork.title=Couldn't Reach Server. Please check your network connection
 notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
 
 notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
+
+notification.restore.baddata.title=Bad Server Response
+notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again. 
 
 notification.install.installed.title=App Succesfully Installed
 notification.install.installed.detail=Your app install is up to date.
@@ -197,7 +212,7 @@ notification.formentry.unretrievable.action=Unfortunately, CommCare can't retrie
 
 notification.processing.badstructure.title=Problem with your App
 notification.processing.badstructure.detail=CommCare couldn't process a form you completed because it contains invalid information.
-notification.processing.badstructure.action=The form unfortunately can't be recovered. You can try to re-enter it, but it is likely that the form is designed incorrectly. Please contact a supervisor or tech support. The error will be sent to your submission server as a log.
+notification.processing.badstructure.action=The form unfortunately can't be recovered. You can try to re-enter it, but it is likely that the form is designed incorrectly. If you were completing an incomplete form, that Form's data had become invalid and the form couldn't be used. Otherwise, please contact a supervisor or tech support. The error will be sent to your submission server as a log.
 
 notification.processing.nosdcard.title=Problem Processing or Submitting Forms 
 notification.processing.nosdcard.detail=File storage was unavailable

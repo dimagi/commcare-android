@@ -26,7 +26,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.io.DataSubmissionEntity;
@@ -102,7 +102,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
 	
-	SqlIndexedStorageUtility<FormRecord> storage;
+	SqlStorage<FormRecord> storage;
 	
 	static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
 	

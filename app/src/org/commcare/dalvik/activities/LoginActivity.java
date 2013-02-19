@@ -6,17 +6,18 @@ package org.commcare.dalvik.activities;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
-import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.SqlIndexedStorageUtility;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.User;
-import org.commcare.android.db.legacy.LegacyInstallUtils;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
@@ -27,14 +28,12 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -48,7 +47,8 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class LoginActivity extends Activity implements DataPullListener {
+@ManagedUi(R.layout.screen_login)
+public class LoginActivity extends CommCareActivity<LoginActivity> implements DataPullListener {
 	
 	public static String ALREADY_LOGGED_IN = "la_loggedin";
 	
@@ -56,21 +56,32 @@ public class LoginActivity extends Activity implements DataPullListener {
 	
 	private static LoginActivity currentActivity;
 	
+	@UiElement(value=R.id.login_button, locale="login.button")
 	Button login;
 	
+	@UiElement(value=R.id.text_username, locale="login.username")
 	TextView userLabel;
+	@UiElement(value=R.id.text_password, locale="login.password")
 	TextView passLabel;
+	@UiElement(R.id.screen_login_bad_password)
 	TextView errorBox;
 	
+	@UiElement(R.id.edit_username)
 	EditText username;
+	
+	@UiElement(R.id.edit_password)
 	EditText password;
+	
+	@UiElement(R.id.screen_login_banner_pane)
 	View banner;
 	
+	@UiElement(R.id.str_version)
 	TextView versionDisplay;
 	
 	public static final int DIALOG_CHECKING_SERVER = 0;
+	public static final int TASK_KEY_EXCHANGE = 1;
 	
-	SqlIndexedStorageUtility<UserKeyRecord> storage;
+	SqlStorage<UserKeyRecord> storage;
 	
 	DataPullTask dataPuller;
 	
@@ -80,22 +91,7 @@ public class LoginActivity extends Activity implements DataPullListener {
         super.onCreate(savedInstanceState);
         
         currentActivity = this;
-        
-        setContentView(R.layout.screen_login);
-        
-        login = (Button)findViewById(R.id.login_button);
-        
-        userLabel = (TextView)findViewById(R.id.text_username);
-        
-        passLabel = (TextView)findViewById(R.id.text_password);
-        
-        username = (EditText)findViewById(R.id.edit_username);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        
-        password = (EditText)findViewById(R.id.edit_password);
-        
-        banner = findViewById(R.id.screen_login_banner_pane);
-        errorBox = (TextView)this.findViewById(R.id.screen_login_bad_password);
 
         try{
         	setTitle(getString(R.string.application_name) + " > " + Localization.get("app.display.name"));
@@ -111,11 +107,6 @@ public class LoginActivity extends Activity implements DataPullListener {
         		password.requestFocus();
         	}
         }
-        LoginActivity oldThis = (LoginActivity)this.getLastNonConfigurationInstance();
-        if(oldThis != null) {
-        	this.errorBox.setVisibility(oldThis.errorBox.getVisibility());
-        	this.errorBox.setText(oldThis.errorBox.getText());
-        }
         
         login.setOnClickListener(new OnClickListener() {
 
@@ -130,7 +121,6 @@ public class LoginActivity extends Activity implements DataPullListener {
 			}
         });
         
-        versionDisplay = (TextView)findViewById(R.id.str_version);
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
         
         
@@ -177,14 +167,6 @@ public class LoginActivity extends Activity implements DataPullListener {
 		dataPuller.execute();
 	}
 
-    /* (non-Javadoc)
-	 * @see android.app.Activity#onRetainNonConfigurationInstance()
-	 */
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		return this;
-	}
-
 	/*
      * (non-Javadoc)
      * 
@@ -213,9 +195,6 @@ public class LoginActivity extends Activity implements DataPullListener {
     }
     
     private void refreshView() {
-    	userLabel.setText(Localization.get("login.username"));
-    	passLabel.setText(Localization.get("login.password"));
-    	login.setText(Localization.get("login.button"));
     }
     
     private String getUsername() {
@@ -228,11 +207,13 @@ public class LoginActivity extends Activity implements DataPullListener {
     	
     private boolean tryLocalLogin(final boolean warnMultipleAccounts) {
     	try{
+    		
+    		final String username = getUsername();
 	    	String passwd = password.getText().toString();
 	    	UserKeyRecord matchingRecord = null;
 	    	int count = 0;
 	    	for(UserKeyRecord record : storage()) {
-	    		if(!record.getUsername().equals(getUsername())) {
+	    		if(!record.getUsername().equals(username)) {
 	    			continue;
 	    		}
 	    		count++;
@@ -257,43 +238,56 @@ public class LoginActivity extends Activity implements DataPullListener {
 	    	
 	    	final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
 	    	
-	    	if(matchingRecord == null) {
-	    		return false;
-	    	}
-	    	//TODO: Extract this
-			byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), passwd);
-			if(matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-				LegacyInstallUtils.transitionLegacyUserStorage(this, CommCareApplication._().getCurrentApp(), key, matchingRecord);
-			}
-			//TODO: See if it worked first?
-			
-			CommCareApplication._().logIn(key, matchingRecord);
-			final String username = matchingRecord.getUsername();
-			new ManageKeyRecordTask(this, matchingRecord.getUsername(), passwd) {
+	    	ManageKeyRecordTask<LoginActivity> task = new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username, passwd, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener<LoginActivity>() {
 
-				/* (non-Javadoc)
-				 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-				 */
 				@Override
-				protected void onPostExecute(HttpCalloutOutcomes result) {
-					super.onPostExecute(result);
-					if(this.proceed) {
-						
-						if(triggerTooManyUsers) {
-							//We've successfully pulled down new user data. 
-							//Should see if the user already has a sandbox and let them know that their old data doesn't transition
-							raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3]), true);
-							Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
-						}
-						
-						done();
-					} else {
-						//Need to fetch!
-						startOta();
+				public void keysLoginComplete(LoginActivity r) {
+					if(triggerTooManyUsers) {
+						//We've successfully pulled down new user data. 
+						//Should see if the user already has a sandbox and let them know that their old data doesn't transition
+						raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3]), true);
+						Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
+					}
+					done();
+				}
+
+				@Override
+				public void keysReadyForSync(LoginActivity r) {
+					//TODO: we only wanna do this on the _first_ try. Not subsequent ones (IE: On return from startOta)
+					startOta();
+				}
+
+				@Override
+				public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
+					switch(outcome) {
+					case AuthFailed:
+						Logger.log(AndroidLogger.TYPE_USER, "auth failed");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
+						break;
+					case BadResponse:
+						Logger.log(AndroidLogger.TYPE_USER, "bad response");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+						break;
+					case NetworkFailure:
+						Logger.log(AndroidLogger.TYPE_USER, "bad network");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
+						break;
+					case UnkownError:
+						Logger.log(AndroidLogger.TYPE_USER, "unknown");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+						break;
 					}
 				}
 				
-			}.execute();
+			}) {
+				@Override
+				protected void deliverUpdate(LoginActivity receiver, String... update) {
+					receiver.updateProgress(this.getTaskId(), update[0]);
+				}
+			};
+			
+			task.connect(this);
+			task.execute();
 			
 			return true;
     	}catch (Exception e) {
@@ -310,7 +304,7 @@ public class LoginActivity extends Activity implements DataPullListener {
 		finish();
     }
     
-    private SqlIndexedStorageUtility<UserKeyRecord> storage() throws SessionUnavailableException{
+    private SqlStorage<UserKeyRecord> storage() throws SessionUnavailableException{
     	if(storage == null) {
     		storage=  CommCareApplication._().getAppStorage(UserKeyRecord.class);
     	}
@@ -335,11 +329,11 @@ public class LoginActivity extends Activity implements DataPullListener {
 				break;
 			}
 		case DataPullTask.UNREACHABLE_HOST:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.UNKNOWN_FAILURE:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		}
@@ -369,6 +363,25 @@ public class LoginActivity extends Activity implements DataPullListener {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
+        case TASK_KEY_EXCHANGE:
+        	ProgressDialog progress = new ProgressDialog(this);
+        	//Add cancelling
+//            DialogInterface.OnClickListener loadingButtonListener =
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();
+//                            //If it is null, this is tricky to recover from? 
+//                            if(dataPuller != null) {
+//                            	dataPuller.cancel(true);
+//                            }
+//                        }
+//                    };
+        	progress.setTitle(Localization.get("key.manage.title"));
+        	progress.setMessage(Localization.get("key.manage.start"));
+        	progress.setIndeterminate(true);
+        	progress.setCancelable(false);
+            return progress;
+        	
             case DIALOG_CHECKING_SERVER:
                 mProgressDialog = new ProgressDialog(this);
                 DialogInterface.OnClickListener loadingButtonListener =
@@ -390,8 +403,8 @@ public class LoginActivity extends Activity implements DataPullListener {
         }
         return null;
     }
-    
-    private void raiseMessage(NotificationMessage message) {
+
+	private void raiseMessage(NotificationMessage message) {
     	raiseMessage(message, true);
     }
     
@@ -400,10 +413,11 @@ public class LoginActivity extends Activity implements DataPullListener {
     	if(showTop) {
     		CommCareApplication._().reportNotificationMessage(message);
     		toastText = Localization.get("notification.for.details.wrapper", new String[] {toastText});
-    	} else {
-    		errorBox.setVisibility(View.VISIBLE);
-    		errorBox.setText(message.getTitle());
     	}
+    	
+    	//either way
+		errorBox.setVisibility(View.VISIBLE);
+		errorBox.setText(toastText);
     	
 		Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
     }

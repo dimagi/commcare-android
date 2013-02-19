@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.commcare.dalvik"
     android:versionCode="106"
-    android:versionName="2.4" >
+    android:versionName="2.5" >
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -59,7 +59,7 @@
         <activity
             android:name=".activities.CommCareSetupActivity"
             android:configChanges="orientation"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -205,6 +205,15 @@
         </activity>
         <activity android:name=".activities.CommCareVerificationActivity" android:windowSoftInputMode="adjustResize"></activity>
         <activity android:theme="@style/Theme.Transparent" android:name=".activities.UnrecoverableErrorActivity"></activity>
+        <activity android:name=".activities.KeyAccessRequestActivity"><intent-filter>
+                <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <receiver android:name="org.commcare.android.api.ExternalApiReceiver">
+            <intent-filter><action android:name="org.commcare.dalvik.api.action.ExternalAction" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
+        </receiver>
     </application>
 
     <uses-feature

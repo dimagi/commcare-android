@@ -144,12 +144,7 @@ public class DecryptingCursor extends SQLiteCursor {
 	
 	private byte[] decrypt(int columnIndex) {
 		byte[] data = super.getBlob(columnIndex);
-		try{
-			return CryptUtil.decrypt(data, cipher);
-		} catch(IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return CryptUtil.decrypt(data, cipher);
 	}
 	
 	

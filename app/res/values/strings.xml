@@ -13,7 +13,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>4</item>
+        <item>5</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -28,6 +28,11 @@
     <string-array name="url_list">
         <item>bit.ly</item>
         <item>tinyurl</item>
+        <item>Raw</item>
+    </string-array>
+    <string-array name="url_list_selected_display">
+        <item>http://bit.ly/</item>
+        <item>http://tinyurl/</item>
         <item>Raw</item>
     </string-array>
     <string-array name="url_vals">

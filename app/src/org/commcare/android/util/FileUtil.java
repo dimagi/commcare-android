@@ -6,11 +6,20 @@ package org.commcare.android.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.util.PropertyUtils;
 
 import android.util.Log;
 
@@ -156,5 +165,99 @@ public class FileUtil {
 	    	} 
 	    	return input;
 	    }
+	    
+	    public static void copyFile(File oldPath, File newPath) throws IOException {
+	    	copyFile(oldPath, newPath, null, null);
+	    }
+	    
+	    public static void copyFile(File oldPath, File newPath, Cipher oldRead, Cipher newWrite) throws IOException {
+	    	if(!newPath.createNewFile()) { throw new IOException("Couldn't create new file at " + newPath.toString()); }
+	    	
+	    	InputStream is = null;
+	    	OutputStream os = null;
+            try {
+	
+	            is = new FileInputStream(oldPath);
+	            if(oldRead != null) {
+	            	is = new CipherInputStream(is, oldRead);
+	            }
+	            
+	            os = new FileOutputStream(newPath);
+	            if(newWrite != null) {
+	            	os = new CipherOutputStream(os, newWrite);
+	            }
+	            
+	            AndroidStreamUtil.writeFromInputToOutput(is, os);
+            } finally {
+            	try{
+            		if(is != null) {
+            			is.close();
+            		}
+            	} catch(IOException e) {
+            		
+            	}
+            	
+            	try{
+            		if(os != null) {
+            			os.close();
+            		}
+            	} catch(IOException e) {
+            		
+            	}
+            }
+	    }
+	    
+	    /**
+	     * Get a new, clean location to put a file in the same path as the incoming file
+	     * 
+	     * @param f The existing file
+	     * @param slug A new chunk to append to the file name 
+	     * @param removeExisting Whether to remove any files which already appear in this location.
+	     * If false, the method will continue trying to generate new paths until there is no conflict
+	     * 
+	     * @return A new file location which does not reference an existing file.
+	     */
+	    public static File getNewFileLocation(File f, String slug, boolean removeExisting) {
+	    	if(slug == null) {
+	    		slug = PropertyUtils.genGUID(5);
+	    	}
+	    	String name = f.getName();
+	    	
+	    	int lastDot = name.lastIndexOf(".");
+	    	if(lastDot != -1) {
+	    		String prefix = name.substring(0, lastDot);
+	    		String postfix = name.substring(lastDot);
+	    		
+	    		name = prefix + "_" + slug + postfix;
+	    	} else { 
+	    		name = name + "_" + slug;
+	    	}
+	    	
+	    	File newLocation = new File(f.getParent() + File.separator + name);
+	    	if(newLocation.exists()) {
+	    		if(removeExisting) {
+	    			deleteFile(newLocation);
+	    		} else {
+	    			return getNewFileLocation(newLocation, null, removeExisting);
+	    		}
+	    	}
+	    	return newLocation;
+	    }
 
+		public static void copyFileDeep(File oldFolder, File newFolder) throws IOException {
+			//Create the new folder
+			newFolder.mkdir();
+			
+			if(oldFolder.listFiles() != null) {
+				//Start copying over files
+				for(File oldFile : oldFolder.listFiles()) {
+					File newFile = new File(newFolder.getPath() + File.separator + oldFile.getName());
+					if(oldFile.isDirectory()) {
+						copyFileDeep(oldFile, newFile);
+					} else {
+						FileUtil.copyFile(oldFile, newFile);
+					}
+				}
+			}
+		}
 }

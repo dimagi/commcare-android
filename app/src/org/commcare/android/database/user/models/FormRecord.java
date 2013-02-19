@@ -23,8 +23,10 @@ import android.net.Uri;
  * @author ctsims
  *
  */
-@Table("FORMRECORDS")
+@Table(FormRecord.STORAGE_KEY)
 public class FormRecord extends Persisted implements EncryptedModel {
+	
+	public static final String STORAGE_KEY = "FORMRECORDS";
 	
 	public static final String META_INSTANCE_URI = "INSTANCE_URI";
 	public static final String META_STATUS = "STATUS";
