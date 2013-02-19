@@ -3,27 +3,20 @@
  */
 package org.commcare.dalvik.activities;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.storage.framework.WrappingSpinnerAdapter;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.android.tasks.VerificationTask;
-import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
-import org.javarosa.core.util.SizeBoundVector;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -34,11 +27,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.preference.PreferenceManager;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
@@ -46,8 +40,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.text.InputType;
-import android.util.Log;
 /**
  * The CommCareStartupActivity is purely responsible for identifying
  * the state of the application (uninstalled, installed) and performing
@@ -103,6 +95,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
 	boolean isAuto = false;
+	
+	View banner;
 
 	
 	@Override
@@ -149,6 +143,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 			
 		});
+		urlSpinner.setAdapter(new WrappingSpinnerAdapter(urlSpinner.getAdapter(), getResources().getStringArray(R.array.url_list_selected_display)));
 		urlVals = getResources().getStringArray(R.array.url_vals); 
 		//First, identify the binary state
 		dbState = CommCareApplication._().getDatabaseState();
@@ -244,6 +239,26 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			mainMessage.setText(Localization.get("updates.check"));
 			startResourceInstall();
 		}
+		
+		banner = this.findViewById(R.id.screen_first_start_banner);
+		
+        final View activityRootView = findViewById(R.id.screen_first_start_main);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+            	int hideAll = CommCareSetupActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
+            	int hideBanner = CommCareSetupActivity.this.getResources().getInteger(R.integer.login_screen_hide_banner_cuttoff);
+                int height = activityRootView.getHeight();
+                
+                if(height < hideAll) {
+                	banner.setVisibility(View.GONE);
+                } else if(height < hideBanner) {
+                	banner.setVisibility(View.GONE);
+                }  else {
+                	banner.setVisibility(View.VISIBLE);
+                }
+             }
+        });
 	}
 	/*
 	 * (non-Javadoc)
@@ -383,7 +398,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	this.uiState = UiState.ready;
     	mainMessage.setText(Localization.get("install.ready"));
 		editProfileRef.setText(incomingRef);
-    	advancedView.setVisibility(View.INVISIBLE);
+    	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.VISIBLE);
     	startOverButton.setVisibility(View.VISIBLE);
@@ -395,7 +410,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	this.incomingRef = null;
     	mainMessage.setText(Localization.get("install.barcode"));
     	addressEntryButton.setVisibility(View.VISIBLE);
-    	advancedView.setVisibility(View.INVISIBLE);
+    	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.VISIBLE);
     	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
