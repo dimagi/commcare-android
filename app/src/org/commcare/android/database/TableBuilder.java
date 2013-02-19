@@ -4,6 +4,7 @@
 package org.commcare.android.database;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Vector;
@@ -44,18 +45,14 @@ public class TableBuilder {
 		for(Field f : c.getDeclaredFields()) {
 			if(f.isAnnotationPresent(MetaField.class)) {
 				MetaField mf = f.getAnnotation(MetaField.class);
-				
-				String key = mf.value();
-				String columnName = scrubName(key);
-				rawCols.add(columnName);
-				String columnDef;
-				columnDef = columnName;
-				
-				//Modifiers
-				if(unique.contains(columnName) || mf.unique()) {
-					columnDef += " UNIQUE";
-				}
-				cols.add(columnDef);
+				addMetaField(mf);
+			}
+		}
+		
+		for(Method m : c.getDeclaredMethods()) {
+			if(m.isAnnotationPresent(MetaField.class)) {
+				MetaField mf = m.getAnnotation(MetaField.class);
+				addMetaField(mf);
 			}
 		}
 		
@@ -63,6 +60,20 @@ public class TableBuilder {
 		rawCols.add(DbUtil.DATA_COL);
 	}
 	
+	
+	private void addMetaField(MetaField mf) {
+		String key = mf.value();
+		String columnName = scrubName(key);
+		rawCols.add(columnName);
+		String columnDef;
+		columnDef = columnName;
+		
+		//Modifiers
+		if(unique.contains(columnName) || mf.unique()) {
+			columnDef += " UNIQUE";
+		}
+		cols.add(columnDef);
+	}
 	
 	//Option Two - For models not made natively
 	public TableBuilder(String name) {

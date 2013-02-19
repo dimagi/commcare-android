@@ -31,8 +31,12 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 	private int formRecordId = -1;
 	
 	@Persisting(2)
-	@MetaField(value=META_DESCRIPTOR_HASH)
 	private String sessionDescriptor = null;
+	
+	@MetaField(value=META_DESCRIPTOR_HASH)
+	public String getHash() {
+		return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
+	}
 	
 	//Wrapper for serialization (STILL SKETCHY)
 	public SessionStateDescriptor() {
@@ -41,7 +45,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 	
 	public SessionStateDescriptor(AndroidSessionWrapper state) {
 		this.formRecordId = state.getFormRecordId();
-		this.sessionDescriptor = this.createSessionDescriptor(state.getSession());
+		sessionDescriptor = this.createSessionDescriptor(state.getSession());
 	}
 
 	public boolean isEncrypted(String data) {
@@ -67,10 +71,6 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 	
 	public void fromBundle(String serializedDescriptor) {
 		this.sessionDescriptor = serializedDescriptor;
-	}
-	
-	public String getHash() {
-		return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
 	}
 	
 	public String getSessionDescriptor() {
