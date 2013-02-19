@@ -30,6 +30,11 @@
         <item>tinyurl</item>
         <item>Raw</item>
     </string-array>
+    <string-array name="url_list_selected_display">
+        <item>http://bit.ly/</item>
+        <item>http://tinyurl/</item>
+        <item>Raw</item>
+    </string-array>
     <string-array name="url_vals">
         <item>http://bit.ly/</item>
         <item>http://tinyurl.com/</item>
