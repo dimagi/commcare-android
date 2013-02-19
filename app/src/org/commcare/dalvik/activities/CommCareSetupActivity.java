@@ -407,6 +407,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     
     public void setModeToBasic(){
     	this.uiState = UiState.basic;
+    	editProfileRef.setText("");	
     	this.incomingRef = null;
     	mainMessage.setText(Localization.get("install.barcode"));
     	addressEntryButton.setVisibility(View.VISIBLE);
@@ -417,6 +418,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     }
 
     public void setModeToAdvanced(){
+    	if(this.uiState == uiState.ready){
+    		previousUrlPosition = -1;
+    		urlSpinner.setSelection(2);
+    	}
     	this.uiState = UiState.advanced;
     	mainMessage.setText(Localization.get("install.manual"));
     	advancedView.setVisibility(View.VISIBLE);
