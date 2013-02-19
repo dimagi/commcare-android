@@ -1084,7 +1084,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     		viewIncomplete.setText(Localization.get("home.forms.incomplete"));
     	}
     	
-    	if(syncDetails.second[0] > unsentFormNumberLimit && (prefs.getString("server-tether","push-only")=="sync")){
+    	if(syncDetails.second[0] > unsentFormNumberLimit){
     		syncOK = false;
     	}
     	
@@ -1094,7 +1094,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	int secs_ago = (int)((then-now) / 1000);
     	int days_ago = secs_ago / 86400;
     	
-		if(days_ago > unsentFormTimeLimit) {
+		if((-days_ago) > unsentFormTimeLimit && (prefs.getString("server-tether","push-only").equals("sync"))) {
 			syncOK = false;
 		}
     	
