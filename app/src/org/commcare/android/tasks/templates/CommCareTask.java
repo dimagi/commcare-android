@@ -75,7 +75,7 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 			
 			connector.stopBlockingForTask(getTaskId());
 			if(unknownError != null) { 
-				connector.onUnknownTaskFailure(unknownError);
+				deliverError(connector.getReceiver(), unknownError);
 				return;
 			}
 			this.deliverResult(connector.getReceiver(), result);
@@ -85,6 +85,8 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 	protected abstract void deliverResult(R receiver, C result);
 	
 	protected abstract void deliverUpdate(R receiver, B... update);
+	
+	protected abstract void deliverError(R receiver, Exception e);
 
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#onPreExecute()

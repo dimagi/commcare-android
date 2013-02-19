@@ -108,7 +108,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 				return;
 			}
 		}
-		
+
 		//For any other result make sure we're logged out. 
 		CommCareApplication._().logout();
 		
@@ -116,6 +116,12 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 		//more context that the receiving activity will
 		listener.keysDoneOther(receiver, result);
 	}
+	
+	protected void deliverError(R receiver, Exception e) {
+		Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
+		listener.keysDoneOther(receiver, HttpCalloutOutcomes.UnkownError);
+	}
+
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.HttpCalloutTask#doSetupTaskBeforeRequest()
@@ -175,7 +181,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 
 	private void cleanupUserKeyRecords() {
 		UserKeyRecord currentlyValid = null;
-		try{
 		//For all "new" entries: If there's another sandbox record (regardless of user)
 		//which shares the sandbox ID, we can set the status of the new record to be
 		//the same as the old record.
@@ -223,9 +228,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 				}
 			}
 			//TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
-		}
-		} catch(StorageFullException sfe) {
-			throw new RuntimeException(sfe);
 		}
 	}
 	

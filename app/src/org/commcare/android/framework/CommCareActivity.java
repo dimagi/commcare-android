@@ -45,6 +45,11 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 	}
 	
 	private void loadFields() {
+		CommCareActivity oldActivity = null;
+		Object o = this.getLastNonConfigurationInstance();
+		if(o instanceof CommCareActivity) {
+			oldActivity = (CommCareActivity)o;
+		}
 		Class c = this.getClass();
 		for(Field f : c.getDeclaredFields()) {
 			if(f.isAnnotationPresent(UiElement.class)) {
@@ -55,6 +60,17 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 					try {
 						View v = this.findViewById(element.value());
 						f.set(this, v);
+						
+						if(oldActivity != null) {
+							View oldView = (View)f.get(oldActivity);
+							if(oldView != null) {
+								if(v instanceof TextView) {
+									((TextView)v).setText(((TextView)oldView).getText());
+								}
+								v.setVisibility(oldView.getVisibility());
+								continue;
+							}
+						}
 						
 						if(element.locale() != "") {
 							if(v instanceof TextView) {
@@ -172,13 +188,5 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 	public void taskCancelled(int id) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#onUnknownTaskFailure(java.lang.Exception)
-	 */
-	@Override
-	public void onUnknownTaskFailure(Exception unknownError) {
-		Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + unknownError.getMessage());
 	}
 }

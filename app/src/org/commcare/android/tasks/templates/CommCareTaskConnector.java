@@ -16,7 +16,5 @@ public interface CommCareTaskConnector<R> {
 	
 	public void taskCancelled(int id);
 
-	public void onUnknownTaskFailure(Exception unknownError);
-
 	public R getReceiver();
 }

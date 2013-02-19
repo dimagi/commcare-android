@@ -157,7 +157,7 @@ notification.restore.remote.error.title=Remote Server Error
 notification.restore.remote.error.detail=The server had a problem trying to generate your sync data.
 notification.restore.remote.error.action=Try to sync again immediately, and then in an hour or so. If the sync still doesn't succeed, contact technical support.
 
-notification.restore.nonetwork.title=Couldn't Reach Server
+notification.restore.nonetwork.title=Couldn't Reach Server. Please check your network connection
 notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
 
 notification.restore.unknown.title=Unknown Error during Restore

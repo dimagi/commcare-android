@@ -107,11 +107,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
         		password.requestFocus();
         	}
         }
-        LoginActivity oldThis = (LoginActivity)this.getLastNonConfigurationInstance();
-        if(oldThis != null) {
-        	this.errorBox.setVisibility(oldThis.errorBox.getVisibility());
-        	this.errorBox.setText(oldThis.errorBox.getText());
-        }
         
         login.setOnClickListener(new OnClickListener() {
 
@@ -271,15 +266,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 						break;
 					case BadResponse:
 						Logger.log(AndroidLogger.TYPE_USER, "bad response");
-						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 						break;
 					case NetworkFailure:
 						Logger.log(AndroidLogger.TYPE_USER, "bad network");
-						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
 						break;
 					case UnkownError:
 						Logger.log(AndroidLogger.TYPE_USER, "unknown");
-						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 						break;
 					}
 				}
@@ -334,11 +329,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 				break;
 			}
 		case DataPullTask.UNREACHABLE_HOST:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		case DataPullTask.UNKNOWN_FAILURE:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
 		}
@@ -418,10 +413,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
     	if(showTop) {
     		CommCareApplication._().reportNotificationMessage(message);
     		toastText = Localization.get("notification.for.details.wrapper", new String[] {toastText});
-    	} else {
-    		errorBox.setVisibility(View.VISIBLE);
-    		errorBox.setText(message.getTitle());
     	}
+    	
+    	//either way
+		errorBox.setVisibility(View.VISIBLE);
+		errorBox.setText(toastText);
     	
 		Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
     }
