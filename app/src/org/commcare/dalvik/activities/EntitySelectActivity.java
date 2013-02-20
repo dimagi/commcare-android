@@ -192,7 +192,8 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         }
         
-        tts = new TextToSpeech(this, this);
+		//cts: disabling for non-demo purposes
+        //tts = new TextToSpeech(this, this);
     }
     
     boolean resuming = false;

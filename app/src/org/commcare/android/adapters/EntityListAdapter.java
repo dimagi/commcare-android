@@ -60,8 +60,7 @@ public class EntityListAdapter implements ListAdapter {
 			sort(sort);
 		}
 		filterValues("");
-		//cts: disabling for non-demo purposes
-		//this.tts = tts;
+		this.tts = tts;
 	}
 
 	private void filterValues(String filter) {
