@@ -6,25 +6,20 @@ package org.commcare.android.adapters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Vector;
 
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.Constants;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -43,13 +38,14 @@ public class EntityListAdapter implements ListAdapter {
 	List<Entity<TreeReference>> current;
 	List<TreeReference> references;
 	Detail d;
+	TextToSpeech tts;
 	
 	private TreeReference selected;
 	
 	int currentSort[] = {};
 	boolean reverseSort = false;
 	
-	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, List<Entity<TreeReference>> full, int[] sort) throws SessionUnavailableException {
+	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts) throws SessionUnavailableException {
 		this.d = d;
 		
 		this.full = full;
@@ -64,6 +60,8 @@ public class EntityListAdapter implements ListAdapter {
 			sort(sort);
 		}
 		filterValues("");
+		//cts: disabling for non-demo purposes
+		//this.tts = tts;
 	}
 
 	private void filterValues(String filter) {
@@ -208,7 +206,7 @@ public class EntityListAdapter implements ListAdapter {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if(emv == null) {
-			emv = new EntityView(context, d, e);
+			emv = new EntityView(context, d, e, tts);
 		} else{
 			emv.setParams(e, e.getElement().equals(selected));
 		}
