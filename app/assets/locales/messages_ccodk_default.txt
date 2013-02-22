@@ -51,7 +51,7 @@ home.menu.settings=Settings
 home.menu.update=Update CommCare
 home.menu.call.log=Call Log
 home.menu.validate=Validate Media
-
+home.menu.change.locale=Change Locale
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare ODK Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.

@@ -89,7 +89,7 @@ public class CommCareApp {
 	}
 	
 	public SharedPreferences getAppPreferences() {
-		return CommCareApplication._().getSharedPreferences(record.getApplicationId(), 0);
+		return CommCareApplication._().getSharedPreferences(getPreferencesFilename(), 0);
 	}
 	
 	public void setupSandbox() {
@@ -109,7 +109,6 @@ public class CommCareApp {
 		setupSandbox();
 
 		ResourceTable global = platform.getGlobalResourceTable();
-		
 		//TODO: This, but better.
 		Resource profile = global.getResourceWithId("commcare-application-profile");
 		if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
@@ -186,5 +185,9 @@ public class CommCareApp {
 		} catch (StorageFullException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public String getPreferencesFilename(){
+		return record.getApplicationId();
 	}
 }
