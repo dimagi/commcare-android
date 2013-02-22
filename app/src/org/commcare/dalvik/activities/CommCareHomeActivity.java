@@ -944,6 +944,23 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         return null;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
+     */
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+    	mCurrentDialog = id;
+        switch (id) {
+        case DIALOG_PROCESS:
+                mProgressDialog.setTitle(Localization.get("sync.progress.submitting.title"));
+                mProgressDialog.setMessage(Localization.get("sync.progress.submitting"));
+        case DIALOG_SEND_UNSENT:
+	            mProgressDialog.setTitle(Localization.get("form.entry.processing.title"));
+	            mProgressDialog.setMessage(Localization.get("form.entry.processing"));
+        }
+    }
+    
     public Dialog createAskFixDialog() {
     	//TODO: Localize this in theory, but really shift it to the upgrade/management state
     	
