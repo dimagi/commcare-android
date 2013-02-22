@@ -67,7 +67,7 @@ sync.fail.auth.loggedin=Username or password has changed. Please log out and try
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occured with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
-sync.fail.unknown=Unknown failure, please try again.
+sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
 
 sync.progress.title=Communicating with Server
 sync.progress.starting=Requesting Data...
