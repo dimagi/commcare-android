@@ -16,24 +16,24 @@
 
 package org.commcare.dalvik.preferences;
 
-import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.LogSubmissionTask;
-import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class CommCarePreferences extends PreferenceActivity {
+public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener{
 
 	//So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
 	//out cleanly?
@@ -67,16 +67,28 @@ public class CommCarePreferences extends PreferenceActivity {
     public final static String YES = "yes";
     public final static String NO = "no";
 
-
-	
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
 	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
 	private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
 
-    @Override
+    @Override	
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        PreferenceManager prefMgr = getPreferenceManager();
+        
+        prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
+        
         addPreferencesFromResource(R.xml.server_preferences);
+        
+        ListPreference lp = new ListPreference(this);
+        lp.setEntries(ChangeLocaleUtil.getLocaleNames());
+        lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());
+        lp.setTitle("Change Locale");
+        lp.setKey("cur_locale");
+        lp.setDialogTitle("Choose your Locale");
+        this.getPreferenceScreen().addPreference(lp);
+        
         setTitle("CommCare" + " > " + "Application Preferences");
     }
     
@@ -134,5 +146,26 @@ public class CommCarePreferences extends PreferenceActivity {
     	
     	//if not, form management is a go
     	return true;
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Set up a listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Unregister the listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+    
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) 
+    {
+      Localization.setLocale(sharedPreferences.getString(key, "default"));
     }
 }
