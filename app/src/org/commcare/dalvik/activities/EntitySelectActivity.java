@@ -5,6 +5,7 @@ package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
@@ -40,6 +41,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -65,7 +67,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends Activity implements TextWatcher, EntityLoaderListener, OnItemClickListener {
+public class EntitySelectActivity extends Activity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
 	private CommCareSession session;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
@@ -83,6 +85,8 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
 	Entry prototype;
 	LinearLayout header;
 	ImageButton barcodeButton;
+	
+	TextToSpeech tts;
 	
 	SessionDatum selectDatum;
 	
@@ -187,6 +191,9 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
         	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         }
+        
+		//cts: disabling for non-demo purposes
+        //tts = new TextToSpeech(this, this);
     }
     
     boolean resuming = false;
@@ -534,6 +541,21 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     			loader.detachActivity();
     		}
     	}
+    	
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+    }
+    
+    @Override
+    public void onInit(int status) {
+ 
+        if (status == TextToSpeech.SUCCESS) {
+        	//using the default speech engine for now.
+        } else {
+        }
+ 
     }
 
 
@@ -551,7 +573,7 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     	}
 		
     	ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order);
+		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts);
 		view.setAdapter(adapter);
 		
 		findViewById(R.id.entity_select_loading).setVisibility(View.GONE);

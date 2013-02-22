@@ -8,16 +8,18 @@ import java.io.IOException;
 import org.commcare.android.models.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -27,10 +29,13 @@ import android.widget.TextView;
 public class EntityView extends LinearLayout {
 	
 	private View[] views;
-	private String[] forms; 
+	private String[] forms;
+	
+	private TextToSpeech tts; 
 
-	public EntityView(Context context, Detail d, Entity e) {
+	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts) {
 		super(context);
+		this.tts = tts;
 
 		this.setWeightSum(1);
 		
@@ -91,14 +96,39 @@ public class EntityView extends LinearLayout {
 				}
         	}
         } else {
-        	TextView tv =(TextView)View.inflate(context, R.layout.entity_item_text, null);
-	        retVal = tv;
-        	if(text != null) {
-        		tv.setText(text);
-        	}
+    		View layout = View.inflate(context, R.layout.component_audio_text, null);
+    		setupLayout(layout, text);
+    		retVal = layout;
         }
         return retVal;
 	}
+        
+    private void setupLayout(View layout, final String text) {
+		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
+		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
+		btn.setFocusable(false);
+
+		btn.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				String textToRead = text;
+				tts.speak(textToRead, TextToSpeech.QUEUE_FLUSH, null);
+			}
+    	});
+		if(tts == null || text == null || text.equals("")) {
+			btn.setVisibility(View.INVISIBLE);
+			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+			params.width= 0;
+			btn.setLayoutParams(params);
+		} else {
+			btn.setVisibility(View.VISIBLE);
+			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+			params.width=LayoutParams.WRAP_CONTENT;
+			btn.setLayoutParams(params);
+		}
+		tv.setText(text == null ? "" : text);
+    }
 	
 	private float[] calculateDetailWeights(int[] hints) {
 		float[] weights = new float[hints.length];
@@ -148,7 +178,7 @@ public class EntityView extends LinearLayout {
 					iv.setImageBitmap(null);
 				}
 	        } else {
-		        ((TextView)views[i]).setText(e.getField(i));
+		        setupLayout(views[i], e.getField(i));
 	        }
 		}
 		

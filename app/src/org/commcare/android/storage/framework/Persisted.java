@@ -7,6 +7,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -176,6 +178,7 @@ public class Persisted implements Persistable, IMetaData {
 	@Override
 	public String[] getMetaDataFields() {
 		ArrayList<String> fields = new ArrayList<String>();
+		
 		for(Field f : this.getClass().getDeclaredFields()) {
 			try {
 			f.setAccessible(true);
@@ -189,9 +192,26 @@ public class Persisted implements Persistable, IMetaData {
 			}
 
 		}
+		
+		
+		for(Method m : this.getClass().getDeclaredMethods()) {
+			try {
+			m.setAccessible(true);
+
+			if(m.isAnnotationPresent(MetaField.class)) {
+				MetaField mf = m.getAnnotation(MetaField.class);
+				fields.add(mf.value());
+			}
+			} finally {
+				m.setAccessible(false);
+			}
+
+		}
 		return fields.toArray(new String[0]);
 	}
 
+	
+	//TODO: This looks like it's gonna be sllllooowwwww
 	@Override
 	public Object getMetaData(String fieldName) {
 		try {
@@ -209,9 +229,32 @@ public class Persisted implements Persistable, IMetaData {
 					f.setAccessible(false);
 				}
 			}
+			
+			for(Method m : this.getClass().getDeclaredMethods()) {
+				try {
+				m.setAccessible(true);
+
+				if(m.isAnnotationPresent(MetaField.class)) {
+					MetaField mf = m.getAnnotation(MetaField.class);
+					if(mf.value().equals(fieldName)) {
+						return m.invoke(this, (Object[])null);
+					}
+				}
+				}finally {
+					m.setAccessible(false);
+				}
+
+			}
+			
+			
 		} catch(IllegalAccessException iae) {
 			throw new RuntimeException(iae.getMessage());
-		}
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException(e.getMessage());
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e.getMessage());
+		} 
 		//If we didn't find the field
 		throw new IllegalArgumentException("No metadata field " + fieldName  + " in the case storage system");
 	}
