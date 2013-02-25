@@ -5,9 +5,9 @@ package org.commcare.dalvik.activities;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.framework.WrappingSpinnerAdapter;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.storage.framework.WrappingSpinnerAdapter;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
