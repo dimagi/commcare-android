@@ -381,8 +381,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    				Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
 	    				CommCareApplication._().getSession().logout();
 	    			}
+	    			//set flag that we should autoupdate on next login
+	    			SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
+	    			preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true);
 	    			//The onResume() will take us to the screen
-    				return;
+	    			return;
 	    		}
 	    		break;
 	    	case MISSING_MEDIA_ACTIVITY:

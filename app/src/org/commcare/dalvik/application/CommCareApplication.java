@@ -695,6 +695,13 @@ public class CommCareApplication extends Application {
 		SharedPreferences preferences = getCurrentApp().getAppPreferences();
 		//Establish whether or not an AutoUpdate is Pending
 		String autoUpdateFreq = preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
+		
+		boolean autoUpdateTriggered = preferences.getBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE, false);
+		
+		if(autoUpdateTriggered){
+			preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE, false);
+			return true;
+		}
 
 		//See if auto update is even turned on
 		if(autoUpdateFreq != CommCarePreferences.FREQUENCY_NEVER) {

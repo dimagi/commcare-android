@@ -66,6 +66,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     
     public final static String YES = "yes";
     public final static String NO = "no";
+    
+    public final static String AUTO_TRIGGER_UPDATE = "auto-trigger-update";
 
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
 	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
