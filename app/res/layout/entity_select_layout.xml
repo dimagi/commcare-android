@@ -29,7 +29,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_above="@+id/searchfooter"
-    android:layout_below="@+id/entity_select_filter_dropdown" >
+    android:layout_below="@+id/entity_select_filter_dropdown"
+    android:listSelector="@drawable/selector" >
 </ListView>
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:id="@+id/searchfooter" android:orientation="horizontal" android:background="@drawable/border_top_black" android:paddingTop="1dp">
