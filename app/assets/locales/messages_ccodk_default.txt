@@ -17,7 +17,7 @@ verify.progress = Verifying resources. ${0} resources verified of ${1} total
 modules.m0=pregenancy
 
 install.barcode=Welcome to CommCare! Please scan your App's CommCare Barcode to begin 
-install.manual=Please enter the URI for your application's Profile file
+install.manual=Please enter the URL for your application's Profile file
 install.ready=Welcome to CommCare! Make sure you have an internet connection and press the button below to install your app
 
 updates.resources.initialization=Initializing Resources
