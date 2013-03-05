@@ -12,7 +12,6 @@ import java.util.Vector;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -29,7 +28,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.xmlpull.v1.XmlPullParserException;
@@ -154,6 +152,8 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+		
+		System.out.println("verifying suite file");
 
 		try{
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
@@ -172,23 +172,35 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 			Enumeration e = menus.elements();
 			while(e.hasMoreElements()){
 				Menu mMenu = (Menu)e.nextElement();
+				System.out.println("mMenu: " + mMenu.getName());
 				String aURI = mMenu.getAudioURI();
 				String iURI = mMenu.getImageURI();
-				Reference aRef = ReferenceManager._().DeriveReference(aURI);
-				Reference iRef = ReferenceManager._().DeriveReference(iURI);
 				
-				if(!aRef.doesBinaryExist()){
-					String audioLocalReference = aRef.getLocalURI();
-					problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + audioLocalReference));
+				System.out.println("aURI: " + aURI + "i URI" + iURI);
+				
+				try{
+					Reference aRef = ReferenceManager._().DeriveReference(aURI);
+					if(!aRef.doesBinaryExist()){
+						String audioLocalReference = aRef.getLocalURI();
+						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + audioLocalReference));
+					}
+				} catch(InvalidReferenceException ire){
+					//do nothing for now
 				}
-				if(!iRef.doesBinaryExist()){
-					String imageLocalReference = iRef.getLocalURI();
-					problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + imageLocalReference));
+				try{
+					Reference iRef = ReferenceManager._().DeriveReference(iURI);
+					if(!iRef.doesBinaryExist()){
+						String imageLocalReference = iRef.getLocalURI();
+						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + imageLocalReference));
+					}
+				} catch(InvalidReferenceException ire){
+					// do nothing for now
 				}
+				
 			}
 		}
 		catch(Exception e){
-			System.out.println("fail");
+			System.out.println("fail suite validation");
 		}
 
 		if(problems.size() == 0 ) { return false;}
