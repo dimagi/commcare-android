@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.android.storage.framework;
+package org.commcare.android.framework;
 
 import android.database.DataSetObserver;
 import android.view.View;
