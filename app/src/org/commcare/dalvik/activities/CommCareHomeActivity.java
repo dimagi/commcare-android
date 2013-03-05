@@ -217,8 +217,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 		if(result == ProcessAndSendTask.FULL_SUCCESS) {
                 			currentHome.dismissDialog(mCurrentDialog);
                 			String label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
-                			Toast.makeText(currentHome, label, Toast.LENGTH_LONG).show();
                 			refreshView();
+                			displayMessage(label);
                 			
                 			//OK, all forms sent, sync time 
                 			syncData();
@@ -228,7 +228,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 			//Display your own message otherwise
                 		} else  {
                 			currentHome.dismissDialog(mCurrentDialog);
-                			Toast.makeText(currentHome, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+                			displayMessage(Localization.get("sync.fail.unsent"), true);
                 		}
                 	}
 
@@ -276,34 +276,31 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			public void finished(int status) {
 				currentHome.dismissDialog(mCurrentDialog);
 				
-				//TODO: SHARES _A LOT_ with login activity. Unify into service
-				switch(status) {
-				case DataPullTask.AUTH_FAILED:
-					Toast.makeText(currentHome, 
-							Localization.get("sync.fail.auth.loggedin"), 
-							Toast.LENGTH_LONG).show();
-					break;
-				case DataPullTask.BAD_DATA:
-					Toast.makeText(currentHome, Localization.get("sync.fail.bad.data"), 
-							Toast.LENGTH_LONG).show();
-					break;
-				case DataPullTask.DOWNLOAD_SUCCESS:
-					Toast.makeText(currentHome, Localization.get("sync.success.synced"), Toast.LENGTH_LONG).show();
-					break;
-				case DataPullTask.UNREACHABLE_HOST:
-					Toast.makeText(currentHome, Localization.get("sync.fail.bad.network"), 
-							Toast.LENGTH_LONG).show();
-					break;
-				case DataPullTask.UNKNOWN_FAILURE:
-					Toast.makeText(currentHome, Localization.get("sync.fail.unknown"), Toast.LENGTH_LONG).show();
-					break;
-				}
 				
 				try {
 					CommCareApplication._().getSession().detachTask();
 					refreshView();
 				} catch(SessionUnavailableException sue) {
 					CommCareHomeActivity.this.returnToLogin();
+				}
+				
+				//TODO: SHARES _A LOT_ with login activity. Unify into service
+				switch(status) {
+				case DataPullTask.AUTH_FAILED:
+					displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
+					break;
+				case DataPullTask.BAD_DATA:
+					displayMessage(Localization.get("sync.fail.bad.data"), true);
+					break;
+				case DataPullTask.DOWNLOAD_SUCCESS:
+					displayMessage(Localization.get("sync.success.synced"));
+					break;
+				case DataPullTask.UNREACHABLE_HOST:
+					displayMessage(Localization.get("sync.fail.bad.network"), true);
+					break;
+				case DataPullTask.UNKNOWN_FAILURE:
+					displayMessage(Localization.get("sync.fail.unknown"), true);
+					break;
 				}
 				//TODO: What if the user info was updated?
 			}
@@ -503,6 +500,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	            		task.execute(ex);
 	        		}
 	        		
+	        		//TODO: Notification?
 	        		Toast.makeText(this, Localization.get("form.entry.segfault"), Toast.LENGTH_LONG);
 	        		
 	        		
@@ -1069,12 +1067,44 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         mAskOldDialog.show();
     }
     
+    private void displayMessage(String message) {
+    	displayMessage(message, false);
+    }
+    
+    private void displayMessage(String message, boolean bad) {
+    	displayMessage(message, bad, false);
+    }
+    
+    private void displayMessage(String message, boolean bad, boolean suppressToast) {
+    	if(!suppressToast) {
+    		Toast.makeText(currentHome, message, Toast.LENGTH_LONG).show();
+    	}
+
+        TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
+        
+        syncMessage.setText(message);
+
+
+		//Need to transplant the padding due to background affecting it
+		int[] padding = {syncMessage.getPaddingLeft(), syncMessage.getPaddingTop(), syncMessage.getPaddingRight(),syncMessage.getPaddingBottom() };
+    	if(bad){
+    		syncMessage.setTextColor(getResources().getColor(R.color.red));
+    		syncMessage.setTypeface(null, Typeface.BOLD);
+    		syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble_danger));
+    	}
+    	else{
+    		syncMessage.setTextColor(getResources().getColor(R.color.solid_black));
+    		syncMessage.setTypeface(null, Typeface.NORMAL);
+    		syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble));
+    	}
+    	syncMessage.setPadding(padding[0],padding[1], padding[2], padding[3]);
+    }
+    
     private void refreshView() throws SessionUnavailableException{
     	
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
-        TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
         Pair<Long, int[]> syncDetails = CommCareApplication._().getSyncDisplayParameters();
         
     	SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -1116,23 +1146,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			syncOK = false;
 		}
     	
-		//Need to transplant the padding due to background affecting it
-		int[] padding = {syncMessage.getPaddingLeft(), syncMessage.getPaddingTop(), syncMessage.getPaddingRight(),syncMessage.getPaddingBottom() };
-    	if(!syncOK){
-    		syncMessage.setTextColor(getResources().getColor(R.color.red));
-    		syncMessage.setTypeface(null, Typeface.BOLD);
-    		syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble_danger));
-    	}
-    	else{
-    		syncMessage.setTextColor(getResources().getColor(R.color.solid_black));
-    		syncMessage.setTypeface(null, Typeface.NORMAL);
-    		syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble));
-    	}
-    	syncMessage.setPadding(padding[0],padding[1], padding[2], padding[3]);
-    	
     	message += Localization.get("home.sync.message.last", new String[] { syncTime.toString() });
     	
-    	syncMessage.setText(message);
+    	displayMessage(message, !syncOK, true);
 
 
         //Make sure that the review button is properly enabled.
@@ -1163,25 +1179,32 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     
 	public void processAndSendFinished(int result, int successfulSends) {
 		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
-		if(result == ProcessAndSendTask.FULL_SUCCESS) {
-			String label = Localization.get("sync.success.sent.singular", new String[] {String.valueOf(successfulSends)});
-			if(successfulSends > 1) {
-				label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
-			}
-			Toast.makeText(this, label, Toast.LENGTH_LONG).show();
-		} else if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
+		
+		 if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
 			returnToLogin(Localization.get("app.workflow.login.lost"));
 			return;
-		} else if(result == ProcessAndSendTask.FAILURE) {
-			//Failures make their own notification box
-		} else {
-			Toast.makeText(this, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
-		}try{
+		}
+		 
+		try{
 			refreshView();
 		}catch(SessionUnavailableException sue) {
 			//might have logged out, don't really worry about it.
         	this.returnToLogin(Localization.get("home.logged.out"));
 		}
+
+		
+		if(result == ProcessAndSendTask.FULL_SUCCESS) {
+			String label = Localization.get("sync.success.sent.singular", new String[] {String.valueOf(successfulSends)});
+			if(successfulSends > 1) {
+				label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
+			}
+			displayMessage(label);
+		} else if(result == ProcessAndSendTask.FAILURE) {
+			//Failures make their own notification box
+		} else {
+			displayMessage(Localization.get("sync.fail.unsent"), true);
+		} 
+		
 	}
 	
 	public void processTaskAllProcessed() {
