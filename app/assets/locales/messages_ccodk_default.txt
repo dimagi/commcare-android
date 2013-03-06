@@ -140,6 +140,29 @@ key.manage.migrate=The server has provided new encryption keys. Migrating your d
 
 key.manage.purge=Purging expired data from your local device
 
+
+mult.install.title=Unzipping your Multimedia Resources
+mult.install.progress=Unzipped ${0} files...
+mult.install.state.empty=Please select a ZIP file to begin
+mult.install.state.ready=Multimedia inflater ready, press install to begin
+mult.install.state.done=Your zip file has been installed
+mult.install.state.invalid.path=The file path selected is not a valid zip file. Please select a valid file.
+mult.install.cancelled=Multimedia installation cancelled
+mult.install.bad=The selected ZIP file is not valid. Please choose a valid zip file.
+
+mult.install.progress.baddest=Couldn't write multimedia to the local filesystem at: ${0}
+mult.install.progress.badentry=There was a bad entry in the zip file: ${0}
+mult.install.progress.errormoving=There was a problem copying the multimedia from the zip file, please try again.
+
+
+mult.install.prompt=From here you can install your app multimedia from a ZIP file on the local filesystem
+mult.install.button=Install Multimedia
+
+
+
+mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
+
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password

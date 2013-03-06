@@ -12,6 +12,8 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -27,10 +29,12 @@ import android.widget.TextView;
 public class CommCareVerificationActivity extends Activity implements VerificationTaskListener, OnClickListener {
 	
 	TextView missingMediaPrompt;
-	
+	private static final int MENU_UNZIP = Menu.FIRST;
 	private ProgressDialog vProgressDialog;
 	
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+	
+	Button retryButton;
 	
 	VerificationTask task;
 	
@@ -45,12 +49,20 @@ public class CommCareVerificationActivity extends Activity implements Verificati
         Bundle extras = getIntent().getExtras();
         setContentView(R.layout.missing_multimedia_layout);
         
-        Button retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
+        retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
         
         retryButton.setOnClickListener(this);
         
         missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
         
+        fire();
+	}
+	
+	public Object onRetainNonConfigurationInstance() {
+		return this;
+	}
+	
+	private void fire() {
         
         CommCareVerificationActivity last = (CommCareVerificationActivity)this.getLastNonConfigurationInstance();
         if(last == null) {
@@ -68,10 +80,6 @@ public class CommCareVerificationActivity extends Activity implements Verificati
         		//don't worry about it
         	}
         }
-	}
-	
-	public Object onRetainNonConfigurationInstance() {
-		return this;
 	}
 	
 	public void verifyResourceInstall() {
@@ -135,6 +143,9 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 		vProgressDialog.setMessage(Localization.get("verification.progress",new String[] {""+done,""+pending}));
 		
 	}
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    	fire();
+    }
 	
 	public void done(boolean requireRefresh) {
 		//unlock();
@@ -189,4 +200,25 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 			return;
 		}
 	}
+	
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_UNZIP, 0, "Install Multimedia").setIcon(android.R.drawable.ic_menu_gallery);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_UNZIP:
+                Intent i = new Intent(this, MultimediaInflaterActivity.class);
+                i.putExtra(MultimediaInflaterActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
+                this.startActivityForResult(i, 0);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    
 }

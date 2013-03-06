@@ -8,12 +8,14 @@ import java.lang.reflect.Field;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -80,6 +82,7 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 							}
 						}
 					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
 						throw new RuntimeException("Bad Object type for field " + f.getName());
 					} catch (IllegalAccessException e) {
 						throw new RuntimeException("Couldn't access the activity field for some reason");
@@ -188,5 +191,16 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 	public void taskCancelled(int id) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void TransplantStyle(TextView target, int resource) {
+		//get styles from here
+		TextView tv = (TextView)View.inflate(this, resource, null);
+		int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(),target.getPaddingBottom() };
+
+		target.setTextColor(tv.getTextColors().getDefaultColor());
+		target.setTypeface(tv.getTypeface());
+		target.setBackgroundDrawable(tv.getBackground());
+		target.setPadding(padding[0], padding[1], padding[2], padding[3]);
 	}
 }
