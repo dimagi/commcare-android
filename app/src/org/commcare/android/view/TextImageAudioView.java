@@ -2,34 +2,22 @@ package org.commcare.android.view;
 
 import java.io.File;
 
-import org.commcare.suite.model.Text;
-import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
+import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.odk.collect.android.R;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.AudioButton;
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.RelativeLayout.LayoutParams;
 
 /**
  * This layout for the GenericMenuFormAdapter allows you to load an image, audio, and text

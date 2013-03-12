@@ -48,7 +48,7 @@ public class CommCareUtil {
 		Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
 		Integer globalFixture = ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
 		if(globalFixture != null) {
-			return (FormInstance)appFixtures.read(globalFixture.intValue());
+			return (FormInstance)appFixtureStorage.read(globalFixture.intValue());
 		} else {
 			return null;
 		}
