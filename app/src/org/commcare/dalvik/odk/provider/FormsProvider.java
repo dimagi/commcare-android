@@ -15,6 +15,7 @@
 package org.commcare.dalvik.odk.provider;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -382,13 +383,18 @@ public class FormsProvider extends ContentProvider {
 	                        String oldFile =
 	                            update.getString(update.getColumnIndex(FormsColumns.FORM_FILE_PATH));
 	
-	                        if (formFile != null && formFile.equalsIgnoreCase(oldFile)) {
-	                            // Files are the same, so we may have just copied over something we had
-	                            // already
-	                        } else {
-	                            // New file name. This probably won't ever happen, though.
-	                        	FileUtil.deleteFileOrDir(oldFile);
-	                        }
+	                        try {
+		                        if (new File(oldFile).getCanonicalPath().equals(new File(formFile).getCanonicalPath())) {
+		                            // Files are the same, so we may have just copied over something we had
+		                            // already
+		                        } else {
+		                            // New file name. This probably won't ever happen, though.
+		                        	FileUtil.deleteFileOrDir(oldFile);
+		                        }
+	                        } catch(IOException ioe) {
+                        		//we only get here if we couldn't canonicalize, in which case we can't risk deleting the old file
+	                        	//so don't do anything.
+                        	}
 	
 	                        // we're updating our file, so update the md5
 	                        // and get rid of the cache (doesn't harm anything)
