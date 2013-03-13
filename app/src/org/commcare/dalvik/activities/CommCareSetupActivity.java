@@ -11,9 +11,11 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
@@ -60,7 +62,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	public static final String KEY_AUTO = "is_auto_update";
 	
-	public enum UiState { advanced, basic, ready };
+	public enum UiState { advanced, basic, ready, error };
 	public UiState uiState = UiState.basic;
 	
 	public static final int MODE_BASIC = Menu.FIRST;
@@ -72,8 +74,11 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final int BARCODE_CAPTURE = 1;
 	public static final int MISSING_MEDIA_ACTIVITY=2;
 	
+	public static final int RETRY_LIMIT = 20;
+	
 	int dbState;
 	int resourceState;
+	int retryCount=0;
 	
 	String incomingRef;
 	
@@ -85,6 +90,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	Button mScanBarcodeButton;
 	Button addressEntryButton;
 	Button startOverButton;
+	Button retryButton;
     private ProgressDialog mProgressDialog;
     private ProgressDialog vProgressDialog;
     
@@ -92,6 +98,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     int previousUrlPosition=0;
 	
 	boolean upgradeMode = false;
+	boolean partialMode = false;
+	
+	CommCareApp ccApp;
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
 	boolean isAuto = false;
@@ -137,10 +146,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 
 			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void onNothingSelected(AdapterView<?> arg0) {}
 			
 		});
 		urlSpinner.setAdapter(new WrappingSpinnerAdapter(urlSpinner.getAdapter(), getResources().getStringArray(R.array.url_list_selected_display)));
@@ -171,6 +177,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
     	addressEntryButton = (Button)this.findViewById(R.id.enter_app_location);
     	startOverButton = (Button)this.findViewById(R.id.start_over);
+    	retryButton = (Button)this.findViewById(R.id.retry_install);
     	
 		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -197,9 +204,20 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		startOverButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				retryCount = 0;
+				partialMode = false;
 				setModeToBasic();
 			}
 			
+		});
+		
+		retryButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				
+				partialMode = true;
+				
+				startResourceInstall();
+			}
 		});
 		
 		if(incomingRef == null || uiState == UiState.advanced) {
@@ -276,6 +294,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	unlock();
 	}
 	
+	public boolean shouldClearData(){
+		return(upgradeMode==false && partialMode==false);
+	}
+	
     /*
      * (non-Javadoc)
      * 
@@ -307,12 +329,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 		}
 	}
-
-	private void startResourceInstall() {
-		
-		String ref = incomingRef;
-		System.out.println("initial ref is: " + ref);
-		
+	
+	private String getRef(){
+		String ref;
 		if(this.uiState == UiState.advanced) {
 			int selectedIndex = urlSpinner.getSelectedItemPosition();
 			String selectedString = urlVals[selectedIndex];
@@ -322,35 +341,65 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			else{
 				ref = editProfileRef.getText().toString();
 			}
-			System.out.println("ref is: " + ref);
 		}
+		else{
+			ref = incomingRef;
+		}
+		return ref;
+	}
+	
+	public int getResourceInstallState(){
+		
+		if(this.upgradeMode){
+			return ResourceTable.RESOURCE_TABLE_UPGRADE;
+		}
+		
+		SqlStorage<ApplicationRecord> storage = CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+		
+		if(storage.getNumRecords() == 0){
+			return ResourceTable.RESOURCE_TABLE_EMPTY;
+		}
+		else{
+			return ResourceTable.RESOURCE_TABLE_PARTIAL;
+		}
+	}
+	
+	private CommCareApp getCommCareApp(){
 		
 		CommCareApp app = null;
-		if(this.upgradeMode) {
+		
+		int resourceInstallState = getResourceInstallState();
+		
+		// we are in upgrade mode, just send back current app
+		
+		if(upgradeMode){
 			app = CommCareApplication._().getCurrentApp();
-		} else {
-			SqlStorage<ApplicationRecord> storage = CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
-			if(storage.getNumRecords() == 0) {
-				ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
-				app = new CommCareApp(newRecord);
-			} else {
-				//There should be _at most_ one other record
-				if(storage.getNumRecords() == 1) {
-					//This record must have just not installed fully.
-					ApplicationRecord record = storage.iterate().next();
-					if(record.getStatus() != ApplicationRecord.STATUS_UNINITIALIZED) {
-						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
-						return;
-					}
-					app = new CommCareApp(record);
-					app.clearInstallData();
-				} else {
-					fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
-				}
-			}
+			return app;
 		}
 		
-		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode, app);
+		//we have a clean slate, create a new app
+		if(partialMode){
+
+			return ccApp;
+			
+		}
+		else{
+			ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
+			app = new CommCareApp(newRecord);
+			return app;
+		}
+	}
+
+	private void startResourceInstall() {
+		
+		String ref = getRef();
+		
+		CommCareApp app = getCommCareApp();
+		
+		ccApp = app;
+		
+		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode, partialMode, app);
+		
 		task.setListener(this);
 		
 		task.execute(ref);
@@ -403,6 +452,23 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	installButton.setVisibility(View.VISIBLE);
     	startOverButton.setVisibility(View.VISIBLE);
     	addressEntryButton.setVisibility(View.GONE);
+    	retryButton.setVisibility(View.GONE);
+    }
+    
+    public void setModeToError(String message, boolean canRetry){
+    	this.uiState = UiState.error;
+    	mainMessage.setText(message);
+    	advancedView.setVisibility(View.GONE);
+    	mScanBarcodeButton.setVisibility(View.GONE);
+    	installButton.setVisibility(View.GONE);
+    	startOverButton.setVisibility(View.VISIBLE);
+    	addressEntryButton.setVisibility(View.GONE);
+    	if(canRetry){
+    		retryButton.setVisibility(View.VISIBLE);
+    	}
+    	else{
+    		retryButton.setVisibility(View.GONE);
+    	}
     }
     
     public void setModeToBasic(){
@@ -415,6 +481,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	mScanBarcodeButton.setVisibility(View.VISIBLE);
     	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
+    	retryButton.setVisibility(View.GONE);
     }
 
     public void setModeToAdvanced(){
@@ -430,6 +497,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         installButton.setVisibility(View.VISIBLE);
         startOverButton.setVisibility(View.VISIBLE);
     	installButton.setEnabled(true);
+    	retryButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -524,9 +592,23 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		fail(message, false);
 	}
 	
-	public void fail(NotificationMessage message, boolean alwaysNotify) {
+	public void setAskRetry(){
+		
+	}
+	
+	public void fail(NotificationMessage message, boolean alwaysNotify) {	
+		fail(message, alwaysNotify, true);
+	}
+	
+	public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
 		unlock();
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
+		
+		retryCount++;
+		
+		if(retryCount > RETRY_LIMIT){
+			canRetry = false;
+		}
 		
 		if(isAuto || alwaysNotify) {
 			CommCareApplication._().reportNotificationMessage(message);
@@ -535,8 +617,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			done(false);
 		} else {
 			if(alwaysNotify) {
-				mainMessage.setText(Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()}));
+				setModeToError(Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()}),canRetry);
 			} else {
+				setModeToError(message.getDetails(),canRetry);
 				mainMessage.setText(message.getDetails());
 			}
 		}

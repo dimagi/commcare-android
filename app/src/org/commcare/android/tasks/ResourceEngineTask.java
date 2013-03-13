@@ -81,15 +81,21 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	int badReqCode = -1;
 	private int phase = -1;  
 	boolean upgradeMode = false;
+	boolean partialMode = false;
 	
 	String vAvailable;
 	String vRequired;
 	boolean majorIsProblem;
 	
-	public ResourceEngineTask(Context c, boolean upgradeMode, CommCareApp app) throws SessionUnavailableException{
+	public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app) throws SessionUnavailableException{
+		this.partialMode = partialMode;
 		this.c = c;
 		this.upgradeMode = upgradeMode;
 		this.app = app;
+	}
+	
+	public ResourceEngineTask(Context c, boolean upgradeMode, CommCareApp app) throws SessionUnavailableException{
+		this(c, upgradeMode, false, app);
 	}
 	
 	/* (non-Javadoc)
@@ -108,43 +114,26 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		
 		app.setupSandbox();
 		
-		if(upgradeMode) {
-			Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning upgrade attempt for profile " + profileRefs[0]);
-		} else {
-			Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning install attempt for profile " + profileRefs[0]);
-		}
+		Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning install attempt for profile " + profileRefs[0]);
 		
+		if(upgradeMode && partialMode){System.out.println("This shoiuldn't hapen, right?");} // TODO
 		
 		try {
+			
 			//This is replicated in the application in a few places.
     		ResourceTable global = platform.getGlobalResourceTable();
     		
     		//Ok, should figure out what the state of this bad boy is.
     		Resource profile = global.getResourceWithId("commcare-application-profile");
     		
-    		if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-    			//We've got a fully installed profile, that's either very good, or very bad.
-    			if(upgradeMode) {
-    				//Good!
-    			} else {
-    				//Very bad!
-    				return ResourceEngineOutcomes.StatusFailState;
-    			}
-    		} else {
-    			//No profile.
-    			if(upgradeMode) {
-    				//We shouldn't have even been able to get here....
-    				return ResourceEngineOutcomes.StatusFailState;
-    			} else {
-    				//Good. 
-    			}
-    		}
+    		boolean sanityTest1 = (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
     		
     		
-    		global.setStateListener(this);
-    		
-    		if(upgradeMode) {
-    			//See where we are now
+			if(upgradeMode){
+				
+				if(!sanityTest1) return ResourceEngineOutcomes.StatusFailState;
+				global.setStateListener(this);
+				
 				int previousVersion = profile.getVersion();
 				
 				ResourceTable temporary = platform.getUpgradeResourceTable();
@@ -160,14 +149,22 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	    			Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
 	    			return ResourceEngineOutcomes.StatusUpToDate;
 	    		}
-    		} else {
-    			platform.init(profileRef, global, false);
-    		}
-    		
-    		//Installation complete, mark it
-    		if(!upgradeMode) {
-    			app.writeInstalled();
-    		}
+				
+			} else if(partialMode){
+				
+				global.setStateListener(this);
+				platform.init(profileRef, global, false);
+				app.writeInstalled();
+				
+			} else { 
+				//this is a standard, clean install
+				if(sanityTest1) return ResourceEngineOutcomes.StatusFailState;
+				global.setStateListener(this);
+				platform.init(profileRef, global, false);
+				
+				app.writeInstalled();
+				
+			}
     		
 			//Initialize them now that they're installed
 			CommCareApplication._().initializeGlobalResources(app);
@@ -184,14 +181,15 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
     		
     		return ResourceEngineOutcomes.StatusInstalled;
 		} catch (LocalStorageUnavailableException e) {
+			System.out.println("307 local storage");
 			e.printStackTrace();
-			if(!upgradeMode) {
-				app.clearInstallData();
-			}
+			
+			tryToClearApp();
 			
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Couldn't install file to local storage|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusNoLocalStorage;
 		}catch (UnfullfilledRequirementsException e) {
+			System.out.println("307 unfulfilled");
 			e.printStackTrace();
 			badReqCode = e.getRequirementCode();
 			
@@ -199,18 +197,16 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			vRequired= e.getRequiredVersionString();
 			majorIsProblem = e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION;
 			
-			if(!upgradeMode) {
-				app.clearInstallData();
-			}
+			tryToClearApp();
+			
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "App resources are incompatible with this device|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusBadReqs;
 		} catch (UnresolvedResourceException e) {
+			System.out.println("307 unresolved resource");
 			//couldn't find a resource, which isn't good. 
 			e.printStackTrace();
 			
-			if(!upgradeMode) {
-				app.clearInstallData();
-			}
+			tryToClearApp();
 			
 			missingResourceException = e; 
 			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "A resource couldn't be found, almost certainly due to the network|" + e.getMessage());
@@ -220,14 +216,19 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				return ResourceEngineOutcomes.StatusMissing;
 			}
 		} catch(Exception e) {
+			System.out.println("307 general exception");
 			e.printStackTrace();
 			
-			if(!upgradeMode) {
-				app.clearInstallData();
-			}
+			tryToClearApp();
 			
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unknown error ocurred during install|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusFailUnknown;
+		}
+	}
+	
+	protected void tryToClearApp(){
+		if(listener.shouldClearData()) {
+			//app.clearInstallData();
 		}
 	}
 	
@@ -249,6 +250,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	@Override
 	protected void onPostExecute(ResourceEngineOutcomes result) {
 		if(listener != null) {
+			System.out.println("307 result: " + result.getCategory());
 			if(result == ResourceEngineOutcomes.StatusInstalled){
 				listener.reportSuccess(true);
 			} else if(result == ResourceEngineOutcomes.StatusUpToDate){

@@ -10,4 +10,5 @@ public interface ResourceEngineListener {
 	public void failUnknown(ResourceEngineOutcomes statusfailunknown);
 	public void updateProgress(int done, int pending, int phase);
 	public void failWithNotification(ResourceEngineOutcomes statusfailstate);
+	public boolean shouldClearData();
 }
