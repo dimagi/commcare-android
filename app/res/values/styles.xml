@@ -71,4 +71,35 @@
     <item name="android:activityCloseEnterAnimation">@anim/push_right_in</item>
     <item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
    </style>
+   
+   <style name="ButtonBottom">
+       <item name="android:layout_marginLeft">10dp</item>
+       <item name="android:layout_marginRight">10dp</item>
+       <item name="android:layout_marginBottom">10dp</item>
+   </style>
+   
+   <style name="TextInteractive">
+       <item name="android:background">@drawable/bubble</item>
+       <item name="android:paddingTop">2dp</item>
+       <item name="android:paddingBottom">2dp</item>
+       <item name="android:layout_marginLeft">2dp</item>
+       <item name="android:paddingLeft">5dp</item>
+       <item name="android:paddingRight">5dp</item>
+       <item name="android:layout_marginRight">2dp</item>
+       <item name="android:gravity">center</item>
+   </style>
+   
+   <style name="TextInteractiveProblem">
+       <item name="android:background">@drawable/bubble_danger</item>
+       <item name="android:paddingTop">2dp</item>
+       <item name="android:paddingBottom">2dp</item>
+       <item name="android:layout_marginLeft">2dp</item>
+       <item name="android:paddingLeft">5dp</item>
+       <item name="android:paddingRight">5dp</item>
+       <item name="android:layout_marginRight">2dp</item>
+       <item name="android:gravity">center</item>
+       <item name ="android:textStyle">bold</item>
+       <item name ="android:textColor">@color/red</item>
+   </style>
+   
 </resources>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:id="@+id/screen_multimedia_inflater_frame_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp" >
+
+        <ImageButton
+            android:id="@+id/screen_multimedia_inflater_filefetch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_menu_archive" />
+
+        <EditText
+            android:id="@+id/screen_multimedia_inflater_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@id/screen_multimedia_inflater_filefetch"
+            android:focusable="false" >
+
+            <requestFocus />
+        </EditText>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/screen_multimedia_inflater_prompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/screen_multimedia_inflater_frame_location"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:text="From here you can install your app multimedia from a ZIP file on the local filesystem" />
+
+    <TextView
+        android:id="@+id/screen_multimedia_install_messages"
+        style="@style/TextInteractive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/screen_multimedia_inflater_frame_location"
+        android:layout_centerHorizontal="true"
+        android:text="Please select a valid ZIP file" />
+
+    <Button
+        android:id="@+id/screen_multimedia_inflater_install"
+        style="@style/ButtonBottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Install Multimedia" />
+
+</RelativeLayout>
