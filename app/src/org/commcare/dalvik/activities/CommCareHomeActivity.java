@@ -545,7 +545,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		    			return;
 	        		}
 	        		
-	                Cursor c = managedQuery(resultInstanceURI, null,null,null, null);
+	                Cursor c = getContentResolver().query(resultInstanceURI, null,null,null, null);
 	                boolean complete = false;
 	                try {
 	                	complete = currentState.beginRecordTransaction(resultInstanceURI, c);
