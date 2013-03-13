@@ -4,18 +4,22 @@
 package org.commcare.android.view;
 
 import org.commcare.android.models.Entity;
-import org.commcare.dalvik.R;
 import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.MediaUtil;
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
 
 import android.content.Context;
-import android.text.InputType;
-import android.view.Gravity;
+import android.graphics.Bitmap;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -32,6 +36,7 @@ public class EntityDetailView extends FrameLayout {
 	private View addressView;
 	private Button addressButton;
 	private TextView addressText;
+	private ImageView imageView;
 	
 	private View valuePane;
 	
@@ -47,6 +52,7 @@ public class EntityDetailView extends FrameLayout {
 	private static final int TEXT = 0;
 	private static final int PHONE = 1;
 	private static final int ADDRESS = 2;
+	private static final int IMAGE = 3;
 	
 	
 	DetailCalloutListener listener;
@@ -70,6 +76,7 @@ public class EntityDetailView extends FrameLayout {
 	    addressView = (View)detailRow.findViewById(R.id.detail_address_view);
 	    addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
 	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
+	    imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
 	    
 	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
 	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
@@ -123,6 +130,35 @@ public class EntityDetailView extends FrameLayout {
 				addressView.setVisibility(View.VISIBLE);
 				currentView = addressView;
 				current = ADDRESS;
+			}
+		} else if("image".equals(d.getTemplateForms()[index])) {
+			String imageLocation = e.getField(index);
+			Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
+			
+			if(b == null) {
+				imageView.setImageDrawable(null);
+			} else {
+				
+                Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                int screenWidth = display.getWidth();
+
+				
+				//Ok, so. We should figure out whether our image is large or small.
+				if(b.getWidth() > (screenWidth / 2)) {
+					veryLong = true;
+				}
+				
+				imageView.setPadding(10, 10, 10, 10);
+				imageView.setAdjustViewBounds(true);
+				imageView.setImageBitmap(b);
+				imageView.setId(23422634);
+			}
+			
+			if(current != IMAGE) {
+				currentView.setVisibility(View.GONE);
+				imageView.setVisibility(View.VISIBLE);
+				currentView = imageView;
+				current = IMAGE;
 			}
 		} else {
 			String text = e.getField(index);

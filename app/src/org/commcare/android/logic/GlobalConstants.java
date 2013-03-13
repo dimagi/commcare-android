@@ -8,6 +8,8 @@ public class GlobalConstants {
 	public static final String FILE_CC_MEDIA = "media/";
 	public static final String FILE_CC_LOGS = "logs/";
 	
+	public static final String FILE_CC_ATTACHMENTS = "attachments/";
+	
 	public static final String FILE_CC_FORMS = "formdata/";
 	
 	public static final String CC_DB_NAME = "commcare";
@@ -30,6 +32,8 @@ public class GlobalConstants {
     public static final String INSTALL_REF = "jr://file/commcare/install";
     
     public static final String UPGRADE_REF = "jr://file/commcare/upgrade";
+    
+    public static final String ATTACHMENT_REF = "jr://file/attachments/";
     
 
     /**

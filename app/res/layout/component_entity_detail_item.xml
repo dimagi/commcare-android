@@ -23,7 +23,6 @@
         android:layout_weight="6">
 
         <TextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/detail_value_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -35,7 +34,6 @@
             android:visibility="visible" />
 
         <Button
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/detail_value_phone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -49,8 +47,17 @@
             android:typeface="monospace"
             android:visibility="gone" />
 
+        <ImageView
+            android:id="@+id/detail_value_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="right|center_vertical"
+            android:gravity="left|center_vertical"
+            android:padding="15dp"
+            android:scaleType="fitCenter"
+            android:visibility="visible" />
+
         <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/detail_address_view"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -79,7 +86,8 @@
                 android:inputType="textMultiLine|textPostalAddress"
                 android:paddingLeft="10dp"
                 android:text="Sample Address" />
-        </LinearLayout>
+        </LinearLayout>
+        
         
         <LinearLayout
         android:layout_width="fill_parent"

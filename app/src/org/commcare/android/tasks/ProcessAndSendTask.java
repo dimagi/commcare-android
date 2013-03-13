@@ -303,14 +303,15 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		String form = record.getPath(c);
 		
 		DataModelPullParser parser;
-		File f = new File(form);
+		final File f = new File(form);
 
-		InputStream is = new CipherInputStream(new FileInputStream(f), getDecryptCipher(new SecretKeySpec(record.getAesKey(), "AES")));
+		final Cipher decrypter =getDecryptCipher(new SecretKeySpec(record.getAesKey(), "AES"));
+		InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
 		parser = new DataModelPullParser(is, new TransactionParserFactory() {
 			
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 				if(name.toLowerCase().equals("case")) {
-					return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+					return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class), decrypter, null, f.getParentFile());
 				} 
 				return null;
 			}
