@@ -120,6 +120,10 @@ public class CommCareApp {
 		System.out.println("recovery");
 		System.out.println(recovery.toString());
 		
+
+		/**
+		 * See if any of our tables got left in a weird state 
+		 */
 		
 		if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
 			global.rollbackCommits();
@@ -133,8 +137,14 @@ public class CommCareApp {
 			System.out.println("upgrade after rollback");
 			System.out.println(upgrade.toString());
 		}
-		
+
+		/**
+		 * See if we got left in the middle of an update 
+		 */
+
 		if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
+			//If so, repair the global table. (Always takes priority over maintaining
+			//the update)
 			global.repairTable(upgrade);
 		}
 		

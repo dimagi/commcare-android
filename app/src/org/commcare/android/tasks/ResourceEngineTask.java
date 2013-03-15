@@ -141,16 +141,16 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				temporary.setStateListener(this);
 
 				platform.stageUpgradeTable(global, temporary, profileRef, true);
-				phase = PHASE_CHECKING;
-				platform.upgrade(global, temporary, recovery);
-				
-				//And see where we ended up to see whether an upgrade actually occurred
 	    		Resource newProfile = global.getResourceWithId("commcare-application-profile");
 	    		if(newProfile.getVersion() == previousVersion) {
 	    			Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
 	    			return ResourceEngineOutcomes.StatusUpToDate;
 	    		}
+
+				phase = PHASE_CHECKING;
+				platform.upgrade(global, temporary, recovery);
 				
+				//And see where we ended up to see whether an upgrade actually occurred				
 			} else if(partialMode){
 				
 				global.setStateListener(this);

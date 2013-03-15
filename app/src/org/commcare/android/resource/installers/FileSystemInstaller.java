@@ -181,7 +181,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 			//due to the staging rules. If there's a file there, it's this one.
 			if(newFile.exists()) { return true; }
 			else {
-				//... soo.... we don't have a file. Not good.
+				//... soo.... we don't have a file. 
 				return false;
 			}
 		}
@@ -382,7 +382,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	//TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
 	public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
 		String input = loc.getLocation();
-		String extension = ".xml";
+		String extension = "";
 		int lastDot = input.lastIndexOf(".");
 		if(lastDot != -1) {
 			extension =input.substring(lastDot);
@@ -397,7 +397,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		int invalid = -1;
 		//we wanna go from the last "." to the next non-alphanumeric character.
 		for(int i = 1 ; i <input.length(); ++i ){
-			if(validExtChars.indexOf(input.charAt(i)) != -1) {
+			if(validExtChars.indexOf(input.charAt(i)) == -1) {
 				invalid = i;
 				break;
 			}
