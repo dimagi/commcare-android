@@ -137,11 +137,12 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				int previousVersion = profile.getVersion();
 				
 				ResourceTable temporary = platform.getUpgradeResourceTable();
+				ResourceTable recovery = platform.getRecoveryTable();
 				temporary.setStateListener(this);
 
-				platform.stageUpgradeTable(global, temporary, profileRef);
+				platform.stageUpgradeTable(global, temporary, profileRef, true);
 				phase = PHASE_CHECKING;
-				platform.upgrade(global, temporary);
+				platform.upgrade(global, temporary, recovery);
 				
 				//And see where we ended up to see whether an upgrade actually occurred
 	    		Resource newProfile = global.getResourceWithId("commcare-application-profile");

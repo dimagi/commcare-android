@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -23,6 +24,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.PrefixTreeNode;
@@ -140,15 +142,26 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 	 * @see org.commcare.android.resource.installers.FileSystemInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
 	 */
 	@Override
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
-		boolean fileUpgrade = super.upgrade(r, table);
+	public boolean upgrade(Resource r) {
+		boolean fileUpgrade = super.upgrade(r);
 		if(!fileUpgrade) { return false;}
 		
+		return updateFilePath();
+	}
+	
+	/**
+	 * At some point hopefully soon we're not going to be shuffling our xforms around like crazy, so updates will mostly involve
+	 * just changing where the provider points.
+	 * 
+	 * @return
+	 */
+	private boolean updateFilePath() {
 		String localRawUri;
 		try {
 			localRawUri = ReferenceManager._().DeriveReference(this.localLocation).getLocalURI();
 		} catch (InvalidReferenceException e) {
-			throw new UnresolvedResourceException(r, "Installed resource wasn't able to be derived from " + localLocation);
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Installed resource wasn't able to be derived from " + localLocation);
+			return false;
 		}
 		
 		//We're maintaining this whole Content setup now, so we've goota update things when we move them.
@@ -164,9 +177,30 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		} if(updatedRows == 0) {
 			return false;
 		}
-		
 		return true;
 	}
+
+	public boolean revert(Resource r, ResourceTable table) {
+		if(!super.revert(r,  table)) {
+			return false;
+		}
+		return updateFilePath();
+	}
+	
+	public int rollback(Resource r) {
+		int newStatus = super.rollback(r);
+		if(newStatus == Resource.RESOURCE_STATUS_INSTALLED) {
+			if(updateFilePath()) {
+				return newStatus;
+			} else {
+				//BOOO!
+				return -1;
+			}
+		} else {
+			return newStatus;
+		}
+	}
+
 
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()

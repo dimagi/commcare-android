@@ -26,7 +26,6 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 /**
  * 
@@ -109,6 +108,36 @@ public class CommCareApp {
 		setupSandbox();
 
 		ResourceTable global = platform.getGlobalResourceTable();
+		ResourceTable upgrade = platform.getUpgradeResourceTable();
+		ResourceTable recovery = platform.getRecoveryTable();
+		
+		System.out.println("Global");
+		System.out.println(global.toString());
+		
+		System.out.println("upgrade");
+		System.out.println(upgrade.toString());
+		
+		System.out.println("recovery");
+		System.out.println(recovery.toString());
+		
+		
+		if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+			global.rollbackCommits();
+			System.out.println("Global after rollback");
+			System.out.println(global.toString());
+		}
+		
+		
+		if(upgrade.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+			upgrade.rollbackCommits();
+			System.out.println("upgrade after rollback");
+			System.out.println(upgrade.toString());
+		}
+		
+		if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
+			global.repairTable(upgrade);
+		}
+		
 		//TODO: This, but better.
 		Resource profile = global.getResourceWithId("commcare-application-profile");
 		if(profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {

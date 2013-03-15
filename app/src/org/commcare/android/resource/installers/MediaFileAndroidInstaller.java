@@ -12,12 +12,13 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
-import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import android.util.Pair;
 
 /**
  * @author ctsims
@@ -40,8 +41,8 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable, org.commcare.resources.model.ResourceTable)
 	 */
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
-		boolean success = super.uninstall(r,table,incoming);
+	public boolean uninstall(Resource r) throws UnresolvedResourceException {
+		boolean success = super.uninstall(r);
 		if( success == false ) { return false; }
 		//cleanup dirs
 		return FileUtil.cleanFilePath(this.localDestination, path);
@@ -50,11 +51,8 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
 	 */
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
-		boolean success = super.upgrade(r,table);
-		if( success == false ) { return false; }
-		//cleanup dirs
-		return FileUtil.cleanFilePath(this.upgradeDestination, path);
+	public boolean upgrade(Resource r) {
+		return super.upgrade(r);
 	}
 	
 	protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
@@ -90,9 +88,17 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	@Override
-	public String getResourceName(Resource r, ResourceLocation loc) {
+	public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
 		int index = loc.getLocation().lastIndexOf("/");
-		if(index == -1 ) { return loc.getLocation(); }
-		return loc.getLocation().substring(index);
+		if(index == -1 ) { return new Pair<String,String>(loc.getLocation(), ".dat"); }
+		String fileName = loc.getLocation().substring(index);
+		
+		String extension = ".dat";
+		int lastDot = fileName.lastIndexOf(".");
+		if(lastDot != -1) {
+			extension =fileName.substring(lastDot);
+			fileName = fileName.substring(0, lastDot);
+		}
+		return new Pair<String, String>(fileName, extension);
 	}
 }
