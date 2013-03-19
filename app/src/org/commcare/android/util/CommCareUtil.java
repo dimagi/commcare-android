@@ -5,6 +5,7 @@ package org.commcare.android.util;
 
 import java.util.Vector;
 
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;

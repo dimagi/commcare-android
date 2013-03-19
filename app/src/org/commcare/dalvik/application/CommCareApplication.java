@@ -646,8 +646,10 @@ public class CommCareApplication extends Application {
 					
 					doReportMaintenance(false);
 					
-					//Register that this user was the last to succesfully log in
-					getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
+					//Register that this user was the last to successfully log in if it's a real user
+					if(!User.TYPE_DEMO.equals(user.getUserType())) {
+						getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
+					}
 				}
 				}
 		    }
@@ -751,7 +753,24 @@ public class CommCareApplication extends Application {
 		return false;
 	}
 	
+	/**
+	 * Whether automated stuff like autoupdates/syncing are valid and should be triggered. 
+	 * 
+	 * @return
+	 */
+	private boolean areAutomatedActionsValid() {
+		try	{
+			if(User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType())) {
+				return false;
+			}
+		} catch(SessionUnavailableException sue) {
+			return false;
+		}
+		return true;
+	}
+	
 	public boolean isUpdatePending() {
+		if(!areAutomatedActionsValid()) { return false;}
 		//We only set this to true occasionally, but in theory it could be set to false 
 		//from other factors, so turn it off if it is.
 		if(getPendingUpdateStatus() == false) {
@@ -937,6 +956,7 @@ public class CommCareApplication extends Application {
     }
 
 	public synchronized boolean isSyncPending(boolean clearFlag) {
+		if(!areAutomatedActionsValid()) { return false;}
 		//We only set this to true occasionally, but in theory it could be set to false 
 		//from other factors, so turn it off if it is.
 		if(getPendingSyncStatus() == false) {

@@ -33,15 +33,9 @@ import android.util.Pair;
 public abstract class DbHelper {
 	
 	protected Context c;
-	private Cipher encrypter;
 	
 	public DbHelper(Context c) {
 		this.c = c;
-	}
-	
-	public DbHelper(Context c, Cipher encrypter) {
-		this.c = c;
-		this.encrypter = encrypter;
 	}
 	
 	public abstract SQLiteDatabase getHandle();
@@ -89,7 +83,6 @@ public abstract class DbHelper {
 	
 	public ContentValues getContentValues(Externalizable e) {
 		boolean encrypt = e instanceof EncryptedModel;
-		assert(!(encrypt) || encrypter != null);
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		OutputStream out = bos;
