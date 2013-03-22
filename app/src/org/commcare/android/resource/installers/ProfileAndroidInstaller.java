@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
 import org.commcare.dalvik.application.CommCareApp;
@@ -24,6 +25,7 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.xmlpull.v1.XmlPullParserException;
@@ -51,11 +53,9 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 	 * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
 	 */
 	public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
-		
 		try {
 		
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
-			
 			
 			ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null, 
 					Resource.RESOURCE_STATUS_INSTALLED, false);
@@ -132,36 +132,37 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
 	 */
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
-		if(!super.upgrade(r, table)) {
+	public boolean upgrade(Resource r) {
+		if(!super.upgrade(r)) {
 			return false;
 		}
 		
 		try {
-		Reference local = ReferenceManager._().DeriveReference(localLocation);
-		
-		//Create a parser with no side effects
-		ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null,  Resource.RESOURCE_STATUS_INSTALLED, false);
-		
-		//Parse just the file (for the properties)
-		Profile p = parser.parse();
-		
-		initProperties(p);
+			Reference local = ReferenceManager._().DeriveReference(localLocation);
+			
+			//Create a parser with no side effects
+			ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null,  Resource.RESOURCE_STATUS_INSTALLED, false);
+			
+			//Parse just the file (for the properties)
+			Profile p = parser.parse();
+			
+			initProperties(p);
 		} catch (InvalidReferenceException e) {
 			e.printStackTrace();
-			throw new UnresolvedResourceException(r, "Profile not available after upgrade");
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+			return false;
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new UnresolvedResourceException(r, "Profile not available after upgrade");
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+			return false;
 		} catch (InvalidStructureException e) {
-			e.printStackTrace();
-			throw new UnresolvedResourceException(r, "Profile not parseable after upgrade");
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+			return false;
 		} catch (UnfullfilledRequirementsException e) {
-			e.printStackTrace();
-			throw new UnresolvedResourceException(r, "Profile not compatible after upgrade");
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+			return false;
 		} catch (XmlPullParserException e) {
-			e.printStackTrace();
-			throw new UnresolvedResourceException(r, "Profile not parseable after upgrade");
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+			return false;
 		}
 
 		return true;

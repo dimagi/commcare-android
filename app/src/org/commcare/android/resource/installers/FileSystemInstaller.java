@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
@@ -23,15 +23,21 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import android.util.Pair;
 
 /**
  * @author ctsims
  *
  */
 public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCarePlatform> {
+	
+	//TODO:HAAACKY.
+	private static final String STAGING_EXT = "cc_app-staging";
 
 
 	String localLocation;
@@ -50,6 +56,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#cleanup()
 	 */
+	@Override
 	public void cleanup() {
 		// TODO Auto-generated method stub
 
@@ -58,19 +65,22 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
 	 */
+	@Override
 	public abstract boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException;
 
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#install(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation, org.javarosa.core.reference.Reference, org.commcare.resources.model.ResourceTable, org.commcare.util.CommCareInstance, boolean)
 	 */
+	@Override
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
-		localLocation = (upgrade ? upgradeDestination : localDestination) + "/" + getResourceName(r,location);
 		try {
 			OutputStream os;
 			Reference local;
 			//Stream to location
 			try {
-				local = ReferenceManager._().DeriveReference(localLocation);
+				Pair<String, String> fileDetails = getResourceName(r,location);
+				local = getEmptyLocalReference((upgrade ? upgradeDestination : localDestination),fileDetails.first, fileDetails.second);
+				localLocation = local.getURI();
 				os = local.getOutputStream();
 			} catch(InvalidReferenceException ire) {
 				throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
@@ -93,17 +103,39 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		}
 	}
 
+	private Reference getEmptyLocalReference(String root, String fileName, String extension) throws InvalidReferenceException, IOException {
+		 Reference r = ReferenceManager._().DeriveReference(root + "/" + fileName + extension);
+		 int count = 0;
+		 while(r.doesBinaryExist()) {
+			 count++;
+			 r = ReferenceManager._().DeriveReference(root + "/" + fileName + String.valueOf(count) + extension);
+		 }
+		 return r;
+	}
+
+	/**
+	 * Perform any custom installation actions required for this resource.
+	 * 
+	 * @param r
+	 * @param local
+	 * @param upgrade
+	 * @return
+	 * @throws IOException
+	 * @throws UnresolvedResourceException
+	 */
 	protected abstract int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException;
 	
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
 	 */
+	@Override
 	public abstract boolean requiresRuntimeInitialization();
 
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable, org.commcare.resources.model.ResourceTable)
 	 */
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
+	@Override
+	public boolean uninstall(Resource r) throws UnresolvedResourceException {
 		try{
 			return new File(ReferenceManager._().DeriveReference(this.localLocation).getLocalURI()).delete();
 		} catch(InvalidReferenceException e) {
@@ -114,34 +146,223 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
 	 */
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
-		try {
-			
-			//Get the temporary location
-			Reference local = ReferenceManager._().DeriveReference(localLocation);
+	@Override
+	public boolean upgrade(Resource r) {
+		try { 			
+			//TODO: This process is silly! Just put the files somewhere as a resource with a unique GUID and stop shuffling them around!
+			//TODO: Also, there's way too much duplicated code here
 			
 			//use same filename as before
 			String filepart = localLocation.substring(localLocation.lastIndexOf("/"));
 
 			//Get final destination
 			String finalLocation =  localDestination + "/" + filepart;
-			Reference finalRef = ReferenceManager._().DeriveReference(finalLocation);
 			
-			if(!(new File(local.getLocalURI()).renameTo(new File(finalRef.getLocalURI())))) {
+			if(!moveFrom(localLocation, finalLocation, false)) {
 				return false;
 			}
 			
 			localLocation = finalLocation;
 			return true;
 		} catch (InvalidReferenceException e) {
-			e.printStackTrace();
-			throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
+			//e.printStackTrace();
+			//throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
+			return false;
 		}
+	}
+	
+	
+	private boolean moveFrom(String oldLocation, String newLocation, boolean force) throws InvalidReferenceException {
+		File newFile = new File(ReferenceManager._().DeriveReference(newLocation).getLocalURI());
+		File oldFile = new File(ReferenceManager._().DeriveReference(oldLocation).getLocalURI());
+		
+		if(!oldFile.exists()) {
+			//Nothing should be allowed to exist in the new location except for the incoming file
+			//due to the staging rules. If there's a file there, it's this one.
+			if(newFile.exists()) { return true; }
+			else {
+				//... soo.... we don't have a file. 
+				return false;
+			}
+		}
+		
+		if(oldFile.exists() && newFile.exists()) {
+			//There's a destination file where this file is 
+			//trying to move to. Something might have failed to unstage
+			if(force) {
+				//If we're recovering or something, wipe out the destination.
+				//we've gotta recover!
+				if(!newFile.delete()) {
+					return false;
+				} else {
+					//new file is gone. Let's get ours in there!
+				}
+			} else {
+				//can't copy over an existing file. An unstage might have failed.
+				return false;
+			}
+		}
+		
+		if(!(oldFile.renameTo(newFile))) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	@Override
+	public boolean unstage(Resource r, int newStatus) {
+		try {
+			//Our destination/source are different depending on where we're going
+			if(newStatus == Resource.RESOURCE_STATUS_UNSTAGED) {
+				String newLocation = localLocation + STAGING_EXT;
+				if(!moveFrom(localLocation, newLocation, true)) {
+					return false;
+				} 
+				localLocation = newLocation;
+				return true;
+			} else if(newStatus == Resource.RESOURCE_STATUS_UPGRADE) {
+				//use same filename as before
+				String filepart = localLocation.substring(localLocation.lastIndexOf("/"));
+
+				//Get update destination
+				String finalLocation =  upgradeDestination + "/" + filepart;
+				
+				//move back to upgrade folder
+				if(!moveFrom(localLocation, finalLocation, true)) {
+					return false;
+				}
+				localLocation = finalLocation;
+				return true;
+			} else {
+				Logger.log(AndroidLogger.TYPE_RESOURCES, "Couldn't figure out how to unstage to status " + newStatus);
+				return false;
+			}
+		}catch (InvalidReferenceException e) {
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Very Bad! Couldn't derive a reference to " + e.getReferenceString());
+			//e.printStackTrace();
+			//throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
+			return false;
+		}
+		
+	}
+
+	@Override
+	public boolean revert(Resource r, ResourceTable table) {
+		String finalLocation = null;
+		try {
+			//use same filename as before
+			String filepart = localLocation.substring(localLocation.lastIndexOf("/"));
+	
+			//remove staging extension 
+			int stagingindex = filepart.lastIndexOf(STAGING_EXT);
+			if(stagingindex != -1) {
+				filepart = filepart.substring(0, stagingindex);
+			}
+			
+			//Get final destination
+			finalLocation =  localDestination + "/" + filepart;
+			
+			if(!moveFrom(localLocation, finalLocation, true)) {
+				return false;
+			}
+			
+			localLocation = finalLocation;
+			return true;
+		} catch (InvalidReferenceException e) {
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Very Bad! Couldn't restore a resource to destination" + finalLocation+ " somehow");
+			//e.printStackTrace();
+			//throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
+			return false;
+		}
+	}
+	
+	public int rollback(Resource r) {
+		
+		//TODO: These filepath ops need to be the same for this all to work,
+		//which is not super robust against changes right now.
+		
+		int status = r.getStatus();
+		File currentPointer = new File(this.localLocation);
+		
+		String filepart = localLocation.substring(localLocation.lastIndexOf("/"));
+		int stagingindex = filepart.lastIndexOf(STAGING_EXT);
+		if(stagingindex != -1) {
+			filepart = filepart.substring(0, stagingindex);
+		}
+		
+		//Expected location for the file if the operation had succeeded.
+		String oldRef;
+		String expectedRef;
+		int[] rollbackPushForward;
+		
+		switch(status) {
+		case Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE:
+			oldRef = localDestination + "/" + filepart;
+			expectedRef = localDestination + "/" + filepart + STAGING_EXT;
+			rollbackPushForward = new int[]{Resource.RESOURCE_STATUS_INSTALLED, Resource.RESOURCE_STATUS_UNSTAGED};
+			break;
+		case Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL:
+			oldRef = localDestination + "/" + filepart + STAGING_EXT;
+			expectedRef = localDestination + "/" + filepart;
+			rollbackPushForward = new int[]{Resource.RESOURCE_STATUS_UNSTAGED, Resource.RESOURCE_STATUS_INSTALLED};
+			break;
+		case Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL:
+			oldRef = upgradeDestination + "/" + filepart;
+			expectedRef = localDestination + "/" + filepart;
+			rollbackPushForward = new int[]{Resource.RESOURCE_STATUS_UNSTAGED, Resource.RESOURCE_STATUS_INSTALLED};
+			break;
+		case Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE:
+			oldRef = localDestination + "/" + filepart;
+			expectedRef = upgradeDestination + "/" + filepart;
+			rollbackPushForward = new int[]{Resource.RESOURCE_STATUS_UNSTAGED, Resource.RESOURCE_STATUS_INSTALLED};
+			break;
+		default:
+			throw new RuntimeException("Unexpected status for rollback! " + status);
+		}
+		
+		try {
+			File preMove = new File(ReferenceManager._().DeriveReference(oldRef).getLocalURI());
+			
+			File expectedFile = new File(ReferenceManager._().DeriveReference(expectedRef).getLocalURI());
+			
+			
+			
+			
+			//the expectation is that localReference might be pointing to the old ref which no longer exists, 
+			//in which case the moved already happened.
+			if(currentPointer.exists()) {
+				
+				//This either means that the move worked (we couldn't have updated the pointer otherwise)
+				//or that it didn't move.
+				if(currentPointer.getCanonicalFile().equals(preMove.getCanonicalFile())) {
+					return rollbackPushForward[0];
+				} else if(currentPointer.getCanonicalFile().equals(expectedFile.getCanonicalFile())) {
+					return rollbackPushForward[1];
+				} else {
+					//Uh... we should only have been able to move the file to one of those places.
+					return -1;
+				}
+			} else {
+				//The file should have already moved to its new location
+				if(expectedFile.exists()) {
+					localLocation = expectedRef;
+					return rollbackPushForward[1];
+				} else {
+					return -1;					
+				}
+			}
+		} catch (InvalidReferenceException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} 
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
 	 */
+	@Override
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		this.localLocation = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		this.localDestination = ExtUtil.readString(in);
@@ -151,14 +372,38 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
 	 */
+	@Override
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(localLocation));
 		ExtUtil.writeString(out, localDestination);
 		ExtUtil.writeString(out, upgradeDestination);
 	}
 	
-	public String getResourceName(Resource r, ResourceLocation loc) {
-		return r.getResourceId() + ".xml";
+	//TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
+	public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
+		String input = loc.getLocation();
+		String extension = "";
+		int lastDot = input.lastIndexOf(".");
+		if(lastDot != -1) {
+			extension =input.substring(lastDot);
+		}
+		return new Pair<String, String>(r.getResourceId(), extension(extension));
+	}
+	
+	//Hate this
+	private static final String validExtChars ="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	
+	protected String extension(String input) {
+		int invalid = -1;
+		//we wanna go from the last "." to the next non-alphanumeric character.
+		for(int i = 1 ; i <input.length(); ++i ){
+			if(validExtChars.indexOf(input.charAt(i)) == -1) {
+				invalid = i;
+				break;
+			}
+		}
+		if(invalid == -1 ) {return input;}
+		return input.substring(0, invalid);
 	}
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> issues) {

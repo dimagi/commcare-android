@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
+import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
@@ -69,6 +70,4 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
 		super.writeExternal(out);
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(locale));
 	}
-
-
 }

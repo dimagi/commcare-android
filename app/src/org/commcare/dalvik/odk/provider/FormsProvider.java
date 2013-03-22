@@ -312,37 +312,9 @@ public class FormsProvider extends ContentProvider {
                     String formFile = values.getAsString(FormsColumns.FORM_FILE_PATH);
                     values.put(FormsColumns.MD5_HASH, FileUtil.getMd5Hash(new File(formFile)));
                 }
-
-                Cursor c = null;
-                try {
-                	c = this.query(uri, null, where, whereArgs, null);
-	
-	                if (c.getCount() > 0) {
-	                    c.moveToPosition(-1);
-	                    while (c.moveToNext()) {
-	                        // before updating the paths, delete all the files
-	                        if (values.containsKey(FormsColumns.FORM_FILE_PATH)) {
-	                            String newFile = values.getAsString(FormsColumns.FORM_FILE_PATH);
-	                            String delFile =
-	                                c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-	                            if (newFile.equalsIgnoreCase(delFile)) {
-	                                // same file, so don't delete anything
-	                            } else {
-	                                // different files, delete the old one
-	                                FileUtil.deleteFileOrDir(delFile);
-	                            }
-	
-	                            // either way, delete the old cache because we'll calculate a new one.
-	                            FileUtil.deleteFileOrDir(c.getString(c
-	                                    .getColumnIndex(FormsColumns.JRCACHE_FILE_PATH)));
-	                        }
-	                    }
-	                }
-                } finally {
-                	if ( c != null ) {
-                		c.close();
-                	}
-                }
+                
+            	//We used to delete the old files here, but we don't do that in CCODK. the
+            	//app is responsible for those resources;
 
                 // Make sure that the necessary fields are all set
                 if (values.containsKey(FormsColumns.DATE) == true) {

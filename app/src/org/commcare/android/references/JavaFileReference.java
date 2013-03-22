@@ -33,6 +33,7 @@ public class JavaFileReference implements Reference {
 	public OutputStream getOutputStream() throws IOException {
 		File f = file();
 		ensureFilePathExists(f);
+		f.createNewFile();
 		return new FileOutputStream(f);
 	}
 	
@@ -52,10 +53,9 @@ public class JavaFileReference implements Reference {
 
 	public InputStream getStream() throws IOException {
 		File file = file();
+		//CTS: Removed a thing here that created an empty file. Not sure why that was there.
 		if(!file.exists()) {
-			if(!file.createNewFile()) {
-				throw new IOException("Could not create file at URI " + file.getAbsolutePath());
-			}
+			throw new IOException("No file exists at " + file.getAbsolutePath());
 		}
 		return new FileInputStream(file);
 	}

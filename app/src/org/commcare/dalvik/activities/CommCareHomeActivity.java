@@ -1,9 +1,9 @@
 package org.commcare.dalvik.activities;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
@@ -24,8 +24,8 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -36,10 +36,13 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -56,16 +59,16 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.format.DateUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -178,9 +181,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().logout();
-                
-                //This will dispatch the login screen by default more cleanly
-                dispatchHomeScreen();
+                returnToLogin(null);
             }
         });
         
@@ -260,6 +261,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     private void syncData() {
     	User u = CommCareApplication._().getSession().getLoggedInUser();
     	
+    	if(User.TYPE_DEMO.equals(u.getUserType())) {
+    		//Remind the user that there's no syncing in demo mode.0
+    		displayMessage(Localization.get("main.sync.demo"), true, true);
+    		return;
+		}
 		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
 		mDataPullTask = new DataPullTask(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this);
@@ -415,6 +421,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			} else {
 	    				refreshView();
 	    				checkAndStartUnsentTask(this);
+	    				
+	    				showDemoModeWarning();
 	    			}
 	    			return;
 	    		}
@@ -661,6 +669,65 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	super.onActivityResult(requestCode, resultCode, intent);
 
     }
+
+	private void showDemoModeWarning() {
+		//TODO: How do we style this to "light"?
+		AlertDialog demoModeWarning = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Light)).setInverseBackgroundForced(true).create();
+        demoModeWarning.setTitle(Localization.get("demo.mode.warning.title"));
+        //demoModeWarning.setMessage(Localization.get("demo.mode.warning"));
+        
+        
+//        final String[] local = new String[1];
+//		try{
+//			String path = Localization.get("demo.warning.filepath");
+//			Reference ref = ReferenceManager._().DeriveReference(path);
+//			if(ref.doesBinaryExist()) {
+//				local[0] = ref.getLocalURI();
+//			}
+//		} catch(NoLocalizedTextException nlte) {
+//			
+//		} catch (InvalidReferenceException e) {
+//			Logger.log(AndroidLogger.TYPE_RESOURCES, "Couldn't find the audio to read for demo mode at :" +e.getReferenceString());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+        
+        DialogInterface.OnClickListener demoModeWarningListener = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON1:
+                    	//Nothing, dismiss
+                    	break;
+                }
+
+            }
+        };
+        demoModeWarning.setCancelable(false);
+        demoModeWarning.setButton(Localization.get("demo.mode.warning.dismiss"), demoModeWarningListener);
+        
+        
+		String path = null;
+		try {
+			path = Localization.get("demo.warning.filepath");
+		} catch(NoLocalizedTextException nlte) {
+		
+		}
+
+        
+        TextImageAudioView tiav = new TextImageAudioView(this);
+        tiav.setAVT(Localization.get("demo.mode.warning"), path, null);
+        demoModeWarning.setView(tiav);
+        
+        demoModeWarning.show();
+        
+//        if(local!= null) {
+//        	Button audioButton = demoModeWarning.getButton(AlertDialog.BUTTON2);
+//        	audioButton.setText("");
+//        	audioButton.setCompoundDrawablesWithIntrinsicBounds(this.getResources().getDrawable(android.R.drawable.ic_lock_silent_mode_off), null, null, null);
+//        }
+	}
 
 	private void startNextFetch() throws SessionUnavailableException {
     	
@@ -909,7 +976,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void returnToLogin(String message) {
-    	Toast.makeText(this, message, Toast.LENGTH_LONG);
+    	if(message != null) {
+    		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    	}
     	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
     	i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     	startActivityForResult(i,LOGIN_USER);
@@ -1112,6 +1181,28 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY,"5"));
     	unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY,"5"));
     	
+    	String syncKey = "home.sync";
+    	String lastMessageKey = "home.sync.message.last";
+    	String homeMessageKey = "home.start";
+    	String logoutMessageKey = "home.logout";
+        
+        try {
+	        User u = CommCareApplication._().getSession().getLoggedInUser();
+	        if(User.TYPE_DEMO.equals(u.getUserType())) {
+	        	syncKey="home.sync.demo";
+	        	lastMessageKey="home.sync.message.last";
+	        	homeMessageKey="home.start.demo";
+	        	logoutMessageKey = "home.logout.demo";
+	        }
+        } catch(SessionUnavailableException e) {
+        	
+        }
+        
+        //since these might have changed
+    	startButton.setText(Localization.get(homeMessageKey));
+    	logoutButton.setText(Localization.get(logoutMessageKey));
+    	
+    	
     	CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
     	//TODO: Localize this all
     	String message = "";
@@ -1121,9 +1212,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     		message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
     	}
     	if(syncDetails.second[0] > 0) {
-    		syncButton.setText(Localization.get("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get("home.sync")}));
+    		syncButton.setText(Localization.get("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
     	} else {
-    		syncButton.setText(Localization.get("home.sync"));
+    		syncButton.setText(Localization.get(syncKey));
     	}
     	
     	if(syncDetails.second[1] > 0) {
@@ -1146,7 +1237,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 			syncOK = false;
 		}
     	
-    	message += Localization.get("home.sync.message.last", new String[] { syncTime.toString() });
+    	message += Localization.get(lastMessageKey, new String[] { syncTime.toString() });
     	
     	displayMessage(message, !syncOK, true);
 
@@ -1173,6 +1264,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         } else {
         	formRecordPane.setVisibility(View.VISIBLE);
         }
+
     }
 
     //Process and send listeners
@@ -1242,9 +1334,23 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         		android.R.drawable.ic_menu_gallery);
         return true;
     }
+    
 
+    /* (non-Javadoc)
+	 * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		User u = CommCareApplication._().getSession().getLoggedInUser();
+		boolean disableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+		menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
+		menu.findItem(MENU_UPDATE).setVisible(disableMenus);
+		menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
+		return true;
+	}
 
-    @Override
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_PREFERENCES:

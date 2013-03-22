@@ -20,6 +20,7 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -35,6 +36,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -49,6 +52,8 @@ import android.widget.Toast;
  */
 @ManagedUi(R.layout.screen_login)
 public class LoginActivity extends CommCareActivity<LoginActivity> implements DataPullListener {
+	
+	public static final int MENU_DEMO = Menu.FIRST;
 	
 	public static String ALREADY_LOGGED_IN = "la_loggedin";
 	
@@ -113,7 +118,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 			public void onClick(View arg0) {
 				errorBox.setVisibility(View.GONE);
 				//Try logging in locally
-				if(tryLocalLogin()) {
+				if(tryLocalLogin(false)) {
 					return;
 				}
 
@@ -201,15 +206,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
     	return username.getText().toString().toLowerCase().trim();
     }
     
-    private boolean tryLocalLogin() {
-    	return tryLocalLogin(false);
+    private boolean tryLocalLogin(final boolean warnMultipleAccounts) {
+    	//TODO: check username/password for emptiness
+    	return tryLocalLogin(getUsername(), password.getText().toString(), warnMultipleAccounts);
     }
     	
-    private boolean tryLocalLogin(final boolean warnMultipleAccounts) {
+    private boolean tryLocalLogin(final String username, String password, final boolean warnMultipleAccounts) {
     	try{
     		
-    		final String username = getUsername();
-	    	String passwd = password.getText().toString();
+    		//TODO: We don't actually even use this anymore other than for hte local login count, which
+    		//seems super silly.
 	    	UserKeyRecord matchingRecord = null;
 	    	int count = 0;
 	    	for(UserKeyRecord record : storage()) {
@@ -223,7 +229,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 	        		String salt = hash.split("\\$")[1];
 	        		String check = hash.split("\\$")[2];
 	        		MessageDigest md = MessageDigest.getInstance("SHA-1");
-	        		BigInteger number = new BigInteger(1, md.digest((salt+passwd).getBytes()));
+	        		BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
 	        		String hashed = number.toString(16);
 	        		
 	        		while(hashed.length() < check.length()) {
@@ -238,7 +244,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 	    	
 	    	final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
 	    	
-	    	ManageKeyRecordTask<LoginActivity> task = new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username, passwd, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener<LoginActivity>() {
+	    	ManageKeyRecordTask<LoginActivity> task = new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username, password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener<LoginActivity>() {
 
 				@Override
 				public void keysLoginComplete(LoginActivity r) {
@@ -336,6 +342,36 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
 			break;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
+        return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		boolean otherResult = super.onOptionsItemSelected(item);
+		switch(item.getItemId()) {
+		case MENU_DEMO:
+			//Make sure we have a demo user
+			DemoUserUtil.checkOrCreateDemoUser(this, CommCareApplication._().getCurrentApp());
+			
+			//Now try to log in as the demo user
+			tryLocalLogin(DemoUserUtil.DEMO_USER, DemoUserUtil.DEMO_USER, false);
+			
+			return true;
+		default:
+			return otherResult;
 		}
 	}
 

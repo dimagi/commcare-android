@@ -96,19 +96,37 @@ public class DummyResourceTable extends ResourceTable {
 						// TODO Auto-generated method stub
 						return true;
 					}
+					
+					public int rollback(Resource r) {
+						throw new RuntimeException("Basic Installer resources can't rolled back");
+					}
 
-					public boolean uninstall(Resource r, ResourceTable table,
-							ResourceTable incoming)
+					@Override
+					public boolean uninstall(Resource r)
 							throws UnresolvedResourceException {
 						// TODO Auto-generated method stub
 						return true;
 					}
 
-					public boolean upgrade(Resource r, ResourceTable table)
+					@Override
+					public boolean unstage(Resource r, int newStatus) {
+						// TODO Auto-generated method stub
+						return true;
+					}
+
+					@Override
+					public boolean revert(Resource r, ResourceTable table) {
+						// TODO Auto-generated method stub
+						return true;
+					}
+
+					@Override
+					public boolean upgrade(Resource r)
 							throws UnresolvedResourceException {
 						// TODO Auto-generated method stub
 						return true;
 					}
+
 
 					public void cleanup() {
 						// TODO Auto-generated method stub
@@ -168,12 +186,11 @@ public class DummyResourceTable extends ResourceTable {
 	}
 
 	@Override
-	public void commit(Resource r, int status)
-			throws UnresolvedResourceException {
+	public void commit(Resource r, int status) {
 	}
 
 	@Override
-	public void commit(Resource r) throws UnresolvedResourceException {
+	public void commit(Resource r) {
 	}
 
 	@Override

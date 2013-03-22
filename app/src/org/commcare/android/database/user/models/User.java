@@ -31,11 +31,12 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 
-@Table("USER")
+@Table(User.STORAGE_KEY)
 public class User implements Persistable, IMetaData
 {
-	public static final String ADMINUSER = "admin";
-	public static final String STANDARD = "standard";
+	public static final String STORAGE_KEY = "USER";
+	public static final String TYPE_STANDARD = "standard";
+	public static final String TYPE_DEMO = "demo";
 	public static final String KEY_USER_TYPE = "user_type";
 	
 	public static final String META_UID = "uid";
@@ -58,11 +59,11 @@ public class User implements Persistable, IMetaData
 	private Hashtable<String,String> properties = new Hashtable<String,String>(); 
 
 	public User () {
-		setUserType(STANDARD);
+		setUserType(TYPE_STANDARD);
 	}
 
 	public User(String name, String passw, String uniqueID) {
-		this(name, passw, uniqueID, STANDARD);
+		this(name, passw, uniqueID, TYPE_STANDARD);
 	}
 	
 	public User(String name, String passw, String uniqueID, String userType) {
@@ -95,11 +96,7 @@ public class User implements Persistable, IMetaData
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(syncToken));
 		ExtUtil.write(out, new ExtWrapMap(properties));
 	}
-
-	public boolean isAdminUser() {
-		return ADMINUSER.equals(getUserType());
-	}
-
+	
 	public String getUsername()
 	{
 		return username;

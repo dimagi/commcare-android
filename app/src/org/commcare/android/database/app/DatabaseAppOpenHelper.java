@@ -23,7 +23,7 @@ import android.content.Context;
  */
 public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 	
-	private static final int DB_VERSION_APP = 1;
+	private static final int DB_VERSION_APP = 2;
 	
 	private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
@@ -50,6 +50,10 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 			builder.addData(new Resource());
 			database.execSQL(builder.getTableCreateString());
 			
+			builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+			builder.addData(new Resource());
+			database.execSQL(builder.getTableCreateString());
+			
 			builder = new TableBuilder("fixture");
 			builder.addData(new FormInstance());
 			database.execSQL(builder.getTableCreateString());
@@ -67,7 +71,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		
+		AppDatabaseUpgrader.upgrade(db, oldVersion, newVersion);
 	}
 
 }
