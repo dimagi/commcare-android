@@ -93,7 +93,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, final AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException{
 		//First, make sure all the file stuff is managed.
 		super.install(r, location, ref, table, instance, upgrade);
-		System.out.println("143 suite android install");
 		try {
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
 			
@@ -152,8 +151,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
-		
-		System.out.println("verifying suite file");
 
 		try{
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
@@ -172,11 +169,8 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 			Enumeration e = menus.elements();
 			while(e.hasMoreElements()){
 				Menu mMenu = (Menu)e.nextElement();
-				System.out.println("mMenu: " + mMenu.getName());
 				String aURI = mMenu.getAudioURI();
 				String iURI = mMenu.getImageURI();
-				
-				System.out.println("aURI: " + aURI + "i URI" + iURI);
 				
 				try{
 					Reference aRef = ReferenceManager._().DeriveReference(aURI);

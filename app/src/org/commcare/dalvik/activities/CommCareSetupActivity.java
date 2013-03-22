@@ -1,3 +1,4 @@
+	
 /**
  * 
  */
@@ -163,7 +164,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
 			//and we can just skip this unless it's upgradeMode
 			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && !upgradeMode) {
-		        Intent i = new Intent(getIntent());
+		        Intent i = new Intent(getIntent());	
 		        
 		        setResult(RESULT_OK, i);
 		        finish();
@@ -181,7 +182,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	
 		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-                try {
+                try {	
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                 	//Barcode only
                     i.putExtra("SCAN_FORMATS","QR_CODE, DATA_MATRIX");
@@ -294,10 +295,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	unlock();
 	}
 	
-	public boolean shouldClearData(){
-		return(upgradeMode==false && partialMode==false);
-	}
-	
     /*
      * (non-Javadoc)
      * 
@@ -348,27 +345,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		return ref;
 	}
 	
-	public int getResourceInstallState(){
-		
-		if(this.upgradeMode){
-			return ResourceTable.RESOURCE_TABLE_UPGRADE;
-		}
-		
-		SqlStorage<ApplicationRecord> storage = CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
-		
-		if(storage.getNumRecords() == 0){
-			return ResourceTable.RESOURCE_TABLE_EMPTY;
-		}
-		else{
-			return ResourceTable.RESOURCE_TABLE_PARTIAL;
-		}
-	}
-	
 	private CommCareApp getCommCareApp(){
 		
 		CommCareApp app = null;
-		
-		int resourceInstallState = getResourceInstallState();
 		
 		// we are in upgrade mode, just send back current app
 		

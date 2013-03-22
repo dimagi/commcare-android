@@ -116,7 +116,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		
 		Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning install attempt for profile " + profileRefs[0]);
 		
-		if(upgradeMode && partialMode){System.out.println("This shoiuldn't hapen, right?");} // TODO
+		if(upgradeMode && partialMode){throw new RuntimeException("ResourceEngineTask sanity check");} // TODO
 		
 		try {
 			
@@ -181,7 +181,6 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
     		
     		return ResourceEngineOutcomes.StatusInstalled;
 		} catch (LocalStorageUnavailableException e) {
-			System.out.println("307 local storage");
 			e.printStackTrace();
 			
 			tryToClearApp();
@@ -189,7 +188,6 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Couldn't install file to local storage|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusNoLocalStorage;
 		}catch (UnfullfilledRequirementsException e) {
-			System.out.println("307 unfulfilled");
 			e.printStackTrace();
 			badReqCode = e.getRequirementCode();
 			
@@ -202,7 +200,6 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "App resources are incompatible with this device|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusBadReqs;
 		} catch (UnresolvedResourceException e) {
-			System.out.println("307 unresolved resource");
 			//couldn't find a resource, which isn't good. 
 			e.printStackTrace();
 			
@@ -216,7 +213,6 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				return ResourceEngineOutcomes.StatusMissing;
 			}
 		} catch(Exception e) {
-			System.out.println("307 general exception");
 			e.printStackTrace();
 			
 			tryToClearApp();
@@ -226,10 +222,11 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		}
 	}
 	
+	/**
+	 *  For now, never clear automatically - just let user choose when to retry vs. resume
+	 */
 	protected void tryToClearApp(){
-		if(listener.shouldClearData()) {
-			//app.clearInstallData();
-		}
+		//if(partialMode == false && upgradeMode == false){}
 	}
 	
 	/* (non-Javadoc)
@@ -250,7 +247,6 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	@Override
 	protected void onPostExecute(ResourceEngineOutcomes result) {
 		if(listener != null) {
-			System.out.println("307 result: " + result.getCategory());
 			if(result == ResourceEngineOutcomes.StatusInstalled){
 				listener.reportSuccess(true);
 			} else if(result == ResourceEngineOutcomes.StatusUpToDate){
