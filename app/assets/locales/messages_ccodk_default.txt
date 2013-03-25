@@ -19,6 +19,10 @@ modules.m0=pregenancy
 install.barcode=Welcome to CommCare! Please scan your App's CommCare Barcode to begin 
 install.manual=Please enter the URL for your application's profile file
 install.ready=Welcome to CommCare! Make sure you have an internet connection and press the button below to install your app
+install.button.enter=Enter App Location
+install.button.startover=Start Over
+install.button.retry=Retry Installation
+install.button.start=Begin Install
 
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application profile...

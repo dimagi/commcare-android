@@ -179,6 +179,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	addressEntryButton = (Button)this.findViewById(R.id.enter_app_location);
     	startOverButton = (Button)this.findViewById(R.id.start_over);
     	retryButton = (Button)this.findViewById(R.id.retry_install);
+    	retryButton.setText(Localization.get("install.button.retry"));
+    	installButton.setText(Localization.get("install.button.retry"));
+
     	
 		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -202,6 +205,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 			
 		});
+		addressEntryButton.setText(Localization.get("install.button.enter"));
 		
 		startOverButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -211,6 +215,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			}
 			
 		});
+		
+		startOverButton.setText(Localization.get("install.button.startover"));
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
