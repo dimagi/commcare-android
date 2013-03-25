@@ -947,8 +947,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void returnToLogin(String message) {
+    	//Not yet.
     	if(message != null) {
-    		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    		//Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     	}
     	Intent i = new Intent(getApplicationContext(), LoginActivity.class);
     	i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
