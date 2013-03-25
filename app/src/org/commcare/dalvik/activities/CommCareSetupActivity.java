@@ -180,7 +180,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     	startOverButton = (Button)this.findViewById(R.id.start_over);
     	retryButton = (Button)this.findViewById(R.id.retry_install);
     	retryButton.setText(Localization.get("install.button.retry"));
-    	installButton.setText(Localization.get("install.button.retry"));
+    	installButton.setText(Localization.get("install.button.start"));
 
     	
 		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
