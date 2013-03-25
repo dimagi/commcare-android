@@ -1,7 +1,6 @@
 package org.commcare.dalvik.activities;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,9 +35,6 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -59,8 +55,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
@@ -422,7 +416,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    				refreshView();
 	    				checkAndStartUnsentTask(this);
 	    				
-	    				showDemoModeWarning();
+	    				if(isDemoUser()) {
+	    					showDemoModeWarning();
+	    				}
 	    			}
 	    			return;
 	    		}
@@ -674,25 +670,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		//TODO: How do we style this to "light"?
 		AlertDialog demoModeWarning = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Light)).setInverseBackgroundForced(true).create();
         demoModeWarning.setTitle(Localization.get("demo.mode.warning.title"));
-        //demoModeWarning.setMessage(Localization.get("demo.mode.warning"));
-        
-        
-//        final String[] local = new String[1];
-//		try{
-//			String path = Localization.get("demo.warning.filepath");
-//			Reference ref = ReferenceManager._().DeriveReference(path);
-//			if(ref.doesBinaryExist()) {
-//				local[0] = ref.getLocalURI();
-//			}
-//		} catch(NoLocalizedTextException nlte) {
-//			
-//		} catch (InvalidReferenceException e) {
-//			Logger.log(AndroidLogger.TYPE_RESOURCES, "Couldn't find the audio to read for demo mode at :" +e.getReferenceString());
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
         
         DialogInterface.OnClickListener demoModeWarningListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
@@ -721,12 +698,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         demoModeWarning.setView(tiav);
         
         demoModeWarning.show();
-        
-//        if(local!= null) {
-//        	Button audioButton = demoModeWarning.getButton(AlertDialog.BUTTON2);
-//        	audioButton.setText("");
-//        	audioButton.setCompoundDrawablesWithIntrinsicBounds(this.getResources().getDrawable(android.R.drawable.ic_lock_silent_mode_off), null, null, null);
-//        }
 	}
 
 	private void startNextFetch() throws SessionUnavailableException {
@@ -1186,16 +1157,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     	String homeMessageKey = "home.start";
     	String logoutMessageKey = "home.logout";
         
-        try {
-	        User u = CommCareApplication._().getSession().getLoggedInUser();
-	        if(User.TYPE_DEMO.equals(u.getUserType())) {
-	        	syncKey="home.sync.demo";
-	        	lastMessageKey="home.sync.message.last";
-	        	homeMessageKey="home.start.demo";
-	        	logoutMessageKey = "home.logout.demo";
-	        }
-        } catch(SessionUnavailableException e) {
-        	
+        if(isDemoUser()) {
+        	syncKey="home.sync.demo";
+        	lastMessageKey="home.sync.message.last";
+        	homeMessageKey="home.start.demo";
+        	logoutMessageKey = "home.logout.demo";
         }
         
         //since these might have changed
@@ -1269,6 +1235,18 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 
     //Process and send listeners
     
+	private boolean isDemoUser() {
+        try {
+	        User u = CommCareApplication._().getSession().getLoggedInUser();
+	        if(User.TYPE_DEMO.equals(u.getUserType())) {
+	        	return true;
+	        }
+        } catch(SessionUnavailableException e) {
+        	
+        }
+        return false;
+	}
+
 	public void processAndSendFinished(int result, int successfulSends) {
 		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
 		
