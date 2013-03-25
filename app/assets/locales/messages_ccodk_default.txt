@@ -16,21 +16,21 @@ verify.progress = Verifying resources. ${0} resources verified of ${1} total
 
 modules.m0=pregenancy
 
-install.barcode=Welcome to CommCare! Please scan your App's CommCare Barcode to begin 
-install.manual=Please enter the URL for your application's profile file
+install.barcode=Welcome to CommCare! Please choose an installation method below 
+install.manual=Please enter the URL
 install.ready=Welcome to CommCare! Make sure you have an internet connection and press the button below to install your app
-install.button.enter=Enter App Location
+install.button.enter=Enter URL
 install.button.startover=Start Over
 install.button.retry=Retry Installation
 install.button.start=Begin Install
 
 updates.resources.initialization=Initializing Resources
-updates.resources.profile=Locating application profile...
+updates.resources.profile=Locating application...
 
 menu.basic=Basic Mode
 menu.advanced=Advanced Mode
 
-profile.found=Profile found. ${0} resources loaded, of ${1} total
+profile.found=Application found. ${0} resources loaded, of ${1} total
 
 app.workflow.login.lost=You were logged out of CommCare, please log back in
 app.workflow.incomplete.continue.title=Continue Form
@@ -134,10 +134,10 @@ app.key.request.message=Another android application has requested the ability to
 app.key.request.grant=Grant Access
 app.key.request.deny=Deny Access
 
-key.manage.title=Initalizing Sandbox
-key.manage.start=Setting up your data sandbox
+key.manage.title=Logging in
+key.manage.start=Logging in
 
-key.manage.callout=Fetching new encryption keys from server
+key.manage.callout=Contacting Server
 
 key.manage.legacy.begin=An old installation has been detected on your device! Updating database structure.
 key.manage.migrate=The server has provided new encryption keys. Migrating your data. Please do not turn off the phone!
@@ -264,7 +264,7 @@ problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below
 problem.report.menuitem=Report Problem
 
-verification.title=Verifying Resources
+verification.title=Verifying Multimedia
 verification.checking=Verifying...
 verification.progress=Checked ${0} out of ${1} resources
 verification.fail.message=Some of your application's multimedia has not been installed. Please make sure the following files are present in the device, and press retry.
