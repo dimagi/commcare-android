@@ -47,7 +47,7 @@ public class DemoUserUtil {
 			//TODO: D'oh, looks like keys with no expiry arent' working, just make it inestimably long instead. 
 			UserKeyRecord keyRecord = new UserKeyRecord(DEMO_USER, duserHash, 
 														CryptUtil.wrapKey(newRandomKey, DEMO_USER),
-														new Date(0), new Date(Long.MAX_VALUE), PropertyUtils.genUUID().replace("-",""));
+														new Date(0), new Date(Long.MAX_VALUE - 1), PropertyUtils.genUUID().replace("-",""));
 			keys.write(keyRecord);
 			
 			//Ok, so we have a demo user record created, but we also need a user to put in that database
