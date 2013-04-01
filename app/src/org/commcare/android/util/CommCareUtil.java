@@ -51,6 +51,12 @@ public class CommCareUtil {
 		if(globalFixture != null) {
 			return (FormInstance)appFixtureStorage.read(globalFixture.intValue());
 		} else {
+			//See if we have one manually placed in the suite
+			Integer userFixture = ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId), appFixtures);
+			if(userFixture != null) {
+				return (FormInstance)appFixtureStorage.read(userFixture.intValue());
+			}
+			//Otherwise, nothing
 			return null;
 		}
 	}
