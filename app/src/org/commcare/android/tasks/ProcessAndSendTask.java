@@ -179,6 +179,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		}
 		
 		boolean proceed = false;
+		boolean needToRefresh = false;
 		while(!proceed) {
 			//TODO: Terrible?
 			
@@ -200,10 +201,20 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 			}
 			//If it's not yet quite our turn, take a nap
 			try {
+				needToRefresh = true;
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+		}
+		
+		if(needToRefresh) {
+			//There was another activity before this one. Refresh our models in case
+			//they were updated
+			for(int i = 0; i < records.length; ++i ){
+				int dbId = records[i].getID();
+				records[i] = storage.read(dbId);
 			}
 		}
 		
@@ -254,6 +265,8 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 							updateRecordStatus(record, FormRecord.STATUS_SAVED);
 						}
 			        }
+				} else {
+					results[i] = FULL_SUCCESS;
 				}
 				
 				
