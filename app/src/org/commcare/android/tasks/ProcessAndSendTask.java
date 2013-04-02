@@ -153,9 +153,6 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 					new FormRecordCleanupTask(c, platform).wipeRecord(record);
 					needToSendLogs = true;
 					continue;
-				}  catch (StorageFullException e) {
-					Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
-					throw new RuntimeException(e);
 				} catch (FileNotFoundException e) {
 					if(CommCareApplication._().isStorageAvailable()) {
 						//If storage is available generally, this is a bug in the app design
@@ -194,7 +191,9 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 					break;
 				}
 				//Otherwise, is the head of the queue busted?
-				if(head.getStatus() != AsyncTask.Status.RUNNING) {
+				//*sigh*. Apparently Cancelled doesn't result in the task status being set
+				//to !Running for reasons which baffle me.
+				if(head.getStatus() != AsyncTask.Status.RUNNING || head.isCancelled()) {
 					//If so, get rid of it
 					processTasks.remove(head);
 				}
@@ -278,15 +277,15 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		}
 		
 		this.endSubmissionProcess();
-		synchronized(processTasks) {
-			processTasks.remove(this);
-		}
 		
 		return (int)result;
 		} catch(SessionUnavailableException sue) {
 			this.cancel(false);
 			return (int)PROGRESS_LOGGED_OUT;
 		} finally {
+			synchronized(processTasks) {
+				processTasks.remove(this);
+			}
 			if(needToSendLogs) {
 				CommCareApplication._().notifyLogsPending();
 			}
@@ -602,6 +601,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	@Override
 	protected void onCancelled() {
 		super.onCancelled();
+		//Take us out of the queue if we aren't gone already.
 		if(this.formSubmissionListener != null) {
 			formSubmissionListener.endSubmissionProcess();
 		}
