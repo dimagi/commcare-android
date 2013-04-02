@@ -614,7 +614,6 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	@Override
 	protected void onCancelled() {
 		super.onCancelled();
-		//Take us out of the queue if we aren't gone already.
 		if(this.formSubmissionListener != null) {
 			formSubmissionListener.endSubmissionProcess();
 		}
