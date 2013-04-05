@@ -83,6 +83,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	public static final int UPGRADE_APP = 64;
 	public static final int REPORT_PROBLEM_ACTIVITY = 128;
 	public static final int MISSING_MEDIA_ACTIVITY=256;
+	public static final int DUMP_FORMS_ACTIVITY=512;
 	
 	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
@@ -95,6 +96,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private static final int MENU_CALL_LOG = Menu.FIRST  +2;
 	private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 3;
 	private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 4;
+	private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
 	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;
@@ -392,6 +394,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		}
 	    		else if(resultCode == RESULT_OK){
 	    			Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
+	    			return;
+	    		}
+	    	case DUMP_FORMS_ACTIVITY:
+	    		if(resultCode == RESULT_CANCELED){
+	    			return;
+	    		}
+	    		else if(resultCode == RESULT_OK){
+	    			Toast.makeText(this, "Forms Dumped!", Toast.LENGTH_LONG).show();
 	    			return;
 	    		}
 	    	case REPORT_PROBLEM_ACTIVITY:
@@ -1311,6 +1321,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         		android.R.drawable.ic_menu_report_image);
         menu.add(0, MENU_VALIDATE_MEDIA, 0, Localization.get("home.menu.validate")).setIcon(
         		android.R.drawable.ic_menu_gallery);
+        menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
+        		android.R.drawable.ic_menu_upload);
         return true;
     }
     
@@ -1326,6 +1338,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
 		menu.findItem(MENU_UPDATE).setVisible(disableMenus);
 		menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
+		menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
 		return true;
 	}
 
@@ -1357,6 +1370,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             case MENU_VALIDATE_MEDIA:
             	startValidationActivity();
             	return true;
+            case MENU_DUMP_FORMS:
+            	startFormDumpActivity();
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1369,6 +1385,12 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private void startValidationActivity(){
 		Intent i = new Intent(this, CommCareVerificationActivity.class);
 		CommCareHomeActivity.this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+	}
+	
+	private void startFormDumpActivity(){
+		Intent i = new Intent(this, CommCareFormDumpActivity.class);
+		i.putExtra(MultimediaInflaterActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
+		CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
 	}
 	
     @Override
