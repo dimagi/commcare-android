@@ -37,6 +37,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
@@ -75,12 +76,13 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		StorageRemoved("notification.processing.nosdcard"),
 		
 		/** You were logged out while something was occurring **/
-		LoggedOut("notification.sending.loggedout");
+		LoggedOut("notification.sending.loggedout", LoginActivity.NOTIFICATION_MESSAGE_LOGIN);
 		
-		ProcessIssues(String root) {this.root = root;}
-		private final String root;
+		ProcessIssues(String root) {this(root, "processing");}
+		ProcessIssues(String root, String category) {this.root = root;this.category = category;}
+		private final String root, category;
 		public String getLocaleKeyBase() { return root;}
-		public String getCategory() { return "processing"; }
+		public String getCategory() { return category; }
 		
 	}
 	
