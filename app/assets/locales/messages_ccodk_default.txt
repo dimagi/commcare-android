@@ -166,7 +166,8 @@ bulk.form.prompt=From here you can dump forms to and submit forms from your exte
 bulk.form.submit=Submit Forms
 bulk.form.dump=Dump Forms
 bulk.form.messages=Output here
-bulk.form.error=Unexpected Error dumping forms! Please try again. Error Text: ${0}  
+bulk.form.error=Unexpected Error dumping forms! Please try again. Error Text: ${0}
+bulk.form.foldername=filedump
 
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 

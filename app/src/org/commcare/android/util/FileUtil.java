@@ -171,7 +171,7 @@ public class FileUtil {
 	    }
 	    
 	    public static void copyFile(File oldPath, File newPath, Cipher oldRead, Cipher newWrite) throws IOException {
-	    	if(!newPath.createNewFile()) { throw new IOException("Couldn't create new file at " + newPath.toString()); }
+	    	if(!newPath.createNewFile()) { throw new IOException("Couldn't create new file @ " + newPath.toString()); }
 	    	
 	    	InputStream is = null;
 	    	OutputStream os = null;

@@ -6,15 +6,20 @@ package org.commcare.dalvik.activities;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Locale;
+import java.util.Vector;
 
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.ProcessAndDumpTask;
+import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.ReflectionUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
@@ -23,6 +28,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -72,8 +78,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 			}
 		});
 		
-		
-		
 		btnDumpForms.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -91,13 +95,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						
 						String state = Environment.getExternalStorageState();
 						
-						System.out.println("405 external dir: " + Environment.getExternalStorageDirectory());
-						
 						ArrayList<String> externalMounts = getExternalMounts();
-						
-						for(int i=0; i<externalMounts.size(); i++){
-							System.out.println("405 ext mount :" + externalMounts.get(i));
-						}
 
 						if (Environment.MEDIA_MOUNTED.equals(state)) {
 						    // We can read and write the media
@@ -113,27 +111,20 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						}
 						
 						if(!mExternalStorageAvailable){
-							System.out.println("405: external storage not available");
-							publishProgress(Localization.get("your external storage is not available"));
+							publishProgress(("your external storage is not available"));
 							return false;
 						}
 						if(!mExternalStorageWriteable){
-							System.out.println("405: external storage not writable");
-							publishProgress(Localization.get("your external storage is not writable"));
+							publishProgress(("your external storage is not writable"));
 							return false;
 						}
 						if(mExternalStorageEmulated && externalMounts.size() == 0){
-							System.out.println("405: external storage emulated");
-							publishProgress(Localization.get("your external storage is emulated"));
+							publishProgress(("your external storage is emulated"));
 							return false;
 						}
 						
-						System.out.println("405: all good!!!");
-						
-						//String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-						
 						String baseDir = externalMounts.get(0);
-						String folderName = "dumpfolder";
+						String folderName = Localization.get("bulk.form.foldername");
 						
 						System.out.println("405 making folder at: " + baseDir + "/"+folderName);
 						
@@ -146,7 +137,29 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						File dumpDirectory = new File(baseDir + "/" + folderName);
 						dumpDirectory.mkdirs();
 						
-						return false;
+				    	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+				    	
+				    	System.out.println("405: about to deal with storage");
+				    	
+				    	//Get all forms which are either unsent or unprocessed
+				    	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
+				    	ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
+				    	
+				    	if(ids.size() > 0) {
+				    		FormRecord[] records = new FormRecord[ids.size()];
+				    		for(int i = 0 ; i < ids.size() ; ++i) {
+				    			records[i] = storage.read(ids.elementAt(i).intValue());
+				    		}
+				    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+
+							ProcessAndDumpTask mProcessAndDumpTask = new ProcessAndDumpTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), dumpDirectory);
+							mProcessAndDumpTask.execute(records);
+							
+				    		return true;
+				    	} else {
+				    		//Nothing.
+				    		return false;
+				    	}
 					}
 
 					@Override
