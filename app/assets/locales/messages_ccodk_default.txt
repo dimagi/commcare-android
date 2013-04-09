@@ -169,6 +169,19 @@ bulk.form.messages=Output here
 bulk.form.error=Unexpected Error dumping forms! Please try again. Error Text: ${0}
 bulk.form.foldername=filedump
 
+bulk.form.no.unsynced=You don't have any unsynced to submit
+bulk.form.sd.unavailable=Cannot read your external SD card. Please make sure your permissions are set correctly.
+bulk.form.sd.unwritable=Cannot write your external SD card. Please make sure our permissions are set correctly.
+bulk.form.sd.emulated=Cannot detect your external SD card. Please try inserting again or get support.
+
+bulk.form.start:Starting form dump...
+bulk.form.progress:Dumped ${0} out of ${1} resources
+bulk.form.cancel:Form dump canceled!
+bulk.form.end:Bulk form finished successfully!
+
+bulk.form.dialog.title=Dumping Forms to SD
+bulk.form.dialog.progress=Loaded ${0} forms successfully
+
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 
 login.menu.demo=Enter as Demo User

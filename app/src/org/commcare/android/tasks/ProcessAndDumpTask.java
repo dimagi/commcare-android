@@ -111,63 +111,26 @@ public class ProcessAndDumpTask extends AsyncTask<FormRecord, Long, Integer> imp
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
 	protected Integer doInBackground(FormRecord... records) {
-		try {
-			results = new Long[records.length];
-			for(int i = 0; i < records.length ; ++i ) {
-				//Assume failure
-				results[i] = FAILURE;
-			}
-
-			//Put us on the queue!
-			synchronized(processTasks) {
-				processTasks.add(this);
-			}
-		
-			boolean proceed = false;
-			while(!proceed) {
-				//TODO: Terrible?
+		try{
 			
-				//See if it's our turn to go
-				synchronized(processTasks) {
-				//Are we at the head of the queue?
-				ProcessAndDumpTask head = processTasks.peek();
-				if(processTasks.peek() == this) {
-					proceed = true;
-					break;
-				}
-				//Otherwise, is the head of the queue busted?
-				if(head.getStatus() != AsyncTask.Status.RUNNING) {
-					//If so, get rid of it
-					processTasks.remove(head);
-				}
-			}
-			//If it's not yet quite our turn, take a nap
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		results = new Long[records.length];
+		for(int i = 0; i < records.length ; ++i ) {
+			//Assume failure
+			results[i] = FAILURE;
 		}
 		
-		
-		//Ok, all forms are now processed. Time to focus on sending
 		if(formSubmissionListener != null) {
 			formSubmissionListener.beginSubmissionProcess(records.length);
 		}
 		
-		System.out.println("405: entering record send loop, record of length: " + records.length);
-		
 		for(int i = 0 ; i < records.length ; ++i) {
 			FormRecord record = records[i];
-			System.out.println("405: entering loop with record: " + record.getStatus());
 			try{
 				//If it's unsent, go ahead and send it
 				if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
 					File folder;
 					try {
 						folder = new File(record.getPath(mContext)).getCanonicalFile().getParentFile();
-						System.out.println("405 printing line: " + folder.getPath());
 					} catch (IOException e) {
 						Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
 						continue;
@@ -189,12 +152,11 @@ public class ProcessAndDumpTask extends AsyncTask<FormRecord, Long, Integer> imp
 						}
 						continue;
 					}
-					
-			        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
 			        
 					//Check for success
 					if(results[i].intValue() == FULL_SUCCESS) {
 					    new FormRecordCleanupTask(mContext, platform).wipeRecord(record);
+					    notifyProgress(i, results.length);
 			        }
 				}
 				
@@ -237,17 +199,13 @@ public class ProcessAndDumpTask extends AsyncTask<FormRecord, Long, Integer> imp
 		}
 	}
 	
-	private FormRecord updateRecordStatus(FormRecord record, String newStatus) throws IOException, StorageFullException{
-		//update the records to show that the form has been processed and is ready to be sent;
-		record = record.updateStatus(record.getInstanceURI().toString(), newStatus);
-		storage.write(record);
-		return record;
-	}
-	
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#onProgressUpdate(Progress[])
 	 */
 	protected void onProgressUpdate(Long... values) {
+		
+		System.out.println("405 on progress update!");
+		
 		super.onProgressUpdate(values);
 		
 		if(values.length == 1 && values[0] == PROGRESS_ALL_PROCESSED) {
@@ -294,8 +252,8 @@ public class ProcessAndDumpTask extends AsyncTask<FormRecord, Long, Integer> imp
 		return null;
 	}
 	
-	public void setListeners(ProcessTaskListener listener, DataSubmissionListener submissionListener) {
-		this.listener = listener;
+	public void setListeners(DataSubmissionListener submissionListener) {
+		System.out.println("405: listener set");
 		this.formSubmissionListener = submissionListener;
 	}
 
@@ -396,12 +354,13 @@ public class ProcessAndDumpTask extends AsyncTask<FormRecord, Long, Integer> imp
 	}
 
 	public void notifyProgress(int itemNumber, long progress) {
+		System.out.println("405: processed: " + itemNumber + " out of: " + progress);
 		this.publishProgress(SUBMISSION_NOTIFY, (long)itemNumber, progress);
 	}
 
 	public void endSubmissionProcess() {
 		this.publishProgress(SUBMISSION_DONE);
-	}
+	}	
 	
 	private String getExceptionText (Exception e) {
 		try {

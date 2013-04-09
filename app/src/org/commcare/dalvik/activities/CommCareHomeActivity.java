@@ -402,6 +402,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		}
 	    		else if(resultCode == RESULT_OK){
 	    			Toast.makeText(this, "Forms Dumped!", Toast.LENGTH_LONG).show();
+	    			refreshView();
 	    			return;
 	    		}
 	    	case REPORT_PROBLEM_ACTIVITY:
