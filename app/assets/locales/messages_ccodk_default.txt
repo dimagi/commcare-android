@@ -174,10 +174,12 @@ bulk.form.sd.unavailable=Cannot read your external SD card. Please make sure you
 bulk.form.sd.unwritable=Cannot write your external SD card. Please make sure our permissions are set correctly.
 bulk.form.sd.emulated=Cannot detect your external SD card. Please try inserting again or get support.
 
-bulk.form.start:Starting form dump...
-bulk.form.progress:Dumped ${0} out of ${1} resources
-bulk.form.cancel:Form dump canceled!
-bulk.form.end:Bulk form finished successfully!
+bulk.form.start=Starting form dump...
+bulk.form.progress=Dumped ${0} out of ${1} resources
+bulk.form.cancel=Form dump canceled!
+bulk.form.end=Bulk form finished successfully!
+bulk.form.warning=Do not use this feature unless you have been trained to do so. Do you wish to proceed?
+bulk.form.alert.title=Form Dump
 
 bulk.form.dialog.title=Dumping Forms to SD
 bulk.form.dialog.progress=Loaded ${0} forms successfully

@@ -361,7 +361,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		}
 	}
 
-	private static Cipher getDecryptCipher(SecretKeySpec key) {
+	public static Cipher getDecryptCipher(SecretKeySpec key) {
 		Cipher cipher;
 		try {
 			cipher = Cipher.getInstance("AES");
@@ -382,7 +382,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	}
 
 	
-	private static Cipher getDecryptCipher(byte[] key) {
+	public static Cipher getDecryptCipher(byte[] key) {
 		Cipher cipher;
 		try {
 			cipher = Cipher.getInstance("AES");
