@@ -28,9 +28,8 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.ProcessAndDumpTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.tasks.ProcessAndDumpTask.ProcessIssues;
+import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ReflectionUtil;
@@ -116,26 +115,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						}
 					}
 					
-					private  Cipher getDecryptCipher(SecretKeySpec key) {
-						Cipher cipher;
-						try {
-							cipher = Cipher.getInstance("AES");
-							cipher.init(Cipher.DECRYPT_MODE, key);
-							return cipher;
-							//TODO: Something smart here;
-						} catch (NoSuchAlgorithmException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (NoSuchPaddingException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (InvalidKeyException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						return null;
-					}
-					
 					private long sendInstance(int submissionNumber, File folder, SecretKeySpec key) throws FileNotFoundException {
 						
 				        File[] files = folder.listFiles();
@@ -173,19 +152,19 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				        
 						//this.startSubmission(submissionNumber, bytes);
 						
-						final Cipher decrypter = getDecryptCipher(key);
+						final Cipher decrypter = ProcessAndSendTask.getDecryptCipher(key);
 						
 						for(int j=0;j<files.length;j++){
 							
-							System.out.println("405: entering decrpy and copy loop");
-							
 							File f = files[j];
+							// This is not the ideal long term solution for determining whether we need decryption, but works
 							if (f.getName().endsWith(".xml")) {
 								try{
 									FileUtil.copyFile(f, new File(myDir, f.getName()), decrypter, null);
 								}
 								catch(IOException ie){
-									System.out.println("405 caught an ioexception: " + ie.getMessage());
+									publishProgress(("File writing failed: " + ie.getMessage()));
+									return ProcessAndSendTask.FAILURE;
 								}
 							}
 							else{
@@ -193,7 +172,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 									FileUtil.copyFile(f, new File(myDir, f.getName()));
 								}
 								catch(IOException ie){
-									System.out.println("405 caught an ioexception: " + ie.getMessage());
+									publishProgress(("File writing failed: " + ie.getMessage()));
+									return ProcessAndSendTask.FAILURE;
 								}
 							}
 						}
@@ -212,7 +192,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						
 						String state = Environment.getExternalStorageState();
 						
-						ArrayList<String> externalMounts = getExternalMounts();
+						ArrayList<String> externalMounts = FileUtil.getExternalMounts();
 
 						if (Environment.MEDIA_MOUNTED.equals(state)) {
 						    // We can read and write the media
@@ -265,11 +245,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				    		}
 
 				    		dumpFolder = dumpDirectory;
-				    		
-							//ProcessAndDumpTask mProcessAndDumpTask = new ProcessAndDumpTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), dumpDirectory);
-							//mProcessAndDumpTask.execute(records);
-							
-				    		
+		
 				    		try{
 				    			
 				    			results = new Long[records.length];
@@ -387,8 +363,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 			
 		});
 		
-		//mAlertDialog = popupWarningMessage();
-		//	mAlertDialog.show();
+		mAlertDialog = popupWarningMessage();
+		mAlertDialog.show();
 	}
 	
 	/*
@@ -397,49 +373,14 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-    }
-    
-    public static ArrayList<String> getExternalMounts() {
-        final ArrayList<String> out = new ArrayList<String>();
-        String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
-        String s = "";
-        try {
-            final Process process = new ProcessBuilder().command("mount")
-                    .redirectErrorStream(true).start();
-            process.waitFor();
-            final InputStream is = process.getInputStream();
-            final byte[] buffer = new byte[1024];
-            while (is.read(buffer) != -1) {
-                s = s + new String(buffer);
-            }
-            is.close();
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-
-        // parse output
-        final String[] lines = s.split("\n");
-        for (String line : lines) {
-            if (!line.toLowerCase(Locale.US).contains("asec")) {
-                if (line.matches(reg)) {
-                    String[] parts = line.split(" ");
-                    for (String part : parts) {
-                        if (part.startsWith("/"))
-                            if (!part.toLowerCase(Locale.US).contains("vold"))
-                                out.add(part);
-                    }
-                }
-            }
-        }
-        return out;
+    	
     }
     
     private AlertDialog popupWarningMessage(){
     	AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-    	alertDialogBuilder.setTitle("Title");
+    	alertDialogBuilder.setTitle("bulk.form.alert.title");
     	alertDialogBuilder
-    		.setMessage("Do not use this unless you know otherwise")
+    		.setMessage(Localization.get("bulk.form.warning"))
     		.setCancelable(false)
     		.setPositiveButton("OK",new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog,int id) {
@@ -464,7 +405,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	@Override
 	protected void onResume() {
 		super.onResume();
-		evalState();
 	}
 	
 	private void exitDump(){
@@ -484,17 +424,13 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		}
 		return null;
 	}
-
-	private void evalState() {
-
-	}
 	
 	/* (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
 	 */
 	@Override
 	public void taskCancelled(int id) {
-		txtInteractiveMessages.setText(Localization.get("mult.install.cancelled"));
+		txtInteractiveMessages.setText(Localization.get("bulk.form.cancel"));
 		this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 	}
 }
