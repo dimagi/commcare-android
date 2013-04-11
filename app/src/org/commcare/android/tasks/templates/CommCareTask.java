@@ -65,6 +65,7 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 	@Override
 	protected void onPostExecute(C result) {
 		super.onPostExecute(result);
+		System.out.println("405: onPostExecute");
 		synchronized(connectorLock) {
 			//TODO: extend blocking here?
 			CommCareTaskConnector<R> connector = getConnector();
@@ -78,6 +79,7 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 				deliverError(connector.getReceiver(), unknownError);
 				return;
 			}
+			System.out.println("405: trying to deliver result");
 			this.deliverResult(connector.getReceiver(), result);
 		}
 	}
@@ -171,6 +173,10 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 	
 	public int getTaskId() {
 		return taskId;
+	}
+	
+	public void setTaskId(int id){
+		taskId = id;
 	}
 	
 	public void disconnect() {

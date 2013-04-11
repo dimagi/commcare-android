@@ -30,6 +30,7 @@ import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
+import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ReflectionUtil;
@@ -81,18 +82,84 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	boolean done = false;
 	
 	AlertDialog mAlertDialog;
+	static boolean acknowledgedRisk = false;
+	
+	static final int BULK_DUMP_ID = 2;
+	static final int BULK_SEND_ID = 3;
+	static final String KEY_NUMBER_DUMPED = "num_dumped";
+	
+	private int formsOnPhone;
+	private int formsOnSD;
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		
+		final String url = this.getString(R.string.PostURL);
+		
 		super.onCreate(savedInstanceState);
+		
+    	Vector<Integer> ids = getUnsyncedForms();
+		
+    	File[] files = this.getDumpFiles();
+    	
+    	formsOnPhone = ids.size();
+    	
+		formsOnSD = files.length;
+		
+		btnDumpForms.setText(Localization.get("bulk.form.dump.2", new String[] {""+formsOnPhone}));
+		btnSubmitForms.setText(Localization.get("bulk.form.submit.2", new String[] {""+formsOnSD}));
+		
+		txtDisplayPrompt.setText(Localization.get("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
+		
 		btnSubmitForms.setOnClickListener(new OnClickListener() {
+			public void onClick(View v){
+	    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+				SendTask mSendTask = new SendTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", url), txtInteractiveMessages){
+					
+					@Override
+					protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
+						
+						if(result == Boolean.TRUE){
+							
+					        Intent i = new Intent(getIntent());
+					        i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
+							
+							
+							receiver.done = true;
+							//receiver.evalState();
+							receiver.setResult(BULK_SEND_ID);
+							receiver.finish();
+							return;
+						} else {
+							//assume that we've already set the error message, but make it look scary
+							receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+						}
+					}
 
-			@Override
-			public void onClick(View v) {
-    			//Go fetch us a file path!
+					@Override
+					protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
+						receiver.updateProgress(BULK_SEND_ID, update[0]);
+						receiver.txtInteractiveMessages.setText(update[0]);
+					}
+
+					@Override
+					protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
+						receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
+						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+					}
+				};
+				mSendTask.setTaskId(BULK_SEND_ID);
+				if(formsOnSD == 0){
+					txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.submit"));
+					TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+				}
+				else{
+					mSendTask.connect(CommCareFormDumpActivity.this);
+					mSendTask.execute();
+				}
 			}
 		});
 		
@@ -147,7 +214,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				        	if(!supported) { continue;}
 				        	
 				        	bytes += files[j].length();
-				        	System.out.println("405 Added file: " + files[j].getName() +". Bytes to send: " + bytes);
 				        }
 				        
 						//this.startSubmission(submissionNumber, bytes);
@@ -208,22 +274,22 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						}
 						
 						if(!mExternalStorageAvailable){
-							publishProgress(("bulk.form.sd.unavailable"));
+							publishProgress(Localization.get("bulk.form.sd.unavailable"));
 							return false;
 						}
 						if(!mExternalStorageWriteable){
-							publishProgress(("bulk.form.sd.unwritable"));
+							publishProgress(Localization.get("bulk.form.sd.unwritable"));
 							return false;
 						}
 						if(mExternalStorageEmulated && externalMounts.size() == 0){
-							publishProgress(("bulk.form.sd.emulated"));
+							publishProgress(Localization.get("bulk.form.sd.emulated"));
 							return false;
 						}
 						
 						String baseDir = externalMounts.get(0);
 						String folderName = Localization.get("bulk.form.foldername");
 						
-						File f = new File( baseDir + "/"+folderName);
+						File f = new File( baseDir + "/" + folderName);
 						
 						if(f.exists() && f.isDirectory()){
 							f.delete();
@@ -254,7 +320,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				    				results[i] = ProcessAndSendTask.FAILURE;
 				    			}
 				    			
-				    			publishProgress("starting");
+				    			publishProgress(Localization.get("bulk.form.start"));
 				    			
 				    			for(int i = 0 ; i < records.length ; ++i) {
 				    				FormRecord record = records[i];
@@ -333,9 +399,13 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 					@Override
 					protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
 						if(result == Boolean.TRUE){
+							
+					        Intent i = new Intent(getIntent());
+					        i.putExtra(KEY_NUMBER_DUMPED, formsOnPhone);
+							
 							receiver.done = true;
 							//receiver.evalState();
-							receiver.setResult(Activity.RESULT_OK);
+							receiver.setResult(BULK_DUMP_ID, i);
 							receiver.finish();
 							return;
 						} else {
@@ -346,7 +416,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 
 					@Override
 					protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
-						receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
+						receiver.updateProgress(BULK_DUMP_ID, update[0]);
 						receiver.txtInteractiveMessages.setText(update[0]);
 					}
 
@@ -356,15 +426,25 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 					}
 				};
-				
-				task.connect(CommCareFormDumpActivity.this);
-				task.execute();
+				task.setTaskId(BULK_DUMP_ID);
+				if(formsOnPhone == 0){
+					txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
+					TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+				}
+				else{
+					task.connect(CommCareFormDumpActivity.this);
+					task.execute();
+				}
 			}
 			
 		});
 		
 		mAlertDialog = popupWarningMessage();
-		mAlertDialog.show();
+		
+		if(!acknowledgedRisk){
+			mAlertDialog.show();
+		}
+			
 	}
 	
 	/*
@@ -378,12 +458,13 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     
     private AlertDialog popupWarningMessage(){
     	AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-    	alertDialogBuilder.setTitle("bulk.form.alert.title");
+    	alertDialogBuilder.setTitle(Localization.get("bulk.form.alert.title"));
     	alertDialogBuilder
     		.setMessage(Localization.get("bulk.form.warning"))
     		.setCancelable(false)
     		.setPositiveButton("OK",new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog,int id) {
+					acknowledgedRisk = true;
 					dialog.dismiss();
 					dialog.cancel();
 				}
@@ -397,6 +478,23 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     		AlertDialog alertDialog = alertDialogBuilder.create();
     		return alertDialog;
     		
+    }
+    
+    public File[] getDumpFiles(){
+    	ArrayList<String> externalMounts = FileUtil.getExternalMounts();
+		String baseDir = externalMounts.get(0);
+		String folderName = Localization.get("bulk.form.foldername");
+		File dumpDirectory = new File( baseDir + "/" + folderName);
+		File[] files = dumpDirectory.listFiles();
+		return files;
+    }
+    
+    public Vector<Integer> getUnsyncedForms(){
+    	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+    	//Get all forms which are either unsent or unprocessed
+    	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
+    	ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
+    	return ids;
     }
 
 	/* (non-Javadoc)
@@ -416,10 +514,16 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		if(id == CommCareTask.GENERIC_TASK_ID) {
+		if(id == BULK_DUMP_ID) {
 			ProgressDialog progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle(Localization.get("bulk.form.dialog.title"));
-			progressDialog.setMessage(Localization.get("bulk.form.dialog.progress", new String[] {"0"}));
+			progressDialog.setTitle(Localization.get("bulk.dump.dialog.title"));
+			progressDialog.setMessage(Localization.get("bulk.dump.dialog.progress", new String[] {"0"}));
+			return progressDialog;
+		}
+		else if (id == BULK_SEND_ID) {
+			ProgressDialog progressDialog = new ProgressDialog(this);
+			progressDialog.setTitle(Localization.get("bulk.send.dialog.title"));
+			progressDialog.setMessage(Localization.get("bulk.send.dialog.progress", new String[] {"0"}));
 			return progressDialog;
 		}
 		return null;
@@ -433,4 +537,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		txtInteractiveMessages.setText(Localization.get("bulk.form.cancel"));
 		this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 	}
+	
+	
 }
