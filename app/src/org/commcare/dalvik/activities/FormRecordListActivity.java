@@ -59,6 +59,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -129,6 +130,9 @@ public class FormRecordListActivity extends Activity implements TextWatcher, For
 	        
 	        header.setVisibility(View.GONE);
 	        barcodeButton.setVisibility(View.GONE);
+	        
+	        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+	        searchLabel.setText(Localization.get("select.search.label"));
 	        
 	        searchbox.addTextChangedListener(this);
 	        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);

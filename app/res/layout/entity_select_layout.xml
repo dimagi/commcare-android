@@ -34,7 +34,15 @@
 </ListView>
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:id="@+id/searchfooter" android:orientation="horizontal" android:background="@drawable/border_top_black" android:paddingTop="1dp">
-	<TextView android:id="@+id/TextView02" android:layout_below="@+id/TextView01" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Search:" android:layout_gravity="center_vertical"></TextView>
+
+	<TextView
+	    android:id="@+id/screen_entity_select_search_label"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/TextView01"
+	    android:layout_gravity="center_vertical"
+	    android:text="Search:" >
+</TextView>
 	<RelativeLayout android:id="@+id/relativeLayout1" android:layout_height="wrap_content" android:layout_width="fill_parent">
 		<EditText android:id="@+id/searchbox" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_toLeftOf="@+id/barcodeButton"></EditText>
 		<ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:src="@drawable/barcode" android:id="@+id/barcodeButton"></ImageButton>
