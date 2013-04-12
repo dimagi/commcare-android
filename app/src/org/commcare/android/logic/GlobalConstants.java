@@ -2,11 +2,11 @@ package org.commcare.android.logic;
 
 public class GlobalConstants {
 	
-	public static final String FILE_CC_INSTALL = "install";
-	public static final String FILE_CC_UPGRADE = "upgrade";
-	public static final String FILE_CC_CACHE = "cache";
-	public static final String FILE_CC_MEDIA = "media/";
-	public static final String FILE_CC_LOGS = "logs/";
+	public static final String FILE_CC_INSTALL = "commcare/install";
+	public static final String FILE_CC_UPGRADE = "commcare/upgrade";
+	public static final String FILE_CC_CACHE = "commcare/cache";
+	public static final String FILE_CC_MEDIA = "commcare/media/";
+	public static final String FILE_CC_LOGS = "commcare/logs/";
 	
 	public static final String FILE_CC_ATTACHMENTS = "attachments/";
 	

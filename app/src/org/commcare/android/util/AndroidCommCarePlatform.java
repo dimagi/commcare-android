@@ -124,9 +124,14 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		return callDuration;
 	}
 	
+	@Override
 	public void initialize(ResourceTable global) {
 		this.profile = null;
 		this.installedSuites.clear();
+		//We also need to clear any _resource table_ linked localization files which may have
+		//been registered from another app, or from a pre-install location.
+		CommCareApplication._().intializeDefaultLocalizerData();
+		
 		super.initialize(global);
 	}
 
