@@ -197,7 +197,7 @@ bulk.send.file.error=Couldn't send the file at path ${0}
 bulk.send.transport.error=Couldn't reach the server. Please ensure that you are connected to the internet.
 
 bulk.form.send.success=${0} forms sent successfully
-bulk.form.dump	.success=${1} forms dumped successfully
+bulk.form.dump.success=${1} forms dumped successfully
 
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 

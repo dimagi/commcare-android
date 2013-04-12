@@ -53,13 +53,10 @@ public class ReflectionUtil {
        if (mExternalStorageEmulated != null) {
            /* feature is supported */
            try {
-        	   System.out.println("405 function supported");
                return mIsExternalStorageEmulated();
            } catch (RuntimeException e) {
-        	   System.out.println("405 function NOT supported");
                return true;
            } catch (IOException ie){
-        	   System.out.println("405 function NOT supported");
         	   return true;
            }
        } else {
