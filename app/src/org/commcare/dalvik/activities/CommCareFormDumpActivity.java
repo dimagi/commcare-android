@@ -101,21 +101,27 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		
 		super.onCreate(savedInstanceState);
 		
+		//get number of unsynced forms for display purposes
     	Vector<Integer> ids = getUnsyncedForms();
-		
     	File[] files = this.getDumpFiles();
     	
     	formsOnPhone = ids.size();
-    	
 		formsOnSD = files.length;
 		
 		btnDumpForms.setText(Localization.get("bulk.form.dump.2", new String[] {""+formsOnPhone}));
 		btnSubmitForms.setText(Localization.get("bulk.form.submit.2", new String[] {""+formsOnSD}));
-		
 		txtDisplayPrompt.setText(Localization.get("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
 		
 		btnSubmitForms.setOnClickListener(new OnClickListener() {
 			public void onClick(View v){
+				
+				//if there're no forms to dump, just return
+				if(formsOnSD == 0){
+					txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.submit"));
+					TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+					return;
+				}
+				
 	    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 				SendTask mSendTask = new SendTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", url), txtInteractiveMessages){
 					
@@ -126,11 +132,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 							
 					        Intent i = new Intent(getIntent());
 					        i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
-							
-							
-							receiver.done = true;
-							//receiver.evalState();
-							receiver.setResult(BULK_SEND_ID);
+							receiver.setResult(BULK_SEND_ID, i);
 							receiver.finish();
 							return;
 						} else {
@@ -152,21 +154,24 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 					}
 				};
 				mSendTask.setTaskId(BULK_SEND_ID);
-				if(formsOnSD == 0){
-					txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.submit"));
-					TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-				}
-				else{
-					mSendTask.connect(CommCareFormDumpActivity.this);
-					mSendTask.execute();
-				}
+				mSendTask.connect(CommCareFormDumpActivity.this);
+				mSendTask.execute();
 			}
 		});
 		
 		btnDumpForms.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				
+				if(formsOnPhone == 0){
+					txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
+					TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+					return;
+				}
+				
 				CommCareTask<String, String, Boolean, CommCareFormDumpActivity> task = new CommCareTask<String, String, Boolean, CommCareFormDumpActivity>(){
+					
+					
 					
 					File dumpFolder;
 					Long[] results;
@@ -399,12 +404,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 					@Override
 					protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
 						if(result == Boolean.TRUE){
-							
 					        Intent i = new Intent(getIntent());
 					        i.putExtra(KEY_NUMBER_DUMPED, formsOnPhone);
-							
-							receiver.done = true;
-							//receiver.evalState();
 							receiver.setResult(BULK_DUMP_ID, i);
 							receiver.finish();
 							return;
@@ -427,14 +428,9 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 					}
 				};
 				task.setTaskId(BULK_DUMP_ID);
-				if(formsOnPhone == 0){
-					txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
-					TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-				}
-				else{
-					task.connect(CommCareFormDumpActivity.this);
-					task.execute();
-				}
+				task.connect(CommCareFormDumpActivity.this);
+				task.execute();
+				
 			}
 			
 		});

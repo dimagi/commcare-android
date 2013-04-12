@@ -402,13 +402,13 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		}
 	    		else if(resultCode == CommCareFormDumpActivity.BULK_DUMP_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-	    			Toast.makeText(this, Localization.get("bulk.form.dumped.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
+	    			Toast.makeText(this, Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
 	    			refreshView();
 	    			return;
 	    		}
 	    		else if(resultCode == CommCareFormDumpActivity.BULK_SEND_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-	    			Toast.makeText(this, Localization.get("bulk.form.sent.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
+	    			Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
 	    			refreshView();
 	    			return;
 	    		}
