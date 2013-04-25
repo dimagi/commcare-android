@@ -171,7 +171,7 @@ public class CommCareApplication extends Application {
 //        PreferenceChangeListener listener = new PreferenceChangeListener(this);
 //        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
         
-        defaultLocalizations();
+		intializeDefaultLocalizerData();
         
 		//The fallback in case the db isn't installed 
 		resourceState = STATE_UNINSTALLED;
@@ -307,7 +307,8 @@ public class CommCareApplication extends Application {
 		return imei;
 	}
 	
-	private void defaultLocalizations() {
+	public void intializeDefaultLocalizerData() {
+		Localization.init(true);
 		Localization.registerLanguageReference("default", "jr://asset/locales/messages_ccodk_default.txt");
 		Localization.setDefaultLocale("default");
 		
