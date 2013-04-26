@@ -268,10 +268,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 						try {
 							
 							String externalMedia = localeData.get(key).render();
-							System.out.println("405 external media is: " + externalMedia);
 							Reference ref = ReferenceManager._().DeriveReference(externalMedia);
 							String localName = ref.getLocalURI();
-							System.out.println("405 localName is: " + localName);
 							try {
 								if(!ref.doesBinaryExist()) {
 									problems.addElement(new MissingMediaException(r,"Missing external media: " + localName, externalMedia));

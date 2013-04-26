@@ -3,26 +3,19 @@
  */
 package org.commcare.android.tasks;
 
-import java.util.Vector;
-
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.commcare.dalvik.activities.CommCareVerificationActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
-import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCarePlatform;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.SizeBoundVector;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 
 /**
  * This task is responsible for 
@@ -30,7 +23,7 @@ import android.preference.PreferenceManager;
  * @author ctsims
  *
  */
-public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<UnresolvedResourceException>> implements TableStateListener {
+public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<MissingMediaException>> implements TableStateListener {
 	
 	VerificationTaskListener listener;
 	Context c;
@@ -56,13 +49,13 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<U
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
-	protected SizeBoundVector<UnresolvedResourceException> doInBackground(String... profileRefs) {
+	protected SizeBoundVector<MissingMediaException> doInBackground(String... profileRefs) {
 		AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
 		
 		try {
 			//This is replicated in the application in a few places.
     		ResourceTable global = platform.getGlobalResourceTable();
-			SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
+			SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
 			global.setStateListener(this);
 			global.verifyInstallation(problems);
 			if(problems.size()>0){
@@ -92,7 +85,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<U
 	}
 
 	@Override
-	protected void onPostExecute(SizeBoundVector<UnresolvedResourceException> problems) {
+	protected void onPostExecute(SizeBoundVector<MissingMediaException> problems) {
 		if(problems == null){
 			listener.success();
 		}
