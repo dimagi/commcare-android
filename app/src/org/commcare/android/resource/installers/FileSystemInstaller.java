@@ -13,6 +13,7 @@ import java.util.Vector;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidStreamUtil;
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
@@ -406,18 +407,18 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		return input.substring(0, invalid);
 	}
 	
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> issues) {
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> issues) {
 		try {
 			Reference ref = ReferenceManager._().DeriveReference(localLocation);
 			if(!ref.doesBinaryExist()) {
-				issues.add(new UnresolvedResourceException(r,"File doesn't exist at: " + ref.getLocalURI()));
+				issues.add(new MissingMediaException(r,"File doesn't exist at: " + ref.getLocalURI()));
 				return true;
 			}
 		} catch (IOException e) {
-			issues.add(new UnresolvedResourceException(r,"Problem accessing file at: " + localLocation));
+			issues.add(new MissingMediaException(r,"Problem accessing file at: " + localLocation));
 			return true;
 		} catch (InvalidReferenceException e) {
-			issues.add(new UnresolvedResourceException(r,"invalid reference: " + localLocation));
+			issues.add(new MissingMediaException(r,"invalid reference: " + localLocation));
 			return true;
 		}
 		return false;

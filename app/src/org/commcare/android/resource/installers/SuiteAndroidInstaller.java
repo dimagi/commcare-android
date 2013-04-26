@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -150,7 +151,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 		super.writeExternal(out);
 	}
 	
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 
 		try{
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
@@ -176,7 +177,10 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 					Reference aRef = ReferenceManager._().DeriveReference(aURI);
 					if(!aRef.doesBinaryExist()){
 						String audioLocalReference = aRef.getLocalURI();
-						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + audioLocalReference));
+						
+						System.out.println("405 audio URI: " + audioLocalReference);
+						
+						problems.addElement(new MissingMediaException(r,"Missing external media: " + audioLocalReference));
 					}
 				} catch(InvalidReferenceException ire){
 					//do nothing for now
@@ -185,7 +189,10 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 					Reference iRef = ReferenceManager._().DeriveReference(iURI);
 					if(!iRef.doesBinaryExist()){
 						String imageLocalReference = iRef.getLocalURI();
-						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + imageLocalReference));
+						
+						System.out.println("405 image uri: " + imageLocalReference);
+						
+						problems.addElement(new MissingMediaException(r,"Missing external media: " + imageLocalReference));
 					}
 				} catch(InvalidReferenceException ire){
 					// do nothing for now
