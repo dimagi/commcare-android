@@ -175,9 +175,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 				
 				try{
 					Reference aRef = ReferenceManager._().DeriveReference(aURI);
-					
-					
-					
+
 					if(!aRef.doesBinaryExist()){
 						String audioLocalReference = aRef.getLocalURI();
 						problems.addElement(new MissingMediaException(r,"Missing external media: " + audioLocalReference, audioLocalReference));
@@ -187,9 +185,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 				}
 				try{
 					Reference iRef = ReferenceManager._().DeriveReference(iURI);
-					
-					
-					
+
 					if(!iRef.doesBinaryExist()){
 						String imageLocalReference = iRef.getLocalURI();
 						problems.addElement(new MissingMediaException(r,"Missing external media: " + imageLocalReference, imageLocalReference));

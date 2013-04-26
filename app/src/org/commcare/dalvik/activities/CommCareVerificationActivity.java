@@ -117,7 +117,6 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 				
 				message += "\n-----------";
 				for(String s : problemList.get(resource)) {
-					System.out.println("405 s is: " + s);
 					message += "\n" + prettyString(s);
 				}
 			}
