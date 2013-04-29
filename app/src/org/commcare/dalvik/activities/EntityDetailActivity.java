@@ -16,6 +16,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -71,6 +72,7 @@ public class EntityDetailActivity extends Activity implements DetailCalloutListe
         try{
 	        setContentView(R.layout.entity_detail);
 	        next = (Button)findViewById(R.id.entity_select_button);
+	        next.setText(Localization.get("select.detail.confirm"));
 	        next.setOnClickListener(new OnClickListener() {
 	
 				public void onClick(View v) {
