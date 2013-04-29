@@ -365,6 +365,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			return;
 	    		} else if(resultCode == RESULT_OK) {
 	    			//CTS - Removed a call to initializing resources here. The engine takes care of that.
+	    			//We do, however, need to re-init this screen to include new translations
+	    			configUi();
 	    			return;
 	    		}
 	    		break;
