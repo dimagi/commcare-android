@@ -114,6 +114,19 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.first_start_screen);
 		
+		//Grab Views
+		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
+		advancedView = this.findViewById(R.id.advanced_panel);
+		mainMessage = (TextView)this.findViewById(R.id.str_setup_message);
+		urlSpinner = (Spinner)this.findViewById(R.id.url_spinner);
+		installButton = (Button)this.findViewById(R.id.start_install);
+    	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
+    	addressEntryButton = (Button)this.findViewById(R.id.enter_app_location);
+    	startOverButton = (Button)this.findViewById(R.id.start_over);
+    	retryButton = (Button)this.findViewById(R.id.retry_install);
+
+
+    	//Retrieve instance state
 		if(savedInstanceState == null) {
 			incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
 			upgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
@@ -126,11 +139,12 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
 		}
 		
-		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
 		editProfileRef.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-		advancedView = this.findViewById(R.id.advanced_panel);
-		mainMessage = (TextView)this.findViewById(R.id.str_setup_message);
-		urlSpinner = (Spinner)this.findViewById(R.id.url_spinner);
+		urlSpinner.setAdapter(new WrappingSpinnerAdapter(urlSpinner.getAdapter(), getResources().getStringArray(R.array.url_list_selected_display)));
+		urlVals = getResources().getStringArray(R.array.url_vals);
+		
+    	retryButton.setText(Localization.get("install.button.retry"));
+    	installButton.setText(Localization.get("install.button.start"));
 		
 		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
@@ -150,8 +164,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			public void onNothingSelected(AdapterView<?> arg0) {}
 			
 		});
-		urlSpinner.setAdapter(new WrappingSpinnerAdapter(urlSpinner.getAdapter(), getResources().getStringArray(R.array.url_list_selected_display)));
-		urlVals = getResources().getStringArray(R.array.url_vals); 
 		//First, identify the binary state
 		dbState = CommCareApplication._().getDatabaseState();
 		resourceState = CommCareApplication._().getAppResourceState();
@@ -171,18 +183,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		        return;
 			}
 		}
-		
-		
-		
-		installButton = (Button)this.findViewById(R.id.start_install);
-    	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
-    	addressEntryButton = (Button)this.findViewById(R.id.enter_app_location);
-    	startOverButton = (Button)this.findViewById(R.id.start_over);
-    	retryButton = (Button)this.findViewById(R.id.retry_install);
-    	retryButton.setText(Localization.get("install.button.retry"));
-    	installButton.setText(Localization.get("install.button.start"));
-
-    	
+		    	
 		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
                 try {	
@@ -284,6 +285,12 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
                 }
              }
         });
+        
+        //Before we get stared, we need to see whether we've started an install before, this determines whether we 
+        //want to continue in partial mode if, for instance, the app shut down after trying to install. This will be
+        //the standard 
+        
+        
 	}
 	/*
 	 * (non-Javadoc)
@@ -364,9 +371,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		//we have a clean slate, create a new app
 		if(partialMode){
-
 			return ccApp;
-			
 		}
 		else{
 			ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
