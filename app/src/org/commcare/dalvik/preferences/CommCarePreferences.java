@@ -168,6 +168,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) 
     {
-      Localization.setLocale(sharedPreferences.getString(key, "default"));
+    	if(key.equals("cur_locale")) {
+    		Localization.setLocale(sharedPreferences.getString(key, "default"));
+    	}
     }
 }
