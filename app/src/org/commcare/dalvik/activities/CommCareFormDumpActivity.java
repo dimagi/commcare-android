@@ -165,7 +165,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 					return;
 				}
 				SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-				DumpTask mDumpTask = new DumpTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", url), txtInteractiveMessages){
+				DumpTask mDumpTask = new DumpTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), txtInteractiveMessages){
 
 					protected int taskId = BULK_DUMP_ID;
 					
