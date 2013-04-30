@@ -210,9 +210,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		startOverButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				retryCount = 0;
-				partialMode = false;
-				setModeToBasic();
+				if(upgradeMode) {
+					startResourceInstall(true);
+				} else {
+					retryCount = 0;
+					partialMode = false;
+					setModeToBasic();
+				}
 			}
 			
 		});
@@ -222,9 +226,11 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				
-				partialMode = true;
+				if(!upgradeMode) {
+					partialMode = true;
+				}
 				
-				startResourceInstall();
+				startResourceInstall(false);
 			}
 		});
 		
@@ -381,6 +387,10 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 
 	private void startResourceInstall() {
+		this.startResourceInstall(true);
+	}
+	
+	private void startResourceInstall(boolean startOverUpgrade) {
 		
 		String ref = getRef();
 		
@@ -388,7 +398,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		ccApp = app;
 		
-		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode, partialMode, app);
+		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode, partialMode, app, startOverUpgrade);
 		
 		task.setListener(this);
 		
@@ -397,12 +407,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
 		this.showDialog(DIALOG_INSTALL_PROGRESS);
 		
-	}
-	
-	private void startReportActivity(String failureMessage) {
-        Intent i = new Intent(this, CommCareVerificationActivity.class);
-        i.putExtra("msg",failureMessage);
-        CommCareSetupActivity.this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
 	}
 
     @Override
@@ -580,10 +584,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 
 	public void fail(NotificationMessage message) {
 		fail(message, false);
-	}
-	
-	public void setAskRetry(){
-		
 	}
 	
 	public void fail(NotificationMessage message, boolean alwaysNotify) {	

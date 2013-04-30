@@ -18,6 +18,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -99,7 +100,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new UnresolvedResourceException(r, "IOException for resource");
+			throw new UnreliableSourceException(r, e.getMessage());
 		}
 	}
 

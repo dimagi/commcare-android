@@ -82,20 +82,18 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	private int phase = -1;  
 	boolean upgradeMode = false;
 	boolean partialMode = false;
+	boolean startOverUpgrade = true;
 	
 	String vAvailable;
 	String vRequired;
 	boolean majorIsProblem;
 	
-	public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app) throws SessionUnavailableException{
+	public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app, boolean startOverUpgrade) throws SessionUnavailableException{
 		this.partialMode = partialMode;
 		this.c = c;
 		this.upgradeMode = upgradeMode;
 		this.app = app;
-	}
-	
-	public ResourceEngineTask(Context c, boolean upgradeMode, CommCareApp app) throws SessionUnavailableException{
-		this(c, upgradeMode, false, app);
+		this.startOverUpgrade = startOverUpgrade;
 	}
 	
 	/* (non-Javadoc)
@@ -140,7 +138,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 				ResourceTable recovery = platform.getRecoveryTable();
 				temporary.setStateListener(this);
 
-				platform.stageUpgradeTable(global, temporary, profileRef, true);
+				platform.stageUpgradeTable(global, temporary, profileRef, startOverUpgrade);
 	    		Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
 	    		if(newProfile.getVersion() == previousVersion) {
 	    			Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
