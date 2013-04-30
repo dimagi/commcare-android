@@ -32,7 +32,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogSerializer;
 import org.commcare.android.javarosa.DeviceReportWriter;
-import org.commcare.android.util.HttpRequestGenerator;
+import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.log.LogEntry;

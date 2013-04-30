@@ -1,9 +1,10 @@
 /**
  * 
  */
-package org.commcare.android.util;
+package org.commcare.android.net;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -41,6 +42,7 @@ import org.javarosa.core.services.Logger;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * @author ctsims
@@ -49,6 +51,7 @@ import android.net.Uri;
 public class HttpRequestGenerator {
 	
 
+	public static final String LOG_COMMCARE_NETWORK = "commcare-network";
 	private Credentials credentials;
 	private String username;
 
@@ -76,6 +79,30 @@ public class HttpRequestGenerator {
 
 	public HttpResponse makeCaseFetchRequest(String baseUri) throws ClientProtocolException, IOException {
 		return makeCaseFetchRequest(baseUri, true);
+	}
+	
+	public HttpResponse get(String uri) throws ClientProtocolException, IOException {
+		HttpClient client = client();
+		
+		System.out.println("Fetching from: " + uri);
+		HttpGet request = new HttpGet(uri);
+		addHeaders(request, "");
+		HttpResponse response = execute(client, request);
+		
+		//May need to manually process a valid redirect
+		if(response.getStatusLine().getStatusCode() == 301) {
+			String newGetUri = request.getURI().toString();
+			Log.d(LOG_COMMCARE_NETWORK, "Following valid redirect from " + uri.toString() + " to " + newGetUri);
+			request.abort();
+			
+			//Make a new response to the redirect
+			request = new HttpGet(newGetUri);
+			addHeaders(request, "");
+			response = execute(client, request);
+		} 
+		
+		return response;
+		
 	}
 	
 	public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException {
@@ -200,6 +227,7 @@ public class HttpRequestGenerator {
 			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + originalRequest.toString() + " to " + finalRedirect.toString());
 			throw new IOException("Invalid redirect from secure server to insecure server");
 		}
+
 		return response;
 	}
 	
@@ -218,4 +246,71 @@ public class HttpRequestGenerator {
 			return false;
 		}
 	}
+	
+	 
+	/**
+	 * TODO: At some point in the future this kind of division will be more central
+	 * but this generates an input stream for a URL using the best package for your
+	 * application
+	 * 
+	 * @param url
+	 * @return a Stream to that URL 
+	 */
+	public InputStream simpleGet(URL url) throws IOException {
+		
+	     // only for versions past gingerbread use the HttpURLConnection
+		if (android.os.Build.VERSION.SDK_INT > 11) {
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			setup(con);
+			// Start the query
+			con.connect();
+			//It's possible we're getting redirected from http to https
+			//if so, we need to handle it explicitly
+			if(con.getResponseCode() == 301) {
+				//only allow one level of redirection here for now.	
+				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Attempting 1 stage redirect from " + url.toString() + " to " + con.getURL().toString());
+				URL newUrl = con.getURL();
+				con.disconnect();
+				con = (HttpURLConnection) newUrl.openConnection();
+				setup(con);
+				con.connect();
+			}
+			
+			//Don't allow redirects _from_ https _to_ https unless they are redirecting to the same server.
+			if(!HttpRequestGenerator.isValidRedirect(url, con.getURL())) {
+				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + url.toString() + " to " + con.getURL().toString());
+				throw new IOException("Invalid redirect from secure server to insecure server");
+			}
+			
+			return con.getInputStream();
+
+			
+		}
+
+		//On earlier versions of android use the apache libraries, they work much much better.
+		
+		Log.i(LOG_COMMCARE_NETWORK, "Falling back to Apache libs for network request");
+		HttpResponse get = get(url.toString());
+		
+		if(get.getStatusLine().getStatusCode() == 404) {
+			throw new IOException("No Data available at URL " + url.toString());
+		}
+		
+		//TODO: Double check response code
+		return get.getEntity().getContent();		
+	}
+	
+
+	/**
+	 * @param con
+	 * @throws IOException
+	 */
+	private void setup(HttpURLConnection con) throws IOException {
+		con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
+		con.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);
+		con.setRequestMethod("GET");
+		con.setDoInput(true);
+		con.setInstanceFollowRedirects(true);
+	}
+
 }

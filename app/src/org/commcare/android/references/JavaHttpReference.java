@@ -9,9 +9,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.apache.http.HttpResponse;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.util.HttpRequestGenerator;
+import org.commcare.android.net.HttpRequestGenerator;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 
@@ -48,38 +49,9 @@ public class JavaHttpReference implements Reference {
 	 */
 	public InputStream getStream() throws IOException {
 		URL url = new URL(uri);
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		setup(con);
-		// Start the query
-		con.connect();
-		//It's possible we're getting redirected from http to https
-		//if so, we need to handle it explicitly
-		if(con.getResponseCode() == 301) {
-			//only allow one level of redirection here for now.	
-			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Attempting 1 stage redirect from " + uri + " to " + con.getURL().toString());
-			URL newUrl = con.getURL();
-			con.disconnect();
-			con = (HttpURLConnection) newUrl.openConnection();
-			setup(con);
-			con.connect();
-		}
 		
-		//Don't allow redirects _from_ https _to_ https unless they are redirecting to the same server.
-		if(!HttpRequestGenerator.isValidRedirect(url, con.getURL())) {
-			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + uri + " to " + con.getURL().toString());
-			throw new IOException("Invalid redirect from secure server to insecure server");
-		}
-		
-		return con.getInputStream();
+		return new HttpRequestGenerator().simpleGet(url);
 	}
-
-	private void setup(HttpURLConnection con) throws IOException {
-		con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
-		con.setRequestMethod("GET");
-		con.setDoInput(true);
-		con.setInstanceFollowRedirects(true);
-	}
-
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.reference.Reference#getURI()
