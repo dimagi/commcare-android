@@ -5,7 +5,6 @@ package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
@@ -153,6 +152,9 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         }
         ((ListView)this.findViewById(R.id.screen_entity_select_list)).setOnItemClickListener(this);
         
+        
+        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        searchLabel.setText(Localization.get("select.search.label"));
         
         searchbox = (EditText)findViewById(R.id.searchbox);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
