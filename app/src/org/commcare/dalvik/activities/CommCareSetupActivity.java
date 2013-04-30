@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,6 +77,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final int MISSING_MEDIA_ACTIVITY=2;
 	
 	public static final int RETRY_LIMIT = 20;
+	
+	boolean startAllowed = true;
 	
 	int dbState;
 	int resourceState;
@@ -392,21 +395,24 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	
 	private void startResourceInstall(boolean startOverUpgrade) {
 		
-		String ref = getRef();
-		
-		CommCareApp app = getCommCareApp();
-		
-		ccApp = app;
-		
-		ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode, partialMode, app, startOverUpgrade);
-		
-		task.setListener(this);
-		
-		task.execute(ref);
-		wakelock();
-		
-		this.showDialog(DIALOG_INSTALL_PROGRESS);
-		
+		if(startAllowed) {
+			String ref = getRef();
+			
+			CommCareApp app = getCommCareApp();
+			
+			ccApp = app;
+			
+			ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode, partialMode, app, startOverUpgrade);
+			
+			task.setListener(this);
+			
+			task.execute(ref);
+			wakelock();
+			
+			this.showDialog(DIALOG_INSTALL_PROGRESS);
+		} else {
+			Log.i("commcare-install", "Blocked a resource install press since a task was already running");
+		}
 	}
 
     @Override
@@ -672,6 +678,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     
     private void wakelock() {
     	unlock();
+    	startAllowed = false;
     	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     	if(wakelock == null) {
     		wakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "CommCareAppInstall");
@@ -682,6 +689,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
     }
     
     private void unlock() {
+    	startAllowed = true;
     	if(wakelock != null && wakelock.isHeld()) {
     		wakelock.release();
     	}
