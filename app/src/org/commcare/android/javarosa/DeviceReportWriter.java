@@ -63,11 +63,14 @@ public class DeviceReportWriter {
 		serializer.startDocument("UTF-8", null);
 		serializer.startTag(XMLNS, "device_report");
 		try {
-			writeHeader();
-			writeUserReport();
+			
+			//All inner elements are supposed to catch their errors and wrap them, so we
+			//can safely catch any of the processing issues
+			try { writeHeader(); } catch(Exception e) { }
+			try { writeUserReport(); } catch(Exception e) { }
 			
 			for(DeviceReportElement element : elements) {
-				element.writeToDeviceReport(serializer);
+				try { element.writeToDeviceReport(serializer); } catch(Exception e) { }
 			}
 			
 		} catch(Exception e) {
