@@ -10,3 +10,5 @@ libraries/mapballoons/android-mapviewballoons/gen/*
 app/gen/*
 libraries/mapballoons/android-mapviewballoons/local.properties
 app/assets/testing*
+app/assets/*
+*.orig

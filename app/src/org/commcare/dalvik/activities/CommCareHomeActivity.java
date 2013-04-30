@@ -402,12 +402,18 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		}
 	    		else if(resultCode == CommCareFormDumpActivity.BULK_DUMP_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
+	    			
+	    			displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, true);
+	    			
 	    			Toast.makeText(this, Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
 	    			refreshView();
 	    			return;
 	    		}
 	    		else if(resultCode == CommCareFormDumpActivity.BULK_SEND_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
+	    			
+	    			displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+	    			
 	    			Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
 	    			refreshView();
 	    			return;
@@ -1397,7 +1403,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	
 	private void startFormDumpActivity(){
 		Intent i = new Intent(this, CommCareFormDumpActivity.class);
-		i.putExtra(MultimediaInflaterActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
+		i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
 		CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
 	}
 	

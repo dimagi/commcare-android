@@ -50,7 +50,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * @author ctsims
+ * @author wspride
  *
  */
 
@@ -81,6 +81,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	static final int BULK_SEND_ID = 3;
 	static final String KEY_NUMBER_DUMPED = "num_dumped";
 	
+	public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
+	
 	private int formsOnPhone;
 	private int formsOnSD;
 
@@ -96,17 +98,17 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		
 		//get number of unsynced forms for display purposes
     	Vector<Integer> ids = getUnsyncedForms();
-    	File[] files = this.getDumpFiles();
+    	File[] files = CommCareFormDumpActivity.getDumpFiles();
     	
     	formsOnPhone = ids.size();
 		formsOnSD = files.length;
 		
-		btnDumpForms.setText(Localization.get("bulk.form.dump.2", new String[] {""+formsOnPhone}));
-		btnSubmitForms.setText(Localization.get("bulk.form.submit.2", new String[] {""+formsOnSD}));
-		txtDisplayPrompt.setText(Localization.get("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
+		setDisplayText();
 		
 		btnSubmitForms.setOnClickListener(new OnClickListener() {
 			public void onClick(View v){
+				
+				formsOnSD = CommCareFormDumpActivity.getDumpFiles().length;
 				
 				//if there're no forms to dump, just return
 				if(formsOnSD == 0){
@@ -117,6 +119,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				
 	    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 				SendTask mSendTask = new SendTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", url), txtInteractiveMessages){
+					
+					protected int taskId = BULK_SEND_ID;
 					
 					@Override
 					protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
@@ -146,7 +150,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 					}
 				};
-				mSendTask.setTaskId(BULK_SEND_ID);
 				mSendTask.connect(CommCareFormDumpActivity.this);
 				mSendTask.execute();
 			}
@@ -164,6 +167,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 				DumpTask mDumpTask = new DumpTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", url), txtInteractiveMessages){
 
+					protected int taskId = BULK_DUMP_ID;
+					
 					@Override
 					protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
 						if(result == Boolean.TRUE){
@@ -190,7 +195,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 					}
 				};
-				mDumpTask.setTaskId(BULK_DUMP_ID);
 				mDumpTask.connect(CommCareFormDumpActivity.this);
 				mDumpTask.execute();
 				
@@ -205,7 +209,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		}
 			
 	}
-	
+
 	/*
      * (non-Javadoc)
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
@@ -239,8 +243,17 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     		
     }
     
-    public File[] getDumpFiles(){
+    public void setDisplayText(){
+		btnDumpForms.setText(Localization.get("bulk.form.dump.2", new String[] {""+formsOnPhone}));
+		btnSubmitForms.setText(Localization.get("bulk.form.submit.2", new String[] {""+formsOnSD}));
+		txtDisplayPrompt.setText(Localization.get("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
+    }
+    
+    public static File[] getDumpFiles(){
     	ArrayList<String> externalMounts = FileUtil.getExternalMounts();
+    	if(externalMounts.size()==0){
+    		return new File[]{};
+    	}
 		String baseDir = externalMounts.get(0);
 		String folderName = Localization.get("bulk.form.foldername");
 		File dumpDirectory = new File( baseDir + "/" + folderName);
@@ -265,7 +278,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	}
 	
 	private void exitDump(){
-		onBackPressed();
+		finish();
 	}
 	
 	/* (non-Javadoc)

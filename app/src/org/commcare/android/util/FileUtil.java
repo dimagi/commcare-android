@@ -263,6 +263,13 @@ public class FileUtil {
 			}
 		}
 		
+		/*
+		 * http://stackoverflow.com/questions/11281010/how-can-i-get-external-sd-card-path-for-android-4-0
+		 * 
+		 * Used in SD Card functionality to get the location of the SD card for reads and writes
+		 * Returns a list of available mounts; for our purposes, we just use the first
+		 */
+		
 	    public static ArrayList<String> getExternalMounts() {
 	        final ArrayList<String> out = new ArrayList<String>();
 	        String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";

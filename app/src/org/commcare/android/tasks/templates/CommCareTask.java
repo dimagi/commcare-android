@@ -173,10 +173,6 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 		return taskId;
 	}
 	
-	public void setTaskId(int id){
-		taskId = id;
-	}
-	
 	public void disconnect() {
 		
 	}

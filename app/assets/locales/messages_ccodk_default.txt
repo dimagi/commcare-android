@@ -182,7 +182,7 @@ bulk.form.sd.emulated=Cannot detect your external SD card. Please try inserting 
 
 bulk.form.start=Starting form dump...
 bulk.form.send.start=Starting form send...
-bulk.form.progress=Dumped ${0} out of ${1} resources
+bulk.form.progress=Dumped ${0} out of ${1} forms
 bulk.form.cancel=Form dump canceled!
 bulk.form.end=Bulk form finished successfully!
 bulk.form.warning=Do not use this feature unless you have been trained to do so. Do you wish to proceed?
