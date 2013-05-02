@@ -8,14 +8,10 @@ import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -23,6 +19,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -90,15 +90,16 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 	}
 
 	@Override
-	public void onFinished(SizeBoundVector<UnresolvedResourceException> problems) {
+	public void onFinished(SizeBoundVector<MissingMediaException> problems) {
 		vProgressDialog.dismiss();
 		if(problems.size() > 0 ) {
 			String message = Localization.get("verification.fail.message");
 			
 			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
 			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
-				UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
+				MissingMediaException ure = (MissingMediaException)en.nextElement();
 				String res = ure.getResource().getResourceId();
+				
 				Vector<String> list;
 				if(problemList.containsKey(res)) {
 					list = problemList.get(res);
@@ -113,6 +114,7 @@ public class CommCareVerificationActivity extends Activity implements Verificati
 			
 			for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
 				String resource = (String)en.nextElement();
+				
 				message += "\n-----------";
 				for(String s : problemList.get(resource)) {
 					message += "\n" + prettyString(s);

@@ -56,6 +56,7 @@ home.menu.update=Update CommCare
 home.menu.call.log=Call Log
 home.menu.validate=Validate Media
 home.menu.change.locale=Change Locale
+home.menu.formdump=Dump Forms
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare ODK Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
@@ -160,6 +161,43 @@ mult.install.progress.errormoving=There was a problem copying the multimedia fro
 
 mult.install.prompt=From here you can install your app multimedia from a ZIP file on the local filesystem
 mult.install.button=Install Multimedia
+
+bulk.form.prompt=From here you can dump forms to and submit forms from your external SD card. You have ${0} unsynced forms on your phone and ${1} unsynced forms on your SD card
+bulk.form.submit=Submit Forms
+bulk.form.dump=Dump Forms
+bulk.form.messages=-
+bulk.form.error=Unexpected Error dumping forms! Please try again. Error Text: ${0}
+bulk.form.foldername=filedump
+
+bulk.form.submit.2=Submit Forms (${0})
+bulk.form.dump.2=Dump Forms (${0})
+
+bulk.form.no.unsynced=You don't have any unsynced forms to submit!
+bulk.form.no.unsynced.submit=You don't have any forms on your SD to submit!
+bulk.form.no.unsynced.dump=You don't have any forms on your phone to dump!
+
+bulk.form.sd.unavailable=Cannot read your external SD card. Please make sure your permissions are set correctly.
+bulk.form.sd.unwritable=Cannot write your external SD card. Please make sure our permissions are set correctly.
+bulk.form.sd.emulated=Cannot detect your external SD card. Please try inserting again or get support.
+
+bulk.form.start=Starting form dump...
+bulk.form.send.start=Starting form send...
+bulk.form.progress=Dumped ${0} out of ${1} forms
+bulk.form.cancel=Form dump canceled!
+bulk.form.end=Bulk form finished successfully!
+bulk.form.warning=Do not use this feature unless you have been trained to do so. Do you wish to proceed?
+bulk.form.alert.title=Form Dump
+
+bulk.dump.dialog.title=Dumping Forms to SD
+bulk.dump.dialog.progress=Loaded ${0} forms successfully
+bulk.send.dialog.title=Uploading SD Forms to Server
+bulk.send.dialog.progress=Sending form ${0}
+
+bulk.send.file.error=Couldn't send the file at path ${0}
+bulk.send.transport.error=Couldn't reach the server. Please ensure that you are connected to the internet.
+
+bulk.form.send.success=${0} forms sent successfully
+bulk.form.dump.success=${1} forms dumped successfully
 
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 

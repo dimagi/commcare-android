@@ -215,6 +215,7 @@
             <intent-filter><action android:name="org.commcare.dalvik.api.action.ExternalAction" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
         </receiver>
         <activity android:name=".activities.MultimediaInflaterActivity"></activity>
+        <activity android:name=".activities.CommCareFormDumpActivity"></activity>
     </application>
 
     <uses-feature
@@ -249,6 +250,8 @@
     </uses-permission>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" >
     </uses-permission>
+    
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-sdk
         android:minSdkVersion="8"

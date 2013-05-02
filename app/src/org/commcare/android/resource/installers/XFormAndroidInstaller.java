@@ -16,6 +16,7 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
@@ -227,7 +228,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(contentUri));
 	}
 	
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 		//Check to see whether the formDef exists and reads correctly
 		FormDef formDef;
 		try {
@@ -236,10 +237,10 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		} catch(Exception e) {
 			// something weird/bad happened here. first make sure storage is available
         	if(!CommCareApplication._().isStorageAvailable()) {
-        		problems.addElement(new UnresolvedResourceException(r, "Couldn't access your persisent storage. Please make sure your SD card is connected properly"));
+        		problems.addElement(new MissingMediaException(r, "Couldn't access your persisent storage. Please make sure your SD card is connected properly"));
         	}
 			
-			problems.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
+			problems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
 			return true;
 		}
 		if(formDef==null){
@@ -265,15 +266,16 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 					   form.equals(FormEntryCaption.TEXT_FORM_AUDIO) || 
 					   form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
 						try {
+							
 							String externalMedia = localeData.get(key).render();
 							Reference ref = ReferenceManager._().DeriveReference(externalMedia);
 							String localName = ref.getLocalURI();
 							try {
 								if(!ref.doesBinaryExist()) {
-									problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + localName));
+									problems.addElement(new MissingMediaException(r,"Missing external media: " + localName, externalMedia));
 								}
 							} catch (IOException e) {
-								problems.addElement(new UnresolvedResourceException(r,"Problem reading external media: " + localName));
+								problems.addElement(new MissingMediaException(r,"Problem reading external media: " + localName, externalMedia));
 							}
 						} catch (InvalidReferenceException e) {
 							//So the problem is that this might be a valid entry that depends on context
