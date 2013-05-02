@@ -17,15 +17,15 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.mime.EncryptedFileBody;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.tasks.DataSubmissionListener;
 
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
-import org.commcare.android.tasks.DataSubmissionListener;
-import org.commcare.android.database.user.models.User;
 
 public class FormUploadUtil {
 	
