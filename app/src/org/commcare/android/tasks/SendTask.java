@@ -3,29 +3,17 @@
  */
 package org.commcare.android.tasks;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.HttpRequestGenerator;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareFormDumpActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -33,9 +21,9 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.locale.Localization;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.TextView;
+import org.commcare.android.database.user.models.User;
 
 /**
  * @author ctsims
@@ -64,15 +52,12 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	}
 	
 	/* (non-Javadoc)
-	 * @see android.os.AsyncTask#doInBackground(Params[])
-	 */
-	
-	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#onProgressUpdate(Progress[])
 	 */
 	protected void onProgressUpdate(String... values) {
 		super.onProgressUpdate(values);
 	}
+	
 	
 	public void setListeners(ProcessTaskListener listener, DataSubmissionListener submissionListener) {
 		this.listener = listener;
@@ -139,7 +124,8 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 				return false;
 			}
 			try{
-				results[i] = FormUploadUtil.sendInstance(counter,f,url);
+				User user = CommCareApplication._().getSession().getLoggedInUser();
+				results[i] = FormUploadUtil.sendInstance(counter,f,url, user);
 				if(results[i] == FormUploadUtil.FULL_SUCCESS){
 					FileUtil.deleteFile(f);
 				}
@@ -153,6 +139,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 				}
 				counter++;
 			} catch(FileNotFoundException fe){
+				Log.e("E", Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}), fe);
 				publishProgress(Localization.get("bulk.send.file.error", new String[] {fe.getMessage()}));
 			}
 		}

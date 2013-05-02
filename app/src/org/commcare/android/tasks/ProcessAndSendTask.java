@@ -58,6 +58,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import org.commcare.android.database.user.models.User;
+
 /**
  * @author ctsims
  *
@@ -243,7 +245,8 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 					//Good!
 					//Time to Send!
 					try {
-						results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this);
+						User mUser = CommCareApplication._().getSession().getLoggedInUser();
+						results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
 					} catch (FileNotFoundException e) {
 						if(CommCareApplication._().isStorageAvailable()) {
 							//If storage is available generally, this is a bug in the app design

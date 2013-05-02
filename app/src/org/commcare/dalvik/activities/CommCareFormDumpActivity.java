@@ -214,10 +214,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
      * (non-Javadoc)
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    	
-    }
     
     private AlertDialog popupWarningMessage(){
     	AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);

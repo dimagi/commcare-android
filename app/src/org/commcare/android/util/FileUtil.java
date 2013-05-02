@@ -263,7 +263,7 @@ public class FileUtil {
 			}
 		}
 		
-		/*
+		/**
 		 * http://stackoverflow.com/questions/11281010/how-can-i-get-external-sd-card-path-for-android-4-0
 		 * 
 		 * Used in SD Card functionality to get the location of the SD card for reads and writes

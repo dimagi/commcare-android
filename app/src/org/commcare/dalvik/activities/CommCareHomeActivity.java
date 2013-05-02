@@ -405,9 +405,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		else if(resultCode == CommCareFormDumpActivity.BULK_DUMP_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
 	    			
-	    			displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, true);
+	    			displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
 	    			
-	    			Toast.makeText(this, Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
 	    			refreshView();
 	    			return;
 	    		}

@@ -172,7 +172,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 		boolean mExternalStorageAvailable = false;
 		boolean mExternalStorageWriteable = false;
 		
-		boolean mExternalStorageEmulated = ReflectionUtil.fiddle();
+		boolean mExternalStorageEmulated = ReflectionUtil.mIsExternalStorageEmulatedHelper();
 		
 		String state = Environment.getExternalStorageState();
 		

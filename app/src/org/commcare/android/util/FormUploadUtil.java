@@ -25,6 +25,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import org.commcare.android.tasks.DataSubmissionListener;
+import org.commcare.android.database.user.models.User;
 
 public class FormUploadUtil {
 	
@@ -86,12 +87,12 @@ public class FormUploadUtil {
 		return null;
 	}
 	
-	public static long sendInstance(int submissionNumber, File folder, String url) throws FileNotFoundException {
-		return FormUploadUtil.sendInstance(submissionNumber, folder, null, url, null);
+	public static long sendInstance(int submissionNumber, File folder, String url, User user) throws FileNotFoundException {
+		return FormUploadUtil.sendInstance(submissionNumber, folder, null, url, null, user);
 	}
 	
 	
-	public static long sendInstance(int submissionNumber, File folder, SecretKeySpec key, String url, AsyncTask listener) throws FileNotFoundException {
+	public static long sendInstance(int submissionNumber, File folder, SecretKeySpec key, String url, AsyncTask listener, User user) throws FileNotFoundException {
 		
 		boolean hasListener = false;
 		DataSubmissionListener myListener = null;
@@ -135,7 +136,7 @@ public class FormUploadUtil {
         	myListener.startSubmission(submissionNumber, bytes);
         }
 		
-		HttpRequestGenerator generator = new HttpRequestGenerator(CommCareApplication._().getSession().getLoggedInUser());
+		HttpRequestGenerator generator = new HttpRequestGenerator(user);
         
         String t = "p+a+s";
         
