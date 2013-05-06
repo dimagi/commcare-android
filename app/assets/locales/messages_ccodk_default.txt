@@ -216,6 +216,8 @@ demo.mode.warning.dismiss=I Understand
 select.search.label=Search:
 select.detail.confirm=Select Client
 
+mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
