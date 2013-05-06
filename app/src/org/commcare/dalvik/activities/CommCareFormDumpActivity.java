@@ -99,9 +99,10 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		//get number of unsynced forms for display purposes
     	Vector<Integer> ids = getUnsyncedForms();
     	File[] files = CommCareFormDumpActivity.getDumpFiles();
+
+    	formsOnSD = files.length;
     	
     	formsOnPhone = ids.size();
-		formsOnSD = files.length;
 		
 		setDisplayText();
 		
@@ -254,6 +255,11 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		String folderName = Localization.get("bulk.form.foldername");
 		File dumpDirectory = new File( baseDir + "/" + folderName);
 		File[] files = dumpDirectory.listFiles();
+		
+		if (files == null){
+			files = new File[] {};
+		}
+		
 		return files;
     }
     
