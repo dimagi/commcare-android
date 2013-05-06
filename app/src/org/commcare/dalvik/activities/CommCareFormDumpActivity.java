@@ -254,6 +254,11 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		String folderName = Localization.get("bulk.form.foldername");
 		File dumpDirectory = new File( baseDir + "/" + folderName);
 		File[] files = dumpDirectory.listFiles();
+		
+		if(files == null){
+			files = new File[] {};
+		}
+		
 		return files;
     }
     
