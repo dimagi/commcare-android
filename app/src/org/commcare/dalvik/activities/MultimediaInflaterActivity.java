@@ -6,8 +6,10 @@ package org.commcare.dalvik.activities;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -24,14 +26,18 @@ import org.javarosa.core.services.locale.Localization;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author ctsims
@@ -41,6 +47,8 @@ import android.widget.TextView;
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
 	
+	private static final String LOG_TAG = "CommCare-MultimediaInflator";
+
 	private static final int REQUEST_FILE_LOCATION = 1;
 	
 	public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
@@ -68,6 +76,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		btnFetchFiles.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -75,9 +84,15 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     			//Go fetch us a file path!
     		    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
     		    intent.setType("file/*");
-    		    startActivityForResult(intent, REQUEST_FILE_LOCATION);	
+    		    try {
+    		    	startActivityForResult(intent, REQUEST_FILE_LOCATION);
+    		    } catch(ActivityNotFoundException e) {
+    		    	Toast.makeText(MultimediaInflaterActivity.this, Localization.get("mult.install.no.browser"), Toast.LENGTH_LONG).show();
+    		    }
 			}
 		});
+		
+		
 		
 		final String destination = this.getIntent().getStringExtra(EXTRA_FILE_DESTINATION);
 		
@@ -190,8 +205,20 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 			}
 			
 		});
+		
+		
+		try {
+			//Go populate the location by default if it exists. (Note: If we are recreating, this will get overridden
+			//in the restore instance state)
+			searchForDefault();
+		} catch(Exception e) {
+			//This is helper code and Android is suuuuuppppeerr touchy about file system stuff, so don't eat it if 
+			//something changes
+			e.printStackTrace();
+			Log.e(LOG_TAG, "Error while trying to get default location");
+		}
 	}
-	
+
 	/*
      * (non-Javadoc)
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
@@ -268,4 +295,74 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 		txtInteractiveMessages.setText(Localization.get("mult.install.cancelled"));
 		this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 	}
+	
+
+	private static final long MAX_TIME_TO_TRY = 400;
+	/**
+	 * Go through all of the obvious storage locations where the zip file might be and see if it's there.
+	 */
+	private void searchForDefault() {
+		//We're only gonna spend a certain amount of time trying to find a good match
+		long start = System.currentTimeMillis();
+		
+		//Get all of the "roots" where stuff might be
+		ArrayList<File> roots = new ArrayList<File>();
+		//And stage a place to list folders we'll scan
+		ArrayList<File> folders = new ArrayList<File>();
+		
+		if(Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED || Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED_READ_ONLY) {
+			roots.add(Environment.getExternalStorageDirectory());
+		}
+		
+		for(String s : FileUtil.getExternalMounts()) {
+			roots.add(new File(s));
+		}
+
+		//Now add all of our folders from our roots. We're only going one level deep
+		for(File r : roots) {
+			//Add the root too
+			folders.add(r);
+			//Now add all subfolders
+			for(File f : r.listFiles()) {
+				if(f.isDirectory()) {
+					folders.add(f);
+				}
+			}
+		}
+		
+		File bestMatch = null;
+		//Now scan for the actual file
+		for(File folder : folders) {
+			for(File f : folder.listFiles()) {
+				String name = f.getName().toLowerCase();
+				
+				//This is just what we expect the file will be called
+				if(name.startsWith("commcare") && name.endsWith(".zip")) {
+					
+					if(bestMatch == null) {
+						bestMatch = f;
+					} else {
+						//If we have one, take the newer one
+						if(bestMatch.lastModified() < f.lastModified()) {
+							bestMatch = f;
+						}
+					}
+				}
+			}
+			//For now, actually, if we have a good match, just bail without finding the "best" one
+			if(bestMatch != null) {
+				break;
+			}
+			if(System.currentTimeMillis() - start > MAX_TIME_TO_TRY) {
+				Log.i(LOG_TAG, "Had to bail on looking for a default file, was taking too long");
+				break;
+			}
+		}
+		
+		if(bestMatch != null) {
+			//If we found a good match, awesome! 
+			editFileLocation.setText(bestMatch.getAbsolutePath());
+		}
+	}
+
 }
