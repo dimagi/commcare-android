@@ -65,6 +65,10 @@ public class NotificationMessageFactory {
 		return message(message, new String[3]);
 	}
 	
+	public static NotificationMessage message(MessageTag message, String customCategory){
+		return message(message, new String[3], customCategory);
+	}
+	
 	public static NotificationMessage message(MessageTag message, String[] parameters) {
 		return message(message, parameters, message.getCategory());
 	}

@@ -199,7 +199,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             public void onClick(View v) {
             	
             	if(isAirplaneModeOn()){
-            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
+            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, LoginActivity.NOTIFICATION_MESSAGE_LOGIN));
             		return;
             	}
             	
