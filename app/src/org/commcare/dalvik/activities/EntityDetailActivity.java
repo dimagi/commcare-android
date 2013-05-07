@@ -102,7 +102,7 @@ public class EntityDetailActivity extends Activity implements DetailCalloutListe
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 	        
-	        setTitle(getString(R.string.application_name) + " > " + "Details");
+	        setTitle(getString(R.string.application_name) + " > " + Localization.get("select.detail.title"));
 	        
 	        refreshView();
         } catch(SessionUnavailableException sue) {
