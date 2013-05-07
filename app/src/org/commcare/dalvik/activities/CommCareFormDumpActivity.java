@@ -252,14 +252,18 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     	if(externalMounts.size()==0){
     		return new File[]{};
     	}
+    	
+    	SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH	, "formdump");
+    	
 		String baseDir = externalMounts.get(0);
-		String folderName = Localization.get("bulk.form.foldername");
 		File dumpDirectory = new File( baseDir + "/" + folderName);
-		File[] files = dumpDirectory.listFiles();
 		
-		if (files == null){
-			files = new File[] {};
+		if(!dumpDirectory.isDirectory()){
+			return new File[] {};
 		}
+		
+		File[] files = dumpDirectory.listFiles();
 		
 		return files;
     }
