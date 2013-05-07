@@ -136,7 +136,12 @@ public class FormUploadUtil {
         	myListener.startSubmission(submissionNumber, bytes);
         }
 		
-		HttpRequestGenerator generator = new HttpRequestGenerator(user);
+        HttpRequestGenerator generator;
+        if(user.getUserType().equals(User.TYPE_DEMO)) {
+        	generator = new HttpRequestGenerator(); 
+        } else {
+        	generator = new HttpRequestGenerator(user);
+        }
         
         String t = "p+a+s";
         
@@ -230,6 +235,7 @@ public class FormUploadUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
         System.out.println(new String(bos.toByteArray()));
         
 
