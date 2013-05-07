@@ -169,7 +169,7 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
 			mViewMode = true;
 		}
         
-        setTitle(getString(R.string.application_name) + " > " + " Select");
+        setTitle(getString(R.string.application_name) + " > " + Localization.get("select.list.title"));
                 
         barcodeButton.setOnClickListener(new OnClickListener() {
 
@@ -453,10 +453,10 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_SORT, 0, "Sort By...").setIcon(
+        menu.add(0, MENU_SORT, 0, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if(mMappingEnabled) {
-	        menu.add(0, MENU_MAP, 1, "View on Map").setIcon(
+	        menu.add(0, MENU_MAP, 1, Localization.get("select.menu.map")).setIcon(
 	                android.R.drawable.ic_menu_mapmode);
         }
         return true;
@@ -480,7 +480,7 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     private void createSortMenu() {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	
-        builder.setTitle("Sort by...");
+        builder.setTitle(Localization.get("select.menu.sort"));
 		SessionDatum datum = session.getNeededDatum();
     	DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
         

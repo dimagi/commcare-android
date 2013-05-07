@@ -218,6 +218,12 @@ select.detail.confirm=Select Client
 
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
 
+select.menu.sort=Sort By...
+select.menu.map=View on Map
+
+select.detail.title=Details
+select.list.title=Select
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
