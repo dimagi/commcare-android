@@ -99,12 +99,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
 	
 	public static int unsentFormNumberLimit;
-	public static int unsentFormTimeLimit;
+	public static int unsentFormTimeLimit;	
 	
 	public final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
 	public final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
 	
 	public static final String SESSION_REQUEST = "ccodk_session_request";
+	
+	public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 	
 	boolean wasExternal = false;
 	
@@ -199,8 +201,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             public void onClick(View v) {
             	
             	if(isAirplaneModeOn()){
-            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, LoginActivity.NOTIFICATION_MESSAGE_LOGIN));
+            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             		return;
+            	}
+            	else{
+            		CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
             	}
             	
                 boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {

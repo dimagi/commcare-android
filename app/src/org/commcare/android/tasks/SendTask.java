@@ -17,10 +17,12 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareFormDumpActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.locale.Localization;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.TextView;
 import org.commcare.android.database.user.models.User;
@@ -48,6 +50,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 		this.url = url;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
+		taskId = CommCareFormDumpActivity.BULK_SEND_ID;
 		platform = this.platform;
 	}
 	
@@ -94,7 +97,10 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 		
 		ArrayList<String> externalMounts = FileUtil.getExternalMounts();
 		String baseDir = externalMounts.get(0);
-		String folderName = Localization.get("bulk.form.foldername");
+		
+		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH	, "filedump");
+		
 		File dumpDirectory = new File( baseDir + "/" + folderName);
 		
 		//sanity check

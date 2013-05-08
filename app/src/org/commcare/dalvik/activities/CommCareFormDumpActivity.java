@@ -78,8 +78,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	AlertDialog mAlertDialog;
 	static boolean acknowledgedRisk = false;
 	
-	static final int BULK_DUMP_ID = 2;
-	static final int BULK_SEND_ID = 3;
+	public static final int BULK_DUMP_ID = 2;
+	public static final int BULK_SEND_ID = 3;
 	static final String KEY_NUMBER_DUMPED = "num_dumped";
 	
 	public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
@@ -253,7 +253,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     	}
     	
     	SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-    	String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH	, "formdump");
+    	String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH	, "filedump");
     	
 		String baseDir = externalMounts.get(0);
 		File dumpDirectory = new File( baseDir + "/" + folderName);
