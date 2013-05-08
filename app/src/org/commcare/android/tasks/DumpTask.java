@@ -75,6 +75,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 		this.c = c;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
+		taskId = CommCareFormDumpActivity.BULK_DUMP_ID;
 		platform = this.platform;
 	}
 	
