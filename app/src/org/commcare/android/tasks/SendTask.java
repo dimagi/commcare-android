@@ -43,6 +43,9 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	
 	SqlStorage<FormRecord> storage;
 	TextView outputTextView;
+	
+	public static final int BULK_SEND_ID = 12345;
+	
 	 // 5MB less 1KB overhead
 	
 	public SendTask(Context c, CommCarePlatform platform, String url, TextView outputTextView) throws SessionUnavailableException{
@@ -50,7 +53,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 		this.url = url;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
-		taskId = CommCareFormDumpActivity.BULK_SEND_ID;
+		taskId = SendTask.BULK_SEND_ID;
 		platform = this.platform;
 	}
 	
@@ -93,16 +96,8 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 		
 		publishProgress(Localization.get("bulk.form.send.start"));
 		
-		//get external SD folder
-		
-		ArrayList<String> externalMounts = FileUtil.getExternalMounts();
-		String baseDir = externalMounts.get(0);
-		
-		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-    	String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH	, "filedump");
-		
-		File dumpDirectory = new File( baseDir + "/" + folderName);
-		
+    	File dumpDirectory = CommCareFormDumpActivity.getFolderPath();
+
 		//sanity check
 		if(!(dumpDirectory.isDirectory())){
 			return false;
