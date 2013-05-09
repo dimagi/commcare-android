@@ -17,10 +17,12 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareFormDumpActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.locale.Localization;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.TextView;
 import org.commcare.android.database.user.models.User;
@@ -41,13 +43,19 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	
 	SqlStorage<FormRecord> storage;
 	TextView outputTextView;
+	File dumpDirectory;
+	
+	public static final int BULK_SEND_ID = 12345;
+	
 	 // 5MB less 1KB overhead
 	
-	public SendTask(Context c, CommCarePlatform platform, String url, TextView outputTextView) throws SessionUnavailableException{
+	public SendTask(Context c, CommCarePlatform platform, String url, TextView outputTextView, File dumpDirectory) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
+		taskId = SendTask.BULK_SEND_ID;
+		this.dumpDirectory = dumpDirectory;
 		platform = this.platform;
 	}
 	
@@ -89,14 +97,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	protected Boolean doTaskBackground(FormRecord... params) {
 		
 		publishProgress(Localization.get("bulk.form.send.start"));
-		
-		//get external SD folder
-		
-		ArrayList<String> externalMounts = FileUtil.getExternalMounts();
-		String baseDir = externalMounts.get(0);
-		String folderName = Localization.get("bulk.form.foldername");
-		File dumpDirectory = new File( baseDir + "/" + folderName);
-		
+
 		//sanity check
 		if(!(dumpDirectory.isDirectory())){
 			return false;
