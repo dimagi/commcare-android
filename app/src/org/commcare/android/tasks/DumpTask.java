@@ -62,6 +62,8 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 	public static final long PROGRESS_LOGGED_OUT = 256;
 	public static final long PROGRESS_SDCARD_REMOVED = 512;
 	
+	public static final int BULK_DUMP_ID = 23456;
+	
 	ProcessTaskListener listener;
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
@@ -75,6 +77,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 		this.c = c;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
+		taskId = DumpTask.BULK_DUMP_ID;
 		platform = this.platform;
 	}
 	

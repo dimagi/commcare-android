@@ -17,10 +17,12 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ProcessTaskListener;
+import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
@@ -99,12 +101,14 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
 	
 	public static int unsentFormNumberLimit;
-	public static int unsentFormTimeLimit;
+	public static int unsentFormTimeLimit;	
 	
 	public final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
 	public final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
 	
 	public static final String SESSION_REQUEST = "ccodk_session_request";
+	
+	public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 	
 	boolean wasExternal = false;
 	
@@ -199,8 +203,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             public void onClick(View v) {
             	
             	if(isAirplaneModeOn()){
-            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
+            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             		return;
+            	}
+            	else{
+            		CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
             	}
             	
                 boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {
@@ -402,7 +409,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    		if(resultCode == RESULT_CANCELED){
 	    			return;
 	    		}
-	    		else if(resultCode == CommCareFormDumpActivity.BULK_DUMP_ID){
+	    		else if(resultCode == DumpTask.BULK_DUMP_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
 	    			
 	    			displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
@@ -410,7 +417,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    			refreshView();
 	    			return;
 	    		}
-	    		else if(resultCode == CommCareFormDumpActivity.BULK_SEND_ID){
+	    		else if(resultCode == SendTask.BULK_SEND_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
 	    			
 	    			displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
