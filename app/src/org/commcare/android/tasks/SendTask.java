@@ -43,17 +43,19 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	
 	SqlStorage<FormRecord> storage;
 	TextView outputTextView;
+	File dumpDirectory;
 	
 	public static final int BULK_SEND_ID = 12345;
 	
 	 // 5MB less 1KB overhead
 	
-	public SendTask(Context c, CommCarePlatform platform, String url, TextView outputTextView) throws SessionUnavailableException{
+	public SendTask(Context c, CommCarePlatform platform, String url, TextView outputTextView, File dumpDirectory) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
 		taskId = SendTask.BULK_SEND_ID;
+		this.dumpDirectory = dumpDirectory;
 		platform = this.platform;
 	}
 	
@@ -95,8 +97,6 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	protected Boolean doTaskBackground(FormRecord... params) {
 		
 		publishProgress(Localization.get("bulk.form.send.start"));
-		
-    	File dumpDirectory = CommCareFormDumpActivity.getFolderPath();
 
 		//sanity check
 		if(!(dumpDirectory.isDirectory())){
