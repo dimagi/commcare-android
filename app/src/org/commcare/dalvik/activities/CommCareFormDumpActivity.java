@@ -99,7 +99,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		
 		//get number of unsynced forms for display purposes
     	Vector<Integer> ids = getUnsyncedForms();
-    	File[] files = CommCareFormDumpActivity.getDumpFiles();
+    	File[] files = getDumpFiles();
 
     	formsOnSD = files.length;
     	
@@ -110,7 +110,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		btnSubmitForms.setOnClickListener(new OnClickListener() {
 			public void onClick(View v){
 				
-				formsOnSD = CommCareFormDumpActivity.getDumpFiles().length;
+				formsOnSD = getDumpFiles().length;
 				
 				//if there're no forms to dump, just return
 				if(formsOnSD == 0){
@@ -120,7 +120,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				}
 				
 	    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-				SendTask mSendTask = new SendTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", url), txtInteractiveMessages){
+				SendTask mSendTask = new SendTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
+						settings.getString("PostURL", url), txtInteractiveMessages, getFolderPath()){
 					
 					protected int taskId = BULK_SEND_ID;
 					
@@ -247,13 +248,13 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		txtDisplayPrompt.setText(Localization.get("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
     }
     
-    public static String getFolderName(){
+    public String getFolderName(){
     	SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
     	String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH	, Localization.get("bulk.form.foldername"));
     	return folderName;
     }
     
-    public static File getFolderPath() {
+    public File getFolderPath() {
     	ArrayList<String> externalMounts = FileUtil.getExternalMounts();
     	if(externalMounts.size()==0){
     		return null;
@@ -266,7 +267,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		return dumpDirectory;
     }
     
-    public static File[] getDumpFiles(){
+    public File[] getDumpFiles(){
 
     	File dumpDirectory = getFolderPath();
     	if(dumpDirectory == null || !dumpDirectory.isDirectory()){
