@@ -307,12 +307,14 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 			ProgressDialog progressDialog = new ProgressDialog(this);
 			progressDialog.setTitle(Localization.get("bulk.dump.dialog.title"));
 			progressDialog.setMessage(Localization.get("bulk.dump.dialog.progress", new String[] {"0"}));
+			progressDialog.setCancelable(false);
 			return progressDialog;
 		}
 		else if (id == SendTask.BULK_SEND_ID) {
 			ProgressDialog progressDialog = new ProgressDialog(this);
 			progressDialog.setTitle(Localization.get("bulk.send.dialog.title"));
 			progressDialog.setMessage(Localization.get("bulk.send.dialog.progress", new String[] {"0"}));
+			progressDialog.setCancelable(false);
 			return progressDialog;
 		}
 		return null;
