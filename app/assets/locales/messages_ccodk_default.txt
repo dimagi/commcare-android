@@ -192,6 +192,7 @@ bulk.dump.dialog.title=Dumping Forms to SD
 bulk.dump.dialog.progress=Loaded ${0} forms successfully
 bulk.send.dialog.title=Uploading SD Forms to Server
 bulk.send.dialog.progress=Sending form ${0}
+bulk.send.malformed.file=One of your files was malformed and was removed. See notification for more information.
 
 bulk.send.file.error=Couldn't send the file at path ${0}
 bulk.send.transport.error=Couldn't reach the server. Please ensure that you are connected to the internet.
@@ -308,6 +309,9 @@ notification.sending.loggedout.detail=You were logged out while CommCare was pro
 notification.sync.airplane.title=Phone in Airplane Mode
 notification.sync.airplane.detail=Cannot access the Internet
 notification.sync.airplane.action=You are in airplane mode and unable to connect to the Internet. Turn off airplane mode and try again.
+
+notification.send.malformed.title=Bad Form on SD Card
+notification.send.malformed.detail=The file ${0} on your SD card was malformed and couldn't be read. It has been removed as a precaution.
 
 problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below
