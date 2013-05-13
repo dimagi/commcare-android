@@ -101,8 +101,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		super.onCreate(savedInstanceState);
     	
     	updateCounters();
-    	
-    	formsOnPhone = ids.size();
 		
 		btnSubmitForms.setOnClickListener(new OnClickListener() {
 			public void onClick(View v){
