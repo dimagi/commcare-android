@@ -150,7 +150,6 @@ public class TextImageAudioView extends RelativeLayout {
         	textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
         }
         addView(mTextView, textParams);
-        System.out.println("116 exiting setAVT");
     }
 
 
