@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
@@ -44,6 +45,8 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	SqlStorage<FormRecord> storage;
 	TextView outputTextView;
 	File dumpDirectory;
+	
+	public static String MALFORMED_FILE_CATEGORY = "malformed-file";
 	
 	public static final int BULK_SEND_ID = 12345;
 	
@@ -122,11 +125,15 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 			File f = files[i];
 			
 			if(!(f.isDirectory())){
+				CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[] {null, f.getName()}, MALFORMED_FILE_CATEGORY));
+				publishProgress(Localization.get("bulk.send.malformed.file"));
+				FileUtil.deleteFile(f);
 				return false;
 			}
 			try{
 				User user = CommCareApplication._().getSession().getLoggedInUser();
 				results[i] = FormUploadUtil.sendInstance(counter,f,url, user);
+				
 				if(results[i] == FormUploadUtil.FULL_SUCCESS){
 					FileUtil.deleteFile(f);
 				}
