@@ -101,10 +101,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     	Vector<Integer> ids = getUnsyncedForms();
     	File[] files = getDumpFiles();
     	
-    	formsOnPhone = ids.size();
-		formsOnSD = files.length;
-		
-		setDisplayText();
+    	updateCounters();
 		
 		btnSubmitForms.setOnClickListener(new OnClickListener() {
 			public void onClick(View v){
@@ -239,6 +236,16 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     		AlertDialog alertDialog = alertDialogBuilder.create();
     		return alertDialog;
     		
+    }
+    
+    public void updateCounters(){
+    	Vector<Integer> ids = getUnsyncedForms();
+    	File[] files = getDumpFiles();
+    	
+    	formsOnPhone = ids.size();
+		formsOnSD = files.length;
+		
+		setDisplayText();
     }
     
     public void setDisplayText(){

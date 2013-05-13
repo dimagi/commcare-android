@@ -133,6 +133,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 				else if(results[i] == FormUploadUtil.TRANSPORT_FAILURE){
 					allSuccessful = false;
 					publishProgress(Localization.get("bulk.send.transport.error"));
+					return allSuccessful;
 				}
 				else{
 					allSuccessful = false;
