@@ -125,10 +125,8 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 			File f = files[i];
 			
 			if(!(f.isDirectory())){
-				CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[] {null, f.getName()}, MALFORMED_FILE_CATEGORY));
-				publishProgress(Localization.get("bulk.send.malformed.file"));
-				FileUtil.deleteFile(f);
-				return false;
+				Log.e("send","Encountered non form entry in file dump folder at path: " + f.getAbsolutePath());
+				continue;
 			}
 			try{
 				User user = CommCareApplication._().getSession().getLoggedInUser();
@@ -144,6 +142,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 				}
 				else{
 					allSuccessful = false;
+					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[] {null, f.getName()}, MALFORMED_FILE_CATEGORY));
 					publishProgress(Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}));
 				}
 				counter++;
