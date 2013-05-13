@@ -21,6 +21,7 @@ import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -73,6 +74,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	@UiElement(value = R.id.screen_bulk_form_messages, locale="bulk.form.messages")
 	TextView txtInteractiveMessages;
 	
+	public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
+	
 	boolean done = false;
 	
 	AlertDialog mAlertDialog;
@@ -96,11 +99,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		final String url = this.getString(R.string.PostURL);
 		
 		super.onCreate(savedInstanceState);
-		
-		//get number of unsynced forms for display purposes
-    	Vector<Integer> ids = getUnsyncedForms();
-    	File[] files = getDumpFiles();
-
+    	
     	updateCounters();
     	
     	formsOnPhone = ids.size();
@@ -127,7 +126,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 					protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
 						
 						if(result == Boolean.TRUE){
-							
+							CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
 					        Intent i = new Intent(getIntent());
 					        i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
 							receiver.setResult(BULK_SEND_ID, i);
@@ -135,6 +134,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 							return;
 						} else {
 							//assume that we've already set the error message, but make it look scary
+							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+							updateCounters();
 							receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 						}
 					}
