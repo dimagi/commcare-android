@@ -211,12 +211,15 @@ public class FormUploadUtil {
         try {
         	response = generator.postData(url, entity);
         } catch (ClientProtocolException e) {
+        	System.out.println("513 CPE");
             e.printStackTrace();
             return TRANSPORT_FAILURE;
         } catch (IOException e) {
+        	System.out.println("513 IOE");
             e.printStackTrace();
             return TRANSPORT_FAILURE;
         } catch (IllegalStateException e) {
+        	System.out.println("513 ISE");
             e.printStackTrace();
             return TRANSPORT_FAILURE;
         }
