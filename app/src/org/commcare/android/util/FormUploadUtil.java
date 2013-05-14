@@ -161,7 +161,14 @@ public class FormUploadUtil {
             if (f.getName().endsWith(".xml")) {
             	
             	//fb = new InputStreamBody(new CipherInputStream(new FileInputStream(f), getDecryptCipher(aesKey)), "text/xml", f.getName());
-            	fb = new EncryptedFileBody(f, FormUploadUtil.getDecryptCipher(key), "text/xml");
+            	
+            	if(key != null){
+            		fb = new EncryptedFileBody(f, FormUploadUtil.getDecryptCipher(key), "text/xml");
+            	}
+            	else{
+            		fb = new FileBody(f, "text/xml");
+            	}
+            	
                 entity.addPart("xml_submission_file", fb);
                 
                 //fb = new FileBody(f, "text/xml");

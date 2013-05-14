@@ -52,7 +52,10 @@ public class NotificationMessageFactory {
 		FormEntry_Unretrievable ("notification.formentry.unretrievable"),
 		
 		/**In airplane mode while trying to sync**/
-		Sync_AirplaneMode("notification.sync.airplane");
+		Sync_AirplaneMode("notification.sync.airplane"),
+		
+		/**One of your files on the SD was bad**/
+		Send_MalformedFile("notification.send.malformed");
 	
 		StockMessages(String root) {this.root = root;}
 		private final String root;
@@ -63,6 +66,10 @@ public class NotificationMessageFactory {
 	
 	public static NotificationMessage message(MessageTag message) {
 		return message(message, new String[3]);
+	}
+	
+	public static NotificationMessage message(MessageTag message, String customCategory){
+		return message(message, new String[3], customCategory);
 	}
 	
 	public static NotificationMessage message(MessageTag message, String[] parameters) {

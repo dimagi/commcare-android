@@ -21,6 +21,7 @@ import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -31,6 +32,7 @@ import org.commcare.android.util.ReflectionUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -72,19 +74,21 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	@UiElement(value = R.id.screen_bulk_form_messages, locale="bulk.form.messages")
 	TextView txtInteractiveMessages;
 	
+	public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
+	
 	boolean done = false;
 	
 	AlertDialog mAlertDialog;
 	static boolean acknowledgedRisk = false;
 	
-	static final int BULK_DUMP_ID = 2;
-	static final int BULK_SEND_ID = 3;
 	static final String KEY_NUMBER_DUMPED = "num_dumped";
 	
 	public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
 	
 	private int formsOnPhone;
 	private int formsOnSD;
+	
+	protected String filepath;
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -95,20 +99,13 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 		final String url = this.getString(R.string.PostURL);
 		
 		super.onCreate(savedInstanceState);
-		
-		//get number of unsynced forms for display purposes
-    	Vector<Integer> ids = getUnsyncedForms();
-    	File[] files = CommCareFormDumpActivity.getDumpFiles();
     	
-    	formsOnPhone = ids.size();
-		formsOnSD = files.length;
-		
-		setDisplayText();
+    	updateCounters();
 		
 		btnSubmitForms.setOnClickListener(new OnClickListener() {
 			public void onClick(View v){
 				
-				formsOnSD = CommCareFormDumpActivity.getDumpFiles().length;
+				formsOnSD = getDumpFiles().length;
 				
 				//if there're no forms to dump, just return
 				if(formsOnSD == 0){
@@ -118,7 +115,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				}
 				
 	    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-				SendTask mSendTask = new SendTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", url), txtInteractiveMessages){
+				SendTask mSendTask = new SendTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
+						settings.getString("PostURL", url), txtInteractiveMessages, getFolderPath()){
 					
 					protected int taskId = BULK_SEND_ID;
 					
@@ -126,7 +124,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 					protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
 						
 						if(result == Boolean.TRUE){
-							
+							CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
 					        Intent i = new Intent(getIntent());
 					        i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
 							receiver.setResult(BULK_SEND_ID, i);
@@ -134,6 +132,8 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 							return;
 						} else {
 							//assume that we've already set the error message, but make it look scary
+							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+							updateCounters();
 							receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 						}
 					}
@@ -239,22 +239,51 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     		
     }
     
+    public void updateCounters(){
+    	Vector<Integer> ids = getUnsyncedForms();
+    	File[] files = getDumpFiles();
+    	
+    	formsOnPhone = ids.size();
+		formsOnSD = files.length;
+		
+		setDisplayText();
+    }
+    
     public void setDisplayText(){
 		btnDumpForms.setText(Localization.get("bulk.form.dump.2", new String[] {""+formsOnPhone}));
 		btnSubmitForms.setText(Localization.get("bulk.form.submit.2", new String[] {""+formsOnSD}));
 		txtDisplayPrompt.setText(Localization.get("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
     }
     
-    public static File[] getDumpFiles(){
+    public String getFolderName(){
+    	SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH	, Localization.get("bulk.form.foldername"));
+    	return folderName;
+    }
+    
+    public File getFolderPath() {
     	ArrayList<String> externalMounts = FileUtil.getExternalMounts();
     	if(externalMounts.size()==0){
-    		return new File[]{};
+    		return null;
     	}
+    	
+    	String folderName = getFolderName();
+    	
 		String baseDir = externalMounts.get(0);
-		String folderName = Localization.get("bulk.form.foldername");
 		File dumpDirectory = new File( baseDir + "/" + folderName);
-		File[] files = dumpDirectory.listFiles();
-		return files;
+		return dumpDirectory;
+    }
+    
+    public File[] getDumpFiles(){
+
+    	File dumpDirectory = getFolderPath();
+    	if(dumpDirectory == null || !dumpDirectory.isDirectory()){
+    		return new File[] {};
+    	}
+    		
+    	File[] files = dumpDirectory.listFiles();
+    		
+    	return files;
     }
     
     public Vector<Integer> getUnsyncedForms(){
@@ -282,16 +311,18 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		if(id == BULK_DUMP_ID) {
+		if(id == DumpTask.BULK_DUMP_ID) {
 			ProgressDialog progressDialog = new ProgressDialog(this);
 			progressDialog.setTitle(Localization.get("bulk.dump.dialog.title"));
 			progressDialog.setMessage(Localization.get("bulk.dump.dialog.progress", new String[] {"0"}));
+			progressDialog.setCancelable(false);
 			return progressDialog;
 		}
-		else if (id == BULK_SEND_ID) {
+		else if (id == SendTask.BULK_SEND_ID) {
 			ProgressDialog progressDialog = new ProgressDialog(this);
 			progressDialog.setTitle(Localization.get("bulk.send.dialog.title"));
 			progressDialog.setMessage(Localization.get("bulk.send.dialog.progress", new String[] {"0"}));
+			progressDialog.setCancelable(false);
 			return progressDialog;
 		}
 		return null;
