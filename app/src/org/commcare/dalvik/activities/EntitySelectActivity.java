@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
@@ -168,8 +169,6 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
 		if(entries.size() == 1 && prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals("")) {
 			mViewMode = true;
 		}
-        
-        setTitle(getString(R.string.application_name) + " > " + Localization.get("select.list.title"));
                 
         barcodeButton.setOnClickListener(new OnClickListener() {
 
@@ -198,7 +197,20 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         //tts = new TextToSpeech(this, this);
     }
     
-    boolean resuming = false;
+    private String getActivityTitle() {
+    	String title = Localization.get("select.list.title");
+    	
+    	try {
+	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
+	    	title = detail.getTitle().evaluate();
+    	} catch(Exception e) {
+    		
+    	}
+    	
+    	return title;
+	}
+
+	boolean resuming = false;
     boolean startOther = false;
     
     public void onResume() {
@@ -243,6 +255,8 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     private void refreshView() {
     	try {
 	    	final Detail detail = session.getDetail(selectDatum.getShortDetail());
+	    	
+			this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
 	    	
 	    	//TODO: Get ec into these text's
 	    	String[] headers = new String[detail.getFields().length];

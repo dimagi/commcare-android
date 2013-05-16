@@ -225,6 +225,9 @@ select.menu.map=View on Map
 select.detail.title=Details
 select.list.title=Select
 
+home.logged.in.message=Logged In: ${0}
+title.datum.wrapper=[${0}]
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password

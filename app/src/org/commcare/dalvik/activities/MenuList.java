@@ -17,6 +17,7 @@
 package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.GenericMenuListAdapter;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
@@ -36,7 +37,7 @@ public class MenuList extends ListActivity {
 	
 	private CommCarePlatform platform;
 	
-	private ListAdapter adapter;
+	private GenericMenuListAdapter adapter;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,12 +52,18 @@ public class MenuList extends ListActivity {
        }
        
        adapter = new GenericMenuListAdapter(this,platform,menuId);
-       setTitle(getString(R.string.application_name));
+       this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
        refreshView();
     }
 
 
-    /**
+    private String getActivityTitle() {
+		//return adapter.getMenuTitle();
+    	return null;
+	}
+
+
+	/**
      * Get form list from database and insert into view.
      */
     private void refreshView() {

@@ -12,7 +12,7 @@
         android:debuggable="true"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
-        android:theme="@android:style/Theme.Light" >
+        android:theme="@style/AppBaseTheme" >
         <activity
             android:name=".activities.CommCareHomeActivity"
             android:configChanges="orientation"
@@ -236,10 +236,7 @@
         android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.INTERNET" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.ACCESS_SURFACE_FLINGER" />
+        android:name="android.permission.INTERNET" />	
     <uses-permission
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -255,7 +252,7 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="8" >
+        android:targetSdkVersion="14" >
     </uses-sdk>
 
     <uses-permission android:name="android.permission.READ_CONTACTS" >

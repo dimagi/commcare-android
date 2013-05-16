@@ -6,6 +6,7 @@ package org.commcare.dalvik.activities;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
@@ -13,6 +14,7 @@ import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.TreeReference;
@@ -102,7 +104,6 @@ public class EntityDetailActivity extends Activity implements DetailCalloutListe
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 	        
-	        setTitle(getString(R.string.application_name) + " > " + Localization.get("select.detail.title"));
 	        
 	        refreshView();
         } catch(SessionUnavailableException sue) {
@@ -111,11 +112,27 @@ public class EntityDetailActivity extends Activity implements DetailCalloutListe
     }
 
 
-    /**
+    private String getActivityTitle() {
+    	//TODO: Contextual by type
+    	String title = Localization.get("select.detail.title");
+    	
+    	try {
+	    	Detail detail = factory.getDetail();
+	    	title = detail.getTitle().evaluate();
+    	} catch(Exception e) {
+    		
+    	}
+    	
+    	return title;
+	}
+
+
+	/**
      * Get form list from database and insert into view.
      */
     private void refreshView() {
     	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this);
+        this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
     	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }
         
