@@ -276,6 +276,14 @@ public class CommCareApplication extends Application {
 		return this.currentApp;
 	}
 	
+
+	/**
+	 * Get the current CommCare session that's being executed
+	 *  
+	 * @return
+	 * @throws SessionUnavailableException If there is no session current being
+	 * executed
+	 */
 	public CommCareSession getCurrentSession() {
 		return getCurrentSessionWrapper().getSession();
 	}

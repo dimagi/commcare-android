@@ -74,7 +74,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CommCareHomeActivity extends Activity implements ProcessTaskListener {
+public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> implements ProcessTaskListener {
 	
 	public static final int LOGIN_USER = 0;
 	public static final int GET_COMMAND = 1;
@@ -819,7 +819,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		}
     }
     
-    protected String getActivityTitle() {
+    @Override
+    public String getActivityTitle() {
 		String userName = null;
 		
 		try {
@@ -832,6 +833,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		}
 		return null;
 	}
+    
+    @Override 
+    protected boolean isTopNavEnabled() {
+    	return false;
+    }
 
 	private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
     	formEntry(formUri, r, null);
@@ -1190,8 +1196,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void refreshView() throws SessionUnavailableException{
-    	
-    	this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
     	
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());

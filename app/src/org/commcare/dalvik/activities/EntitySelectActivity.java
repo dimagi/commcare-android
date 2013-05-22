@@ -67,7 +67,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends Activity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
 	private CommCareSession session;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
@@ -197,7 +197,13 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         //tts = new TextToSpeech(this, this);
     }
     
-    private String getActivityTitle() {
+    @Override
+    protected boolean isTopNavEnabled() {
+    	return true;
+    }
+    
+    @Override
+    public String getActivityTitle() {
     	String title = Localization.get("select.list.title");
     	
     	try {
@@ -239,24 +245,12 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         refreshView();	
     }
 
-
-    /* (non-Javadoc)
-	 * @see android.app.Activity#onRetainNonConfigurationInstance()
-	 */
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		return this;
-	}
-
-
 	/**
      * Get form list from database and insert into view.
      */
     private void refreshView() {
     	try {
 	    	final Detail detail = session.getDetail(selectDatum.getShortDetail());
-	    	
-			this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
 	    	
 	    	//TODO: Get ec into these text's
 	    	String[] headers = new String[detail.getFields().length];

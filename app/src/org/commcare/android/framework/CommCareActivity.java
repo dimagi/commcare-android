@@ -4,22 +4,34 @@
 package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
+import java.util.Vector;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
+import android.annotation.TargetApi;
+import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.HorizontalScrollView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -37,6 +49,7 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 	CommCareTask currentTask;
 
 	@Override
+	@TargetApi(14)
 	protected void onCreate(Bundle savedInstanceState) {
 		//TODO: We can really handle much of this framework without needing to 
 		//be a superclass.
@@ -45,6 +58,34 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 			this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
 			loadFields();
 		}
+	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+	    	getActionBar().setDisplayShowCustomEnabled(true);
+
+	    	//getActionBar().setDisplayShowHomeEnabled(true);
+			//getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+	    }
+	    
+	    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+	    	//getActionBar().setHomeButtonEnabled(true);
+	    }
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	        case android.R.id.home:
+	        	try { 
+	        		CommCareApplication._().getCurrentSession().clearState();
+	        	} catch(SessionUnavailableException sue) {
+	        		// probably won't go anywhere with this
+	        	}
+	            // app icon in action bar clicked; go home
+	            Intent intent = new Intent(this, CommCareHomeActivity.class);
+	            startActivity(intent);
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
 	}
 	
 	private void loadFields() {
@@ -95,14 +136,28 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 		}
 	}
 	
+	protected boolean isTopNavEnabled() {
+		return false;
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onResume()
 	 */
 	@Override
+	@TargetApi(11)
 	protected void onResume() {
 		super.onResume();
-		this.setTitle(getTitle(this, getActivityTitle()));
+	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//	    	TextView tv = new TextView(this);
+//	    	tv.setText(getTitle(this, getActivityTitle()));
+	    	getActionBar().setCustomView(getTitleView(this, getActivityTitle()), new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+	    	this.setTitle("");
+	    	getActionBar().setDisplayShowHomeEnabled(false);
+	    } else {
+	    	this.setTitle(getTitle(this, getActivityTitle()));
+	    }
+		
 		Object o = this.getLastNonConfigurationInstance();
 		if(o != null && o instanceof CommCareActivity) {
 			//Time to reconnect with our roots
@@ -262,5 +317,137 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 			returnValue += " > " + local;
 		}
 		return returnValue;
+	}
+	
+	public View getTitleView(Context c, String local) {
+		RelativeLayout layout = new RelativeLayout(c);
+		layout.setGravity(Gravity.CENTER_VERTICAL);
+		
+		// we have to do this walk backwards, actually
+		
+		String topLevel = getTopLevelTitleName(c);
+		LayoutInflater li = this.getLayoutInflater();
+		
+		int currentId = -1;
+		
+		int newId = addElementToTitle(li, layout, local, org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, null);
+		
+		if(newId != -1) { currentId = newId;}
+		
+		String[] stepTitles = new String[0];
+		try {
+			stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
+			
+			//See if we can insert any case hacks
+			Vector<String[]> v = CommCareApplication._().getCurrentSession().getSteps();
+			for(int i = v.size() -1 ; i >= 0; i--){
+				String[] step = v.elementAt(i);
+				final int currentStep = i;
+				final int currentStepSize = v.size();
+			
+				OnClickListener stepBackListener = new OnClickListener() {
+
+					@Override
+					public void onClick(View arg0) {
+						
+						int stepsToTake = currentStepSize - currentStep - 1;
+						
+						try{
+							for(int i = 0 ; i < stepsToTake ; i++) {
+								CommCareApplication._().getCurrentSession().stepBack();
+								int currentStepSize = CommCareApplication._().getCurrentSession().getSteps().size();
+								
+								//Take at _most_ currentSteps back, or stop when we've reached
+								//current step minus 1
+								if(currentStepSize == 0  || currentStepSize < currentStep) {
+									break;
+								}
+							}
+							
+							CommCareActivity.this.finish();
+						} catch(SessionUnavailableException sue) {
+							
+						}
+					}
+					
+				};
+			
+				
+
+				try {
+				if(CommCareSession.STATE_DATUM_VAL.equals(step[0])) {
+					//Haaack
+					if("case_id".equals(step[1])) {
+						ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step[2]);
+						stepTitles[i] = foundCase.getName();
+						newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb_case, currentId, stepBackListener);
+						if(newId != -1) { currentId = newId;}
+						continue;
+					}
+				}
+				} catch(Exception e) {
+					//TODO: Your error handling is bad and you should feel bad
+				}
+				newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, stepBackListener);
+				if(newId != -1) { currentId = newId;}
+			}
+			
+		} catch(SessionUnavailableException sue) {
+			
+		}
+		
+		addElementToTitle(li, layout, topLevel, org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				try{
+					CommCareApplication._().getCurrentSession().clearState();
+				} catch(SessionUnavailableException sue) {
+					
+				}
+				
+				CommCareActivity.this.finish();
+			}
+			
+		});
+		
+		//Add the app icon
+		TextView iconBearer = ((TextView)layout.getChildAt(layout.getChildCount() - 1));
+		
+		iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.icon,0,0,0);
+		iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
+		
+		
+		HorizontalScrollView scroller = new HorizontalScrollView(this);
+		scroller.addView(layout, new HorizontalScrollView.LayoutParams(HorizontalScrollView.LayoutParams.WRAP_CONTENT,HorizontalScrollView.LayoutParams.MATCH_PARENT));
+		scroller.setFillViewport(true);
+		
+		return scroller;
+	}
+	
+	private int addElementToTitle(LayoutInflater inflater, RelativeLayout title, String element, int type, int peer, OnClickListener action) {
+		int newViewId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + title.getChildCount() + 1;
+		if(element != null) {
+			View titleBreadcrumb = inflater.inflate(type, title, true);
+			
+			TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);
+			
+			if(action != null && isTopNavEnabled()) {
+				text.setOnClickListener(action);
+			}
+			
+			text.setText(element);
+			//Is there a "random ID" or something we can use for this?
+			text.setId(newViewId);
+			
+			if(peer != -1) {
+				View peerView = title.findViewById(peer);
+				
+				RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams)peerView.getLayoutParams();
+				layout.addRule(RelativeLayout.RIGHT_OF, newViewId);
+			}
+			return newViewId;
+		}
+		return -1;
 	}
 }

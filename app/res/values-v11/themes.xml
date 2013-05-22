@@ -6,5 +6,30 @@
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
         <!-- API 11 theme customizations can go here. -->
     </style>
+    
+    <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
+    <style name="TextAppearance.Custom.WindowTitle.Case" parent="style/TextAppearance.Custom.WindowTitle">
+    </style>
+    
+    <style name="TextAppearance.Custom.WindowTitle.Menu" parent="style/TextAppearance.Custom.WindowTitle">
+    </style>
+    
+    <style name="WindowTitle.Custom.Menu" parent="android:Widget.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Menu</item>
+        <item name="android:background">@drawable/title_neutral_tab</item>
+        <item name="android:paddingRight">@dimen/title_padding</item>
+        <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
+        <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
+	</style>
+	
+	<style name="WindowTitle.Custom.Case" parent="android:Widget.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Case</item>
+        <item name="android:background">@drawable/title_case_tab</item>
+        <item name="android:paddingRight">@dimen/title_padding</item>
+        <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
+        <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
+	</style>
+    
+    
 
 </resources>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- "shadow" -->
+    <item>
+        <shape android:shape="rectangle" >
+           <solid android:color="@color/title_border"/>
+           
+           <corners 
+               android:radius="@dimen/title_round_depth"
+               android:bottomRightRadius="@dimen/title_round_depth" 
+               android:bottomLeftRadius="0dp"
+               android:topLeftRadius="0dp"
+               android:topRightRadius="@dimen/title_round_depth" 
+           	   />
+        </shape>
+    </item>
+
+
+    <item android:top="@dimen/title_round_border_width" android:bottom="@dimen/title_round_border_width" android:right="@dimen/title_round_border_width" android:left="@dimen/title_round_border_width">
+        <shape android:shape="rectangle"> 
+            <!-- solid android:color="#903867AD"/ -->
+            
+            <gradient
+                android:startColor="@color/title_case_grad_start"
+		        android:endColor="@color/title_case_grad_end"
+		        android:gradientRadius="300"
+		        android:centerX="25%"
+            	android:centerY="50%"
+		        android:type="radial"/>
+            <corners 
+               android:radius="@dimen/title_round_depth"
+               android:bottomRightRadius="@dimen/title_round_depth" 
+               android:bottomLeftRadius="0dp"
+               android:topLeftRadius="0dp"
+               android:topRightRadius="@dimen/title_round_depth" 
+           	   />
+         </shape>
+    </item>
+
+</layer-list>
