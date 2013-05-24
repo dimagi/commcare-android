@@ -4,19 +4,18 @@
  */
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.WrappingSpinnerAdapter;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
@@ -25,11 +24,9 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -55,7 +52,8 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class CommCareSetupActivity extends Activity implements ResourceEngineListener{
+@ManagedUi(R.layout.first_start_screen)
+public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity> implements ResourceEngineListener{
 	
 //	public static final String DATABASE_STATE = "database_state";
 	public static final String RESOURCE_STATE = "resource_state";
@@ -71,7 +69,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
 	
 	public static final int DIALOG_INSTALL_PROGRESS = 0;
-	public static final int DIALOG_VERIFY_PROGRESS = 1;
 	
 	public static final int BARCODE_CAPTURE = 1;
 	public static final int MISSING_MEDIA_ACTIVITY=2;
@@ -95,8 +92,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	Button addressEntryButton;
 	Button startOverButton;
 	Button retryButton;
-    private ProgressDialog mProgressDialog;
-    private ProgressDialog vProgressDialog;
     
     String [] urlVals;
     int previousUrlPosition=0;
@@ -115,7 +110,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.first_start_screen);
 		
 		//Grab Views
 		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
@@ -140,6 +134,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	        incomingRef = savedInstanceState.getString("profileref");
 	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
+	        
+	        //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
+	        startAllowed = savedInstanceState.getBoolean("startAllowed");
 		}
 		
 		editProfileRef.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
@@ -301,20 +298,13 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         
         
 	}
-	/*
-	 * (non-Javadoc)
-	 * @see android.app.Activity#onResume()
+	
+	/* (non-Javadoc)
+	 * @see org.commcare.android.framework.CommCareActivity#getWakeLockingLevel()
 	 */
 	@Override
-	protected void onResume() {
-		super.onResume();
-	}
-	
-	@Override
-	protected void onPause() {
-		super.onPause();
-    	//Make sure we're not holding onto the wake lock still
-    	unlock();
+	protected int getWakeLockingLevel() {
+		return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
 	}
 	
     /*
@@ -329,6 +319,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
         outState.putBoolean(KEY_AUTO, isAuto);
+        outState.putBoolean("startAllowed", startAllowed);
     }
 	
 	/* (non-Javadoc)
@@ -368,7 +359,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 	
 	private CommCareApp getCommCareApp(){
-		
 		CommCareApp app = null;
 		
 		// we are in upgrade mode, just send back current app
@@ -393,6 +383,25 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		this.startResourceInstall(true);
 	}
 	
+	
+	/* (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask()
+	 */
+	@Override
+	public void startBlockingForTask(int id) {
+		super.startBlockingForTask(id);
+		this.startAllowed = false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopBlockingForTask()
+	 */
+	@Override
+	public void stopBlockingForTask(int id) {
+		super.stopBlockingForTask(id);
+		this.startAllowed = true;
+	}
+	
 	private void startResourceInstall(boolean startOverUpgrade) {
 		
 		if(startAllowed) {
@@ -402,14 +411,42 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 			
 			ccApp = app;
 			
-			ResourceEngineTask task = new ResourceEngineTask(this, upgradeMode, partialMode, app, startOverUpgrade);
+			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, upgradeMode, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
+
+				@Override
+				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
+					if(result == ResourceEngineOutcomes.StatusInstalled){
+						receiver.reportSuccess(true);
+					} else if(result == ResourceEngineOutcomes.StatusUpToDate){
+						receiver.reportSuccess(false);
+					} else if(result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
+						receiver.failMissingResource(this.missingResourceException, result);
+					} else if(result == ResourceEngineOutcomes.StatusBadReqs){
+						receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
+					} else if(result == ResourceEngineOutcomes.StatusFailState){
+						receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+					} else if(result == ResourceEngineOutcomes.StatusNoLocalStorage) {
+						receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
+					} else {
+						receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
+					}
+				}
+
+				@Override
+				protected void deliverUpdate(CommCareSetupActivity receiver, int[]... update) {
+					receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
+				}
+
+				@Override
+				protected void deliverError(CommCareSetupActivity receiver, Exception e) {
+					receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
+				}
+
+			};
 			
-			task.setListener(this);
+			task.connect(this);
 			
 			task.execute(ref);
-			wakelock();
-			
-			this.showDialog(DIALOG_INSTALL_PROGRESS);
 		} else {
 			Log.i("commcare-install", "Blocked a resource install press since a task was already running");
 		}
@@ -521,7 +558,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		if(id == DIALOG_INSTALL_PROGRESS) {
-            mProgressDialog = new ProgressDialog(this);
+			ProgressDialog mProgressDialog = new ProgressDialog(this);
             if(upgradeMode) {
             	mProgressDialog.setTitle(Localization.get("updates.title"));
             	mProgressDialog.setMessage(Localization.get("updates.checking"));
@@ -533,40 +570,24 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
             mProgressDialog.setCancelable(false);
             return mProgressDialog;
 		}
-		else if(id == DIALOG_VERIFY_PROGRESS) {
-			vProgressDialog=  new ProgressDialog(this);
-			vProgressDialog.setTitle(Localization.get("verification.title"));
-			vProgressDialog.setMessage(Localization.get("verification.checking"));
-			return vProgressDialog;
-		}
 		return null;
-	}
-	
-	public void updateVerifyProgress(int done, int total) {
-		if(vProgressDialog != null) {
-			vProgressDialog.setMessage(Localization.get("verify.progress",new String[] {""+done,""+total}));
-		}
 	}
 	
 
 	public void updateProgress(int done, int total, int phase) {
-		if(mProgressDialog != null) {
-            if(upgradeMode) {
-
-            	if(phase == ResourceEngineTask.PHASE_DOWNLOAD) {
-            		mProgressDialog.setMessage(Localization.get("updates.found", new String[] {""+done,""+total}));
-            	} if(phase == ResourceEngineTask.PHASE_COMMIT) {
-            		mProgressDialog.setMessage(Localization.get("updates.downloaded"));
-            	}
-            }
-			else {
-				mProgressDialog.setMessage(Localization.get("profile.found", new String[]{""+done,""+total}));
-			}
+        if(upgradeMode) {
+        	if(phase == ResourceEngineTask.PHASE_DOWNLOAD) {
+        		updateProgress(DIALOG_INSTALL_PROGRESS, Localization.get("updates.found", new String[] {""+done,""+total}));
+        	} if(phase == ResourceEngineTask.PHASE_COMMIT) {
+        		updateProgress(DIALOG_INSTALL_PROGRESS,Localization.get("updates.downloaded"));
+        	}
+        }
+		else {
+			updateProgress(DIALOG_INSTALL_PROGRESS, Localization.get("profile.found", new String[]{""+done,""+total}));
 		}
 	}
 	
 	public void done(boolean requireRefresh) {
-		unlock();
 		//TODO: We might have gotten here due to being called from the outside, in which
 		//case we should manually start up the home activity
 		
@@ -597,7 +618,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 	
 	public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
-		unlock();
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
 		
 		retryCount++;
@@ -625,8 +645,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	// Everything here should call one of: fail() or done() 
 	
 	public void reportSuccess(boolean appChanged) {
-		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
-		
 		//If things worked, go ahead and clear out any warnings to the contrary
 		CommCareApplication._().clearNotifications("install_update");
 		
@@ -637,14 +655,11 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 
 	public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
-		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getResourceId(), ure.getMessage()}), ure.isMessageUseful());
 		
 	}
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
-		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
-
 		String versionMismatch = Localization.get("install.version.mismatch", new String[] {vRequired,vAvailable});
 		
 		String error = "";
@@ -659,41 +674,12 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 	}
 
 	public void failUnknown(ResourceEngineOutcomes unknown) {
-		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
-		
 		fail(NotificationMessageFactory.message(unknown));
 	}
 
 	public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
-		this.dismissDialog(DIALOG_INSTALL_PROGRESS);
 		fail(NotificationMessageFactory.message(statusfailstate), true);
 	}
-	
-	
-	
-	//END exit paths
-	
-    //Don't ever lose this reference
-    private static WakeLock wakelock;
-    
-    private void wakelock() {
-    	unlock();
-    	startAllowed = false;
-    	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    	if(wakelock == null) {
-    		wakelock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "CommCareAppInstall");
-    	}
-    	//CTS: We used to have a timeout here, but apparently Android straight up crashes if you acquire a timed wakelock
-    	//and then release it before the timeout.
-    	wakelock.acquire();
-    }
-    
-    private void unlock() {
-    	startAllowed = true;
-    	if(wakelock != null && wakelock.isHeld()) {
-    		wakelock.release();
-    	}
-    }
     
     @Override
     public void onBackPressed(){

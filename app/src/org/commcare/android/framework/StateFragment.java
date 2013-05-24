@@ -1,14 +1,16 @@
 /**
  * 
  */
-package org.commcare.android.fragments;
+package org.commcare.android.framework;
 
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.templates.CommCareTask;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 /**
@@ -32,7 +34,8 @@ public class StateFragment extends Fragment {
 	    super.onAttach(activity);
 	    if(activity instanceof CommCareActivity) {
 	    	this.boundActivity = (CommCareActivity)activity;
-	    	if(this.currentTask != null && this.currentTask.getStatus() != AsyncTask.Status.FINISHED) {
+	    	this.boundActivity.stateHolder = this;
+	    	if(this.currentTask != null && this.currentTask.getStatus() == AsyncTask.Status.RUNNING) {
 	    		this.currentTask.connect(boundActivity);
 	    	}
 	    }
@@ -71,6 +74,7 @@ public class StateFragment extends Fragment {
 		if(currentTask != null) {
 			Log.i("CommCareUI", "Detaching activity from current task: " + this.currentTask);
 			currentTask.disconnect();
+			unlock();
 		}
 	  }
 
@@ -78,5 +82,26 @@ public class StateFragment extends Fragment {
 		if(currentTask != null) {
 			currentTask.cancel(false);
 		}
+	}
+
+    private WakeLock wakelock;
+
+	public synchronized void wakelock(int lockLevel) {
+    	if(wakelock != null) {
+    		if(wakelock.isHeld()) {
+    			wakelock.release();
+    		}
+    	}
+    	PowerManager pm = (PowerManager) boundActivity.getSystemService(Context.POWER_SERVICE);
+    	wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
+    	wakelock.acquire();
+	}
+
+	public synchronized void unlock() {
+    	if(wakelock != null) {
+    		wakelock.release();
+    		wakelock = null;
+    	}
+
 	}
 }

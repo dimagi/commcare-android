@@ -7,7 +7,6 @@ import java.lang.reflect.Field;
 import java.util.Vector;
 
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.fragments.StateFragment;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
@@ -27,8 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.Gravity;
@@ -58,8 +55,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	@TargetApi(14)
 	protected void onCreate(Bundle savedInstanceState) {
-		//TODO: We can really handle much of this framework without needing to 
-		//be a superclass.
 		super.onCreate(savedInstanceState);
 		
 	    FragmentManager fm = this.getSupportFragmentManager();
@@ -175,8 +170,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-    	//Make sure we're not holding onto the wake lock still, no matter what
-    	unlock();
 	}
 	
 	protected void updateProgress(int taskId, String updateText) {
@@ -192,9 +185,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
 		//If stateHolder is null here, it's because it is restoring itself, it doesn't need
 		//this step
-		if(stateHolder != null) {
-			stateHolder.connectTask(task);
-		}
+		wakelock();
+		stateHolder.connectTask(task);
 	}
 	
 	/*
@@ -216,7 +208,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	public void startBlockingForTask(int id) {
 		this.showDialog(id);
-		wakelock();
 	}
 
 	/* (non-Javadoc)
@@ -275,34 +266,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	public void onStop() {
 		super.onStop();
 	}
-	
-	
-	//Wake lock!!!!
-	
-
-    //Don't ever lose this reference
-    private static WakeLock wakelock;
-    
+	    
     private void wakelock() {
     	int lockLevel = getWakeLockingLevel();
     	if(lockLevel == -1) { return;}
     	
-    	if(wakelock != null) {
-    		if(wakelock.isHeld()) {
-    			wakelock.release();
-    		}
-    	}
-    	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    	wakelock = pm.newWakeLock(lockLevel, "CommCareFormSync");
-    	//TODO: We need to remove this time limit. Android has a bug that crashes
-    	//if you release with a time limit
-    	wakelock.acquire(1000*60*20);
+    	stateHolder.wakelock(lockLevel);
     }
     
     private void unlock() {
-    	if(wakelock != null) {
-    		wakelock.release();
-    	}
+    	stateHolder.unlock();
     }
     
     /**
