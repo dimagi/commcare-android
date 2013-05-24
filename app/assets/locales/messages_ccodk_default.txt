@@ -228,6 +228,8 @@ select.list.title=Select
 home.logged.in.message=Logged In: ${0}
 title.datum.wrapper=[${0}]
 
+activity.task.error.generic=Unexpected error! Please try again.
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password

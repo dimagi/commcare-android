@@ -24,7 +24,7 @@
             <gradient
                 android:startColor="@color/title_case_grad_start"
 		        android:endColor="@color/title_case_grad_end"
-		        android:gradientRadius="300"
+		        android:gradientRadius="@dimen/tab_gradient_radius"
 		        android:centerX="25%"
             	android:centerY="50%"
 		        android:type="radial"/>

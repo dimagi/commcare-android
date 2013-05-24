@@ -7,4 +7,5 @@
     <dimen name="title_padding">10dp</dimen>
     <dimen name="title_paddingLeft">20dp</dimen>   
     <dimen name="title_logo_pad">8dp</dimen>
+    <dimen name="tab_gradient_radius">300dp</dimen>
 </resources>

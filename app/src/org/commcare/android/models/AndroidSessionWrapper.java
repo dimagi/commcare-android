@@ -150,7 +150,7 @@ public class AndroidSessionWrapper {
 		current = current.updateStatus(instanceUri, recordStatus);
 		
 		try {
-			FormRecord updated = new FormRecordCleanupTask(CommCareApplication._(), platform).getUpdatedRecord(current, recordStatus);
+			FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(CommCareApplication._(), platform, current, recordStatus);
 			
 			SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 			storage.write(updated);	

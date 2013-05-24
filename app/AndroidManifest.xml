@@ -15,7 +15,6 @@
         android:theme="@style/AppBaseTheme" >
         <activity
             android:name=".activities.CommCareHomeActivity"
-            android:configChanges="orientation"
             android:label="@string/application_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

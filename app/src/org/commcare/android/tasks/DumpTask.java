@@ -64,7 +64,6 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 	
 	public static final int BULK_DUMP_ID = 23456;
 	
-	ProcessTaskListener listener;
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
 	
@@ -88,8 +87,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 		super.onProgressUpdate(values);
 	}
 	
-	public void setListeners(ProcessTaskListener listener, DataSubmissionListener submissionListener) {
-		this.listener = listener;
+	public void setListeners(DataSubmissionListener submissionListener) {
 		this.formSubmissionListener = submissionListener;
 	}
 
@@ -275,7 +273,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     					
     						//Check for success
     						if(results[i].intValue() == ProcessAndSendTask.FULL_SUCCESS) {
-    						    new FormRecordCleanupTask(c, platform).wipeRecord(record);
+    							FormRecordCleanupTask.wipeRecord(c, platform, record);
     						    publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
     				        }
     					}

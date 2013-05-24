@@ -29,7 +29,7 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
 	@Override
-	protected C doInBackground(A... params) {
+	protected final C doInBackground(A... params) {
 		//Never have to wrap the entirety of your task.
 		try {
 			return doTaskBackground(params);
@@ -169,11 +169,27 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 		}
 	}
 	
+	protected void transitionPhase(int newTaskId) {
+		synchronized(connectorLock) {
+			CommCareTaskConnector<R> connector = this.getConnector(true);
+			connector.stopBlockingForTask(taskId);
+			connector.startBlockingForTask(newTaskId);
+			this.taskId = newTaskId;
+		}
+	}
+	
 	public int getTaskId() {
 		return taskId;
 	}
 	
+	/**
+	 * Disconnect this task from its current connector.
+	 * Used when the user interface has to give up its hook to the
+	 * current task.
+	 */
 	public void disconnect() {
-		
+		synchronized(connectorLock) {
+			connector = null;
+		}
 	}
 }

@@ -15,7 +15,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
@@ -27,7 +26,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -51,15 +49,11 @@ import android.widget.Toast;
  *
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivity extends CommCareActivity<LoginActivity> implements DataPullListener {
+public class LoginActivity extends CommCareActivity<LoginActivity> {
 	
 	public static final int MENU_DEMO = Menu.FIRST;
 	
 	public static String ALREADY_LOGGED_IN = "la_loggedin";
-	
-	ProgressDialog mProgressDialog;
-	
-	private static LoginActivity currentActivity;
 	
 	@UiElement(value=R.id.login_button, locale="login.button")
 	Button login;
@@ -83,19 +77,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 	@UiElement(R.id.str_version)
 	TextView versionDisplay;
 	
-	public static final int DIALOG_CHECKING_SERVER = 0;
 	public static final int TASK_KEY_EXCHANGE = 1;
 	
 	SqlStorage<UserKeyRecord> storage;
-	
-	DataPullTask dataPuller;
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        currentActivity = this;
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         
         //Only on the initial creation
@@ -160,14 +150,61 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 		//TODO: we don't actually always want to do this. We need to have an alternate route where we log in locally and sync 
 		//(with unsent form submissions) more centrally.
 		
-		dataPuller = new DataPullTask(getUsername(), 
-				                             password.getText().toString(),
-				                             prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
-				                             prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
-				                             LoginActivity.this);
+		DataPullTask<LoginActivity> dataPuller = new DataPullTask<LoginActivity>(getUsername(), 
+                 password.getText().toString(),
+                 prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
+                 prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
+                 LoginActivity.this) {
+
+					@Override
+					protected void deliverResult( LoginActivity receiver, Integer result) {
+						switch(result) {
+						case DataPullTask.AUTH_FAILED:
+							receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
+							break;
+						case DataPullTask.BAD_DATA:
+							receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+							break;
+						case DataPullTask.DOWNLOAD_SUCCESS:
+							if(!tryLocalLogin(true)) {
+								receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_CredentialMismatch, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+							} else {
+								break;
+							}
+						case DataPullTask.UNREACHABLE_HOST:
+							receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+							break;
+						case DataPullTask.UNKNOWN_FAILURE:
+							receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+							break;
+						}
+
+					}
+
+					@Override
+					protected void deliverUpdate( LoginActivity receiver, Integer... update) {
+						if(update[0] == DataPullTask.PROGRESS_STARTED) {
+							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.purge"));
+						} else if(update[0] == DataPullTask.PROGRESS_CLEANED) {
+							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.authing"));
+						} else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
+							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.downloading"));
+						} else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.recover.needed"));
+						} else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.recover.started"));
+						}
+						
+					}
+
+					@Override
+					protected void deliverError( LoginActivity receiver, Exception e) {
+						receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+					}
+			
+		};
 		
-		dataPuller.setPullListener(LoginActivity.this);
-		LoginActivity.this.showDialog(DIALOG_CHECKING_SERVER);
+		dataPuller.connect(this);
 		dataPuller.execute();
 	}
 
@@ -317,31 +354,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
     }
 
 	public void finished(int status) {
-		switch(status) {
-		case DataPullTask.AUTH_FAILED:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
-			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
-			break;
-		case DataPullTask.BAD_DATA:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN));
-
-			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
-			break;
-		case DataPullTask.DOWNLOAD_SUCCESS:
-			if(!tryLocalLogin(true)) {
-				raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_CredentialMismatch, new String[3], NOTIFICATION_MESSAGE_LOGIN));
-			} else {
-				break;
-			}
-		case DataPullTask.UNREACHABLE_HOST:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
-			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
-			break;
-		case DataPullTask.UNKNOWN_FAILURE:
-			raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
-			currentActivity.dismissDialog(DIALOG_CHECKING_SERVER);
-			break;
-		}
 	}
 
 	/* (non-Javadoc)
@@ -374,22 +386,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
 		}
 	}
 
-	public void progressUpdate(Integer ... progress) {
-		//TODO: Unify this into some progress dialog or something? We reuse in a couple of places
-		if(progress[0] == DataPullTask.PROGRESS_STARTED) {
-			mProgressDialog.setMessage(Localization.get("sync.progress.purge"));
-		} else if(progress[0] == DataPullTask.PROGRESS_CLEANED) {
-			mProgressDialog.setMessage(Localization.get("sync.progress.authing"));
-		} else if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
-			mProgressDialog.setMessage(Localization.get("sync.progress.downloading"));
-		} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-			mProgressDialog.setMessage(Localization.get("sync.recover.needed"));
-		} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-			mProgressDialog.setMessage(Localization.get("sync.recover.started"));
-		}
-		
-	}
-    
     /*
      * (non-Javadoc)
      * 
@@ -417,18 +413,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
         	progress.setCancelable(false);
             return progress;
         	
-            case DIALOG_CHECKING_SERVER:
-                mProgressDialog = new ProgressDialog(this);
+            case DataPullTask.DATA_PULL_TASK_ID:
+            	ProgressDialog mProgressDialog = new ProgressDialog(this);
                 DialogInterface.OnClickListener loadingButtonListener =
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
                                 //If it is null, this is tricky to recover from? 
-                                if(dataPuller != null) {
-                                	dataPuller.cancel(true);
+                                	LoginActivity.this.cancelCurrentTask();
                                 }
-                            }
-                        };
+                            };
                 mProgressDialog.setTitle(Localization.get("sync.progress.title"));
                 mProgressDialog.setMessage(Localization.get("sync.progress.starting"));
                 mProgressDialog.setIndeterminate(true);
