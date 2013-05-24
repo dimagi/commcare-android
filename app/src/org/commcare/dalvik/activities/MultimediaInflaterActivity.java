@@ -123,6 +123,8 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 		                    
 		                    if (entry.isDirectory()) {
 		                    	FileUtil.createFolder(new File(destination, entry.getName()).toString());
+		                    	//If it's a directory we can move on to the next one
+		                    	continue;
 		                    }
 
 		                    File outputFile = new File(destination, entry.getName());

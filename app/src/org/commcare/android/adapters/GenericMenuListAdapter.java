@@ -26,11 +26,9 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
-import android.widget.TextView;
 
 /**
  * Adapter class to handle both Menu and Entry items
@@ -44,6 +42,8 @@ public class GenericMenuListAdapter implements ListAdapter {
 	private Context context;
 	private Object[] objectData;
 	
+	private String menuTitle = null;
+	
 	public GenericMenuListAdapter(Context context, CommCarePlatform platform, String menuID){
 		
 		this.platform = platform;
@@ -56,6 +56,16 @@ public class GenericMenuListAdapter implements ListAdapter {
 		for(Suite s : platform.getInstalledSuites()) {
 			for(Menu m : s.getMenus()) {
 	    		if(m.getId().equals(menuID)) {
+	    			
+	    			if(menuTitle == null) {
+	    				//TODO: Do I need args, here?
+	    				try {
+	    					menuTitle = m.getName().evaluate();
+	    				}catch(Exception e) {
+	    					e.printStackTrace();
+	    				}
+	    			}
+	    			
 	    			for(String command : m.getCommandIds()) {
 	    				try {
 		    				XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
@@ -107,6 +117,10 @@ public class GenericMenuListAdapter implements ListAdapter {
 		
 		objectData = new Object[items.size()];
 		items.copyInto(objectData);
+	}
+	
+	public String getMenuTitle() {
+		return menuTitle;
 	}
 	
 	/* (non-Javadoc)

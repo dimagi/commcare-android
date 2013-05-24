@@ -10,6 +10,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -810,14 +811,29 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    	
 	    	//We should now have a valid record for our state. Time to get to form entry.
 	    	FormRecord record = state.getFormRecord();
-	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record, state.getHeaderTitle(this, CommCareApplication._().getCommCarePlatform()));
+	    	//TODO: May need to pass session over manually
+	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
 	    	
 		} catch (StorageFullException e) {
 			throw new RuntimeException(e);
 		}
     }
     
-    private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
+    protected String getActivityTitle() {
+		String userName = null;
+		
+		try {
+			userName = CommCareApplication._().getSession().getLoggedInUser().getUsername();
+			if(userName != null) {
+				return Localization.get("home.logged.in.message", new String[] {userName});
+			}
+		} catch(Exception e) {
+			//TODO: Better catch, here
+		}
+		return null;
+	}
+
+	private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
     	formEntry(formUri, r, null);
     }
     
@@ -1175,6 +1191,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     
     private void refreshView() throws SessionUnavailableException{
     	
+    	this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
+    	
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
@@ -1355,12 +1373,17 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		User u = CommCareApplication._().getSession().getLoggedInUser();
-		boolean disableMenus = !User.TYPE_DEMO.equals(u.getUserType());
-		menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
-		menu.findItem(MENU_UPDATE).setVisible(disableMenus);
-		menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
-		menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
+		//In Holo theme this gets called on startup
+		try {
+			User u = CommCareApplication._().getSession().getLoggedInUser();
+			boolean disableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+			menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
+			menu.findItem(MENU_UPDATE).setVisible(disableMenus);
+			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
+			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
+		} catch(SessionUnavailableException sue) {
+			//Nothing
+		}
 		return true;
 	}
 

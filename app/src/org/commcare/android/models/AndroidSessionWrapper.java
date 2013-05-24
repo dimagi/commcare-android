@@ -238,11 +238,13 @@ public class AndroidSessionWrapper {
 	public String getHeaderTitle(Context context, AndroidCommCarePlatform platform) {
 		String descriptor = context.getString(R.string.application_name);
 		Hashtable<String, String> menus = new Hashtable<String, String>();
+		
 		for(Suite s : platform.getInstalledSuites()) {
 			for(Menu m : s.getMenus()) {
 				menus.put(m.getId(), m.getName().evaluate());
 			}
 		}
+		
 		Hashtable<String, Entry> entries = platform.getMenuMap();
 		for(String[] step : session.getSteps()) {
 			String val = null; 
