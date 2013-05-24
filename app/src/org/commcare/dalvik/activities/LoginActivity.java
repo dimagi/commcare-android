@@ -97,12 +97,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
         
         currentActivity = this;
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-
-        try{
-        	setTitle(getString(R.string.application_name) + " > " + Localization.get("app.display.name"));
-        } catch(NoLocalizedTextException nlte) {
-        	//nothing, app display name is optional for now.
-        }
         
         //Only on the initial creation
         if(savedInstanceState ==null) {
@@ -150,6 +144,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements Da
              }
         });
     }
+    
+	public String getActivityTitle() {
+		//TODO: "Login"?
+		return null;
+	}
 
 	private void startOta() {
 		

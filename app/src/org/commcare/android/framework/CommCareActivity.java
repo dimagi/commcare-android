@@ -5,18 +5,19 @@ package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
-import org.commcare.dalvik.R;
-import org.javarosa.core.services.Logger;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.util.CommCareSession;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.graphics.Typeface;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -101,6 +102,7 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 	@Override
 	protected void onResume() {
 		super.onResume();
+		this.setTitle(getTitle(this, getActivityTitle()));
 		Object o = this.getLastNonConfigurationInstance();
 		if(o != null && o instanceof CommCareActivity) {
 			//Time to reconnect with our roots
@@ -202,5 +204,63 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 		target.setTypeface(tv.getTypeface());
 		target.setBackgroundDrawable(tv.getBackground());
 		target.setPadding(padding[0], padding[1], padding[2], padding[3]);
+	}
+	
+	public String getActivityTitle() {
+		return null;
+	}
+	
+	public static String getTopLevelTitleName(Context c) {
+		String topLevel = null;
+		try {
+			topLevel = Localization.get("app.display.name");
+			return topLevel;
+		} catch(NoLocalizedTextException nlte) {
+        	//nothing, app display name is optional for now.
+        }
+		
+		return c.getString(org.commcare.dalvik.R.string.title_bar_name);
+	}
+	
+	public static String getTitle(Context c, String local) {
+		String topLevel = getTopLevelTitleName(c);
+		
+		String[] stepTitles = new String[0];
+		try {
+			stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
+			
+			//See if we can insert any case hacks
+			int i = 0;
+			for(String[] step : CommCareApplication._().getCurrentSession().getSteps()){
+				try {
+				if(CommCareSession.STATE_DATUM_VAL.equals(step[0])) {
+					//Haaack
+					if("case_id".equals(step[1])) {
+						ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step[2]);
+						stepTitles[i] = Localization.get("title.datum.wrapper", new String[] { foundCase.getName()});
+					}
+				}
+				} catch(Exception e) {
+					//TODO: Your error handling is bad and you should feel bad
+				}
+				++i;
+			}
+			
+		} catch(SessionUnavailableException sue) {
+			
+		}
+		
+		String returnValue = topLevel;
+		
+		for(String title : stepTitles) {
+			if(title != null) {
+				returnValue += " > " + title;
+			}
+		}
+		
+		if(local != null) {
+			returnValue += " > " + local;
+		}
+		return returnValue;
 	}
 }
