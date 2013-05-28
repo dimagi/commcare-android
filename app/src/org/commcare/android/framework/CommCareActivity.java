@@ -372,7 +372,25 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		
 		int currentId = -1;
 		
-		int newId = addElementToTitle(li, layout, local, org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, null);
+		//We don't actually want this one to look the same
+		int newId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + layout.getChildCount() + 1;
+		if(local != null) {
+			View titleBreadcrumb = li.inflate(org.commcare.dalvik.R.layout.component_title_uncrumb, layout, true);
+			
+			TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);
+			
+			text.setText(local);
+			//Is there a "random ID" or something we can use for this?
+			text.setId(newId);
+			//RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams)peerView.getLayoutParams();
+			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)text.getLayoutParams();
+			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			params.addRule(RelativeLayout.CENTER_VERTICAL);
+			text.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+			
+			text.setLayoutParams(params);
+		}
+		//int newId = addElementToTitle(li, layout, local, org.commcare.dalvik.R.layout.component_title_uncrumb, -1, null);
 		
 		if(newId != -1) { currentId = newId;}
 		

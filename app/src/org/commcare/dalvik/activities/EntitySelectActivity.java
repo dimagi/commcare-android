@@ -204,16 +204,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     @Override
     public String getActivityTitle() {
-    	String title = Localization.get("select.list.title");
+    	//Skipping this until it's a more general pattern
     	
-    	try {
-	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
-	    	title = detail.getTitle().evaluate();
-    	} catch(Exception e) {
-    		
-    	}
-    	
-    	return title;
+//    	String title = Localization.get("select.list.title");
+//    	
+//    	try {
+//	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
+//	    	title = detail.getTitle().evaluate();
+//    	} catch(Exception e) {
+//    		
+//    	}
+//    	
+//    	return title;
+    	return null;
 	}
 
 	boolean resuming = false;

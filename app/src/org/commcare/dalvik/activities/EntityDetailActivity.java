@@ -116,17 +116,18 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 
     @Override
     public String getActivityTitle() {
-    	//TODO: Contextual by type
-    	String title = Localization.get("select.detail.title");
-    	
-    	try {
-	    	Detail detail = factory.getDetail();
-	    	title = detail.getTitle().evaluate();
-    	} catch(Exception e) {
-    		
-    	}
-    	
-    	return title;
+    	//Skipping this until it's a more general pattern
+    	return null;
+//    	String title = Localization.get("select.detail.title");
+//    	
+//    	try {
+//	    	Detail detail = factory.getDetail();
+//	    	title = detail.getTitle().evaluate();
+//    	} catch(Exception e) {
+//    		
+//    	}
+//    	
+//    	return title;
 	}
 
 
