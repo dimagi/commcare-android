@@ -24,11 +24,12 @@
             android:nextFocusUp="@+id/edit_password" />
     </LinearLayout>
 
-
-    
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" android:orientation="vertical" android:layout_alignParentTop="true" android:layout_above="@id/screen_login_bottom_pane">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/screen_login_bottom_pane"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
 
         <FrameLayout
             android:layout_width="fill_parent"
@@ -45,13 +46,23 @@
 
         <LinearLayout
             android:id="@+id/LinearLayout01"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="0px"
             android:layout_weight=".8"
-            android:gravity="center_vertical|center_horizontal"
-            android:orientation="vertical"
-            android:paddingLeft="30dp"
-            android:paddingRight="30dp" >
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+            
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="4dp"
+                    android:paddingLeft="@dimen/login_box_margins"
+                    android:paddingRight="@dimen/login_box_margins" >
 
             <TextView
                 android:id="@+id/text_username"
@@ -81,15 +92,19 @@
                 android:id="@+id/edit_password"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="-4dp"
                 android:inputType="textPassword"
                 android:nextFocusDown="@+id/checkserver"
-                android:nextFocusUp="@+id/edit_username" android:layout_marginBottom="-6dp"/>
+                android:nextFocusUp="@+id/edit_username" />
 
             <TextView
                 android:id="@+id/screen_login_bad_password"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Incorrect Username or Password" android:background="@drawable/bubble_danger" android:paddingTop="2dp" android:paddingBottom="2dp" android:textColor="@color/red" android:textStyle="bold" android:visibility="gone" android:layout_marginLeft="2dp" android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_marginRight="2dp" android:gravity="center"/>
+            </LinearLayout>
+            
+            </ScrollView>
 
         </LinearLayout>
 
