@@ -5,8 +5,11 @@
 <ImageView android:id="@+id/screen_first_start_banner" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="20px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
 
 <RelativeLayout
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true" >
 
     <LinearLayout
         android:id="@+id/screen_first_start_bottom"
@@ -53,7 +56,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:gravity="center"
-        android:orientation="vertical" android:layout_above="@id/screen_first_start_bottom">
+        android:orientation="vertical" android:layout_above="@id/screen_first_start_bottom"
+        android:descendantFocusability="beforeDescendants"
+    	android:focusableInTouchMode="true" >
 
         <TextView
             android:id="@+id/str_setup_message"

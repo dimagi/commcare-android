@@ -113,7 +113,7 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {	
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.first_start_screen);
 		
@@ -148,8 +148,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
     	retryButton.setText(Localization.get("install.button.retry"));
     	installButton.setText(Localization.get("install.button.start"));
-    	
-    	this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     	
 		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
@@ -301,6 +299,8 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
         //want to continue in partial mode if, for instance, the app shut down after trying to install. This will be
         //the standard 
         
+        //prevent the keyboard from popping up on entry by refocusing on the main layout
+        findViewById(R.id.mainLayout).requestFocus();
         
 	}
 	/*
