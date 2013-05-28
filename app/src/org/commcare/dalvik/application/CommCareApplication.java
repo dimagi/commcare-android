@@ -78,6 +78,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -554,6 +555,12 @@ public class CommCareApplication extends Application {
 		//TODO: We can just delete the db entirely. 
 		//Should be good to go. The app'll log us out now that there's no user details in memory
 		logout();
+		
+		Editor sharedPreferencesEditor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
+		
+		sharedPreferencesEditor.putString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+		
+		sharedPreferencesEditor.commit();
 		
 		for(String id : dbIdsToRemove) {
 			//TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
