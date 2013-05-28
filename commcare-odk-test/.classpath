@@ -1,46 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry combineaccessrules="false" kind="src" path="/javarosa-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare"/>
-	<classpathentry kind="lib" path="/opendatakit.collect/bin/opendatakit.collect.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare.cases"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/commcare-odk"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="libs/robotium-solo-4.1.jar"/>
-	<classpathentry kind="lib" path="libs/robotium-solo-4.1-javadoc.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/android-mapviewballoons"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.dimiagi.android.app.building"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Copy of HybridAppTest"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/crs-remind"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/HybridApp"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/HybridAppTest"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-build"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-communication"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-crypto"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-entity-select"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-form-entry"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-javarosa"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-location"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-media"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-properties"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/j2me-shared-resources"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ODKAppTest"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare.app"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare.util"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.log"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.patient"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.polish.activity"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.user"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/respiratory-app"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/schema-generator"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/testplan"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/UI Basics"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/validator-desktop-gui"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/validator-j2me-shell"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/opendatakit.collect"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -27,9 +27,6 @@
 
          -->
     <property file="ant.properties" />
-	
-    <property name="tools.adb" value="C:\Users\wspride\AppData\Local\Android\android-sdk\platform-tools\adb" />
-    <property name="tools.emulator" value="C:\Users\wspride\AppData\Local\Android\android-sdk\tools\emulator" />
 
     <!-- if sdk.dir was not set from one of the property file, then
          get it from the ANDROID_HOME env var.
