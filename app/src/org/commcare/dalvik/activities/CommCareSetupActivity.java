@@ -4,7 +4,6 @@
  */
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.WrappingSpinnerAdapter;
 import org.commcare.android.models.notifications.NotificationMessage;
@@ -12,11 +11,9 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -39,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
@@ -150,7 +148,9 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 		
     	retryButton.setText(Localization.get("install.button.retry"));
     	installButton.setText(Localization.get("install.button.start"));
-		
+    	
+    	this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    	
 		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
