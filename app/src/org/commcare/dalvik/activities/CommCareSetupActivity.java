@@ -268,10 +268,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				}
 			}
 		});
-		if(upgradeMode) {
-			mainMessage.setText(Localization.get("updates.check"));
-			startResourceInstall();
-		}
 		
 		banner = this.findViewById(R.id.screen_first_start_banner);
 		
@@ -298,6 +294,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //the standard 
         
         
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		super.onStart();
+		//Moved here to properly attach fragments and such.
+		//NOTE: May need to do so elsewhere as well.
+		if(upgradeMode) {
+			mainMessage.setText(Localization.get("updates.check"));
+			startResourceInstall();
+		}
 	}
 	
 	/* (non-Javadoc)
