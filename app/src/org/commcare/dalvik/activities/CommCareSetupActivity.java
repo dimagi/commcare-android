@@ -351,7 +351,6 @@ public class CommCareSetupActivity extends Activity implements ResourceEngineLis
 				}
 				catch(InvalidReferenceException ire){
 					this.setModeToBasic(Localization.get("install.bad.ref"));
-					System.out.println("528 bad ref caught");
 					return;
 				}
 				
