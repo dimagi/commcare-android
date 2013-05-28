@@ -111,7 +111,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getLastNonConfigurationInstance();
+        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
         
         if(savedInstanceState != null) {
         	mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);

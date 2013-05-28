@@ -4,16 +4,15 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
-import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -26,7 +25,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class CommCareVerificationActivity extends Activity implements VerificationTaskListener, OnClickListener {
+public class CommCareVerificationActivity extends CommCareActivity<CommCareVerificationActivity> implements VerificationTaskListener, OnClickListener {
 	
 	TextView missingMediaPrompt;
 	private static final int MENU_UNZIP = Menu.FIRST;
@@ -58,13 +57,9 @@ public class CommCareVerificationActivity extends Activity implements Verificati
         fire();
 	}
 	
-	public Object onRetainNonConfigurationInstance() {
-		return this;
-	}
-	
 	private void fire() {
         
-        CommCareVerificationActivity last = (CommCareVerificationActivity)this.getLastNonConfigurationInstance();
+        CommCareVerificationActivity last = (CommCareVerificationActivity)this.getDestroyedActivityState();
         if(last == null) {
             missingMediaPrompt.setText("Verifying media...");
             retryButton.setText("Retry");

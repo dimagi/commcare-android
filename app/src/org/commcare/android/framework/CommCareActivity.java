@@ -141,6 +141,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		}
 	}
 	
+	protected CommCareActivity getDestroyedActivityState() {
+		return stateHolder.getPreviousState();
+	}
+	
 	protected boolean isTopNavEnabled() {
 		return false;
 	}
