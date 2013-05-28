@@ -25,6 +25,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.InputType;
@@ -558,7 +559,25 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		if(id == DIALOG_INSTALL_PROGRESS) {
-			ProgressDialog mProgressDialog = new ProgressDialog(this);
+			ProgressDialog mProgressDialog = new ProgressDialog(this) {
+				/* (non-Javadoc)
+				 * @see android.app.Dialog#onWindowFocusChanged(boolean)
+				 */
+				@Override
+				public void onWindowFocusChanged(boolean hasFocus) {
+					super.onWindowFocusChanged(hasFocus);
+					//TODO: Should we generalize this in some way? Not sure if it's happening elsewhere.
+					if(hasFocus && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+						try {
+							getWindow().getDecorView().invalidate();
+							getWindow().getDecorView().requestLayout();
+						} catch(Exception e){
+							e.printStackTrace();
+							Log.i("CommCare", "Error came up while forcing re-layout for dialog box");
+						}
+					}
+				}
+			};
             if(upgradeMode) {
             	mProgressDialog.setTitle(Localization.get("updates.title"));
             	mProgressDialog.setMessage(Localization.get("updates.checking"));
