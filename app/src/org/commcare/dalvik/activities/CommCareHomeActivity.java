@@ -10,6 +10,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
+import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
@@ -800,7 +801,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		//Create our form entry activity callout
 		Intent i =new Intent(getApplicationContext(), org.odk.collect.android.activities.FormEntryActivity.class);
 		i.setAction(Intent.ACTION_EDIT);
-		
+		i.putExtra("odk_title_fragment", BreadcrumbBarFragment.class.getName());
 		
 		i.putExtra("instancedestination", CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
 		
