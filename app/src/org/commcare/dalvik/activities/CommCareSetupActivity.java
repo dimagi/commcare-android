@@ -17,6 +17,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -35,6 +37,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
@@ -109,7 +112,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {	
 		super.onCreate(savedInstanceState);
 		
 		//Grab Views
@@ -146,7 +149,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
     	retryButton.setText(Localization.get("install.button.retry"));
     	installButton.setText(Localization.get("install.button.start"));
-		
+    	
 		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
 			@Override
@@ -190,7 +193,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 try {	
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                 	//Barcode only
-                    i.putExtra("SCAN_FORMATS","QR_CODE, DATA_MATRIX");
+                    i.putExtra("SCAN_FORMATS","QR_CODE");
                     CommCareSetupActivity.this.startActivityForResult(i, BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(CommCareSetupActivity.this,"No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
@@ -293,6 +296,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //want to continue in partial mode if, for instance, the app shut down after trying to install. This will be
         //the standard 
         
+        //prevent the keyboard from popping up on entry by refocusing on the main layout
+        findViewById(R.id.mainLayout).requestFocus();
         
 	}
 	
@@ -347,6 +352,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     			String result = data.getStringExtra("SCAN_RESULT");
 				incomingRef = result;
 				//Definitely have a URI now.
+				try{
+					ReferenceManager._().DeriveReference(incomingRef);
+				}
+				catch(InvalidReferenceException ire){
+					this.setModeToBasic(Localization.get("install.bad.ref"));
+					return;
+				}
+				
 				this.setModeToReady(result);
 			}
 		}
@@ -521,10 +534,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToBasic(){
+    	this.setModeToBasic(Localization.get("install.barcode"));
+    }
+    
+    public void setModeToBasic(String message){
     	this.uiState = UiState.basic;
     	editProfileRef.setText("");	
     	this.incomingRef = null;
-    	mainMessage.setText(Localization.get("install.barcode"));
+    	mainMessage.setText(message);
     	addressEntryButton.setVisibility(View.VISIBLE);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.VISIBLE);

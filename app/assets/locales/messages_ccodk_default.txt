@@ -23,6 +23,7 @@ install.button.enter=Enter URL
 install.button.startover=Start Over
 install.button.retry=Retry Installation
 install.button.start=Begin Install
+install.bad.ref=You did not scan a valid URL. Please try again.
 
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application...
