@@ -110,11 +110,17 @@ public class BreadcrumbBarFragment extends Fragment {
 			try {
 				stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
 				
-				//See if we can insert any case hacks
 				Vector<String[]> v = CommCareApplication._().getCurrentSession().getSteps();
+				
+				//So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
+				//displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
 				for(int i = v.size() -1 ; i >= 0; i--){
 					String[] step = v.elementAt(i);
+					
+					//Keep track of how many "steps" (or choices made by the user/platform) have happened.
 					final int currentStep = i;
+					
+					//How many "steps" have already been made to get to the step we're making a view for?
 					final int currentStepSize = v.size();
 				
 					OnClickListener stepBackListener = new OnClickListener() {
@@ -125,8 +131,12 @@ public class BreadcrumbBarFragment extends Fragment {
 							int stepsToTake = currentStepSize - currentStep - 1;
 							
 							try{
+								//Try to take stepsToTake steps "Back" 
 								for(int i = 0 ; i < stepsToTake ; i++) {
 									CommCareApplication._().getCurrentSession().stepBack();
+									
+									//We need to check the current size, because sometimes a step back will end up taking
+									//two (if a value is computed instead of selected)
 									int currentStepSize = CommCareApplication._().getCurrentSession().getSteps().size();
 									
 									//Take at _most_ currentSteps back, or stop when we've reached
@@ -147,8 +157,11 @@ public class BreadcrumbBarFragment extends Fragment {
 					
 
 					try {
+						
+						//It the current step was selecting a nodeset value... 
 					if(CommCareSession.STATE_DATUM_VAL.equals(step[0])) {
-						//Haaack
+						
+						//Haaack. We should replace this with a generalizable "What do you refer to your detail by", but for now this is 90% of cases
 						if("case_id".equals(step[1])) {
 							ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step[2]);
 							stepTitles[i] = foundCase.getName();
@@ -160,6 +173,7 @@ public class BreadcrumbBarFragment extends Fragment {
 					} catch(Exception e) {
 						//TODO: Your error handling is bad and you should feel bad
 					}
+					 
 					newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, stepBackListener);
 					if(newId != -1) { currentId = newId;}
 				}
@@ -168,6 +182,7 @@ public class BreadcrumbBarFragment extends Fragment {
 				
 			}
 			
+			//Finally add the "top level" breadcrumb that represents the application's home. 
 			addElementToTitle(li, layout, topLevel, org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, new OnClickListener() {
 
 				@Override
