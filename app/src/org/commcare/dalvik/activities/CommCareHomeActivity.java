@@ -226,7 +226,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 			displayMessage(label);
                 			
                 			//OK, all forms sent, sync time 
-                			syncData();
+                			syncData(true);
                 			
                 		} else if(result == ProcessAndSendTask.FAILURE) {
                 			currentHome.dismissDialog(mCurrentDialog);
@@ -241,7 +241,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
                 
                 if(!formsToSend) {
                 	//No unsent forms, just sync
-                	syncData();
+                	syncData(false);
                 }
                 
             }
@@ -262,12 +262,17 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         startActivityForResult(i, GET_INCOMPLETE_FORM);
     }
     
-    private void syncData() {
+    private void syncData(boolean formsToSend) {
     	User u = CommCareApplication._().getSession().getLoggedInUser();
     	
     	if(User.TYPE_DEMO.equals(u.getUserType())) {
     		//Remind the user that there's no syncing in demo mode.0
-    		displayMessage(Localization.get("main.sync.demo"), true, true);
+    		if(formsToSend){
+    			displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
+    		}
+    		else{
+    			displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+    		}
     		return;
 		}
 		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -977,7 +982,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	        	String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
 	        	Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
 	        	refreshView();
-	        	this.syncData();
+	        	this.syncData(false);
 	        }
 	        
 	        //Normal Home Screen login time! 
