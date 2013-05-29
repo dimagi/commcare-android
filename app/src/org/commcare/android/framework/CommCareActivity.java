@@ -474,7 +474,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		//Add the app icon
 		TextView iconBearer = ((TextView)layout.getChildAt(layout.getChildCount() - 1));
 		
-		iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.icon,0,0,0);
+		iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.ab_icon,0,0,0);
 		iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
 		
 		
