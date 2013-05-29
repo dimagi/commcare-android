@@ -7,9 +7,7 @@
 <RelativeLayout
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:descendantFocusability="beforeDescendants"
-    android:focusableInTouchMode="true" >
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/screen_first_start_bottom"
@@ -56,9 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:gravity="center"
-        android:orientation="vertical" android:layout_above="@id/screen_first_start_bottom"
-        android:descendantFocusability="beforeDescendants"
-    	android:focusableInTouchMode="true" >
+        android:orientation="vertical" android:layout_above="@id/screen_first_start_bottom">
 
         <TextView
             android:id="@+id/str_setup_message"
