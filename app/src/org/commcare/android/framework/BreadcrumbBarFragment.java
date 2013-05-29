@@ -33,7 +33,7 @@ import android.widget.TextView;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class BreadcrumbBarFragment extends Fragment {
 	
-	private boolean isTopNavEnabled = true;
+	private boolean isTopNavEnabled = false;
 	 
 	  /**
 	   * This method will only be called once when the retained

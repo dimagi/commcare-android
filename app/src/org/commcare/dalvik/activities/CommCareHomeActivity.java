@@ -884,7 +884,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 					receiver.displayMessage(label);
 					
 					if(syncAfterwards) {
-						syncData();
+						syncData(true);
 					}
 				} else if(result == ProcessAndSendTask.FAILURE) {
 					//Failures make their own notification box
