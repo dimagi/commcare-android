@@ -145,5 +145,13 @@
 	
 	<target name="cc-release" depends="cc-setup, odk-setup, release">
 	</target>
+	
+	<target name="run-tests" if="build.run.tests">
+		<ant antfile="${dir.test.project" target="all" inheritAll="false" inheritRefs="false">
+			<!--property name="compile.source" value="${compile.source}"/-->
+		</ant>
+	</target>
+	
+	<target name="release-and-test" depends="cc-release, run-tests"/>
 
 </project>
