@@ -62,6 +62,17 @@
    <color name="grey_grad_end">#A0D3D3D3</color>
    
    
+   <color name="border_grey">#20959699</color>
+   
+   
+   <color name="title_border">#444444</color>
+   <color name="title_neutral_grad_end">#FFB3B3B3</color>
+   <color name="title_neutral_grad_start">#FFE4E4E4</color>
+  
+   <color name="title_case_grad_end">#FF3867AD</color>
+   <color name="title_case_grad_start">#FF6884AD</color>
+   
+   
       
    <style name="Animation" />
    

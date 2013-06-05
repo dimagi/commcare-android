@@ -4,23 +4,39 @@
 package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
+import java.util.Vector;
 
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCareSession;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import android.app.Activity;
+import android.annotation.TargetApi;
+import android.app.ActionBar.LayoutParams;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.HorizontalScrollView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Base class for CommCareActivities to simplify 
@@ -29,30 +45,67 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
-public abstract class CommCareActivity<R> extends Activity implements CommCareTaskConnector<R> {
+public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R> {
 	
 	protected final static int DIALOG_PROGRESS = 32;
 	protected final static String DIALOG_TEXT = "cca_dialog_text";
 	
-	CommCareTask currentTask;
+	StateFragment stateHolder;
 
 	@Override
+	@TargetApi(14)
 	protected void onCreate(Bundle savedInstanceState) {
-		//TODO: We can really handle much of this framework without needing to 
-		//be a superclass.
 		super.onCreate(savedInstanceState);
+		
+	    FragmentManager fm = this.getSupportFragmentManager();
+	    
+	    stateHolder = (StateFragment) fm.findFragmentByTag("state");
+	    
+	    // If the state holder is null, create a new one for this activity
+	    if (stateHolder == null) {
+	    	stateHolder = new StateFragment();
+	    	fm.beginTransaction().add(stateHolder, "state").commit();
+	    }	    
+		
 		if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
 			this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
 			loadFields();
 		}
+	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+	    	getActionBar().setDisplayShowCustomEnabled(true);
+
+		    //Add breadcrumb bar
+		    
+		    BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+		    
+		    // If the state holder is null, create a new one for this activity
+		    if (bar == null) {
+		    	bar = new BreadcrumbBarFragment();
+		    	fm.beginTransaction().add(bar, "breadcrumbs").commit();
+		    }
+	    }
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	        case android.R.id.home:
+	        	try { 
+	        		CommCareApplication._().getCurrentSession().clearState();
+	        	} catch(SessionUnavailableException sue) {
+	        		// probably won't go anywhere with this
+	        	}
+	            // app icon in action bar clicked; go home
+	            Intent intent = new Intent(this, CommCareHomeActivity.class);
+	            startActivity(intent);
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
 	}
 	
 	private void loadFields() {
-		CommCareActivity oldActivity = null;
-		Object o = this.getLastNonConfigurationInstance();
-		if(o instanceof CommCareActivity) {
-			oldActivity = (CommCareActivity)o;
-		}
+		CommCareActivity oldActivity = stateHolder.getPreviousState();
 		Class c = this.getClass();
 		for(Field f : c.getDeclaredFields()) {
 			if(f.isAnnotationPresent(UiElement.class)) {
@@ -95,20 +148,43 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 		}
 	}
 	
+	protected CommCareActivity getDestroyedActivityState() {
+		return stateHolder.getPreviousState();
+	}
+	
+	protected boolean isTopNavEnabled() {
+		return false;
+	}
+	
+	boolean visible = false;
+	
 
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onResume()
 	 */
 	@Override
+	@TargetApi(11)
 	protected void onResume() {
 		super.onResume();
-		this.setTitle(getTitle(this, getActivityTitle()));
-		Object o = this.getLastNonConfigurationInstance();
-		if(o != null && o instanceof CommCareActivity) {
-			//Time to reconnect with our roots
-			CommCareActivity a = (CommCareActivity)o;
-			this.connectTask(a.currentTask);
-		}
+	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+	    	//If we're in honeycomb this is taken care of by the fragment
+	    } else {
+	    	this.setTitle(getTitle(this, getActivityTitle()));
+	    }
+	    visible = true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onPause()
+	 */
+	@Override
+	protected void onPause() {
+		super.onPause();
+	    visible = false;
+	}
+	
+	protected boolean isInVisibleState() {
+		return visible;
 	}
 
 	/* (non-Javadoc)
@@ -118,15 +194,6 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 	protected void onDestroy() {
 		super.onDestroy();
 	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onRetainNonConfigurationInstance()
-	 */
-	@Override
-	public final Object onRetainNonConfigurationInstance() {
-		return this;
-	}
-	
 	
 	protected void updateProgress(int taskId, String updateText) {
 		Bundle b = new Bundle();
@@ -139,7 +206,10 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 	 */
 	@Override
 	public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
-		currentTask = task;
+		//If stateHolder is null here, it's because it is restoring itself, it doesn't need
+		//this step
+		wakelock();
+		stateHolder.connectTask(task);
 	}
 	
 	/*
@@ -168,7 +238,10 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 	 */
 	@Override
 	public void stopBlockingForTask(int id) {
-		this.dismissDialog(id);
+		if(id != -1 ) {
+			this.dismissDialog(id);
+		}
+		unlock();
 	}
 	
     
@@ -185,15 +258,58 @@ public abstract class CommCareActivity<R> extends Activity implements CommCareTa
 		}
 	}
 	
+	/**
+	 * Handle an error in task execution.  
+	 * 
+	 * @param e
+	 */
+	protected void taskError(Exception e) {
+		//TODO: For forms with good error reporting, integrate that
+		Toast.makeText(this, Localization.get("activity.task.error.generic", new String[] {e.getMessage()}), Toast.LENGTH_LONG).show();
+		Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
 	 */
 	@Override
 	public void taskCancelled(int id) {
-		// TODO Auto-generated method stub
 		
 	}
+	
+	/**
+	 * 
+	 */
+	public void cancelCurrentTask() {
+		stateHolder.cancelTask();
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+	}
+	    
+    private void wakelock() {
+    	int lockLevel = getWakeLockingLevel();
+    	if(lockLevel == -1) { return;}
+    	
+    	stateHolder.wakelock(lockLevel);
+    }
+    
+    private void unlock() {
+    	stateHolder.unlock();
+    }
+    
+    /**
+     * @return The WakeLock flags that should be used for this activity's tasks. -1
+     * if this activity should not acquire/use the wakelock for tasks
+     */
+    protected int getWakeLockingLevel() {
+    	return -1;
+    }
+	
+	//Graphical stuff below, needs to get modularized
 	
 	public void TransplantStyle(TextView target, int resource) {
 		//get styles from here

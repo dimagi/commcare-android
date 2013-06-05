@@ -13,3 +13,4 @@ app/assets/testing*
 test-app/bin/*
 test-app/gen/*
 */bin/*
+commcare-odk-test/gen/*

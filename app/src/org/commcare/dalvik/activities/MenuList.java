@@ -18,6 +18,8 @@ package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.GenericMenuListAdapter;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
@@ -25,25 +27,28 @@ import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ListAdapter;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 
-public class MenuList extends ListActivity {
+@ManagedUi(R.layout.screen_suite_menu)
+public class MenuList extends CommCareActivity implements OnItemClickListener {
 	
 	private CommCarePlatform platform;
 	
 	private GenericMenuListAdapter adapter;
 	
+	@UiElement(R.id.screen_suite_menu_list)
+	private ListView list;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         platform = CommCareApplication._().getCommCarePlatform();
-        setContentView(R.layout.suite_menu_layout);
         
         String menuId = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
         
@@ -52,12 +57,19 @@ public class MenuList extends ListActivity {
        }
        
        adapter = new GenericMenuListAdapter(this,platform,menuId);
-       this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
        refreshView();
+       
+       list.setOnItemClickListener(this);
     }
 
 
-    private String getActivityTitle() {
+    @Override
+    protected boolean isTopNavEnabled() {
+    	return true;
+    }
+    
+    @Override
+    public String getActivityTitle() {
 		//return adapter.getMenuTitle();
     	return null;
 	}
@@ -67,7 +79,7 @@ public class MenuList extends ListActivity {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	setListAdapter(adapter);
+    	list.setAdapter(adapter);
     }
 
 
@@ -75,9 +87,9 @@ public class MenuList extends ListActivity {
      * Stores the path of selected form and finishes.
      */
     @Override
-    protected void onListItemClick(ListView listView, View view, int position, long id) {
+    public void onItemClick(AdapterView listView, View view, int position, long id) {
     	String commandId;
-    	Object value = getListAdapter().getItem(position);
+    	Object value = listView.getAdapter().getItem(position);
     	if(value instanceof Entry) {
     		commandId = ((Entry)value).getCommandId();
     	} else {

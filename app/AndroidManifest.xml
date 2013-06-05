@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.commcare.dalvik"
     android:versionCode="106"
-    android:versionName="2.7" >
+    android:versionName="2.8" >
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -15,7 +15,6 @@
         android:theme="@style/AppBaseTheme" >
         <activity
             android:name=".activities.CommCareHomeActivity"
-            android:configChanges="orientation"
             android:label="@string/application_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -67,7 +67,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends Activity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
 	private CommCareSession session;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
@@ -111,7 +111,7 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getLastNonConfigurationInstance();
+        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
         
         if(savedInstanceState != null) {
         	mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
@@ -197,17 +197,26 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         //tts = new TextToSpeech(this, this);
     }
     
-    private String getActivityTitle() {
-    	String title = Localization.get("select.list.title");
+    @Override
+    protected boolean isTopNavEnabled() {
+    	return true;
+    }
+    
+    @Override
+    public String getActivityTitle() {
+    	//Skipping this until it's a more general pattern
     	
-    	try {
-	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
-	    	title = detail.getTitle().evaluate();
-    	} catch(Exception e) {
-    		
-    	}
-    	
-    	return title;
+//    	String title = Localization.get("select.list.title");
+//    	
+//    	try {
+//	    	Detail detail = session.getDetail(selectDatum.getShortDetail());
+//	    	title = detail.getTitle().evaluate();
+//    	} catch(Exception e) {
+//    		
+//    	}
+//    	
+//    	return title;
+    	return null;
 	}
 
 	boolean resuming = false;
@@ -239,24 +248,12 @@ public class EntitySelectActivity extends Activity implements TextWatcher, Entit
         refreshView();	
     }
 
-
-    /* (non-Javadoc)
-	 * @see android.app.Activity#onRetainNonConfigurationInstance()
-	 */
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		return this;
-	}
-
-
 	/**
      * Get form list from database and insert into view.
      */
     private void refreshView() {
     	try {
 	    	final Detail detail = session.getDetail(selectDatum.getShortDetail());
-	    	
-			this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
 	    	
 	    	//TODO: Get ec into these text's
 	    	String[] headers = new String[detail.getFields().length];

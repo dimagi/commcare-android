@@ -10,19 +10,18 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
+import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
@@ -48,7 +47,6 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -59,7 +57,6 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.format.DateUtils;
@@ -74,7 +71,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CommCareHomeActivity extends Activity implements ProcessTaskListener {
+public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
 	
 	public static final int LOGIN_USER = 0;
 	public static final int GET_COMMAND = 1;
@@ -88,9 +85,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	public static final int MISSING_MEDIA_ACTIVITY=256;
 	public static final int DUMP_FORMS_ACTIVITY=512;
 	
-	public static final int DIALOG_PROCESS = 0;
 	public static final int USE_OLD_DIALOG = 1;
-	public static final int DIALOG_SEND_UNSENT =2;
 	public static final int DIALOG_CORRUPTED = 4;
 	public static final int DIALOG_NO_STORAGE = 8;
 	
@@ -117,16 +112,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	
 	private AndroidCommCarePlatform platform;
 	
-	ProgressDialog mProgressDialog;
 	AlertDialog mAskOldDialog;
 	AlertDialog mAttemptFixDialog;
-	private int mCurrentDialog = -1;
-	
-	ProcessAndSendTask mProcess;
-	DataPullTask mDataPullTask;
-	
-	static CommCareHomeActivity currentHome;
-	
 	Button startButton;
 	Button logoutButton;
 	Button viewIncomplete;
@@ -142,12 +129,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         if(savedInstanceState != null) {
         	wasExternal = savedInstanceState.getBoolean("was_external");
         }
-        
-        //TODO: Retainlastnonconfigurationinstance, not this.
-        if(currentHome != null) {
-        	this.mCurrentDialog = currentHome.mCurrentDialog;
-        }
-        currentHome = this;
         
         setContentView(R.layout.mainnew);
         configUi();
@@ -211,33 +192,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
             		CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
             	}
             	
-                boolean formsToSend = checkAndStartUnsentTask(new ProcessTaskListener() {
-
-					public void processTaskAllProcessed() {
-						//Don't cancel the dialog, we need it to stay in the foreground to ensure things are set
-					}
-                	
-                	public void processAndSendFinished(int result, int successfulSends) {
-                		if(currentHome != CommCareHomeActivity.this) { System.out.println("Fixing issue with new activity");}
-                		if(result == ProcessAndSendTask.FULL_SUCCESS) {
-                			currentHome.dismissDialog(mCurrentDialog);
-                			String label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
-                			refreshView();
-                			displayMessage(label);
-                			
-                			//OK, all forms sent, sync time 
-                			syncData(true);
-                			
-                		} else if(result == ProcessAndSendTask.FAILURE) {
-                			currentHome.dismissDialog(mCurrentDialog);
-                			//Display your own message otherwise
-                		} else  {
-                			currentHome.dismissDialog(mCurrentDialog);
-                			displayMessage(Localization.get("sync.fail.unsent"), true);
-                		}
-                	}
-
-                });
+                boolean formsToSend = checkAndStartUnsentTask(true);
                 
                 if(!formsToSend) {
                 	//No unsent forms, just sync
@@ -277,67 +232,65 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		}
 		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-		mDataPullTask = new DataPullTask(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this);
-		
-		attachPullTask(mDataPullTask);
-    	
-    	mDataPullTask.execute();
-    	CommCareApplication._().getSession().registerCurrentTask(mDataPullTask, "Sync");
-    }
-    
-    private void attachPullTask(DataPullTask task) {
-    	task.setPullListener(new DataPullListener() {
+		DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",this.getString(R.string.ota_restore_url)), "", this) {
 
-			public void finished(int status) {
-				currentHome.dismissDialog(mCurrentDialog);
-				
-				
+			@Override
+			protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
 				try {
-					CommCareApplication._().getSession().detachTask();
-					refreshView();
+					receiver.refreshView();
 				} catch(SessionUnavailableException sue) {
-					CommCareHomeActivity.this.returnToLogin();
+					receiver.returnToLogin();
 				}
 				
 				//TODO: SHARES _A LOT_ with login activity. Unify into service
-				switch(status) {
+				switch(result) {
 				case DataPullTask.AUTH_FAILED:
-					displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
+					receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
 					break;
 				case DataPullTask.BAD_DATA:
-					displayMessage(Localization.get("sync.fail.bad.data"), true);
+					receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
 					break;
 				case DataPullTask.DOWNLOAD_SUCCESS:
-					displayMessage(Localization.get("sync.success.synced"));
+					receiver.displayMessage(Localization.get("sync.success.synced"));
 					break;
 				case DataPullTask.UNREACHABLE_HOST:
-					displayMessage(Localization.get("sync.fail.bad.network"), true);
+					receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
 					break;
 				case DataPullTask.UNKNOWN_FAILURE:
-					displayMessage(Localization.get("sync.fail.unknown"), true);
+					receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
 					break;
 				}
 				//TODO: What if the user info was updated?
+
 			}
 
-			public void progressUpdate(Integer... progress) {
-				if(progress[0] == DataPullTask.PROGRESS_STARTED) {
-					mProgressDialog.setTitle(Localization.get("sync.progress.title"));
-					mProgressDialog.setMessage(Localization.get("sync.progress.purge"));
-				} else if(progress[0] == DataPullTask.PROGRESS_CLEANED) {
-					mProgressDialog.setMessage(Localization.get("sync.progress.authing"));
-				} else if(progress[0] == DataPullTask.PROGRESS_AUTHED) {
-					mProgressDialog.setMessage(Localization.get("sync.progress.downloading"));
-				}else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-					mProgressDialog.setMessage(Localization.get("sync.recover.needed"));
-				} else if(progress[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-					mProgressDialog.setMessage(Localization.get("sync.recover.started"));
+			@Override
+			protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
+				
+				if(update[0] == DataPullTask.PROGRESS_STARTED) {
+					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.purge"));
+				} else if(update[0] == DataPullTask.PROGRESS_CLEANED) {
+					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.authing"));
+				} else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
+					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.downloading"));
+				}else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.recover.needed"));
+				} else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.recover.started"));
 				}
 			}
-    		
-    	});
-    	//possibly already showing
-    	currentHome.showDialog(DIALOG_PROCESS);
+
+			@Override
+			protected void deliverError(CommCareHomeActivity receiver,
+					Exception e) {
+				receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
+			}
+			
+		};
+		
+		mDataPullTask.connect(this);
+    	
+    	mDataPullTask.execute();
     }
     
     /*
@@ -452,7 +405,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		    			//The onResume() will take us to the screen
 	    			} else {
 	    				refreshView();
-	    				checkAndStartUnsentTask(this);
+	    				checkAndStartUnsentTask(false);
 	    				
 	    				if(isDemoUser()) {
 	    					showDemoModeWarning();
@@ -621,7 +574,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	                	
 						Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
 						
-						new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
+						FormRecordCleanupTask.wipeRecord(this, platform, currentState);
 						
 						//Notify the server of this problem (since we aren't going to crash) 
 						ExceptionReportTask ert = new ExceptionReportTask();
@@ -641,14 +594,9 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	                //The form is either ready for processing, or not, depending on how it was saved
 	        		if(complete) {
 	        			//Form record should now be up to date now and stored correctly. Begin processing its content and submitting it. 
-        				SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        				
-        				mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
-        				mProcess.setListeners(this, CommCareApplication._().getSession().startDataSubmissionListener());
+        				processAndSend(new FormRecord[] {current}, false);
 
         				refreshView();
-        				showDialog(DIALOG_PROCESS);
-        				mProcess.execute(current);
 	        			if(wasExternal) {
 	        				this.finish();
 	        			}
@@ -669,7 +617,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	    	    	//If the form was unstarted, we want to wipe the record. 
 	        		if(current.getStatus() == FormRecord.STATUS_UNSTARTED) {
 		    			//Entry was cancelled.
-		    			new FormRecordCleanupTask(this, platform).wipeRecord(currentState);
+	        			FormRecordCleanupTask.wipeRecord(this, platform, currentState);
 	        		}
 
         			if(wasExternal) {
@@ -824,7 +772,8 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		}
     }
     
-    protected String getActivityTitle() {
+    @Override
+    public String getActivityTitle() {
 		String userName = null;
 		
 		try {
@@ -837,6 +786,11 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		}
 		return null;
 	}
+    
+    @Override 
+    protected boolean isTopNavEnabled() {
+    	return false;
+    }
 
 	private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
     	formEntry(formUri, r, null);
@@ -852,7 +806,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		//Create our form entry activity callout
 		Intent i =new Intent(getApplicationContext(), org.odk.collect.android.activities.FormEntryActivity.class);
 		i.setAction(Intent.ACTION_EDIT);
-		
+		i.putExtra("odk_title_fragment", BreadcrumbBarFragment.class.getName());
 		
 		i.putExtra("instancedestination", CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
 		
@@ -880,7 +834,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     
-    protected boolean checkAndStartUnsentTask(ProcessTaskListener listener) throws SessionUnavailableException {
+    protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) throws SessionUnavailableException {
     	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
     	
     	//Get all forms which are either unsent or unprocessed
@@ -891,16 +845,70 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     		for(int i = 0 ; i < ids.size() ; ++i) {
     			records[i] = storage.read(ids.elementAt(i).intValue());
     		}
-    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-    		mProcess = new ProcessAndSendTask(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)));
-    		mProcess.setListeners(listener, CommCareApplication._().getSession().startDataSubmissionListener());
-    		showDialog(DIALOG_SEND_UNSENT);
-    		mProcess.execute(records);
+    		processAndSend(records, syncAfterwards);
     		return true;
     	} else {
     		//Nothing.
     		return false;
     	}
+    }
+    
+    private void processAndSend(FormRecord[] records, final boolean syncAfterwards) {
+		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+
+		int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
+		
+		ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)), sendTaskId){
+
+			@Override
+			protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+				 if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
+					returnToLogin(Localization.get("app.workflow.login.lost"));
+					return;
+				}
+				 
+				try{
+					receiver.refreshView();
+				}catch(SessionUnavailableException sue) {
+					//might have logged out, don't really worry about it.
+					receiver.returnToLogin(Localization.get("home.logged.out"));
+				}
+				
+				int successfulSends = this.getSuccesfulSends();
+				
+				if(result == ProcessAndSendTask.FULL_SUCCESS) {
+					String label = Localization.get("sync.success.sent.singular", new String[] {String.valueOf(successfulSends)});
+					if(successfulSends > 1) {
+						label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
+					}
+					receiver.displayMessage(label);
+					
+					if(syncAfterwards) {
+						syncData(true);
+					}
+				} else if(result == ProcessAndSendTask.FAILURE) {
+					//Failures make their own notification box
+				} else {
+					receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+				} 
+
+			}
+
+			@Override
+			protected void deliverUpdate(CommCareHomeActivity receiver, Long... update) {
+				//we don't need to deliver updates here, it happens on the notification bar
+			}
+
+			@Override
+			protected void deliverError(CommCareHomeActivity receiver,Exception e) {	
+				//TODO: Display somewhere useful
+				receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+			}
+			
+		};
+		mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+		mProcess.connect(this);
+		mProcess.execute(records);
     }
     
     /*
@@ -1016,46 +1024,34 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
      */
     @Override
     protected Dialog onCreateDialog(int id) {
-    	mCurrentDialog = id;
-		System.out.println("Set dialog from home : " + this);
         switch (id) {
-        case DIALOG_PROCESS:
-                mProgressDialog = new ProgressDialog(this);
+        case ProcessAndSendTask.SEND_PHASE_ID:
+        	    ProgressDialog mProgressDialog = new ProgressDialog(this);
                 mProgressDialog.setTitle(Localization.get("sync.progress.submitting.title"));
                 mProgressDialog.setMessage(Localization.get("sync.progress.submitting"));
                 mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
                 return mProgressDialog;
-        case DIALOG_SEND_UNSENT:
+        case ProcessAndSendTask.PROCESSING_PHASE_ID:
 	        	mProgressDialog = new ProgressDialog(this);
 	            mProgressDialog.setTitle(Localization.get("form.entry.processing.title"));
 	            mProgressDialog.setMessage(Localization.get("form.entry.processing"));
 	            mProgressDialog.setIndeterminate(true);
 	            mProgressDialog.setCancelable(false);
 	            return mProgressDialog;
+        case DataPullTask.DATA_PULL_TASK_ID:
+        	mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setTitle(Localization.get("sync.progress.title"));
+            mProgressDialog.setMessage(Localization.get("sync.progress.purge"));
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+            return mProgressDialog;
         case DIALOG_CORRUPTED:
         		return createAskFixDialog();
         }
         return null;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
-     */
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog) {
-    	mCurrentDialog = id;
-        switch (id) {
-        case DIALOG_PROCESS:
-                mProgressDialog.setTitle(Localization.get("sync.progress.submitting.title"));
-                mProgressDialog.setMessage(Localization.get("sync.progress.submitting"));
-        case DIALOG_SEND_UNSENT:
-	            mProgressDialog.setTitle(Localization.get("form.entry.processing.title"));
-	            mProgressDialog.setMessage(Localization.get("form.entry.processing"));
-        }
-    }
-    
+
     public Dialog createAskFixDialog() {
     	//TODO: Localize this in theory, but really shift it to the upgrade/management state
     	
@@ -1139,7 +1135,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 	                    	formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
 	                        break;
 	                    case DialogInterface.BUTTON2: // no, and delete the old one
-	                    	new FormRecordCleanupTask(CommCareHomeActivity.this, platform).wipeRecord(existing);
+	                    	FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, platform, existing);
 	                		//fallthrough to new now that old record is gone
 	                    case DialogInterface.BUTTON3: // no, create new
 	                    	state.commitStub();
@@ -1171,7 +1167,7 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     
     private void displayMessage(String message, boolean bad, boolean suppressToast) {
     	if(!suppressToast) {
-    		Toast.makeText(currentHome, message, Toast.LENGTH_LONG).show();
+    		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     	}
 
         TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
@@ -1195,8 +1191,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
     }
     
     private void refreshView() throws SessionUnavailableException{
-    	
-    	this.setTitle(CommCareActivity.getTitle(this, getActivityTitle()));
     	
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
@@ -1269,15 +1263,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         if(p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
         	viewOldForms.setVisibility(Button.VISIBLE);
         }
-        mDataPullTask = CommCareApplication._().getSession().getCurrentTask();
-        if(mDataPullTask != null) {
-        	this.attachPullTask(mDataPullTask);
-        	
-            //It's now attached. In theory, we might have missed the end signal, though, so double check
-            if(mDataPullTask.getStatus() == Status.FINISHED) {
-            	this.dismissDialog(DIALOG_PROCESS);
-            }
-        }
 
         
         View formRecordPane = this.findViewById(R.id.home_formspanel);
@@ -1301,41 +1286,6 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
         	
         }
         return false;
-	}
-
-	public void processAndSendFinished(int result, int successfulSends) {
-		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
-		
-		 if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-			returnToLogin(Localization.get("app.workflow.login.lost"));
-			return;
-		}
-		 
-		try{
-			refreshView();
-		}catch(SessionUnavailableException sue) {
-			//might have logged out, don't really worry about it.
-        	this.returnToLogin(Localization.get("home.logged.out"));
-		}
-
-		
-		if(result == ProcessAndSendTask.FULL_SUCCESS) {
-			String label = Localization.get("sync.success.sent.singular", new String[] {String.valueOf(successfulSends)});
-			if(successfulSends > 1) {
-				label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
-			}
-			displayMessage(label);
-		} else if(result == ProcessAndSendTask.FAILURE) {
-			//Failures make their own notification box
-		} else {
-			displayMessage(Localization.get("sync.fail.unsent"), true);
-		} 
-		
-	}
-	
-	public void processTaskAllProcessed() {
-		if(currentHome != this) { System.out.println("Fixing issue with new activity");}
-		currentHome.removeDialog(mCurrentDialog);
 	}
 	
 	//END - Process and Send Listeners
@@ -1443,21 +1393,17 @@ public class CommCareHomeActivity extends Activity implements ProcessTaskListene
 		CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
 	}
 	
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-      super.onConfigurationChanged(newConfig);
-      setContentView(R.layout.mainnew);
-      if(currentHome != null) {
-      	this.mCurrentDialog = currentHome.mCurrentDialog;
-      }
-      CommCareHomeActivity.currentHome = this;
-      try {
-    	  configUi();
-    	  refreshView();
-      } catch(SessionUnavailableException sue) {
-    	  //we'll handle this in resume?
-      }
-    }
+//    @Override
+//    public void onConfigurationChanged(Configuration newConfig) {
+//      super.onConfigurationChanged(newConfig);
+//      setContentView(R.layout.mainnew);
+//      try {
+//    	  configUi();
+//    	  refreshView();
+//      } catch(SessionUnavailableException sue) {
+//    	  //we'll handle this in resume?
+//      }
+//    }
     
     private boolean isAirplaneModeOn() {
     	
