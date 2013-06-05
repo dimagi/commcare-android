@@ -6,8 +6,8 @@ package org.commcare.android.db.legacy;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -330,13 +330,15 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
 	 */
-	public void remove(Collection ids) {
+	public void remove(List ids) {
 		if(ids.size() == 0 ) { return; }
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			Pair<String, String[]> whereParams = TableBuilder.sqlList(ids);
-			int rowsRemoved = db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
+			List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
+			for(Pair<String, String[]> whereParams : whereParamList) {
+				int rowsRemoved = db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
+			}
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
@@ -385,13 +387,15 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 		
 		if(removed.size() == 0) { return removed; }
 		
-		Pair<String, String[]> whereParams = TableBuilder.sqlList(removed);
+		List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
 
 		
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
+			for(Pair<String, String[]> whereParams : whereParamList) {
+				db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
+			}
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();

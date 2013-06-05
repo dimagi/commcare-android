@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
@@ -292,7 +293,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
 	 */
 	public SqlStorageIterator<T> iterate() {
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, DbUtil.ID_COL);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , null, null, null, null, DbUtil.ID_COL);
 		return new SqlStorageIterator<T>(c, this);
 	}
 	
@@ -336,13 +337,15 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
 	 */
-	public void remove(Collection<Integer> ids) {
+	public void remove(List<Integer> ids) {
 		if(ids.size() == 0 ) { return; }
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			Pair<String, String[]> whereParams = TableBuilder.sqlList(ids);
-			int rowsRemoved = db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
+			List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
+			for(Pair<String, String[]> whereParams : whereParamList) {
+				int rowsRemoved = db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
+			}
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
@@ -391,13 +394,15 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 		
 		if(removed.size() == 0) { return removed; }
 		
-		Pair<String, String[]> whereParams = TableBuilder.sqlList(removed);
+		List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
 
 		
 		SQLiteDatabase db = helper.getHandle();
 		db.beginTransaction();
 		try {
-			db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
+			for(Pair<String, String[]> whereParams : whereParamList) {
+				db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
+			}
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
