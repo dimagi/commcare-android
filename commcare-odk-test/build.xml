@@ -149,6 +149,6 @@
     <import file="${sdk.dir}/tools/ant/build.xml" />
 	
     
-    <target name="all" depends="start-emulator, clear-emulator, unlock-emulator, clean, debug, install, test, stop-emulator"/>
+    <target name="all" depends="start-emulator, clean, debug, clear-emulator, unlock-emulator, install, test, stop-emulator"/>
 
 </project>
