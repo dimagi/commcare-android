@@ -143,7 +143,9 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 	
-	<target name="cc-release" depends="cc-setup, odk-setup, release">
+	<target name="prepare" depends="cc-setup, odk-setup"/>
+	
+	<target name="cc-release" depends="prepare, release">
 	</target>
 	
 	<target name="run-tests" if="build.run.tests">
@@ -152,6 +154,6 @@
 		</ant>
 	</target>
 	
-	<target name="release-and-test" depends="cc-release, run-tests"/>
+	<target name="test-and-release" depends="prepare, run-tests, cc-release"/>
 
 </project>
