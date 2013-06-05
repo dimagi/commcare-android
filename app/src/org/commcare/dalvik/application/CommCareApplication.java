@@ -573,7 +573,7 @@ public class CommCareApplication extends Application {
 		for(String id : dbIdsToRemove) {
 			//TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
 			//(Eventually)
-			this.getDatabasePath(CommCareUserOpenHelper.getDbName(id));
+			this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
 		}
 	}
 
