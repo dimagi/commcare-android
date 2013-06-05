@@ -22,6 +22,7 @@ public class IntentCalloutTest extends Activity {
 	EditText defaultval;
 	EditText extraVal;
 	TextView imageLocationText;
+	TextView outputTextView;
 	
 	File location;
 	
@@ -32,6 +33,15 @@ public class IntentCalloutTest extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_callout);
         returnToForm = (Button)this.findViewById(R.id.button_return);
+        
+        Intent intent = getIntent();
+        
+        outputTextView = (TextView)this.findViewById(R.id.textView2);
+        
+        String displayText = intent.getStringExtra("display_text");
+        
+        outputTextView.setText(displayText);
+        
         returnToForm.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
@@ -46,11 +56,11 @@ public class IntentCalloutTest extends Activity {
 				
 				String extraText = extraVal.getText().toString();
 				if(extraText != "") {
-					returnBundle.putString("json", extraText);
+					returnBundle.putString("extra_text", extraText);
 				}
 				
 				if(location != null && location.exists()) {
-					returnBundle.putString("photoName", location.toString());
+					returnBundle.putString("phot_location", location.toString());
 				}
 				returningIntent.putExtra("odk_intent_bundle", returnBundle);
 				IntentCalloutTest.this.setResult(Activity.RESULT_OK, returningIntent);

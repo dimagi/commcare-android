@@ -55,6 +55,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" 
         android:text="Return to your Form" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="The text below should display whatever you sent from ODK" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-" />
+
         />
         
 
