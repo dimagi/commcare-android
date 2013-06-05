@@ -86,7 +86,7 @@
 	</target>
 	
 	<target name="stop-emulator" description="stop the emulator.">
-	    
+	    	
 	    <echo>Stopping emulator</echo>
 	    
 	   	<exec executable="${tools.adb}">
@@ -96,6 +96,17 @@
 		    <arg value="kill"/>
     	</exec>
 	    
+	</target>
+	
+	<target name="clear-emulator" description="clear the application's data.">
+	    <echo>Clearing emulator</echo>
+	    
+	    <exec executable="${tools.adb}">
+	        <arg value="shell" />
+	        <arg value="pm" />
+	        <arg value="clear" />
+	        <arg value="org.commcare.dalvik" />
+	    </exec>
 	</target>
 	
 	<target name="unlock-emulator" description="Unlock the screen.">
