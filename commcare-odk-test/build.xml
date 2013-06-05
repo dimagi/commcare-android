@@ -103,20 +103,11 @@
 	    <echo>Screen Unlocked</echo>
     	
 	</target>
-	
-	<target name="stop-emulator" depends="run-stories" description="Stop the emulator we started.">
-		  <exec executable="taskkill">
-		  	<arg value="/IM"/>
-		    <arg value="emulator.exe"/>
-		  </exec>
-	</target>
     
     <target name="all" depends="start-emulator, unlock-emulator">
-  
         <ant antfile="${sdk.dir}/tools/ant/build.xml" target="test">
             
-        </ant>
-        
+        </ant>    
     </target>
     
 
