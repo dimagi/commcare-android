@@ -72,9 +72,9 @@
 
 		<echo>Starting emulator</echo>
 		  
-		<exec executable="${tools.emulator}">
+		<exec executable="${tools.emulator}" failonerror="true">
 		    <arg value="-avd"/>
-		    <arg value=${avd.name}/>
+		    <arg value="${avd.name}"/>
     	</exec>
 		  
 		<echo>Derp</echo>
@@ -89,7 +89,7 @@
 	    	
 	    <echo>Stopping emulator</echo>
 	    
-	   	<exec executable="${tools.adb}">
+	   	<exec executable="${tools.adb}" failonerror="true">
 		    <arg value="-s"/>
 		    <arg value="emulator-5554"/>
 		    <arg value="emu"/>
@@ -101,7 +101,7 @@
 	<target name="clear-emulator" description="clear the application's data.">
 	    <echo>Clearing emulator</echo>
 	    
-	    <exec executable="${tools.adb}">
+	    <exec executable="${tools.adb}" failonerror="true">
 	        <arg value="shell" />
 	        <arg value="pm" />
 	        <arg value="clear" />
@@ -113,7 +113,7 @@
 	    
 	    <echo>Unlocking Screen</echo>
 	    
-	    <exec executable="${tools.adb}">
+	    <exec executable="${tools.adb}" failonerror="true">
 		    <arg value="-s"/>
 		    <arg value="emulator-5554"/>
 		    <arg value="shell"/>
