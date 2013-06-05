@@ -25,6 +25,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -53,13 +54,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.os.AsyncTask;
 
 /**
  * @author ctsims
  *
  */
-public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
+public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> {
 
 	String server;
 	String keyProvider;
@@ -69,7 +69,7 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 	
 	private boolean wasKeyLoggedIn = false;
 	
-	DataPullListener listener;
+	public static final int DATA_PULL_TASK_ID = 10;
 	
 	public static final int DOWNLOAD_SUCCESS = 0;
 	public static final int AUTH_FAILED = 1;
@@ -93,24 +93,8 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 		this.username = username;
 		this.password = password;
 		this.c = c;
+		this.taskId = DATA_PULL_TASK_ID;
 	}
-	
-	public void setPullListener(DataPullListener listener) {
-		this.listener = listener;
-	}
-
-	@Override
-	protected void onPostExecute(Integer result) {
-		super.onPostExecute(result);
-		if(listener != null) {
-			listener.finished(result);
-		}
-		//These will never get Zero'd otherwise
-		c = null;
-		server = null;
-		password = null;
-	}
-	
 
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#onCancelled()
@@ -122,16 +106,9 @@ public class DataPullTask extends AsyncTask<Void, Integer, Integer> {
 			CommCareApplication._().logout();
 		}
 	}
-
+	
 	@Override
-	protected void onProgressUpdate(Integer... values) {
-		super.onProgressUpdate(values);
-		if(listener != null) {
-			listener.progressUpdate(values);
-		}
-	}
-
-	protected Integer doInBackground(Void... params) {
+	protected Integer doTaskBackground(Void... params) {
 		publishProgress(PROGRESS_STARTED);
 		CommCareApp app = CommCareApplication._().getCurrentApp();
     	SharedPreferences prefs = app.getAppPreferences();

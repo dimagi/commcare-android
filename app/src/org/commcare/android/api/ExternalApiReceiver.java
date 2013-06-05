@@ -15,16 +15,16 @@ import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
-import org.commcare.android.tasks.DataPullListener;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ProcessTaskListener;
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
@@ -45,6 +45,40 @@ import android.widget.Toast;
  *
  */
 public class ExternalApiReceiver extends BroadcastReceiver {
+	
+	CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
+
+		@Override
+		public void connectTask(CommCareTask task) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void startBlockingForTask(int id) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void stopBlockingForTask(int id) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void taskCancelled(int id) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public Object getReceiver() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	};
 
 	/* (non-Javadoc)
 	 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
@@ -84,15 +118,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 				}
             	
             	public void processAndSendFinished(int result, int successfulSends) {
-            		if(result == ProcessAndSendTask.FULL_SUCCESS) {
-            			//OK, all forms sent, sync time 
-            			syncData(context);
-            			
-            		} else if(result == ProcessAndSendTask.FAILURE) {
-            			Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
-            		} else  {
-            			Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
-            		}
+
             	}
 
             });
@@ -107,7 +133,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 	}
 	
     
-    protected boolean checkAndStartUnsentTask(Context c, ProcessTaskListener listener) throws SessionUnavailableException {
+    protected boolean checkAndStartUnsentTask(final Context context, ProcessTaskListener listener) throws SessionUnavailableException {
     	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
     	
     	//Get all forms which are either unsent or unprocessed
@@ -119,8 +145,37 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     			records[i] = storage.read(ids.elementAt(i).intValue());
     		}
     		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-    		ProcessAndSendTask mProcess = new ProcessAndSendTask(c, CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", c.getString(R.string.PostURL)));
-    		mProcess.setListeners(listener, CommCareApplication._().getSession().startDataSubmissionListener());
+    		ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", context.getString(R.string.PostURL))) {
+
+
+				@Override
+				protected void deliverResult(Object receiver, Integer result) {
+            		if(result == ProcessAndSendTask.FULL_SUCCESS) {
+            			//OK, all forms sent, sync time 
+            			syncData(context);
+            			
+            		} else if(result == ProcessAndSendTask.FAILURE) {
+            			Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+            		} else  {
+            			Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+            		}
+				}
+
+				@Override
+				protected void deliverUpdate(Object receiver, Long... update) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				protected void deliverError(Object receiver, Exception e) {
+					// TODO Auto-generated method stub
+					
+				}
+    			
+    		};
+    		mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+    		mProcess.connect(dummyconnector);
     		mProcess.execute(records);
     		return true;
     	} else {
@@ -134,12 +189,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     	
 		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-		DataPullTask mDataPullTask = new DataPullTask(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",c.getString(R.string.ota_restore_url)), "", c);
-		mDataPullTask.setPullListener(new DataPullListener() {
+		DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",c.getString(R.string.ota_restore_url)), "", c) {
 
 			@Override
-			public void finished(int status) {
-				if(status != DataPullTask.DOWNLOAD_SUCCESS) {
+			protected void deliverResult(Object receiver, Integer result) {
+				if(result != DataPullTask.DOWNLOAD_SUCCESS) {
 					Toast.makeText(c, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
 				} else {
 					Toast.makeText(c, "CommCare synced!", Toast.LENGTH_LONG).show();
@@ -147,15 +201,20 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 			}
 
 			@Override
-			public void progressUpdate(Integer... progress) {
+			protected void deliverUpdate(Object receiver, Integer... update) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			protected void deliverError(Object receiver, Exception e) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-		});
-    	
+		};
+		mDataPullTask.connect(dummyconnector);
     	mDataPullTask.execute();
-    	CommCareApplication._().getSession().registerCurrentTask(mDataPullTask, "Sync");
     }
 
 	

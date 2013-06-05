@@ -6,7 +6,7 @@
 <ListView 
     android:layout_height="fill_parent" 
     android:layout_width="fill_parent" 
-    android:id="@android:id/list"
+    android:id="@+id/screen_suite_menu_list"
     android:listSelector="@drawable/selector" >
 </ListView>
 </RelativeLayout>

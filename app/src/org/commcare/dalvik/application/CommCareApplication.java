@@ -277,6 +277,14 @@ public class CommCareApplication extends Application {
 		return this.currentApp;
 	}
 	
+
+	/**
+	 * Get the current CommCare session that's being executed
+	 *  
+	 * @return
+	 * @throws SessionUnavailableException If there is no session current being
+	 * executed
+	 */
 	public CommCareSession getCurrentSession() {
 		return getCurrentSessionWrapper().getSession();
 	}
@@ -565,7 +573,7 @@ public class CommCareApplication extends Application {
 		for(String id : dbIdsToRemove) {
 			//TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
 			//(Eventually)
-			this.getDatabasePath(CommCareUserOpenHelper.getDbName(id));
+			this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
 		}
 	}
 

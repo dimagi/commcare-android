@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
+import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
@@ -25,8 +26,6 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 
 /**
  * This task is responsible for 
@@ -34,7 +33,7 @@ import android.preference.PreferenceManager;
  * @author ctsims
  *
  */
-public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes> implements TableStateListener {
+public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes, R> implements TableStateListener {
 	
 	public enum ResourceEngineOutcomes implements MessageTag {
 		/** App installed Succesfully **/
@@ -67,9 +66,7 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 		public String getCategory() { return "install_update"; }
 		
 	}
-
 	
-	ResourceEngineListener listener;
 	Context c;
 	CommCareApp app;
 	
@@ -77,29 +74,30 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	public static final int PHASE_DOWNLOAD = 1;
 	public static final int PHASE_COMMIT = 2;
 	
-	UnresolvedResourceException missingResourceException = null;
-	int badReqCode = -1;
-	private int phase = -1;  
+	protected UnresolvedResourceException missingResourceException = null;
+	protected int badReqCode = -1;
+	protected int phase = -1;  
 	boolean upgradeMode = false;
 	boolean partialMode = false;
 	boolean startOverUpgrade = true;
 	
-	String vAvailable;
-	String vRequired;
-	boolean majorIsProblem;
+	protected String vAvailable;
+	protected String vRequired;
+	protected boolean majorIsProblem;
 	
-	public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app, boolean startOverUpgrade) throws SessionUnavailableException{
+	public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app, boolean startOverUpgrade, int taskId) throws SessionUnavailableException{
 		this.partialMode = partialMode;
 		this.c = c;
 		this.upgradeMode = upgradeMode;
 		this.app = app;
 		this.startOverUpgrade = startOverUpgrade;
+		this.taskId = taskId;
 	}
 	
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
-	protected ResourceEngineOutcomes doInBackground(String... profileRefs) {
+	protected ResourceEngineOutcomes doTaskBackground(String... profileRefs) {
 		String profileRef = profileRefs[0];
 		AndroidCommCarePlatform platform = app.getCommCarePlatform();
 		SharedPreferences prefs =app.getAppPreferences();
@@ -232,37 +230,12 @@ public class ResourceEngineTask extends AsyncTask<String, int[], org.commcare.an
 	@Override
 	protected void onProgressUpdate(int[]... values) {
 		super.onProgressUpdate(values);
-		if(listener != null) {
-			listener.updateProgress(values[0][0], values[0][1], values[0][2]);
-		}
 	}
 		
-	public void setListener(ResourceEngineListener listener) {
-		this.listener = listener;
-	}
-
 	@Override
 	protected void onPostExecute(ResourceEngineOutcomes result) {
-		if(listener != null) {
-			if(result == ResourceEngineOutcomes.StatusInstalled){
-				listener.reportSuccess(true);
-			} else if(result == ResourceEngineOutcomes.StatusUpToDate){
-				listener.reportSuccess(false);
-			} else if(result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
-				listener.failMissingResource(missingResourceException, result);
-			} else if(result == ResourceEngineOutcomes.StatusBadReqs){
-				listener.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
-			} else if(result == ResourceEngineOutcomes.StatusFailState){
-				listener.failWithNotification(ResourceEngineOutcomes.StatusFailState);
-			} else if(result == ResourceEngineOutcomes.StatusNoLocalStorage) {
-				listener.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
-			} else {
-				listener.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
-			}
-		}
-		
+		super.onPostExecute(result);
 		//remove all references 
-		listener = null;
 		c = null;
 	}
 

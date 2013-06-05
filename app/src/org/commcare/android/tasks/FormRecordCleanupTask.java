@@ -3,7 +3,6 @@
  */
 package org.commcare.android.tasks;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,6 +24,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
@@ -51,13 +51,12 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.AsyncTask;
 
 /**
  * @author ctsims
  *
  */
-public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
+public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer,R> {
 	Context context;
 	CommCarePlatform platform;
 	
@@ -67,14 +66,15 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	private static final int SKIP = -2;
 	private static final int DELETE = -4;
 	
-	public FormRecordCleanupTask(Context context, CommCarePlatform platform) {
+	public FormRecordCleanupTask(Context context, CommCarePlatform platform, int taskId) {
 		this.context = context;
 		this.platform = platform;
+		this.taskId = taskId;
 	}
 	
 	
 	@Override
-	protected Integer doInBackground(Void... params) {
+	protected Integer doTaskBackground(Void... params) {
 		SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
 		
 		Vector<Integer> recordsToRemove = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_SAVED });
@@ -102,7 +102,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 		SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 		
 		for(int recordID : recordsToRemove) {
-			this.wipeRecord(-1, recordID, storage, ssdStorage);
+			wipeRecord(context, platform, -1, recordID, storage, ssdStorage);
 		}
 		
 		System.out.println("Synced: " + unindexedRecords.size() + ". Removed: " + oldrecords + " old records, and " + (recordsToRemove.size() - oldrecords) + " busted new ones");
@@ -111,7 +111,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 
 	private int cleanupRecord(FormRecord r, SqlStorage<FormRecord> storage) {
 		try {
-			FormRecord updated = getUpdatedRecord(r, FormRecord.STATUS_SAVED);
+			FormRecord updated = getUpdatedRecord(context, platform, r, FormRecord.STATUS_SAVED);
 			if(updated == null) {
 				return DELETE;
 			} else {
@@ -163,7 +163,7 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	 * @throws UnfullfilledRequirementsException 
 	 * @throws XmlPullParserException 
 	 */
-	public FormRecord getUpdatedRecord(FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+	public static FormRecord getUpdatedRecord(Context context, CommCarePlatform platform, FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		//Awful. Just... awful
 		final String[] caseIDs = new String[1];
 		final Date[] modified = new Date[] {new Date(0)};
@@ -287,28 +287,28 @@ public class FormRecordCleanupTask extends AsyncTask<Void, Integer, Integer> {
 	
 
 
-	public void wipeRecord(SessionStateDescriptor existing) {
+	public static void wipeRecord(Context c, CommCarePlatform platform,SessionStateDescriptor existing) {
 		int ssid = existing.getID();
 		int formRecordId = existing.getFormRecordId();
-		wipeRecord(ssid, formRecordId);
+		wipeRecord(c, platform, ssid, formRecordId);
 	}
 
 
-	public void wipeRecord(AndroidSessionWrapper currentState) {
+	public static void wipeRecord(Context c, CommCarePlatform platform,AndroidSessionWrapper currentState) {
 		int formRecordId = currentState.getFormRecordId();
 		int ssdId = currentState.getSessionDescriptorId();
-		wipeRecord(ssdId, formRecordId);
+		wipeRecord(c, platform, ssdId, formRecordId);
 	}
 	
-	public void wipeRecord(FormRecord record) {
-		wipeRecord(-1, record.getID());
+	public static void wipeRecord(Context c, CommCarePlatform platform, FormRecord record) {
+		wipeRecord(c, platform, -1, record.getID());
 	}
 	
-	private void wipeRecord(int sessionId, int formRecordId) {
-		wipeRecord(sessionId, formRecordId, CommCareApplication._().getUserStorage(FormRecord.class), CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
+	private static void wipeRecord(Context c, CommCarePlatform platform, int sessionId, int formRecordId) {
+		wipeRecord(c, platform, sessionId, formRecordId, CommCareApplication._().getUserStorage(FormRecord.class), CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
 	}
 	
-	private void wipeRecord(int sessionId, int formRecordId, SqlStorage<FormRecord> frStorage, SqlStorage<SessionStateDescriptor> ssdStorage) {
+	private static void wipeRecord(Context context, CommCarePlatform platform, int sessionId, int formRecordId, SqlStorage<FormRecord> frStorage, SqlStorage<SessionStateDescriptor> ssdStorage) {
 
 		if(sessionId != -1) {
 			try {

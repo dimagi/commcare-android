@@ -24,6 +24,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.LoginActivity;
@@ -48,11 +49,13 @@ import android.os.AsyncTask;
  * @author ctsims
  *
  */
-public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> implements DataSubmissionListener {
+public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
 
 	Context c;
 	String url;
 	Long[] results;
+	
+	int sendTaskId;
 	
 	public enum ProcessIssues implements MessageTag {
 		
@@ -73,6 +76,9 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		
 	}
 	
+	public static final int PROCESSING_PHASE_ID = 8;
+	public static final int SEND_PHASE_ID = 9;
+	
 	public static final long FULL_SUCCESS = 0;
 	public static final long PARTIAL_SUCCESS = 1;
 	public static final long FAILURE = 2;
@@ -87,7 +93,6 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	public static final long PROGRESS_LOGGED_OUT = 256;
 	public static final long PROGRESS_SDCARD_REMOVED = 512;
 	
-	ProcessTaskListener listener;
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
 	
@@ -98,16 +103,22 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
 	public ProcessAndSendTask(Context c, CommCarePlatform platform, String url) throws SessionUnavailableException{
+		this(c, platform, url, SEND_PHASE_ID);
+	}
+	
+	public ProcessAndSendTask(Context c, CommCarePlatform platform, String url, int sendTaskId) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		platform = this.platform;
+		this.taskId = PROCESSING_PHASE_ID;
+		this.sendTaskId = sendTaskId;
 	}
 	
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
-	protected Integer doInBackground(FormRecord... records) {
+	protected Integer doTaskBackground(FormRecord... records) {
 		boolean needToSendLogs = false;
 		try {
 		results = new Long[records.length];
@@ -127,26 +138,26 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 				} catch (InvalidStructureException e) {
 					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
-					new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					FormRecordCleanupTask.wipeRecord(c, platform, record);
 					needToSendLogs = true;
 					continue;
 				} catch (XmlPullParserException e) {
 					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
-					new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					FormRecordCleanupTask.wipeRecord(c, platform, record);
 					needToSendLogs = true;
 					continue;
 				} catch (UnfullfilledRequirementsException e) {
 					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
-					new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					FormRecordCleanupTask.wipeRecord(c, platform, record);
 					needToSendLogs = true;
 					continue;
 				} catch (FileNotFoundException e) {
 					if(CommCareApplication._().isStorageAvailable()) {
 						//If storage is available generally, this is a bug in the app design
 						Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-						new FormRecordCleanupTask(c, platform).wipeRecord(record);
+						FormRecordCleanupTask.wipeRecord(c, platform, record);
 					} else {
 						CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
 						//Otherwise, the SD card just got removed, and we need to bail anyway.
@@ -235,7 +246,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 						if(CommCareApplication._().isStorageAvailable()) {
 							//If storage is available generally, this is a bug in the app design
 							Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-							new FormRecordCleanupTask(c, platform).wipeRecord(record);
+							FormRecordCleanupTask.wipeRecord(c, platform, record);
 						} else {
 							//Otherwise, the SD card just got removed, and we need to bail anyway.
 							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
@@ -249,7 +260,7 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 					if(results[i].intValue() == FULL_SUCCESS) {
 						//Only delete if this device isn't set up to review.
 					    if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-	                    	new FormRecordCleanupTask(c, platform).wipeRecord(record);
+					    	FormRecordCleanupTask.wipeRecord(c, platform, record);
 						} else {
 							//Otherwise save and move appropriately
 							updateRecordStatus(record, FormRecord.STATUS_SAVED);
@@ -337,11 +348,11 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 	 * @see android.os.AsyncTask#onProgressUpdate(Progress[])
 	 */
 	protected void onProgressUpdate(Long... values) {
-		super.onProgressUpdate(values);
-		
-		if(values.length == 1 && values[0] == PROGRESS_ALL_PROCESSED) {
-			listener.processTaskAllProcessed();
+		if(values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
+			this.transitionPhase(sendTaskId);
 		}
+		
+		super.onProgressUpdate(values);
 		
 		if(values.length > 0 ) {
 			if(formSubmissionListener != null) {
@@ -363,30 +374,27 @@ public class ProcessAndSendTask extends AsyncTask<FormRecord, Long, Integer> imp
 		}
 	}
 	
-	public void setListeners(ProcessTaskListener listener, DataSubmissionListener submissionListener) {
-		this.listener = listener;
+	public void setListeners(DataSubmissionListener submissionListener) {
 		this.formSubmissionListener = submissionListener;
 	}
 
 	@Override
 	protected void onPostExecute(Integer result) {
-		if(listener != null) {
-			if(result == null) {
-				result = (int)FAILURE;
-			}
-			int successes = 0;
-			for(Long formResult : results) {
-				if(formResult != null && FULL_SUCCESS == formResult.intValue()) {
-					successes ++;
-				}
-			}
-			listener.processAndSendFinished(result, successes);
-		}
-		
+		super.onPostExecute(result);
 		//These will never get Zero'd otherwise
 		c = null;
 		url = null;
 		results = null;
+	}
+	
+	protected int getSuccesfulSends() {
+		int successes = 0;
+		for(Long formResult : results) {
+			if(formResult != null && FULL_SUCCESS == formResult.intValue()) {
+				successes ++;
+			}
+		}
+		return successes; 
 	}
 	
 	//Wrappers for the internal stuff

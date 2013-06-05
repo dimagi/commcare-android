@@ -38,7 +38,6 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	String url;
 	Long[] results;
 	
-	ProcessTaskListener listener;
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
 	
@@ -70,8 +69,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	}
 	
 	
-	public void setListeners(ProcessTaskListener listener, DataSubmissionListener submissionListener) {
-		this.listener = listener;
+	public void setListeners(DataSubmissionListener submissionListener) {
 		this.formSubmissionListener = submissionListener;
 	}
 

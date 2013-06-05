@@ -5,8 +5,10 @@ package org.commcare.android.database;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.storage.framework.MetaField;
@@ -129,19 +131,40 @@ public class TableBuilder {
 		return input.replace("-", "_");
 	}
 	
-	public static Pair<String, String[]> sqlList(Collection<Integer> input) {
-		//I want list comprehensions so bad right now.
-		String ret = "(";
-		for(int i : input) {
-			ret += "?" + ",";
-		}
+	//TODO: Read this from SQL, not assume from context
+	private static final int MAX_SQL_ARGS = 950;
+	
+	public static List<Pair<String, String[]>> sqlList(List<Integer> input) {
+		return sqlList(input, MAX_SQL_ARGS);
+	}
+	
+	public static List<Pair<String, String[]>> sqlList(List<Integer> input, int maxArgs) {
 		
-		String[] array = new String[input.size()];
-		int count = 0 ;
-		for(Integer i : input) {
-			array[count++] = String.valueOf(i);
+		List<Pair<String, String[]>> ops = new ArrayList<Pair<String, String[]>>();
+		
+		//figure out how many iterations we'll need
+		int numIterations = (int)Math.ceil(((double)input.size()) / maxArgs);
+		
+		for(int currentRound = 0 ; currentRound < numIterations ; ++currentRound) {
+			
+			int startPoint = currentRound * maxArgs;
+			int lastIndex = Math.min((currentRound + 1) * maxArgs, input.size()); 
+			
+			String ret = "(";
+			for(int i = startPoint ; i < lastIndex ; ++i) {
+				ret += "?" + ",";
+			}
+			
+			String[] array = new String[lastIndex - startPoint];
+			int count = 0 ;
+			for(int i = startPoint ; i < lastIndex ; ++i) {
+				array[count++] = String.valueOf(input.get(i));
+			}		
+			
+			ops.add(new Pair<String, String[]>(ret.substring(0, ret.length()-1) + ")", array));
+		
 		}
-		return new Pair<String, String[]>(ret.substring(0, ret.length()-1) + ")", array);
+		return ops;
 	}
 
 	public String getColumns() {

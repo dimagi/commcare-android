@@ -203,41 +203,7 @@ public class CommCareSessionService extends Service  {
 
     }
     
-    
-    //TODO: Write these as more first-order methods.
-    
-    //Sync task registration/detachment
-    
-    /**
-     * Registers a task to be the current modal task for CommCare.  
-     * 
-     * @param current
-     */
-    public void registerCurrentTask(DataPullTask current, String label) {
-    	if(getCurrentTask() != null) {
-   			throw new RuntimeException("There is already a modal task running! Cannot start a new one.");
-    	}
-    	
-    	mCurrentTask = current;
-    }
-    
-    public DataPullTask getCurrentTask() {
-    	if(mCurrentTask == null) {
-    		return null;
-    	} 
-    	if(mCurrentTask.getStatus() == AsyncTask.Status.FINISHED) {
-    		mCurrentTask = null;
-    		return null;
-    	}
-    	return mCurrentTask;
-    }
-    
-
-	public void detachTask() {
-		mCurrentTask = null;
-	}
-	
-	//END sync task registration/detachment
+ 
 	
     //Start CommCare Specific Functionality
 	
