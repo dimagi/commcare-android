@@ -103,14 +103,6 @@
 	    <echo>Screen Unlocked</echo>
     	
 	</target>
-    
-    <target name="all" depends="start-emulator, unlock-emulator">
-        <ant antfile="${sdk.dir}/tools/ant/build.xml" target="test">
-            
-        </ant>    
-    </target>
-    
-
     <!-- Import the actual build file.
 
          To customize existing targets, there are two options:
@@ -131,5 +123,8 @@
     -->
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
+	
+    
+    <target name="all" depends="start-emulator, unlock-emulator, clean, debug, install, test"/>
 
 </project>
