@@ -61,6 +61,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.format.DateUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
@@ -162,8 +163,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         logoutButton.setText(Localization.get("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication._().logout();
-                returnToLogin(null);
+            	if(CommCareHomeActivity.this.isInVisibleState()) {
+            		CommCareApplication._().logout();
+            		returnToLogin(null);
+            	} else {
+            		Log.i("CommCare", "Supressed logout click since screen wasn't visible");
+            	}
             }
         });
         
