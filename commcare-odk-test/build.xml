@@ -102,6 +102,8 @@
 	    <echo>Clearing emulator</echo>
 	    
 	    <exec executable="${tools.adb}" failonerror="true">
+	    	<arg value="-s"/>
+	 		<arg value="emulator-5554"/>
 	        <arg value="shell" />
 	        <arg value="pm" />
 	        <arg value="clear" />
