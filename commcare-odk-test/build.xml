@@ -74,7 +74,7 @@
 		  
 		<exec executable="${tools.emulator}">
 		    <arg value="-avd"/>
-		    <arg value=${avd.name}/>
+		    <arg value="${avd.name}"/>
     	</exec>
 		  
 		<echo>Derp</echo>
