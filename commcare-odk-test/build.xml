@@ -85,6 +85,19 @@
 		  
 	</target>
 	
+	<target name="stop-emulator" description="stop the emulator.">
+	    
+	    <echo>Stopping emulator</echo>
+	    
+	   	<exec executable="${tools.adb}">
+		    <arg value="-s"/>
+		    <arg value="emulator-5554"/>
+		    <arg value="emu"/>
+		    <arg value="kill"/>
+    	</exec>
+	    
+	</target>
+	
 	<target name="unlock-emulator" description="Unlock the screen.">
 	    
 	    <echo>Unlocking Screen</echo>
