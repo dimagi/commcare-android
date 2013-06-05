@@ -151,6 +151,8 @@
 	<target name="run-tests" if="build.run.tests">
 		<ant antfile="${dir.test.project}/build.xml" target="all" inheritAll="false" inheritRefs="false">
 			<!--property name="compile.source" value="${compile.source}"/-->
+			<property name="avd.name" value="${avd.name}"/>
+			<property name="sdk.home" value="${sdk.home}"/>
 		</ant>
 	</target>
 	
