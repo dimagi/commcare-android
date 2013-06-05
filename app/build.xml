@@ -147,7 +147,7 @@
 	</target>
 	
 	<target name="run-tests" if="build.run.tests">
-		<ant antfile="${dir.test.project" target="all" inheritAll="false" inheritRefs="false">
+		<ant antfile="${dir.test.project}/build.xml" target="all" inheritAll="false" inheritRefs="false">
 			<!--property name="compile.source" value="${compile.source}"/-->
 		</ant>
 	</target>
