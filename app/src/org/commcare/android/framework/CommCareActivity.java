@@ -156,6 +156,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		return false;
 	}
 	
+	boolean visible = false;
+	
 
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onResume()
@@ -169,6 +171,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    } else {
 	    	this.setTitle(getTitle(this, getActivityTitle()));
 	    }
+	    visible = true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onPause()
+	 */
+	@Override
+	protected void onPause() {
+		super.onPause();
+	    visible = false;
+	}
+	
+	protected boolean isInVisibleState() {
+		return visible;
 	}
 
 	/* (non-Javadoc)
