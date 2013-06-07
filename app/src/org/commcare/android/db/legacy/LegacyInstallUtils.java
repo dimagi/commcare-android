@@ -219,6 +219,9 @@ public class LegacyInstallUtils {
 		//instead of jr://file/commcare we're going to miss it here, which sucks, but otherwise we run the risk of breaking future
 		//installs
 		
+		//We supressed the file system generation, so make sure the root folder exists 
+		new File(app.storageRoot()).mkdirs();
+		
 		//Copy over the old file root
 		File oldRoot = new File(getOldFileSystemRoot());
 		String newRoot = app.fsPath("commcare/");
