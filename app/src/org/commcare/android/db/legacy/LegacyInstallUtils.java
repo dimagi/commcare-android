@@ -171,7 +171,10 @@ public class LegacyInstallUtils {
 		
 		//Ok, so fire up a seat for the new Application
 		CommCareApp app = new CommCareApp(record);
-		app.setupSandbox();
+		
+		//Don't, however, create any of the file roots, we need to keep that namespace
+		//clean to copy over files.
+		app.setupSandbox(false);
 		
 		//Ok, so. We now have a valid application record and can start moving over records.
 		//App data used to exist in three places, so we'll copy over all three
