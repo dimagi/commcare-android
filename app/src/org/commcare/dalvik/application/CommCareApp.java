@@ -100,7 +100,7 @@ public class CommCareApp {
 	 */
 	public void setupSandbox(boolean createFilePaths) {
 		synchronized(lock) {
-			if(currentSandbox != null && currentSandbox != this) {
+			if(currentSandbox != null) {
 				currentSandbox.teardownSandbox();
 			}
 			//general setup
