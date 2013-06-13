@@ -82,7 +82,7 @@ public class CommCareApp {
 	}
 
 	
-	public void initializeFileRoots() {
+	private void initializeFileRoots() {
 		fileRoot = new JavaFileRoot(storageRoot());
 		ReferenceManager._().addReferenceFactory(fileRoot);
 	}
@@ -93,7 +93,7 @@ public class CommCareApp {
 	
 	public void setupSandbox() {
 		synchronized(lock) {
-			if(currentSandbox != null && currentSandbox != this) {
+			if(currentSandbox != null) {
 				currentSandbox.teardownSandbox();
 			}
 			//general setup
