@@ -12,8 +12,8 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
-import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 
 import android.content.Context;
@@ -26,14 +26,16 @@ import android.content.Context;
  */
 public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
-	private static final int USER_DB_VERSION = 1;
+	private static final int USER_DB_VERSION = 2;
 	
 	private static final String USER_DB_LOCATOR = "database_sandbox_";
 
+	private Context context;
 
 	
 	public CommCareUserOpenHelper(Context context, String userId) {
 		super(context, getDbName(userId), null, USER_DB_VERSION);
+		this.context = context;
 	}
 	
 	public static String getDbName(String sandboxId) {
@@ -88,8 +90,24 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
-
+		boolean inSenseMode = false;
+		//TODO: Not a great way to get the current app! Pass this in to the constructor.
+		//I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
+		try {
+			if(CommCareApplication._().getCommCarePlatform() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null) {
+				if(CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && 
+				   CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
+		    		inSenseMode = true;
+		    	} 
+			} else {
+				//Hold off on update?
+			}
+		} catch(Exception e) {
+			
+		}
+		
+		
+		new UserDatabaseUpgrader(context, inSenseMode).upgrade(db, oldVersion, newVersion);
 	}
 
 }
