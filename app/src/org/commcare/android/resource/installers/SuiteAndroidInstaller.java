@@ -120,6 +120,13 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch(RuntimeException re) {
+			if(re.getMessage().contains("Parse error in XPath")){
+				throw new UnresolvedResourceException(r, re.getMessage(), true);
+			}
+			else{
+				throw re;
+			}
 		}
 		
 		return false;
