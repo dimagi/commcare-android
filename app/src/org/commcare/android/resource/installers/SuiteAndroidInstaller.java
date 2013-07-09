@@ -31,6 +31,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -120,13 +121,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch(RuntimeException re) {
-			if(re.getMessage().contains("Parse error in XPath")){
-				throw new UnresolvedResourceException(r, re.getMessage(), true);
-			}
-			else{
-				throw re;
-			}
+		} catch(XPathException xpe) {
+			xpe.printStackTrace();
+			throw new UnresolvedResourceException(r, xpe.getMessage(), true);
 		}
 		
 		return false;
