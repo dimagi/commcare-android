@@ -65,11 +65,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
 	 */
-	public Vector getIDsForValue(String fieldName, Object value) {
+	public Vector<Integer> getIDsForValue(String fieldName, Object value) {
 		return getIDsForValues(new String[] {fieldName}, new Object[] { value} );
 	}
 	
-	public Vector getIDsForValues(String[] fieldNames, Object[] values) {
+	public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
 		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {

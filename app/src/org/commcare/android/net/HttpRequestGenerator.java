@@ -180,6 +180,13 @@ public class HttpRequestGenerator {
 	public HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException {
         // setup client
         HttpClient httpclient = client();
+
+        //If we're going to try to post with no credentials, we need to be explicit about the fact that we're 
+        //not ready 
+        if(credentials == null) {
+        	url = Uri.parse(url).buildUpon().appendQueryParameter("authType", "none").build().toString();
+        }
+        
         HttpPost httppost = new HttpPost(url);
 		
         httppost.setEntity(entity);

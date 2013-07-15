@@ -34,11 +34,22 @@ public class FormRecord extends Persisted implements EncryptedModel {
 	public static final String META_XMLNS = "XMLNS";
 	public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
 	
-	public static final String STATUS_UNSENT = "unsent";
-	public static final String STATUS_INCOMPLETE = "incomplete";
-	public static final String STATUS_COMPLETE = "complete";
+	/** This form record is a stub that hasn't actually had data saved for it yet */
 	public static final String STATUS_UNSTARTED = "unstarted";
+	
+	/** This form has been saved, but has not yet been marked as completed and ready for processing */
+	public static final String STATUS_INCOMPLETE = "incomplete";
+	
+	/** User entry on this form has finished, but the form has not been processed yet */
+	public static final String STATUS_COMPLETE = "complete";
+	
+	/** The form has been processed and is ready to be sent to the server **/
+	public static final String STATUS_UNSENT = "unsent";
+	
+	/** This form has been fully processed and is being retained for viewing in the future */
 	public static final String STATUS_SAVED = "saved";
+	
+	/** This form has been downloaded, but not processed for metadata */
 	public static final String STATUS_UNINDEXED = "unindexed";
 	
 	@Persisting(1)

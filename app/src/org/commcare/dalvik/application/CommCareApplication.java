@@ -44,6 +44,7 @@ import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CallInPhoneListener;
@@ -665,12 +666,14 @@ public class CommCareApplication extends Application {
 					//Register that this user was the last to successfully log in if it's a real user
 					if(!User.TYPE_DEMO.equals(user.getUserType())) {
 						getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
+						performArchivedFormPurge(getCurrentApp(), user);
 					}
 				}
 				}
 		    }
 
-		    public void onServiceDisconnected(ComponentName className) {
+
+			public void onServiceDisconnected(ComponentName className) {
 		        // This is called when the connection with the service has been
 		        // unexpectedly disconnected -- that is, its process crashed.
 		        // Because it is running in our same process, we should never
@@ -730,6 +733,47 @@ public class CommCareApplication extends Application {
 			return isPending(lastUpdateCheck, duration);
 		}
 		return false;
+	}
+	
+	/**
+	 * Check through user storage and identify whether there are any forms which can be purged
+	 * from the device. 
+	 * 
+	 * @param app The current app
+	 * @param user The user who's storage we're reviewing
+	 */
+	private void performArchivedFormPurge(CommCareApp app, User user) {
+		int daysForReview = Integer.parseInt(app.getAppPreferences().getString("cc-review-days", "-1"));
+		
+		//If we don't define a days for review flag, we should just keep the forms around
+		//indefinitely
+		if(daysForReview == -1) {
+			return;
+		}
+		
+		SqlStorage<FormRecord> forms = this.getUserStorage(FormRecord.class);
+		
+		//Get the last date for froms to be valid (n days prior to today)
+		long lastValidDate = new Date().getTime() - daysForReview * 24 * 60 * 60 * 1000;
+		
+		Vector<Integer> toPurge = new Vector<Integer>();
+		//Get all saved forms currently in storage
+		for(int id : forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_SAVED)) {
+			String date = forms.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+			
+			//If the date the form was saved is before the last valid date, we can purge it
+			if(lastValidDate > Date.parse(date)) {
+				toPurge.add(id);
+			}
+		}
+		
+		if(toPurge.size() > 0 ) {
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Purging " + toPurge.size() + " archived forms for being before the last valid date " + new Date(lastValidDate).toString());
+			//Actually purge the old forms
+			for(int formRecord : toPurge) {
+				FormRecordCleanupTask.wipeRecord(this, app.getCommCarePlatform(),  -1, formRecord);
+			}
+		}
 	}
 	
 	private boolean isPending(long last, long period) {
