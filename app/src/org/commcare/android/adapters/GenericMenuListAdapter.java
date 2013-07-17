@@ -18,6 +18,8 @@ import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.LocalizationUtils;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -196,6 +198,12 @@ public class GenericMenuListAdapter implements ListAdapter {
 		String mQuestionText = textViewHelper(mObject);
 		if(emv == null) {
 			emv = new TextImageAudioView(context);
+		}
+		
+		//Final change, remove any numeric context requests. J2ME uses these to 
+		//help with numeric navigation.
+		if(mQuestionText != null) {
+			mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
 		}
 		emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject));
 		return emv;

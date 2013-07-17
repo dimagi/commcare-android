@@ -37,12 +37,14 @@ public class Persisted implements Persistable, IMetaData {
 	@Override
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		recordId = ExtUtil.readInt(in);
+		String currentField = null;
 		try {
 			for(Field f : getPersistedFieldsInOrder()) {
+				currentField = f.getName();
 				readVal(f, this, in, pf);
 			}
 		} catch(IllegalAccessException iae) {
-			throw new DeserializationException(iae.getMessage());
+			throw new DeserializationException(iae.getMessage()+ (currentField == null ? "" : (" for field" + currentField)));
 		}
 	}
 	
