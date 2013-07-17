@@ -44,7 +44,7 @@ public class FormUploadUtil {
 	public static final long PROGRESS_SDCARD_REMOVED = 512;
 	
 	private static long MAX_BYTES = (5 * 1048576)-1024;
-	private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3", ".wav", ".amr",".mp4", ".3gp2", ".mpg4", ".mpeg4", ".m4v", ".mpg", ".mpeg"};
+	private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3", ".wav", ".amr",".mp4", ".3gp2", ".mpg4", ".mpeg4", ".m4v", ".mpg", ".mpeg", ".qcp"};
 		
 	public static Cipher getDecryptCipher(SecretKeySpec key) {
 		Cipher cipher;
@@ -157,6 +157,14 @@ public class FormUploadUtil {
             File f = files[j];
             ContentBody fb;
             
+            boolean supported = false;
+        	for(String ext : SUPPORTED_FILE_EXTS) {
+        		if(f.getName().endsWith(ext)) {
+        			supported = true;
+        			break;
+        		}
+        	}
+            
             //TODO: Match this with some reasonable library, rather than silly file lines
             if (f.getName().endsWith(".xml")) {
             	
@@ -202,6 +210,14 @@ public class FormUploadUtil {
                 } else {
                     Log.i(t, "file " + f.getName() + " is too big");
                 }
+            } else if (supported) {
+            	 fb = new FileBody(f, "application/octet-stream");
+                 if (fb.getContentLength() <= MAX_BYTES) {
+                     entity.addPart(f.getName(), fb);
+                     Log.i(t, "added unknown file " + f.getName());
+                 } else {
+                     Log.i(t, "file " + f.getName() + " is too big");
+                 }
             } else {
                 Log.w(t, "unsupported file type, not adding file: " + f.getName());
             }
