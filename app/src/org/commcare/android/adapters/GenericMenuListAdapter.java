@@ -110,7 +110,19 @@ public class GenericMenuListAdapter implements ListAdapter {
 					continue;
 	    		}
 				if(menuID.equals(m.getRoot())){
-					items.add(m);
+					//make sure we didn't already add this ID
+					boolean idExists = false;
+					for(Object o : items) {
+						if(o instanceof Menu) {
+							if(((Menu)o).getId().equals(m.getId())){
+								idExists = true;
+								break;
+							}
+						}
+					}
+					if(!idExists) {
+						items.add(m);
+					}
 				}
 			}
 		}
