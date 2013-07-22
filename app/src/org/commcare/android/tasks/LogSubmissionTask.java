@@ -19,6 +19,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogSerializer;
@@ -206,8 +207,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 		
         //signal that it's time to start submitting the file
 		this.startSubmission(index, f.length());
-		
-		HttpRequestGenerator generator = new HttpRequestGenerator(CommCareApplication._().getSession().getLoggedInUser());
+		HttpRequestGenerator generator;
+		User user = CommCareApplication._().getSession().getLoggedInUser();
+	    if(user.getUserType().equals(User.TYPE_DEMO)) {
+	    	generator = new HttpRequestGenerator();
+	    } else {
+	    	generator = new HttpRequestGenerator(CommCareApplication._().getSession().getLoggedInUser());
+	    }
         
         // mime post
         MultipartEntity entity = new DataSubmissionEntity(this, index);
