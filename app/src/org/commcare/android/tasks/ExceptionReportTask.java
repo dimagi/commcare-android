@@ -29,17 +29,16 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogSerializer;
 import org.commcare.android.javarosa.DeviceReportWriter;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.log.LogEntry;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 
 
 /**
@@ -123,7 +122,12 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
         
         HttpRequestGenerator generator;
         try {
-        	generator = new HttpRequestGenerator(CommCareApplication._().getSession().getLoggedInUser());
+        	User user = CommCareApplication._().getSession().getLoggedInUser();
+            if(user.getUserType().equals(User.TYPE_DEMO)) {
+            	generator = new HttpRequestGenerator();
+            } else {
+            	generator = new HttpRequestGenerator(user);
+            }
         } catch(Exception e){
         	generator = new HttpRequestGenerator();
         }
