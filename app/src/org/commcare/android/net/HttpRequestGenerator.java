@@ -50,8 +50,16 @@ import android.util.Log;
  */
 public class HttpRequestGenerator {
 	
+	
+	public static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
 
 	public static final String LOG_COMMCARE_NETWORK = "commcare-network";
+	
+	public static final String AUTH_REQUEST_TYPE = "authtype";
+	
+	public static final String AUTH_REQUEST_TYPE_NO_AUTH = "noauth";
+	
+	
 	private Credentials credentials;
 	private String username;
 
@@ -64,8 +72,8 @@ public class HttpRequestGenerator {
 		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 		
 		//TODO: We do this in a lot of places, we should wrap it somewhere
-		if(prefs.contains("cc_user_domain")) {
-			domainedUsername += "@" + prefs.getString("cc_user_domain",null);
+		if(prefs.contains(USER_DOMAIN_SUFFIX)) {
+			domainedUsername += "@" + prefs.getString(USER_DOMAIN_SUFFIX,null);
 		}
 
 		
@@ -184,7 +192,7 @@ public class HttpRequestGenerator {
         //If we're going to try to post with no credentials, we need to be explicit about the fact that we're 
         //not ready 
         if(credentials == null) {
-        	url = Uri.parse(url).buildUpon().appendQueryParameter("authtype", "noauth").build().toString();
+        	url = Uri.parse(url).buildUpon().appendQueryParameter(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH).build().toString();
         }
         
         HttpPost httppost = new HttpPost(url);
