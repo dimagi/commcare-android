@@ -41,7 +41,6 @@ public class EncryptedFileBody extends AbstractContentBody {
 
 	public String getCharset() {
 		return MIME.DEFAULT_CHARSET.name();
-		
 	}
 
 	public long getContentLength() {

@@ -212,7 +212,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 	    if(user.getUserType().equals(User.TYPE_DEMO)) {
 	    	generator = new HttpRequestGenerator();
 	    } else {
-	    	generator = new HttpRequestGenerator(CommCareApplication._().getSession().getLoggedInUser());
+	    	generator = new HttpRequestGenerator(user);
 	    }
         
         // mime post
