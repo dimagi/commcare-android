@@ -50,13 +50,15 @@ import android.util.Log;
  */
 public class HttpRequestGenerator {
 	
-	
+	/** A possible domain that further qualifies the username of any account in use */
 	public static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
 
 	public static final String LOG_COMMCARE_NETWORK = "commcare-network";
 	
+	/** The type of authentication that we're capable of providing to the server (digest if this isn't present) */
 	public static final String AUTH_REQUEST_TYPE = "authtype";
 	
+	/** No Authentication will be possible, there isn't a user account to authenticate this request */
 	public static final String AUTH_REQUEST_TYPE_NO_AUTH = "noauth";
 	
 	
