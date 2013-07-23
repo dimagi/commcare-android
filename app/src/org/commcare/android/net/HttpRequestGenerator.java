@@ -56,7 +56,7 @@ public class HttpRequestGenerator {
 	private String username;
 
 	public HttpRequestGenerator(User user) {
-		this(user.getUsername(), user.getPassword());
+		this(user.getUsername(), user.getCachedPwd());
 	}
 	public HttpRequestGenerator(String username, String password) {
     	String domainedUsername = username; 
@@ -184,11 +184,11 @@ public class HttpRequestGenerator {
         //If we're going to try to post with no credentials, we need to be explicit about the fact that we're 
         //not ready 
         if(credentials == null) {
-        	url = Uri.parse(url).buildUpon().appendQueryParameter("authType", "none").build().toString();
+        	url = Uri.parse(url).buildUpon().appendQueryParameter("authtype", "noauth").build().toString();
         }
         
         HttpPost httppost = new HttpPost(url);
-		
+        
         httppost.setEntity(entity);
         addHeaders(httppost, this.getSyncToken(username));
         
