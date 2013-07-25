@@ -452,6 +452,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
 					} else if(result == ResourceEngineOutcomes.StatusNoLocalStorage) {
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
+					} else if(result == ResourceEngineOutcomes.StatusBadCertificate){
+						receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
 					} else {
 						receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
 					}
@@ -683,7 +685,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				setModeToError(Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()}),canRetry);
 			} else {
 				setModeToError(message.getDetails(),canRetry);
-				mainMessage.setText(message.getDetails());
+				
+				String fullErrorMessage = message.getDetails();
+				
+				if(alwaysNotify){
+					fullErrorMessage = fullErrorMessage + message.getAction();
+				}
+				
+				mainMessage.setText(fullErrorMessage);
 			}
 		}
 	}

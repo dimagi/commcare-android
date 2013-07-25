@@ -3,8 +3,11 @@
  */
 package org.commcare.android.tasks;
 
+import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Vector;
+
+import javax.net.ssl.SSLHandshakeException;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
@@ -58,7 +61,10 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 		StatusNoLocalStorage("notification.install.nolocal"),
 		
 		/** Install is fine **/
-		StatusUpToDate("notification.install.uptodate");
+		StatusUpToDate("notification.install.uptodate"),
+		
+		/** Certificate was bad **/
+		StatusBadCertificate("notification.install.badcert");
 		
 		ResourceEngineOutcomes(String root) {this.root = root;}
 		private final String root;
@@ -200,7 +206,16 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 			
 			tryToClearApp();
 			
-			missingResourceException = e; 
+			Throwable mExceptionCause = e.getCause();
+			
+			if(mExceptionCause instanceof SSLHandshakeException){		
+				Throwable mSecondExceptionCause = mExceptionCause.getCause();
+				if(mSecondExceptionCause instanceof CertificateException){
+					return ResourceEngineOutcomes.StatusBadCertificate;
+				}
+			}
+			
+			missingResourceException = e;
 			Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "A resource couldn't be found, almost certainly due to the network|" + e.getMessage());
 			if(e.isMessageUseful()) {
 				return ResourceEngineOutcomes.StatusMissingDetails;

@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 
+import javax.net.ssl.SSLHandshakeException;
+
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidStreamUtil;
@@ -99,7 +101,15 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 				throw new UnresolvedResourceException(r, "After install there is no local resource location");
 			}
 			return true;
-		} catch (IOException e) {
+		} catch(SSLHandshakeException she){
+			she.printStackTrace();
+			
+			UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
+			mURE.initCause(she);
+			
+			throw mURE;
+			
+		} catch (IOException e) { 
 			e.printStackTrace();
 			throw new UnreliableSourceException(r, e.getMessage());
 		}

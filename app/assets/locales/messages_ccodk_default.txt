@@ -272,6 +272,14 @@ notification.install.missing.withmessage.title=Part of your app is not valid
 notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
 notification.install.missing.withmessage.action=Installation error: ${0}
 
+notification.install.badcert.title=Bad Certificate
+notification.install.badcert.detail=The certificate you received from the server was invalid. This can be casued by many things, but is often do to a mis-set clock on your phone.
+notification.install.badcert.action=This is often due to your phone's internal clock being incorrect.
+
+notification.install.badcert.title=Bad Certificate
+notification.install.badcert.detail=The certificate you received from the server was invalid. This can be casued by many things, but is often do to a mis-set clock on your phone.
+notification.install.badcert.action=This is often due to your phone's internal clock being incorrect.
+
 notification.install.badreqs.title=Incompatible CommCare Version for Install
 notification.install.badreqs.detail=${0}
 notification.install.badreqs.action=${0}
