@@ -67,7 +67,7 @@ public class CommCareApp {
 		return CommCareApplication._().getAndroidFsRoot() + "app/" + record.getApplicationId() + "/";
 	}
 	
-    private void createPaths() {
+    public void createPaths() {
     	String[] paths = new String[] {"", GlobalConstants.FILE_CC_INSTALL, GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE, GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA, GlobalConstants.FILE_CC_LOGS, GlobalConstants.FILE_CC_ATTACHMENTS};
     	for(String path : paths) {
     		File f = new File(fsPath(path));
@@ -92,12 +92,21 @@ public class CommCareApp {
 	}
 	
 	public void setupSandbox() {
+		setupSandbox(true);
+	}
+	
+	/**
+	 * @param createFilePaths True if file paths should be created as usual. False otherwise
+	 */
+	public void setupSandbox(boolean createFilePaths) {
 		synchronized(lock) {
 			if(currentSandbox != null) {
 				currentSandbox.teardownSandbox();
 			}
 			//general setup
-			createPaths();
+			if(createFilePaths) {
+				createPaths();
+			}
 			initializeFileRoots();
 			currentSandbox = this;
 		}

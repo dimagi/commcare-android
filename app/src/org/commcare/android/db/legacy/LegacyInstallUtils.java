@@ -171,7 +171,10 @@ public class LegacyInstallUtils {
 		
 		//Ok, so fire up a seat for the new Application
 		CommCareApp app = new CommCareApp(record);
-		app.setupSandbox();
+		
+		//Don't, however, create any of the file roots, we need to keep that namespace
+		//clean to copy over files.
+		app.setupSandbox(false);
 		
 		//Ok, so. We now have a valid application record and can start moving over records.
 		//App data used to exist in three places, so we'll copy over all three
@@ -215,6 +218,9 @@ public class LegacyInstallUtils {
 		//but form records and such will still need to be updated. Unfortunately if people have placed their media in jr://file
 		//instead of jr://file/commcare we're going to miss it here, which sucks, but otherwise we run the risk of breaking future
 		//installs
+		
+		//We supressed the file system generation, so make sure the root folder exists 
+		new File(app.storageRoot()).mkdirs();
 		
 		//Copy over the old file root
 		File oldRoot = new File(getOldFileSystemRoot());
