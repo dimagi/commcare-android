@@ -108,6 +108,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	
 	Intent selectedIntent = null;
 	
+	String filterString = "";
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -450,8 +452,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 	public void afterTextChanged(Editable s) {
 		if(searchbox.getText() == s) {
+			filterString = s.toString();
 			if(adapter != null) {
-				adapter.applyFilter(s.toString());
+				adapter.applyFilter(filterString);
 			}
 		}
 	}
@@ -598,6 +601,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		view.setAdapter(adapter);
 		
 		findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+		
+		if(adapter != null) {
+			adapter.applyFilter(filterString);
+		}
 		
 		//In landscape we want to select something now. Either the top item, or the most recently selected one
 		if(inAwesomeMode) {
