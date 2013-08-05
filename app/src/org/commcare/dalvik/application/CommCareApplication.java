@@ -723,9 +723,11 @@ public class CommCareApplication extends Application {
 			preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE, false);
 			return true;
 		}
+		
+		System.out.println("805 getpendingupdatestatus, autoupdate: " + autoUpdateFreq + ", .fn: " + CommCarePreferences.FREQUENCY_NEVER);
 
 		//See if auto update is even turned on
-		if(autoUpdateFreq != CommCarePreferences.FREQUENCY_NEVER) {
+		if(!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
 			long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
 
 			long duration = (24*60*60*100) * (autoUpdateFreq == CommCarePreferences.FREQUENCY_DAILY ? 1 : 7);
