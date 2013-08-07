@@ -40,7 +40,6 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 
 /**
  * @author ctsims
@@ -53,7 +52,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 	public static final long SUBMISSION_START = 32;
 	public static final long SUBMISSION_NOTIFY = 64;
 	public static final long SUBMISSION_DONE = 128;
-
 	
 	public enum LogSubmitOutcomes implements MessageTag {
 		
@@ -70,13 +68,15 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 		private final String root;
 		public String getLocaleKeyBase() { return root;}
 		public String getCategory() { return "log_submission"; }
-		
+	
 	}
 	
 	private Context c;
 	private boolean serializeCurrentLogs = false;
 	private DataSubmissionListener listener;
 	private String submissionUrl;
+	
+	public static String LOGS_UNSUBMITTED_CATEGORY = "logs-unsubmitted";
 	
 	public LogSubmissionTask(Context c, boolean serializeCurrentLogs, DataSubmissionListener listener, String submissionUrl) {
 		this.c = c;
@@ -326,7 +326,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 		super.onPostExecute(result);
 		listener.endSubmissionProcess();
 		if(result != LogSubmitOutcomes.Submitted) {
-			CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
+			CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result, LOGS_UNSUBMITTED_CATEGORY));
+		} else{
+			CommCareApplication._().clearNotifications(LOGS_UNSUBMITTED_CATEGORY);
 		}
 	}
 
