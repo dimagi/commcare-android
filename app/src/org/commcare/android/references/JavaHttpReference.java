@@ -10,9 +10,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.http.HttpResponse;
+import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 
@@ -43,6 +45,8 @@ public class JavaHttpReference implements Reference {
 	public OutputStream getOutputStream() throws IOException {
 		throw new IOException("Http references are read only!");
 	}
+	
+	HttpRequestGenerator generator;
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.reference.Reference#getStream()
@@ -50,7 +54,12 @@ public class JavaHttpReference implements Reference {
 	public InputStream getStream() throws IOException {
 		URL url = new URL(uri);
 		
-		return new HttpRequestGenerator().simpleGet(url);
+		//this is not a great way to do this...
+		if(generator == null) {
+				generator = new HttpRequestGenerator();
+        }
+		
+		return generator.simpleGet(url);
 	}
 
 	/* (non-Javadoc)
@@ -81,5 +90,10 @@ public class JavaHttpReference implements Reference {
 
 	public Reference[] probeAlternativeReferences() {
 		return new Reference [0];
+	}
+
+
+	public void setHttpRequestor(HttpRequestGenerator generator) {
+		this.generator = generator;
 	}
 }

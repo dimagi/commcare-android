@@ -5,7 +5,9 @@ package org.commcare.android.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Date;
 import java.util.Vector;
@@ -63,6 +65,7 @@ public class HttpRequestGenerator {
 	
 	
 	private Credentials credentials;
+	PasswordAuthentication passwordAuthentication;
 	private String username;
 
 	public HttpRequestGenerator(User user) {
@@ -80,6 +83,8 @@ public class HttpRequestGenerator {
 
 		
 		this.credentials = new UsernamePasswordCredentials(domainedUsername, password);
+		
+		passwordAuthentication = new PasswordAuthentication (username, password.toCharArray());
 		this.username = username;
 	}
 	
@@ -277,31 +282,48 @@ public class HttpRequestGenerator {
 		
 	     // only for versions past gingerbread use the HttpURLConnection
 		if (android.os.Build.VERSION.SDK_INT > 11) {
+			
+			if(passwordAuthentication != null) {
+		 		Authenticator.setDefault(new Authenticator() {
+					  protected PasswordAuthentication getPasswordAuthentication() {
+						  return passwordAuthentication;
+					  }
+		 		});
+			}
+			
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			setup(con);
 			// Start the query
 			con.connect();
-			//It's possible we're getting redirected from http to https
-			//if so, we need to handle it explicitly
-			if(con.getResponseCode() == 301) {
-				//only allow one level of redirection here for now.	
-				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Attempting 1 stage redirect from " + url.toString() + " to " + con.getURL().toString());
-				URL newUrl = con.getURL();
-				con.disconnect();
-				con = (HttpURLConnection) newUrl.openConnection();
-				setup(con);
-				con.connect();
+			
+			try {
+				int responseCode = con.getResponseCode();
+				//It's possible we're getting redirected from http to https
+				//if so, we need to handle it explicitly
+				if(responseCode == 301) {
+					//only allow one level of redirection here for now.	
+					Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Attempting 1 stage redirect from " + url.toString() + " to " + con.getURL().toString());
+					URL newUrl = con.getURL();
+					con.disconnect();
+					con = (HttpURLConnection) newUrl.openConnection();
+					setup(con);
+					con.connect();
+				}
+				
+				//Don't allow redirects _from_ https _to_ https unless they are redirecting to the same server.
+				if(!HttpRequestGenerator.isValidRedirect(url, con.getURL())) {
+					Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + url.toString() + " to " + con.getURL().toString());
+					throw new IOException("Invalid redirect from secure server to insecure server");
+				}
+				
+				return con.getInputStream();
+			} catch(IOException e) {
+				if(e.getMessage().toLowerCase().contains("authentication")) {
+					//Android http libraries _suuuuuck_, let's try apache.
+				} else {
+					throw e;
+				}
 			}
-			
-			//Don't allow redirects _from_ https _to_ https unless they are redirecting to the same server.
-			if(!HttpRequestGenerator.isValidRedirect(url, con.getURL())) {
-				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + url.toString() + " to " + con.getURL().toString());
-				throw new IOException("Invalid redirect from secure server to insecure server");
-			}
-			
-			return con.getInputStream();
-
-			
 		}
 
 		//On earlier versions of android use the apache libraries, they work much much better.

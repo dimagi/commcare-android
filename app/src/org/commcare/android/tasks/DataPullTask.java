@@ -128,8 +128,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 		
     	//This should be per _user_, not per app
 		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
+		
+		HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
 	    
-		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c) {
+		CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c, requestor) {
 			boolean publishedAuth = false;
 			@Override
 			public void reportProgress(int progress) {
@@ -142,8 +144,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 		Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
 
 		UserKeyRecord ukr = null;
-		
-		HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
 			
 			try {
 				//This is a dangerous way to do this (the null settings), should revisit later

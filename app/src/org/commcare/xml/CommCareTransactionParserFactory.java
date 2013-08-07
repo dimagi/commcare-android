@@ -8,6 +8,7 @@ import java.util.Hashtable;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
@@ -34,12 +35,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	private TransactionParserFactory fixtureParser;
 	
 	private Hashtable<String, String> formInstanceNamespaces;
+	HttpRequestGenerator generator;
 	
 	int requests = 0;
 	String syncToken;
 	
-	public CommCareTransactionParserFactory(Context context) {
+	public CommCareTransactionParserFactory(Context context, HttpRequestGenerator generator) {
 		this.context = context;
+		this.generator = generator;
 		fixtureParser = new TransactionParserFactory() {
 			FixtureXmlParser created = null;
 			
@@ -63,6 +66,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			}
 		}; 
 	}
+	
 	
 	/* (non-Javadoc)
 	 * @see org.commcare.data.xml.TransactionParserFactory#getParser(java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
@@ -141,7 +145,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			
 			public TransactionParser<Case> getParser(String name, String namespace, KXmlParser parser) {
 				if(created == null) {
-					created = new AndroidCaseXmlParser(parser, tallies, true, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+					created = new AndroidCaseXmlParser(parser, tallies, true, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class), generator);
 				}
 				
 				return created;
