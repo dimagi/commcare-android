@@ -37,7 +37,7 @@
             android:id="@+id/home.start"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Get Started" android:drawableLeft="@drawable/pencil" style="@style/TopPane"/>
+            android:text="Start" android:drawableLeft="@drawable/pencil" style="@style/TopPane"/>
 
         <LinearLayout
             android:id="@+id/home.formspanel"
