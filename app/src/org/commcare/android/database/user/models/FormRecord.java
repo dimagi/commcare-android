@@ -102,7 +102,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
 	}
 	
 	public Uri getInstanceURI() {
-		if(instanceURI == "") { return null; }
+		if("".equals(instanceURI)) { return null; }
 		return Uri.parse(instanceURI);
 	}
 	
