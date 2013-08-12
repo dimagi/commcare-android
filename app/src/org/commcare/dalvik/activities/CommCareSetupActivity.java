@@ -311,6 +311,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		//Moved here to properly attach fragments and such.
 		//NOTE: May need to do so elsewhere as well.
 		if(upgradeMode) {
+			setModeToAutoUpgrade();
 			mainMessage.setText(Localization.get("updates.check"));
 			startResourceInstall();
 		}
@@ -507,6 +508,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
     
+    public void setModeToAutoUpgrade(){
+    	mScanBarcodeButton.setVisibility(View.GONE);
+    	installButton.setVisibility(View.GONE);
+    	startOverButton.setVisibility(View.GONE);
+    	addressEntryButton.setVisibility(View.GONE);
+    	retryButton.setVisibility(View.GONE);
+    }
+    
     public void setModeToReady(String incomingRef) {
     	this.uiState = UiState.ready;
     	mainMessage.setText(Localization.get("install.ready"));
@@ -514,6 +523,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.VISIBLE);
+    	startOverButton.setText(Localization.get("install.button.startover"));
     	startOverButton.setVisibility(View.VISIBLE);
     	addressEntryButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
@@ -527,12 +537,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	installButton.setVisibility(View.GONE);
     	startOverButton.setVisibility(View.VISIBLE);
     	addressEntryButton.setVisibility(View.GONE);
+    	
+    	if(upgradeMode){
+        	retryButton.setText(Localization.get("upgrade.button.retry"));
+        	startOverButton.setText(Localization.get("upgrade.button.startover"));
+    	}
+    	else{
+        	retryButton.setText(Localization.get("install.button.retry"));
+        	startOverButton.setText(Localization.get("install.button.startover"));
+    	}
+    	
     	if(canRetry){
     		retryButton.setVisibility(View.VISIBLE);
     	}
     	else{
     		retryButton.setVisibility(View.GONE);
     	}
+    	
+    	
     }
     
     public void setModeToBasic(){
@@ -563,6 +585,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	mScanBarcodeButton.setVisibility(View.GONE);
     	addressEntryButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
+        startOverButton.setText(Localization.get("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
     	installButton.setEnabled(true);
     	retryButton.setVisibility(View.GONE);
@@ -611,6 +634,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             if(upgradeMode) {
             	mProgressDialog.setTitle(Localization.get("updates.title"));
             	mProgressDialog.setMessage(Localization.get("updates.checking"));
+            	setModeToAutoUpgrade();
             } else {
             	mProgressDialog.setTitle(Localization.get("updates.resources.initialization"));
             	mProgressDialog.setMessage(Localization.get("updates.resources.profile"));
