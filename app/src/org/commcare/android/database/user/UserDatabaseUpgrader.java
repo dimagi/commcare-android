@@ -31,35 +31,56 @@ public class UserDatabaseUpgrader {
 				oldVersion = 2;
 			}
 		}
+		
+		if(oldVersion == 2) {
+			if(upgradeTwoThree(db, oldVersion, newVersion)) {
+				oldVersion = 3;
+			}
+		}
 	}
 	
 	private boolean upgradeOneTwo(final SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.beginTransaction();
 		try {
-			//Fix for Bug in 2.7.0/1, forms in sense mode weren't being properly marked as complete after entry.
-			if(inSenseMode) {
-				
-				//Get form record storage
-				SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, new DbHelper(c){
-					@Override
-					public SQLiteDatabase getHandle() {
-						return db;
-					}
-				});
-				
-				//Iterate through all forms currently saved
-				for(FormRecord record : storage) {
-					//Update forms marked as incomplete with the appropriate status
-					if(FormRecord.STATUS_INCOMPLETE.equals(record.getStatus())) {
-						//update to complete to process/send.
-						storage.write(record.updateStatus(record.getInstanceURI().toString(), FormRecord.STATUS_COMPLETE));
-					}
-				}				
-			}
+			markSenseIncompleteUnsent(db);
 			db.setTransactionSuccessful();
 			return true;
 		} finally {
 			db.endTransaction();
+		}
+	}
+	
+	private boolean upgradeTwoThree(final SQLiteDatabase db, int oldVersion, int newVersion) {
+		db.beginTransaction();
+		try {
+			markSenseIncompleteUnsent(db);
+			db.setTransactionSuccessful();
+			return true;
+		} finally {
+			db.endTransaction();
+		}
+	}
+
+	private void markSenseIncompleteUnsent(final SQLiteDatabase db) {
+		//Fix for Bug in 2.7.0/1, forms in sense mode weren't being properly marked as complete after entry.
+		if(inSenseMode) {
+			
+			//Get form record storage
+			SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, new DbHelper(c){
+				@Override
+				public SQLiteDatabase getHandle() {
+					return db;
+				}
+			});
+			
+			//Iterate through all forms currently saved
+			for(FormRecord record : storage) {
+				//Update forms marked as incomplete with the appropriate status
+				if(FormRecord.STATUS_INCOMPLETE.equals(record.getStatus())) {
+					//update to complete to process/send.
+					storage.write(record.updateStatus(record.getInstanceURI().toString(), FormRecord.STATUS_COMPLETE));
+				}
+			}				
 		}
 	}
 
