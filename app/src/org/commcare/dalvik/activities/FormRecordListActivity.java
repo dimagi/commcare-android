@@ -142,13 +142,10 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 	        if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
 	        	String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
 	        	if(incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
-	        		setTitle(getString(R.string.application_name) + " > " + Localization.get("app.workflow.incomplete.heading"));
 	        		//special case, no special filtering options
 	        		filter = FormRecordFilter.Incomplete;
 	        	}
 	        } else {
-	        	setTitle(getString(R.string.application_name) + " > " + Localization.get("app.workflow.saved.heading"));
-	        	
 	        	filter = FormRecordFilter.SubmittedAndPending; 
 
 	        	FormRecordFilter[] filters = FormRecordFilter.values();
@@ -186,6 +183,14 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         	//TODO: session is dead, login and return
         }
     }
+    
+	public String getActivityTitle() {
+		if(adapter.getFilter() == FormRecordFilter.Incomplete) {
+			return Localization.get("app.workflow.incomplete.heading");
+		} else {
+			return Localization.get("app.workflow.saved.heading");
+		}
+	}
 
 
     /**
