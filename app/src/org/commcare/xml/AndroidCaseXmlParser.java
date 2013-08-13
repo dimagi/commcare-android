@@ -4,6 +4,7 @@
 package org.commcare.xml;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -11,6 +12,7 @@ import javax.crypto.Cipher;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.references.JavaHttpReference;
@@ -21,10 +23,12 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 
+import android.net.ParseException;
 import android.net.Uri;
 import android.util.Pair;
 
@@ -83,8 +87,9 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 	protected String processAttachment(String src, String from, String name, KXmlParser parser) {
 		if(!processAttachments) { return null;}
 		
-		//Parse from the local environment
+		//We need to figure out whether or not the attachment is local to the device or in a remote location.
 		if(CaseXmlParser.ATTACHMENT_FROM_LOCAL.equals(from)) {
+			//Parse from the local environment
 			if(folder == null) { return null; }
 			File source = new File(folder, src);
 
@@ -98,7 +103,8 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 			}
 			
 			return dest.second;
-		} else if(CaseXmlParser.ATTACHMENT_FROM_REMOTE.equals(from)) { 
+		} else if(CaseXmlParser.ATTACHMENT_FROM_REMOTE.equals(from)) {
+			//The attachment is in remote location.
 			try {
 				Reference remote = ReferenceManager._().DeriveReference(src);
 				
@@ -108,29 +114,64 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 				}
 				
 				
-				//TODO: Proper URL here
+				//TODO: Proper URL here	
 				Pair<File, String> dest = getDestination(src);
 				
-				if(dest.first.exists()) { dest.first.delete(); }
-				dest.first.createNewFile();
-				AndroidStreamUtil.writeFromInputToOutput(remote.getStream(), new FileOutputStream(dest.first));
+				boolean readAttachment = false;
+				
+				int tries = 2;
+				for(int i = 1 ; i <= tries ; i++) {
+					
+					//Delete any existing file where the incoming file is going
+					//(only relevant if we're retrying)
+					if(dest.first.exists()) { dest.first.delete(); }
+					
+					try {
+						dest.first.createNewFile();
+					} catch(IOException fe) {
+						Logger.log(AndroidLogger.TYPE_RESOURCES, "Couldn't create placeholder for new file at " + dest.first.getAbsolutePath());
+					}
+					try {
+						AndroidStreamUtil.writeFromInputToOutput(remote.getStream(), new FileOutputStream(dest.first));
+						readAttachment = true;
+						break;
+					} catch (IOException e) {
+						Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Failed reading (attempt #" + tries + ") attachment from " + src);
+					}
+				}
+				
+				if(!readAttachment ) {
+					Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Failed to read attachment from " + src);
+					return null;
+				}
 				
 				return dest.second;
 				//TODO:  Don't Pass code review without fixing this exception handling
-			} catch(Exception e) {
-				e.printStackTrace();
+			} catch(ParseException e) {
+				
+			} catch (InvalidReferenceException e) {
+				//We can't go fetch this resource because we don't have access to the reference type
+				Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Couldn't find attachment at reference " + e.getReferenceString());
+				return null;
 			}
 			return null;
 		}
 		return null;
 	}
 	
+	/**
+	 * Find the location for a local attachment. This location will be in the attachment
+	 * folder, and will share the extension of the source file if available. The filename
+	 * will be randomized, however.
+	 * 
+	 * @param source the full path of the source of the attachment.
+	 * @return
+	 */
 	private Pair<File, String> getDestination(String source) {
 		File storagePath = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_ATTACHMENTS));
 		String dest = PropertyUtils.genUUID().replace("-", "");
 		
 		//add an extension
-		//TODO: getLastPathSegment could be null
 		String fileName = Uri.parse(source).getLastPathSegment();
 		if(fileName != null) {
 			int lastDot = fileName.lastIndexOf(".");
