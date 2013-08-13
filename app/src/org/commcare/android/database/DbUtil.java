@@ -31,14 +31,8 @@ public class DbUtil {
 		PrefixTree tree = new PrefixTree();
 		
 		try {
-		List<String> classes = getClasses("org.javarosa", c);
+		List<String> classes = getClasses(new String[] { "org.javarosa", "org.commcare"}, c);
 		for(String cl : classes) {
-			//Log.i("CLASS", cl);
-			tree.addString(cl);
-		}
-		classes = getClasses("org.commcare", c);
-		for(String cl : classes) {
-			//Log.i("CLASS", cl);
 			tree.addString(cl);
 		}
 		} catch(Exception e) {
@@ -59,7 +53,7 @@ public class DbUtil {
     * @throws IOException
     */
    @SuppressWarnings("unchecked")
-	private static List<String> getClasses(String packageName, Context c)
+	private static List<String> getClasses(String[] packageNames, Context c)
            throws IOException 
    {
        ArrayList<String> classNames = new ArrayList<String>();
@@ -75,25 +69,31 @@ public class DbUtil {
 	   for(Enumeration<String> en = df.entries() ; en.hasMoreElements() ;) {
 		   String cn = en.nextElement();
 		   try{
+			   for(String packageName : packageNames) {
 
-		   if(cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
-				   Class prototype = Class.forName(cn);
-				   if(prototype.isInterface()) {
-					   continue;
-				   }
-				   boolean emptyc = false;
-				   for(Constructor<?> cons : prototype.getConstructors()) {
-					   if(cons.getParameterTypes().length == 0){
-						   emptyc = true;
+				   if(cn.startsWith(packageName) && !cn.startsWith("org.commcare.dalvik") && !cn.contains(".test.") && !cn.contains("readystatesoftware") ) {
+					   
+					   //TODO: These optimize by preventing us from statically loading classes we don't need, but they take a _long_ time to run. 
+					   //Maybe we should skip this and/or roll it into initializing the factory itself.
+					   Class prototype = Class.forName(cn);
+					   if(prototype.isInterface()) {
+						   continue;
 					   }
-				   }
-				   if(!emptyc) {
-					   continue;
-				   }
-				   if(Externalizable.class.isAssignableFrom(prototype)) {
+					   boolean emptyc = false;
+					   for(Constructor<?> cons : prototype.getConstructors()) {
+						   if(cons.getParameterTypes().length == 0){
+							   emptyc = true;
+						   }
+					   }
+					   if(!emptyc) {
+						   continue;
+					   }
+					   if(Externalizable.class.isAssignableFrom(prototype)) {
+						   classNames.add(cn);
+					   }
 					   classNames.add(cn);
 				   }
-		   		}
+			   }
 		   } catch(IllegalAccessError e) {
 			   //nothing
 		   } catch (SecurityException e) {

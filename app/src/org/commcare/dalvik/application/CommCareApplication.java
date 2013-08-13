@@ -146,9 +146,7 @@ public class CommCareApplication extends Application {
 		PropertyManager.setPropertyManager(new ODKPropertyManager());
 		
         SQLiteDatabase.loadLibs(this);
-        
-        AndroidSharedKeyRecord.generateNewSharingKey();
-		
+        		
 		setRoots();
 		
 		//Init global storage (Just application records, logs, etc)
