@@ -68,7 +68,7 @@ public class StateFragment extends Fragment {
 	  @Override
 	  public void onDetach() {
 	    super.onDetach();
-	    if(this.lastActivity != null) {
+	    if(this.boundActivity != null) {
 	    	lastActivity = boundActivity;
 	    }
 		if(currentTask != null) {

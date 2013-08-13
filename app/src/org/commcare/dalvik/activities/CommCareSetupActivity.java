@@ -7,6 +7,7 @@ package org.commcare.dalvik.activities;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
 import org.commcare.android.framework.WrappingSpinnerAdapter;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -42,6 +43,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -88,6 +90,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	String incomingRef;
 	
 	View advancedView;
+	@UiElement(R.id.screen_first_start_bottom)
+	View buttonView;
 	EditText editProfileRef;
 	TextView mainMessage;
 	Spinner urlSpinner;
@@ -112,8 +116,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {	
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
 		
 		//Grab Views
 		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
@@ -291,6 +297,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
              }
         });
+        
+        // reclaim ccApp for resuming installation
+        if(oldActivity != null) {
+        	this.ccApp = oldActivity.ccApp;
+        }
         
         //Before we get stared, we need to see whether we've started an install before, this determines whether we 
         //want to continue in partial mode if, for instance, the app shut down after trying to install. This will be
@@ -509,14 +520,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToAutoUpgrade(){
-    	mScanBarcodeButton.setVisibility(View.GONE);
-    	installButton.setVisibility(View.GONE);
-    	startOverButton.setVisibility(View.GONE);
-    	addressEntryButton.setVisibility(View.GONE);
-    	retryButton.setVisibility(View.GONE);
+    	buttonView.setVisibility(View.INVISIBLE);
     }
     
     public void setModeToReady(String incomingRef) {
+    	buttonView.setVisibility(View.VISIBLE);
     	this.uiState = UiState.ready;
     	mainMessage.setText(Localization.get("install.ready"));
 		editProfileRef.setText(incomingRef);
@@ -530,6 +538,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToError(String message, boolean canRetry){
+    	buttonView.setVisibility(View.VISIBLE);
     	this.uiState = UiState.error;
     	mainMessage.setText(message);
     	advancedView.setVisibility(View.GONE);
@@ -563,6 +572,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     public void setModeToBasic(String message){
     	this.uiState = UiState.basic;
+    	buttonView.setVisibility(View.VISIBLE);
     	editProfileRef.setText("");	
     	this.incomingRef = null;
     	mainMessage.setText(message);
@@ -579,6 +589,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     		previousUrlPosition = -1;
     		urlSpinner.setSelection(2);
     	}
+    	buttonView.setVisibility(View.VISIBLE);
     	this.uiState = UiState.advanced;
     	mainMessage.setText(Localization.get("install.manual"));
     	advancedView.setVisibility(View.VISIBLE);
