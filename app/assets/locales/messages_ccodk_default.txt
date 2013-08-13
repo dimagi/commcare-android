@@ -25,6 +25,9 @@ install.button.retry=Retry Installation
 install.button.start=Begin Install
 install.bad.ref=You did not scan a valid URL. Please try again.
 
+upgrade.button.retry=Retry Upgrade
+upgrade.button.startover=Restart Upgrade
+
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application...
 
