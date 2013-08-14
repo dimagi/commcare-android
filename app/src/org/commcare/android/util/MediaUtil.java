@@ -42,4 +42,16 @@ public class MediaUtil {
         	return null;
         }
 	}
+	
+	public static String getGeoFormattedString(String rawInput){
+		String address = rawInput;
+		
+		String[] components = address.split(" ");
+		
+		String latitude = components[0];
+		
+		String longitude = components[1];
+		
+		return new String(latitude + "," + longitude);
+	}
 }

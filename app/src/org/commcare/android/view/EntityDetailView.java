@@ -116,12 +116,13 @@ public class EntityDetailView extends FrameLayout {
 			}
 		} else if("address".equals(d.getTemplateForms()[index])) {
 			final String address = e.getField(index);
+			
 			addressText.setText(address);
 			if(current != ADDRESS) {
 				addressButton.setOnClickListener(new OnClickListener() {
 
 					public void onClick(View v) {
-						listener.addressRequested(address);
+						listener.addressRequested(MediaUtil.getGeoFormattedString(address));
 					}
 					
 				});
