@@ -26,7 +26,7 @@ import android.content.Context;
  */
 public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
-	private static final int USER_DB_VERSION = 2;
+	private static final int USER_DB_VERSION = 3;
 	
 	private static final String USER_DB_LOCATOR = "database_sandbox_";
 	

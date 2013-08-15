@@ -3,6 +3,7 @@
  */
 package org.commcare.android.references;
 
+import org.commcare.android.net.HttpRequestGenerator;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceFactory;
@@ -12,12 +13,14 @@ import org.javarosa.core.reference.ReferenceFactory;
  *
  */
 public class JavaHttpRoot implements ReferenceFactory {
+	
+	HttpRequestGenerator generator = new HttpRequestGenerator();
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.reference.RawRoot#derive(java.lang.String)
 	 */
 	public Reference derive(String URI) throws InvalidReferenceException {
-		return new JavaHttpReference(URI);
+		return new JavaHttpReference(URI, generator);
 	}
 
 	/* (non-Javadoc)
@@ -25,7 +28,7 @@ public class JavaHttpRoot implements ReferenceFactory {
 	 */
 	public Reference derive(String URI, String context) throws InvalidReferenceException {
 		context = context.substring(0, context.lastIndexOf('/')+1);
-		return new JavaHttpReference(context + URI);
+		return new JavaHttpReference(context + URI, generator);
 	}
 
 	/* (non-Javadoc)

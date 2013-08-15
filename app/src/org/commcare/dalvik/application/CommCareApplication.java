@@ -146,9 +146,7 @@ public class CommCareApplication extends Application {
 		PropertyManager.setPropertyManager(new ODKPropertyManager());
 		
         SQLiteDatabase.loadLibs(this);
-        
-        AndroidSharedKeyRecord.generateNewSharingKey();
-		
+        		
 		setRoots();
 		
 		//Init global storage (Just application records, logs, etc)
@@ -760,10 +758,19 @@ public class CommCareApplication extends Application {
 		for(int id : forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_SAVED)) {
 			String date = forms.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
 			
-			//If the date the form was saved is before the last valid date, we can purge it
-			if(lastValidDate > Date.parse(date)) {
+			try {  
+				//If the date the form was saved is before the last valid date, we can purge it
+				if(lastValidDate > Date.parse(date)) {
+					toPurge.add(id);
+				}
+			} catch(Exception e) {
+				//Catch all for now, we know that at least "" and null
+				//are causing problems (neither of which should be acceptable
+				//but if we see them, we should consider the form
+				//purgable.
 				toPurge.add(id);
 			}
+
 		}
 		
 		if(toPurge.size() > 0 ) {

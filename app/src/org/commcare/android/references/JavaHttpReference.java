@@ -25,9 +25,11 @@ import org.javarosa.core.services.Logger;
 public class JavaHttpReference implements Reference {
 
 	private String uri;
+	HttpRequestGenerator generator;
 	
-	public JavaHttpReference(String uri) {
+	public JavaHttpReference(String uri, HttpRequestGenerator generator) {
 		this.uri = uri;
+		this.generator = generator;
 	}
 	
 	
@@ -46,19 +48,11 @@ public class JavaHttpReference implements Reference {
 		throw new IOException("Http references are read only!");
 	}
 	
-	HttpRequestGenerator generator;
-
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.reference.Reference#getStream()
 	 */
 	public InputStream getStream() throws IOException {
 		URL url = new URL(uri);
-		
-		//this is not a great way to do this...
-		if(generator == null) {
-				generator = new HttpRequestGenerator();
-        }
-		
 		return generator.simpleGet(url);
 	}
 
@@ -93,6 +87,8 @@ public class JavaHttpReference implements Reference {
 	}
 
 
+	//TODO: This should get changed to be set from the root, don't assume this will
+	//still be here indefinitely
 	public void setHttpRequestor(HttpRequestGenerator generator) {
 		this.generator = generator;
 	}
