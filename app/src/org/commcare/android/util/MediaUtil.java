@@ -44,9 +44,27 @@ public class MediaUtil {
 	}
 	
 	public static String getGeoFormattedString(String rawInput){
+		
 		String address = rawInput;
 		
 		String[] components = address.split(" ");
+		
+		// if it doesn't look like our of a GeoPoint string format, return the raw string
+		
+		if(components.length != 4){
+			return rawInput;
+		}
+		
+		for(int i=0; i<components.length;i++){
+			try{
+				Double.parseDouble(components[i]);
+			}
+			catch(NumberFormatException nfe){
+				return rawInput;
+			}
+		}
+		
+		// return the latitude/longitude in the format Google Maps expects
 		
 		String latitude = components[0];
 		

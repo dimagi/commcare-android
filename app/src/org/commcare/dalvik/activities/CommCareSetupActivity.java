@@ -65,6 +65,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final String RESOURCE_STATE = "resource_state";
 	public static final String KEY_PROFILE_REF = "app_profile_ref";
 	public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
+	public static final String KEY_ERROR_MODE = "app_error_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	public static final String KEY_AUTO = "is_auto_update";
 	
@@ -106,6 +107,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	boolean upgradeMode = false;
 	boolean partialMode = false;
+	boolean errorMode = false;
 	
 	CommCareApp ccApp;
 	
@@ -137,6 +139,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		if(savedInstanceState == null) {
 			incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
 			upgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
+			errorMode = this.getIntent().getBooleanExtra(KEY_ERROR_MODE, false);
 			isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
 		} else {
 			String uiStateEncoded = savedInstanceState.getString("advanced");
@@ -144,6 +147,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	        incomingRef = savedInstanceState.getString("profileref");
 	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
+	        errorMode = savedInstanceState.getBoolean(KEY_ERROR_MODE);
 	        
 	        //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
 	        startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -245,6 +249,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		});
 		
 		if(incomingRef == null || uiState == UiState.advanced) {
+
 			//editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
 			editProfileRef.setText("");
 			if(this.uiState == UiState.advanced) {
@@ -252,6 +257,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			} else {
 				this.setModeToBasic();
 			}
+		} else if(errorMode){
+			this.setModeToError("derpy", true);
 		} else {
 			this.setModeToReady(incomingRef);
 		}
@@ -318,10 +325,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	 */
 	@Override
 	protected void onStart() {
+		
 		super.onStart();
 		//Moved here to properly attach fragments and such.
 		//NOTE: May need to do so elsewhere as well.
-		if(upgradeMode) {
+		if(upgradeMode && !errorMode) {
 			setModeToAutoUpgrade();
 			mainMessage.setText(Localization.get("updates.check"));
 			startResourceInstall();
@@ -347,6 +355,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putString("advanced", uiState.toString());
         outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
+        outState.putBoolean(KEY_ERROR_MODE, errorMode);
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
     }
@@ -440,6 +449,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	}
 	
 	private void startResourceInstall(boolean startOverUpgrade) {
+
+		errorMode = false;
 		
 		if(startAllowed) {
 			String ref = getRef();
@@ -538,6 +549,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToError(String message, boolean canRetry){
+    	errorMode = true;
     	buttonView.setVisibility(View.VISIBLE);
     	this.uiState = UiState.error;
     	mainMessage.setText(message);
