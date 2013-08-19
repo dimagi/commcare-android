@@ -68,8 +68,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final String KEY_ERROR_MODE = "app_error_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	public static final String KEY_AUTO = "is_auto_update";
+	public static final String KEY_MAIN_MESSAGE = "main_message_text";
+	public static final String KEY_RETRY_BUTTON = "retry_button_text";
+	public static final String KEY_RESTART_BUTTON = "restart_button_text";	
 	
-	public enum UiState { advanced, basic, ready, error };
+	public enum UiState { advanced, basic, ready, error, upgrade };
 	public UiState uiState = UiState.basic;
 	
 	public static final int MODE_BASIC = Menu.FIRST;
@@ -88,7 +91,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	int resourceState;
 	int retryCount=0;
 	
-	String incomingRef;
+	
+	public String incomingRef;
+	public boolean canRetry;
+	public String displayMessage;
+	
 	
 	View advancedView;
 	@UiElement(R.id.screen_first_start_bottom)
@@ -104,10 +111,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     String [] urlVals;
     int previousUrlPosition=0;
-	
-	boolean upgradeMode = false;
+	 
 	boolean partialMode = false;
-	boolean errorMode = false;
 	
 	CommCareApp ccApp;
 	
@@ -133,7 +138,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	addressEntryButton = (Button)this.findViewById(R.id.enter_app_location);
     	startOverButton = (Button)this.findViewById(R.id.start_over);
     	retryButton = (Button)this.findViewById(R.id.retry_install);
+    	banner = this.findViewById(R.id.screen_first_start_banner);
 
+    	boolean errorMode;
+    	boolean upgradeMode;
 
     	//Retrieve instance state
 		if(savedInstanceState == null) {
@@ -148,17 +156,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
 	        errorMode = savedInstanceState.getBoolean(KEY_ERROR_MODE);
+	        mainMessage.setText(savedInstanceState.getString(KEY_MAIN_MESSAGE));
+	        retryButton.setText(savedInstanceState.getString(KEY_RETRY_BUTTON));
+	        startOverButton.setText(savedInstanceState.getString(KEY_RESTART_BUTTON));
 	        
 	        //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
 	        startAllowed = savedInstanceState.getBoolean("startAllowed");
 		}
 		
+		if(upgradeMode){
+			this.uiState = uiState.upgrade;
+		}
+		else if(errorMode){
+			this.uiState = uiState.error;
+		}
+		
 		editProfileRef.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
 		urlSpinner.setAdapter(new WrappingSpinnerAdapter(urlSpinner.getAdapter(), getResources().getStringArray(R.array.url_list_selected_display)));
 		urlVals = getResources().getStringArray(R.array.url_vals);
-		
-    	retryButton.setText(Localization.get("install.button.retry"));
-    	installButton.setText(Localization.get("install.button.start"));
     	
 		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
@@ -189,9 +204,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		} else {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
 			//and we can just skip this unless it's upgradeMode
-			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && !upgradeMode) {
+			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && this.uiState != UiState.upgrade && this.uiState != uiState.error) {
 		        Intent i = new Intent(getIntent());	
-		        
 		        setResult(RESULT_OK, i);
 		        finish();
 		        return;
@@ -224,68 +238,40 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		startOverButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				if(upgradeMode) {
+				if(uiState == UiState.upgrade) {
 					startResourceInstall(true);
 				} else {
 					retryCount = 0;
 					partialMode = false;
-					setModeToBasic();
+					uiState = uiState.basic;
+					refreshView();
 				}
 			}
 			
 		});
 		
-		startOverButton.setText(Localization.get("install.button.startover"));
-		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				
-				if(!upgradeMode) {
+				if(uiState == UiState.upgrade) {
 					partialMode = true;
 				}
-				
 				startResourceInstall(false);
 			}
 		});
 		
-		if(incomingRef == null || uiState == UiState.advanced) {
-
-			//editProfileRef.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("default_app_server", this.getString(R.string.default_app_server)));
-			editProfileRef.setText("");
-			if(this.uiState == UiState.advanced) {
-				this.setModeToAdvanced();
-			} else {
-				this.setModeToBasic();
-			}
-		} else if(errorMode){
-			this.setModeToError("derpy", true);
-		} else {
-			this.setModeToReady(incomingRef);
-		}
-		
 		installButton.setOnClickListener(new OnClickListener() {
-
 			public void onClick(View v) {	
-				
-				if(dbState == CommCareApplication.STATE_READY) {
-					//If app is fully initialized, don't need to do anything
-				} 
-				
 				//Now check on the resources
 				if(resourceState == CommCareApplication.STATE_READY) {
-					if(!upgradeMode) {
+					if(uiState != UiState.upgrade) {
 						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
 					}
-				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED) {
-					startResourceInstall();
-				} else if(resourceState == CommCareApplication.STATE_UPGRADE && upgradeMode) {
-					//This will come up if the upgrade has problems  
+				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED || 
+						(resourceState == CommCareApplication.STATE_UPGRADE && uiState == UiState.upgrade)) {
 					startResourceInstall();
 				}
 			}
 		});
-		
-		banner = this.findViewById(R.id.screen_first_start_banner);
 		
         final View activityRootView = findViewById(R.id.screen_first_start_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -310,13 +296,32 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         	this.ccApp = oldActivity.ccApp;
         }
         
-        //Before we get stared, we need to see whether we've started an install before, this determines whether we 
-        //want to continue in partial mode if, for instance, the app shut down after trying to install. This will be
-        //the standard 
+        refreshView();
         
         //prevent the keyboard from popping up on entry by refocusing on the main layout
         findViewById(R.id.mainLayout).requestFocus();
         
+	}
+	
+	public void refreshView(){
+		switch(uiState){
+			case basic:
+				this.setModeToBasic();
+				break;
+			case advanced:
+				this.setModeToAdvanced();
+				break;
+			case error:
+				this.setModeToError(true);
+				break;
+			case upgrade:
+				this.setModeToAutoUpgrade();
+				break;
+			case ready:
+				this.setModeToReady(incomingRef);
+				break;
+		}
+		
 	}
 	
 	/*
@@ -325,12 +330,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	 */
 	@Override
 	protected void onStart() {
-		
 		super.onStart();
 		//Moved here to properly attach fragments and such.
-		//NOTE: May need to do so elsewhere as well.
-		if(upgradeMode && !errorMode) {
-			setModeToAutoUpgrade();
+		//NOTE: May need to do so elsewhere as well
+		if(uiState == UiState.upgrade) {
+			refreshView();
 			mainMessage.setText(Localization.get("updates.check"));
 			startResourceInstall();
 		}
@@ -354,10 +358,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onSaveInstanceState(outState);
         outState.putString("advanced", uiState.toString());
         outState.putString("profileref", incomingRef);
-        outState.putBoolean(KEY_UPGRADE_MODE, upgradeMode);
-        outState.putBoolean(KEY_ERROR_MODE, errorMode);
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
+        outState.putString(KEY_MAIN_MESSAGE, mainMessage.getText().toString());
+        outState.putString(KEY_RETRY_BUTTON, retryButton.getText().toString());
+        outState.putString(KEY_RESTART_BUTTON, startOverButton.getText().toString());
+        
     }
 	
 	/* (non-Javadoc)
@@ -380,8 +386,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 					this.setModeToBasic(Localization.get("install.bad.ref"));
 					return;
 				}
-				
-				this.setModeToReady(result);
+				uiState = uiState.ready;
+				this.refreshView();
 			}
 		}
 	}
@@ -409,7 +415,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		// we are in upgrade mode, just send back current app
 		
-		if(upgradeMode){
+		if(uiState == UiState.upgrade){
 			app = CommCareApplication._().getCurrentApp();
 			return app;
 		}
@@ -450,8 +456,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	private void startResourceInstall(boolean startOverUpgrade) {
 
-		errorMode = false;
-		
 		if(startAllowed) {
 			String ref = getRef();
 			
@@ -459,7 +463,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			
 			ccApp = app;
 			
-			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, upgradeMode, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
+			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, uiState == UiState.upgrade, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
 
 				@Override
 				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
@@ -517,26 +521,31 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         MenuItem basic = menu.findItem(MODE_BASIC);
         MenuItem advanced = menu.findItem(MODE_ADVANCED);
         
+        
         if(uiState == UiState.advanced) {
         	basic.setVisible(true);
         	advanced.setVisible(false);
         } else if(uiState == UiState.ready){
         	basic.setVisible(true);
         	advanced.setVisible(true);
-        } else{
+        } else if(uiState == UiState.basic){
         	basic.setVisible(false);
         	advanced.setVisible(true);
+        } else{
+        	basic.setVisible(false);
+        	basic.setVisible(false);
         }
         return true;
     }
     
     public void setModeToAutoUpgrade(){
+    	retryButton.setText(Localization.get("upgrade.button.retry"));
+    	startOverButton.setText(Localization.get("upgrade.button.startover"));
     	buttonView.setVisibility(View.INVISIBLE);
     }
     
     public void setModeToReady(String incomingRef) {
     	buttonView.setVisibility(View.VISIBLE);
-    	this.uiState = UiState.ready;
     	mainMessage.setText(Localization.get("install.ready"));
 		editProfileRef.setText(incomingRef);
     	advancedView.setVisibility(View.GONE);
@@ -548,34 +557,20 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	retryButton.setVisibility(View.GONE);
     }
     
-    public void setModeToError(String message, boolean canRetry){
-    	errorMode = true;
+    public void setModeToError(boolean canRetry){
+    	uiState = UiState.error;
     	buttonView.setVisibility(View.VISIBLE);
-    	this.uiState = UiState.error;
-    	mainMessage.setText(message);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
     	startOverButton.setVisibility(View.VISIBLE);
     	addressEntryButton.setVisibility(View.GONE);
-    	
-    	if(upgradeMode){
-        	retryButton.setText(Localization.get("upgrade.button.retry"));
-        	startOverButton.setText(Localization.get("upgrade.button.startover"));
-    	}
-    	else{
-        	retryButton.setText(Localization.get("install.button.retry"));
-        	startOverButton.setText(Localization.get("install.button.startover"));
-    	}
-    	
     	if(canRetry){
     		retryButton.setVisibility(View.VISIBLE);
     	}
     	else{
     		retryButton.setVisibility(View.GONE);
     	}
-    	
-    	
     }
     
     public void setModeToBasic(){
@@ -583,7 +578,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToBasic(String message){
-    	this.uiState = UiState.basic;
     	buttonView.setVisibility(View.VISIBLE);
     	editProfileRef.setText("");	
     	this.incomingRef = null;
@@ -594,6 +588,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
+    	retryButton.setText(Localization.get("install.button.retry"));
+    	startOverButton.setText(Localization.get("install.button.startover"));
     }
 
     public void setModeToAdvanced(){
@@ -602,7 +598,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     		urlSpinner.setSelection(2);
     	}
     	buttonView.setVisibility(View.VISIBLE);
-    	this.uiState = UiState.advanced;
     	mainMessage.setText(Localization.get("install.manual"));
     	advancedView.setVisibility(View.VISIBLE);
     	mScanBarcodeButton.setVisibility(View.GONE);
@@ -612,19 +607,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startOverButton.setVisibility(View.VISIBLE);
     	installButton.setEnabled(true);
     	retryButton.setVisibility(View.GONE);
+    	retryButton.setText(Localization.get("install.button.retry"));
+    	startOverButton.setText(Localization.get("install.button.startover"));
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	if(!upgradeMode) {
+    	if(uiState != UiState.upgrade) {
 	        switch (item.getItemId()) {
 	            case MODE_BASIC:
-	            	setModeToBasic();
-	                return true;
+	            	uiState = uiState.basic;
+	            	break;
 	            case MODE_ADVANCED:
-	            	setModeToAdvanced();
-	            	return true;	
+	            	uiState = uiState.advanced;
+	            	break;
 	        }
+	        
+	        refreshView();
+	        return true;
     	}
         return super.onOptionsItemSelected(item);
     }
@@ -654,10 +654,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 					}
 				}
 			};
-            if(upgradeMode) {
+            if(uiState == UiState.upgrade) {
             	mProgressDialog.setTitle(Localization.get("updates.title"));
             	mProgressDialog.setMessage(Localization.get("updates.checking"));
-            	setModeToAutoUpgrade();
+            	refreshView();
             } else {
             	mProgressDialog.setTitle(Localization.get("updates.resources.initialization"));
             	mProgressDialog.setMessage(Localization.get("updates.resources.profile"));
@@ -671,7 +671,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 
 	public void updateProgress(int done, int total, int phase) {
-        if(upgradeMode) {
+        if(uiState == UiState.upgrade) {
         	if(phase == ResourceEngineTask.PHASE_DOWNLOAD) {
         		updateProgress(DIALOG_INSTALL_PROGRESS, Localization.get("updates.found", new String[] {""+done,""+total}));
         	} if(phase == ResourceEngineTask.PHASE_COMMIT) {
@@ -716,6 +716,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
 		
+		uiState = UiState.error;
+		
 		retryCount++;
 		
 		if(retryCount > RETRY_LIMIT){
@@ -729,9 +731,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			done(false);
 		} else {
 			if(alwaysNotify) {
-				setModeToError(Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()}),canRetry);
+				this.displayMessage= Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()});
+				this.canRetry = canRetry;
+				
+				refreshView();
 			} else {
-				setModeToError(message.getDetails(),canRetry);
+				this.displayMessage= message.getDetails();
+				this.canRetry = canRetry;
+				refreshView();
 				
 				String fullErrorMessage = message.getDetails();
 				
@@ -742,6 +749,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				mainMessage.setText(fullErrorMessage);
 			}
 		}
+		
+		refreshView();
+	}
+	
+	public void setUiState(UiState uis){
+		this.uiState = uis;
 	}
 
 	// All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
