@@ -26,6 +26,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -50,7 +51,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
         super.onCreate(savedInstanceState);
         platform = CommCareApplication._().getCommCarePlatform();
         
-        String menuId = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
+        String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         
        if(menuId==null){
     	   menuId="root";
@@ -98,7 +99,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
 
         // create intent for return and store path
         Intent i = new Intent();
-        i.putExtra(CommCareSession.STATE_COMMAND_ID, commandId);
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, commandId);
         setResult(RESULT_OK, i);
 
         finish();

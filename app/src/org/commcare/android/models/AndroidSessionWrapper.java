@@ -26,10 +26,12 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -90,7 +92,7 @@ public class AndroidSessionWrapper {
 	 * Clear all local state and return this session to completely fresh
 	 */
 	public void reset() {
-		this.session.clearState();
+		this.session.clearAllState();
 		formRecordId = -1;
 		instanceUri = null;
 		instanceStatus = null;
@@ -246,16 +248,16 @@ public class AndroidSessionWrapper {
 		}
 		
 		Hashtable<String, Entry> entries = platform.getMenuMap();
-		for(String[] step : session.getSteps()) {
+		for(String[] step : session.getFrame().getSteps()) {
 			String val = null; 
-			if(step[0] == CommCareSession.STATE_COMMAND_ID) {
+			if(step[0] == SessionFrame.STATE_COMMAND_ID) {
 				//Menu or form. 
 				if(menus.containsKey(step[1])) {
 					val = menus.get(step[1]);
 				} else if(entries.containsKey(step[1])) {
 					val = entries.get(step[1]).getText().evaluate();
 				}
-			} else if(step[0] == CommCareSession.STATE_DATUM_VAL || step[0] == CommCareSession.STATE_DATUM_COMPUTED) {
+			} else if(step[0] == SessionFrame.STATE_DATUM_VAL || step[0] == SessionFrame.STATE_DATUM_COMPUTED) {
 				//nothing much to be done here...
 			}
 			if(val != null) {
@@ -270,11 +272,14 @@ public class AndroidSessionWrapper {
 		//TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
 		//and generalize the walking
 		
+		//TODO: This manipulates the state of the session. We should instead grab and make a copy of the frame, and make a new session to 
+		//investigate this.
+		
 		//Walk backwards until we find something with a long detail
-		while(session.getSteps().size() > 0 && (session.getNeededData() != CommCareSession.STATE_DATUM_VAL || session.getNeededDatum().getLongDetail() == null)) {
+		while(session.getFrame().getSteps().size() > 0 && (session.getNeededData() != SessionFrame.STATE_DATUM_VAL || session.getNeededDatum().getLongDetail() == null)) {
 			session.stepBack();
 		}
-		if(session.getSteps().size() == 0) { return null;}
+		if(session.getFrame().getSteps().size() == 0) { return null;}
 		
 		EvaluationContext ec = getEC();
 		
@@ -389,6 +394,40 @@ public class AndroidSessionWrapper {
 		}
 		
 		return wrapper;
+	}
+
+	/**
+	 * Finish and seal the current session. Run any stack operations mandated by the current entry
+	 * and pop a new frame from the stack, if one exists.
+	 */
+	public boolean terminateSession() {
+		//Possible should re-name this one. We no longer go "home" by default. We might start a new session's frame.
+		
+		//TODO: should this section get wrapped up in the session, maybe?
+		Vector<StackOperation> ops = session.getCurrentEntry().getPostEntrySessionOperations();
+		
+		//First, see if we have operations to run
+		if(ops.size() > 0) {
+			EvaluationContext ec = getEC();
+			for(StackOperation op : ops) {
+				session.executeStackOperation(op, ec);
+			}
+		}
+		
+		//Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
+		if(session.finishAndPop()) {
+			//We are gonna keep re-using the current session
+			//clear out the internal state vars, though.
+			formRecordId = -1;
+			instanceUri = null;
+			instanceStatus = null;
+			sessionStateRecordId = -1;
+			return true;
+		} else {
+			//start from scratch
+			reset();
+			return false;
+		}
 	}
 
 }

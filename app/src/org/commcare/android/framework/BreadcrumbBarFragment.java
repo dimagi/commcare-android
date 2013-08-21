@@ -8,13 +8,12 @@ import java.util.Vector;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -110,7 +109,7 @@ public class BreadcrumbBarFragment extends Fragment {
 			try {
 				stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
 				
-				Vector<String[]> v = CommCareApplication._().getCurrentSession().getSteps();
+				Vector<String[]> v = CommCareApplication._().getCurrentSession().getFrame().getSteps();
 				
 				//So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
 				//displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
@@ -137,7 +136,7 @@ public class BreadcrumbBarFragment extends Fragment {
 									
 									//We need to check the current size, because sometimes a step back will end up taking
 									//two (if a value is computed instead of selected)
-									int currentStepSize = CommCareApplication._().getCurrentSession().getSteps().size();
+									int currentStepSize = CommCareApplication._().getCurrentSession().getFrame().getSteps().size();
 									
 									//Take at _most_ currentSteps back, or stop when we've reached
 									//current step minus 1
@@ -159,7 +158,7 @@ public class BreadcrumbBarFragment extends Fragment {
 					try {
 						
 						//It the current step was selecting a nodeset value... 
-					if(CommCareSession.STATE_DATUM_VAL.equals(step[0])) {
+					if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
 						
 						//Haaack. We should replace this with a generalizable "What do you refer to your detail by", but for now this is 90% of cases
 						if("case_id".equals(step[1])) {
@@ -188,7 +187,7 @@ public class BreadcrumbBarFragment extends Fragment {
 				@Override
 				public void onClick(View arg0) {
 					try{
-						CommCareApplication._().getCurrentSession().clearState();
+						CommCareApplication._().getCurrentSession().clearAllState();
 					} catch(SessionUnavailableException sue) {
 						
 					}

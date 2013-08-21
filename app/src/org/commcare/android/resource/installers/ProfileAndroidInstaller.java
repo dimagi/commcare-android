@@ -109,8 +109,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidStructureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new UnresolvedResourceException(r, "Invalid content in the Profile Definition: " + e.getMessage(), true);
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
