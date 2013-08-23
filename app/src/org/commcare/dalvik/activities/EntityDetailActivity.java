@@ -181,4 +181,11 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 		Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + address));
         startActivity(call);
 	}
+	
+	public void playVideo(String videoRef) {
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.setDataAndType(Uri.parse(videoRef), "video/*");
+		startActivity(intent);
+	}
 }
