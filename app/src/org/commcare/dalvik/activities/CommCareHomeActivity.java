@@ -48,16 +48,18 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.format.DateUtils;
@@ -859,7 +861,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     	}
     }
     
-    private void processAndSend(FormRecord[] records, final boolean syncAfterwards) {
+    @SuppressLint("NewApi")
+	private void processAndSend(FormRecord[] records, final boolean syncAfterwards) {
 		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 
 		int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
@@ -914,7 +917,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		};
 		mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
 		mProcess.connect(this);
-		mProcess.execute(records);
+		
+		//Execute on a true multithreaded chain. We should probably replace all of our calls with this
+		//but this is the big one for now.
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+			mProcess.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, records);
+		} else {
+			mProcess.execute(records);
+		}
     }
     
     /*
