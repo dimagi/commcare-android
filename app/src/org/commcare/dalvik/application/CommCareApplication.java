@@ -740,7 +740,13 @@ public class CommCareApplication extends Application {
 	 * @param user The user who's storage we're reviewing
 	 */
 	private void performArchivedFormPurge(CommCareApp app, User user) {
-		int daysForReview = Integer.parseInt(app.getAppPreferences().getString("cc-review-days", "-1"));
+		int daysForReview = -1;
+		String daysToPurge = app.getAppPreferences().getString("cc-days-form-retain", "-1");
+		try {
+			daysForReview = Integer.parseInt(daysToPurge);
+		} catch(NumberFormatException nfe) {
+			Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Invalid days to purge: " + daysToPurge);
+		}
 		
 		//If we don't define a days for review flag, we should just keep the forms around
 		//indefinitely
