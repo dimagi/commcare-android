@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.SessionFrame;
 
@@ -21,6 +22,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -65,16 +67,36 @@ public class BreadcrumbBarFragment extends Fragment {
 		    }
 		    
 		    ActionBar actionBar = activity.getActionBar();
-		    actionBar.setCustomView(getTitleView(activity, activityTitle), new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		    
+		    int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_bleed));
+		    LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+		    p.leftMargin = buffer;
+		    
+		    actionBar.setCustomView(getTitleView(activity, activityTitle), p);
 		    activity.setTitle("");
 		    actionBar.setDisplayShowHomeEnabled(false);
-
 	  }
 	  
 		
 		public View getTitleView(final Activity activity, String local) {
 			RelativeLayout layout = new RelativeLayout(activity);
-			layout.setGravity(Gravity.CENTER_VERTICAL);
+			HorizontalScrollView scroller = new HorizontalScrollView(activity) {
+				@Override
+				protected void onLayout(boolean changed, int l, int t, int r, int b) {
+				    super.onLayout(changed, l, t, r, b);
+				    this.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+				}
+			};
+			scroller.setHorizontalScrollBarEnabled(false);
+			scroller.addView(layout, new HorizontalScrollView.LayoutParams(LayoutParams.WRAP_CONTENT,HorizontalScrollView.LayoutParams.MATCH_PARENT));
+			scroller.setFillViewport(true);
+			
+			RelativeLayout fullTopBar = new RelativeLayout(activity);
+			RelativeLayout.LayoutParams topBarParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+			topBarParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			
+			
+			//layout.setGravity(Gravity.CENTER_VERTICAL);
 			
 			// we have to do this walk backwards, actually
 			
@@ -86,7 +108,7 @@ public class BreadcrumbBarFragment extends Fragment {
 			//We don't actually want this one to look the same
 			int newId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + layout.getChildCount() + 1;
 			if(local != null) {
-				View titleBreadcrumb = li.inflate(org.commcare.dalvik.R.layout.component_title_uncrumb, layout, true);
+				View titleBreadcrumb = li.inflate(org.commcare.dalvik.R.layout.component_title_uncrumb, fullTopBar, true);
 				
 				TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);
 				
@@ -100,8 +122,11 @@ public class BreadcrumbBarFragment extends Fragment {
 				text.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
 				
 				text.setLayoutParams(params);
+				topBarParams.addRule(RelativeLayout.LEFT_OF, newId);
 			}
-			//int newId = addElementToTitle(li, layout, local, org.commcare.dalvik.R.layout.component_title_uncrumb, -1, null);
+			
+			fullTopBar.addView(scroller, topBarParams);
+
 			
 			if(newId != -1) { currentId = newId;}
 			
@@ -203,12 +228,15 @@ public class BreadcrumbBarFragment extends Fragment {
 			iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.ab_icon,0,0,0);
 			iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
 			
+			//Test Anchor
+			currentId = currentId + 2343241;			
+			View anchor = new FrameLayout(activity);
+			anchor.setId(currentId);
+			int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_depth));
+			layout.addView(anchor, buffer, LayoutParams.MATCH_PARENT);			
+			((RelativeLayout.LayoutParams)iconBearer.getLayoutParams()).addRule(RelativeLayout.RIGHT_OF, currentId);
 			
-			HorizontalScrollView scroller = new HorizontalScrollView(activity);
-			scroller.addView(layout, new HorizontalScrollView.LayoutParams(HorizontalScrollView.LayoutParams.WRAP_CONTENT,HorizontalScrollView.LayoutParams.MATCH_PARENT));
-			scroller.setFillViewport(true);
-			
-			return scroller;
+			return fullTopBar;
 		}
 		
 		private int addElementToTitle(LayoutInflater inflater, RelativeLayout title, String element, int type, int peer, OnClickListener action) {
@@ -225,6 +253,8 @@ public class BreadcrumbBarFragment extends Fragment {
 				text.setText(element);
 				//Is there a "random ID" or something we can use for this?
 				text.setId(newViewId);
+				
+				text.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
 				
 				if(peer != -1) {
 					View peerView = title.findViewById(peer);
