@@ -76,8 +76,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 	private DataSubmissionListener listener;
 	private String submissionUrl;
 	
-	public static String LOGS_UNSUBMITTED_CATEGORY = "logs-unsubmitted";
-	
 	public LogSubmissionTask(Context c, boolean serializeCurrentLogs, DataSubmissionListener listener, String submissionUrl) {
 		this.c = c;
 		this.serializeCurrentLogs = serializeCurrentLogs;
@@ -326,7 +324,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 		super.onPostExecute(result);
 		listener.endSubmissionProcess();
 		if(result != LogSubmitOutcomes.Submitted) {
-			CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result, result.getCategory()));
+			CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
 		} else{
 			CommCareApplication._().clearNotifications(result.getCategory());
 		}

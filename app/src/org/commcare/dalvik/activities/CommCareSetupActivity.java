@@ -68,7 +68,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final String KEY_ERROR_MODE = "app_error_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	public static final String KEY_AUTO = "is_auto_update";
-	public static final String KEY_UPGRADE = "is_upgrade_mode";
 	
 	public enum UiState { advanced, basic, ready, error, upgrade};
 	public UiState uiState = UiState.basic;
@@ -344,7 +343,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
-        outState.putBoolean(KEY_UPGRADE, inUpgradeMode);
+        outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
         
     }
 	
@@ -515,7 +514,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         	advanced.setVisible(true);
         } else{
         	basic.setVisible(false);
-        	basic.setVisible(false);
+        	advanced.setVisible(false);
         }
         return true;
     }
@@ -594,20 +593,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	if(uiState != UiState.upgrade) {
-	        switch (item.getItemId()) {
-	            case MODE_BASIC:
-	            	uiState = uiState.basic;
-	            	break;
-	            case MODE_ADVANCED:
-	            	uiState = uiState.advanced;
-	            	break;
-	        }
-	        
-	        refreshView();
-	        return true;
-    	}
-        return super.onOptionsItemSelected(item);
+    	switch (item.getItemId()) {
+        case MODE_BASIC:
+        	uiState = uiState.basic;
+            break;
+        case MODE_ADVANCED:
+            uiState = uiState.advanced;
+            break;
+        }
+        
+        refreshView();
+        return true;
     }
 
 	/* (non-Javadoc)
