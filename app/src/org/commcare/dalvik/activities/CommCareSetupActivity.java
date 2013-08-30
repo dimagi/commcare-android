@@ -711,7 +711,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	}
 
 	public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
-		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getResourceId(), ure.getMessage()}), ure.isMessageUseful());
+		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
 		
 	}
 
