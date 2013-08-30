@@ -35,6 +35,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -693,17 +694,40 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         demoModeWarning.show();
 	}
+	
+    private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
+    	AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
+        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
+        mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
+        mAlertDialog.setMessage(errorMsg);
+        mAlertDialog.setCancelable(false);
+        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
+        mAlertDialog.show();
+    }
 
 	private void startNextFetch() throws SessionUnavailableException {
     	
     	//TODO: feels like this logic should... not be in a big disgusting ifghetti. 
     	//Interface out the transitions, maybe?
     	
-    	CommCareSession session = CommCareApplication._().getCurrentSession();
+    	final CommCareSession session = CommCareApplication._().getCurrentSession();
     	String needed = session.getNeededData();
     	String[] lastPopped = session.getPoppedStep();
     	
     	if(needed == null) {
+    		EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
+    		//See if we failed any of our asseertions
+    		Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
+    		if(text != null) {
+    			createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
+    	            @Override
+    	            public void onClick(DialogInterface dialog, int i) {
+    	            	session.stepBack();
+    	            	CommCareHomeActivity.this.startNextFetch();
+    	            }
+    	        });
+    	        return;
+    		}
     		startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
     	}
     	else if(needed == SessionFrame.STATE_COMMAND_ID) {

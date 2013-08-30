@@ -234,6 +234,8 @@ title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
 
+dialog.ok=Ok
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
