@@ -6,6 +6,8 @@ package org.commcare.android.util;
 import java.io.IOException;
 
 import org.commcare.android.javarosa.AndroidLogger;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -44,32 +46,14 @@ public class MediaUtil {
 	}
 	
 	public static String getGeoFormattedString(String rawInput){
-		
-		String address = rawInput;
-		
-		String[] components = address.split(" ");
-		
-		// if it doesn't look like our of a GeoPoint string format, return the raw string
-		
-		if(components.length != 4){
+		try{
+			GeoPointData mGeoPointData = new GeoPointData().cast(new UncastData(rawInput));
+			String latitude = Double.toString(mGeoPointData.getValue()[0]);
+			String longitude= Double.toString(mGeoPointData.getValue()[1]);
+			return new String(latitude + "," + longitude);
+			
+		}catch(IllegalArgumentException iae){
 			return rawInput;
 		}
-		
-		for(int i=0; i<components.length;i++){
-			try{
-				Double.parseDouble(components[i]);
-			}
-			catch(NumberFormatException nfe){
-				return rawInput;
-			}
-		}
-		
-		// return the latitude/longitude in the format Google Maps expects
-		
-		String latitude = components[0];
-		
-		String longitude = components[1];
-		
-		return new String(latitude + "," + longitude);
 	}
 }

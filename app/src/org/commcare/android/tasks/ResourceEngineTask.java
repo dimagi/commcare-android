@@ -118,7 +118,6 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 		
 		Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning install attempt for profile " + profileRefs[0]);
 		
-		if(upgradeMode && partialMode){throw new RuntimeException("ResourceEngineTask sanity check");} // TODO
 		
 		try {
 			

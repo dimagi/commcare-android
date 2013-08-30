@@ -68,11 +68,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final String KEY_ERROR_MODE = "app_error_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	public static final String KEY_AUTO = "is_auto_update";
-	public static final String KEY_MAIN_MESSAGE = "main_message_text";
-	public static final String KEY_RETRY_BUTTON = "retry_button_text";
-	public static final String KEY_RESTART_BUTTON = "restart_button_text";	
+	public static final String KEY_UPGRADE = "is_upgrade_mode";
 	
-	public enum UiState { advanced, basic, ready, error, upgrade };
+	public enum UiState { advanced, basic, ready, error, upgrade};
 	public UiState uiState = UiState.basic;
 	
 	public static final int MODE_BASIC = Menu.FIRST;
@@ -86,6 +84,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final int RETRY_LIMIT = 20;
 	
 	boolean startAllowed = true;
+	boolean inUpgradeMode = false;
 	
 	int dbState;
 	int resourceState;
@@ -96,19 +95,29 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public boolean canRetry;
 	public String displayMessage;
 	
-	
+	@UiElement(R.id.advanced_panel)
 	View advancedView;
 	@UiElement(R.id.screen_first_start_bottom)
 	View buttonView;
+	@UiElement(R.id.edit_profile_location)
 	EditText editProfileRef;
+	@UiElement(R.id.str_setup_message)
 	TextView mainMessage;
+	@UiElement(R.id.url_spinner)
 	Spinner urlSpinner;
+	@UiElement(R.id.start_install)
 	Button installButton;
+	@UiElement(R.id.btn_fetch_uri)
 	Button mScanBarcodeButton;
+	@UiElement(R.id.enter_app_location)
 	Button addressEntryButton;
+	@UiElement(R.id.start_over)
 	Button startOverButton;
+	@UiElement(R.id.retry_install)
 	Button retryButton;
-    
+	@UiElement(R.id.screen_first_start_banner)
+	View banner;
+	
     String [] urlVals;
     int previousUrlPosition=0;
 	 
@@ -118,8 +127,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
 	boolean isAuto = false;
-	
-	View banner;
 
 	
 	@Override
@@ -127,48 +134,25 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		super.onCreate(savedInstanceState);
 		
 		CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
-		
-		//Grab Views
-		editProfileRef = (EditText)this.findViewById(R.id.edit_profile_location);
-		advancedView = this.findViewById(R.id.advanced_panel);
-		mainMessage = (TextView)this.findViewById(R.id.str_setup_message);
-		urlSpinner = (Spinner)this.findViewById(R.id.url_spinner);
-		installButton = (Button)this.findViewById(R.id.start_install);
-    	mScanBarcodeButton = (Button)this.findViewById(R.id.btn_fetch_uri);
-    	addressEntryButton = (Button)this.findViewById(R.id.enter_app_location);
-    	startOverButton = (Button)this.findViewById(R.id.start_over);
-    	retryButton = (Button)this.findViewById(R.id.retry_install);
-    	banner = this.findViewById(R.id.screen_first_start_banner);
-
-    	boolean errorMode;
-    	boolean upgradeMode;
 
     	//Retrieve instance state
 		if(savedInstanceState == null) {
 			incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
-			upgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
-			errorMode = this.getIntent().getBooleanExtra(KEY_ERROR_MODE, false);
+			inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
 			isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
 		} else {
 			String uiStateEncoded = savedInstanceState.getString("advanced");
 			this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
 	        incomingRef = savedInstanceState.getString("profileref");
-	        upgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
+	        inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
-	        errorMode = savedInstanceState.getBoolean(KEY_ERROR_MODE);
-	        mainMessage.setText(savedInstanceState.getString(KEY_MAIN_MESSAGE));
-	        retryButton.setText(savedInstanceState.getString(KEY_RETRY_BUTTON));
-	        startOverButton.setText(savedInstanceState.getString(KEY_RESTART_BUTTON));
 	        
 	        //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
 	        startAllowed = savedInstanceState.getBoolean("startAllowed");
 		}
 		
-		if(upgradeMode){
+		if(inUpgradeMode){
 			this.uiState = uiState.upgrade;
-		}
-		else if(errorMode){
-			this.uiState = uiState.error;
 		}
 		
 		editProfileRef.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
@@ -238,7 +222,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		startOverButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				if(uiState == UiState.upgrade) {
+				if(uiState == UiState.upgrade || uiState == UiState.error) {
 					startResourceInstall(true);
 				} else {
 					retryCount = 0;
@@ -252,7 +236,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				if(uiState == UiState.upgrade) {
+				if(uiState == UiState.upgrade || uiState == UiState.error) {
 					partialMode = true;
 				}
 				startResourceInstall(false);
@@ -263,7 +247,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			public void onClick(View v) {	
 				//Now check on the resources
 				if(resourceState == CommCareApplication.STATE_READY) {
-					if(uiState != UiState.upgrade) {
+					if(uiState != UiState.upgrade || uiState != UiState.error) {
 						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
 					}
 				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED || 
@@ -360,9 +344,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
-        outState.putString(KEY_MAIN_MESSAGE, mainMessage.getText().toString());
-        outState.putString(KEY_RETRY_BUTTON, retryButton.getText().toString());
-        outState.putString(KEY_RESTART_BUTTON, startOverButton.getText().toString());
+        outState.putBoolean(KEY_UPGRADE, inUpgradeMode);
         
     }
 	
@@ -463,7 +445,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			
 			ccApp = app;
 			
-			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, uiState == UiState.upgrade, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
+			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, inUpgradeMode, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
 
 				@Override
 				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
@@ -558,7 +540,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToError(boolean canRetry){
-    	uiState = UiState.error;
     	buttonView.setVisibility(View.VISIBLE);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.GONE);
@@ -661,6 +642,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             } else {
             	mProgressDialog.setTitle(Localization.get("updates.resources.initialization"));
             	mProgressDialog.setMessage(Localization.get("updates.resources.profile"));
+            	refreshView();	
             }
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setCancelable(false);
@@ -733,12 +715,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			if(alwaysNotify) {
 				this.displayMessage= Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()});
 				this.canRetry = canRetry;
-				
-				refreshView();
 			} else {
 				this.displayMessage= message.getDetails();
 				this.canRetry = canRetry;
-				refreshView();
 				
 				String fullErrorMessage = message.getDetails();
 				
