@@ -6,6 +6,7 @@ package org.commcare.android.view;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
@@ -53,6 +54,8 @@ public class EntityDetailView extends FrameLayout {
 	private LinearLayout.LayoutParams origLabel;
 	
 	private LinearLayout.LayoutParams fill;
+	
+	private static final String FORM_VIDEO = "video";
 	
 	int current = TEXT;
 	private static final int TEXT = 0;
@@ -169,13 +172,14 @@ public class EntityDetailView extends FrameLayout {
 				currentView = imageView;
 				current = IMAGE;
 			}
-		} else if("video".equals(d.getTemplateForms()[index])) {
+		} else if(FORM_VIDEO.equals(d.getTemplateForms()[index])) {
 			String videoLocation = e.getField(index);
 			String localLocation = null;
 			try{ 
 				localLocation = ReferenceManager._().DeriveReference(videoLocation).getLocalURI();
 				if(localLocation.startsWith("/")) {
-					localLocation = "file://" + localLocation;
+					//TODO: This should likely actually be happening with the getLocalURI _anyway_.
+					localLocation = FileUtil.getGlobalStringUri(localLocation);
 				}
 			} catch(InvalidReferenceException ire) {
 				Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Couldn't understand video reference format: " + localLocation + ". Error: " + ire.getMessage());

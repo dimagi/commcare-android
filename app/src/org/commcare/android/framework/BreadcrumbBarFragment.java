@@ -68,6 +68,9 @@ public class BreadcrumbBarFragment extends Fragment {
 		    
 		    ActionBar actionBar = activity.getActionBar();
 		    
+		    //We need to get the amount that each item should "bleed" over to the left, and move the whole widget that
+		    //many pixels. This replicates the "overlap" space that each piece of the bar has on the next piece for
+		    //the left-most element.
 		    int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_bleed));
 		    LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
 		    p.leftMargin = buffer;
@@ -228,10 +231,16 @@ public class BreadcrumbBarFragment extends Fragment {
 			iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.ab_icon,0,0,0);
 			iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
 			
-			//Test Anchor
+			//Add an "Anchor" view to the left hand side of the bar. The relative layout doesn't work unless
+			//there's a view that isn't relative to the other views. The anchor is explicitly relative to
+			//only the parent layout.
 			currentId = currentId + 2343241;			
 			View anchor = new FrameLayout(activity);
 			anchor.setId(currentId);
+			
+			// The Anchor should be as wide as the bleed off the screen. This is necessary, because otherwise the layout 
+			// starts _off_ the screen to the left (due to the margin on the last item here). We'll shift the parent 
+			// layout itself back over so it doesn't look awkward.
 			int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_depth));
 			layout.addView(anchor, buffer, LayoutParams.MATCH_PARENT);			
 			((RelativeLayout.LayoutParams)iconBearer.getLayoutParams()).addRule(RelativeLayout.RIGHT_OF, currentId);

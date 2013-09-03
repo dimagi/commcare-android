@@ -78,6 +78,18 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 		return this.sessionDescriptor;
 	}
 	
+	/**
+	 * Serializes the session into a string which is unique for a
+	 * given path through the application, and which can be deserialzied
+	 * back into a live session.
+	 * 
+	 *  TODO: Currently we rely on this state being semantically unique,
+	 *  but it may change in the future. Rely on the specific format as
+	 *  little as possible.   
+	 * 
+	 * @param session
+	 * @return
+	 */
 	private String createSessionDescriptor(CommCareSession session) {
 		//TODO: Serialize into something more useful. I dunno. JSON/XML/Something
 		String descriptor = "";
