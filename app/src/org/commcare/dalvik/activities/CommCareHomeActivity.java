@@ -35,7 +35,9 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -47,16 +49,18 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.format.DateUtils;
@@ -462,7 +466,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    			}
 	    		} else if(resultCode == RESULT_OK) {
 	    			//Get our command, set it, and continue forward
-	    			String command = intent.getStringExtra(CommCareSession.STATE_COMMAND_ID);
+	    			String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
 	    			currentState.getSession().setCommand(command);
 	    			break;
 	    		}
@@ -474,7 +478,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        		currentState.getSession().stepBack();
 	        		break;
 	    		} else if(resultCode == RESULT_OK) {
-	    			currentState.getSession().setDatum(currentState.getSession().getNeededDatum().getDataId(), intent.getStringExtra(CommCareSession.STATE_DATUM_VAL));
+	    			currentState.getSession().setDatum(currentState.getSession().getNeededDatum().getDataId(), intent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
 	    			if(intent.hasExtra(CallOutActivity.CALL_DURATION)) {
 	    				platform.setCallDuration(intent.getLongExtra(CallOutActivity.CALL_DURATION, 0));
 	    			}
@@ -601,8 +605,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        			if(wasExternal) {
 	        				this.finish();
 	        			}
-	        			currentState.reset();
-        				return;
+	        			if(!currentState.terminateSession()) {
+	        				//If we didn't find somewhere to go,
+	        				//we're gonna stay here
+		        			return;
+	        			}
+	        			//Otherwise, we want to keep proceeding in order 
+	        			//to keep running the workflow
 	        		} else {
 	        			//Form record is now stored. 
 	        			currentState.reset();
@@ -686,34 +695,57 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         demoModeWarning.show();
 	}
+	
+    private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
+    	AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
+        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
+        mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
+        mAlertDialog.setMessage(errorMsg);
+        mAlertDialog.setCancelable(false);
+        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
+        mAlertDialog.show();
+    }
 
 	private void startNextFetch() throws SessionUnavailableException {
     	
     	//TODO: feels like this logic should... not be in a big disgusting ifghetti. 
     	//Interface out the transitions, maybe?
     	
-    	CommCareSession session = CommCareApplication._().getCurrentSession();
+    	final CommCareSession session = CommCareApplication._().getCurrentSession();
     	String needed = session.getNeededData();
     	String[] lastPopped = session.getPoppedStep();
     	
     	if(needed == null) {
+    		EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
+    		//See if we failed any of our asseertions
+    		Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
+    		if(text != null) {
+    			createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
+    	            @Override
+    	            public void onClick(DialogInterface dialog, int i) {
+    	            	session.stepBack();
+    	            	CommCareHomeActivity.this.startNextFetch();
+    	            }
+    	        });
+    	        return;
+    		}
     		startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
     	}
-    	else if(needed == CommCareSession.STATE_COMMAND_ID) {
+    	else if(needed == SessionFrame.STATE_COMMAND_ID) {
  			Intent i = new Intent(getApplicationContext(), MenuList.class);
          
- 			i.putExtra(CommCareSession.STATE_COMMAND_ID, session.getCommand());
+ 			i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
  			startActivityForResult(i, GET_COMMAND);
-     	}  else if(needed == CommCareSession.STATE_DATUM_VAL) {
+     	}  else if(needed == SessionFrame.STATE_DATUM_VAL) {
             Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
             
-            i.putExtra(CommCareSession.STATE_COMMAND_ID, session.getCommand());
-            if(lastPopped != null && CommCareSession.STATE_DATUM_VAL.equals(lastPopped[0])) {
+            i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
+            if(lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped[0])) {
             	i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped[2]);
             }
             
             startActivityForResult(i, GET_CASE);
-    	} else if(needed == CommCareSession.STATE_DATUM_COMPUTED) {
+    	} else if(needed == SessionFrame.STATE_DATUM_COMPUTED) {
     		//compute
     		SessionDatum datum = session.getNeededDatum();
 			XPathExpression form;
@@ -751,7 +783,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		    		
 		    		//I'm not proud of the second clause, here. Basically, only ask if we should continue entry if the
 		    		//saved state actually involved selecting some data.
-		    		if(existing != null && existing.getSessionDescriptor().contains(CommCareSession.STATE_DATUM_VAL)) {
+		    		if(existing != null && existing.getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
 		    			createAskUseOldDialog(state, existing);
 		    			return;
 		    		}
@@ -854,7 +886,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     	}
     }
     
-    private void processAndSend(FormRecord[] records, final boolean syncAfterwards) {
+    @SuppressLint("NewApi")
+	private void processAndSend(FormRecord[] records, final boolean syncAfterwards) {
 		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 
 		int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
@@ -909,7 +942,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		};
 		mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
 		mProcess.connect(this);
-		mProcess.execute(records);
+		
+		//Execute on a true multithreaded chain. We should probably replace all of our calls with this
+		//but this is the big one for now.
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+			mProcess.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, records);
+		} else {
+			mProcess.execute(records);
+		}
     }
     
     /*

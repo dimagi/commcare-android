@@ -3,12 +3,17 @@
  */
 package org.commcare.android.view;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,9 +22,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -37,6 +42,8 @@ public class EntityDetailView extends FrameLayout {
 	private Button addressButton;
 	private TextView addressText;
 	private ImageView imageView;
+
+	private ImageButton videoButton;
 	
 	private View valuePane;
 	
@@ -48,11 +55,14 @@ public class EntityDetailView extends FrameLayout {
 	
 	private LinearLayout.LayoutParams fill;
 	
+	private static final String FORM_VIDEO = "video";
+	
 	int current = TEXT;
 	private static final int TEXT = 0;
 	private static final int PHONE = 1;
 	private static final int ADDRESS = 2;
 	private static final int IMAGE = 3;
+	private static final int VIDEO = 4;
 	
 	
 	DetailCalloutListener listener;
@@ -68,6 +78,8 @@ public class EntityDetailView extends FrameLayout {
 	    currentView = data;
 	    
 	    valuePane = detailRow.findViewById(R.id.detail_value_pane);
+	    
+	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 	    
 	    callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
 	    //TODO: Still useful?
@@ -160,6 +172,42 @@ public class EntityDetailView extends FrameLayout {
 				imageView.setVisibility(View.VISIBLE);
 				currentView = imageView;
 				current = IMAGE;
+			}
+		} else if(FORM_VIDEO.equals(d.getTemplateForms()[index])) {
+			String videoLocation = e.getField(index);
+			String localLocation = null;
+			try{ 
+				localLocation = ReferenceManager._().DeriveReference(videoLocation).getLocalURI();
+				if(localLocation.startsWith("/")) {
+					//TODO: This should likely actually be happening with the getLocalURI _anyway_.
+					localLocation = FileUtil.getGlobalStringUri(localLocation);
+				}
+			} catch(InvalidReferenceException ire) {
+				Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Couldn't understand video reference format: " + localLocation + ". Error: " + ire.getMessage());
+			}
+			
+			final String location = localLocation;
+			
+			videoButton.setOnClickListener(new OnClickListener() {
+
+				public void onClick(View v) {
+					listener.playVideo(location);	
+				}
+				
+			});
+			
+			if(location == null) {
+				videoButton.setEnabled(false);
+				Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "No local video reference available for ref: " + videoLocation);
+			} else {
+				videoButton.setEnabled(true);
+			}
+			
+			if(current != VIDEO) {
+				currentView.setVisibility(View.GONE);
+				videoButton.setVisibility(View.VISIBLE);
+				currentView = videoButton;
+				current = VIDEO;
 			}
 		} else {
 			String text = e.getField(index);

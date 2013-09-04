@@ -3,10 +3,11 @@
     android:id="@+id/component_title_breadcrumb_text"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
+    android:layout_marginRight="@dimen/title_padding"
     android:clickable="true"
     android:gravity="center"
-    android:layout_marginRight="@dimen/title_padding"
+    android:paddingLeft="@dimen/title_padding"
     android:text="CommCare ODK"
-    android:textAppearance="@style/TextAppearance.Custom.WindowTitle.Menu">
+    android:textAppearance="@style/TextAppearance.Custom.WindowTitle.Menu" >
 
 </TextView>

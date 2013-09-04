@@ -304,4 +304,15 @@ public class FileUtil {
 	        }
 	        return out;
 	    }
+	    
+	    /**
+	     * Turn a filepath into a global android URI that can be passed
+	     * to an intent. 
+	     * 
+	     * @param fileLocation
+	     * @return
+	     */
+	    public static String getGlobalStringUri(String fileLocation) {
+	    	return "file://" + fileLocation;
+	    }
 }

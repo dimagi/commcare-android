@@ -4,7 +4,6 @@
 package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
-import java.util.Vector;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -13,13 +12,12 @@ import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar.LayoutParams;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -28,13 +26,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.HorizontalScrollView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,7 +84,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    switch (item.getItemId()) {
 	        case android.R.id.home:
 	        	try { 
-	        		CommCareApplication._().getCurrentSession().clearState();
+	        		CommCareApplication._().getCurrentSession().clearAllState();
 	        	} catch(SessionUnavailableException sue) {
 	        		// probably won't go anywhere with this
 	        	}
@@ -347,9 +340,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 			
 			//See if we can insert any case hacks
 			int i = 0;
-			for(String[] step : CommCareApplication._().getCurrentSession().getSteps()){
+			for(String[] step : CommCareApplication._().getCurrentSession().getFrame().getSteps()){
 				try {
-				if(CommCareSession.STATE_DATUM_VAL.equals(step[0])) {
+				if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
 					//Haaack
 					if("case_id".equals(step[1])) {
 						ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step[2]);

@@ -10,6 +10,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 import org.javarosa.core.util.MD5;
 
 /**
@@ -77,14 +78,26 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 		return this.sessionDescriptor;
 	}
 	
+	/**
+	 * Serializes the session into a string which is unique for a
+	 * given path through the application, and which can be deserialzied
+	 * back into a live session.
+	 * 
+	 *  TODO: Currently we rely on this state being semantically unique,
+	 *  but it may change in the future. Rely on the specific format as
+	 *  little as possible.   
+	 * 
+	 * @param session
+	 * @return
+	 */
 	private String createSessionDescriptor(CommCareSession session) {
 		//TODO: Serialize into something more useful. I dunno. JSON/XML/Something
 		String descriptor = "";
-		for(String[] step : session.getSteps()) {
+		for(String[] step : session.getFrame().getSteps()) {
 			descriptor += step[0] + " ";
-			if(step[0] == CommCareSession.STATE_COMMAND_ID) {
+			if(step[0] == SessionFrame.STATE_COMMAND_ID) {
 				descriptor += step[1] + " ";
-			} else if(step[0] == CommCareSession.STATE_DATUM_VAL || step[0] == CommCareSession.STATE_DATUM_COMPUTED) {
+			} else if(step[0] == SessionFrame.STATE_DATUM_VAL || step[0] == SessionFrame.STATE_DATUM_COMPUTED) {
 				descriptor += step[1] + " " + step[2] + " ";
 			}
 		}
@@ -97,9 +110,9 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 		int current = 0;
 		while(current < tokenStream.length) {
 			String action = tokenStream[current];
-			if(action.equals(CommCareSession.STATE_COMMAND_ID)) {
+			if(action.equals(SessionFrame.STATE_COMMAND_ID)) {
 				session.setCommand(tokenStream[++current]);
-			} else if(action.equals(CommCareSession.STATE_DATUM_VAL) || action.equals(CommCareSession.STATE_DATUM_COMPUTED)) {
+			} else if(action.equals(SessionFrame.STATE_DATUM_VAL) || action.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
 				session.setDatum(tokenStream[++current], tokenStream[++current]);
 			}
 			current++;

@@ -197,7 +197,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		} else {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
 			//and we can just skip this unless it's upgradeMode
-			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && this.uiState != UiState.upgrade && this.uiState != UiState.error) {
+			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && !inUpgradeMode && this.uiState != UiState.error) {
 		        Intent i = new Intent(getIntent());	
 		        setResult(RESULT_OK, i);
 		        finish();
@@ -245,6 +245,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				partialMode = true;
 				startResourceInstall(false);
 			}
 		});
@@ -656,7 +657,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 
 	public void updateProgress(int done, int total, int phase) {
-        if(uiState == UiState.upgrade) {
+        if(inUpgradeMode) {
         	if(phase == ResourceEngineTask.PHASE_DOWNLOAD) {
         		updateProgress(DIALOG_INSTALL_PROGRESS, Localization.get("updates.found", new String[] {""+done,""+total}));
         	} if(phase == ResourceEngineTask.PHASE_COMMIT) {
@@ -753,7 +754,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	}
 
 	public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
-		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getResourceId(), ure.getMessage()}), ure.isMessageUseful());
+		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
 		
 	}
 
