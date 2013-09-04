@@ -16,11 +16,10 @@ import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.locale.Localization;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -92,7 +91,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	        session = CommCareApplication._().getCurrentSession();
 	        
 	        
-	        String passedCommand = getIntent().getStringExtra(CommCareSession.STATE_COMMAND_ID);
+	        String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
 	        
 			Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
 			prototype = entries.elementAt(0);
@@ -140,7 +139,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     }
         
     protected void loadOutgoingIntent(Intent i) {
-    	i.putExtra(CommCareSession.STATE_DATUM_VAL, this.getIntent().getStringExtra(CommCareSession.STATE_DATUM_VAL));
+    	i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
     }
     
     /*
@@ -181,5 +180,12 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	public void addressRequested(String address) {
 		Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + address));
         startActivity(call);
+	}
+	
+	public void playVideo(String videoRef) {
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.setDataAndType(Uri.parse(videoRef), "video/*");
+		startActivity(intent);
 	}
 }

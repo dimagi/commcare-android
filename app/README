@@ -1,0 +1,19 @@
+Local Setup
+
+Some elements of your environment will need to be configured locally for some features.
+
+A) Google Maps API Keys
+
+You can load a debug API key for google maps into the application for testing using the maps_api_key_debug resource.
+
+A convenient way to do so is to copy the 
+
+external_strings_dev.xml.template
+
+file in the res\values directory to the file location
+
+external_strings_dev.xml
+
+and place your debug API key into the string definition there.
+
+B) Ant Build Properties

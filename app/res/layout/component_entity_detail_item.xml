@@ -47,6 +47,16 @@
             android:typeface="monospace"
             android:visibility="gone" />
 
+        <ImageButton
+            android:id="@+id/detail_video_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:src="@android:drawable/ic_media_play"
+        	android:layout_marginLeft="11dp"
+            android:layout_marginRight="4dp"
+            android:visibility="gone"/>
+
         <ImageView
             android:id="@+id/detail_value_image"
             android:layout_width="match_parent"

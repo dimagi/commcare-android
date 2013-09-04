@@ -24,6 +24,7 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -314,7 +315,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     		i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
     	}
    
-    	i.putExtra(CommCareSession.STATE_DATUM_VAL, value);
+    	i.putExtra(SessionFrame.STATE_DATUM_VAL, value);
     	CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
     	
     	return i;
@@ -640,7 +641,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	    	        // create intent for return and store path
 	    	        Intent i = new Intent(EntitySelectActivity.this.getIntent());
 	    	        
-	    	    	i.putExtra(CommCareSession.STATE_DATUM_VAL, selectedIntent.getStringExtra(CommCareSession.STATE_DATUM_VAL));
+	    	    	i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
 	    	        setResult(RESULT_OK, i);
 
 	    	        finish();
@@ -654,7 +655,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	        	next.setText("Done");
 	        }
 	        
-	        String passedCommand = selectedIntent.getStringExtra(CommCareSession.STATE_COMMAND_ID);
+	        String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
 	        
 			Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
 			prototype = entries.elementAt(0);

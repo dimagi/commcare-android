@@ -7,14 +7,14 @@ import java.util.Vector;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,6 +22,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -66,16 +67,39 @@ public class BreadcrumbBarFragment extends Fragment {
 		    }
 		    
 		    ActionBar actionBar = activity.getActionBar();
-		    actionBar.setCustomView(getTitleView(activity, activityTitle), new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		    
+		    //We need to get the amount that each item should "bleed" over to the left, and move the whole widget that
+		    //many pixels. This replicates the "overlap" space that each piece of the bar has on the next piece for
+		    //the left-most element.
+		    int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_bleed));
+		    LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+		    p.leftMargin = buffer;
+		    
+		    actionBar.setCustomView(getTitleView(activity, activityTitle), p);
 		    activity.setTitle("");
 		    actionBar.setDisplayShowHomeEnabled(false);
-
 	  }
 	  
 		
 		public View getTitleView(final Activity activity, String local) {
 			RelativeLayout layout = new RelativeLayout(activity);
-			layout.setGravity(Gravity.CENTER_VERTICAL);
+			HorizontalScrollView scroller = new HorizontalScrollView(activity) {
+				@Override
+				protected void onLayout(boolean changed, int l, int t, int r, int b) {
+				    super.onLayout(changed, l, t, r, b);
+				    this.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+				}
+			};
+			scroller.setHorizontalScrollBarEnabled(false);
+			scroller.addView(layout, new HorizontalScrollView.LayoutParams(LayoutParams.WRAP_CONTENT,HorizontalScrollView.LayoutParams.MATCH_PARENT));
+			scroller.setFillViewport(true);
+			
+			RelativeLayout fullTopBar = new RelativeLayout(activity);
+			RelativeLayout.LayoutParams topBarParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+			topBarParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			
+			
+			//layout.setGravity(Gravity.CENTER_VERTICAL);
 			
 			// we have to do this walk backwards, actually
 			
@@ -87,7 +111,7 @@ public class BreadcrumbBarFragment extends Fragment {
 			//We don't actually want this one to look the same
 			int newId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + layout.getChildCount() + 1;
 			if(local != null) {
-				View titleBreadcrumb = li.inflate(org.commcare.dalvik.R.layout.component_title_uncrumb, layout, true);
+				View titleBreadcrumb = li.inflate(org.commcare.dalvik.R.layout.component_title_uncrumb, fullTopBar, true);
 				
 				TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);
 				
@@ -101,8 +125,11 @@ public class BreadcrumbBarFragment extends Fragment {
 				text.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
 				
 				text.setLayoutParams(params);
+				topBarParams.addRule(RelativeLayout.LEFT_OF, newId);
 			}
-			//int newId = addElementToTitle(li, layout, local, org.commcare.dalvik.R.layout.component_title_uncrumb, -1, null);
+			
+			fullTopBar.addView(scroller, topBarParams);
+
 			
 			if(newId != -1) { currentId = newId;}
 			
@@ -110,7 +137,7 @@ public class BreadcrumbBarFragment extends Fragment {
 			try {
 				stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
 				
-				Vector<String[]> v = CommCareApplication._().getCurrentSession().getSteps();
+				Vector<String[]> v = CommCareApplication._().getCurrentSession().getFrame().getSteps();
 				
 				//So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
 				//displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
@@ -137,7 +164,7 @@ public class BreadcrumbBarFragment extends Fragment {
 									
 									//We need to check the current size, because sometimes a step back will end up taking
 									//two (if a value is computed instead of selected)
-									int currentStepSize = CommCareApplication._().getCurrentSession().getSteps().size();
+									int currentStepSize = CommCareApplication._().getCurrentSession().getFrame().getSteps().size();
 									
 									//Take at _most_ currentSteps back, or stop when we've reached
 									//current step minus 1
@@ -159,7 +186,7 @@ public class BreadcrumbBarFragment extends Fragment {
 					try {
 						
 						//It the current step was selecting a nodeset value... 
-					if(CommCareSession.STATE_DATUM_VAL.equals(step[0])) {
+					if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
 						
 						//Haaack. We should replace this with a generalizable "What do you refer to your detail by", but for now this is 90% of cases
 						if("case_id".equals(step[1])) {
@@ -188,7 +215,7 @@ public class BreadcrumbBarFragment extends Fragment {
 				@Override
 				public void onClick(View arg0) {
 					try{
-						CommCareApplication._().getCurrentSession().clearState();
+						CommCareApplication._().getCurrentSession().clearAllState();
 					} catch(SessionUnavailableException sue) {
 						
 					}
@@ -204,12 +231,21 @@ public class BreadcrumbBarFragment extends Fragment {
 			iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.ab_icon,0,0,0);
 			iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
 			
+			//Add an "Anchor" view to the left hand side of the bar. The relative layout doesn't work unless
+			//there's a view that isn't relative to the other views. The anchor is explicitly relative to
+			//only the parent layout.
+			currentId = currentId + 2343241;			
+			View anchor = new FrameLayout(activity);
+			anchor.setId(currentId);
 			
-			HorizontalScrollView scroller = new HorizontalScrollView(activity);
-			scroller.addView(layout, new HorizontalScrollView.LayoutParams(HorizontalScrollView.LayoutParams.WRAP_CONTENT,HorizontalScrollView.LayoutParams.MATCH_PARENT));
-			scroller.setFillViewport(true);
+			// The Anchor should be as wide as the bleed off the screen. This is necessary, because otherwise the layout 
+			// starts _off_ the screen to the left (due to the margin on the last item here). We'll shift the parent 
+			// layout itself back over so it doesn't look awkward.
+			int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_depth));
+			layout.addView(anchor, buffer, LayoutParams.MATCH_PARENT);			
+			((RelativeLayout.LayoutParams)iconBearer.getLayoutParams()).addRule(RelativeLayout.RIGHT_OF, currentId);
 			
-			return scroller;
+			return fullTopBar;
 		}
 		
 		private int addElementToTitle(LayoutInflater inflater, RelativeLayout title, String element, int type, int peer, OnClickListener action) {
@@ -226,6 +262,8 @@ public class BreadcrumbBarFragment extends Fragment {
 				text.setText(element);
 				//Is there a "random ID" or something we can use for this?
 				text.setId(newViewId);
+				
+				text.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
 				
 				if(peer != -1) {
 					View peerView = title.findViewById(peer);
