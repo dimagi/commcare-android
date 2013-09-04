@@ -159,8 +159,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	        startAllowed = savedInstanceState.getBoolean("startAllowed");
 		}
 		
-		if(inUpgradeMode){
-			this.uiState = uiState.upgrade;
+		// if we are in upgrade mode we want the UiState to reflect that, unless we are showing an error
+		if(inUpgradeMode && this.uiState != UiState.error){
+			this.uiState = UiState.upgrade;
 		}
 		
 		editProfileRef.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
@@ -196,7 +197,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		} else {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
 			//and we can just skip this unless it's upgradeMode
-			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && this.uiState != UiState.upgrade && this.uiState != uiState.error) {
+			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && this.uiState != UiState.upgrade && this.uiState != UiState.error) {
 		        Intent i = new Intent(getIntent());	
 		        setResult(RESULT_OK, i);
 		        finish();
@@ -230,7 +231,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		startOverButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				if(inUpgradeMode || uiState == UiState.error) {
+				if(inUpgradeMode) {
 					startResourceInstall(true);
 				} else {
 					retryCount = 0;
@@ -244,9 +245,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				if(inUpgradeMode|| uiState == UiState.error) {
-					partialMode = true;
-				}
 				startResourceInstall(false);
 			}
 		});
