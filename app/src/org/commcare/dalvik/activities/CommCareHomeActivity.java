@@ -95,6 +95,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 3;
 	private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 4;
 	private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
+	private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
 	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;	
@@ -1318,6 +1319,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         		android.R.drawable.ic_menu_gallery);
         menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
         		android.R.drawable.ic_menu_upload);
+        menu.add(0, MENU_WIFI_DIRECT, 0, "Wifi Direct").setIcon(
+        		android.R.drawable.ic_menu_upload);
         return true;
     }
     
@@ -1336,6 +1339,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			menu.findItem(MENU_UPDATE).setVisible(disableMenus);
 			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
 			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
+			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus);
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
@@ -1373,6 +1377,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             case MENU_DUMP_FORMS:
             	startFormDumpActivity();
             	return true;
+            case MENU_WIFI_DIRECT:
+            	startWifiDirectActivity();
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1390,6 +1397,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	private void startFormDumpActivity(){
 		Intent i = new Intent(this, CommCareFormDumpActivity.class);
 		i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
+		CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
+	}
+	private void startWifiDirectActivity(){
+		Intent i = new Intent(this, CommCareWiFiDirectActivity.class);
 		CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
 	}
 	

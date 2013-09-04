@@ -32,7 +32,7 @@ import org.commcare.android.database.user.models.User;
  * @author ctsims
  *
  */
-public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean, CommCareFormDumpActivity>{
+public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>{
 
 	Context c;
 	String url;
@@ -95,7 +95,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	}
 
 	@Override
-	protected Boolean doTaskBackground(FormRecord... params) {
+	protected Boolean doTaskBackground(Void... params) {
 		
 		publishProgress(Localization.get("bulk.form.send.start"));
 

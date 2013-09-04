@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:id="@+id/linearLayout1"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <fragment
+            class="org.commcare.android.framework.DeviceListFragment"
+            android:id="@+id/frag_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!-- Preview: layout=@layout/row_devices -->
+        </fragment>
+
+        <fragment
+            android:id="@+id/frag_detail"
+            android:layout_width="match_parent"
+            android:layout_height="172dp"
+            class="org.commcare.android.framework.DeviceDetailFragment" >
+
+            <!-- Preview: layout=@layout/device_detail -->
+        </fragment>
+        <Button android:id="@+id/discover_button"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:layout_alignParentBottom="true"
+    		android:text="Discover Peers" />
+	    <Button android:id="@+id/send_button"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:layout_alignParentBottom="true"
+    		android:text="Send Files" />
+	    <Button android:id="@+id/host_button"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:layout_alignParentBottom="true"
+    		android:text="Become Server" />
+	    <Button android:id="@+id/unzip_button"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:layout_alignParentBottom="true"
+    		android:text="Unzip Files" />
+	    <Button android:id="@+id/submit_button"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:layout_alignParentBottom="true"
+    		android:text="Submit Files" />
+        <TextView
+            android:id="@+id/wifi_direct_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text="Status Text" >
+        </TextView>
+        <TextView
+            android:id="@+id/owner_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text="Owner Status Text" >
+        </TextView>
+        <TextView
+            android:id="@+id/my_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text="My Status Text" >
+        </TextView>
+    </LinearLayout>
+</LinearLayout>
