@@ -69,6 +69,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	public static final String KEY_AUTO = "is_auto_update";
 	
+	/*
+	 * enum indicating which UI mconfiguration should be shown.
+	 * basic: First install, user can scan barcode and move to ready mode or select advanced mode
+	 * advanced: First install, user can enter bit.ly or URL directly, or return to basic mode
+	 * ready: First install, barcode has been scanned. Can move to advanced mode to inspect URL, or proceed to install
+	 * upgrade: App installed already. Buttons aren't shown, trying to update app with no user input
+	 * error: Installation or Upgrade has failed, offer to retry or restart. upgrade/install differentiated with inUpgradeMode boolean
+	 */
+	
 	public enum UiState { advanced, basic, ready, error, upgrade};
 	public UiState uiState = UiState.basic;
 	
@@ -221,7 +230,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		startOverButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				if(uiState == UiState.upgrade || uiState == UiState.error) {
+				if(inUpgradeMode || uiState == UiState.error) {
 					startResourceInstall(true);
 				} else {
 					retryCount = 0;
@@ -235,7 +244,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				if(uiState == UiState.upgrade || uiState == UiState.error) {
+				if(inUpgradeMode|| uiState == UiState.error) {
 					partialMode = true;
 				}
 				startResourceInstall(false);
@@ -246,11 +255,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			public void onClick(View v) {	
 				//Now check on the resources
 				if(resourceState == CommCareApplication.STATE_READY) {
-					if(uiState != UiState.upgrade || uiState != UiState.error) {
+					if(!inUpgradeMode || uiState != UiState.error) {
 						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
 					}
 				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED || 
-						(resourceState == CommCareApplication.STATE_UPGRADE && uiState == UiState.upgrade)) {
+						(resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode)) {
 					startResourceInstall();
 				}
 			}
@@ -396,7 +405,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		// we are in upgrade mode, just send back current app
 		
-		if(uiState == UiState.upgrade){
+		if(inUpgradeMode){
 			app = CommCareApplication._().getCurrentApp();
 			return app;
 		}
