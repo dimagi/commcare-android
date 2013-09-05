@@ -40,24 +40,16 @@
     		android:layout_height="wrap_content"
     		android:layout_alignParentBottom="true"
     		android:text="Become Server" />
-	    <Button android:id="@+id/unzip_button"
+	    <Button android:id="@+id/reset_button"
     		android:layout_width="fill_parent"
     		android:layout_height="wrap_content"
     		android:layout_alignParentBottom="true"
-    		android:text="Unzip Files" />
+    		android:text="Reset Files" />
 	    <Button android:id="@+id/submit_button"
     		android:layout_width="fill_parent"
     		android:layout_height="wrap_content"
     		android:layout_alignParentBottom="true"
     		android:text="Submit Files" />
-        <TextView
-            android:id="@+id/wifi_direct_status_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:text="Status Text" >
-        </TextView>
         <TextView
             android:id="@+id/owner_status_text"
             android:layout_width="wrap_content"

@@ -35,7 +35,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.tasks.WiFiDirectTask;
+import org.commcare.android.tasks.ZipTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -93,8 +93,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	
-    	Log.d(CommCareWiFiDirectActivity.TAG, "oncreateview device detail fragment");
 
         mContentView = inflater.inflate(R.layout.device_detail, null);
         mContentView.findViewById(R.id.btn_connect).setOnClickListener(new View.OnClickListener() {

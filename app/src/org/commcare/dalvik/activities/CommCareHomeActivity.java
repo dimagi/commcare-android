@@ -88,6 +88,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	public static final int REPORT_PROBLEM_ACTIVITY = 128;
 	public static final int MISSING_MEDIA_ACTIVITY=256;
 	public static final int DUMP_FORMS_ACTIVITY=512;
+	public static final int WIFI_DIRECT_ACTIVITY=1024;
 	
 	public static final int USE_OLD_DIALOG = 1;
 	public static final int DIALOG_CORRUPTED = 4;
@@ -383,6 +384,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    		}
 	    		else if(resultCode == SendTask.BULK_SEND_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
+	    			
+	    			displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+	    			
+	    			Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
+	    			refreshView();
+	    			return;
+	    		}
+	    	case WIFI_DIRECT_ACTIVITY:
+	    		if(resultCode == RESULT_CANCELED){
+	    			return;
+	    		}
+	    		else if(resultCode == SendTask.BULK_SEND_ID){
+	    			int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
 	    			
 	    			displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
 	    			

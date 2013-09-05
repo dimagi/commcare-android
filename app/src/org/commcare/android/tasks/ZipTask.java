@@ -47,7 +47,7 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
-public abstract class WiFiDirectTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
+public abstract class ZipTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
 
 	Context c;
 	Long[] results;
@@ -67,7 +67,7 @@ public abstract class WiFiDirectTask extends CommCareTask<String, String, Boolea
 	public static final long PROGRESS_LOGGED_OUT = 256;
 	public static final long PROGRESS_SDCARD_REMOVED = 512;
 	
-	public static final int BULK_DUMP_ID = 23456;
+	public static final int ZIP_TASK_ID = 72135;
 	
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
@@ -77,11 +77,11 @@ public abstract class WiFiDirectTask extends CommCareTask<String, String, Boolea
 	
 	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
-	public WiFiDirectTask(Context c, CommCarePlatform platform, TextView outputTextView) throws SessionUnavailableException{
+	public ZipTask(Context c, CommCarePlatform platform, TextView outputTextView) throws SessionUnavailableException{
 		this.c = c;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
-		taskId = DumpTask.BULK_DUMP_ID;
+		taskId = ZIP_TASK_ID;
 		platform = this.platform;
 	}
 	

@@ -47,7 +47,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
 	
 	public static String MALFORMED_FILE_CATEGORY = "malformed-file";
 	
-	public static final int BULK_SEND_ID = 12345;
+	public static final int BULK_SEND_ID = 12335645;
 	
 	 // 5MB less 1KB overhead
 	
@@ -56,7 +56,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
 		this.url = url;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
-		taskId = SendTask.BULK_SEND_ID;
+		this.taskId = SendTask.BULK_SEND_ID;
 		this.dumpDirectory = dumpDirectory;
 		platform = this.platform;
 	}

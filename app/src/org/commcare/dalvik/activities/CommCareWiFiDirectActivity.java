@@ -1,7 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,25 +8,21 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Vector;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.framework.DeviceDetailFragment.FileServerAsyncTask;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
+import org.commcare.android.framework.UiElement;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.SendTask;
-import org.commcare.android.tasks.WiFiDirectTask;
+import org.commcare.android.tasks.UnzipTask;
+import org.commcare.android.tasks.ZipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -56,7 +50,6 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -91,6 +84,10 @@ import android.widget.Toast;
 public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements ChannelListener, DeviceActionListener, ConnectionInfoListener, ActionListener {
 	
 	public static final String TAG = "cc-wifidirect";
+
+	public static final String KEY_NUMBER_DUMPED ="wd_num_dumped";
+	
+	public static final int UNZIP_TASK_ID = 392582;
 	
 	WifiP2pManager mManager;
 	Channel mChannel;
@@ -101,8 +98,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	Button discoverButton;
 	Button sendButton;
 	Button hostButton;
-	Button unzipButton;
 	Button submitButton;
+	Button resetButton;
 	
 	public static String baseDirectory;
 	public static String sourceDirectory;
@@ -115,8 +112,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	private boolean isWifiP2pEnabled = false;
 	
-	@UiElement(value = R.id.wifi_direct_status_text, locale="bulk.form.messages")
-	public TextView txtInteractiveMessages;
 	public TextView ownerStatusText;
 	public TextView myStatusText;
 
@@ -131,15 +126,17 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		myStatusText = (TextView)this.findViewById(R.id.my_status_text);
 		
 		try{
+			
 			ArrayList<String> externalMounts = FileUtil.getExternalMounts();
 			String baseDir = externalMounts.get(0);
 			
-			baseDirectory = baseDir + "/" + "wifidirect";
+			baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
 			sourceDirectory = baseDirectory + "/source";
 			sourceZipDirectory = baseDirectory + "/zipSource.zip";
 			receiveDirectory = baseDirectory + "/receive";
 			receiveZipDirectory = receiveDirectory + "/zipDest.zip";
 			writeDirectory = baseDirectory + "/write";
+			
 		} catch(NullPointerException npe){
 			myStatusText.setText("Can't access external SD Card");
 			TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
@@ -172,12 +169,11 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			
 		});
 		
-		unzipButton = (Button)this.findViewById(R.id.unzip_button);
-		unzipButton.setOnClickListener(new OnClickListener(){
+		resetButton = (Button)this.findViewById(R.id.reset_button);
+		resetButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				Log.d(TAG, "onClick unzip");
-				unzipFiles();
+				resetData();
 			}
 			
 		});
@@ -193,7 +189,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 	    mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
 	    mChannel = mManager.initialize(this, getMainLooper(), null);
-	    
 	    mIntentFilter = new IntentFilter();
 	    mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 	    mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
@@ -216,7 +211,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void hostGroup(){
-		new FileServerAsyncTask(this, this.findViewById(R.id.wifi_direct_status_text), this).execute();
+		new FileServerAsyncTask(this, this).execute();
 		mManager.createGroup(mChannel, this);
 	}
 	
@@ -226,18 +221,17 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		File receiveFolder = new File (writeDirectory);
 		
-		if(!receiveFolder.isDirectory()){
-			return;
+		if(!receiveFolder.isDirectory() || !receiveFolder.exists()){
+			myStatusText.setText(Localization.get("wifi.direct.submit.missing", new String[] {receiveFolder.getPath()}));
 		}
 		
 		File[] files = receiveFolder.listFiles();
 		
-		int formsOnSD = files.length;
+		final int formsOnSD = files.length;
 				
-		
 		//if there're no forms to dump, just return
 		if(formsOnSD == 0){
-			myStatusText.setText(Localization.get("bulk.form.no.unsynced.submit"));
+			myStatusText.setText(Localization.get("bulk.form.no.unsynced"));
 			TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
 			return;
 		}
@@ -246,15 +240,13 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
 				settings.getString("PostURL", url), myStatusText, receiveFolder){
 			
-			protected int taskId = BULK_SEND_ID;
-			
 			@Override
 			protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
 				
 				if(result == Boolean.TRUE){
 					CommCareApplication._().clearNotifications(CommCareHomeActivity.AIRPLANE_MODE_CATEGORY);
 			        Intent i = new Intent(getIntent());
-			        //i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
+			        i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
 					receiver.setResult(BULK_SEND_ID, i);
 					receiver.finish();
 					return;
@@ -285,82 +277,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		Log.d(TAG, "creating unzip task");
 		
-		CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity> task = new CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>() {
-
-			@Override
-			protected Boolean doTaskBackground(String... params) {
-				File archive = new File(params[0]);
-				File destination = new File(params[1]);
-				
-				Log.d(TAG, "unzipping with archive: " + archive + " , dest: " + destination);
-				
-				int count = 0;
-				ZipFile zipfile;
-				//From stackexchange
-				try {
-					zipfile = new ZipFile(archive);
-				} catch(IOException ioe) {
-					publishProgress(Localization.get("mult.install.bad"));
-					return false;
-				}
-                for (Enumeration e = zipfile.entries(); e.hasMoreElements();) {
-                	Localization.get("mult.install.progress", new String[] {String.valueOf(count)});
-                	count++;
-                    ZipEntry entry = (ZipEntry) e.nextElement();
-                    
-                    if (entry.isDirectory()) {
-                    	FileUtil.createFolder(new File(destination, entry.getName()).toString());
-                    	//If it's a directory we can move on to the next one
-                    	continue;
-                    }
-
-                    File outputFile = new File(destination, entry.getName());
-                    if (!outputFile.getParentFile().exists()) {
-                    	FileUtil.createFolder(outputFile.getParentFile().toString());
-                    }
-                    if(outputFile.exists()) {
-                    	//Try to overwrite if we can
-                    	if(!outputFile.delete()) {
-                    		//If we couldn't, just skip for now
-                    		continue;
-                    	}
-                    }
-                    BufferedInputStream inputStream;
-                    try {
-                    	inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
-                    } catch(IOException ioe) {
-                		this.publishProgress(Localization.get("mult.install.progress.badentry", new String[] {entry.getName()}));
-                		return false;
-                    }
-                    
-                    BufferedOutputStream outputStream;
-                    try {
-                    	outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-                    } catch(IOException ioe) {
-                		this.publishProgress(Localization.get("mult.install.progress.baddest", new String[] {outputFile.getName()}));
-                		return false;
-                	}
-
-                    try {
-                    	try {
-                    		AndroidStreamUtil.writeFromInputToOutput(inputStream, outputStream);
-                    	} catch(IOException ioe) {
-                    		this.publishProgress(Localization.get("mult.install.progress.errormoving"));
-                    		return false;
-                    	}
-                    } finally {
-                    	try {
-                        outputStream.close();
-                    	} catch(IOException ioe) {}
-                    	try {
-                        inputStream.close();
-                    	} catch(IOException ioe) {}
-                    }
-                }
-
-				
-				return true;
-			}
+		UnzipTask mUnzipTask = new UnzipTask() {
 
 			@Override
 			protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
@@ -389,9 +306,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			}
 		};
 		
-		task.connect(CommCareWiFiDirectActivity.this);
+		mUnzipTask.connect(CommCareWiFiDirectActivity.this);
 		Log.d(TAG, "executing task with: " + receiveZipDirectory + " , " + writeDirectory);
-		task.execute(receiveZipDirectory, writeDirectory);
+		mUnzipTask.execute(receiveZipDirectory, writeDirectory);
 	}
 	
 	/* if successful, broadcasts WIFI_P2P_Peers_CHANGED_ACTION intent with list of peers
@@ -573,10 +490,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     
     public void zipFiles(){
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zipping Files2");
-			WiFiDirectTask mDirectTask = new WiFiDirectTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
+			ZipTask mDirectTask = new ZipTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
 					myStatusText){
-
-				protected int taskId = BULK_DUMP_ID;
 				
 				@Override
 				protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
@@ -585,13 +500,14 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 						return;
 					} else {
 						receiver.onZipError();
+						receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
 						return;
 					}
 				}
 
 				@Override
 				protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
-					receiver.updateProgress(BULK_DUMP_ID, update[0]);
+					receiver.updateProgress(taskId, update[0]);
 					receiver.myStatusText.setText(update[0]);
 				}
 
@@ -607,7 +523,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void sendFiles(){
-    	TextView statusText = (TextView) this.findViewById(R.id.wifi_direct_status_text);
+    	TextView statusText = myStatusText;
     	statusText.setText("Sending files..." );
     	Log.d(CommCareWiFiDirectActivity.TAG, "Intent----------- " );
     	Intent serviceIntent = new Intent(this, FormTransferService.class);
@@ -628,12 +544,30 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
-
-		ProgressDialog progressDialog = new ProgressDialog(this);
-		progressDialog.setTitle("Progress Title");
-		progressDialog.setMessage("Progress message");
-		progressDialog.setCancelable(false);
-		return progressDialog;
+        switch (id) {
+        case ZipTask.ZIP_TASK_ID:
+        	    ProgressDialog mProgressDialog = new ProgressDialog(this);
+                mProgressDialog.setTitle("Zipping Forms...");
+                mProgressDialog.setMessage("CommCare is compressing your data for transfer");
+                mProgressDialog.setIndeterminate(true);
+                mProgressDialog.setCancelable(false);
+                return mProgressDialog;
+        case UnzipTask.UNZIP_TASK_ID:
+	        	mProgressDialog = new ProgressDialog(this);
+	            mProgressDialog.setTitle("Unzipping forms");
+	            mProgressDialog.setMessage("CommCare is decompressing your forms onto your SD card");
+	            mProgressDialog.setIndeterminate(true);
+	            mProgressDialog.setCancelable(false);
+	            return mProgressDialog;
+        case SendTask.BULK_SEND_ID:
+        	mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setTitle("Submitting Forms");
+            mProgressDialog.setMessage("CommCare is submitting your forms to the server");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+            return mProgressDialog;
+        }
+        return null;
 	}
 
 	@Override
@@ -658,10 +592,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
          * @param context
          * @param statusText
          */
-        public FileServerAsyncTask(Context context, View statusText, CommCareWiFiDirectActivity mListener) {
+        public FileServerAsyncTask(Context context, CommCareWiFiDirectActivity mListener) {
         	Log.d(CommCareWiFiDirectActivity.TAG, "new fileasync task");
             this.context = context;
-            this.statusText = (TextView) statusText;
+            this.statusText = mListener.myStatusText;
             this.mListener = mListener;
             
         }
