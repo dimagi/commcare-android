@@ -197,7 +197,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		} else {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
 			//and we can just skip this unless it's upgradeMode
-			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && !inUpgradeMode && this.uiState != UiState.error) {
+			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && !inUpgradeMode) {
 		        Intent i = new Intent(getIntent());	
 		        setResult(RESULT_OK, i);
 		        finish();
@@ -223,7 +223,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		addressEntryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				setModeToAdvanced();
+				setUiState(UiState.advanced);
+				refreshView();
 			}
 			
 		});
@@ -236,7 +237,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				} else {
 					retryCount = 0;
 					partialMode = false;
-					uiState = uiState.basic;
+					setUiState(UiState.basic);
 					refreshView();
 				}
 			}
@@ -375,7 +376,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 					this.setModeToBasic(Localization.get("install.bad.ref"));
 					return;
 				}
-				uiState = uiState.ready;
+				setUiState(UiState.ready);
 				this.refreshView();
 			}
 		}
@@ -515,7 +516,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         	basic.setVisible(true);
         	advanced.setVisible(false);
         } else if(uiState == UiState.ready){
-        	basic.setVisible(true);
+        	basic.setVisible(false);
         	advanced.setVisible(true);
         } else if(uiState == UiState.basic){
         	basic.setVisible(false);
@@ -581,10 +582,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     public void setModeToAdvanced(){
-    	if(this.uiState == uiState.ready){
-    		previousUrlPosition = -1;
-    		urlSpinner.setSelection(2);
-    	}
     	buttonView.setVisibility(View.VISIBLE);
     	mainMessage.setText(Localization.get("install.manual"));
     	advancedView.setVisibility(View.VISIBLE);
@@ -603,10 +600,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
         case MODE_BASIC:
-        	uiState = uiState.basic;
+        	setUiState(UiState.basic);
             break;
         case MODE_ADVANCED:
-            uiState = uiState.advanced;
+        	setUiState(UiState.advanced);
             break;
         }
         
@@ -702,7 +699,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
 		
-		uiState = UiState.error;
+		setUiState(UiState.error);
 		
 		retryCount++;
 		
@@ -736,8 +733,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		refreshView();
 	}
 	
-	public void setUiState(UiState uis){
-		this.uiState = uis;
+	/**
+	 * Sets the state of the Ui and handles one-off changes that might need
+	 * to happen between certain states.
+	 * @param newUiState
+	 */
+	public void setUiState(UiState newUiState){
+		//We might want to do some one-off configuration
+		//stuff if we're undergoing certain transitions
+		
+		//Ready -> Advanced: Set up the URL Spinner appropriately.
+    	if(this.uiState == UiState.ready && newUiState == UiState.advanced){
+    		previousUrlPosition = -1;
+    		urlSpinner.setSelection(2);
+    	}
+		this.uiState = newUiState;
 	}
 
 	// All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
