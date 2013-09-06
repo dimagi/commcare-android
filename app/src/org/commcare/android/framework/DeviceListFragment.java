@@ -166,6 +166,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * @param device WifiP2pDevice object
      */
     public void updateThisDevice(WifiP2pDevice device) {
+    	 Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName);
         this.device = device;
         TextView view = (TextView) mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);

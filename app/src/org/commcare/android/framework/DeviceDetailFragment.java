@@ -95,66 +95,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         mContentView = inflater.inflate(R.layout.device_detail, null);
-        mContentView.findViewById(R.id.btn_connect).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                WifiP2pConfig config = new WifiP2pConfig();
-                config.deviceAddress = device.deviceAddress;
-                config.wps.setup = WpsInfo.PBC;
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
-                }
-                progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel",
-                        "Connecting to :" + device.deviceAddress, true, true
-//                        new DialogInterface.OnCancelListener() {
-//
-//                            @Override
-//                            public void onCancel(DialogInterface dialog) {
-//                                ((DeviceActionListener) getActivity()).cancelDisconnect();
-//                            }
-//                        }
-                        );
-                ((DeviceActionListener) getActivity()).connect(config);
-
-            }
-        });
-
-        mContentView.findViewById(R.id.btn_disconnect).setOnClickListener(
-                new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        ((DeviceActionListener) getActivity()).disconnect();
-                    }
-                });
-
-        mContentView.findViewById(R.id.btn_start_client).setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    	TextView statusText = (TextView) mContentView.findViewById(R.id.status_text);
-                    	statusText.setText("Sending: " );
-                    	Log.d(CommCareWiFiDirectActivity.TAG, "Intent----------- " );
-                    	Intent serviceIntent = new Intent(getActivity(), FormTransferService.class);
-                    	serviceIntent.setAction(FormTransferService.ACTION_SEND_FORM);
-                    	serviceIntent.putExtra(FormTransferService.EXTRAS_GROUP_OWNER_ADDRESS,
-                            info.groupOwnerAddress.getHostAddress());
-                    	serviceIntent.putExtra(FormTransferService.EXTRAS_GROUP_OWNER_PORT, 8988);
-                    	
-                    	String filePath = zipDirectory;
-                    	
-                    	System.out.println("827 starting transfer with zip at path: " + filePath);
-                    	
-                    	Log.d(CommCareWiFiDirectActivity.TAG, "filepath is: " + filePath);
-                    	
-                    	serviceIntent.putExtra(FormTransferService.EXTRAS_FILE_PATH, filePath);
-                    	getActivity().startService(serviceIntent);
-                        Log.d(CommCareWiFiDirectActivity.TAG, " service started");
- 
-                    }
-                });
-
         return mContentView;
     }
 
@@ -175,29 +115,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         }
         this.info = info;
         this.getView().setVisibility(View.VISIBLE);
-
-        // The owner IP is now known.
-        TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
-        view.setText("Am I the group owner?"
-                + ((info.isGroupOwner == true) ? "yes"
-                        : getResources().getString(R.string.no)));
-
-
-        // After the group negotiation, we assign the group owner as the file
-        // server. The file server is single threaded, single connection server
-        // socket.
-//        if (info.groupFormed && info.isGroupOwner) {
-            new FileServerAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text))
-                    .execute();
-//        } else if (info.groupFormed) {
-            // The other device acts as the client. In this case, we enable the
-            // get file button.
-            mContentView.findViewById(R.id.btn_start_client).setVisibility(View.VISIBLE);
-            ((TextView) mContentView.findViewById(R.id.status_text)).setText(("This device will act as a client."));
- //       }
-
-        // hide the connect button
-        mContentView.findViewById(R.id.btn_connect).setVisibility(View.GONE);
     }
 
     /**

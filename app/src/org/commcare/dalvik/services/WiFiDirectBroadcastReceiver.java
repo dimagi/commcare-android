@@ -66,6 +66,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
     public void onReceive(Context context, Intent intent) {
+    	Log.d(CommCareWiFiDirectActivity.TAG, "in on receive ");
         String action = intent.getAction();
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
@@ -111,6 +112,8 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 activity.resetData();
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
+        	Log.d(CommCareWiFiDirectActivity.TAG, "in last else with device: " + intent.getParcelableExtra(
+                    WifiP2pManager.EXTRA_WIFI_P2P_DEVICE).toString());
             DeviceListFragment fragment = (DeviceListFragment) activity.getSupportFragmentManager()
                    .findFragmentById(R.id.frag_list);
             fragment.updateThisDevice((WifiP2pDevice) intent.getParcelableExtra(

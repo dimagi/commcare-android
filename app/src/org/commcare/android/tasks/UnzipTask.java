@@ -57,7 +57,7 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
 		public static final int UNZIP_TASK_ID = 7212435;
 		
 		public UnzipTask() throws SessionUnavailableException{
-			System.out.println("in unzip constgructor");
+			Log.d(CommCareWiFiDirectActivity.TAG, "UnZip task constructor");
 			this.taskId = UNZIP_TASK_ID;
 		}
 
@@ -66,16 +66,20 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
 			File archive = new File(params[0]);
 			File destination = new File(params[1]);
 			
+			Log.d(CommCareWiFiDirectActivity.TAG, "Doing task in background");
+			
 			int count = 0;
 			ZipFile zipfile;
 			//From stackexchange
 			try {
 				zipfile = new ZipFile(archive);
 			} catch(IOException ioe) {
+				Log.d(CommCareWiFiDirectActivity.TAG, "IOException 4");
 				publishProgress(Localization.get("mult.install.bad"));
 				return false;
 			}
             for (Enumeration e = zipfile.entries(); e.hasMoreElements();) {
+            	Log.d(CommCareWiFiDirectActivity.TAG, "In UnZip Loop");
             	Localization.get("mult.install.progress", new String[] {String.valueOf(count)});
             	count++;
                 ZipEntry entry = (ZipEntry) e.nextElement();
@@ -101,6 +105,7 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
                 try {
                 	inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
                 } catch(IOException ioe) {
+                	Log.d(CommCareWiFiDirectActivity.TAG, "IOEXception 0");
             		this.publishProgress(Localization.get("mult.install.progress.badentry", new String[] {entry.getName()}));
             		return false;
                 }
@@ -109,6 +114,7 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
                 try {
                 	outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
                 } catch(IOException ioe) {
+                	Log.d(CommCareWiFiDirectActivity.TAG, "IOException 1");
             		this.publishProgress(Localization.get("mult.install.progress.baddest", new String[] {outputFile.getName()}));
             		return false;
             	}
@@ -117,6 +123,7 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
                 	try {
                 		AndroidStreamUtil.writeFromInputToOutput(inputStream, outputStream);
                 	} catch(IOException ioe) {
+                		Log.d(CommCareWiFiDirectActivity.TAG, "IOException 2");
                 		this.publishProgress(Localization.get("mult.install.progress.errormoving"));
                 		return false;
                 	}
@@ -129,7 +136,8 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
                 	} catch(IOException ioe) {}
                 }
             }
-
+            
+            Log.d(CommCareWiFiDirectActivity.TAG, "Exited Loop");
 			
 			return true;
 		}

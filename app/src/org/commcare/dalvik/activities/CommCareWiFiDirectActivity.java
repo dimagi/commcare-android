@@ -16,9 +16,6 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UnzipTask;
 import org.commcare.android.tasks.ZipTask;
@@ -32,10 +29,12 @@ import org.javarosa.core.services.locale.Localization;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -114,6 +113,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public TextView ownerStatusText;
 	public TextView myStatusText;
+	
+	public TextView unsyncedFormsText;
+	public TextView unsubmittedFormsText;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -124,6 +126,11 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		ownerStatusText= (TextView)this.findViewById(R.id.owner_status_text);
 		
 		myStatusText = (TextView)this.findViewById(R.id.my_status_text);
+		
+		unsyncedFormsText = (TextView)this.findViewById(R.id.column_2_1);
+		
+		unsubmittedFormsText = (TextView)this.findViewById(R.id.column_2_2);
+		
 		
 		try{
 			
@@ -193,7 +200,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	    mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 	    mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
 	    mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-
+	    mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+	    
+	    showDialog(this, "Send or Receive", "Do you want to send or receive forms?");
 	}
 	
 	/*register the broadcast receiver */
@@ -213,6 +222,37 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public void hostGroup(){
 		new FileServerAsyncTask(this, this).execute();
 		mManager.createGroup(mChannel, this);
+	}
+	
+	public void showDialog(Activity activity, String title, CharSequence message) {
+	    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+	    if (title != null)
+	        builder.setTitle(title);
+	    builder.setMessage(message);
+	    builder.setPositiveButton("Receive Forms", new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				beReceiver();
+			}});
+	    
+	    builder.setNegativeButton("Send Forms", new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				beSender();
+			}});
+	    
+	    builder.show();
+	}
+	
+	public void beSender(){
+		hostButton.setVisibility(View.GONE);
+		submitButton.setVisibility(View.GONE);
+	}
+	
+	public void beReceiver(){
+		sendButton.setVisibility(View.GONE);
 	}
 	
 	public void submitFiles(){
@@ -244,7 +284,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
 				
 				if(result == Boolean.TRUE){
-					CommCareApplication._().clearNotifications(CommCareHomeActivity.AIRPLANE_MODE_CATEGORY);
 			        Intent i = new Intent(getIntent());
 			        i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
 					receiver.setResult(BULK_SEND_ID, i);
@@ -252,7 +291,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 					return;
 				} else {
 					//assume that we've already set the error message, but make it look scary
-					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, CommCareHomeActivity.AIRPLANE_MODE_CATEGORY));
 					receiver.TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
 				}
 			}
@@ -282,9 +320,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			@Override
 			protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
 				if(result == Boolean.TRUE){
-					//receiver.done = true;
-					receiver.setResult(Activity.RESULT_OK);
-					receiver.finish();
+					receiver.onUnzipSuccessful();
 					return;
 				} else {
 					//assume that we've already set the error message, but make it look scary
@@ -479,12 +515,27 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     public void onZipSuccesful(){
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zup successful, attempting to send");
     	myStatusText.setText("Zip successful, attempting to send files...");
-    	CommCareWiFiDirectActivity.deleteIfExists(sourceDirectory);
+    	
+    	if(FileUtil.deleteFile(new File(sourceDirectory))){
+    		Log.d(TAG, "source directory not succesfully deleted");
+    	}
+    	updateStatusText();
     	sendFiles();
     }
     
     public void onZipError(){
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zup unsuccesful");
+    	
+    }
+    
+    public void onUnzipSuccessful(){
+    	myStatusText.setText("Unzip successful");
+    	
+    	if(!FileUtil.deleteFile(new File(receiveDirectory))){
+    		Log.d(TAG, "source zip not succesfully deleted");
+    	}
+    	
+    	updateStatusText();
     	
     }
     
@@ -690,8 +741,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public void updateStatusText(){
 		
-		String statusText = "";
-		
     	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
     	//Get all forms which are either unsent or unprocessed
     	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
@@ -699,19 +748,22 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	
     	int numUnsyncedForms = ids.size();
     	
-    	statusText = "You have: " + numUnsyncedForms + "unsynced forms. ";
+    	int numUnsubmittedForms;
     	
-    	File zipSource = new File(sourceZipDirectory);
-    	if(zipSource.exists()){
-    		statusText += " There is a zip source file present.";
+    	File wDirectory = new File(writeDirectory);
+    	
+    	if(!wDirectory.exists() || !wDirectory.isDirectory()){
+    		numUnsubmittedForms = 0;
     	}
-    	
-    	File zipDest = new File(receiveZipDirectory);
-    	if(zipDest.exists()){
-    		statusText += " There is a zip destination file present.";
+    	else{
+    		numUnsubmittedForms = wDirectory.listFiles().length;
     	}
+
     	
-    	myStatusText.setText(statusText);
+    	unsyncedFormsText.setText(""+numUnsyncedForms);
+    	unsubmittedFormsText.setText(""+numUnsubmittedForms);
+    	
+    	
     	
 	}
 
