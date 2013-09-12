@@ -211,7 +211,7 @@ public class CommCareApp {
 			public SQLiteDatabase getHandle() {
 				synchronized(appDbHandleLock) {
 					if(appDatabase == null || !appDatabase.isOpen()) {
-						appDatabase = new DatabaseAppOpenHelper(this.c, record.getApplicationId()).getWritableDatabase(null);
+						appDatabase = new DatabaseAppOpenHelper(this.c, record.getApplicationId()).getWritableDatabase("null");
 					}
 					return appDatabase;
 				}
