@@ -236,7 +236,9 @@ public class EntityMapActivity extends MapActivity {
         }
         
         map.getOverlays().add(mMyLocationOverlay);
-        map.getOverlays().add(mEntityOverlay);
+        if(mEntityOverlay.size() > 0) {
+        	map.getOverlays().add(mEntityOverlay);
+        }
         map.getController().setZoom(18);
         map.setClickable(true);
         map.setEnabled(true);
