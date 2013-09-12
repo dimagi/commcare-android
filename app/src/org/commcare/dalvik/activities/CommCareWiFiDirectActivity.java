@@ -16,6 +16,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
+import org.commcare.android.tasks.FormTransferTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UnzipTask;
 import org.commcare.android.tasks.ZipTask;
@@ -23,7 +24,6 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.services.FormTransferService;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.javarosa.core.services.locale.Localization;
 
@@ -554,7 +554,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     
     public void zipFiles(){
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zipping Files2");
-			ZipTask mDirectTask = new ZipTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
+			ZipTask mZipTask = new ZipTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
 					myStatusText){
 				
 				@Override
@@ -582,36 +582,61 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 				}
 
 			};
-			mDirectTask.connect(CommCareWiFiDirectActivity.this);
-			mDirectTask.execute();
+			mZipTask.connect(CommCareWiFiDirectActivity.this);
+			mZipTask.execute();
     }
     
     public void sendFiles(){
     	TextView statusText = myStatusText;
     	statusText.setText("Sending files..." );
-    	Log.d(CommCareWiFiDirectActivity.TAG, "Intent----------- " );
-    	Intent serviceIntent = new Intent(this, FormTransferService.class);
-    	serviceIntent.setAction(FormTransferService.ACTION_SEND_FORM);
-    	serviceIntent.putExtra(FormTransferService.EXTRAS_GROUP_OWNER_ADDRESS,
-            info.groupOwnerAddress.getHostAddress());
-    	serviceIntent.putExtra(FormTransferService.EXTRAS_GROUP_OWNER_PORT, 8988);
-    	String filePath = sourceZipDirectory;
-    	statusText.setText("Sending files from zipFile: " + filePath );
+    	Log.d(CommCareWiFiDirectActivity.TAG, "Starting form transfer task" );
     	
-    	serviceIntent.putExtra(FormTransferService.EXTRAS_FILE_PATH, filePath);
+    	FormTransferTask mTransferTask = new FormTransferTask(){
+
+			@Override
+			protected void deliverResult(CommCareWiFiDirectActivity receiver,
+					Boolean result) {
+				if(result == Boolean.TRUE){
+					receiver.onSendSuccessful();
+					return;
+				} else {
+					receiver.onSendFail();
+					receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+					return;
+				}
+				
+			}
+
+			@Override
+			protected void deliverUpdate(CommCareWiFiDirectActivity receiver,
+					String... update) {
+				receiver.updateProgress(taskId, update[0]);
+				receiver.myStatusText.setText(update[0]);
+			}
+
+			@Override
+			protected void deliverError(CommCareWiFiDirectActivity receiver,
+					Exception e) {
+				receiver.myStatusText.setText("Error sending files with exception: " + e.getMessage());
+				receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+				
+			}
+    		
+    	};
     	
-    	serviceIntent.putExtra(FormTransferService.REQUEST_RECEIVER_EXTRA, new ResultReceiver(null) {
-    	    @Override
-    	    protected void onReceiveResult(int resultCode, Bundle resultData) {
-    	        if (resultCode == FormTransferService.RESULT_SUCCESS) {
-    	            
-    	        }
-    	    }
-    	});
+    	mTransferTask.connect(CommCareWiFiDirectActivity.this);
+    	String port = "8988";
+    	mTransferTask.execute(info.groupOwnerAddress.getHostAddress(),sourceZipDirectory,port);
     	
-    	
-    	this.startService(serviceIntent);
-        Log.d(CommCareWiFiDirectActivity.TAG, " service started");
+        Log.d(CommCareWiFiDirectActivity.TAG, "Task started");
+    }
+    
+    public void onSendSuccessful(){
+    	// do our cleanup stuff
+    }
+    
+    public void onSendFail(){
+    	// present an error
     }
     
 	/* (non-Javadoc)

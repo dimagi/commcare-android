@@ -17,55 +17,31 @@
 package org.commcare.android.framework;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Vector;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
-import org.commcare.android.tasks.DumpTask;
-import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.tasks.ZipTask;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareFormDumpActivity;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.services.FormTransferService;
-import org.javarosa.core.services.locale.Localization;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.net.wifi.WpsInfo;
-import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
