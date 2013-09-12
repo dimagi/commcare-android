@@ -63,10 +63,13 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
 
 		@Override
 		protected Boolean doTaskBackground(String... params) {
+			
+			Log.d(CommCareWiFiDirectActivity.TAG, "Task in background");
+			
 			File archive = new File(params[0]);
 			File destination = new File(params[1]);
 			
-			Log.d(CommCareWiFiDirectActivity.TAG, "Doing task in background");
+			Log.d(CommCareWiFiDirectActivity.TAG, "Doing task in background with archive: " + archive + " destination: "+ destination);
 			
 			int count = 0;
 			ZipFile zipfile;

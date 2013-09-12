@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="5dp"
-            android:text="Owner Status Text" >
+            android:text=" " >
         </TextView>
         <TextView
             android:id="@+id/my_status_text"
@@ -64,49 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="5dp"
-            android:text="My Status Text" >
+            android:text=" " >
         </TextView>
-        <TableLayout
-    		android:id="@+id/tableLayout1"
-    		android:layout_width="fill_parent"
-    		android:layout_height="fill_parent" >
- 
-    		<!-- 2 columns -->
-    		<TableRow
-        		android:id="@+id/tableRow1"
-        		android:layout_width="fill_parent"
-        		android:layout_height="wrap_content"
-        		android:padding="5dip" >
- 
-        		<TextView
-            		android:id="@+id/column_1_2"
-            		android:text="Unsyncned Forms on Phone"
-            		android:textAppearance="?android:attr/textAppearanceLarge" />
- 
-        		<TextView
-            		android:id="@+id/column_1_2"
-            		android:text="Unsubmitted forms on SD"
-            		android:textAppearance="?android:attr/textAppearanceLarge" />
-    		</TableRow>
-    		
-    		<TableRow
-        		android:id="@+id/tableRow2"
-        		android:layout_width="fill_parent"
-        		android:layout_height="wrap_content"
-        		android:padding="5dip" >
- 
-        		<TextView
-            		android:id="@+id/column_2_1"
-            		android:text="Column 1"
-            		android:textAppearance="?android:attr/textAppearanceLarge" />
- 
-        		<TextView
-            		android:id="@+id/column_2_2"
-            		android:text="Column 2"
-            		android:textAppearance="?android:attr/textAppearanceLarge" />
-    		</TableRow>
-    		
-		</TableLayout>
-		
     </LinearLayout>
 </LinearLayout>

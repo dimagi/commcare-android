@@ -49,6 +49,7 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -114,8 +115,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public TextView ownerStatusText;
 	public TextView myStatusText;
 	
-	public TextView unsyncedFormsText;
-	public TextView unsubmittedFormsText;
+	boolean isConnected;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -126,11 +126,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		ownerStatusText= (TextView)this.findViewById(R.id.owner_status_text);
 		
 		myStatusText = (TextView)this.findViewById(R.id.my_status_text);
-		
-		unsyncedFormsText = (TextView)this.findViewById(R.id.column_2_1);
-		
-		unsubmittedFormsText = (TextView)this.findViewById(R.id.column_2_2);
-		
 		
 		try{
 			
@@ -220,6 +215,13 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void hostGroup(){
+		
+		if(!isWifiP2pEnabled){
+            Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off",
+                    Toast.LENGTH_SHORT).show();
+            return;
+		}
+		
 		new FileServerAsyncTask(this, this).execute();
 		mManager.createGroup(mChannel, this);
 	}
@@ -319,6 +321,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 			@Override
 			protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
+				Log.d(TAG, "delivering unzip result");
 				if(result == Boolean.TRUE){
 					receiver.onUnzipSuccessful();
 					return;
@@ -330,6 +333,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 			@Override
 			protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
+				Log.d(TAG, "delivering unzip upate");
 				receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
 				receiver.myStatusText.setText(update[0]);
 			}
@@ -405,6 +409,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     
     public void setIsWifiP2pEnabled(boolean isWifiP2pEnabled) {
         this.isWifiP2pEnabled = isWifiP2pEnabled;
+        if(!isWifiP2pEnabled){
+        	this.isConnected = false;
+        }
     }
 
     @Override
@@ -509,6 +516,12 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     public void prepareFileTransfer(){
     	Log.d(CommCareWiFiDirectActivity.TAG, "Preparing File Transfer");
     	CommCareWiFiDirectActivity.deleteIfExists(sourceZipDirectory);
+    	
+    	if(!isConnected){
+    		myStatusText.setText("This devices is not connected to any Wi-Fi Direct group.");
+    		return;
+    	}
+    	
     	zipFiles();
     }
     
@@ -586,6 +599,17 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	statusText.setText("Sending files from zipFile: " + filePath );
     	
     	serviceIntent.putExtra(FormTransferService.EXTRAS_FILE_PATH, filePath);
+    	
+    	serviceIntent.putExtra(FormTransferService.REQUEST_RECEIVER_EXTRA, new ResultReceiver(null) {
+    	    @Override
+    	    protected void onReceiveResult(int resultCode, Bundle resultData) {
+    	        if (resultCode == FormTransferService.RESULT_SUCCESS) {
+    	            
+    	        }
+    	    }
+    	});
+    	
+    	
     	this.startService(serviceIntent);
         Log.d(CommCareWiFiDirectActivity.TAG, " service started");
     }
@@ -629,11 +653,17 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
         setIsOwner(info.groupFormed && info.isGroupOwner);
         
+        setDeviceConnected(info.groupFormed);
+        
         myStatusText.setText("Connected to group");
         
 	}
 	
-    public static class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
+    public void setDeviceConnected(boolean isConnected) {
+    	this.isConnected = isConnected;
+	}
+
+	public static class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
 
         private Context context;
         private TextView statusText;
@@ -712,9 +742,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             out.close();
             inputStream.close();
         } catch (IOException e) {
-            Log.d(CommCareWiFiDirectActivity.TAG, e.toString());
+            Log.d(CommCareWiFiDirectActivity.TAG, "copying error: " +  e.toString());
             return false;
         }
+        Log.d(CommCareWiFiDirectActivity.TAG, "Copying file completed");
         return true;
     }
 
@@ -758,12 +789,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	else{
     		numUnsubmittedForms = wDirectory.listFiles().length;
     	}
-
-    	
-    	unsyncedFormsText.setText(""+numUnsyncedForms);
-    	unsubmittedFormsText.setText(""+numUnsubmittedForms);
-    	
-    	
     	
 	}
 

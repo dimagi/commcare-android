@@ -46,10 +46,14 @@ public class FormTransferService extends IntentService {
     public static final String EXTRAS_GROUP_OWNER_ADDRESS = "go_host";
     public static final String EXTRAS_GROUP_OWNER_PORT = "go_port";
     public static final String USERNAME = "user-name";
+
+	public static final String REQUEST_RECEIVER_EXTRA = "result_receiver_extra_key";
+
+	public static final int RESULT_SUCCESS = 0;
     
     Long[] results;
 
-    public FormTransferService(Context c, String name) {
+	public FormTransferService(Context c, String name) {
     	super(name);
     	this.c = c;
         Log.d(CommCareWiFiDirectActivity.TAG, " FTS being made");

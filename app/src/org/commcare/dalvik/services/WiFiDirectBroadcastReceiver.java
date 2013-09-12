@@ -108,7 +108,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             	Log.d(CommCareWiFiDirectActivity.TAG, "requesting connection info activity");
                 manager.requestConnectionInfo(channel, activity);
             } else {
-                // It's a disconnect
+            	activity.setDeviceConnected(false);
                 activity.resetData();
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
