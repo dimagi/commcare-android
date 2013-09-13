@@ -19,6 +19,7 @@ import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
 import org.commcare.android.tasks.FormTransferTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UnzipTask;
+import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.tasks.ZipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
@@ -258,6 +259,39 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public void beReceiver(){
 		sendButton.setVisibility(View.GONE);
+	}
+	
+	public void cleanPostSend(){
+		
+		// remove Forms from CC
+		
+		WipeTask mWipeTask = new WipeTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), myStatusText){
+
+			@Override
+			protected void deliverResult(CommCareWiFiDirectActivity receiver,
+					Boolean result) {
+
+			}
+
+			@Override
+			protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
+				receiver.updateProgress(WipeTask.WIPE_TASK_ID, update[0]);
+				receiver.myStatusText.setText(update[0]);
+			}
+
+			@Override
+			protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
+				receiver.myStatusText.setText("Error wiping forms: " + e.getMessage());
+				receiver.TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+			}
+		};
+		
+		mWipeTask.connect(CommCareWiFiDirectActivity.this);
+		mWipeTask.execute();
+		
+		FileUtil.deleteFile(new File(sourceDirectory));
+		FileUtil.deleteFile(new File(sourceZipDirectory));
+		
 	}
 	
 	public void submitFiles(){
@@ -548,10 +582,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     public void onZipSuccesful(){
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zup successful, attempting to send");
     	myStatusText.setText("Zip successful, attempting to send files...");
-    	
-    	if(FileUtil.deleteFile(new File(sourceDirectory))){
-    		Log.d(TAG, "source directory not succesfully deleted");
-    	}
     	updateStatusText();
     	sendFiles();
     }
@@ -651,7 +681,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void onSendSuccessful(){
-    	// do our cleanup stuff
+    	this.cleanPostSend();
     }
     
     public void onSendFail(){

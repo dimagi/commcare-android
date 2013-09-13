@@ -354,7 +354,7 @@ public abstract class ZipTask extends CommCareTask<String, String, Boolean, Comm
     					
     						//Check for success
     						if(results[i].intValue() == ProcessAndSendTask.FULL_SUCCESS) {
-    							FormRecordCleanupTask.wipeRecord(c, platform, record);
+    							//FormRecordCleanupTask.wipeRecord(c, platform, record);
     						    //publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
     				        }
     					}

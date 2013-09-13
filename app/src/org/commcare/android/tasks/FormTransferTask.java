@@ -83,16 +83,13 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
             
         	return false;
         } finally {
-            if (socket.isConnected()) {
-               try {
-                    socket.close();
-                } catch (IOException e) {
-                    // Give up
-                    e.printStackTrace();
-                }
+           try {
+                socket.close();
+            } catch (IOException e) {
+                // Give up
+                e.printStackTrace();
             }
         }
-        
         return true;
 	}
     
