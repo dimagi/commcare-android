@@ -75,7 +75,7 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
             is = getFormInputStream(filepath);
             CommCareWiFiDirectActivity.copyFile(is, stream);
             is.close();
-
+            return true;
         } catch (IOException ioe) {
         	
             Log.e(CommCareWiFiDirectActivity.TAG, ioe.getMessage());
@@ -90,7 +90,6 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
                 e.printStackTrace();
             }
         }
-        return true;
 	}
     
 }

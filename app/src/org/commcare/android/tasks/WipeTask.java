@@ -57,17 +57,18 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
 	
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
-	
+	FormRecord[] records;
 	SqlStorage<FormRecord> storage;
 	TextView outputTextView;
 	
 	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
-	public WipeTask(Context c, CommCarePlatform platform, TextView outputTextView) throws SessionUnavailableException{
+	public WipeTask(Context c, CommCarePlatform platform, TextView outputTextView, FormRecord[] records) throws SessionUnavailableException{
 		this.c = c;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
 		taskId = WIPE_TASK_ID;
+		this.records = records;
 		platform = this.platform;
 	}
 	
@@ -94,29 +95,11 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
 	protected Boolean doTaskBackground(String... params) {
 		
 		Log.d(CommCareWiFiDirectActivity.TAG, "doing wipe task in background");
-		
-    	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-    	
-    	//Get all forms which are either unsent or unprocessed
-    	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
-    	ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
-    	
-    	if(ids.size() > 0) {
-    		FormRecord[] records = new FormRecord[ids.size()];
-    		for(int i = 0 ; i < ids.size() ; ++i) {
-    			records[i] = storage.read(ids.elementAt(i).intValue());
-    		}
-    		
-			for(int i = 0 ; i < records.length ; ++i) {
-				FormRecord record = records[i];
-				FormRecordCleanupTask.wipeRecord(c, platform, record);
-			}
-			
-			return true;
-    	} else {
-    		publishProgress("No forms to wipe.");
-    		return false;
-    	}
-	}
+		for(int i = 0 ; i < records.length ; ++i) {
+			FormRecord record = records[i];
+			FormRecordCleanupTask.wipeRecord(c, platform, record);
+		}
+		return true;
+    }
 
 }

@@ -118,6 +118,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public static final int FILE_SERVER_TASK_ID = 129123;
 	
+	public FormRecord[] cachedRecords;
+	
 	boolean isConnected;
 
 	@Override
@@ -265,7 +267,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		// remove Forms from CC
 		
-		WipeTask mWipeTask = new WipeTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), myStatusText){
+		WipeTask mWipeTask = new WipeTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), myStatusText, this.cachedRecords){
 
 			@Override
 			protected void deliverResult(CommCareWiFiDirectActivity receiver,
@@ -291,6 +293,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		FileUtil.deleteFile(new File(sourceDirectory));
 		FileUtil.deleteFile(new File(sourceZipDirectory));
+		
+		this.cachedRecords = null;
 		
 	}
 	
@@ -579,9 +583,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	zipFiles();
     }
     
-    public void onZipSuccesful(){
+    public void onZipSuccesful(FormRecord[] records){
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zup successful, attempting to send");
     	myStatusText.setText("Zip successful, attempting to send files...");
+    	this.cachedRecords = records;
     	updateStatusText();
     	sendFiles();
     }
@@ -606,18 +611,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zipping Files2");
 			ZipTask mZipTask = new ZipTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
 					myStatusText){
-				
-				@Override
-				protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
-					if(result == Boolean.TRUE){
-						receiver.onZipSuccesful();
-						return;
-					} else {
-						receiver.onZipError();
-						receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
-						return;
-					}
-				}
 
 				@Override
 				protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
@@ -629,6 +622,20 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 				protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
 					receiver.myStatusText.setText("error zipping files");
 					receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+				}
+
+				@Override
+				protected void deliverResult(
+						CommCareWiFiDirectActivity receiver, FormRecord[] result) {
+					if(result != null){
+						receiver.onZipSuccesful(result);
+						return;
+					} else {
+						receiver.onZipError();
+						receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+						return;
+					}
+					
 				}
 
 			};

@@ -47,7 +47,7 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
-public abstract class ZipTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
+public abstract class ZipTask extends CommCareTask<String, String, FormRecord[], CommCareWiFiDirectActivity>{
 
 	Context c;
 	Long[] results;
@@ -97,7 +97,7 @@ public abstract class ZipTask extends CommCareTask<String, String, Boolean, Comm
 	}
 
 	@Override
-	protected void onPostExecute(Boolean result) {
+	protected void onPostExecute(FormRecord[] result) {
 		super.onPostExecute(result);
 		//These will never get Zero'd otherwise
 		c = null;
@@ -242,7 +242,7 @@ public abstract class ZipTask extends CommCareTask<String, String, Boolean, Comm
 	}
 	
 	@Override
-	protected Boolean doTaskBackground(String... params) {
+	protected FormRecord[] doTaskBackground(String... params) {
 		
 		Log.d(CommCareWiFiDirectActivity.TAG, "doing zip task in background");
 		
@@ -272,15 +272,15 @@ public abstract class ZipTask extends CommCareTask<String, String, Boolean, Comm
 		
 		if(!mExternalStorageAvailable){
 			publishProgress(Localization.get("bulk.form.sd.unavailable"));
-			return false;
+			return null;
 		}
 		if(!mExternalStorageWriteable){
 			publishProgress(Localization.get("bulk.form.sd.unwritable"));
-			return false;
+			return null;
 		}
 		if(mExternalStorageEmulated && externalMounts.size() == 0){
 			publishProgress(Localization.get("bulk.form.sd.emulated"));
-			return false;
+			return null;
 		}
 		
 		File baseDirectory = new File(CommCareWiFiDirectActivity.baseDirectory);
@@ -402,15 +402,15 @@ public abstract class ZipTask extends CommCareTask<String, String, Boolean, Comm
     			} 
     			catch(SessionUnavailableException sue) {
     				this.cancel(false);
-    				return false;
+    				return null;
     			}
     		
     		//
     		//
-    		return true;
+    		return records;
     	} else {
     		publishProgress("No forms to send.");
-    		return false;
+    		return null;
     	}
 	}
 
