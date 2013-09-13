@@ -115,6 +115,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public TextView ownerStatusText;
 	public TextView myStatusText;
 	
+	public static final int FILE_SERVER_TASK_ID = 129123;
+	
 	boolean isConnected;
 
 	@Override
@@ -251,6 +253,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public void beSender(){
 		hostButton.setVisibility(View.GONE);
 		submitButton.setVisibility(View.GONE);
+		unzipFilesHelper();
 	}
 	
 	public void beReceiver(){
@@ -258,6 +261,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void submitFiles(){
+		
+		unzipFilesHelper();
 		
 		final String url = this.getString(R.string.PostURL);
 		
@@ -311,6 +316,21 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		};
 		mSendTask.connect(CommCareWiFiDirectActivity.this);
 		mSendTask.execute();
+	}
+	
+	public boolean unzipFilesHelper(){
+		
+		File receiveZipFile = new File(receiveZipDirectory);
+		
+		if(receiveZipFile.exists()){
+			myStatusText.setText("Zip file exists, unzipping...");
+			unzipFiles();
+			return true;
+		}
+		else{
+			myStatusText.setText("No zip file present");
+			return false;
+		}
 	}
 	
 	public void unzipFiles(){
@@ -591,7 +611,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	statusText.setText("Sending files..." );
     	Log.d(CommCareWiFiDirectActivity.TAG, "Starting form transfer task" );
     	
-    	FormTransferTask mTransferTask = new FormTransferTask(){
+    	FormTransferTask mTransferTask = new FormTransferTask(info.groupOwnerAddress.getHostAddress(),sourceZipDirectory,8988){
 
 			@Override
 			protected void deliverResult(CommCareWiFiDirectActivity receiver,
@@ -625,8 +645,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	};
     	
     	mTransferTask.connect(CommCareWiFiDirectActivity.this);
-    	String port = "8988";
-    	mTransferTask.execute(info.groupOwnerAddress.getHostAddress(),sourceZipDirectory,port);
+    	mTransferTask.execute();
     	
         Log.d(CommCareWiFiDirectActivity.TAG, "Task started");
     }
@@ -663,6 +682,20 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         	mProgressDialog = new ProgressDialog(this);
             mProgressDialog.setTitle("Submitting Forms");
             mProgressDialog.setMessage("CommCare is submitting your forms to the server");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+            return mProgressDialog;
+        case FormTransferTask.BULK_TRANSFER_ID:
+        	mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setTitle("Sending Forms");
+            mProgressDialog.setMessage("CommCare is sending your forms to your peer");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+            return mProgressDialog;
+        case FILE_SERVER_TASK_ID:
+        	mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setTitle("Starting Receiving Files");
+            mProgressDialog.setMessage("CommCare is receiving files");
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setCancelable(false);
             return mProgressDialog;
