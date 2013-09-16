@@ -115,12 +115,16 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public TextView ownerStatusText;
 	public TextView myStatusText;
+	public TextView formCountText;
+	public TextView serverStatusText;
 	
 	public static final int FILE_SERVER_TASK_ID = 129123;
 	
 	public FormRecord[] cachedRecords;
 	
 	boolean isConnected;
+	
+	boolean isSender = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -131,6 +135,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		ownerStatusText= (TextView)this.findViewById(R.id.owner_status_text);
 		
 		myStatusText = (TextView)this.findViewById(R.id.my_status_text);
+		
+		formCountText = (TextView)this.findViewById(R.id.form_count_text);
+		
+		serverStatusText = (TextView)this.findViewById(R.id.server_status_text);
 		
 		try{
 			
@@ -227,7 +235,15 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             return;
 		}
 		
-		new FileServerAsyncTask(this, this).execute();
+		FileServerAsyncTask mFileServer = new FileServerAsyncTask(this, this);
+		
+		//Execute on a true multithreaded chain. We should probably replace all of our calls with this
+		//but this is the big one for now.
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+			mFileServer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		} else {
+			mFileServer.execute();
+		}
 		mManager.createGroup(mChannel, this);
 	}
 	
@@ -254,13 +270,17 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void beSender(){
+		isSender = true;
 		hostButton.setVisibility(View.GONE);
 		submitButton.setVisibility(View.GONE);
+		updateStatusText();
 	}
 	
 	public void beReceiver(){
+		isSender = false;
 		unzipFilesHelper();
 		sendButton.setVisibility(View.GONE);
+		updateStatusText();
 	}
 	
 	public void cleanPostSend(){
@@ -272,6 +292,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			@Override
 			protected void deliverResult(CommCareWiFiDirectActivity receiver,
 					Boolean result) {
+				
+				receiver.onCleanSuccessful();
 
 			}
 
@@ -298,6 +320,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 	}
 	
+	protected void onCleanSuccessful() {
+		updateStatusText();
+	}
+
 	public void submitFiles(){
 		
 		unzipFilesHelper();
@@ -688,6 +714,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void onSendSuccessful(){
+    	updateStatusText();
+    	myStatusText.setText("Forms Tranferred Successfully!");
     	this.cleanPostSend();
     }
     
@@ -778,7 +806,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         public FileServerAsyncTask(Context context, CommCareWiFiDirectActivity mListener) {
         	Log.d(CommCareWiFiDirectActivity.TAG, "new fileasync task");
             this.context = context;
-            this.statusText = mListener.myStatusText;
+            this.statusText = mListener.serverStatusText;
             this.mListener = mListener;
             
         }
@@ -787,8 +815,12 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         protected String doInBackground(Void... params) {
         	try {
         		while(true) {
+        			
+        			statusText.setText("Ready to accept new file transfer.");
+        			
         			ServerSocket serverSocket = new ServerSocket(8988);
         			Socket client = serverSocket.accept();
+        			
         			final File f = new File(receiveZipDirectory);
 
         			File dirs = new File(f.getParent());
@@ -804,6 +836,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         		} 
         	}catch (IOException e) {
         			Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
+        			statusText.setText("File server stopped with IOException.");
         			return null;
         	}
         }
@@ -814,10 +847,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
          */
         @Override
         protected void onPostExecute(String result) {
-            if (result != null) {
-                statusText.setText("File copied - " + result);
-            }
-            mListener.unzipFiles();
+            statusText.setText("Stopped file server.");
         }
 
         /*
@@ -827,6 +857,16 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         @Override
         protected void onPreExecute() {
             statusText.setText("Opening a server socket");
+        }
+        
+        /*
+         * (non-Javadoc)
+         * @see android.os.AsyncTask#onPreExecute()
+         */
+        @Override
+        protected void onProgressUpdate(String ... params){
+        	statusText.setText("File copied - " + params[0]);
+        	mListener.unzipFiles();
         }
 
     }
@@ -883,7 +923,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	
     	int numUnsyncedForms = ids.size();
     	
-    	int numUnsubmittedForms;
+    	int numUnsubmittedForms = 0;
     	
     	File wDirectory = new File(writeDirectory);
     	
@@ -892,6 +932,12 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	}
     	else{
     		numUnsubmittedForms = wDirectory.listFiles().length;
+    	}
+    	
+    	if(isSender){
+    		formCountText.setText("Phone has " + numUnsyncedForms + " unsent forms.");
+    	}else{
+    		formCountText.setText("SD Card has " + numUnsubmittedForms + " unsubmitted forms.");
     	}
     	
 	}

@@ -66,5 +66,21 @@
             android:layout_margin="5dp"
             android:text=" " >
         </TextView>
+        <TextView
+            android:id="@+id/form_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text=" " >
+        </TextView>
+        <TextView
+            android:id="@+id/server_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text=" " >
+        </TextView>
     </LinearLayout>
 </LinearLayout>

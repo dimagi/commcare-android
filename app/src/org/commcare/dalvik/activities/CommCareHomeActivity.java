@@ -23,6 +23,7 @@ import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
+import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
@@ -396,6 +397,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    			return;
 	    		}
 	    		else if(resultCode == SendTask.BULK_SEND_ID){
+	    			int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
+	    			
+	    			displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+	    			
+	    			Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
+	    			refreshView();
+	    			return;
+	    		} else if(resultCode == WipeTask.WIPE_TASK_ID){
 	    			int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
 	    			
 	    			displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
