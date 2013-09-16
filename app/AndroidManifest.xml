@@ -216,7 +216,6 @@
         <activity android:name=".activities.MultimediaInflaterActivity"></activity>
         <activity android:name=".activities.CommCareFormDumpActivity"></activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity"></activity>
-        <service android:enabled="true" android:name="org.commcare.dalvik.services.FormTransferService" />
     </application>
 
     <uses-feature

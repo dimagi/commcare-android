@@ -56,6 +56,8 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
 		
 		public static final int UNZIP_TASK_ID = 7212435;
 		
+		public File mFile;
+		
 		public UnzipTask() throws SessionUnavailableException{
 			Log.d(CommCareWiFiDirectActivity.TAG, "UnZip task constructor");
 			this.taskId = UNZIP_TASK_ID;

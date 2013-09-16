@@ -21,12 +21,6 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
 	public Context c;
 
     private static final int SOCKET_TIMEOUT = 50000;
-    public static final String ACTION_SEND_FORM = "org.commcare.dalvik.services.SEND_FORM";
-    public static final String ACTION_SEND_STRING = "org.commcare.dalvik.services.SEND_STRING";
-    public static final String EXTRAS_FILE_PATH = "file_url";
-    public static final String EXTRAS_GROUP_OWNER_ADDRESS = "go_host";
-    public static final String EXTRAS_GROUP_OWNER_PORT = "go_port";
-    public static final String USERNAME = "user-name";
 
 	public static final String REQUEST_RECEIVER_EXTRA = "result_receiver_extra_key";
 

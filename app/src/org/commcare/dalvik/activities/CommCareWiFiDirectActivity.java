@@ -7,7 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlStorage;
@@ -50,7 +52,6 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -149,7 +150,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			sourceDirectory = baseDirectory + "/source";
 			sourceZipDirectory = baseDirectory + "/zipSource.zip";
 			receiveDirectory = baseDirectory + "/receive";
-			receiveZipDirectory = receiveDirectory + "/zipDest.zip";
+			receiveZipDirectory = receiveDirectory + "/zipDest";
 			writeDirectory = baseDirectory + "/write";
 			
 		} catch(NullPointerException npe){
@@ -384,20 +385,28 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public boolean unzipFilesHelper(){
 		
-		File receiveZipFile = new File(receiveZipDirectory);
+		File receiveZipDir = new File(receiveDirectory);
 		
-		if(receiveZipFile.exists()){
-			myStatusText.setText("Zip file exists, unzipping...");
-			unzipFiles();
-			return true;
-		}
-		else{
-			myStatusText.setText("No zip file present");
+		if(!receiveZipDir.exists() || !(receiveZipDir.isDirectory())){
 			return false;
 		}
+		
+		File[] zipDirContents = receiveZipDir.listFiles();
+		
+		if(zipDirContents.length < 1){
+			return false;
+		}
+		
+		myStatusText.setText("Zip file exists, unzipping...");
+		
+		for(int i=0; i< zipDirContents.length; i++){
+			unzipFiles(zipDirContents[i].getAbsolutePath());
+		}
+		
+		return true;
 	}
 	
-	public void unzipFiles(){
+	public void unzipFiles(String fn){
 		
 		Log.d(TAG, "creating unzip task");
 		
@@ -431,8 +440,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		};
 		
 		mUnzipTask.connect(CommCareWiFiDirectActivity.this);
-		Log.d(TAG, "executing task with: " + receiveZipDirectory + " , " + writeDirectory);
-		mUnzipTask.execute(receiveZipDirectory, writeDirectory);
+		Log.d(TAG, "executing task with: " + fn + " , " + writeDirectory);
+		mUnzipTask.execute(fn, writeDirectory);
 	}
 	
 	/* if successful, broadcasts WIFI_P2P_Peers_CHANGED_ACTION intent with list of peers
@@ -816,12 +825,18 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         	try {
         		while(true) {
         			
-        			statusText.setText("Ready to accept new file transfer.");
+        			//statusText.setText("Ready to accept new file transfer.");
         			
         			ServerSocket serverSocket = new ServerSocket(8988);
         			Socket client = serverSocket.accept();
         			
-        			final File f = new File(receiveZipDirectory);
+        			long time = System.currentTimeMillis();
+        			
+        			String finalFileName = receiveZipDirectory + time + ".zip";
+        			
+        			Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + finalFileName);
+        			
+        			final File f = new File(finalFileName);
 
         			File dirs = new File(f.getParent());
         			if (!dirs.exists())
@@ -836,7 +851,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         		} 
         	}catch (IOException e) {
         			Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
-        			statusText.setText("File server stopped with IOException.");
+        			//statusText.setText("File server stopped with IOException.");
         			return null;
         	}
         }
@@ -847,7 +862,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
          */
         @Override
         protected void onPostExecute(String result) {
-            statusText.setText("Stopped file server.");
+            //statusText.setText("Stopped file server.");
         }
 
         /*
@@ -866,7 +881,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         @Override
         protected void onProgressUpdate(String ... params){
         	statusText.setText("File copied - " + params[0]);
-        	mListener.unzipFiles();
+        	mListener.unzipFiles(params[0]);
         }
 
     }
