@@ -288,7 +288,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		// remove Forms from CC
 		
-		WipeTask mWipeTask = new WipeTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), myStatusText, this.cachedRecords){
+		WipeTask mWipeTask = new WipeTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), this.cachedRecords){
 
 			@Override
 			protected void deliverResult(CommCareWiFiDirectActivity receiver,
@@ -350,7 +350,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 		SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
-				settings.getString("PostURL", url), myStatusText, receiveFolder){
+				settings.getString("PostURL", url), receiveFolder){
 			
 			@Override
 			protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
@@ -644,8 +644,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     
     public void zipFiles(){
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zipping Files2");
-			ZipTask mZipTask = new ZipTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
-					myStatusText){
+			ZipTask mZipTask = new ZipTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform()){
 
 				@Override
 				protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
@@ -825,7 +824,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         	try {
         		while(true) {
         			
-        			//statusText.setText("Ready to accept new file transfer.");
+        			publishProgress("Ready to accept new file transfer.", null);
         			
         			ServerSocket serverSocket = new ServerSocket(8988);
         			Socket client = serverSocket.accept();
@@ -847,7 +846,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         			InputStream inputstream = client.getInputStream();
         			copyFile(inputstream, new FileOutputStream(f));
         			serverSocket.close();
-        			publishProgress(f.getAbsolutePath());
+        			publishProgress("copied files: " + f.getAbsolutePath(), f.getAbsolutePath());
         		} 
         	}catch (IOException e) {
         			Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
@@ -862,7 +861,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
          */
         @Override
         protected void onPostExecute(String result) {
-            //statusText.setText("Stopped file server.");
+            statusText.setText("Stopped file server.");
         }
 
         /*
@@ -880,8 +879,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
          */
         @Override
         protected void onProgressUpdate(String ... params){
-        	statusText.setText("File copied - " + params[0]);
-        	mListener.unzipFiles(params[0]);
+        	statusText.setText(params[0]);
+        	if(params[1] != null){
+        		mListener.unzipFiles(params[1]);
+        	}
         }
 
     }

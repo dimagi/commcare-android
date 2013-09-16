@@ -59,14 +59,12 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
 	CommCarePlatform platform;
 	FormRecord[] records;
 	SqlStorage<FormRecord> storage;
-	TextView outputTextView;
 	
 	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
-	public WipeTask(Context c, CommCarePlatform platform, TextView outputTextView, FormRecord[] records) throws SessionUnavailableException{
+	public WipeTask(Context c, CommCarePlatform platform, FormRecord[] records) throws SessionUnavailableException{
 		this.c = c;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-		this.outputTextView = outputTextView;
 		this.taskId = WIPE_TASK_ID;
 		this.records = records;
 		platform = this.platform;

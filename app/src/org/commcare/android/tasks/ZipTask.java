@@ -73,14 +73,12 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 	CommCarePlatform platform;
 	
 	SqlStorage<FormRecord> storage;
-	TextView outputTextView;
 	
 	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
-	public ZipTask(Context c, CommCarePlatform platform, TextView outputTextView) throws SessionUnavailableException{
+	public ZipTask(Context c, CommCarePlatform platform) throws SessionUnavailableException{
 		this.c = c;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-		this.outputTextView = outputTextView;
 		taskId = ZIP_TASK_ID;
 		platform = this.platform;
 	}
