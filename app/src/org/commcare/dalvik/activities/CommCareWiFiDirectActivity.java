@@ -256,10 +256,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public void beSender(){
 		hostButton.setVisibility(View.GONE);
 		submitButton.setVisibility(View.GONE);
-		unzipFilesHelper();
 	}
 	
 	public void beReceiver(){
+		unzipFilesHelper();
 		sendButton.setVisibility(View.GONE);
 	}
 	
@@ -736,6 +736,13 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setCancelable(false);
             return mProgressDialog;
+        case WipeTask.WIPE_TASK_ID:
+        	mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setTitle("Wiping forms");
+            mProgressDialog.setMessage("Cleaning up after transfer");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+            return mProgressDialog;
         }
         return null;
 	}
@@ -758,7 +765,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	this.isConnected = isConnected;
 	}
 
-	public static class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
+	public static class FileServerAsyncTask extends AsyncTask<Void, String, String> {
 
         private Context context;
         private TextView statusText;
@@ -778,25 +785,27 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
         @Override
         protected String doInBackground(Void... params) {
-            try {
-                ServerSocket serverSocket = new ServerSocket(8988);
-                Socket client = serverSocket.accept();
-                final File f = new File(receiveZipDirectory);
+        	try {
+        		while(true) {
+        			ServerSocket serverSocket = new ServerSocket(8988);
+        			Socket client = serverSocket.accept();
+        			final File f = new File(receiveZipDirectory);
 
-                File dirs = new File(f.getParent());
-                if (!dirs.exists())
-                    dirs.mkdirs();
-                f.createNewFile();
+        			File dirs = new File(f.getParent());
+        			if (!dirs.exists())
+        				dirs.mkdirs();
+        			f.createNewFile();
 
-                Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + f.toString());
-                InputStream inputstream = client.getInputStream();
-                copyFile(inputstream, new FileOutputStream(f));
-                serverSocket.close();
-                return f.getAbsolutePath();
-            } catch (IOException e) {
-                Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
-                return null;
-            }
+        			Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + f.toString());
+        			InputStream inputstream = client.getInputStream();
+        			copyFile(inputstream, new FileOutputStream(f));
+        			serverSocket.close();
+        			publishProgress(f.getAbsolutePath());
+        		} 
+        	}catch (IOException e) {
+        			Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
+        			return null;
+        	}
         }
 
         /*

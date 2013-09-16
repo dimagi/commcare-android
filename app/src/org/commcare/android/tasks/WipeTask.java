@@ -53,7 +53,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
 	Long[] results;
 	File dumpFolder;
 	
-	public static final int WIPE_TASK_ID = 7213435;
+	public static final int WIPE_TASK_ID = 9213435;
 	
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
@@ -67,7 +67,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
 		this.c = c;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.outputTextView = outputTextView;
-		taskId = WIPE_TASK_ID;
+		this.taskId = WIPE_TASK_ID;
 		this.records = records;
 		platform = this.platform;
 	}
