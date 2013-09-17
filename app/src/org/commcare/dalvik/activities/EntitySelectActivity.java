@@ -451,7 +451,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	public void afterTextChanged(Editable s) {
 		if(searchbox.getText() == s) {
 			if(adapter != null) {
-				adapter.applyFilter(s.toString());
+				adapter.applyFilter(searchbox.getEditableText().toString());
 			}
 		}
 	}
@@ -598,6 +598,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		view.setAdapter(adapter);
 		
 		findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+
+		adapter.applyFilter(searchbox.getEditableText().toString());
+		
 		
 		//In landscape we want to select something now. Either the top item, or the most recently selected one
 		if(inAwesomeMode) {
