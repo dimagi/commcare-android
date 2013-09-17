@@ -116,7 +116,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				
 	    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 				SendTask mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
-						settings.getString("PostURL", url), txtInteractiveMessages, getFolderPath()){
+						settings.getString("PostURL", url), getFolderPath()){
 					
 					protected int taskId = BULK_SEND_ID;
 					
