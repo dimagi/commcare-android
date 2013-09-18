@@ -966,16 +966,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private void dispatchHomeScreen() {
     	try {
 	        
-	        //First make sure nothing catastrophic has happened
-	        if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
-	           CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
-	        	if(!CommCareApplication._().isStorageAvailable()) {
-	        		createNoStorageDialog();
-	        	} else {
-		        	//If so, ask the user if they want to wipe and recover (Possibly try to send everything first?)
-		        	showDialog(DIALOG_CORRUPTED);
-	        	}
+
+	        if(!CommCareApplication._().isStorageAvailable()) {
+	        	createNoStorageDialog();
+	        } else if (CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
+		          CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
+		        //If so, ask the user if they want to wipe and recover (Possibly try to send everything first?)
+		        showDialog(DIALOG_CORRUPTED);
 	        }
+	        
 	        
 	        //Now we need to catch any resource or database upgrade flags and make sure that the application
 	        //is ready to go.
