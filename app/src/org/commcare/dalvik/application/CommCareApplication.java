@@ -1038,11 +1038,15 @@ public class CommCareApplication extends Application {
 		if(clearFlag) { syncPending = false; }
 		return true;
 	}
+	
+	/*
+	 * returns false if Android has no storage (emulated or physical)
+	 * for our files. does not check if file system is in place.
+	 */
 
 	public boolean isStorageAvailable() {
 		try {
-			File storageRoot = new File(getAndroidFsRoot());
-			return storageRoot.exists();
+			return Environment.getExternalStorageDirectory().exists();
 		} catch(Exception e) {
 			return false;
 		}
