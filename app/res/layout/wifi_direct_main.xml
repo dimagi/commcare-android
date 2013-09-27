@@ -25,6 +25,22 @@
 
             <!-- Preview: layout=@layout/device_detail -->
         </fragment>
+        
+        <fragment
+            android:id="@+id/wifi_manager_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="172dp"
+            class="org.commcare.android.framework.WiFiDirectManagementFragment" >
+
+            <!-- Preview: layout=@layout/device_detail -->
+        </fragment>
+        
+        <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:gravity="center_vertical"
+        android:background="@android:color/holo_blue_light" />
+        
         <Button android:id="@+id/discover_button"
     		android:layout_width="fill_parent"
     		android:layout_height="wrap_content"
@@ -82,5 +98,12 @@
             android:layout_margin="5dp"
             android:text=" " >
         </TextView>
+       	<fragment
+            class="org.commcare.android.framework.FileServerFragment"
+            android:id="@+id/file_server_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!-- Preview: layout=@layout/file_server -->
+        </fragment>
     </LinearLayout>
 </LinearLayout>

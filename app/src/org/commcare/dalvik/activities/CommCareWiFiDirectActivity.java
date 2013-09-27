@@ -1,15 +1,10 @@
 package org.commcare.dalvik.activities;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlStorage;
@@ -18,6 +13,10 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
+import org.commcare.android.framework.FileServerFragment;
+import org.commcare.android.framework.FileServerFragment.FileServerListener;
+import org.commcare.android.framework.WiFiDirectManagementFragment;
+import org.commcare.android.framework.WiFiDirectManagementFragment.WifiDirectManagerListener;
 import org.commcare.android.tasks.FormTransferTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UnzipTask;
@@ -35,7 +34,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,13 +41,11 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
-import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
-import android.os.AsyncTask;
+import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -83,7 +79,7 @@ import android.widget.Toast;
  * WiFi state related events.
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements ChannelListener, DeviceActionListener, ConnectionInfoListener, ActionListener {
+public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements ChannelListener, DeviceActionListener, FileServerListener, WifiDirectManagerListener {
 	
 	public static final String TAG = "cc-wifidirect";
 
@@ -91,9 +87,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public static final int UNZIP_TASK_ID = 392582;
 	
-	WifiP2pManager mManager;
-	Channel mChannel;
-	BroadcastReceiver mReceiver;
+	public WifiP2pManager mManager;
+	public Channel mChannel;
+	WiFiDirectBroadcastReceiver mReceiver;
 	
 	IntentFilter mIntentFilter;
 	
@@ -110,11 +106,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public static String receiveZipDirectory;
 	public static String writeDirectory;
 	
-	WifiP2pInfo info;
-	
-	private boolean isWifiP2pEnabled = false;
-	
-	public TextView ownerStatusText;
+	public TextView wiFiDirectStatusText;
 	public TextView myStatusText;
 	public TextView formCountText;
 	public TextView serverStatusText;
@@ -123,9 +115,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public FormRecord[] cachedRecords;
 	
-	boolean isConnected;
-	
-	boolean isSender = false;
+	public boolean isHost = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -133,7 +123,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		setContentView(R.layout.wifi_direct_main);
 		
-		ownerStatusText= (TextView)this.findViewById(R.id.owner_status_text);
+		wiFiDirectStatusText= (TextView)this.findViewById(R.id.owner_status_text);
 		
 		myStatusText = (TextView)this.findViewById(R.id.my_status_text);
 		
@@ -217,8 +207,15 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	/*register the broadcast receiver */
 	protected void onResume() {
 	    super.onResume();
-	    mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, this);
+	    
+        final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+		
+		mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, fragment);
         registerReceiver(mReceiver, mIntentFilter);
+        
+        fragment.startReceiver(mManager, mChannel, mReceiver);
+	    
 	    updateStatusText();
 	}
 	/* unregister the broadcast receiver */
@@ -230,22 +227,26 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public void hostGroup(){
 		
-		if(!isWifiP2pEnabled){
+		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+		
+		if(!fragment.isWifiP2pEnabled()){
             Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off",
                     Toast.LENGTH_SHORT).show();
             return;
 		}
 		
-		FileServerAsyncTask mFileServer = new FileServerAsyncTask(this, this);
-		
-		//Execute on a true multithreaded chain. We should probably replace all of our calls with this
-		//but this is the big one for now.
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-			mFileServer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		} else {
-			mFileServer.execute();
-		}
-		mManager.createGroup(mChannel, this);
+        final FileServerFragment fsFragment = (FileServerFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.file_server_fragment);
+		fsFragment.startServer(receiveZipDirectory);
+
+		mManager.createGroup(mChannel, fragment);
+	}
+	
+	public void hostWiFiGroup(){
+		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+		mManager.createGroup(mChannel, fragment);
 	}
 	
 	public void showDialog(Activity activity, String title, CharSequence message) {
@@ -271,14 +272,18 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void beSender(){
-		isSender = true;
+		isHost = false;
 		hostButton.setVisibility(View.GONE);
 		submitButton.setVisibility(View.GONE);
 		updateStatusText();
 	}
 	
 	public void beReceiver(){
-		isSender = false;
+		hostGroup();
+		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+		fragment.setIsHost(true);
+		isHost = true;
 		unzipFilesHelper();
 		sendButton.setVisibility(View.GONE);
 		updateStatusText();
@@ -451,15 +456,18 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		Log.d(TAG, "discoverPeers");
 		
-		if(!isWifiP2pEnabled){
+		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+		
+		if(!fragment.isWifiP2pEnabled()){
             Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off",
                     Toast.LENGTH_SHORT).show();
             return;
 		}
 		
-        final DeviceListFragment fragment = (DeviceListFragment) getSupportFragmentManager()
+        final DeviceListFragment dlFragment = (DeviceListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.frag_list);
-		fragment.onInitiateDiscovery();
+		dlFragment.onInitiateDiscovery();
         
         mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
 
@@ -498,13 +506,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         DeviceDetailFragment fragment = (DeviceDetailFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.frag_detail);
         fragment.showDetails(device);
-    }
-    
-    public void setIsWifiP2pEnabled(boolean isWifiP2pEnabled) {
-        this.isWifiP2pEnabled = isWifiP2pEnabled;
-        if(!isWifiP2pEnabled){
-        	this.isConnected = false;
-        }
     }
 
     @Override
@@ -610,7 +611,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	Log.d(CommCareWiFiDirectActivity.TAG, "Preparing File Transfer");
     	CommCareWiFiDirectActivity.deleteIfExists(sourceZipDirectory);
     	
-    	if(!isConnected){
+        final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+    	
+    	if(!fragment.getDeviceConnected()){
     		myStatusText.setText("This devices is not connected to any Wi-Fi Direct group.");
     		return;
     	}
@@ -682,7 +686,12 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	statusText.setText("Sending files..." );
     	Log.d(CommCareWiFiDirectActivity.TAG, "Starting form transfer task" );
     	
-    	FormTransferTask mTransferTask = new FormTransferTask(info.groupOwnerAddress.getHostAddress(),sourceZipDirectory,8988){
+        final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+        
+        String address = fragment.getHostAddress();
+    	
+    	FormTransferTask mTransferTask = new FormTransferTask(address,sourceZipDirectory,8988){
 
 			@Override
 			protected void deliverResult(CommCareWiFiDirectActivity receiver,
@@ -782,153 +791,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         }
         return null;
 	}
-
-	@Override
-	public void onConnectionInfoAvailable(WifiP2pInfo info) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "activity onConnectionInfoAvailable");
-    	
-    	this.info = info;
-
-        setIsOwner(info.groupFormed && info.isGroupOwner);
-        
-        setDeviceConnected(info.groupFormed);
-        
-        myStatusText.setText("Connected to group");
-        
-	}
-	
-    public void setDeviceConnected(boolean isConnected) {
-    	this.isConnected = isConnected;
-	}
-
-	public static class FileServerAsyncTask extends AsyncTask<Void, String, String> {
-
-        private Context context;
-        private TextView statusText;
-        private CommCareWiFiDirectActivity mListener;
-
-        /**
-         * @param context
-         * @param statusText
-         */
-        public FileServerAsyncTask(Context context, CommCareWiFiDirectActivity mListener) {
-        	Log.d(CommCareWiFiDirectActivity.TAG, "new fileasync task");
-            this.context = context;
-            this.statusText = mListener.serverStatusText;
-            this.mListener = mListener;
-            
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-        	try {
-        		while(true) {
-        			
-        			publishProgress("Ready to accept new file transfer.", null);
-        			
-        			ServerSocket serverSocket = new ServerSocket(8988);
-        			Socket client = serverSocket.accept();
-        			
-        			long time = System.currentTimeMillis();
-        			
-        			String finalFileName = receiveZipDirectory + time + ".zip";
-        			
-        			Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + finalFileName);
-        			
-        			final File f = new File(finalFileName);
-
-        			File dirs = new File(f.getParent());
-        			if (!dirs.exists())
-        				dirs.mkdirs();
-        			f.createNewFile();
-
-        			Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + f.toString());
-        			InputStream inputstream = client.getInputStream();
-        			copyFile(inputstream, new FileOutputStream(f));
-        			serverSocket.close();
-        			publishProgress("copied files: " + f.getAbsolutePath(), f.getAbsolutePath());
-        		} 
-        	}catch (IOException e) {
-        			Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
-        			//statusText.setText("File server stopped with IOException.");
-        			return null;
-        	}
-        }
-
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-         */
-        @Override
-        protected void onPostExecute(String result) {
-            statusText.setText("Stopped file server.");
-        }
-
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPreExecute()
-         */
-        @Override
-        protected void onPreExecute() {
-            statusText.setText("Opening a server socket");
-        }
-        
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPreExecute()
-         */
-        @Override
-        protected void onProgressUpdate(String ... params){
-        	statusText.setText(params[0]);
-        	if(params[1] != null){
-        		mListener.unzipFiles(params[1]);
-        	}
-        }
-
-    }
-
-    public static boolean copyFile(InputStream inputStream, OutputStream out) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "Copying file");
-    	if(inputStream == null){
-    		Log.d(CommCareWiFiDirectActivity.TAG, "Input Null");
-    	}
-        byte buf[] = new byte[1024];
-        int len;
-        try {
-            while ((len = inputStream.read(buf)) != -1) {
-            	Log.d(CommCareWiFiDirectActivity.TAG, "Copying file : " + buf);
-                out.write(buf, 0, len);
-            }
-            out.close();
-            inputStream.close();
-        } catch (IOException e) {
-            Log.d(CommCareWiFiDirectActivity.TAG, "copying error: " +  e.toString());
-            return false;
-        }
-        Log.d(CommCareWiFiDirectActivity.TAG, "Copying file completed");
-        return true;
-    }
-
-	@Override
-	public void onFailure(int reason) {
-		Log.d(CommCareWiFiDirectActivity.TAG, "new onFailure: " + reason);
-		
-	}
-
-	@Override
-	public void onSuccess() {
-		Log.d(CommCareWiFiDirectActivity.TAG, "new onSuccess");
-		
-	}
-	
-	public void setIsOwner(boolean owner){
-		if(owner){
-			ownerStatusText.setText("This device is the owner.");
-		}
-		else{
-			ownerStatusText.setText("This device is not the owner.");
-		}
-	}
 	
 	public void updateStatusText(){
 		
@@ -950,12 +812,56 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     		numUnsubmittedForms = wDirectory.listFiles().length;
     	}
     	
-    	if(isSender){
+    	if(!isHost){
     		formCountText.setText("Phone has " + numUnsyncedForms + " unsent forms.");
     	}else{
     		formCountText.setText("SD Card has " + numUnsubmittedForms + " unsubmitted forms.");
     	}
     	
+	}
+	
+    public static boolean copyFile(InputStream inputStream, OutputStream out) {
+    	Log.d(CommCareWiFiDirectActivity.TAG, "Copying file");
+    	if(inputStream == null){
+    		Log.d(CommCareWiFiDirectActivity.TAG, "Input Null");
+    	}
+        byte buf[] = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buf)) != -1) {
+            	Log.d(CommCareWiFiDirectActivity.TAG, "Copying file : " + buf);
+                out.write(buf, 0, len);
+
+            }
+            out.close();
+            inputStream.close();
+        } catch (IOException e) {
+            Log.d(CommCareWiFiDirectActivity.TAG, e.toString());
+            return false;
+        }
+        return true;
+    }
+
+	@Override
+	public void onFormsCopied(String result) {
+		Log.d(CommCareWiFiDirectActivity.TAG, "onCopySuccess");
+		this.unzipFiles(result);
+	}
+
+	@Override
+	public void updatePeers() {
+		mManager.requestPeers(mChannel, (PeerListListener) this.getSupportFragmentManager()
+               .findFragmentById(R.id.frag_list));
+		
+	}
+
+	@Override
+	public void updateDeviceStatus(WifiP2pDevice mDevice) {
+        DeviceListFragment fragment = (DeviceListFragment) this.getSupportFragmentManager()
+                .findFragmentById(R.id.frag_list);
+         
+         fragment.updateThisDevice(mDevice);
+		
 	}
 
 }

@@ -16,8 +16,8 @@
 
 package org.commcare.dalvik.services;
 
-import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
+import org.commcare.android.framework.WiFiDirectManagementFragment;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
@@ -43,7 +43,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
     private WifiP2pManager manager;
     private Channel channel;
-    private CommCareWiFiDirectActivity activity;
+    private WiFiDirectManagementFragment activity;
 
     /**
      * @param manager WifiP2pManager system service
@@ -51,7 +51,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
      * @param activity activity associated with the receiver
      */
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, Channel channel,
-            CommCareWiFiDirectActivity activity) {
+            WiFiDirectManagementFragment activity) {
         super();
         this.manager = manager;
         this.channel = channel;
@@ -73,9 +73,11 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // UI update to indicate wifi p2p status.
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+            	Log.d(CommCareWiFiDirectActivity.TAG, "BR enabled");
                 // Wifi Direct mode is enabled
                 activity.setIsWifiP2pEnabled(true);
             } else {
+            	Log.d(CommCareWiFiDirectActivity.TAG, "BR not enabled");
                 activity.setIsWifiP2pEnabled(false);
                 activity.resetData();
 
@@ -87,9 +89,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
             if (manager != null) {
-            	 Log.d(CommCareWiFiDirectActivity.TAG, "Manager not null");
-                manager.requestPeers(channel, (PeerListListener) activity.getSupportFragmentManager()
-                        .findFragmentById(R.id.frag_list));
+            	
+            	activity.onPeersChanged();
+            	
             }
             Log.d(CommCareWiFiDirectActivity.TAG, "P2P peers changed2");
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
@@ -100,24 +102,16 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
             NetworkInfo networkInfo = (NetworkInfo) intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+            
+            activity.onP2PConnectionChanged(networkInfo.isConnected());
 
-            if (networkInfo.isConnected()) {
-
-                // we are connected with the other device, request connection
-                // info to find group owner IP
-            	Log.d(CommCareWiFiDirectActivity.TAG, "requesting connection info activity");
-                manager.requestConnectionInfo(channel, activity);
-            } else {
-            	activity.setDeviceConnected(false);
-                activity.resetData();
-            }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
         	Log.d(CommCareWiFiDirectActivity.TAG, "in last else with device: " + intent.getParcelableExtra(
                     WifiP2pManager.EXTRA_WIFI_P2P_DEVICE).toString());
-            DeviceListFragment fragment = (DeviceListFragment) activity.getSupportFragmentManager()
-                   .findFragmentById(R.id.frag_list);
-            fragment.updateThisDevice((WifiP2pDevice) intent.getParcelableExtra(
-                    WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
+        	
+        	
+        	activity.onThisDeviceChanged(intent);
+        	
 
         }
     }

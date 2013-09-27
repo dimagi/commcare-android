@@ -80,7 +80,7 @@ public abstract class UnzipTask extends CommCareTask<String, String, Boolean, Co
 				zipfile = new ZipFile(archive);
 			} catch(IOException ioe) {
 				Log.d(CommCareWiFiDirectActivity.TAG, "IOException 4");
-				publishProgress(Localization.get("mult.install.bad"));
+				publishProgress("Could not find target file for unzipping.");
 				return false;
 			}
             for (Enumeration e = zipfile.entries(); e.hasMoreElements();) {

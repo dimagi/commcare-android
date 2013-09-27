@@ -74,7 +74,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         return device;
     }
 
-    private static String getDeviceStatus(int deviceStatus) {
+    public static String getDeviceStatus(int deviceStatus) {
         Log.d(CommCareWiFiDirectActivity.TAG, "Peer status :" + deviceStatus);
         switch (deviceStatus) {
             case WifiP2pDevice.AVAILABLE:
@@ -166,7 +166,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * @param device WifiP2pDevice object
      */
     public void updateThisDevice(WifiP2pDevice device) {
-    	 Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName);
+    	 Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
         this.device = device;
         TextView view = (TextView) mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);

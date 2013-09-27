@@ -148,22 +148,22 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 			// This is not the ideal long term solution for determining whether we need decryption, but works
 			if (f.getName().endsWith(".xml")) {
 				try{
-					Log.d(CommCareWiFiDirectActivity.TAG, "trying zip copy");
+					Log.d(CommCareWiFiDirectActivity.TAG, "trying zip copy2");
 					FileUtil.copyFile(f, new File(myDir, f.getName()), decrypter, null);
 				}
 				catch(IOException ie){
-					Log.d(CommCareWiFiDirectActivity.TAG, "faield zip copywith: " + f.getName());
+					Log.d(CommCareWiFiDirectActivity.TAG, "faield zip copywith2: " + f.getName());
 					publishProgress(("File writing failed: " + ie.getMessage()));
 					return ProcessAndSendTask.FAILURE;
 				}
 			}
 			else{
 				try{
-					Log.d(CommCareWiFiDirectActivity.TAG, "trying zip copy");
+					Log.d(CommCareWiFiDirectActivity.TAG, "trying zip copy2");
 					FileUtil.copyFile(f, new File(myDir, f.getName()));
 				}
 				catch(IOException ie){
-					Log.d(CommCareWiFiDirectActivity.TAG, "faield zip copy: " + f.getName());
+					Log.d(CommCareWiFiDirectActivity.TAG, "faield zip copy2 " + f.getName() + "with messageL " + ie.getMessage());
 					publishProgress(("File writing failed: " + ie.getMessage()));
 					return ProcessAndSendTask.FAILURE;
 				}
