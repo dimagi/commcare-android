@@ -115,7 +115,11 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 				if(!descriptorCache.containsKey(descriptor)) {
 					AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
 					asw.loadFromStateDescription(ssd);
-					dataTitle = asw.getTitle();
+					try{
+						dataTitle = asw.getTitle();
+					} catch(NullPointerException e){
+						dataTitle = "Could not load title due to bad app state";
+					}
 					dataTitle = dataTitle == null ? "" : dataTitle;
 					
 					descriptorCache.put(descriptor, dataTitle);
