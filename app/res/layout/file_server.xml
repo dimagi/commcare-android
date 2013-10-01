@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/file_server_view"
+    android:orientation="vertical"
+    android:layout_gravity="bottom"
+    android:layout_height="37dp"
+    android:layout_marginBottom="3dp"
+    android:visibility="gone">
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:gravity="center_vertical"
+        android:background="@android:color/holo_blue_light" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:layout_margin="5dp"
+        android:id="@+id/file_server_title"
+        android:text="File Server Manager"
+        android:textStyle="bold">
+    </TextView>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:id="@+id/file_server_status_text"
+        android:text="File Server Status">
+    </TextView>
+</LinearLayout>
+
