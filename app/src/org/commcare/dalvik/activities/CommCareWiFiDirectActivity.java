@@ -272,6 +272,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void beSender(){
+		resetData();
 		isHost = false;
 		hostButton.setVisibility(View.GONE);
 		submitButton.setVisibility(View.GONE);
@@ -279,6 +280,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void beReceiver(){
+		resetData();
 		hostGroup();
 		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
@@ -287,6 +289,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		unzipFilesHelper();
 		sendButton.setVisibility(View.GONE);
 		updateStatusText();
+		discoverButton.setVisibility(View.GONE);
 	}
 	
 	public void cleanPostSend(){
@@ -631,7 +634,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void onZipError(){
-    	Log.d(CommCareWiFiDirectActivity.TAG, "Zup unsuccesful");
+    	
+    	FileUtil.deleteFile(new File(sourceDirectory));
+    	
+    	Log.d(CommCareWiFiDirectActivity.TAG, "Zip unsuccesful");
     	
     }
     
@@ -658,7 +664,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 				@Override
 				protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
-					receiver.myStatusText.setText("error zipping files");
+					receiver.myStatusText.setText("Error zipping files");
 					receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
 				}
 

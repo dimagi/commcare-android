@@ -5,7 +5,7 @@
     android:id="@+id/wifi_manager_view"
     android:orientation="vertical"
     android:layout_gravity="bottom"
-    android:layout_height="37dp"
+    android:layout_height="wrap_content"
     android:layout_marginBottom="3dp">
         <View
         android:layout_width="fill_parent"

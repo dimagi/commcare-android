@@ -96,16 +96,14 @@ public class FileServerFragment extends Fragment {
     
     
     public void startServer(String mReceiveZipDirectory){
-    	Log.d(CommCareWiFiDirectActivity.TAG, "starting server");
+    	Log.d(CommCareWiFiDirectActivity.TAG, "File server starting...");
+    	
+    	mStatusText.setText("Starting server");
     	
     	mView.setVisibility(View.VISIBLE);
     	
     	if(mFileServer != null){
-    		Status serverStatus = mFileServer.getStatus();
-        	if(serverStatus.equals(serverStatus.RUNNING)){
-        		mStatusText.setText("Server is already running");
-        		return;
-        	}
+    		mFileServer.cancel(true);
     	}
     	
 		mFileServer = new FileServerAsyncTask(this);
@@ -170,6 +168,7 @@ public class FileServerFragment extends Fragment {
         		copyFile(inputstream, new FileOutputStream(f));
         		serverSocket.close();
         		publishProgress("copied files: " + f.getAbsolutePath(), f.getAbsolutePath());
+        		publishProgress("File Server Resetting", null);
         		return f.getAbsolutePath();
         		
         	}catch (IOException e) {

@@ -5,7 +5,7 @@
     android:id="@+id/file_server_view"
     android:orientation="vertical"
     android:layout_gravity="bottom"
-    android:layout_height="37dp"
+    android:layout_height="30dp"
     android:layout_marginBottom="3dp"
     android:visibility="gone">
     <View
@@ -15,7 +15,7 @@
         android:background="@android:color/holo_blue_light" />
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_margin="5dp"
         android:id="@+id/file_server_title"
@@ -24,7 +24,7 @@
     </TextView>
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:id="@+id/file_server_status_text"

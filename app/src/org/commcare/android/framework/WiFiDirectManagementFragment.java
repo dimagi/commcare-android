@@ -126,16 +126,21 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     }
     
 	public void onThisDeviceChanged(Intent intent) {
+		
+		setStatusText("This device's cconnection status changed...");
 	
 		WifiP2pDevice mDevice =  intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
 		
 		int status = mDevice.status;
 		
-		if(mStatus == WifiP2pDevice.CONNECTED && status == WifiP2pDevice.AVAILABLE && isHost){
+		if(status == WifiP2pDevice.AVAILABLE && isHost){
 			setStatusText("Host relaunching group...");
 			mManager.createGroup(mChannel, this);
 		}
 
+		
+		setStatusText("Host relanunching group..., status: " + DeviceListFragment.getDeviceStatus(status));
+		
 		mStatus = status;
 
         mActivity.updateDeviceStatus(mDevice);

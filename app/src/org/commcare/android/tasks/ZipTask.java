@@ -355,6 +355,11 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     							//FormRecordCleanupTask.wipeRecord(c, platform, record);
     						    //publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
     				        }
+    						
+    						if(results[i].intValue() == ProcessAndSendTask.FAILURE) {
+    							publishProgress("Failure during zipping process");
+    						 return null;	
+    						}
     					}
     					
     					

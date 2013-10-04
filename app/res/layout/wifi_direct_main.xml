@@ -7,14 +7,13 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:id="@+id/linearLayout1"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
         <fragment
             class="org.commcare.android.framework.DeviceListFragment"
             android:id="@+id/frag_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <!-- Preview: layout=@layout/row_devices -->
         </fragment>
 
         <fragment
@@ -22,8 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="172dp"
             class="org.commcare.android.framework.DeviceDetailFragment" >
-
-            <!-- Preview: layout=@layout/device_detail -->
         </fragment>
         
         <fragment
@@ -31,8 +28,6 @@
             android:layout_width="match_parent"
             android:layout_height="172dp"
             class="org.commcare.android.framework.WiFiDirectManagementFragment" >
-
-            <!-- Preview: layout=@layout/device_detail -->
         </fragment>
         
         <View
@@ -103,7 +98,6 @@
             android:id="@+id/file_server_fragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <!-- Preview: layout=@layout/file_server -->
         </fragment>
     </LinearLayout>
 </LinearLayout>
