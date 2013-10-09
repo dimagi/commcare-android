@@ -274,6 +274,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public void beSender(){
 		resetData();
 		isHost = false;
+		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+		fragment.setIsHost(false);
 		hostButton.setVisibility(View.GONE);
 		submitButton.setVisibility(View.GONE);
 		updateStatusText();

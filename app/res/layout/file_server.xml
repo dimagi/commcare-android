@@ -5,7 +5,7 @@
     android:id="@+id/file_server_view"
     android:orientation="vertical"
     android:layout_gravity="bottom"
-    android:layout_height="30dp"
+    android:layout_height="wrap_content"
     android:layout_marginBottom="3dp"
     android:visibility="gone">
     <View

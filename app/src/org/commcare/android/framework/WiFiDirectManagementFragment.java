@@ -137,9 +137,6 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 			setStatusText("Host relaunching group...");
 			mManager.createGroup(mChannel, this);
 		}
-
-		
-		setStatusText("Host relanunching group..., status: " + DeviceListFragment.getDeviceStatus(status));
 		
 		mStatus = status;
 
@@ -158,6 +155,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     
     public void setIsHost(boolean isHost){
     	this.isHost = isHost;
+    	refreshStatusText();
     }
     
     public interface WifiDirectManagerListener{
@@ -177,26 +175,33 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     	
     	this.info = info;
     	
-    	if(info.groupFormed){
-    		if(info.isGroupOwner){
-    			if(isHost){
-    				setStatusText("Successfully created and hosted group");
-    			} else{
-    				setStatusText("Bad: group owner but not host");
-    			}
-    		} else{
-    			if(isHost){
-    				setStatusText("Bad: host but not group owner");
-    			} else{
-    				setStatusText("Successfully joined group");
-    			}
-    		}
-    	}
+    	refreshStatusText();
 
         boolean isOwner = info.isGroupOwner;
         
         setDeviceConnected(info.groupFormed);
 		
+	}
+	
+	public void refreshStatusText(){
+		
+		if(info == null){return;}
+		
+    	if(info.groupFormed){
+    		if(info.isGroupOwner){
+    			if(isHost){
+    				setStatusText("Successfully created and hosted group");
+    			} else{
+    				setStatusText("Group owner but not host");
+    			}
+    		} else{
+    			if(isHost){
+    				setStatusText("Host but not group owner");
+    			} else{
+    				setStatusText("Successfully joined group");
+    			}
+    		}
+    	}
 	}
 	
 	public void setDeviceConnected(boolean connected){

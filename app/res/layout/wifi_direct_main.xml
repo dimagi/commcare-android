@@ -19,14 +19,14 @@
         <fragment
             android:id="@+id/frag_detail"
             android:layout_width="match_parent"
-            android:layout_height="172dp"
+            android:layout_height="wrap_content"
             class="org.commcare.android.framework.DeviceDetailFragment" >
         </fragment>
         
         <fragment
             android:id="@+id/wifi_manager_fragment"
             android:layout_width="match_parent"
-            android:layout_height="172dp"
+            android:layout_height="wrap_content"
             class="org.commcare.android.framework.WiFiDirectManagementFragment" >
         </fragment>
         

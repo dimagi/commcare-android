@@ -401,7 +401,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    			
 	    			displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
 	    			
-	    			Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
+	    			Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
 	    			refreshView();
 	    			return;
 	    		} else if(resultCode == WipeTask.WIPE_TASK_ID){
@@ -409,7 +409,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    			
 	    			displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
 	    			
-	    			Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
+	    			Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
 	    			refreshView();
 	    			return;
 	    		}
