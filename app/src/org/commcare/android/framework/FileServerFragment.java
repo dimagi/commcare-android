@@ -24,8 +24,10 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.javarosa.core.services.Logger;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -97,6 +99,7 @@ public class FileServerFragment extends Fragment {
     
     public void startServer(String mReceiveZipDirectory){
     	Log.d(CommCareWiFiDirectActivity.TAG, "File server starting...");
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File Server starting...");
     	
     	mStatusText.setText("Starting server");
     	
@@ -146,6 +149,8 @@ public class FileServerFragment extends Fragment {
         	try {
         		publishProgress("Ready to accept new file transfer.", null);
         			
+        		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Ready in wi-fi direct file server receive loop");
+        		
         		ServerSocket serverSocket = new ServerSocket(8988);
         		Socket client = serverSocket.accept();
         			
@@ -188,7 +193,7 @@ public class FileServerFragment extends Fragment {
         	if(result != null){
         		mActivity.onFormsCopied(result);
         	}
-        	
+        	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "file server post-execute, relaunching server");
         	mListener.startServer(receiveZipDirectory);
         }
 
@@ -198,6 +203,7 @@ public class FileServerFragment extends Fragment {
          */
         @Override
         protected void onPreExecute() {
+        	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "pre-execute of file server launch");
            // statusText.setText("Opening a server socket");
         }
         
@@ -213,6 +219,7 @@ public class FileServerFragment extends Fragment {
     }
 
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File server copying file");
     	Log.d(CommCareWiFiDirectActivity.TAG, "Copying file");
     	if(inputStream == null){
     		Log.d(CommCareWiFiDirectActivity.TAG, "Input Null");
@@ -229,8 +236,10 @@ public class FileServerFragment extends Fragment {
             inputStream.close();
         } catch (IOException e) {
             Log.d(CommCareWiFiDirectActivity.TAG, e.toString());
+            Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Copy in File Server failed");
             return false;
         }
+        Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Copy in File Server successful");
         return true;
     }
 

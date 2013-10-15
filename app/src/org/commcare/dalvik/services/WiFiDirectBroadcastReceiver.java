@@ -18,8 +18,10 @@ package org.commcare.dalvik.services;
 
 import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.WiFiDirectManagementFragment;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.javarosa.core.services.Logger;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -68,6 +70,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
     	Log.d(CommCareWiFiDirectActivity.TAG, "in on receive ");
         String action = intent.getAction();
+        
+        Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "onReceive of BroadCastReceiver with action: " + action);
+        
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
             // UI update to indicate wifi p2p status.

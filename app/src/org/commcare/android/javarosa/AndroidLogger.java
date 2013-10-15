@@ -61,6 +61,9 @@ public class AndroidLogger implements ILogger {
 	/** Problem reported via report activity at home screen **/
 	public static final String USER_REPORTED_PROBLEM = "user-report";
 	
+	/** Problem with Wi-fi direct process **/
+	public static final String TYPE_WIFI_DIRECT = "wifi-direct";
+	
 	//TODO: Currently assumes that it gets back iterated records in RecordID order.
 	//when serializing a limited number of records then clearing
 

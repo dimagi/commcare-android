@@ -30,11 +30,13 @@
             class="org.commcare.android.framework.WiFiDirectManagementFragment" >
         </fragment>
         
-        <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:gravity="center_vertical"
-        android:background="@android:color/holo_blue_light" />
+        <fragment
+            class="org.commcare.android.framework.FileServerFragment"
+            android:id="@+id/file_server_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!-- Preview: layout=@layout/file_server -->
+        </fragment>
         
         <Button android:id="@+id/discover_button"
     		android:layout_width="fill_parent"
@@ -50,12 +52,8 @@
     		android:layout_width="fill_parent"
     		android:layout_height="wrap_content"
     		android:layout_alignParentBottom="true"
-    		android:text="Become Server" />
-	    <Button android:id="@+id/reset_button"
-    		android:layout_width="fill_parent"
-    		android:layout_height="wrap_content"
-    		android:layout_alignParentBottom="true"
-    		android:text="Reset Files" />
+    		android:text="Become Server" 
+    		android:visibility="gone"/>
 	    <Button android:id="@+id/submit_button"
     		android:layout_width="fill_parent"
     		android:layout_height="wrap_content"
@@ -86,18 +84,12 @@
             android:text=" " >
         </TextView>
         <TextView
-            android:id="@+id/server_status_text"
+            android:id="@+id/server_status_text"	
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="5dp"
             android:text=" " >
         </TextView>
-       	<fragment
-            class="org.commcare.android.framework.FileServerFragment"
-            android:id="@+id/file_server_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </fragment>
     </LinearLayout>
 </LinearLayout>

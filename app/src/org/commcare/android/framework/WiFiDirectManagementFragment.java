@@ -16,9 +16,11 @@
 
 package org.commcare.android.framework;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
+import org.javarosa.core.services.Logger;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -109,11 +111,14 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     }
     
     public void onPeersChanged(){
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Wi-fi direct peers changed");
     	mActivity.updatePeers();
     }
     
     public void onP2PConnectionChanged(boolean isConnected){
         if (isConnected) {
+        	
+        	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Wifi direct P2P connection changed");
 
             // we are connected with the other device, request connection
             // info to find group owner IP
@@ -134,6 +139,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 		int status = mDevice.status;
 		
 		if(status == WifiP2pDevice.AVAILABLE && isHost){
+			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Relaunching Wi-fi direct group as host");
 			setStatusText("Host relaunching group...");
 			mManager.createGroup(mChannel, this);
 		}

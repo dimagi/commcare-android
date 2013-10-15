@@ -17,6 +17,7 @@ import org.commcare.android.framework.FileServerFragment;
 import org.commcare.android.framework.FileServerFragment.FileServerListener;
 import org.commcare.android.framework.WiFiDirectManagementFragment;
 import org.commcare.android.framework.WiFiDirectManagementFragment.WifiDirectManagerListener;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.FormTransferTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UnzipTask;
@@ -27,6 +28,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import android.annotation.TargetApi;
@@ -44,7 +46,6 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
@@ -79,7 +80,7 @@ import android.widget.Toast;
  * WiFi state related events.
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements ChannelListener, DeviceActionListener, FileServerListener, WifiDirectManagerListener {
+public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
 	
 	public static final String TAG = "cc-wifidirect";
 
@@ -97,7 +98,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	Button sendButton;
 	Button hostButton;
 	Button submitButton;
-	Button resetButton;
 	
 	public static String baseDirectory;
 	public static String sourceDirectory;
@@ -175,14 +175,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			
 		});
 		
-		resetButton = (Button)this.findViewById(R.id.reset_button);
-		resetButton.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				resetData();
-			}
-			
-		});
 		
 		submitButton = (Button)this.findViewById(R.id.submit_button);
 		submitButton.setOnClickListener(new OnClickListener(){
@@ -208,6 +200,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	protected void onResume() {
 	    super.onResume();
 	    
+	    Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "resuming wi-fi direct activity");
+	    
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 		
@@ -222,17 +216,22 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	@Override
 	protected void onPause() {
 	    super.onPause();
+	    Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Pausing wi-fi direct activity");
 	    unregisterReceiver(mReceiver);
 	}
 	
 	public void hostGroup(){
 		
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Hosting Wi-fi direct group");
+		
 		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 		
 		if(!fragment.isWifiP2pEnabled()){
-            Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off",
+			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "returning because Wi-fi direct is not available");
+            Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off - Turn it on, and press the \"Host\" button",
                     Toast.LENGTH_SHORT).show();
+            hostButton.setVisibility(View.VISIBLE);
             return;
 		}
 		
@@ -244,6 +243,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void hostWiFiGroup(){
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "creating wi-fi group");
 		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 		mManager.createGroup(mChannel, fragment);
@@ -272,6 +272,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void beSender(){
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Device designated as sender");
 		resetData();
 		isHost = false;
 		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
@@ -283,6 +284,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void beReceiver(){
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"Device designated as receiver");
 		resetData();
 		hostGroup();
 		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
@@ -296,6 +298,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	public void cleanPostSend(){
+		
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "cleaning forms after successful Wi-fi direct transfer");
 		
 		// remove Forms from CC
 		
@@ -333,10 +337,13 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
 	protected void onCleanSuccessful() {
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "clean successful");
 		updateStatusText();
 	}
 
 	public void submitFiles(){
+		
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "submitting forms in Wi-fi direct activity");
 		
 		unzipFilesHelper();
 		
@@ -386,6 +393,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 			@Override
 			protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
+				Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Error submitting forms in wi-fi direct");
 				receiver.myStatusText.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
 				receiver.TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
 			}
@@ -419,15 +427,16 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public void unzipFiles(String fn){
 		
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Unzipping files in Wi-fi direct");
 		Log.d(TAG, "creating unzip task");
 		
 		UnzipTask mUnzipTask = new UnzipTask() {
 
 			@Override
-			protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
+			protected void deliverResult( CommCareWiFiDirectActivity receiver, Integer result) {
 				Log.d(TAG, "delivering unzip result");
-				if(result == Boolean.TRUE){
-					receiver.onUnzipSuccessful();
+				if(result > 0){
+					receiver.onUnzipSuccessful(result);
 					return;
 				} else {
 					//assume that we've already set the error message, but make it look scary
@@ -460,6 +469,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	 */
 	public void discoverPeers(){
 		
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Discovering Wi-fi direct peers");
 		Log.d(TAG, "discoverPeers");
 		
 		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
@@ -485,8 +495,20 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
             @Override
             public void onFailure(int reasonCode) {
-                Toast.makeText(CommCareWiFiDirectActivity.this, "Discovery Failed : " + reasonCode,
-                        Toast.LENGTH_SHORT).show();
+            	
+            	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Discovery of Wi-fi peers failed");
+            	
+            	if(reasonCode == 0){
+                    Toast.makeText(CommCareWiFiDirectActivity.this, "Discovery Failed likely due to bad Wi-fi; please retry",
+                            Toast.LENGTH_SHORT).show();
+            	} else if(reasonCode == 2){
+            		Toast.makeText(CommCareWiFiDirectActivity.this, "Discovery failed due to bad Wi-fi state; turn Wi-fi on and off, then retry",
+                            Toast.LENGTH_SHORT).show();
+            	} else{
+            		Toast.makeText(CommCareWiFiDirectActivity.this, "Discovery failed with reason code: " + reasonCode,
+                            Toast.LENGTH_SHORT).show();
+            	}
+            	
             }
         });
 	}
@@ -517,6 +539,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     @Override
     public void connect(WifiP2pConfig config) {
     	
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"connecting to wi-fi peer");
+    	
     	Log.d(TAG, "connect in activity");
     	
         mManager.connect(mChannel, config, new ActionListener() {
@@ -528,6 +552,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
             @Override
             public void onFailure(int reason) {
+            	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"Connection to peer failed");
                 Toast.makeText(CommCareWiFiDirectActivity.this, "Connect failed. Retry.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -536,6 +561,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
     @Override
     public void disconnect() {
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "disconnecting from wi-fi direct group");
         final DeviceDetailFragment fragment = (DeviceDetailFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.frag_detail);
         fragment.resetViews();
@@ -553,20 +579,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             }
 
         });
-    }
-
-    @Override
-    public void onChannelDisconnected() {
-        // we will try once more
-        if (mManager != null) {
-            Toast.makeText(this, "Channel lost. Trying again", Toast.LENGTH_LONG).show();
-            //resetData();
-            mManager.initialize(this, getMainLooper(), this);
-        } else {
-            Toast.makeText(this,
-                    "Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.",
-                    Toast.LENGTH_LONG).show();
-        }
     }
 
     @Override
@@ -614,13 +626,16 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void prepareFileTransfer(){
-    	Log.d(CommCareWiFiDirectActivity.TAG, "Preparing File Transfer");
+    	
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Preparing File Transfer");
+
     	CommCareWiFiDirectActivity.deleteIfExists(sourceZipDirectory);
     	
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
     	
     	if(!fragment.getDeviceConnected()){
+    		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Device not connected to Wi-Fi Direct group");
     		myStatusText.setText("This devices is not connected to any Wi-Fi Direct group.");
     		return;
     	}
@@ -629,7 +644,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void onZipSuccesful(FormRecord[] records){
-    	Log.d(CommCareWiFiDirectActivity.TAG, "Zup successful, attempting to send");
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "successfully zipped files of size: " + records.length);
+    	Log.d(CommCareWiFiDirectActivity.TAG, "Zip successful, attempting to send");
     	myStatusText.setText("Zip successful, attempting to send files...");
     	this.cachedRecords = records;
     	updateStatusText();
@@ -640,12 +656,20 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	
     	FileUtil.deleteFile(new File(sourceDirectory));
     	
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Error zipping files");
+    	
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zip unsuccesful");
     	
     }
     
-    public void onUnzipSuccessful(){
-    	myStatusText.setText("Unzip successful");
+    public void onUnzipSuccessful(Integer result){
+    	
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Successfully unzipped files");
+    	
+        Toast.makeText(CommCareWiFiDirectActivity.this, "Received " + result.toString() + " Files Successfully!",
+                Toast.LENGTH_SHORT).show();
+    	
+    	myStatusText.setText("Receive Successful!");
     	
     	if(!FileUtil.deleteFile(new File(receiveDirectory))){
     		Log.d(TAG, "source zip not succesfully deleted");
@@ -656,6 +680,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void zipFiles(){
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Zipping Files");
     	Log.d(CommCareWiFiDirectActivity.TAG, "Zipping Files2");
 			ZipTask mZipTask = new ZipTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform()){
 
@@ -691,6 +716,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void sendFiles(){
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Sending Files via Wi-fi Direct");
     	TextView statusText = myStatusText;
     	statusText.setText("Sending files..." );
     	Log.d(CommCareWiFiDirectActivity.TAG, "Starting form transfer task" );
@@ -740,13 +766,19 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
     
     public void onSendSuccessful(){
+    	
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File Send Successful");
+    	
+        Toast.makeText(CommCareWiFiDirectActivity.this, "File Send Successful!",
+                Toast.LENGTH_SHORT).show();
+    	
     	updateStatusText();
     	myStatusText.setText("Forms Tranferred Successfully!");
     	this.cleanPostSend();
     }
     
     public void onSendFail(){
-    	// present an error
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Error Sending Files");
     }
     
 	/* (non-Javadoc)
@@ -830,6 +862,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	}
 	
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
+    	
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Copying file in Wi-Fi Direct Activity");
+    	
     	Log.d(CommCareWiFiDirectActivity.TAG, "Copying file");
     	if(inputStream == null){
     		Log.d(CommCareWiFiDirectActivity.TAG, "Input Null");
@@ -853,12 +888,14 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 	@Override
 	public void onFormsCopied(String result) {
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Copied files successfully");
 		Log.d(CommCareWiFiDirectActivity.TAG, "onCopySuccess");
 		this.unzipFiles(result);
 	}
 
 	@Override
 	public void updatePeers() {
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Wi-Fi direct peers updating");
 		mManager.requestPeers(mChannel, (PeerListListener) this.getSupportFragmentManager()
                .findFragmentById(R.id.frag_list));
 		
@@ -866,6 +903,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 	@Override
 	public void updateDeviceStatus(WifiP2pDevice mDevice) {
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Wi-fi direct status updating");
         DeviceListFragment fragment = (DeviceListFragment) this.getSupportFragmentManager()
                 .findFragmentById(R.id.frag_list);
          
