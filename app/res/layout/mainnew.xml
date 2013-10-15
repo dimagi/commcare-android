@@ -9,14 +9,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Logout of CommCare" android:drawableLeft="@drawable/door"/>
+        android:text="Logout of CommCare" 
+        android:drawableLeft="@drawable/door"/>
 
     <TextView
         android:id="@+id/str_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/home.logout"
-        android:layout_alignParentLeft="true" android:textAppearance="@style/VersionIdText"/>
+        android:layout_alignParentLeft="true" 
+        android:textAppearance="@style/VersionIdText"/>
 
     <ImageView
         android:id="@+id/main_top_banner"
@@ -24,7 +26,10 @@
         android:layout_height="wrap_content"
         android:scaleType="fitCenter"
         android:src="@drawable/ccbanner_hms"
-        android:visibility="visible" android:layout_alignParentTop="true"/>
+        android:visibility="visible" 
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true"
+        android:paddingTop="10dp"/>
 
     <LinearLayout
         android:id="@+id/main_center_pane"
@@ -51,11 +56,11 @@
                 android:layout_height="wrap_content"
                 android:text="Form Records"
                 android:textAppearance="?android:attr/textAppearanceMedium" android:layout_gravity="center_vertical|center_horizontal|center"/>
-
+
             <LinearLayout
                 android:id="@+id/linearLayout3"
                 android:layout_width="fill_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
 
                 <Button
                     android:id="@+id/home.forms.incomplete"
@@ -76,7 +81,8 @@
             android:id="@+id/LinearLayout01"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical" 
+            android:layout_above="@id/str_version">
 
             <Button
                 android:id="@+id/home.sync"
