@@ -145,7 +145,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     	//Retrieve instance state
 		if(savedInstanceState == null) {
-			incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
+			if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
+				
+				//We got called from an outside application, it's gonna be a wild ride!
+				incomingRef = this.getIntent().getData().toString();
+				this.uiState=uiState.ready;
+				//Now just start up normally.
+			}else{
+				
+				incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
+				
+			}
 			inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
 			isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
 		} else {
@@ -190,12 +200,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		dbState = CommCareApplication._().getDatabaseState();
 		resourceState = CommCareApplication._().getAppResourceState();
 		
-		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
-			//We got called from an outside application, it's gonna be a wild ride!
-			incomingRef = this.getIntent().getData().toString();
-			this.uiState=uiState.ready;
-			//Now just start up normally.
-		} else {
+		if(!Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
 			//and we can just skip this unless it's upgradeMode
 			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && !inUpgradeMode) {
