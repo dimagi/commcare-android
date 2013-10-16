@@ -193,6 +193,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
 			//We got called from an outside application, it's gonna be a wild ride!
 			incomingRef = this.getIntent().getData().toString();
+			this.uiState=uiState.ready;
 			//Now just start up normally.
 		} else {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
