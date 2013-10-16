@@ -17,7 +17,8 @@
     android:maxHeight="135px" 
     android:maxWidth="663px" 
     android:src="@drawable/ccbanner"
-    android:layout_alignParentTop="true"/>
+    android:layout_alignParentTop="true"
+    android:adjustViewBounds="true"/>
 
 <RelativeLayout
     android:id="@+id/mainLayout"
