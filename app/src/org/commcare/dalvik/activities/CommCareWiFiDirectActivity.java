@@ -49,6 +49,7 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -94,10 +95,12 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	IntentFilter mIntentFilter;
 	
+	public enum wdState{send,receive,submit};
+	
 	Button discoverButton;
 	Button sendButton;
-	Button hostButton;
 	Button submitButton;
+	Button changeModeButton;
 	
 	public static String baseDirectory;
 	public static String sourceDirectory;
@@ -110,12 +113,13 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public TextView myStatusText;
 	public TextView formCountText;
 	public TextView serverStatusText;
+	public TextView stateStatusText;
 	
 	public static final int FILE_SERVER_TASK_ID = 129123;
 	
-	public FormRecord[] cachedRecords;
+	public wdState mState = wdState.send;
 	
-	public boolean isHost = false;
+	public FormRecord[] cachedRecords;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -130,6 +134,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		formCountText = (TextView)this.findViewById(R.id.form_count_text);
 		
 		serverStatusText = (TextView)this.findViewById(R.id.server_status_text);
+		
+		stateStatusText = (TextView)this.findViewById(R.id.wifi_state_status);
 		
 		try{
 			
@@ -166,21 +172,20 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			
 		});
 		
-		hostButton = (Button)this.findViewById(R.id.host_button);
-		hostButton.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				hostGroup();
-			}
-			
-		});
-		
-		
 		submitButton = (Button)this.findViewById(R.id.submit_button);
 		submitButton.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
 				submitFiles();
+			}
+			
+		});
+		
+		changeModeButton = (Button)this.findViewById(R.id.reset_state_button);
+		changeModeButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				changeState();
 			}
 			
 		});
@@ -193,7 +198,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	    mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 	    mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 	    
-	    showDialog(this, "Send or Receive", "Do you want to send or receive forms?");
+	    showDialog(this, "Transfer, Receive, Submit?", "Do you want to transfer, receive, or submit forms?");
 	}
 	
 	/*register the broadcast receiver */
@@ -224,6 +229,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Hosting Wi-fi direct group");
 		
+        final FileServerFragment fsFragment = (FileServerFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.file_server_fragment);
+		fsFragment.startServer(receiveZipDirectory);
+		
 		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 		
@@ -231,15 +240,15 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "returning because Wi-fi direct is not available");
             Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off - Turn it on, and press the \"Host\" button",
                     Toast.LENGTH_SHORT).show();
-            hostButton.setVisibility(View.VISIBLE);
+            //hostButton.setVisibility(View.VISIBLE);
             return;
 		}
-		
-        final FileServerFragment fsFragment = (FileServerFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.file_server_fragment);
-		fsFragment.startServer(receiveZipDirectory);
 
 		mManager.createGroup(mChannel, fragment);
+	}
+	
+	public void changeState(){
+		showDialog(this, "Send, Receive, Submit?", "Do you want to send, receive, or submit forms?");
 	}
 	
 	public void hostWiFiGroup(){
@@ -254,7 +263,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	    if (title != null)
 	        builder.setTitle(title);
 	    builder.setMessage(message);
-	    builder.setPositiveButton("Receive Forms", new DialogInterface.OnClickListener(){
+	    builder.setNeutralButton("Receive Forms", new DialogInterface.OnClickListener(){
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -268,33 +277,108 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 				beSender();
 			}});
 	    
+	    builder.setPositiveButton("Submit Forms", new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int id) {
+	        	beSubmitter();
+	        }});
+	    
 	    builder.show();
 	}
 	
 	public void beSender(){
-		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Device designated as sender");
-		resetData();
-		isHost = false;
+		
 		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
+		
+        DeviceListFragment fragmentList = (DeviceListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.frag_list);
+        
+        DeviceDetailFragment fragmentDetails = (DeviceDetailFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.frag_detail);
+        
+        FileServerFragment fsFragment = (FileServerFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.file_server_fragment);
+
+		FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+		
+		tr.show(fragment);
+		tr.show(fragmentList);
+		tr.show(fragmentDetails);
+		tr.hide(fsFragment);
+		tr.commit();
+		
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Device designated as sender");
+		resetData();
+		mState = wdState.send;
 		fragment.setIsHost(false);
-		hostButton.setVisibility(View.GONE);
 		submitButton.setVisibility(View.GONE);
 		updateStatusText();
 	}
 	
 	public void beReceiver(){
+		
+		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+		
+        DeviceListFragment fragmentList = (DeviceListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.frag_list);
+        
+        DeviceDetailFragment fragmentDetails = (DeviceDetailFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.frag_detail);
+        
+        FileServerFragment fsFragment = (FileServerFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.file_server_fragment);
+
+		FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+		
+		tr.show(fragment);
+		tr.show(fragmentList);
+		tr.show(fragmentDetails);
+		tr.show(fsFragment);
+		tr.commit();
+		
 		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"Device designated as receiver");
 		resetData();
 		hostGroup();
-		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.wifi_manager_fragment);
+
 		fragment.setIsHost(true);
-		isHost = true;
+		mState = wdState.receive;
 		unzipFilesHelper();
 		sendButton.setVisibility(View.GONE);
 		updateStatusText();
 		discoverButton.setVisibility(View.GONE);
+		submitButton.setVisibility(View.GONE);
+	}
+	
+	public void beSubmitter(){
+		
+		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+		
+        DeviceListFragment fragmentList = (DeviceListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.frag_list);
+        
+        DeviceDetailFragment fragmentDetails = (DeviceDetailFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.frag_detail);
+        
+        FileServerFragment fsFragment = (FileServerFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.file_server_fragment);
+
+		FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+
+		tr.hide(fsFragment);
+		tr.hide(fragment);
+		tr.hide(fragmentList);
+		tr.hide(fragmentDetails);
+		tr.commit();
+		
+		mState = wdState.submit;
+		
+		updateStatusText();
+		
+		discoverButton.setVisibility(View.GONE);
+		sendButton.setVisibility(View.GONE);
+		submitButton.setVisibility(View.VISIBLE);
 	}
 	
 	public void cleanPostSend(){
@@ -356,6 +440,12 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		}
 		
 		File[] files = receiveFolder.listFiles();
+		
+		if (files == null){
+			myStatusText.setText("Phone has received no forms via Wi-fi direct for Submitting; did you mean to Send forms?");
+			TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+			return;
+		}
 		
 		final int formsOnSD = files.length;
 				
@@ -853,9 +943,14 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     		numUnsubmittedForms = wDirectory.listFiles().length;
     	}
     	
-    	if(!isHost){
+    	if(mState.equals(wdState.send)){
     		formCountText.setText("Phone has " + numUnsyncedForms + " unsent forms.");
-    	}else{
+    		stateStatusText.setText("You are in Send Form mode. This will allow you to send forms from this device to another device via Wi-Fi Direct.");
+    	} else if(mState.equals(wdState.receive)){
+    		stateStatusText.setText("You are in Receive Form mode. This will allow you to receive forms on this device from another device via Wi-Fi Direct");
+    		formCountText.setText("SD Card has " + numUnsubmittedForms + " collected forms.");
+    	} else{
+    		stateStatusText.setText("You are in Submit Form mode. This mode will allow you to submit forms to the CommCare Server if you have an internet connection.");
     		formCountText.setText("SD Card has " + numUnsubmittedForms + " unsubmitted forms.");
     	}
     	

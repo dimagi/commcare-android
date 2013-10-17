@@ -50,69 +50,69 @@ import android.widget.TextView;
 @SuppressLint("NewApi")
 public class FileServerFragment extends Fragment {
 
-    protected static final int CHOOSE_FILE_RESULT_CODE = 20;
-    private View mContentView = null;
-    ProgressDialog progressDialog = null;
-    
-    private static CommCareWiFiDirectActivity mActivity;
-    
-    private TextView mStatusText;
-    private View mView;
-    
-    public static String receiveZipDirectory;
-    
-    private FileServerAsyncTask mFileServer;
+	protected static final int CHOOSE_FILE_RESULT_CODE = 20;
+	private View mContentView = null;
+	ProgressDialog progressDialog = null;
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-    
-    @Override
-    public void onAttach(Activity activity){
-        super.onAttach(activity);
-        try {
-            mActivity = (CommCareWiFiDirectActivity) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement fileServerListener");
-        }
+	private static CommCareWiFiDirectActivity mActivity;
 
-    }
+	private TextView mStatusText;
+	private View mView;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public static String receiveZipDirectory;
 
-        mContentView = inflater.inflate(R.layout.file_server, null);
-        
-        mStatusText = (TextView)mContentView.findViewById(R.id.file_server_status_text);
-        
-        mView = (View)mContentView.findViewById(R.id.file_server_view);
-        
-        return mContentView;
-    }
-    
-    
-    public interface FileServerListener{
-    	public void onFormsCopied(String result);
-    }
-    
-    
-    public void startServer(String mReceiveZipDirectory){
-    	Log.d(CommCareWiFiDirectActivity.TAG, "File server starting...");
-    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File Server starting...");
-    	
-    	mStatusText.setText("Starting server");
-    	
-    	mView.setVisibility(View.VISIBLE);
-    	
-    	if(mFileServer != null){
-    		mFileServer.cancel(true);
-    	}
-    	
+	private FileServerAsyncTask mFileServer;
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	@Override
+	public void onAttach(Activity activity){
+		super.onAttach(activity);
+		try {
+			mActivity = (CommCareWiFiDirectActivity) activity;
+		} catch (ClassCastException e) {
+			throw new ClassCastException(activity.toString() + " must implement fileServerListener");
+		}
+
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+		mContentView = inflater.inflate(R.layout.file_server, null);
+
+		mStatusText = (TextView)mContentView.findViewById(R.id.file_server_status_text);
+
+		mView = (View)mContentView.findViewById(R.id.file_server_view);
+
+		return mContentView;
+	}
+
+
+	public interface FileServerListener{
+		public void onFormsCopied(String result);
+	}
+
+
+	public void startServer(String mReceiveZipDirectory){
+		Log.d(CommCareWiFiDirectActivity.TAG, "File server starting...");
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File Server starting...");
+
+		mStatusText.setText("Starting server");
+
+		mView.setVisibility(View.VISIBLE);
+
+		if(mFileServer != null){
+			mFileServer.cancel(true);
+		}
+
 		mFileServer = new FileServerAsyncTask(this);
-		
+
 		receiveZipDirectory = mReceiveZipDirectory;
-		
+
 		//Execute on a true multithreaded chain. We should probably replace all of our calls with this
 		//but this is the big one for now.
 		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -120,127 +120,144 @@ public class FileServerFragment extends Fragment {
 		} else {
 			mFileServer.execute();
 		}
-    }
-    
+	}
 
-    /**
-     * A simple server socket that accepts connection and writes some data on
-     * the stream.
-     */
+
+	/**
+	 * A simple server socket that accepts connection and writes some data on
+	 * the stream.
+	 */
 	public static class FileServerAsyncTask extends AsyncTask<Void, String, String> {
 
-        private TextView statusText;
-        private FileServerFragment mListener;
+		private TextView statusText;
+		private FileServerFragment mListener;
 
+		/**
+		 * @param context
+		 * @param statusText
+		 */
+		public FileServerAsyncTask(FileServerFragment mListener) {
+			Log.d(CommCareWiFiDirectActivity.TAG, "new fileasync task");
+			this.statusText = mListener.mStatusText;
+			this.mListener = mListener;
 
-        /**
-         * @param context
-         * @param statusText
-         */
-        public FileServerAsyncTask(FileServerFragment mListener) {
-        	Log.d(CommCareWiFiDirectActivity.TAG, "new fileasync task");
-            this.statusText = mListener.mStatusText;
-            this.mListener = mListener;
-            
-        }
+		}
 
-        @Override
-        protected String doInBackground(Void... params) {
-        	try {
-        		publishProgress("Ready to accept new file transfer.", null);
-        			
-        		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Ready in wi-fi direct file server receive loop");
-        		
-        		ServerSocket serverSocket = new ServerSocket(8988);
-        		Socket client = serverSocket.accept();
-        			
-        		long time = System.currentTimeMillis();
-        			
-        		String finalFileName = receiveZipDirectory + time + ".zip";
-        			
-        		Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + finalFileName);
-        			
-        		final File f = new File(finalFileName);
+		@Override
+		protected String doInBackground(Void... params) {
 
-        		File dirs = new File(f.getParent());
-        		if (!dirs.exists()){
-        			dirs.mkdirs();
-        		}
-        		f.createNewFile();
+			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "doing in background");
 
-        		Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + f.toString());
-        		InputStream inputstream = client.getInputStream();
-        		copyFile(inputstream, new FileOutputStream(f));
-        		serverSocket.close();
-        		publishProgress("copied files: " + f.getAbsolutePath(), f.getAbsolutePath());
-        		publishProgress("File Server Resetting", null);
-        		return f.getAbsolutePath();
-        		
-        	}catch (IOException e) {
-        		Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
-        		publishProgress("File Server crashed with an IO Exception: " + e.getMessage());
-        		return null;
-        	}
-        }
+			try{
+				ServerSocket serverSocket = new ServerSocket(8988);
 
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-         */
-        @Override
-        protected void onPostExecute(String result) {
-        	Log.e(CommCareWiFiDirectActivity.TAG, "file server task post execute");
-        	if(result != null){
-        		mActivity.onFormsCopied(result);
-        	}
-        	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "file server post-execute, relaunching server");
-        	mListener.startServer(receiveZipDirectory);
-        }
+				try {
+					publishProgress("Ready to accept new file transfer.", null);
 
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPreExecute()
-         */
-        @Override
-        protected void onPreExecute() {
-        	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "pre-execute of file server launch");
-           // statusText.setText("Opening a server socket");
-        }
-        
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPreExecute()
-         */
-        @Override
-        protected void onProgressUpdate(String ... params){
-        	statusText.setText(params[0]);
-        }
+					Socket client = serverSocket.accept();
 
-    }
+					Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Ready in wi-fi direct file server receive loop");
 
-    public static boolean copyFile(InputStream inputStream, OutputStream out) {
-    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File server copying file");
-    	Log.d(CommCareWiFiDirectActivity.TAG, "Copying file");
-    	if(inputStream == null){
-    		Log.d(CommCareWiFiDirectActivity.TAG, "Input Null");
-    	}
-        byte buf[] = new byte[1024];
-        int len;
-        try {
-            while ((len = inputStream.read(buf)) != -1) {
-            	Log.d(CommCareWiFiDirectActivity.TAG, "Copying file : " + new String(buf));
-                out.write(buf, 0, len);
+					long time = System.currentTimeMillis();
 
-            }
-            out.close();
-            inputStream.close();
-        } catch (IOException e) {
-            Log.d(CommCareWiFiDirectActivity.TAG, e.toString());
-            Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Copy in File Server failed");
-            return false;
-        }
-        Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Copy in File Server successful");
-        return true;
-    }
+					String finalFileName = receiveZipDirectory + time + ".zip";
+
+					Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + finalFileName);
+
+					final File f = new File(finalFileName);
+
+					File dirs = new File(f.getParent());
+					if (!dirs.exists()){
+						dirs.mkdirs();
+					}
+					f.createNewFile();
+
+					Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + f.toString());
+					InputStream inputstream = client.getInputStream();
+					copyFile(inputstream, new FileOutputStream(f));
+					serverSocket.close();
+					publishProgress("copied files: " + f.getAbsolutePath(), f.getAbsolutePath());
+					publishProgress("File Server Resetting", null);
+					return f.getAbsolutePath();
+
+				}catch (IOException e) {
+					Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
+					publishProgress("File Server crashed with an IO Exception: " + e.getMessage());
+					return null;
+				}finally{
+					serverSocket.close();
+				}
+			}catch(IOException ioe){
+				publishProgress("Ready to accept new file transfer.", null);
+				Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "couldn't open socket!");
+				return "socket";
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute(String result) {
+			Log.e(CommCareWiFiDirectActivity.TAG, "file server task post execute");
+			
+			if(result.equals("socket")){
+				Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "socket busy, cancelling this thread cycle");
+				return;
+			}
+			
+			if(result != null){
+				mActivity.onFormsCopied(result);
+			}
+			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "file server post-execute, relaunching server");
+			mListener.startServer(receiveZipDirectory);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see android.os.AsyncTask#onPreExecute()
+		 */
+		@Override
+		protected void onPreExecute() {
+			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "pre-execute of file server launch");
+			// statusText.setText("Opening a server socket");
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see android.os.AsyncTask#onPreExecute()
+		 */
+		@Override
+		protected void onProgressUpdate(String ... params){
+			statusText.setText(params[0]);
+		}
+
+	}
+
+	public static boolean copyFile(InputStream inputStream, OutputStream out) {
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File server copying file");
+		Log.d(CommCareWiFiDirectActivity.TAG, "Copying file");
+		if(inputStream == null){
+			Log.d(CommCareWiFiDirectActivity.TAG, "Input Null");
+		}
+		byte buf[] = new byte[1024];
+		int len;
+		try {
+			while ((len = inputStream.read(buf)) != -1) {
+				Log.d(CommCareWiFiDirectActivity.TAG, "Copying file : " + new String(buf));
+				out.write(buf, 0, len);
+
+			}
+			out.close();
+			inputStream.close();
+		} catch (IOException e) {
+			Log.d(CommCareWiFiDirectActivity.TAG, e.toString());
+			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Copy in File Server failed");
+			return false;
+		}
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Copy in File Server successful");
+		return true;
+	}
 
 }

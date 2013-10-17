@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
     <LinearLayout
-        android:layout_width="fill_parent"
         android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical" >
+
         <fragment
-            class="org.commcare.android.framework.DeviceListFragment"
             android:id="@+id/frag_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            class="org.commcare.android.framework.DeviceListFragment" >
         </fragment>
 
         <fragment
@@ -22,43 +23,44 @@
             android:layout_height="wrap_content"
             class="org.commcare.android.framework.DeviceDetailFragment" >
         </fragment>
-        
+
         <fragment
             android:id="@+id/wifi_manager_fragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             class="org.commcare.android.framework.WiFiDirectManagementFragment" >
         </fragment>
-        
+
         <fragment
-            class="org.commcare.android.framework.FileServerFragment"
             android:id="@+id/file_server_fragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            class="org.commcare.android.framework.FileServerFragment" >
+
             <!-- Preview: layout=@layout/file_server -->
         </fragment>
-        
-        <Button android:id="@+id/discover_button"
-    		android:layout_width="fill_parent"
-    		android:layout_height="wrap_content"
-    		android:layout_alignParentBottom="true"
-    		android:text="Discover Peers" />
-	    <Button android:id="@+id/send_button"
-    		android:layout_width="fill_parent"
-    		android:layout_height="wrap_content"
-    		android:layout_alignParentBottom="true"
-    		android:text="Send Files" />
-	    <Button android:id="@+id/host_button"
-    		android:layout_width="fill_parent"
-    		android:layout_height="wrap_content"
-    		android:layout_alignParentBottom="true"
-    		android:text="Become Server" 
-    		android:visibility="gone"/>
-	    <Button android:id="@+id/submit_button"
-    		android:layout_width="fill_parent"
-    		android:layout_height="wrap_content"
-    		android:layout_alignParentBottom="true"
-    		android:text="Submit Files" />
+
+        <Button
+            android:id="@+id/discover_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="Discover Peers" />
+
+        <Button
+            android:id="@+id/send_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="Send Files" />
+
+        <Button
+            android:id="@+id/submit_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="Submit Files" />
+
         <TextView
             android:id="@+id/owner_status_text"
             android:layout_width="wrap_content"
@@ -67,6 +69,7 @@
             android:layout_margin="5dp"
             android:text=" " >
         </TextView>
+
         <TextView
             android:id="@+id/my_status_text"
             android:layout_width="wrap_content"
@@ -75,6 +78,7 @@
             android:layout_margin="5dp"
             android:text=" " >
         </TextView>
+
         <TextView
             android:id="@+id/form_count_text"
             android:layout_width="wrap_content"
@@ -83,8 +87,9 @@
             android:layout_margin="5dp"
             android:text=" " >
         </TextView>
+
         <TextView
-            android:id="@+id/server_status_text"	
+            android:id="@+id/server_status_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -92,4 +97,30 @@
             android:text=" " >
         </TextView>
     </LinearLayout>
-</LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/wifi_state_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            android:text="" >
+        </TextView>
+
+        <Button
+            android:id="@+id/reset_state_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="Change Mode" />
+    </LinearLayout>
+
+</RelativeLayout>

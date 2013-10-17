@@ -19,6 +19,7 @@ package org.commcare.android.framework;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity.wdState;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.javarosa.core.services.Logger;
 
@@ -81,13 +82,12 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
-        try {
+        try {	
             mActivity = (CommCareWiFiDirectActivity) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement fileServerListener");
         }
-        this.isHost = mActivity.isHost;
-
+        this.isHost = mActivity.mState.equals(wdState.receive);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     
 	public void onThisDeviceChanged(Intent intent) {
 		
-		setStatusText("This device's cconnection status changed...");
+		setStatusText("This device's connection status changed...");
 	
 		WifiP2pDevice mDevice =  intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
 		
