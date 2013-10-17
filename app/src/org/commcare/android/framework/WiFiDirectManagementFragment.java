@@ -154,6 +154,10 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 		return info.groupOwnerAddress.getHostAddress();
 	}
 	
+	public void resetConnectionGroup(){
+		mManager.removeGroup(mChannel,  this);
+	}
+	
     
     public boolean isHost(){
     	return isHost;

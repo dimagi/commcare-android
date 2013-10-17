@@ -307,11 +307,16 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		tr.hide(fsFragment);
 		tr.commit();
 		
+		fragment.resetConnectionGroup();
+		fragment.setIsHost(false);
+		
 		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Device designated as sender");
 		resetData();
 		mState = wdState.send;
 		fragment.setIsHost(false);
+		sendButton.setVisibility(View.VISIBLE);
 		submitButton.setVisibility(View.GONE);
+		discoverButton.setVisibility(View.VISIBLE);
 		updateStatusText();
 	}
 	
@@ -336,6 +341,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		tr.show(fragmentDetails);
 		tr.show(fsFragment);
 		tr.commit();
+		
+		fragment.resetConnectionGroup();
+		fragment.setIsHost(true);
 		
 		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"Device designated as receiver");
 		resetData();
@@ -371,6 +379,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		tr.hide(fragmentList);
 		tr.hide(fragmentDetails);
 		tr.commit();
+		
+		fragment.resetConnectionGroup();
+		fragment.setIsHost(false);
 		
 		mState = wdState.submit;
 		
