@@ -109,10 +109,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	public static String receiveZipDirectory;
 	public static String writeDirectory;
 	
-	public TextView wiFiDirectStatusText;
 	public TextView myStatusText;
 	public TextView formCountText;
-	public TextView serverStatusText;
+	public TextView stateHeaderText;
 	public TextView stateStatusText;
 	
 	public static final int FILE_SERVER_TASK_ID = 129123;
@@ -127,15 +126,13 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		
 		setContentView(R.layout.wifi_direct_main);
 		
-		wiFiDirectStatusText= (TextView)this.findViewById(R.id.owner_status_text);
-		
 		myStatusText = (TextView)this.findViewById(R.id.my_status_text);
 		
 		formCountText = (TextView)this.findViewById(R.id.form_count_text);
 		
-		serverStatusText = (TextView)this.findViewById(R.id.server_status_text);
-		
 		stateStatusText = (TextView)this.findViewById(R.id.wifi_state_status);
+		
+		stateHeaderText = (TextView)this.findViewById(R.id.wifi_state_header);
 		
 		try{
 			
@@ -287,7 +284,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public void beSender(){
 		
-		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+		WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 		
         DeviceListFragment fragmentList = (DeviceListFragment) getSupportFragmentManager()
@@ -301,19 +298,19 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 		FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
 		
-		tr.show(fragment);
+		tr.show(wifiFragment);
 		tr.show(fragmentList);
 		tr.show(fragmentDetails);
 		tr.hide(fsFragment);
 		tr.commit();
 		
-		fragment.resetConnectionGroup();
-		fragment.setIsHost(false);
+		wifiFragment.setIsHost(false);
+		wifiFragment.resetConnectionGroup();
+		
 		
 		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Device designated as sender");
 		resetData();
 		mState = wdState.send;
-		fragment.setIsHost(false);
 		sendButton.setVisibility(View.VISIBLE);
 		submitButton.setVisibility(View.GONE);
 		discoverButton.setVisibility(View.VISIBLE);
@@ -322,7 +319,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public void beReceiver(){
 		
-		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+		WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 		
         DeviceListFragment fragmentList = (DeviceListFragment) getSupportFragmentManager()
@@ -336,20 +333,21 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 		FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
 		
-		tr.show(fragment);
+		tr.show(wifiFragment);
 		tr.show(fragmentList);
 		tr.show(fragmentDetails);
 		tr.show(fsFragment);
 		tr.commit();
 		
-		fragment.resetConnectionGroup();
-		fragment.setIsHost(true);
+		wifiFragment.setIsHost(true);
+		wifiFragment.resetConnectionGroup();
+		
 		
 		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"Device designated as receiver");
 		resetData();
 		hostGroup();
 
-		fragment.setIsHost(true);
+		
 		mState = wdState.receive;
 		unzipFilesHelper();
 		sendButton.setVisibility(View.GONE);
@@ -360,7 +358,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 	
 	public void beSubmitter(){
 		
-		WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
+		WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 		
         DeviceListFragment fragmentList = (DeviceListFragment) getSupportFragmentManager()
@@ -375,13 +373,13 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
 
 		tr.hide(fsFragment);
-		tr.hide(fragment);
+		tr.hide(wifiFragment);
 		tr.hide(fragmentList);
 		tr.hide(fragmentDetails);
 		tr.commit();
 		
-		fragment.resetConnectionGroup();
-		fragment.setIsHost(false);
+		wifiFragment.setIsHost(false);
+		wifiFragment.resetConnectionGroup();
 		
 		mState = wdState.submit;
 		
@@ -955,13 +953,16 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     	}
     	
     	if(mState.equals(wdState.send)){
+    		stateHeaderText.setText("You are in Transfer Form Mode");
     		formCountText.setText("Phone has " + numUnsyncedForms + " unsent forms.");
-    		stateStatusText.setText("You are in Send Form mode. This will allow you to send forms from this device to another device via Wi-Fi Direct.");
+    		stateStatusText.setText("You are in Transfer Form mode. This will allow you to transfer forms from this device to another device via Wi-Fi Direct.");
     	} else if(mState.equals(wdState.receive)){
-    		stateStatusText.setText("You are in Receive Form mode. This will allow you to receive forms on this device from another device via Wi-Fi Direct");
+    		stateHeaderText.setText("You are in Receive Form Mode");
+    		stateStatusText.setText("This will allow you to receive forms on this device from another device via Wi-Fi Direct");
     		formCountText.setText("SD Card has " + numUnsubmittedForms + " collected forms.");
     	} else{
-    		stateStatusText.setText("You are in Submit Form mode. This mode will allow you to submit forms to the CommCare Server if you have an internet connection.");
+    		stateHeaderText.setText("You are in Submit Form Mode");
+    		stateStatusText.setText("This mode will allow you to submit forms to the CommCare Server if you have an internet connection.");
     		formCountText.setText("SD Card has " + numUnsubmittedForms + " unsubmitted forms.");
     	}
     	

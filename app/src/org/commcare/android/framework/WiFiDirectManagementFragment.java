@@ -69,10 +69,6 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 	public WifiP2pManager mManager;
 	public Channel mChannel;
 	WiFiDirectBroadcastReceiver mReceiver;
-    private IntentFilter mIntentFilter;
-    
-    
-
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -87,7 +83,6 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement fileServerListener");
         }
-        this.isHost = mActivity.mState.equals(wdState.receive);
     }
 
     @Override
@@ -210,6 +205,12 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     			} else{
     				setStatusText("Successfully joined group");
     			}
+    		}
+    	} else{
+    		if(isHost){
+    			setStatusText("You are the host but didn't form a group. Restart the Wi-fi functionality.");
+    		} else{
+    			setStatusText("YWaiting to join new group...");
     		}
     	}
 	}

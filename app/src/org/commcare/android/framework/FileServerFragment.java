@@ -96,7 +96,6 @@ public class FileServerFragment extends Fragment {
 		public void onFormsCopied(String result);
 	}
 
-
 	public void startServer(String mReceiveZipDirectory){
 		Log.d(CommCareWiFiDirectActivity.TAG, "File server starting...");
 		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File Server starting...");
@@ -121,8 +120,7 @@ public class FileServerFragment extends Fragment {
 			mFileServer.execute();
 		}
 	}
-
-
+	
 	/**
 	 * A simple server socket that accepts connection and writes some data on
 	 * the stream.
