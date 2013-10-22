@@ -21,9 +21,7 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
 	public Context c;
 
     private static final int SOCKET_TIMEOUT = 50000;
-
-	public static final String REQUEST_RECEIVER_EXTRA = "result_receiver_extra_key";
-
+    
 	public static final int RESULT_SUCCESS = 0;
 
 	public static final int BULK_TRANSFER_ID = 9575922;

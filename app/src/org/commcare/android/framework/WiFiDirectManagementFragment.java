@@ -150,6 +150,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 	}
 	
 	public void resetConnectionGroup(){
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"restting connection group");
 		mManager.removeGroup(mChannel,  this);
 	}
 	
@@ -159,6 +160,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     }
     
     public void setIsHost(boolean isHost){
+    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"setting is host: " + isHost);
     	this.isHost = isHost;
     	refreshStatusText();
     }
@@ -170,6 +172,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     }
 
 	public void startReceiver(WifiP2pManager mManager, Channel mChannel, WiFiDirectBroadcastReceiver mReceiver) {
+		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"Starting receiver");
 	    this.mReceiver = mReceiver;
 	    this.mChannel = mChannel;
 	    this.mManager = mManager;
