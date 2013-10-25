@@ -185,6 +185,11 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
     
 	public String getActivityTitle() {
+		
+		if(adapter == null){
+			return Localization.get("app.workflow.saved.heading");
+		}
+		
 		if(adapter.getFilter() == FormRecordFilter.Incomplete) {
 			return Localization.get("app.workflow.incomplete.heading");
 		} else {
