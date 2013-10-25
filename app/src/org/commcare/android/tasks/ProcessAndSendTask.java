@@ -225,6 +225,13 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 		}
 		
 		for(int i = 0 ; i < records.length ; ++i) {
+			//See whether we are OK to proceed based on the last form. We're now guaranteeing
+			//that forms are sent in order, so we won't proceed unless we succeed
+			if(i > 0 && results[i - 1] != FULL_SUCCESS) {
+				//Something went wrong with the last form, so we need to cancel this whole shebang
+				break;
+			}
+			
 			FormRecord record = records[i];
 			try{
 				//If it's unsent, go ahead and send it
@@ -289,14 +296,14 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 				result = results[i];
 			}
 		}
-		
-		this.endSubmissionProcess();
-		
+				
 		return (int)result;
 		} catch(SessionUnavailableException sue) {
 			this.cancel(false);
 			return (int)PROGRESS_LOGGED_OUT;
 		} finally {
+			this.endSubmissionProcess();
+
 			synchronized(processTasks) {
 				processTasks.remove(this);
 			}
