@@ -117,7 +117,7 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 					asw.loadFromStateDescription(ssd);
 					try{
 						dataTitle = asw.getTitle();
-					} catch(NullPointerException e){
+					} catch(RuntimeException e){
 						dataTitle = "Could not load title due to bad app state";
 					}
 					dataTitle = dataTitle == null ? "" : dataTitle;
