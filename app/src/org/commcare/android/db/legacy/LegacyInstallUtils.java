@@ -136,6 +136,8 @@ public class LegacyInstallUtils {
 		};
 		
 		//Ok, so now we need to see whether there's app on the legacy db.
+		//Use the name of the Pre-DB3 Global Resource table (in case it has changed).
+		//Note: ResourceModelUpdater is mandatory here to read pre-db3 resource records.
 		LegacySqlIndexedStorageUtility<Resource> legacyResources = new LegacySqlIndexedStorageUtility<Resource>("GLOBAL_RESOURCE_TABLE", ResourceModelUpdater.class, ldbh);
 		
 		//see if the resource table is installed
