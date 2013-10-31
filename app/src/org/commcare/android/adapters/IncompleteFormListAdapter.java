@@ -6,6 +6,7 @@ package org.commcare.android.adapters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
@@ -18,6 +19,9 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.activities.FormRecordListActivity.FormRecordFilter;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.Text;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -47,6 +51,7 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	
 	FormRecordLoaderTask loader;
 	
+	Hashtable<String,Text> names;
 	
 	public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform, FormRecordLoaderTask loader) throws SessionUnavailableException{
 		this.platform = platform;
@@ -54,6 +59,19 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		this.filter = null;
 		observers = new ArrayList<DataSetObserver>();
 		this.loader = loader;
+		
+		names = new Hashtable<String,Text>();
+		for(Suite s : platform.getInstalledSuites()) {
+			for(Enumeration en = s.getEntries().elements(); en.hasMoreElements() ;) {
+				Entry entry = (Entry)en.nextElement();
+				if(entry.getXFormNamespace() == null) {
+					//This is a <view>, not an <entry>, so
+					//it can't define a form
+				} else {
+					names.put(entry.getXFormNamespace(),entry.getText());
+				}
+			}
+		}
 	}
 	
 	public void resetRecords() throws SessionUnavailableException {
@@ -133,7 +151,7 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.ListAdapter#isEnabled(int)
 	 */
-	public boolean isEnabled(int arg0) {
+	public boolean isEnabled(int i) {
 		return true;
 	}
 
@@ -173,7 +191,7 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		FormRecord r = current.get(i);
 		IncompleteFormRecordView ifrv =(IncompleteFormRecordView)v;
 		if(ifrv == null) {
-			ifrv = new IncompleteFormRecordView(context, platform);
+			ifrv = new IncompleteFormRecordView(context, names);
 		}
 		
 		if(searchCache.containsKey(r.getID())) {
@@ -256,7 +274,6 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 	public void registerDataSetObserver(DataSetObserver observer) {
 		this.observers.add(observer);
 	}
-
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
 	 */
@@ -268,5 +285,12 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		if(loader.getStatus() == Status.RUNNING) {
 			loader.cancel(false);
 		}
+	}
+
+	public boolean isValid(int i) {
+		if(!names.containsKey(current.get(i).getFormNamespace())) {
+			return false;
+		}
+		return true;
 	}
 }

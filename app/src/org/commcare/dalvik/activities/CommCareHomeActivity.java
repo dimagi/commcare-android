@@ -640,7 +640,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         				currentState.reset();
     	        		return;
         			} else {
-    	        		if(current.getStatus() == FormRecord.STATUS_INCOMPLETE) {
+    	        		if(current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
     	        			//We should head back to the incomplete forms screen
     	        			currentState.reset();
     	        			goToFormArchive(true, current);
@@ -822,7 +822,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		} catch(Exception e) {
 			//TODO: Better catch, here
 		}
-		return null;
+		return "";
 	}
     
     @Override 

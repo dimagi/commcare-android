@@ -122,6 +122,9 @@ form.record.filter.pending=Filter By: Only Unsent Forms
 form.record.filter.incomplete=Only Incomplete Forms
 form.record.unsent=Unsent
 
+form.record.gone=[Form Removed on Current Version]
+form.record.gone.message=The form that was used to enter this data is no longer on the current version of the app, and can't be viewed.
+
 app.storage.missing.title=SD Card Missing
 app.storage.missing.message=Your device's SD card has been removed, please return the SD card to continue using CommCare
 app.storage.missing.button=Shutdown CommCare

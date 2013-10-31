@@ -35,6 +35,7 @@ import android.widget.TextView;
 public class BreadcrumbBarFragment extends Fragment {
 	
 	private boolean isTopNavEnabled = false;
+	private int localIdPart = -1;
 	 
 	  /**
 	   * This method will only be called once when the retained
@@ -81,6 +82,24 @@ public class BreadcrumbBarFragment extends Fragment {
 	  }
 	  
 		
+		/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		super.onResume();
+		if(this.getActivity() instanceof CommCareActivity) {
+			String title = ((CommCareActivity)this.getActivity()).getActivityTitle();
+			
+			//This part can change more dynamically
+			if(localIdPart != -1 && title != null) {
+				TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
+				text.setText(title);
+			}
+		}
+	}
+
+
 		public View getTitleView(final Activity activity, String local) {
 			RelativeLayout layout = new RelativeLayout(activity);
 			HorizontalScrollView scroller = new HorizontalScrollView(activity) {
@@ -109,8 +128,9 @@ public class BreadcrumbBarFragment extends Fragment {
 			int currentId = -1;
 			
 			//We don't actually want this one to look the same
-			int newId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + layout.getChildCount() + 1;
+			int newId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + layout.getChildCount() + 1;			
 			if(local != null) {
+				localIdPart = newId;
 				View titleBreadcrumb = li.inflate(org.commcare.dalvik.R.layout.component_title_uncrumb, fullTopBar, true);
 				
 				TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);

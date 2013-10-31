@@ -32,6 +32,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -233,14 +234,18 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
     
     private void returnItem(int position) {
-    	FormRecord value = (FormRecord)adapter.getItem(position);
-    	
-        // We want to actually launch an interactive form entry.
-        Intent i = new Intent();
-        i.putExtra("FORMRECORDS", value.getID());
-        setResult(RESULT_OK, i);
-
-        finish();
+    	if(adapter.isValid(position)) { 
+	    	FormRecord value = (FormRecord)adapter.getItem(position);
+	    	
+	        // We want to actually launch an interactive form entry.
+	        Intent i = new Intent();
+	        i.putExtra("FORMRECORDS", value.getID());
+	        setResult(RESULT_OK, i);
+	
+	        finish();
+    	} else {
+    		new AlertDialog.Builder(this).setMessage(Localization.get("form.record.gone.message")).create().show();
+    	}
     }
     
     @Override
