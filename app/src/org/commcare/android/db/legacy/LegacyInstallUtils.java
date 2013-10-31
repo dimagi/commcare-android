@@ -26,6 +26,7 @@ import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.app.models.ResourceModelUpdater;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
@@ -135,7 +136,9 @@ public class LegacyInstallUtils {
 		};
 		
 		//Ok, so now we need to see whether there's app on the legacy db.
-		LegacySqlIndexedStorageUtility<Resource> legacyResources = new LegacySqlIndexedStorageUtility<Resource>("GLOBAL_RESOURCE_TABLE", Resource.class, ldbh);
+		//Use the name of the Pre-DB3 Global Resource table (in case it has changed).
+		//Note: ResourceModelUpdater is mandatory here to read pre-db3 resource records.
+		LegacySqlIndexedStorageUtility<Resource> legacyResources = new LegacySqlIndexedStorageUtility<Resource>("GLOBAL_RESOURCE_TABLE", ResourceModelUpdater.class, ldbh);
 		
 		//see if the resource table is installed
 		boolean hasProfile = false;

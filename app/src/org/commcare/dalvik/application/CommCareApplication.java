@@ -369,7 +369,7 @@ public class CommCareApplication extends Application {
 	private int initGlobalDb() {
 		SQLiteDatabase database;
 		try {
-			database = new DatabaseGlobalOpenHelper(this).getWritableDatabase(null);
+			database = new DatabaseGlobalOpenHelper(this).getWritableDatabase("null");
 			database.close();
 			return STATE_READY;
 		} catch(SQLiteException e) {
@@ -392,7 +392,7 @@ public class CommCareApplication extends Application {
 			public SQLiteDatabase getHandle() {
 				synchronized(globalDbHandleLock) {
 					if(globalDatabase == null || !globalDatabase.isOpen()) {
-						globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase(null);
+						globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase("null");
 					}
 					return globalDatabase;
 				}

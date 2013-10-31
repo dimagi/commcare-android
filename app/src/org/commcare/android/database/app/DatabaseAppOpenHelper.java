@@ -23,9 +23,16 @@ import android.content.Context;
  */
 public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 	
-	private static final int DB_VERSION_APP = 2;
+	/**
+	 * Version History
+	 * V.2 - Added recovery table
+	 * V.3 - Upgraded Resource models to have an optional descriptor field
+	 */
+	private static final int DB_VERSION_APP = 3;
 	
 	private static final String DB_LOCATOR_PREF_APP = "database_app_";
+	
+	private Context context;
 
 	public DatabaseAppOpenHelper(Context context, String appId) {
 		super(context, getDbName(appId), null, DB_VERSION_APP);
@@ -71,7 +78,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		AppDatabaseUpgrader.upgrade(db, oldVersion, newVersion);
+		new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
 	}
 
 }

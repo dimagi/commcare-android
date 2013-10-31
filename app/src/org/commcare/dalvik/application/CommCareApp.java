@@ -11,6 +11,7 @@ import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
@@ -19,7 +20,9 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -83,8 +86,26 @@ public class CommCareApp {
 
 	
 	private void initializeFileRoots() {
-		fileRoot = new JavaFileRoot(storageRoot());
-		ReferenceManager._().addReferenceFactory(fileRoot);
+		synchronized(lock) {
+			String root = storageRoot();
+			fileRoot = new JavaFileRoot(root);
+			
+			String testFileRoot = "jr://file/mytest.file";
+			//Assertion: There should be _no_ other file roots when we initialize
+			try {
+				String testFilePath = ReferenceManager._().DeriveReference(testFileRoot).getLocalURI();
+				String message = "Cannot setup sandbox. An Existing file root is set up, which directs to: " +testFilePath;
+				Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, message);
+				throw new IllegalStateException(message);
+			} catch(InvalidReferenceException ire) {
+				//Expected.
+			}
+			
+			
+			ReferenceManager._().addReferenceFactory(fileRoot);
+			
+			//Double check that things point to the right place?
+		}
 	}
 	
 	public SharedPreferences getAppPreferences() {
@@ -100,6 +121,7 @@ public class CommCareApp {
 	 */
 	public void setupSandbox(boolean createFilePaths) {
 		synchronized(lock) {
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Staging Sandbox: " + record.getApplicationId());
 			if(currentSandbox != null) {
 				currentSandbox.teardownSandbox();
 			}
@@ -185,6 +207,7 @@ public class CommCareApp {
 	
 	public void teardownSandbox() {	
 		synchronized(lock) {
+			Logger.log(AndroidLogger.TYPE_RESOURCES, "Tearing down sandbox: " + record.getApplicationId());
 			ReferenceManager._().removeReferenceFactory(fileRoot);
 			
 			synchronized(appDbHandleLock) {
@@ -211,7 +234,7 @@ public class CommCareApp {
 			public SQLiteDatabase getHandle() {
 				synchronized(appDbHandleLock) {
 					if(appDatabase == null || !appDatabase.isOpen()) {
-						appDatabase = new DatabaseAppOpenHelper(this.c, record.getApplicationId()).getWritableDatabase(null);
+						appDatabase = new DatabaseAppOpenHelper(this.c, record.getApplicationId()).getWritableDatabase("null");
 					}
 					return appDatabase;
 				}

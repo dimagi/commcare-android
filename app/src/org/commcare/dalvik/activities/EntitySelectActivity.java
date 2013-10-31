@@ -120,7 +120,14 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         	mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
         }
         
-        session = CommCareApplication._().getCurrentSession();
+        try {
+        	session = CommCareApplication._().getCurrentSession();
+        }catch(SessionUnavailableException sue){
+        	//The user isn't logged in! bounce this back to where we came from
+        	this.setResult(Activity.RESULT_CANCELED);
+        	this.finish();
+        	return;
+        }
 		selectDatum = session.getNeededDatum();
 		
 		mNoDetailMode = selectDatum.getLongDetail() == null;

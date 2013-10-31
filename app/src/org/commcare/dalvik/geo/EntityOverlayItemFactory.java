@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.commcare.android.models.Entity;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -36,13 +37,14 @@ public class EntityOverlayItemFactory {
 	private Drawable defDrawable; 
 	
 	public EntityOverlayItemFactory(Detail shortDetail, Drawable defDrawable) {
-		String[] forms = shortDetail.getTemplateForms();
-		for(int i = 0 ; i < forms.length ; ++i) {
+		DetailField[] fields = shortDetail.getFields();
+		for(int i = 0 ; i < fields.length ; ++i) {
+			String form = fields[i].getTemplateForm();
 			//TODO: Deal with multiple images
-			if("image".equals(forms[i])) {
+			if("image".equals(form)) {
 				imageIndex = i;
 			}
-			if(forms[i] == null) {
+			if("".equals(form) && (fields[i].getTemplateHint() == -1  || fields[i].getTemplateHint() > 0)) {
 				if(bigTextIndex == -1) {
 					bigTextIndex = i;
 				} else if(smallTextIndex == -1) {

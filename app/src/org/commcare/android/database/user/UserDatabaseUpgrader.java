@@ -5,6 +5,7 @@ package org.commcare.android.database.user;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -66,12 +67,7 @@ public class UserDatabaseUpgrader {
 		if(inSenseMode) {
 			
 			//Get form record storage
-			SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, new DbHelper(c){
-				@Override
-				public SQLiteDatabase getHandle() {
-					return db;
-				}
-			});
+			SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class,new ConcreteDbHelper(c,db));
 			
 			//Iterate through all forms currently saved
 			for(FormRecord record : storage) {

@@ -236,7 +236,11 @@ public class EntityMapActivity extends MapActivity {
         }
         
         map.getOverlays().add(mMyLocationOverlay);
-        map.getOverlays().add(mEntityOverlay);
+		//The overlay crashes out if you try to draw it and it's empty,
+		//so only add it if we found something.
+        if(mEntityOverlay.size() > 0) {
+        	map.getOverlays().add(mEntityOverlay);
+        }
         map.getController().setZoom(18);
         map.setClickable(true);
         map.setEnabled(true);
