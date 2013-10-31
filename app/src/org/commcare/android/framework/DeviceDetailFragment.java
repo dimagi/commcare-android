@@ -16,28 +16,15 @@
 
 package org.commcare.android.framework;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,7 +39,7 @@ import android.widget.TextView;
 @SuppressLint("NewApi")
 public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener {
 
-    protected static final int CHOOSE_FILE_RESULT_CODE = 20;
+    protected static final int CHOOSE_FILE_RESULT_CODE = 1;
     private View mContentView = null;
     private WifiP2pDevice device;
     private WifiP2pInfo info;
@@ -69,18 +56,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        mContentView = inflater.inflate(R.layout.device_detail, null);
+        mContentView = inflater.inflate(R.layout.device_detail, container);
         return mContentView;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if(resultCode != Activity.RESULT_CANCELED){
-    		// User has picked an image. Transfer it to group owner i.e peer using
-    		// FileTransferService.
-
-    	}
     }
 
     @Override
