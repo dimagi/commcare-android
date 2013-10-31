@@ -32,6 +32,9 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class ResourceModelUpdater extends Resource {
 	
+	/**
+	 Blank constructor for deserialization only!
+	*/
 	public ResourceModelUpdater() {
 		
 	}
