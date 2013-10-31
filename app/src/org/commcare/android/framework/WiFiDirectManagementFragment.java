@@ -106,14 +106,14 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     }
     
     public void onPeersChanged(){
-    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Wi-fi direct peers changed");
+    	Logger.log(CommCareWiFiDirectActivity.TAG, "Wi-fi direct peers changed");
     	mActivity.updatePeers();
     }
     
     public void onP2PConnectionChanged(boolean isConnected){
         if (isConnected) {
         	
-        	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Wifi direct P2P connection changed");
+        	Logger.log(CommCareWiFiDirectActivity.TAG, "Wifi direct P2P connection changed");
 
             // we are connected with the other device, request connection
             // info to find group owner IP
@@ -134,7 +134,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 		int status = mDevice.status;
 		
 		if(status == WifiP2pDevice.AVAILABLE && isHost){
-			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Relaunching Wi-fi direct group as host");
+			Logger.log(CommCareWiFiDirectActivity.TAG, "Relaunching Wi-fi direct group as host");
 			setStatusText("Host relaunching group...");
 			mManager.createGroup(mChannel, this);
 		}
@@ -150,7 +150,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 	}
 	
 	public void resetConnectionGroup(){
-		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"restting connection group");
+		Logger.log(CommCareWiFiDirectActivity.TAG,"restting connection group");
 		mManager.removeGroup(mChannel,  this);
 	}
 	
@@ -160,7 +160,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     }
     
     public void setIsHost(boolean isHost){
-    	Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"setting is host: " + isHost);
+    	Logger.log(CommCareWiFiDirectActivity.TAG,"setting is host: " + isHost);
     	this.isHost = isHost;
     	refreshStatusText();
     }
@@ -172,7 +172,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     }
 
 	public void startReceiver(WifiP2pManager mManager, Channel mChannel, WiFiDirectBroadcastReceiver mReceiver) {
-		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT,"Starting receiver");
+		Logger.log(CommCareWiFiDirectActivity.TAG,"Starting receiver");
 	    this.mReceiver = mReceiver;
 	    this.mChannel = mChannel;
 	    this.mManager = mManager;

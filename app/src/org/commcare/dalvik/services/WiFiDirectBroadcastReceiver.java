@@ -71,7 +71,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     	Log.d(CommCareWiFiDirectActivity.TAG, "in on receive ");
         String action = intent.getAction();
         
-        Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "onReceive of BroadCastReceiver with action: " + action);
+        Logger.log(CommCareWiFiDirectActivity.TAG, "onReceive of BroadCastReceiver with action: " + action);
         
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 

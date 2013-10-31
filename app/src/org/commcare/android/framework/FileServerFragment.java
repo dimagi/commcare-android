@@ -98,8 +98,7 @@ public class FileServerFragment extends Fragment {
 	}
 
 	public void startServer(String mReceiveZipDirectory){
-		Log.d(CommCareWiFiDirectActivity.TAG, "File server starting...");
-		Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "File Server starting...");
+		Logger.log(CommCareWiFiDirectActivity.TAG, "File Server starting...");
 
 		mStatusText.setText("Starting server");
 
@@ -144,7 +143,7 @@ public class FileServerFragment extends Fragment {
 		@Override
 		protected String doInBackground(Void... params) {
 
-			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "doing in background");
+			Logger.log(CommCareWiFiDirectActivity.TAG, "doing in background");
 			socketOccupied = false;
 
 			try{
@@ -157,7 +156,7 @@ public class FileServerFragment extends Fragment {
 
 					Socket client = serverSocket.accept();
 
-					Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Ready in wi-fi direct file server receive loop");
+					Logger.log(CommCareWiFiDirectActivity.TAG, "Ready in wi-fi direct file server receive loop");
 
 					Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + finalFileName);
 
@@ -190,7 +189,7 @@ public class FileServerFragment extends Fragment {
 				}
 			}catch(IOException ioe){
 				publishProgress("Ready to accept new file transfer.", null);
-				Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "couldn't open socket!");
+				Logger.log(CommCareWiFiDirectActivity.TAG, "couldn't open socket!");
 				socketOccupied = true;
 				return null;
 			}
@@ -205,14 +204,14 @@ public class FileServerFragment extends Fragment {
 			Log.e(CommCareWiFiDirectActivity.TAG, "file server task post execute");
 			
 			if(socketOccupied){
-				Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "socket busy, cancelling this thread cycle");
+				Logger.log(CommCareWiFiDirectActivity.TAG, "socket busy, cancelling this thread cycle");
 				return;
 			}
 			
 			if(result != null){
 				mActivity.onFormsCopied(result);
 			}
-			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "file server post-execute, relaunching server");
+			Logger.log(CommCareWiFiDirectActivity.TAG, "file server post-execute, relaunching server");
 			mListener.startServer(receiveZipDirectory);
 		}
 
@@ -222,7 +221,7 @@ public class FileServerFragment extends Fragment {
 		 */
 		@Override
 		protected void onPreExecute() {
-			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "pre-execute of file server launch");
+			Logger.log(CommCareWiFiDirectActivity.TAG, "pre-execute of file server launch");
 			// statusText.setText("Opening a server socket");
 		}
 

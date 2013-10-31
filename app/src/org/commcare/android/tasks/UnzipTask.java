@@ -66,7 +66,7 @@ public abstract class UnzipTask extends CommCareTask<String, String, Integer, Co
 		@Override
 		protected Integer doTaskBackground(String... params) {
 			
-			Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Doing unzip task");
+			Logger.log(CommCareWiFiDirectActivity.TAG, "Doing unzip task");
 			
 			Log.d(CommCareWiFiDirectActivity.TAG, "Task in background");
 			
@@ -145,7 +145,7 @@ public abstract class UnzipTask extends CommCareTask<String, String, Integer, Co
             }
             
             Log.d(CommCareWiFiDirectActivity.TAG, "Exited Loop");
-            Logger.log(AndroidLogger.TYPE_WIFI_DIRECT, "Successfully unzipped files");
+            Logger.log(CommCareWiFiDirectActivity.TAG, "Successfully unzipped files");
 			return count;
 		}
 }
