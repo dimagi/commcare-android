@@ -178,7 +178,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 
 
 	public void addressRequested(String address) {
-		Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + address));
+		Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
         startActivity(call);
 	}
 	
