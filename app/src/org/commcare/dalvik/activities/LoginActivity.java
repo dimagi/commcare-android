@@ -267,7 +267,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 	        		MessageDigest md = MessageDigest.getInstance("SHA-1");
 	        		BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
 	        		String hashed = number.toString(16);
-	        		
+	        			
 	        		while(hashed.length() < check.length()) {
 	        			hashed = "0" + hashed;
 	        		}
@@ -313,6 +313,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 					case NetworkFailure:
 						Logger.log(AndroidLogger.TYPE_USER, "bad network");
 						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
+						break;
+					case BadCertificate:
+						Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.BadSSLCertificate, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
 						break;
 					case UnkownError:
 						Logger.log(AndroidLogger.TYPE_USER, "unknown");

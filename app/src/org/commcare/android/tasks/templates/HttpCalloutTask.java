@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
 
+import javax.net.ssl.SSLPeerUnverifiedException;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.http.HttpResponse;
@@ -38,6 +40,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Void, String, org.
 		BadResponse,
 		AuthFailed,
 		UnkownError,
+		BadCertificate,
 		Success
 	}
 	
@@ -84,6 +87,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Void, String, org.
 			} catch (UnknownHostException e) {
 				//HTTP Error 
 				outcome = HttpCalloutOutcomes.NetworkFailure;
+			} catch(SSLPeerUnverifiedException e){
+				// Couldn't get a valid SSL certificate
+				outcome = HttpCalloutOutcomes.BadCertificate;
 			} catch (IOException e) {
 				//This is probably related to local files, actually 
 				outcome = HttpCalloutOutcomes.NetworkFailure;

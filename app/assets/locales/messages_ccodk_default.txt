@@ -259,6 +259,9 @@ notification.restore.remote.error.action=Try to sync again immediately, and then
 notification.restore.nonetwork.title=Couldn't Reach Server. Please check your network connection
 notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
 
+notification.bad.certificate.title=Couldn't establish a valid HTTP certificate. Check your device's date.
+notification.bad.certificate.detail=CommCare couldn't establish a valid HTTP certificate which prevented CommCare from reaching the server. This is often due to a misset date or time.
+
 notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
