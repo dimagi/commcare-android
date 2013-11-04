@@ -342,3 +342,6 @@ verification.title=Verifying Multimedia
 verification.checking=Verifying...
 verification.progress=Checked ${0} out of ${1} resources
 verification.fail.message=Some of your application's multimedia has not been installed. Please make sure the following files are present in the device, and press retry.
+
+wifi.direct.base.folder=wifidirect
+wifi.direct.submit.missing=The folder ${0} you are trying to submit does not exist. Please verify that this file is where it should be. 

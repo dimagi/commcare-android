@@ -32,7 +32,7 @@ import org.commcare.android.database.user.models.User;
  * @author ctsims
  *
  */
-public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean, CommCareFormDumpActivity>{
+public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>{
 
 	Context c;
 	String url;
@@ -42,21 +42,19 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	CommCarePlatform platform;
 	
 	SqlStorage<FormRecord> storage;
-	TextView outputTextView;
 	File dumpDirectory;
 	
 	public static String MALFORMED_FILE_CATEGORY = "malformed-file";
 	
-	public static final int BULK_SEND_ID = 12345;
+	public static final int BULK_SEND_ID = 12335645;
 	
 	 // 5MB less 1KB overhead
 	
-	public SendTask(Context c, CommCarePlatform platform, String url, TextView outputTextView, File dumpDirectory) throws SessionUnavailableException{
+	public SendTask(Context c, CommCarePlatform platform, String url, File dumpDirectory) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-		this.outputTextView = outputTextView;
-		taskId = SendTask.BULK_SEND_ID;
+		this.taskId = SendTask.BULK_SEND_ID;
 		this.dumpDirectory = dumpDirectory;
 		platform = this.platform;
 	}
@@ -95,7 +93,7 @@ public abstract class SendTask extends CommCareTask<FormRecord, String, Boolean,
 	}
 
 	@Override
-	protected Boolean doTaskBackground(FormRecord... params) {
+	protected Boolean doTaskBackground(Void... params) {
 		
 		publishProgress(Localization.get("bulk.form.send.start"));
 
