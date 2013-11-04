@@ -95,7 +95,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
 		Log.d(CommCareWiFiDirectActivity.TAG, "doing wipe task in background");
 		for(int i = 0 ; i < records.length ; ++i) {
 			FormRecord record = records[i];
-			FormRecordCleanupTask.wipeRecord(c, platform, record);
+			FormRecordCleanupTask.wipeRecord(c, record);
 		}
 		return true;
     }
