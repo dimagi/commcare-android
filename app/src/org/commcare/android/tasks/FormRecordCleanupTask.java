@@ -102,6 +102,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 		SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 		
 		for(int recordID : recordsToRemove) {
+			//We don't know anything about the session yet, so give it -1 to flag that
 			wipeRecord(context, -1, recordID, storage, ssdStorage);
 		}
 		
@@ -302,6 +303,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 	
 	public static void wipeRecord(Context c, FormRecord record) {
 		wipeRecord(c, -1, record.getID());
+	}
+	
+	public static void wipeRecord(Context c, int formRecordId) {
+		wipeRecord(c, -1, formRecordId);
 	}
 	
 	public static void wipeRecord(Context c, int sessionId, int formRecordId) {
