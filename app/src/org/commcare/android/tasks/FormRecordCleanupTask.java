@@ -102,7 +102,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 		SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 		
 		for(int recordID : recordsToRemove) {
-			wipeRecord(context, platform, -1, recordID, storage, ssdStorage);
+			wipeRecord(context, -1, recordID, storage, ssdStorage);
 		}
 		
 		System.out.println("Synced: " + unindexedRecords.size() + ". Removed: " + oldrecords + " old records, and " + (recordsToRemove.size() - oldrecords) + " busted new ones");
@@ -287,28 +287,28 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 	
 
 
-	public static void wipeRecord(Context c, CommCarePlatform platform,SessionStateDescriptor existing) {
+	public static void wipeRecord(Context c,SessionStateDescriptor existing) {
 		int ssid = existing.getID();
 		int formRecordId = existing.getFormRecordId();
-		wipeRecord(c, platform, ssid, formRecordId);
+		wipeRecord(c, ssid, formRecordId);
 	}
 
 
-	public static void wipeRecord(Context c, CommCarePlatform platform,AndroidSessionWrapper currentState) {
+	public static void wipeRecord(Context c, AndroidSessionWrapper currentState) {
 		int formRecordId = currentState.getFormRecordId();
 		int ssdId = currentState.getSessionDescriptorId();
-		wipeRecord(c, platform, ssdId, formRecordId);
+		wipeRecord(c, ssdId, formRecordId);
 	}
 	
-	public static void wipeRecord(Context c, CommCarePlatform platform, FormRecord record) {
-		wipeRecord(c, platform, -1, record.getID());
+	public static void wipeRecord(Context c, FormRecord record) {
+		wipeRecord(c, -1, record.getID());
 	}
 	
-	public static void wipeRecord(Context c, CommCarePlatform platform, int sessionId, int formRecordId) {
-		wipeRecord(c, platform, sessionId, formRecordId, CommCareApplication._().getUserStorage(FormRecord.class), CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
+	public static void wipeRecord(Context c, int sessionId, int formRecordId) {
+		wipeRecord(c, sessionId, formRecordId, CommCareApplication._().getUserStorage(FormRecord.class), CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
 	}
 	
-	private static void wipeRecord(Context context, CommCarePlatform platform, int sessionId, int formRecordId, SqlStorage<FormRecord> frStorage, SqlStorage<SessionStateDescriptor> ssdStorage) {
+	private static void wipeRecord(Context context, int sessionId, int formRecordId, SqlStorage<FormRecord> frStorage, SqlStorage<SessionStateDescriptor> ssdStorage) {
 
 		if(sessionId != -1) {
 			try {

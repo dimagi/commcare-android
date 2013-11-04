@@ -267,7 +267,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 	    	  returnItem(info.position);
 	    	  return true;
 	      case DELETE_RECORD:
-	    	  FormRecordCleanupTask.wipeRecord(this, platform, CommCareApplication._().getUserStorage(FormRecord.class).read((int)info.id));
+	    	  FormRecordCleanupTask.wipeRecord(this, CommCareApplication._().getUserStorage(FormRecord.class).read((int)info.id));
 	    	  listView.post(new Runnable() { public void run() {adapter.notifyDataSetInvalidated();}});
 	      }
 	      

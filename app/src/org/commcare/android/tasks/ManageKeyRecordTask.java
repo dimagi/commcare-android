@@ -350,8 +350,17 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 					//Problem during migration! We should try again? Maybe?
 					//Or just leave the old one?
 					
-					//For now, fail.
-					return HttpCalloutTask.HttpCalloutOutcomes.UnkownError;
+					
+					//Switching over to using the old record instead of failing 
+					current = getInUseSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
+					
+					//Make sure we didn't somehow not get a new sandbox
+					if(current == null ){ 
+						Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
+						return HttpCalloutTask.HttpCalloutOutcomes.UnkownError; 
+					}
+					
+					//otherwise we're now keyed up with the old DB and we should be fine to log in
 				}
 			} else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
 				//Transition the legacy storage to the new format. We don't have a new record, so don't 
@@ -388,18 +397,11 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 		
 		return HttpCalloutTask.HttpCalloutOutcomes.Success;
 	}
-
-	//TODO: This can be its own method/process somewhere
-	private boolean lookForAndMigrateOldSandbox(UserKeyRecord newRecord) {
-		//So we have a new record here. We want to look through our old records now and see if we can
-		//(A) Migrate over any of their old data to this new sandbox.
-		//(B) Wipe that old record once the migrated record is completed (and see if we should wipe the 
-		//sandbox's data).
-		SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
-		
+	
+	private UserKeyRecord getInUseSandbox(String username, SqlStorage<UserKeyRecord> storage) {
 		UserKeyRecord oldSandboxToMigrate = null;
 		
-		for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, newRecord.getUsername())) {
+		for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
 			if(ukr.getType() == UserKeyRecord.TYPE_NEW) {
 				//This record is also new (which is kind of sketchy, actually), so it's not helpful.
 				continue;
@@ -421,6 +423,21 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 				Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Two old sandboxes exist with the same username");
 			}
 		}
+		
+		return oldSandboxToMigrate;
+	}
+
+	//TODO: This can be its own method/process somewhere
+	private boolean lookForAndMigrateOldSandbox(UserKeyRecord newRecord) {
+		//So we have a new record here. We want to look through our old records now and see if we can
+		//(A) Migrate over any of their old data to this new sandbox.
+		//(B) Wipe that old record once the migrated record is completed (and see if we should wipe the 
+		//sandbox's data).
+		SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+		
+		UserKeyRecord oldSandboxToMigrate = getInUseSandbox(newRecord.getUsername(), storage);
+		
+
 		//Our new record is completely new. Easy and awesome. Record and move on.
 		if(oldSandboxToMigrate == null) {
 			newRecord.setType(UserKeyRecord.TYPE_NORMAL);
@@ -449,6 +466,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 		} catch(IOException ioe) {
 			ioe.printStackTrace();
 			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
+			return false;
+		} catch(Exception e) {
+			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ExceptionReportTask.getStackTrace(e));
 			return false;
 		}
 	}

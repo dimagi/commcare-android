@@ -145,7 +145,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     			records[i] = storage.read(ids.elementAt(i).intValue());
     		}
     		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-    		ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, CommCareApplication._().getCurrentApp().getCommCarePlatform(), settings.getString("PostURL", context.getString(R.string.PostURL))) {
+    		ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
 
 
 				@Override

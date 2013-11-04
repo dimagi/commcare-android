@@ -65,9 +65,7 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
 
 		String fallbacktext = null;
 		for(Throwable ex : values) {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ex.printStackTrace(new PrintStream(bos));
-			String exceptionText = new String(bos.toByteArray());
+			String exceptionText = getStackTrace(ex);
 			if(fallbacktext == null) {
 				fallbacktext = exceptionText;
 			}
@@ -148,4 +146,11 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
 		//We seem to have to return something...
 		return null;
     }
+    
+    public static String getStackTrace(Throwable e) {
+    	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		e.printStackTrace(new PrintStream(bos));
+		return new String(bos.toByteArray());
+    }
+    
 }

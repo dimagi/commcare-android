@@ -783,7 +783,7 @@ public class CommCareApplication extends Application {
 			Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Purging " + toPurge.size() + " archived forms for being before the last valid date " + new Date(lastValidDate).toString());
 			//Actually purge the old forms
 			for(int formRecord : toPurge) {
-				FormRecordCleanupTask.wipeRecord(this, app.getCommCarePlatform(),  -1, formRecord);
+				FormRecordCleanupTask.wipeRecord(this, -1, formRecord);
 			}
 		}
 	}
