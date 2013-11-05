@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -91,6 +92,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 			} catch(IOException ioe) {
 				throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
 			}
+			
 			AndroidStreamUtil.writeFromInputToOutput(ref.getStream(), os);
 			
 			int status = customInstall(r, local, upgrade);
@@ -101,15 +103,33 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 				throw new UnresolvedResourceException(r, "After install there is no local resource location");
 			}
 			return true;
+			/*
+			 * This error is thrown by the HttpRequestGenerator on 4.3 devices when the peer certificate is bad. 
+			 * We catch this and deliver upstream to the SetupActivity as an UnresolvedResourceException
+			 */
 		} catch(SSLHandshakeException she){
+			
 			she.printStackTrace();
 			
 			UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
 			mURE.initCause(she);
 			
 			throw mURE;
+			/*
+			 * This error is thrown by the HttpRequestGenerator on 2.3 devices when the peer certificate is bad.
+			 * Handled the same as above.
+			 */
+		} catch(SSLPeerUnverifiedException spue){
+			
+			spue.printStackTrace();
+			
+			UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
+			mURE.initCause(spue);
+			
+			throw mURE;
 			
 		} catch (IOException e) { 
+			
 			e.printStackTrace();
 			throw new UnreliableSourceException(r, e.getMessage());
 		}

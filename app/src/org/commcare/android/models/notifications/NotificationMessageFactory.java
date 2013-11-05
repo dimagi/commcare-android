@@ -55,7 +55,10 @@ public class NotificationMessageFactory {
 		Sync_AirplaneMode("notification.sync.airplane"),
 		
 		/**One of your files on the SD was bad**/
-		Send_MalformedFile("notification.send.malformed");
+		Send_MalformedFile("notification.send.malformed"),
+		
+		/**Bad SSL Certificate **/
+		BadSSLCertificate("notification.bad.certificate");
 	
 		StockMessages(String root) {this.root = root;}
 		private final String root;

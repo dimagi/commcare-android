@@ -1,37 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  android:layout_height="fill_parent" 
-  android:layout_width="fill_parent" 
-  android:id="@+id/screen_first_start_main">
-<ImageView 
-    android:id="@+id/screen_first_start_banner" 
-    android:layout_height="wrap_content" 
-    android:layout_width="fill_parent" 
-    android:paddingLeft="20px" 
-    android:layout_marginRight="20px" 
-    android:paddingTop="20px" 
-    android:paddingBottom="20px" 
-    android:scaleType="fitStart" 
-    android:maxHeight="135px" 
-    android:maxWidth="663px" 
-    android:src="@drawable/ccbanner"
-    android:layout_alignParentTop="true"
-    android:adjustViewBounds="true"/>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/screen_first_start_main"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-<RelativeLayout
-    android:id="@+id/mainLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_below="@id/screen_first_start_banner">
-    
+    <ImageView
+        android:id="@+id/screen_first_start_banner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="20px"
+        android:adjustViewBounds="true"
+        android:maxHeight="135px"
+        android:maxWidth="663px"
+        android:paddingBottom="20px"
+        android:paddingLeft="20px"
+        android:paddingTop="20px"
+        android:scaleType="fitStart"
+        android:src="@drawable/ccbanner" />
+
+    <RelativeLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/screen_first_start_banner"
+        android:layout_above="@+id/screen_first_start_bottom" 
+                    android:layout_gravity="center"
+            android:gravity="center">
+
         <LinearLayout
-        android:id="@+id/screen_first_start_bottom"
+            android:id="@+id/screen_first_start_middle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/str_setup_message"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."
+                android:textSize="14dp" />
+
+            <LinearLayout
+                android:id="@+id/advanced_panel"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone" >
+
+                <TextView
+                    android:id="@+id/TextView02"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Application Profile " />
+
+                <RelativeLayout
+                    android:id="@+id/spinner_panel"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="1" >
+
+                    <Spinner
+                        android:id="@+id/url_spinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:entries="@array/url_list"
+                        android:prompt="@string/url_prompt" />
+
+                    <EditText
+                        android:id="@+id/edit_profile_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/url_spinner" >
+                    </EditText>
+                </RelativeLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@id/screen_first_start_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" 
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical" >
 
         <Button
             android:id="@+id/btn_fetch_uri"
@@ -52,73 +112,18 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Enter App Location" />
-        
+
         <Button
             android:id="@+id/retry_install"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Retry Installation" />
-        
+
         <Button
             android:id="@+id/start_over"
-            android:layout_width="fill_parent"
+            android:layout_width="fill_parent"	
             android:layout_height="wrap_content"
             android:text="Start Over" />
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/screen_first_start_middle"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical" 
-        >
-
-        <TextView
-            android:id="@+id/str_setup_message"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."
-            android:textSize="14dp" />
-
-        <LinearLayout
-            android:id="@+id/advanced_panel"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone" >
-
-            <TextView
-                android:id="@+id/TextView02"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Application Profile " />
-
-            <RelativeLayout
-                android:id="@+id/spinner_panel"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" android:weightSum="1">
-
-                <Spinner
-                    android:id="@+id/url_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:entries="@array/url_list"
-                    android:prompt="@string/url_prompt" android:layout_alignParentLeft="true"/>
-
-                <EditText
-                    android:id="@+id/edit_profile_location"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_alignParentRight="true" android:layout_toRightOf="@id/url_spinner">
-
-                    <requestFocus />
-                </EditText>
-            </RelativeLayout>
-        </LinearLayout>
-    </LinearLayout>
-    
-</RelativeLayout>
 
 </RelativeLayout>
