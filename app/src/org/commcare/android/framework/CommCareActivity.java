@@ -117,6 +117,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 									((TextView)v).setText(((TextView)oldView).getText());
 								}
 								v.setVisibility(oldView.getVisibility());
+								v.setEnabled(oldView.isEnabled());
 								continue;
 							}
 						}

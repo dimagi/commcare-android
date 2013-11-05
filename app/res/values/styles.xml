@@ -89,6 +89,21 @@
        <item name="android:layout_marginBottom">10dp</item>
    </style>
    
+   
+   
+      
+   <style name="TextInteractiveFreeFloating">
+       <item name="android:background">@drawable/info_bubble</item>
+       <item name="android:paddingTop">5dp</item>
+       <item name="android:paddingBottom">5dp</item>
+       <item name="android:layout_marginLeft">2dp</item>
+       <item name="android:paddingLeft">5dp</item>
+       <item name="android:paddingRight">5dp</item>
+       <item name="android:layout_marginRight">2dp</item>
+       <item name="android:gravity">center</item>
+   </style>
+   
+   
    <style name="TextInteractive">
        <item name="android:background">@drawable/bubble</item>
        <item name="android:paddingTop">2dp</item>

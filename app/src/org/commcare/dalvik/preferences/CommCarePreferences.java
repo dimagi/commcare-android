@@ -19,10 +19,12 @@ package org.commcare.dalvik.preferences;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -74,6 +76,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
 	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
 	private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
+	private static final int RECOVERY_MODE = Menu.FIRST + 3;
 
     @Override	
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +108,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 android.R.drawable.ic_menu_help);
         menu.add(0, FORCE_LOG_SUBMIT, 2, "Force Log Submission").setIcon(
                 android.R.drawable.ic_menu_upload);
+        
+        menu.add(0, RECOVERY_MODE, 3, "Recovery Mode").setIcon(android.R.drawable.ic_menu_report_image);
         return true;
     }
 
@@ -132,6 +137,9 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 	            	reportSubmitter.execute();
         		}
                 return true;
+            case RECOVERY_MODE:
+            	Intent i = new Intent(this,RecoveryActivity.class);
+            	this.startActivity(i);
         }
         return super.onOptionsItemSelected(item);
     }
