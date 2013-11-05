@@ -30,6 +30,7 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
@@ -605,7 +606,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	                	
 						Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
 						
-						FormRecordCleanupTask.wipeRecord(this, platform, currentState);
+						FormRecordCleanupTask.wipeRecord(this, currentState);
 						
 						//Notify the server of this problem (since we aren't going to crash) 
 						ExceptionReportTask ert = new ExceptionReportTask();
@@ -656,7 +657,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    	    	//If the form was unstarted, we want to wipe the record. 
 	        		if(current.getStatus() == FormRecord.STATUS_UNSTARTED) {
 		    			//Entry was cancelled.
-	        			FormRecordCleanupTask.wipeRecord(this, platform, currentState);
+	        			FormRecordCleanupTask.wipeRecord(this, currentState);
 	        		}
 
         			if(wasExternal) {
@@ -664,7 +665,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         				currentState.reset();
     	        		return;
         			} else {
-    	        		if(current.getStatus() == FormRecord.STATUS_INCOMPLETE) {
+    	        		if(current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
     	        			//We should head back to the incomplete forms screen
     	        			currentState.reset();
     	        			goToFormArchive(true, current);
@@ -846,7 +847,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		} catch(Exception e) {
 			//TODO: Better catch, here
 		}
-		return null;
+		return "";
 	}
     
     @Override 
@@ -898,41 +899,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) throws SessionUnavailableException {
     	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-    	
-    	//Get all forms which are either unsent or unprocessed
-    	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
-    	ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
-    	if(ids.size() > 0) {
-    		//We need to give these ids a valid order so the server can process them correctly.
-    		//NOTE: This is slower than it need be. We could batch query this with SQL.
-    		final Hashtable<Integer, Long> idToDateIndex = new Hashtable<Integer, Long>();
-    		
-    		
-    		for(int id : ids) {
-    			//Last modified for a unsent and complete forms is the formEnd date that was captured and locked when form
-    			//entry, so it's a safe cannonical ordering
-    			idToDateIndex.put(id, Date.parse(storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED)));
-    		}
-    		
-    		
-    		Collections.sort(ids, new Comparator<Integer>() {
-
-				@Override
-				public int compare(Integer lhs, Integer rhs) {
-					Long lhd = idToDateIndex.get(lhs);
-					Long rhd = idToDateIndex.get(rhs);
-					if(lhd < rhd ) { return -1;}
-					if(lhd > rhd) { return 1;}
-					return 0;
-				}
-    			
-    		});
-    		
-    		//The records should now be in order and we can pass to the next phase 
-    		FormRecord[] records = new FormRecord[ids.size()];
-    		for(int i = 0 ; i < ids.size() ; ++i) {
-    			records[i] = storage.read(ids.elementAt(i).intValue());
-    		}
+    	FormRecord[] records = StorageUtils.getUnsentRecords(storage);
+    	if(records.length > 0) {
     		processAndSend(records, syncAfterwards);
     		return true;
     	} else {
@@ -947,7 +915,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
 		int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
 		
-		ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, platform, settings.getString("PostURL", this.getString(R.string.PostURL)), sendTaskId){
+		ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, settings.getString("PostURL", this.getString(R.string.PostURL)), sendTaskId){
 
 			@Override
 			protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
@@ -1231,7 +1199,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	                    	formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
 	                        break;
 	                    case DialogInterface.BUTTON2: // no, and delete the old one
-	                    	FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, platform, existing);
+	                    	FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, existing);
 	                		//fallthrough to new now that old record is gone
 	                    case DialogInterface.BUTTON3: // no, create new
 	                    	state.commitStub();

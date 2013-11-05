@@ -273,7 +273,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     					
     						//Check for success
     						if(results[i].intValue() == ProcessAndSendTask.FULL_SUCCESS) {
-    							FormRecordCleanupTask.wipeRecord(c, platform, record);
+    							FormRecordCleanupTask.wipeRecord(c, record);
     						    publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
     				        }
     					}

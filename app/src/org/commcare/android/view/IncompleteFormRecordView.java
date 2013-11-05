@@ -41,24 +41,14 @@ public class IncompleteFormRecordView extends LinearLayout {
 	Date start;
 	
 	Drawable rightHandSync;
+	
+	boolean formExists = true;
 
-	public IncompleteFormRecordView(Context context, AndroidCommCarePlatform platform) {
+	public IncompleteFormRecordView(Context context, Hashtable<String, Text> names) {
 		super(context);
 		
 		ViewGroup vg = (ViewGroup)View.inflate(context, R.layout.formrecordview, null);
-		
-		names = new Hashtable<String,Text>();
-		for(Suite s : platform.getInstalledSuites()) {
-			for(Enumeration en = s.getEntries().elements(); en.hasMoreElements() ;) {
-				Entry entry = (Entry)en.nextElement();
-				if(entry.getXFormNamespace() == null) {
-					//This is a <view>, not an <entry>, so
-					//it can't define a form
-				} else {
-					names.put(entry.getXFormNamespace(),entry.getText());
-				}
-			}
-		}
+		this.names = names;
 		
         mPrimaryTextView = (TextView)vg.findViewById(R.id.formrecord_txt_main);
         mLowerTextView = (TextView)vg.findViewById(R.id.formrecord_txt_btm);
@@ -78,8 +68,14 @@ public class IncompleteFormRecordView extends LinearLayout {
 	}
 
 	public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
-		Text name = names.get(record.getFormNamespace());
-		mPrimaryTextView.setText(name.evaluate());
+		if(names.containsKey(record.getFormNamespace())) {
+			Text name = names.get(record.getFormNamespace());
+			
+			mPrimaryTextView.setText(name.evaluate());
+		} else {
+			formExists = false;
+			mPrimaryTextView.setText(Localization.get("form.record.gone"));
+		}
 		
 		if(dataTitle != null) {
 			mLowerTextView.setText(dataTitle); 

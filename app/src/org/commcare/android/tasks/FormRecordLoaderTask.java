@@ -118,7 +118,7 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 					try{
 						dataTitle = asw.getTitle();
 					} catch(RuntimeException e){
-						dataTitle = "Could not load title due to bad app state";
+						dataTitle = "[Unavailable]";
 					}
 					dataTitle = dataTitle == null ? "" : dataTitle;
 					

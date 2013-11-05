@@ -104,15 +104,14 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 	
 	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
-	public ProcessAndSendTask(Context c, CommCarePlatform platform, String url) throws SessionUnavailableException{
-		this(c, platform, url, SEND_PHASE_ID);
+	public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
+		this(c, url, SEND_PHASE_ID);
 	}
 	
-	public ProcessAndSendTask(Context c, CommCarePlatform platform, String url, int sendTaskId) throws SessionUnavailableException{
+	public ProcessAndSendTask(Context c, String url, int sendTaskId) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
 		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-		platform = this.platform;
 		this.taskId = PROCESSING_PHASE_ID;
 		this.sendTaskId = sendTaskId;
 	}
@@ -140,26 +139,26 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 				} catch (InvalidStructureException e) {
 					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
-					FormRecordCleanupTask.wipeRecord(c, platform, record);
+					FormRecordCleanupTask.wipeRecord(c, record);
 					needToSendLogs = true;
 					continue;
 				} catch (XmlPullParserException e) {
 					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
-					FormRecordCleanupTask.wipeRecord(c, platform, record);
+					FormRecordCleanupTask.wipeRecord(c, record);
 					needToSendLogs = true;
 					continue;
 				} catch (UnfullfilledRequirementsException e) {
 					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
-					FormRecordCleanupTask.wipeRecord(c, platform, record);
+					FormRecordCleanupTask.wipeRecord(c, record);
 					needToSendLogs = true;
 					continue;
 				} catch (FileNotFoundException e) {
 					if(CommCareApplication._().isStorageAvailable()) {
 						//If storage is available generally, this is a bug in the app design
 						Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-						FormRecordCleanupTask.wipeRecord(c, platform, record);
+						FormRecordCleanupTask.wipeRecord(c, record);
 					} else {
 						CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
 						//Otherwise, the SD card just got removed, and we need to bail anyway.
@@ -268,7 +267,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 						if(CommCareApplication._().isStorageAvailable()) {
 							//If storage is available generally, this is a bug in the app design
 							Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-							FormRecordCleanupTask.wipeRecord(c, platform, record);
+							FormRecordCleanupTask.wipeRecord(c, record);
 						} else {
 							//Otherwise, the SD card just got removed, and we need to bail anyway.
 							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
@@ -282,7 +281,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 					if(results[i].intValue() == FULL_SUCCESS) {
 						//Only delete if this device isn't set up to review.
 					    if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-					    	FormRecordCleanupTask.wipeRecord(c, platform, record);
+					    	FormRecordCleanupTask.wipeRecord(c, record);
 						} else {
 							//Otherwise save and move appropriately
 							updateRecordStatus(record, FormRecord.STATUS_SAVED);

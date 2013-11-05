@@ -315,6 +315,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		target.setPadding(padding[0], padding[1], padding[2], padding[3]);
 	}
 	
+	/**
+	 * The right-hand side of the title associated with this activity.
+	 * 
+	 * This will update dynamically as the activity loads/updates, but if
+	 * it will ever have a value it must return a blank string when one
+	 * isn't available.
+	 * 
+	 * @return
+	 */
 	public String getActivityTitle() {
 		return null;
 	}

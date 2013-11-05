@@ -134,7 +134,7 @@ public class EntityDetailView extends FrameLayout {
 				addressButton.setOnClickListener(new OnClickListener() {
 
 					public void onClick(View v) {
-						listener.addressRequested(MediaUtil.getGeoFormattedString(address));
+						listener.addressRequested(MediaUtil.getGeoIntentURI(address));
 					}
 					
 				});

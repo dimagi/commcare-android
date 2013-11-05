@@ -4,6 +4,7 @@
 package org.commcare.android.util;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.model.data.GeoPointData;
@@ -45,15 +46,22 @@ public class MediaUtil {
         }
 	}
 	
-	public static String getGeoFormattedString(String rawInput){
+	/**
+	 * Pass in a string representing either a GeoPont or an address and get back a valid
+	 * GeoURI that can be passed as an intent argument 
+	 * 
+	 * @param rawInput
+	 * @return
+	 */
+	public static String getGeoIntentURI(String rawInput){
 		try{
 			GeoPointData mGeoPointData = new GeoPointData().cast(new UncastData(rawInput));
 			String latitude = Double.toString(mGeoPointData.getValue()[0]);
 			String longitude= Double.toString(mGeoPointData.getValue()[1]);
-			return new String(latitude + "," + longitude);
+			return "geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude;
 			
 		}catch(IllegalArgumentException iae){
-			return rawInput;
+			return "geo:0,0?q=" + rawInput;
 		}
 	}
 }
