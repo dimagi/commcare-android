@@ -193,6 +193,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             public void onClick(View v) {
             	
             	if(isAirplaneModeOn()){
+            		displayMessage(Localization.get("notification.sync.airplane.action"),true,true);
             		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             		return;
             	}
