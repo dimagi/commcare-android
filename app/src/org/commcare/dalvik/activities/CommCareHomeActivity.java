@@ -1395,7 +1395,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			menu.findItem(MENU_UPDATE).setVisible(disableMenus);
 			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
 			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
-			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus && ndroid.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH);
+			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus && android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH);
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
