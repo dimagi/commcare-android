@@ -143,9 +143,10 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						receiver.updateProgress(BULK_SEND_ID, update[0]);
 						receiver.txtInteractiveMessages.setText(update[0]);
 					}
-
+					
 					@Override
 					protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
+						Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "SendTask error: " + e.getStackTrace());
 						receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
 						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 					}
