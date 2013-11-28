@@ -11,6 +11,8 @@ import java.util.Vector;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.javarosa.core.services.Logger;
 
 /**
  * 
@@ -41,7 +43,14 @@ public class StorageUtils {
 		for(int id : ids) {
 			//Last modified for a unsent and complete forms is the formEnd date that was captured and locked when form
 			//entry, so it's a safe cannonical ordering
-			idToDateIndex.put(id, Date.parse(storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED)));
+			String dateValue = storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+			try {
+				idToDateIndex.put(id, Date.parse(dateValue));
+			} catch(IllegalArgumentException iae) {
+				Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
+				//For some reason this seems to be crashing on some devices... go with the next best ordering for now
+				idToDateIndex.put(id, Long.valueOf(id));
+			}
 		}
 		
 		
