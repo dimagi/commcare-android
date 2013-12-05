@@ -13,6 +13,7 @@ import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.cases.stock.Stock;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -26,7 +27,11 @@ import android.content.Context;
  */
 public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
-	private static final int USER_DB_VERSION = 3;
+	/**
+	 * Version History
+	 * V.4 - Added Stock table for tracking quantities
+	 */
+	private static final int USER_DB_VERSION = 4;
 	
 	private static final String USER_DB_LOCATOR = "database_sandbox_";
 	
@@ -74,6 +79,11 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 			
 			builder = new TableBuilder("fixture");
 			builder.addData(new FormInstance());
+			database.execSQL(builder.getTableCreateString());
+			
+			builder = new TableBuilder(Stock.STORAGE_KEY);
+			builder.addData(new Stock());
+			builder.setUnique(Stock.INDEX_ENTITY_ID);
 			database.execSQL(builder.getTableCreateString());
 			
 			database.setVersion(USER_DB_VERSION);

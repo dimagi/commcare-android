@@ -31,6 +31,8 @@ import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
+import org.commcare.cases.stock.Stock;
+import org.commcare.cases.stock.StockPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -480,7 +482,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 			
 		SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
 		CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
-		storage.removeAll(filter);		
+		storage.removeAll(filter);
+		
+		SqlStorage<Stock> stockStorage = CommCareApplication._().getUserStorage(Stock.STORAGE_KEY, Stock.class);
+		StockPurgeFilter stockFilter = new StockPurgeFilter(stockStorage, storage);
+		stockStorage.removeAll(stockFilter);
 	}
 
 	private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{

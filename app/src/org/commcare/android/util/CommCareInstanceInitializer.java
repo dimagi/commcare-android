@@ -10,6 +10,8 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.commcare.cases.stock.Stock;
+import org.commcare.cases.stock.instance.StockInstanceTreeElement;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -17,7 +19,6 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.util.DataUtil;
 
 /**
  * @author ctsims
@@ -26,6 +27,7 @@ import org.javarosa.core.util.DataUtil;
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	CommCareSession session;
 	CaseInstanceTreeElement casebase;
+	StockInstanceTreeElement stockbase;
 	
 	public CommCareInstanceInitializer(){ 
 		this(null);
@@ -37,7 +39,15 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
 		CommCareApplication app = CommCareApplication._();
 		String ref = instance.getReference();
-		if(ref.indexOf("case") != -1) {
+		if(ref.indexOf("stock") != -1) {
+			if(stockbase == null) {
+				SqlStorage<Stock> storage = app.getUserStorage(Stock.STORAGE_KEY, Stock.class);
+				stockbase =  new StockInstanceTreeElement(instance.getBase(), storage);
+			} else {
+				stockbase.rebase(instance.getBase());
+			}
+			return stockbase;
+		}else if(ref.indexOf("case") != -1) {
 			if(casebase == null) {
 				SqlStorage<ACase> storage = app.getUserStorage(ACase.STORAGE_KEY, ACase.class);
 				casebase =  new CaseInstanceTreeElement(instance.getBase(), storage, false) {
@@ -63,8 +73,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 				casebase.rebase(instance.getBase());
 			}
 			return casebase;
-		}
-		if(instance.getReference().indexOf("fixture") != -1) {
+		}else if(instance.getReference().indexOf("fixture") != -1) {
 			
 			//TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
 			

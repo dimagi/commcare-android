@@ -8,7 +8,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.cases.stock.Stock;
 
 import android.content.Context;
 
@@ -38,8 +40,14 @@ public class UserDatabaseUpgrader {
 				oldVersion = 3;
 			}
 		}
+		
+		if(oldVersion == 3) {
+			if(upgradeThreeFour(db, oldVersion, newVersion)) {
+				oldVersion = 4;
+			}
+		}
 	}
-	
+
 	private boolean upgradeOneTwo(final SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.beginTransaction();
 		try {
@@ -60,6 +68,24 @@ public class UserDatabaseUpgrader {
 		} finally {
 			db.endTransaction();
 		}
+	}
+	
+	private boolean upgradeThreeFour(SQLiteDatabase db, int oldVersion, int newVersion) {
+		db.beginTransaction();
+		try {
+			addStockTable(db);
+			db.setTransactionSuccessful();
+			return true;
+		} finally {
+			db.endTransaction();
+		}
+	}
+
+	private void addStockTable(SQLiteDatabase db) {
+		TableBuilder builder = new TableBuilder(Stock.STORAGE_KEY);
+		builder.addData(new Stock());
+		builder.setUnique(Stock.INDEX_ENTITY_ID);
+		db.execSQL(builder.getTableCreateString());
 	}
 
 	private void markSenseIncompleteUnsent(final SQLiteDatabase db) {
