@@ -493,6 +493,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 		DataModelPullParser parser;
 		
 		factory.initCaseParser();
+		factory.initStockParser();
 		
 		Hashtable<String,String> formNamespaces = new Hashtable<String, String>(); 
 		

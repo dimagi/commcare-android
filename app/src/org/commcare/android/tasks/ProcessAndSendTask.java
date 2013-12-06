@@ -27,6 +27,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.cases.stock.Stock;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
@@ -35,6 +36,7 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.AndroidCaseXmlParser;
+import org.commcare.xml.StockXmlParsers;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
@@ -333,6 +335,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 		}
 	}
 	
+	/**
+	 * This is the entry point for processing a form. New transaction types should all be declared here. 
+	 * 
+	 * @param record
+	 * @return
+	 * @throws InvalidStructureException
+	 * @throws IOException
+	 * @throws XmlPullParserException
+	 * @throws UnfullfilledRequirementsException
+	 * @throws StorageFullException
+	 */
 	private FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
 		String form = record.getPath(c);
 		
@@ -344,7 +357,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 		parser = new DataModelPullParser(is, new TransactionParserFactory() {
 			
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-				if(name.toLowerCase().equals("case")) {
+				if(StockXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+					return new StockXmlParsers(parser, CommCareApplication._().getUserStorage(Stock.STORAGE_KEY, Stock.class));
+				}else if(name.toLowerCase().equals("case")) {
 					return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class), decrypter, null, f.getParentFile());
 				} 
 				return null;

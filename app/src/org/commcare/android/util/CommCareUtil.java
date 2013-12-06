@@ -3,14 +3,17 @@
  */
 package org.commcare.android.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.ArrayUtilities;
+import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.expr.XPathExpression;
 
 /**
@@ -76,5 +79,18 @@ public class CommCareUtil {
 			}
 		}
 		return preds;
+	}
+	
+	public static void printInstance(String instanceRef) {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(null));
+			
+			s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
+			System.out.println(new String(bos.toByteArray()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

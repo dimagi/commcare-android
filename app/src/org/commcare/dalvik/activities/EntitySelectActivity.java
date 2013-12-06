@@ -176,7 +176,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		prototype = entries.elementAt(0);
 		
 		//(We shouldn't need the "" here, but we're avoiding making changes to commcare core for release issues)
-		if(entries.size() == 1 && prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals("")) {
+		if(entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
 			mViewMode = true;
 		}
                 

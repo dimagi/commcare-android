@@ -10,6 +10,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.stock.Stock;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -17,6 +18,7 @@ import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -31,6 +33,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	private Context context;
 	private TransactionParserFactory userParser;
 	private TransactionParserFactory caseParser;
+	private TransactionParserFactory stockParser;
 	private TransactionParserFactory formInstanceParser;
 	private TransactionParserFactory fixtureParser;
 	
@@ -75,6 +78,12 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 		if(namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
 			req();
 			return formInstanceParser.getParser(name, namespace, parser);
+		} else if(StockXmlParsers.STOCK_XML_NAMESPACE.matches(namespace)) {
+			if(stockParser == null) {
+				throw new RuntimeException("Couldn't process Stock transaction without initialization!");
+			}
+			req();
+			return stockParser.getParser(name, namespace, parser);
 		} else if(name != null && name.toLowerCase().equals("case")) {
 			if(caseParser == null) {
 				throw new RuntimeException("Couldn't receive Case transaction without initialization!");
@@ -149,6 +158,15 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 				}
 				
 				return created;
+			}
+		};
+	}
+	
+	public void initStockParser() {
+		stockParser = new TransactionParserFactory() {
+			
+			public TransactionParser<Stock[]> getParser(String name, String namespace, KXmlParser parser) {
+				return new StockXmlParsers(parser, CommCareApplication._().getUserStorage(Stock.STORAGE_KEY, Stock.class));
 			}
 		};
 	}

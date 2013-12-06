@@ -26,9 +26,11 @@ import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.TextImageAudioView;
+import org.commcare.cases.stock.Stock;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -1404,6 +1406,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
+            	//CommCareUtil.printInstance("jr://instance/stockdb");
                 createPreferencesMenu();
                 return true;
             case MENU_UPDATE:
