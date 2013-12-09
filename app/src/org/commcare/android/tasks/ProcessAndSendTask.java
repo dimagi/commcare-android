@@ -5,43 +5,31 @@ package org.commcare.android.tasks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.cases.stock.Stock;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.data.xml.TransactionParser;
-import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.xml.AndroidCaseXmlParser;
-import org.commcare.xml.StockXmlParsers;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
@@ -97,10 +85,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 	
 	DataSubmissionListener formSubmissionListener;
 	CommCarePlatform platform;
+	private FormRecordProcessor processor;
 	
 	private static int SUBMISSION_ATTEMPTS = 2;
 	
-	SqlStorage<FormRecord> storage;
 	
 	static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
 	
@@ -113,9 +101,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 	public ProcessAndSendTask(Context c, String url, int sendTaskId) throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
-		storage =  CommCareApplication._().getUserStorage(FormRecord.class);
 		this.taskId = PROCESSING_PHASE_ID;
 		this.sendTaskId = sendTaskId;
+		this.processor = new FormRecordProcessor(c);
 	}
 	
 	/* (non-Javadoc)
@@ -137,7 +125,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 			//If the form is complete, but unprocessed, process it.
 			if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
 				try {
-					records[i] = process(record);
+					records[i] = processor.process(record);
 				} catch (InvalidStructureException e) {
 					CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
 					Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
@@ -217,7 +205,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 			//they were updated
 			for(int i = 0; i < records.length; ++i ){
 				int dbId = records[i].getID();
-				records[i] = storage.read(dbId);
+				records[i] = processor.getRecord(dbId);
 			}
 		}
 		
@@ -286,7 +274,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 					    	FormRecordCleanupTask.wipeRecord(c, record);
 						} else {
 							//Otherwise save and move appropriately
-							updateRecordStatus(record, FormRecord.STATUS_SAVED);
+							processor.updateRecordStatus(record, FormRecord.STATUS_SAVED);
 						}
 			        }
 				} else {
@@ -333,51 +321,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 		synchronized(processTasks) {
 			return processTasks.size();
 		}
-	}
-	
-	/**
-	 * This is the entry point for processing a form. New transaction types should all be declared here. 
-	 * 
-	 * @param record
-	 * @return
-	 * @throws InvalidStructureException
-	 * @throws IOException
-	 * @throws XmlPullParserException
-	 * @throws UnfullfilledRequirementsException
-	 * @throws StorageFullException
-	 */
-	private FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
-		String form = record.getPath(c);
-		
-		DataModelPullParser parser;
-		final File f = new File(form);
-
-		final Cipher decrypter = FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
-		InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
-		parser = new DataModelPullParser(is, new TransactionParserFactory() {
-			
-			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-				if(StockXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
-					return new StockXmlParsers(parser, CommCareApplication._().getUserStorage(Stock.STORAGE_KEY, Stock.class));
-				}else if(name.toLowerCase().equals("case")) {
-					return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class), decrypter, null, f.getParentFile());
-				} 
-				return null;
-			}
-			
-		}, true, true);
-		
-		parser.parse();
-		is.close();
-		
-		return updateRecordStatus(record, FormRecord.STATUS_UNSENT);
-	}
-	
-	private FormRecord updateRecordStatus(FormRecord record, String newStatus) throws IOException, StorageFullException{
-		//update the records to show that the form has been processed and is ready to be sent;
-		record = record.updateStatus(record.getInstanceURI().toString(), newStatus);
-		storage.write(record);
-		return record;
 	}
 	
 	/* (non-Javadoc)

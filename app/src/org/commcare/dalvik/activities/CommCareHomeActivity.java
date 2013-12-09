@@ -15,6 +15,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullTask;
@@ -26,11 +27,9 @@ import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.TextImageAudioView;
-import org.commcare.cases.stock.Stock;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -626,6 +625,20 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        		if(complete) {
 	        			//Form record should now be up to date now and stored correctly.
 	        			
+	        			//ctsims - App stack workflows require us to have processed _this_ specific form before 
+	        			//we can move on, and that needs to be synchronous. We'll go ahead and try to process just
+	        			//this form before moving on. We'll catch any errors here and just eat them (since the 
+	        			//task will also try the process and fail if it does. 
+	        			if(FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
+	        				try {
+	        					new FormRecordProcessor(this).process(current);
+	        				} catch(Exception e) {
+	        					Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+	        				}
+	        			}
+
+	        			
+	        			
 	        			//We're honoring in order submissions, now, so trigger a full submission
 	        			//cycle
 	        			checkAndStartUnsentTask(false);
@@ -634,6 +647,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        			if(wasExternal) {
 	        				this.finish();
 	        			}
+	        			
+	        			//Before we can terminate the session, we need to know that the form has been processed
+	        			//in case there is state that depends on it. 
+	        			
 	        			if(!currentState.terminateSession()) {
 	        				//If we didn't find somewhere to go,
 	        				//we're gonna stay here
@@ -908,13 +925,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     	}
     }
     
+    private String getFormPostURL() {
+    	SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	return settings.getString("PostURL", this.getString(R.string.PostURL));
+    }
+    
     @SuppressLint("NewApi")
 	private void processAndSend(FormRecord[] records, final boolean syncAfterwards) {
-		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 
 		int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
 		
-		ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, settings.getString("PostURL", this.getString(R.string.PostURL)), sendTaskId){
+		ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, getFormPostURL(), sendTaskId){
 
 			@Override
 			protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
