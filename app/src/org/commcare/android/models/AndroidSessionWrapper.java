@@ -93,12 +93,25 @@ public class AndroidSessionWrapper {
 	 */
 	public void reset() {
 		this.session.clearAllState();
+		cleanVolatiles();
+	}
+	
+	/**
+	 * Clears out all of the elements of this wrapper which are for an individual traversal.
+	 * Includes any cached info (since the casedb might have changed) and the individual id's
+	 * and such.
+	 * 
+	 */
+	private void cleanVolatiles() {
 		formRecordId = -1;
 		instanceUri = null;
 		instanceStatus = null;
 		sessionStateRecordId = -1;
+		//CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly
+		//we want to "update" the casedb rather than rebuild it, but this is safest for now.
+		initializer = null;
 	}
-
+	
 	public CommCareSession getSession() {
 		return session;
 	}
@@ -416,12 +429,9 @@ public class AndroidSessionWrapper {
 		
 		//Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
 		if(session.finishAndPop()) {
-			//We are gonna keep re-using the current session
+			//We just built a new session stack into the session, so we want to keep that,
 			//clear out the internal state vars, though.
-			formRecordId = -1;
-			instanceUri = null;
-			instanceStatus = null;
-			sessionStateRecordId = -1;
+			cleanVolatiles();
 			return true;
 		} else {
 			//start from scratch
