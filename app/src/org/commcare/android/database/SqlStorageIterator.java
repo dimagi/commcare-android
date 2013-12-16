@@ -68,7 +68,11 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 	 * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
 	 */
 	public T nextRecord() {
-		return storage.read(nextID());
+		byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
+		
+		//we don't really use this
+		nextID();
+		return storage.newObject(data);
 	}
 
 	/* (non-Javadoc)
@@ -95,4 +99,18 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 		return id;
 	}
 
+	//TESTING ONLY
+	
+	/* (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
+	 */
+	private byte[] getBlob() {
+		byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
+
+		return data;
+	}
+	
+	private Cursor getRawCursor() {
+		return c;
+	}
 }

@@ -6,7 +6,6 @@ package org.commcare.android.database;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +13,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import net.sqlcipher.DatabaseUtils;
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteQueryBuilder;
 
 import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -34,6 +35,8 @@ import android.util.Pair;
  *
  */
 public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
+	
+	private static final boolean DEBUG_MODE = false;  
 	
 	String table;
 	Class<? extends T> ctype;
@@ -71,6 +74,15 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 	
 	public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
 		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
+		
+		if(DEBUG_MODE) {
+			String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
+			Cursor explain = helper.getHandle().rawQuery("EXPLAIN QUERY PLAN " + sql, whereClause.second);
+			System.out.println("SQL: " + sql);
+			DatabaseUtils.dumpCursor(explain);
+			explain.close();
+		}
+		
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
@@ -96,6 +108,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 	
 	public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
 		Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
+
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
 		if(c.getCount() == 0) {
 			c.close();
@@ -152,6 +165,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 	 */
 	public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
 		Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
+		
+		if(DEBUG_MODE) {
+			String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
+			Cursor explain = helper.getHandle().rawQuery("EXPLAIN QUERY PLAN " + sql, whereClause.second);
+			DatabaseUtils.dumpCursor(explain);
+			explain.close();
+		}
+		
 		String scrubbedName = TableBuilder.scrubName(rawFieldName);
 		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
 		if(c.getCount() == 0) {
@@ -293,9 +314,18 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
 	 */
 	public SqlStorageIterator<T> iterate() {
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , null, null, null, null, DbUtil.ID_COL);
+		return iterate(true);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
+	 */
+	public SqlStorageIterator<T> iterate(boolean includeData) {
+		String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} : new String[] {DbUtil.ID_COL};
+		Cursor c = helper.getHandle().query(table,  projection, null, null, null, null, DbUtil.ID_COL);
 		return new SqlStorageIterator<T>(c, this);
 	}
+	
 	
 	public Iterator<T> iterator() {
 		return iterate();

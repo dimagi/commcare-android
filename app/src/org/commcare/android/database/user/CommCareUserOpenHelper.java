@@ -29,7 +29,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
 	/**
 	 * Version History
-	 * V.4 - Added Stock table for tracking quantities
+	 * V.4 - Added Stock table for tracking quantities. Fixed Case ID index
 	 */
 	private static final int USER_DB_VERSION = 4;
 	
@@ -85,6 +85,11 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 			builder.addData(new Stock());
 			builder.setUnique(Stock.INDEX_ENTITY_ID);
 			database.execSQL(builder.getTableCreateString());
+			
+			//The uniqueness index should be doing this for us
+			database.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
+			database.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
+			database.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
 			
 			database.setVersion(USER_DB_VERSION);
 					

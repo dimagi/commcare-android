@@ -294,7 +294,7 @@ public class AndroidSessionWrapper {
 		}
 		if(session.getFrame().getSteps().size() == 0) { return null;}
 		
-		EvaluationContext ec = getEC();
+		EvaluationContext ec = getEvaluationContext();
 		
 		//Get the value that was chosen for this item
 		String value = session.getPoppedStep()[2];
@@ -351,7 +351,7 @@ public class AndroidSessionWrapper {
     	}
 	}
 	
-	protected EvaluationContext getEC() {
+	public EvaluationContext getEvaluationContext() {
 		return session.getEvaluationContext(getIIF());
 	}
 	
@@ -421,7 +421,7 @@ public class AndroidSessionWrapper {
 		
 		//First, see if we have operations to run
 		if(ops.size() > 0) {
-			EvaluationContext ec = getEC();
+			EvaluationContext ec = getEvaluationContext();
 			for(StackOperation op : ops) {
 				session.executeStackOperation(op, ec);
 			}

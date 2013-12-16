@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -14,11 +15,9 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -39,7 +38,7 @@ import android.widget.ListAdapter;
  */
 public class GenericMenuListAdapter implements ListAdapter {
 	
-	private CommCareSession session;
+	private AndroidSessionWrapper asw;
 	private CommCarePlatform platform;
 	private Context context;
 	private Object[] objectData;
@@ -54,7 +53,7 @@ public class GenericMenuListAdapter implements ListAdapter {
 		Vector<Object> items = new Vector<Object>();
 		
 		Hashtable<String, Entry> map = platform.getMenuMap();
-		session = CommCareApplication._().getCurrentSession();
+		asw = CommCareApplication._().getCurrentSessionWrapper();
 		for(Suite s : platform.getInstalledSuites()) {
 			for(Menu m : s.getMenus()) {
 	    		if(m.getId().equals(menuID)) {
@@ -72,7 +71,7 @@ public class GenericMenuListAdapter implements ListAdapter {
 	    				try {
 		    				XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
 		    				if(mRelevantCondition != null) {	    					
-			    				EvaluationContext mEC = session.getEvaluationContext(getInstanceInit());
+			    				EvaluationContext mEC = asw.getEvaluationContext();
 			    				Object ret = mRelevantCondition.eval(mEC);
 			    				try {
 			    					if(!XPathFuncExpr.toBoolean(ret)) {
@@ -91,7 +90,7 @@ public class GenericMenuListAdapter implements ListAdapter {
 	    						//If this is a "view", not an "entry"
 	    						//we only want to display it if all of its 
 	    						//datums are not already present
-	    						if(session.getNeededDatum(e) == null) {
+	    						if(asw.getSession().getNeededDatum(e) == null) {
 	    							continue;
 	    						}
 	    					}
@@ -208,10 +207,6 @@ public class GenericMenuListAdapter implements ListAdapter {
 		emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject));
 		return emv;
 	}
-	
-	private CommCareInstanceInitializer getInstanceInit() {
-    	return new CommCareInstanceInitializer(session);
-    }
 	
 	/*
 	 * Helpers to make the getView call Entry/Menu agnostic

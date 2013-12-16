@@ -6,6 +6,7 @@ package org.commcare.android.util;
 import java.util.HashSet;
 import java.util.Vector;
 
+import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
@@ -50,25 +51,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 		}else if(ref.indexOf("case") != -1) {
 			if(casebase == null) {
 				SqlStorage<ACase> storage = app.getUserStorage(ACase.STORAGE_KEY, ACase.class);
-				casebase =  new CaseInstanceTreeElement(instance.getBase(), storage, false) {
-					@Override
-					protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-						//This is kind of (ok, so really) awkward looking, but we can't use sets in 
-						//ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
-						//j2me (thanks Sun!) so this is what we get.
-						HashSet<Integer> selected = new HashSet<Integer>(selectedCases);
-						selected.addAll(selectedCases);
-						
-						HashSet<Integer> other = new HashSet<Integer>();
-						other.addAll(cases);
-						
-						selected.retainAll(other);
-						
-						selectedCases.clear();
-						selectedCases.addAll(selected);
-						return selectedCases;
-					}
-				};
+				casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false);
 			} else {
 				casebase.rebase(instance.getBase());
 			}

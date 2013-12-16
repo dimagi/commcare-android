@@ -10,6 +10,7 @@ import java.util.Vector;
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
@@ -70,6 +71,7 @@ import android.widget.Toast;
  */
 public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
 	private CommCareSession session;
+	private AndroidSessionWrapper asw;
 	
 	public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
 	public static final String EXTRA_IS_MAP = "is_map";
@@ -121,7 +123,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         
         try {
-        	session = CommCareApplication._().getCurrentSession();
+        	asw = CommCareApplication._().getCurrentSessionWrapper();
+        	session = asw.getSession();
         }catch(SessionUnavailableException sue){
         	//The user isn't logged in! bounce this back to where we came from
         	this.setResult(Activity.RESULT_CANCELED);
@@ -284,7 +287,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	    	
 	    	
 	    	if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
-	    		EntityLoaderTask theloader = new EntityLoaderTask(detail, getEC());
+	    		EntityLoaderTask theloader = new EntityLoaderTask(detail, asw.getEvaluationContext());
 		    	theloader.attachListener(this);
 		    	
 		    	theloader.execute(selectDatum.getNodeset());
@@ -293,24 +296,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     		//TODO: login and return
     	}
     }
-    
-    private EvaluationContext getEC() {
-    	if(entityContext == null) {
-    		entityContext = session.getEvaluationContext(getInstanceInit());
-    	}
-    	return entityContext;
-    }
-    
-    private CommCareInstanceInitializer getInstanceInit() {
-    	return new CommCareInstanceInitializer(session);
-    }
-    
+
     protected Intent getDetailIntent(TreeReference contextRef) {
     	//Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
     	//we return
     	
     	TreeReference valueRef = XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
-    	AbstractTreeElement element = getEC().resolveReference(valueRef.contextualize(contextRef));
+    	AbstractTreeElement element = asw.getEvaluationContext().resolveReference(valueRef.contextualize(contextRef));
     	String value = "";
     	if(element != null && element.getValue() != null) {
     		value = element.getValue().uncast().getString();
@@ -344,7 +336,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(selectDatum.getValue()), new XPathStringLiteral(uniqueid)));
     	nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
     	
-    	Vector<TreeReference> elements = getEC().expandReference(nodesetRef);
+    	Vector<TreeReference> elements = asw.getEvaluationContext().expandReference(nodesetRef);
     	if(elements.size() == 1) {
     		return elements.firstElement();
     	} else if(elements.size() > 1) {

@@ -9,6 +9,7 @@ import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
@@ -37,6 +38,7 @@ import android.widget.ListView;
 @ManagedUi(R.layout.entity_detail)
 public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
 	private CommCareSession session;
+	private AndroidSessionWrapper asw;
 	
 	private static final int CALL_OUT = 0;
 	
@@ -87,8 +89,8 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	        	next.setText("Done");
 	        }
 	        
-	        
-	        session = CommCareApplication._().getCurrentSession();
+	        asw = CommCareApplication._().getCurrentSessionWrapper();
+	        session = asw.getSession();
 	        
 	        
 	        String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
@@ -96,7 +98,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 			Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
 			prototype = entries.elementAt(0);
 	
-	        factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
+	        factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 	        

@@ -9,6 +9,7 @@ import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.stock.Stock;
 
@@ -74,11 +75,18 @@ public class UserDatabaseUpgrader {
 		db.beginTransaction();
 		try {
 			addStockTable(db);
+			updateIndexes(db);
 			db.setTransactionSuccessful();
 			return true;
 		} finally {
 			db.endTransaction();
 		}
+	}
+
+	private void updateIndexes(SQLiteDatabase db) {
+		db.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
+		db.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
+		db.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
 	}
 
 	private void addStockTable(SQLiteDatabase db) {
