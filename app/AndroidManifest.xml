@@ -176,6 +176,10 @@
             android:name="org.odk.collect.android.preferences.PreferencesActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
+        <activity
+            android:name="org.odk.collect.android.views.FullScreenImage"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
         <activity android:name=".activities.EntityMapActivity" >
         </activity>
 
