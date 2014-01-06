@@ -86,7 +86,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		
 		
 		this.namespace = formDef.getInstance().schema;
-		if(namespace == null) { throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined");}
+		if(namespace == null) { throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);}
 		
 		
 		//TODO: Where should this context be?
