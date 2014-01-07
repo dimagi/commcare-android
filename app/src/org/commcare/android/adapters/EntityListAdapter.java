@@ -46,6 +46,8 @@ public class EntityListAdapter implements ListAdapter {
 	
 	private TreeReference selected;
 	
+	private boolean hasWarned;
+	
 	int currentSort[] = {};
 	boolean reverseSort = false;
 	
@@ -96,6 +98,8 @@ public class EntityListAdapter implements ListAdapter {
 		
 		this.reverseSort = reverse;
 		
+		hasWarned = false;
+		
 		currentSort = fields;
 		
 		java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
@@ -111,6 +115,7 @@ public class EntityListAdapter implements ListAdapter {
 			}
 			
 			private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
+
 				int i = d.getFields()[index].getSortType();
 				
 				String a1 = object1.getSortField(index);
@@ -146,13 +151,24 @@ public class EntityListAdapter implements ListAdapter {
 						
 						double ret = XPathFuncExpr.toInt(value);
 						if(Double.isNaN(ret)){
-							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Filter));
+							String[] stringArgs = new String[3];
+							stringArgs[2] = value;
+							if(!hasWarned){
+								CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Filter, stringArgs));
+								hasWarned = true;
+							}
 						}
 						return ret;
 					} else if(sortType == Constants.DATATYPE_DECIMAL) {
 						double ret = XPathFuncExpr.toDouble(value);
 						if(Double.isNaN(ret)){
-							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
+							
+							String[] stringArgs = new String[3];
+							stringArgs[2] = value;
+							if(!hasWarned){
+								CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Filter, stringArgs));
+								hasWarned = true;
+							}
 						}
 						return ret;
 					} else {
