@@ -57,6 +57,9 @@ public class NotificationMessageFactory {
 		/**One of your files on the SD was bad**/
 		Send_MalformedFile("notification.send.malformed"),
 		
+		/** Your case fitler does not match the data type **/
+		Bad_Case_Filter("notification.case.filter"),
+		
 		/**Bad SSL Certificate **/
 		BadSSLCertificate("notification.bad.certificate");
 	

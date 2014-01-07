@@ -8,8 +8,11 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.commcare.android.models.Entity;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.Constants;
@@ -23,6 +26,7 @@ import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
+import android.widget.Toast;
 
 /**
  * @author ctsims
@@ -139,9 +143,18 @@ public class EntityListAdapter implements ListAdapter {
 					} else if(sortType == Constants.DATATYPE_INTEGER) {
 						//Double int compares just fine here and also
 						//deals with NaN's appropriately
-						return XPathFuncExpr.toInt(value);
+						
+						double ret = XPathFuncExpr.toInt(value);
+						if(Double.isNaN(ret)){
+							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Filter));
+						}
+						return ret;
 					} else if(sortType == Constants.DATATYPE_DECIMAL) {
-						return XPathFuncExpr.toDouble(value);
+						double ret = XPathFuncExpr.toDouble(value);
+						if(Double.isNaN(ret)){
+							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
+						}
+						return ret;
 					} else {
 						//Hrmmmm :/ Handle better?
 						return value;
