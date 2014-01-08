@@ -335,9 +335,9 @@ notification.sync.airplane.title=Phone in Airplane Mode
 notification.sync.airplane.detail=Cannot access the Internet
 notification.sync.airplane.action=You are in airplane mode and unable to connect to the Internet. Turn off airplane mode and try again.
 
-notification.case.filter.title=Case Filter failed to sort
-notification.case.filter.detail=The given case does not have the expected datatype
-notification.case.filter.action=Sorting failed because CommCare expected a number but got ${0}. You should change the relevant function on HQ, or fix this case data. 
+notification.case.filter.title=Case List failed to sort
+notification.case.filter.detail=Sort property not have the expected datatype
+notification.case.filter.action=Sorting failed because CommCare expected a number but got ${0}. Make sure you have selected the correct format for your sort property.
 
 notification.send.malformed.title=Bad Form on SD Card
 notification.send.malformed.detail=The file ${0} on your SD card was malformed and couldn't be read. It has been removed as a precaution.
