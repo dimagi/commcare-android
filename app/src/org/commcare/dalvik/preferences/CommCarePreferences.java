@@ -44,7 +44,11 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
     public final static String FREQUENCY_WEEKLY = "freq-weekly";
-
+    
+    public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
+    
+    public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
+    
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
     

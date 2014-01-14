@@ -1327,7 +1327,30 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(!CommCarePreferences.isFormManagementEnabled()) {
         	formRecordPane.setVisibility(View.GONE);
         } else {
+        	
+        	/*
+        	 * Not in sense mode
+        	 * Form records are visible unless specifically set to be on/off
+        	 */
+        	
         	formRecordPane.setVisibility(View.VISIBLE);
+        	
+        	String savedString = prefs.getString(CommCarePreferences.ENABLE_SAVED_FORMS,"null");
+        	
+        	String incompleteString = prefs.getString(CommCarePreferences.ENABLE_INCOMPLETE_FORMS,"null");
+        	
+        	if(savedString.equals(CommCarePreferences.NO)){
+        		viewOldForms.setVisibility(View.GONE);
+        	} else if(savedString.equals(CommCarePreferences.YES)){
+        		viewOldForms.setVisibility(View.VISIBLE);
+        	}
+        	
+        	if(incompleteString.equals(CommCarePreferences.NO)){
+        		viewIncomplete.setVisibility(View.GONE);
+        	} else if(incompleteString.equals(CommCarePreferences.YES)){
+        		viewIncomplete.setVisibility(View.VISIBLE);
+        	}
+
         }
 
     }
