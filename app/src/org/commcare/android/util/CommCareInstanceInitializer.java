@@ -40,7 +40,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
 		CommCareApplication app = CommCareApplication._();
 		String ref = instance.getReference();
-		if(ref.indexOf("stock") != -1) {
+		if(ref.indexOf(StockInstanceTreeElement.MODEL_NAME) != -1) {
 			if(stockbase == null) {
 				SqlStorage<Stock> storage = app.getUserStorage(Stock.STORAGE_KEY, Stock.class);
 				stockbase =  new StockInstanceTreeElement(instance.getBase(), storage);
