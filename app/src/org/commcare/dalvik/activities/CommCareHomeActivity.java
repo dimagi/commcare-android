@@ -1328,7 +1328,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         
         View formRecordPane = this.findViewById(R.id.home_formspanel);
-        if(!CommCarePreferences.isFormManagementEnabled()) {
+        
+        System.out.println("1214 inc enabled: " + CommCarePreferences.isIncompleteFormsEnabled());
+        System.out.println("1214 saved enabled: " + CommCarePreferences.isSavedFormsEnabled());
+        
+        if(!CommCarePreferences.isFormManagementEnabled() || (!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled())) {
         	formRecordPane.setVisibility(View.GONE);
         } else {
         	
@@ -1343,13 +1347,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         	
         	String incompleteString = prefs.getString(CommCarePreferences.ENABLE_INCOMPLETE_FORMS,"null");
         	
-        	if(savedString.equals(CommCarePreferences.NO)){
+        	if(!CommCarePreferences.isSavedFormsEnabled()){
         		viewOldForms.setVisibility(View.GONE);
         	} else if(savedString.equals(CommCarePreferences.YES)){
         		viewOldForms.setVisibility(View.VISIBLE);
         	}
         	
-        	if(incompleteString.equals(CommCarePreferences.NO)){
+        	if(!CommCarePreferences.isIncompleteFormsEnabled()){
         		viewIncomplete.setVisibility(View.GONE);
         	} else if(incompleteString.equals(CommCarePreferences.YES)){
         		viewIncomplete.setVisibility(View.VISIBLE);

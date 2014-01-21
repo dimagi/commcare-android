@@ -167,24 +167,28 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
    
     public static boolean isIncompleteFormsEnabled() {
     	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	System.out.println("1214 incomplete is: " + properties.getString(ENABLE_INCOMPLETE_FORMS, "null"));
     	//If there is a setting for form management it takes precedence
-    	if(properties.contains(ENABLE_SAVED_FORMS)) {
-    		return !properties.getString(ENABLE_SAVED_FORMS, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
+    	if(properties.contains(ENABLE_INCOMPLETE_FORMS)) {
+    		
+    		return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
     	}
     	
     	//otherwise, see if we're in sense mode
-    	return !isFormManagementEnabled();
+    	return isFormManagementEnabled();
     }
     
     public static boolean isSavedFormsEnabled(){
+    	
     	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	System.out.println("1214 saved is: " + properties.getString(ENABLE_SAVED_FORMS, "null"));
     	//If there is a setting for form management it takes precedence
-    	if(properties.contains(ENABLE_INCOMPLETE_FORMS)) {
-    		return !properties.getString(ENABLE_INCOMPLETE_FORMS, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
+    	if(properties.contains(ENABLE_SAVED_FORMS)) {
+    		return properties.getString(ENABLE_SAVED_FORMS, YES).equals(YES);
     	}
     	
     	//otherwise, see if we're in sense mode
-    	return !isFormManagementEnabled();
+    	return isFormManagementEnabled();
     }
     
     @Override
