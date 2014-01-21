@@ -33,6 +33,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener{
@@ -162,6 +163,28 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     	
     	//if not, form management is a go
     	return true;
+    }
+   
+    public static boolean isIncompleteFormsEnabled() {
+    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	//If there is a setting for form management it takes precedence
+    	if(properties.contains(ENABLE_SAVED_FORMS)) {
+    		return !properties.getString(ENABLE_SAVED_FORMS, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
+    	}
+    	
+    	//otherwise, see if we're in sense mode
+    	return !isFormManagementEnabled();
+    }
+    
+    public static boolean isSavedFormsEnabled(){
+    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	//If there is a setting for form management it takes precedence
+    	if(properties.contains(ENABLE_INCOMPLETE_FORMS)) {
+    		return !properties.getString(ENABLE_INCOMPLETE_FORMS, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
+    	}
+    	
+    	//otherwise, see if we're in sense mode
+    	return !isFormManagementEnabled();
     }
     
     @Override

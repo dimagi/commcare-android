@@ -883,6 +883,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		
 		i.putExtra("org.odk.collect.form.management", CommCarePreferences.isFormManagementEnabled());
 		
+		i.putExtra("org.odk.collect.saved.enabled", CommCarePreferences.isSavedFormsEnabled());
+		
+		i.putExtra("org.odk.collect.incomplete.enabled", CommCarePreferences.isIncompleteFormsEnabled());
+		
 		i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
 		
 		i.putExtra("key_aes_storage", Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
