@@ -1329,9 +1329,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         View formRecordPane = this.findViewById(R.id.home_formspanel);
         
-        System.out.println("1214 inc enabled: " + CommCarePreferences.isIncompleteFormsEnabled());
-        System.out.println("1214 saved enabled: " + CommCarePreferences.isSavedFormsEnabled());
-        
         if(!CommCarePreferences.isFormManagementEnabled() || (!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled())) {
         	formRecordPane.setVisibility(View.GONE);
         } else {
