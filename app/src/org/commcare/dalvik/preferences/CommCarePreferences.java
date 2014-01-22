@@ -56,6 +56,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 	public final static String LOG_WEEKLY_SUBMIT = "log_prop_weekly";
 	public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
 	
+	public final static String RESIZING_METHOD = "cc-resize-images";
+	
 	public final static String NEVER = "log_never";
 	public final static String SHORT = "log_short";
 	public final static String FULL = "log_full";
@@ -211,4 +213,15 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     		Localization.setLocale(sharedPreferences.getString(key, "default"));
     	}
     }
+
+	public static String getResizeMethod() {
+    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	//If there is a setting for form management it takes precedence
+    	if(properties.contains(RESIZING_METHOD)) {
+    		return properties.getString(RESIZING_METHOD, "none");
+    	}
+    	
+    	//otherwise, see if we're in sense mode
+    	return "none";
+	}
 }
