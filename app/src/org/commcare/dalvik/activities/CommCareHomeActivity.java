@@ -807,7 +807,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    	if(state.getFormRecordId() == -1) {
 	    			
 	    		//If form management isn't enabled we can't have these old forms around anyway
-	    		if(!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled()) {
+	    		if(!CommCarePreferences.isIncompleteFormsEnabled()) {
 		    		//First, see if we've already started this form before
 		    		SessionStateDescriptor existing = state.searchForDuplicates();
 		    		
@@ -883,7 +883,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		
 		i.putExtra("org.odk.collect.resizing.enabled", CommCarePreferences.getResizeMethod());
 		
-		i.putExtra("org.odk.collect.incomplete.enabled", CommCarePreferences.isIncompleteFormsEnabled());
+		i.putExtra("org.odk.collect.form.management", CommCarePreferences.isIncompleteFormsEnabled());
 		
 		i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
 		
