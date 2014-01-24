@@ -1338,19 +1338,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         	
         	formRecordPane.setVisibility(View.VISIBLE);
         	
-        	String savedString = prefs.getString(CommCarePreferences.ENABLE_SAVED_FORMS,"null");
-        	
-        	String incompleteString = prefs.getString(CommCarePreferences.ENABLE_INCOMPLETE_FORMS,"null");
-        	
         	if(!CommCarePreferences.isSavedFormsEnabled()){
         		viewOldForms.setVisibility(View.GONE);
-        	} else if(savedString.equals(CommCarePreferences.YES)){
+        	} else {
         		viewOldForms.setVisibility(View.VISIBLE);
         	}
         	
         	if(!CommCarePreferences.isIncompleteFormsEnabled()){
         		viewIncomplete.setVisibility(View.GONE);
-        	} else if(incompleteString.equals(CommCarePreferences.YES)){
+        	} else {
         		viewIncomplete.setVisibility(View.VISIBLE);
         	}
 
