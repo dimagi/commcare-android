@@ -150,21 +150,9 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         }
         return super.onOptionsItemSelected(item);
     }
-
-    public static boolean isFormManagementEnabled() {
-    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-    	//If there is a setting for form management it takes precedence
-    	if(properties.contains(FORM_MANAGEMENT)) {
-    		return !properties.getString(FORM_MANAGEMENT, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
-    	}
-    	
-    	//otherwise, see if we're in sense mode
-    	if(CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
-    		return false;
-    	} 
-    	
-    	//if not, form management is a go
-    	return true;
+    
+    public static boolean isInSenseMode(){
+    	return CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense");
     }
    
     public static boolean isIncompleteFormsEnabled() {
@@ -176,7 +164,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     	}
     	
     	//otherwise, see if we're in sense mode
-    	return isFormManagementEnabled();
+    	return !isInSenseMode();
     }
     
     public static boolean isSavedFormsEnabled(){
@@ -188,7 +176,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     	}
     	
     	//otherwise, see if we're in sense mode
-    	return isFormManagementEnabled();
+    	return !isInSenseMode();
     }
     
     @Override

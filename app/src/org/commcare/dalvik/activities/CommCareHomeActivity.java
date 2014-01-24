@@ -807,7 +807,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    	if(state.getFormRecordId() == -1) {
 	    			
 	    		//If form management isn't enabled we can't have these old forms around anyway
-	    		if(CommCarePreferences.isFormManagementEnabled()) {
+	    		if(!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled()) {
 		    		//First, see if we've already started this form before
 		    		SessionStateDescriptor existing = state.searchForDuplicates();
 		    		
@@ -882,8 +882,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		}
 		
 		i.putExtra("org.odk.collect.resizing.enabled", CommCarePreferences.getResizeMethod());
-		
-		i.putExtra("org.odk.collect.form.management", CommCarePreferences.isFormManagementEnabled());
 		
 		i.putExtra("org.odk.collect.incomplete.enabled", CommCarePreferences.isIncompleteFormsEnabled());
 		
@@ -1329,7 +1327,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         View formRecordPane = this.findViewById(R.id.home_formspanel);
         
-        if(!CommCarePreferences.isFormManagementEnabled() || (!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled())) {
+        if((!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled())) {
         	formRecordPane.setVisibility(View.GONE);
         } else {
         	
