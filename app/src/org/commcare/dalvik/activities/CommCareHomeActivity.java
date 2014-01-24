@@ -881,9 +881,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			i.setData(formUri);
 		}
 		
-		i.putExtra("org.odk.collect.form.management", CommCarePreferences.isFormManagementEnabled());
+		i.putExtra("org.odk.collect.resizing.enabled", CommCarePreferences.getResizeMethod());
 		
-		i.putExtra("org.odk.collect.saved.enabled", CommCarePreferences.isSavedFormsEnabled());
+		i.putExtra("org.odk.collect.form.management", CommCarePreferences.isFormManagementEnabled());
 		
 		i.putExtra("org.odk.collect.incomplete.enabled", CommCarePreferences.isIncompleteFormsEnabled());
 		
@@ -1423,7 +1423,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
 			menu.findItem(MENU_UPDATE).setVisible(disableMenus);
 			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
-			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus && android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH);
+			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
 			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus &&  hasP2p());
 		} catch(SessionUnavailableException sue) {
 			//Nothing
