@@ -23,6 +23,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DumpTask;
+import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
@@ -115,7 +116,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 				}
 				
 	    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-				SendTask mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
+				SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
 						settings.getString("PostURL", url), getFolderPath()){
 					
 					protected int taskId = BULK_SEND_ID;
@@ -143,9 +144,10 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						receiver.updateProgress(BULK_SEND_ID, update[0]);
 						receiver.txtInteractiveMessages.setText(update[0]);
 					}
-
+					
 					@Override
 					protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
+						Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "SendTask error: " + ExceptionReportTask.getStackTrace(e));
 						receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
 						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 					}

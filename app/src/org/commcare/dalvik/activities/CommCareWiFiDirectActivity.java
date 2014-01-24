@@ -136,19 +136,14 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 		ArrayList<String> externalMounts = FileUtil.getExternalMounts();
 
-		if(externalMounts.size() < 1){
-			myStatusText.setText("Can't access external SD Card");
-			TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
-		} else{
-			String baseDir = externalMounts.get(0);
-			baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
-			sourceDirectory = baseDirectory + "/source";
-			sourceZipDirectory = baseDirectory + "/zipSource.zip";
-			receiveDirectory = baseDirectory + "/receive";
-			receiveZipDirectory = receiveDirectory + "/zipDest";
-			writeDirectory = baseDirectory + "/write";
-		}
-
+		String baseDir = this.getFilesDir().getAbsolutePath();
+		baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
+		sourceDirectory = baseDirectory + "/source";
+		sourceZipDirectory = baseDirectory + "/zipSource.zip";
+		receiveDirectory = baseDirectory + "/receive";
+		receiveZipDirectory = receiveDirectory + "/zipDest";
+		writeDirectory = baseDirectory + "/write";
+		
 		discoverButton = (Button)this.findViewById(R.id.discover_button);
 		discoverButton.setOnClickListener(new OnClickListener(){
 			@Override
@@ -1013,7 +1008,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 				.findFragmentById(R.id.frag_list));
 
 	}
-
+	
 	@Override
 	public void updateDeviceStatus(WifiP2pDevice mDevice) {
 		Logger.log(TAG, "Wi-fi direct status updating");

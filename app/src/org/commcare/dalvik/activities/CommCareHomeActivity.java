@@ -51,6 +51,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
+import android.os.Build.VERSION_CODES;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -59,6 +60,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -194,6 +196,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             public void onClick(View v) {
             	
             	if(isAirplaneModeOn()){
+            		displayMessage(Localization.get("notification.sync.airplane.action"),true,true);
             		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             		return;
             	}
@@ -1415,8 +1418,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
 			menu.findItem(MENU_UPDATE).setVisible(disableMenus);
 			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
-			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
-			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus);
+			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus && android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH);
+			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus &&  hasP2p());
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
@@ -1498,5 +1501,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     	
     	   return Settings.System.getInt(getApplicationContext().getContentResolver(),
     	           Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+    }
+    
+    private boolean hasP2p(){
+    	return (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT));
     }
 }
