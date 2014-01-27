@@ -9,8 +9,8 @@ import java.util.Hashtable;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.stock.Stock;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -78,7 +78,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 		if(namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
 			req();
 			return formInstanceParser.getParser(name, namespace, parser);
-		} else if(StockXmlParsers.STOCK_XML_NAMESPACE.matches(namespace)) {
+		} else if(LedgerXmlParsers.STOCK_XML_NAMESPACE.matches(namespace)) {
 			if(stockParser == null) {
 				throw new RuntimeException("Couldn't process Stock transaction without initialization!");
 			}
@@ -165,8 +165,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	public void initStockParser() {
 		stockParser = new TransactionParserFactory() {
 			
-			public TransactionParser<Stock[]> getParser(String name, String namespace, KXmlParser parser) {
-				return new StockXmlParsers(parser, CommCareApplication._().getUserStorage(Stock.STORAGE_KEY, Stock.class));
+			public TransactionParser<Ledger[]> getParser(String name, String namespace, KXmlParser parser) {
+				return new LedgerXmlParsers(parser, CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class));
 			}
 		};
 	}

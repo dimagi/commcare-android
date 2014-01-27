@@ -11,8 +11,8 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.cases.stock.Stock;
-import org.commcare.cases.stock.instance.StockInstanceTreeElement;
+import org.commcare.cases.ledger.Ledger;
+import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -28,7 +28,7 @@ import org.javarosa.core.model.instance.TreeElement;
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	CommCareSession session;
 	CaseInstanceTreeElement casebase;
-	StockInstanceTreeElement stockbase;
+	LedgerInstanceTreeElement stockbase;
 	
 	public CommCareInstanceInitializer(){ 
 		this(null);
@@ -40,10 +40,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
 		CommCareApplication app = CommCareApplication._();
 		String ref = instance.getReference();
-		if(ref.indexOf(StockInstanceTreeElement.MODEL_NAME) != -1) {
+		if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
 			if(stockbase == null) {
-				SqlStorage<Stock> storage = app.getUserStorage(Stock.STORAGE_KEY, Stock.class);
-				stockbase =  new StockInstanceTreeElement(instance.getBase(), storage);
+				SqlStorage<Ledger> storage = app.getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
+				stockbase =  new LedgerInstanceTreeElement(instance.getBase(), storage);
 			} else {
 				//re-use the existing model if it exists.
 				stockbase.rebase(instance.getBase());

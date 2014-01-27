@@ -13,7 +13,7 @@ import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.DeviceReportRecord;
-import org.commcare.cases.stock.Stock;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -81,9 +81,9 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 			builder.addData(new FormInstance());
 			database.execSQL(builder.getTableCreateString());
 			
-			builder = new TableBuilder(Stock.STORAGE_KEY);
-			builder.addData(new Stock());
-			builder.setUnique(Stock.INDEX_ENTITY_ID);
+			builder = new TableBuilder(Ledger.STORAGE_KEY);
+			builder.addData(new Ledger());
+			builder.setUnique(Ledger.INDEX_ENTITY_ID);
 			database.execSQL(builder.getTableCreateString());
 			
 			//The uniqueness index should be doing this for us

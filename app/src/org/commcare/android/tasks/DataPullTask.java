@@ -31,8 +31,8 @@ import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
-import org.commcare.cases.stock.Stock;
-import org.commcare.cases.stock.StockPurgeFilter;
+import org.commcare.cases.ledger.Ledger;
+import org.commcare.cases.ledger.LedgerPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -484,8 +484,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 		CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
 		storage.removeAll(filter);
 		
-		SqlStorage<Stock> stockStorage = CommCareApplication._().getUserStorage(Stock.STORAGE_KEY, Stock.class);
-		StockPurgeFilter stockFilter = new StockPurgeFilter(stockStorage, storage);
+		SqlStorage<Ledger> stockStorage = CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
+		LedgerPurgeFilter stockFilter = new LedgerPurgeFilter(stockStorage, storage);
 		stockStorage.removeAll(stockFilter);
 	}
 

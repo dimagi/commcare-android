@@ -16,13 +16,13 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.cases.stock.Stock;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AndroidCaseXmlParser;
-import org.commcare.xml.StockXmlParsers;
+import org.commcare.xml.LedgerXmlParsers;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -72,8 +72,8 @@ public class FormRecordProcessor {
 		parser = new DataModelPullParser(is, new TransactionParserFactory() {
 			
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-				if(StockXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
-					return new StockXmlParsers(parser, CommCareApplication._().getUserStorage(Stock.STORAGE_KEY, Stock.class));
+				if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+					return new LedgerXmlParsers(parser, CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class));
 				}else if(name.toLowerCase().equals("case")) {
 					return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class), decrypter, null, f.getParentFile());
 				} 

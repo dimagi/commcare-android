@@ -11,7 +11,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.cases.stock.Stock;
+import org.commcare.cases.ledger.Ledger;
 
 import android.content.Context;
 
@@ -90,9 +90,9 @@ public class UserDatabaseUpgrader {
 	}
 
 	private void addStockTable(SQLiteDatabase db) {
-		TableBuilder builder = new TableBuilder(Stock.STORAGE_KEY);
-		builder.addData(new Stock());
-		builder.setUnique(Stock.INDEX_ENTITY_ID);
+		TableBuilder builder = new TableBuilder(Ledger.STORAGE_KEY);
+		builder.addData(new Ledger());
+		builder.setUnique(Ledger.INDEX_ENTITY_ID);
 		db.execSQL(builder.getTableCreateString());
 	}
 
