@@ -45,14 +45,16 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 				SqlStorage<Stock> storage = app.getUserStorage(Stock.STORAGE_KEY, Stock.class);
 				stockbase =  new StockInstanceTreeElement(instance.getBase(), storage);
 			} else {
+				//re-use the existing model if it exists.
 				stockbase.rebase(instance.getBase());
 			}
 			return stockbase;
-		}else if(ref.indexOf("case") != -1) {
+		}else if(ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
 			if(casebase == null) {
 				SqlStorage<ACase> storage = app.getUserStorage(ACase.STORAGE_KEY, ACase.class);
 				casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false);
 			} else {
+				//re-use the existing model if it exists.
 				casebase.rebase(instance.getBase());
 			}
 			return casebase;
