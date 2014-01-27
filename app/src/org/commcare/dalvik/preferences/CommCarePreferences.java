@@ -33,6 +33,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener{
@@ -44,12 +45,18 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
     public final static String FREQUENCY_WEEKLY = "freq-weekly";
-
+    
+    public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
+    
+    public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
+    
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
     
 	public final static String LOG_WEEKLY_SUBMIT = "log_prop_weekly";
 	public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
+	
+	public final static String RESIZING_METHOD = "cc-resize-images";
 	
 	public final static String NEVER = "log_never";
 	public final static String SHORT = "log_short";
@@ -143,21 +150,33 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         }
         return super.onOptionsItemSelected(item);
     }
-
-    public static boolean isFormManagementEnabled() {
+    
+    public static boolean isInSenseMode(){
+    	return CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense");
+    }
+   
+    public static boolean isIncompleteFormsEnabled() {
     	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
     	//If there is a setting for form management it takes precedence
-    	if(properties.contains(FORM_MANAGEMENT)) {
-    		return !properties.getString(FORM_MANAGEMENT, PROPERTY_ENABLED).equals(PROPERTY_DISABLED);
+    	if(properties.contains(ENABLE_INCOMPLETE_FORMS)) {
+    		
+    		return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
     	}
     	
     	//otherwise, see if we're in sense mode
-    	if(CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
-    		return false;
-    	} 
+    	return !isInSenseMode();
+    }
+    
+    public static boolean isSavedFormsEnabled(){
     	
-    	//if not, form management is a go
-    	return true;
+    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	//If there is a setting for form management it takes precedence
+    	if(properties.contains(ENABLE_SAVED_FORMS)) {
+    		return properties.getString(ENABLE_SAVED_FORMS, YES).equals(YES);
+    	}
+    	
+    	//otherwise, see if we're in sense mode
+    	return !isInSenseMode();
     }
     
     @Override
@@ -182,4 +201,15 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     		Localization.setLocale(sharedPreferences.getString(key, "default"));
     	}
     }
+
+	public static String getResizeMethod() {
+    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	//If there is a setting for form management it takes precedence
+    	if(properties.contains(RESIZING_METHOD)) {
+    		return properties.getString(RESIZING_METHOD, "none");
+    	}
+    	
+    	//otherwise, see if we're in sense mode
+    	return "none";
+	}
 }

@@ -826,7 +826,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    	if(state.getFormRecordId() == -1) {
 	    			
 	    		//If form management isn't enabled we can't have these old forms around anyway
-	    		if(CommCarePreferences.isFormManagementEnabled()) {
+	    		if(!CommCarePreferences.isIncompleteFormsEnabled()) {
 		    		//First, see if we've already started this form before
 		    		SessionStateDescriptor existing = state.searchForDuplicates();
 		    		
@@ -900,7 +900,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			i.setData(formUri);
 		}
 		
-		i.putExtra("org.odk.collect.form.management", CommCarePreferences.isFormManagementEnabled());
+		i.putExtra("org.odk.collect.resizing.enabled", CommCarePreferences.getResizeMethod());
+		
+		i.putExtra("org.odk.collect.form.management", CommCarePreferences.isIncompleteFormsEnabled());
 		
 		i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
 		
@@ -1347,10 +1349,30 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         
         View formRecordPane = this.findViewById(R.id.home_formspanel);
-        if(!CommCarePreferences.isFormManagementEnabled()) {
+        
+        if((!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled())) {
         	formRecordPane.setVisibility(View.GONE);
         } else {
+        	
+        	/*
+        	 * Not in sense mode
+        	 * Form records are visible unless specifically set to be on/off
+        	 */
+        	
         	formRecordPane.setVisibility(View.VISIBLE);
+        	
+        	if(!CommCarePreferences.isSavedFormsEnabled()){
+        		viewOldForms.setVisibility(View.GONE);
+        	} else {
+        		viewOldForms.setVisibility(View.VISIBLE);
+        	}
+        	
+        	if(!CommCarePreferences.isIncompleteFormsEnabled()){
+        		viewIncomplete.setVisibility(View.GONE);
+        	} else {
+        		viewIncomplete.setVisibility(View.VISIBLE);
+        	}
+
         }
 
     }
@@ -1418,7 +1440,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
 			menu.findItem(MENU_UPDATE).setVisible(disableMenus);
 			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
-			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus && android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH);
+			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
 			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus &&  hasP2p());
 		} catch(SessionUnavailableException sue) {
 			//Nothing
