@@ -142,6 +142,9 @@ public class HttpRequestGenerator {
 			}
 		}
 		
+		//Add items count to fetch request
+		serverUri = serverUri.buildUpon().appendQueryParameter("items", "true").build();
+		
 		String uri = serverUri.toString();
 		System.out.println("Fetching from: " + uri);
 		HttpGet request = new HttpGet(uri);
