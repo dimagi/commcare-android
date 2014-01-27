@@ -70,6 +70,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -85,6 +86,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -688,6 +691,7 @@ public class CommCareApplication extends Application {
 	    mIsBinding = true;
 	}
 	
+	@SuppressLint("NewApi")
 	protected void doReportMaintenance(boolean force) {
 		//OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
 		
@@ -707,7 +711,12 @@ public class CommCareApplication extends Application {
 				CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title),
 				url);
 		
-		task.execute();
+		//Execute on a true multithreaded chain, since this is an asynchronous process
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		} else {
+			task.execute();
+		}
 	}
 
 	private boolean getPendingUpdateStatus() {
