@@ -317,8 +317,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 		return iterate(true);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
+	/**
+	 * Creates a custom iterator for this storage which can either include or exclude the actual data.
+	 * 
+	 * Useful for getting an overview of data for querying into without wasting the bits to transfer over
+	 * the huge full records. 
+	 * 
+	 * @param includeData True to return an iterator with all records. False to return only the index.
 	 */
 	public SqlStorageIterator<T> iterate(boolean includeData) {
 		String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} : new String[] {DbUtil.ID_COL};
