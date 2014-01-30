@@ -475,9 +475,21 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         return true;
     }
+    
+    /* (non-Javadoc)
+	 * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		
+		//only display the sort menu if we're going to be able to sort
+		//(IE: not until the items have loaded)
+		menu.findItem(MENU_SORT).setEnabled(adapter != null);
+		
+		return super.onPrepareOptionsMenu(menu);
+	}
 
-
-    @Override
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_SORT:
@@ -602,6 +614,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		if(inAwesomeMode) {
 			updateSelectedItem(true);
 		}
+		
+		
 	}
 
 	private void updateSelectedItem(boolean forceMove) {
