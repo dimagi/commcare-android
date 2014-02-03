@@ -556,10 +556,12 @@ public class CommCareApplication extends Application {
 
 			@Override
 			public boolean matches(UserKeyRecord ukr) {
-				dbIdsToRemove.add(ukr.getUuid());
-				return ukr.getUsername().toLowerCase().equals(username.toLowerCase());
+				if(ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
+					dbIdsToRemove.add(ukr.getUuid());
+					return true;
+				}
+				return false;
 			}
-			
 		});
 		
 		//TODO: We can just delete the db entirely. 
