@@ -286,7 +286,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 	 * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
 	 */
 	public SqlStorageIterator<T> iterate() {
-		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, DbUtil.ID_COL);
+		Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , null, null, null, null, DbUtil.ID_COL);
 		return new SqlStorageIterator<T>(c, this);
 	}
 	
