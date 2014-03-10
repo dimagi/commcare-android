@@ -1504,7 +1504,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	}
 	private void startWifiDirectActivity(){
 		Intent i = new Intent(this, CommCareWiFiDirectActivity.class);
-		CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
+		CommCareHomeActivity.this.startActivityForResult(i, WIFI_DIRECT_ACTIVITY);
 	}
 	
 //    @Override
