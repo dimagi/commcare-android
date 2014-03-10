@@ -106,7 +106,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 4;
 	private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
 	private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
-	private static final int MENU_CONNECTION_TEST = Menu.FIRST + 7;
 	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;	
@@ -1424,8 +1423,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         		android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_WIFI_DIRECT, 0, "Wifi Direct").setIcon(
         		android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_CONNECTION_TEST, 0, "Connection Test").setIcon(
-        		android.R.drawable.ic_menu_upload);
         return true;
     }
     
@@ -1439,13 +1436,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		//In Holo theme this gets called on startup
 		try {
 			User u = CommCareApplication._().getSession().getLoggedInUser();
-			boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
-			menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
-			menu.findItem(MENU_UPDATE).setVisible(enableMenus);
-			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(enableMenus);
-			menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
-			menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus &&  hasP2p());
-			menu.findItem(MENU_CONNECTION_TEST).setVisible(enableMenus);
+			boolean disableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+			menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
+			menu.findItem(MENU_UPDATE).setVisible(disableMenus);
+			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
+			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
+			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus &&  hasP2p());
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
