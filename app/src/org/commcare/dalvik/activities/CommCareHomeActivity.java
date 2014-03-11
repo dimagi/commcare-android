@@ -1436,12 +1436,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		//In Holo theme this gets called on startup
 		try {
 			User u = CommCareApplication._().getSession().getLoggedInUser();
-			boolean disableMenus = !User.TYPE_DEMO.equals(u.getUserType());
-			menu.findItem(MENU_PREFERENCES).setVisible(disableMenus);
-			menu.findItem(MENU_UPDATE).setVisible(disableMenus);
-			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(disableMenus);
-			menu.findItem(MENU_DUMP_FORMS).setVisible(disableMenus);
-			menu.findItem(MENU_WIFI_DIRECT).setVisible(disableMenus &&  hasP2p());
+			boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+			menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
+			menu.findItem(MENU_UPDATE).setVisible(enableMenus);
+			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(enableMenus);
+			menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
+			menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus &&  hasP2p());
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
