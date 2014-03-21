@@ -220,6 +220,7 @@
         <activity android:name=".activities.MultimediaInflaterActivity"></activity>
         <activity android:name=".activities.CommCareFormDumpActivity"></activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity"></activity>
+        <activity android:name=".activities.CommCareConnectionDiagActivity"></activity>
         <activity android:name=".activities.RecoveryActivity"></activity>
     </application>
 

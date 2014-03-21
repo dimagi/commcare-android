@@ -176,6 +176,12 @@ bulk.form.messages=-
 bulk.form.error=Unexpected Error dumping forms! Please try again. Error Text: ${0}
 bulk.form.foldername=filedump
 
+connection.test.prompt=This will try to fix connection problems that you may be having.
+connection.test.run=Run Connection Test.
+connection.test.messages=-
+connection.test.run.title=Running Connection Tests...
+connection.test.now.running=current test dummy.
+
 bulk.form.submit.2=Submit Forms (${0})
 bulk.form.dump.2=Dump Forms (${0})
 
