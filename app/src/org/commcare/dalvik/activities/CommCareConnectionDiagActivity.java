@@ -3,11 +3,22 @@ package org.commcare.dalvik.activities;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.android.tasks.ConnectionDiagTask;
+import org.commcare.android.tasks.DumpTask;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.SendTask;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,13 +54,38 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 		super.onCreate(savedInstanceState);
 		btnRunTest.setOnClickListener(new OnClickListener() 
 		{
+			@Override
 			public void onClick(View v)
 			{
 				connectionRunner = newDialog();
 				connectionRunner.show();
+				ConnectionDiagTask<CommCareConnectionDiagActivity> mConnectionDiagTask = 
+				new ConnectionDiagTask<CommCareConnectionDiagActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform())		
+				{	
+					@Override
+					protected void deliverResult(CommCareConnectionDiagActivity receiver, String result) 
+					{
+						receiver.connectionRunner.dismiss();
+						txtInteractiveMessages.setText(result);
+					}
+
+					@Override
+					protected void deliverUpdate(CommCareConnectionDiagActivity receiver, String... update) 
+					{
+						receiver.connectionRunner.setMessage("working");
+					}
+					
+					@Override
+					protected void deliverError(CommCareConnectionDiagActivity receiver, Exception e)
+					{
+						receiver.connectionRunner.setMessage("there's been an error");
+					}
+				};
+				
+				mConnectionDiagTask.connect(CommCareConnectionDiagActivity.this);
+				mConnectionDiagTask.execute();				
 			}
-		}
-		);
+		});
 	}
 	
 	private AlertDialog newDialog()
@@ -65,17 +101,19 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 				dialog.dismiss();
 				dialog.cancel();
 			}
-		});
+		});	
 		
 		AlertDialog dialog = builder.create();
 		return dialog;
 	}
-			
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//		})
-//	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id) 
+	{
+		if(id == ConnectionDiagTask.CONNECTION_ID) 
+		{
+			return newDialog();
+		}
+		return null;
+	}
 }
