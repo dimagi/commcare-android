@@ -61,6 +61,9 @@ public class AndroidLogger implements ILogger {
 	/** Problem reported via report activity at home screen **/
 	public static final String USER_REPORTED_PROBLEM = "user-report";
 	
+	/** Problem reported via connection diagnostic tool **/
+	public static final String CONNECTION_DIAGNOSTIC_REPORT = "connection-report";
+	
 	//TODO: Currently assumes that it gets back iterated records in RecordID order.
 	//when serializing a limited number of records then clearing
 

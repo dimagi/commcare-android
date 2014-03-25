@@ -3,7 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <ImageView android:id="@+id/screen_bulk_image1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="0px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
+    <ImageView 
+        android:id="@+id/screen_bulk_image1" 
+		android:layout_height="wrap_content" 
+		android:layout_width="fill_parent" 
+		android:paddingLeft="20px" 
+		android:layout_marginRight="20px" 
+		android:paddingTop="20px" 
+		android:paddingBottom="0px" 
+		android:scaleType="fitStart" 
+		android:maxHeight="135px" 
+		android:maxWidth="663px" 
+		android:src="@drawable/ccbanner" />
+    
     <RelativeLayout
         android:id="@+id/connection_test_frame"
         android:layout_width="match_parent"
@@ -42,6 +54,17 @@
         android:layout_marginTop="44dp"
         android:text="Go to Settings"
         android:visibility="invisible"/>
+    
+    <Button
+        android:id="@+id/report_button"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/output_message"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="44dp"
+        android:text="Report to CommCare"
+        android:visibility="invisible"/>
 
     <TextView
         android:id="@+id/output_message"
@@ -53,6 +76,8 @@
         android:layout_marginTop="23dp"
         android:gravity="center"
         android:text="Output message."
-        android:visibility="invisible" />"
+        android:visibility="invisible" />
+
+"
 
 </RelativeLayout>

@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -30,7 +33,7 @@ import android.net.NetworkInfo;
  *
  */
 
-public abstract class ConnectionDiagTask<R> extends CommCareTask<Void, String, String, R>
+public abstract class ConnectionDiagTask<R> extends CommCareTask<Void, String, ArrayList<String>, R>
 {	
 	Context c;
 	CommCarePlatform platform;
@@ -57,9 +60,9 @@ public abstract class ConnectionDiagTask<R> extends CommCareTask<Void, String, S
 	}
 	
 	@Override
-	protected void onPostExecute(String result) 
+	protected void onPostExecute(ArrayList<String> result) 
 	{
-		System.out.println(result);
+		System.out.println(result.get(1));
 		super.onPostExecute(result);
 	}
 	
@@ -70,16 +73,28 @@ public abstract class ConnectionDiagTask<R> extends CommCareTask<Void, String, S
 	}
 	
 	@Override
-	protected String doTaskBackground(Void... params) 
+	protected ArrayList<String> doTaskBackground(Void... params) 
 	{	
-		if(!isOnline(this.c))
-			return Localization.get("connection.task.internet.fail");
-		if(!pingSuccess(googleURL))
-			return Localization.get("connection.task.remote.ping.fail");
-		try 
+		StringBuilder results = new StringBuilder();
+		ArrayList<String> out = new ArrayList<String>();
+		boolean online = isOnline(this.c);
+		results.append("user is online: " + online);
+		if(!online)
 		{
-			if(!pingCC(commcareURL).equals(commcareHTML))
-				return Localization.get("connection.task.commcare.html.fail");
+			out.add((results.toString()));
+			out.add(Localization.get("connection.task.internet.fail"));
+			return out;
+		}
+		boolean google = pingSuccess(googleURL);
+		results.append("could ping google: " + google);
+		if(!google){
+			out.add((results.toString()));
+			out.add(Localization.get("connection.task.remote.ping.fail"));
+			return out;
+		}
+		boolean commcare = false;
+		try {
+			commcare = pingCC(commcareURL);
 		} 
 		catch (ClientProtocolException e) 
 		{
@@ -89,7 +104,16 @@ public abstract class ConnectionDiagTask<R> extends CommCareTask<Void, String, S
 		{
 			e.printStackTrace();
 		}
-		return Localization.get("connection.task.success");
+		results.append("could ping commcare: " + commcare);
+		if(!commcare)
+		{
+			out.add((results.toString()));
+			out.add(Localization.get("connection.task.commcare.html.fail"));
+			return out;
+		}
+		out.add((results.toString()));
+		out.add(Localization.get("connection.task.success"));
+		return out;
 	}
 	
 	//checks if the network is connected or not.
@@ -98,7 +122,7 @@ public abstract class ConnectionDiagTask<R> extends CommCareTask<Void, String, S
 	      NetworkInfo netInfo = conManager.getActiveNetworkInfo();
 	      return (netInfo != null && netInfo.isConnected());
 	}
-	
+
 	//check if a ping to a specific ip address is successful.
 	private static boolean pingSuccess(String url)
 	{
@@ -131,7 +155,7 @@ public abstract class ConnectionDiagTask<R> extends CommCareTask<Void, String, S
 		return out == 0;
 	}
 	
-	private static String pingCC(String url) throws ClientProtocolException, IOException
+	private static boolean pingCC(String url) throws ClientProtocolException, IOException
 	{
 		HttpClient client = new DefaultHttpClient();
 		HttpGet get = new HttpGet(url);
@@ -143,6 +167,7 @@ public abstract class ConnectionDiagTask<R> extends CommCareTask<Void, String, S
 		buff.close();
 		reader.close();
 		stream.close();
-		return out;
+		return (out.equals(commcareHTML));
 	}
+	
 }

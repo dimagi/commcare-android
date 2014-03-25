@@ -1,5 +1,9 @@
 package org.commcare.dalvik.activities;
 
+import java.util.Map;
+import java.util.ArrayList;
+
+
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -53,6 +57,9 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 	@UiElement(value = R.id.settings_button, locale="connection.test.access.settings")
 	Button settingsButton;
 	
+	@UiElement(value = R.id.report_button, locale="connection.test.report.button.message")
+	Button reportButton;
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -62,32 +69,24 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 			@Override
 			public void onClick(View v)
 			{
-
 				ConnectionDiagTask<CommCareConnectionDiagActivity> mConnectionDiagTask = 
-				new ConnectionDiagTask<CommCareConnectionDiagActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform())		
+				new ConnectionDiagTask<CommCareConnectionDiagActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform())
 				{	
-					@Override
-					protected void deliverResult(CommCareConnectionDiagActivity receiver, String result) 
+				@Override
+					protected void deliverResult(CommCareConnectionDiagActivity receiver, ArrayList<String> result) 
 					{
-						txtInteractiveMessages.setText(result);
+						txtInteractiveMessages.setText(result.get(1));
 						txtInteractiveMessages.setVisibility(View.VISIBLE);
-						if(result.equals(Localization.get("connection.task.internet.fail"))||
-							result.equals(Localization.get("connection.task.remote.ping.fail")))
+						if((result.get(1)).equals(Localization.get("connection.task.internet.fail"))||
+							(result.get(1)).equals(Localization.get("connection.task.remote.ping.fail")))
 						{
-							settingsButton.setOnClickListener( new OnClickListener()
-							{
-								@Override
-								public void onClick(View v)
-								{
-									startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
-								}
-							});
-							settingsButton.setVisibility(View.VISIBLE);
+							addSettingsButton();
 						}
+						else if(result.get(1).equals(Localization.get("connection.task.commcare.html.fail")))
+							addReportButton(result);
 						else
-						{
-							settingsButton.setVisibility(View.INVISIBLE);
-						}
+							removeButtons();
+						
 					}
 
 					@Override
@@ -115,16 +114,7 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle((Localization.get("connection.test.run.title")));
 		builder.setMessage(Localization.get("connection.test.now.running"))
-		.setCancelable(false)
-		.setPositiveButton(Localization.get("connection.test.button.message"), new DialogInterface.OnClickListener() 
-		{
-			public void onClick(DialogInterface dialog, int id)
-			{
-				dialog.dismiss();
-				dialog.cancel();
-			}
-		});	
-		
+		.setCancelable(true);		
 		AlertDialog dialog = builder.create();
 		return dialog;
 	}
@@ -137,5 +127,38 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 			return newDialog();
 		}
 		return null;
+	}
+	
+	private void addSettingsButton()
+	{
+		settingsButton.setOnClickListener( new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+			}
+		});
+		settingsButton.setVisibility(View.VISIBLE);
+	}
+	
+	private void addReportButton(ArrayList<String> result)
+	{
+		final String reportLog = result.get(0);
+		reportButton.setOnClickListener( new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				Logger.log(AndroidLogger.CONNECTION_DIAGNOSTIC_REPORT, reportLog);
+			}
+		});
+		reportButton.setVisibility(View.VISIBLE);
+	}
+	
+	private void removeButtons()
+	{
+		settingsButton.setVisibility(View.INVISIBLE);
+		reportButton.setVisibility(View.INVISIBLE);
 	}
 }

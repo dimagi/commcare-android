@@ -184,7 +184,7 @@ connection.test.run.title=Running Connection Tests...
 connection.test.now.running=Currently running x test.
 connection.test.update.message=Working.
 connection.test.error.message=There's been an error.
-connection.test.button.message=Send to commCare.
+connection.test.report.button.message=Send to commCare.
 
 connection.task.internet.fail=You are not connected the Internet. Please run this test again after connecting to Wi-Fi or Mobile Data.
 connection.task.remote.ping.fail=There has been an issue while reaching the Internet.
