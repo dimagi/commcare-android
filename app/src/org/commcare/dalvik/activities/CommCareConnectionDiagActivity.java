@@ -72,13 +72,14 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 					@Override
 					protected void deliverUpdate(CommCareConnectionDiagActivity receiver, String... update) 
 					{
-						receiver.connectionRunner.setMessage("working");
+						receiver.connectionRunner.setMessage(Localization.get("connection.test.update.message"));
 					}
 					
 					@Override
 					protected void deliverError(CommCareConnectionDiagActivity receiver, Exception e)
 					{
-						receiver.connectionRunner.setMessage("there's been an error");
+						receiver.connectionRunner.setMessage(Localization.get("connection.test.error.message"));
+						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 					}
 				};
 				
@@ -94,7 +95,7 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 		builder.setTitle((Localization.get("connection.test.run.title")));
 		builder.setMessage(Localization.get("connection.test.now.running"))
 		.setCancelable(false)
-		.setPositiveButton("Send to commCare", new DialogInterface.OnClickListener() 
+		.setPositiveButton(Localization.get("connection.test.button.message"), new DialogInterface.OnClickListener() 
 		{
 			public void onClick(DialogInterface dialog, int id)
 			{

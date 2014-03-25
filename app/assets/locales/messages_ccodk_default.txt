@@ -180,7 +180,15 @@ connection.test.prompt=This will try to fix connection problems that you may be 
 connection.test.run=Run Connection Test.
 connection.test.messages=-
 connection.test.run.title=Running Connection Tests...
-connection.test.now.running=current test dummy.
+connection.test.now.running=Currently running x test.
+connection.test.update.message=Working.
+connection.test.error.message=There's been an error.
+connection.test.button.message=Send to commCare.
+
+connection.task.internet.fail=You are not connected the Internet. Please run this test again after connecting to Wi-Fi or Mobile Data.
+connection.task.remote.ping.fail=There has been an issue while reaching the Internet.
+connection.task.commcare.html.fail=There is an issue with CommCare's server. Please report this problem to CommCare.
+connection.task.success=No problems were detected.
 
 bulk.form.submit.2=Submit Forms (${0})
 bulk.form.dump.2=Dump Forms (${0})
