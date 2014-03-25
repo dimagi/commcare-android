@@ -15,11 +15,16 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -31,7 +36,7 @@ import android.widget.TextView;
  *
  */
 
-@ManagedUi(R.layout.connection_test)
+@ManagedUi(R.layout.connection_diag)
 public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareConnectionDiagActivity> {
 	@UiElement(R.id.screen_bulk_image1)
 	ImageView banner;
@@ -42,12 +47,12 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 	@UiElement(value = R.id.run_connection_test, locale="connection.test.run")
 	Button btnRunTest;
 	
-	@UiElement(value = R.id.screen_bulk_form_messages, locale="connection.test.messages")
+	@UiElement(value = R.id.output_message, locale="connection.test.messages")
 	TextView txtInteractiveMessages;
 	
-	//dialog box that displays information about the test, as well as buttons to cancel and send info to cchq
-	AlertDialog connectionRunner;
-
+	@UiElement(value = R.id.settings_button, locale="connection.test.access.settings")
+	Button settingsButton;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -57,28 +62,44 @@ public class CommCareConnectionDiagActivity extends CommCareActivity<CommCareCon
 			@Override
 			public void onClick(View v)
 			{
-				connectionRunner = newDialog();
-				connectionRunner.show();
+
 				ConnectionDiagTask<CommCareConnectionDiagActivity> mConnectionDiagTask = 
 				new ConnectionDiagTask<CommCareConnectionDiagActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform())		
 				{	
 					@Override
 					protected void deliverResult(CommCareConnectionDiagActivity receiver, String result) 
 					{
-						receiver.connectionRunner.dismiss();
 						txtInteractiveMessages.setText(result);
+						txtInteractiveMessages.setVisibility(View.VISIBLE);
+						if(result.equals(Localization.get("connection.task.internet.fail"))||
+							result.equals(Localization.get("connection.task.remote.ping.fail")))
+						{
+							settingsButton.setOnClickListener( new OnClickListener()
+							{
+								@Override
+								public void onClick(View v)
+								{
+									startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+								}
+							});
+							settingsButton.setVisibility(View.VISIBLE);
+						}
+						else
+						{
+							settingsButton.setVisibility(View.INVISIBLE);
+						}
 					}
 
 					@Override
 					protected void deliverUpdate(CommCareConnectionDiagActivity receiver, String... update) 
 					{
-						receiver.connectionRunner.setMessage(Localization.get("connection.test.update.message"));
+						txtInteractiveMessages.setText((Localization.get("connection.test.update.message")));
 					}
 					
 					@Override
 					protected void deliverError(CommCareConnectionDiagActivity receiver, Exception e)
 					{
-						receiver.connectionRunner.setMessage(Localization.get("connection.test.error.message"));
+						txtInteractiveMessages.setText(Localization.get("connection.test.error.message"));
 						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 					}
 				};

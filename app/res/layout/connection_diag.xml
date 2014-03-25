@@ -5,7 +5,7 @@
 
     <ImageView android:id="@+id/screen_bulk_image1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="0px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
     <RelativeLayout
-        android:id="@+id/screen_bulk_form_frame_location"
+        android:id="@+id/connection_test_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -32,15 +32,27 @@
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/screen_bulk_form_messages"
+    <Button
+        android:id="@+id/settings_button"
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/screen_bulk_form_frame_location"
+        android:layout_below="@+id/output_message"
         android:layout_centerHorizontal="true"
-        android:layout_margin="10dp"
-        android:layout_marginTop="26dp"
+        android:layout_marginTop="44dp"
+        android:text="Go to Settings"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/output_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/connection_test_frame"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="2dp"
+        android:layout_marginTop="23dp"
         android:gravity="center"
-        android:text="Output message." />
+        android:text="Output message."
+        android:visibility="invisible" />"
 
 </RelativeLayout>

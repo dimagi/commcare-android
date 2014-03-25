@@ -179,6 +179,7 @@ bulk.form.foldername=filedump
 connection.test.prompt=This will try to fix connection problems that you may be having.
 connection.test.run=Run Connection Test.
 connection.test.messages=-
+connection.test.access.settings=Go to Internet settings
 connection.test.run.title=Running Connection Tests...
 connection.test.now.running=Currently running x test.
 connection.test.update.message=Working.
