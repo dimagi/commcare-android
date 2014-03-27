@@ -8,9 +8,13 @@ import java.util.List;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.XPathMissingInstanceException;
 
 import android.os.AsyncTask;
 import android.util.Pair;
@@ -27,6 +31,7 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 	NodeEntityFactory factory;
 	EvaluationContext ec;
 	EntityLoaderListener listener;
+	Exception mException = null;
 	
 	private long waitingTime; 
 
@@ -55,6 +60,11 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 	@Override
 	protected void onPostExecute(Pair<List<Entity<TreeReference>>, List<TreeReference>> result) {
 		super.onPostExecute(result);
+		
+		if(mException != null){
+			listener.deliverError(mException);
+			return;
+		}
 		
 		waitingTime = System.currentTimeMillis();
 		//Ok. So. time to try to deliver the result
@@ -90,6 +100,8 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 
 	@Override
 	protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
+
+		try{
 		List<TreeReference> references = ec.expandReference(nodeset[0]);
 		
 		List<Entity<TreeReference>> full = new ArrayList<Entity<TreeReference>>(); 
@@ -104,6 +116,11 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 		}
 		
 		return new Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references);
+		
+		} catch (XPathMissingInstanceException xme){
+			mException = xme;
+			return null;
+		}
 	}
 
 	/**

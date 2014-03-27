@@ -60,6 +60,9 @@ public class NotificationMessageFactory {
 		/** Your case fitler does not match the data type **/
 		Bad_Case_Filter("notification.case.filter"),
 		
+		/** Your case fitler does not match the data type **/
+		Bad_Case_Predicate("notification.case.predicate"),
+		
 		/**Bad SSL Certificate **/
 		BadSSLCertificate("notification.bad.certificate");
 	

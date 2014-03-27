@@ -13,6 +13,8 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
@@ -688,6 +690,16 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null);
 	    ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
+	}
+
+	@Override
+	public void deliverError(Exception e) {
+		String[] stringArgs = new String[3];
+		stringArgs[2] = e.getMessage();
+		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Predicate, stringArgs), true);
+    	Intent i = new Intent(this, CommCareHomeActivity.class);
+    	this.startActivity(i);
+    	finish();
 	}
 
 
