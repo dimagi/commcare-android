@@ -9,12 +9,17 @@ import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -245,10 +250,26 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 	protected void onProgressUpdate(int[]... values) {
 		super.onProgressUpdate(values);
 	}
+	
+	@Override
+	protected void onPreExecute(){
+		super.onPreExecute();
+		SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
+		boolean hasIncomplete = preferences.getBoolean(CommCarePreferences.INCOMPLETES_UPDATE_OCCURRED, false);
+		if(hasIncomplete){
+			CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Incomplete_Form_Update), true);
+			preferences.edit().putBoolean(CommCarePreferences.INCOMPLETES_UPDATE_OCCURRED,false).commit();
+		}
+	}
 		
 	@Override
 	protected void onPostExecute(ResourceEngineOutcomes result) {
 		super.onPostExecute(result);
+		SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
+		SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+		if(StorageUtils.hasIncompleteForms(storage)){
+			preferences.edit().putBoolean(CommCarePreferences.INCOMPLETES_UPDATE_OCCURRED,true).commit();
+		}
 		//remove all references 
 		c = null;
 	}

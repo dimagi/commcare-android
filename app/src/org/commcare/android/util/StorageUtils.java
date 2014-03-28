@@ -23,6 +23,15 @@ import org.javarosa.core.services.Logger;
  *
  */
 public class StorageUtils {
+	
+	public static boolean hasIncompleteForms(SqlStorage<FormRecord> storage){
+		Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_INCOMPLETE});
+		if(ids.size()>0){
+			return true;
+		}
+		return false;
+	}
+	
 	public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
 		//TODO: This could all be one big sql query instead of doing it in code
 		
