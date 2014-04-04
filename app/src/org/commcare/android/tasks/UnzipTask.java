@@ -52,7 +52,7 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
-public abstract class UnzipTask extends CommCareTask<String, String, Integer, CommCareWiFiDirectActivity> {
+public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer, R> {
 		
 		public static final int UNZIP_TASK_ID = 7212435;
 		

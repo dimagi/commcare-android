@@ -530,7 +530,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 		Logger.log(TAG, "Unzipping files in Wi-fi direct");
 		Log.d(TAG, "creating unzip task");
 
-		UnzipTask mUnzipTask = new UnzipTask() {
+		UnzipTask<CommCareWiFiDirectActivity> mUnzipTask = new UnzipTask<CommCareWiFiDirectActivity>() {
 
 			@Override
 			protected void deliverResult( CommCareWiFiDirectActivity receiver, Integer result) {

@@ -218,6 +218,7 @@
             <intent-filter><action android:name="org.commcare.dalvik.api.action.ExternalAction" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
         </receiver>
         <activity android:name=".activities.MultimediaInflaterActivity"></activity>
+        <activity android:name=".activities.InstallArchiveActivity"></activity>
         <activity android:name=".activities.CommCareFormDumpActivity"></activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity"></activity>
         <activity android:name=".activities.RecoveryActivity"></activity>

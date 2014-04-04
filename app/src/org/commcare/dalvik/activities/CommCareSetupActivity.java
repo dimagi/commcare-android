@@ -83,6 +83,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
+	public static final int MODE_ARCHIVE = Menu.FIRST + 2;
 	
 	public static final int DIALOG_INSTALL_PROGRESS = 0;
 	
@@ -508,6 +509,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
     	menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
     	menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
+    	menu.add(0, MODE_ARCHIVE, 0, "Archive").setIcon(android.R.drawable.ic_menu_upload);
         return true;
     }
     
@@ -612,7 +614,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         case MODE_ADVANCED:
         	setUiState(UiState.advanced);
             break;
-        }
+    	case MODE_ARCHIVE:
+  	       Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
+  	       startActivity(i);
+  	       finish();
+  	       break;
+    	}
         
         refreshView();
         return true;

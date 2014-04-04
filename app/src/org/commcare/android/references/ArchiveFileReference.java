@@ -3,6 +3,7 @@
  */
 package org.commcare.android.references;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,10 +37,13 @@ public class ArchiveFileReference implements Reference {
 	}
 
 	public InputStream getStream() throws IOException {
-		ZipFile zf = new ZipFile(getLocalURI());
-		Enumeration e = zf.entries();
-		ZipEntry entry = (ZipEntry) e.nextElement();
-		return zf.getInputStream(entry);
+		File file = new File(getLocalURI());
+		//CTS: Removed a thing here that created an empty file. Not sure why that was there.
+		if(!file.exists()) {
+			throw new IOException("No file exists at " + file.getAbsolutePath());
+		}
+		return new FileInputStream(file);
+
 	}
 
 	public String getURI() {
@@ -51,11 +55,14 @@ public class ArchiveFileReference implements Reference {
 	}
 
 	public void remove() throws IOException {
-		throw new IOException("Cannot remove Asset files from the Package");
+		throw new IOException("Cannot remove files from the archive");
 	}
 
 	public String getLocalURI() {
-		return localroot +"/"+ archiveURI;
+		if(archiveURI.contains("profile.xml")){
+			return localroot +"/"+ archiveURI;
+		}
+		return localroot +"/coverage610/"+ archiveURI;
 	}
 
 	public Reference[] probeAlternativeReferences() {
