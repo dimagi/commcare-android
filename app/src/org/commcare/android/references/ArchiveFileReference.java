@@ -24,7 +24,6 @@ public class ArchiveFileReference implements Reference {
 	String localroot;
 
 	public ArchiveFileReference(String localroot, String archiveURI) {
-		System.out.println("444 archive ref with root: " + localroot + " and URI : " + archiveURI);
 		this.archiveURI = archiveURI;
 		this.localroot = localroot;
 	}
@@ -60,9 +59,6 @@ public class ArchiveFileReference implements Reference {
 	}
 
 	public String getLocalURI() {
-		if(archiveURI.contains("profile.xml")){
-			return localroot +"/"+ archiveURI;
-		}
 		return localroot +"/"+ archiveURI;
 	}
 
