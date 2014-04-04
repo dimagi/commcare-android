@@ -352,4 +352,20 @@ verification.progress=Checked ${0} out of ${1} resources
 verification.fail.message=Some of your application's multimedia has not been installed. Please make sure the following files are present in the device, and press retry.
 
 wifi.direct.base.folder=wifidirect
-wifi.direct.submit.missing=The folder ${0} you are trying to submit does not exist. Please verify that this file is where it should be. 
+wifi.direct.submit.missing=The folder ${0} you are trying to submit does not exist. Please verify that this file is where it should be.
+
+archive.install.title=Unzipping your Application Resources
+archive.install.progress=Unzipped ${0} files...
+archive.install.state.empty=Please select a ZIP file to begin
+archive.install.state.ready=Offline installer ready, press install to begin
+archive.install.state.done=Your zip file has been installed
+archive.install.state.invalid.path=The file path selected is not a valid zip file. Please select a valid file.
+archive.install.cancelled=Offline installation cancelled
+archive.install.bad=The selected ZIP file is not valid. Please choose a valid zip file.
+
+archive.install.progress.baddest=Couldn't write application to the local filesystem at: ${0}
+archive.install.progress.badentry=There was a bad entry in the zip file: ${0}
+archive.install.progress.errormoving=There was a problem copying the application from the zip file, please try again.
+
+archive.install.prompt=Install your CommCare application from a .zip file
+archive.install.button=Install App

@@ -62,10 +62,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 	public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
 
-	@UiElement(value = R.id.screen_multimedia_inflater_prompt, locale="mult.install.prompt")
+	@UiElement(value = R.id.screen_multimedia_inflater_prompt, locale="archive.install.prompt")
 	TextView txtDisplayPrompt;
 
-	@UiElement(value = R.id.screen_multimedia_install_messages, locale="mult.install.state.empty")
+	@UiElement(value = R.id.screen_multimedia_install_messages, locale="archive.install.state.empty")
 	TextView txtInteractiveMessages;
 
 	@UiElement(R.id.screen_multimedia_inflater_location)
@@ -74,7 +74,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	@UiElement(R.id.screen_multimedia_inflater_filefetch)
 	ImageButton btnFetchFiles;
 
-	@UiElement(value = R.id.screen_multimedia_inflater_install, locale="mult.install.button")
+	@UiElement(value = R.id.screen_multimedia_inflater_install, locale="archive.install.button")
 	Button btnInstallMultimedia;
 
 	boolean done = false;
@@ -100,7 +100,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 				try {
 					startActivityForResult(intent, REQUEST_FILE_LOCATION);
 				} catch(ActivityNotFoundException e) {
-					Toast.makeText(InstallArchiveActivity.this, Localization.get("mult.install.no.browser"), Toast.LENGTH_LONG).show();
+					Toast.makeText(InstallArchiveActivity.this, Localization.get("archive.install.no.browser"), Toast.LENGTH_LONG).show();
 				}
 			}
 		});
@@ -136,7 +136,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 					@Override
 					protected void deliverError(InstallArchiveActivity receiver, Exception e) {
 						Log.d(TAG, "unzip deliver error: " + e.getMessage());
-						receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
+						receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[] {e.getMessage()}));
 						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 					}
 				};
@@ -196,13 +196,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			protected void deliverUpdate(
 					InstallArchiveActivity receiver, int[]... update) {
 				receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
-
+				receiver.txtInteractiveMessages.setText("deliver update: " + update[0]);
 			}
 
 			@Override
 			protected void deliverError(
 					InstallArchiveActivity receiver, Exception e) {
-
+				receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[] {e.getMessage()}));
+				receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 			}
 
 		};
@@ -283,7 +284,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 	private void evalState() {
 		if(done) {
-			txtInteractiveMessages.setText(Localization.get("mult.install.state.done"));
+			txtInteractiveMessages.setText(Localization.get("archive.install.state.done"));
 			this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
 			btnInstallMultimedia.setEnabled(false);
 			return;
@@ -291,21 +292,21 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 		String location = editFileLocation.getText().toString();
 		if("".equals(location)) {
-			txtInteractiveMessages.setText(Localization.get("mult.install.state.empty"));
+			txtInteractiveMessages.setText(Localization.get("archive.install.state.empty"));
 			this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
 			btnInstallMultimedia.setEnabled(false);
 			return;
 		}
 
 		if(!(new File(location)).exists()) {
-			txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
+			txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
 			this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 			btnInstallMultimedia.setEnabled(false);
 			return;
 		}
 
 		else {
-			txtInteractiveMessages.setText(Localization.get("mult.install.state.ready"));
+			txtInteractiveMessages.setText(Localization.get("archive.install.state.ready"));
 			this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
 			btnInstallMultimedia.setEnabled(true);
 			return;
@@ -317,7 +318,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	 */
 	@Override
 	public void taskCancelled(int id) {
-		txtInteractiveMessages.setText(Localization.get("mult.install.cancelled"));
+		txtInteractiveMessages.setText(Localization.get("archive.install.cancelled"));
 		this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 	}
 
