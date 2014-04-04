@@ -81,7 +81,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 	public static String TAG = "install-archive";
 
-	public static String ARCHIVE_UNZIP_LOCATION = "install-archives";
+	private String currentRef;
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -110,7 +110,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			@Override
 			public void onClick(View v) {
 
-				String ref = editFileLocation.getText().toString();
+				currentRef = editFileLocation.getText().toString();
 
 				UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
 
@@ -141,10 +141,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 					}
 				};
 
-				String writeDirectory = ref;
-				File mFile = new File(ref);
+				String writeDirectory = currentRef;
+				File mFile = new File(currentRef);
 				File parent = mFile.getParentFile();
-				String fn = parent.toString() + "/" + ARCHIVE_UNZIP_LOCATION;
+				//String fn = parent.toString() + "/" + ARCHIVE_UNZIP_LOCATION;
+				String fn = getFolderName();
 				FileUtil.deleteFileOrDir(fn);
 
 				mUnzipTask.connect(InstallArchiveActivity.this);
@@ -154,25 +155,30 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			}
 
 		});
-
-
-		try {
-			//Go populate the location by default if it exists. (Note: If we are recreating, this will get overridden
-			//in the restore instance state)
-			searchForDefault();
-		} catch(Exception e) {
-			//This is helper code and Android is suuuuuppppeerr touchy about file system stuff, so don't eat it if 
-			//something changes
-			e.printStackTrace();
-			Log.e(LOG_TAG, "Error while trying to get default location");
-		}
 	}
 
 	protected void onUnzipSuccessful(Integer result) {
-		String ref = "jr://archive/coverage610/profile.xml";
 
 		ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
 		CommCareApp app = new CommCareApp(newRecord);
+
+		int lastIndex = currentRef.lastIndexOf("/");
+		int dotIndex = currentRef.lastIndexOf(".");
+
+		String fileNameString = currentRef.substring(lastIndex, dotIndex);
+
+		String myRef = getFolderName();
+
+		File mFile = new File(myRef+"/"+fileNameString);
+
+		try {
+			FileUtil.copyFileDeep(mFile, new File(myRef));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		String ref = "jr://archive/profile.xml";
 
 		ResourceEngineTask<InstallArchiveActivity> task = new ResourceEngineTask<InstallArchiveActivity>(InstallArchiveActivity.this, false, false, app, false, CommCareTask.GENERIC_TASK_ID) {
 
@@ -315,77 +321,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 	}
 
-
-	private static final long MAX_TIME_TO_TRY = 400;
-	/**
-	 * Go through all of the obvious storage locations where the zip file might be and see if it's there.
-	 */
-	private void searchForDefault() {
-		//We're only gonna spend a certain amount of time trying to find a good match
-		long start = System.currentTimeMillis();
-
-		//Get all of the "roots" where stuff might be
-		ArrayList<File> roots = new ArrayList<File>();
-		//And stage a place to list folders we'll scan
-		ArrayList<File> folders = new ArrayList<File>();
-
-		if(Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED || Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED_READ_ONLY) {
-			roots.add(Environment.getExternalStorageDirectory());
-		}
-
-		for(String s : FileUtil.getExternalMounts()) {
-			roots.add(new File(s));
-		}
-
-		//Now add all of our folders from our roots. We're only going one level deep
-		for(File r : roots) {
-			//Add the root too
-			folders.add(r);
-			//Now add all subfolders
-			for(File f : r.listFiles()) {
-				if(f.isDirectory()) {
-					folders.add(f);
-				}
-			}
-		}
-
-		File bestMatch = null;
-		//Now scan for the actual file
-		for(File folder : folders) {
-			for(File f : folder.listFiles()) {
-				String name = f.getName().toLowerCase();
-
-				//This is just what we expect the file will be called
-				if(name.startsWith("commcare") && name.endsWith(".zip")) {
-
-					if(bestMatch == null) {
-						bestMatch = f;
-					} else {
-						//If we have one, take the newer one
-						if(bestMatch.lastModified() < f.lastModified()) {
-							bestMatch = f;
-						}
-					}
-				}
-			}
-			//For now, actually, if we have a good match, just bail without finding the "best" one
-			if(bestMatch != null) {
-				break;
-			}
-			if(System.currentTimeMillis() - start > MAX_TIME_TO_TRY) {
-				Log.i(LOG_TAG, "Had to bail on looking for a default file, was taking too long");
-				break;
-			}
-		}
-
-		if(bestMatch != null) {
-			//If we found a good match, awesome! 
-			editFileLocation.setText(bestMatch.getAbsolutePath());
-		}
-	}
-
 	public static String getFolderName(){
-		return "/storage/emulated/0/Download/"+ARCHIVE_UNZIP_LOCATION;
+		return CommCareApplication._().getAndroidFsRoot() + "app/" +  CommCareApplication._().getArchiveUUID();
 	}
 
 }

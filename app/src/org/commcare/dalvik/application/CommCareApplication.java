@@ -68,6 +68,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -121,6 +122,8 @@ public class CommCareApplication extends Application {
 	
 	private CommCareApp currentApp;
 	
+	private String archiveUUID;
+	
 	private AndroidSessionWrapper sessionWrapper;
 	
 	/** Generalize **/
@@ -135,6 +138,8 @@ public class CommCareApplication extends Application {
 		super.onCreate();
 		
 		CommCareApplication.app = this;
+		
+		archiveUUID = PropertyUtils.genUUID().replace("-","");
 		
 		//TODO: Make this robust
 		PreInitLogger pil = new PreInitLogger();
@@ -1074,5 +1079,9 @@ public class CommCareApplication extends Application {
 
 	public String getAndroidFsRoot() {
 		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/files/";
+	}
+	
+	public String getArchiveUUID(){
+		return this.archiveUUID;
 	}
 }

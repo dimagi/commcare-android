@@ -146,6 +146,7 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
             
             Log.d(CommCareWiFiDirectActivity.TAG, "Exited Loop");
             Logger.log(CommCareWiFiDirectActivity.TAG, "Successfully unzipped files");
+            
 			return count;
 		}
 }
