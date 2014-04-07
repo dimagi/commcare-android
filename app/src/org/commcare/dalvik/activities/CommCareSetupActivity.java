@@ -89,6 +89,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	public static final int BARCODE_CAPTURE = 1;
 	public static final int MISSING_MEDIA_ACTIVITY=2;
+	public static final int ARCHIVE_INSTALL = 3;
 	
 	public static final int RETRY_LIMIT = 20;
 	
@@ -388,6 +389,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				this.refreshView();
 			}
 		}
+		if(requestCode == ARCHIVE_INSTALL){
+			if(resultCode == Activity.RESULT_CANCELED) {
+				//Basically nothing
+			} else if(resultCode == Activity.RESULT_OK) {
+    			String result = data.getStringExtra("archive-ref");
+				incomingRef = result;
+				//Definitely have a URI now.
+				try{
+					ReferenceManager._().DeriveReference(incomingRef);
+				}
+				catch(InvalidReferenceException ire){
+					this.setModeToBasic(Localization.get("install.bad.ref"));
+					return;
+				}
+				setUiState(UiState.ready);
+				this.refreshView();
+			}
+		}
 	}
 	
 	private String getRef(){
@@ -616,8 +635,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             break;
     	case MODE_ARCHIVE:
   	       Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
-  	       startActivity(i);
-  	       finish();
+  	       startActivityForResult(i, ARCHIVE_INSTALL);
   	       break;
     	}
         

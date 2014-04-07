@@ -180,37 +180,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 		String ref = "jr://archive/profile.xml";
 
-		ResourceEngineTask<InstallArchiveActivity> task = new ResourceEngineTask<InstallArchiveActivity>(InstallArchiveActivity.this, false, false, app, false, CommCareTask.GENERIC_TASK_ID) {
-
-			@Override
-			protected void deliverResult(
-					InstallArchiveActivity receiver,
-					org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
-				if(result == ResourceEngineOutcomes.StatusInstalled){
-					receiver.reportSuccess(true);
-				}
-
-			}
-
-			@Override
-			protected void deliverUpdate(
-					InstallArchiveActivity receiver, int[]... update) {
-				receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
-				receiver.txtInteractiveMessages.setText("deliver update: " + update[0]);
-			}
-
-			@Override
-			protected void deliverError(
-					InstallArchiveActivity receiver, Exception e) {
-				receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[] {e.getMessage()}));
-				receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-			}
-
-		};
-
-		task.connect(InstallArchiveActivity.this);
-
-		task.execute(ref);
+		Intent i = new Intent(getIntent());
+        i.putExtra("archive-ref", ref);
+        setResult(RESULT_OK, i);
+        finish();
 
 	}
 
