@@ -141,16 +141,16 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 					}
 				};
 
-				String writeDirectory = currentRef;
+				String readDir = currentRef;
 				File mFile = new File(currentRef);
 				File parent = mFile.getParentFile();
 				//String fn = parent.toString() + "/" + ARCHIVE_UNZIP_LOCATION;
-				String fn = getFolderName();
-				FileUtil.deleteFileOrDir(fn);
+				String writeDir = getFolderGUIDName();
+				FileUtil.deleteFileOrDir(writeDir);
 
 				mUnzipTask.connect(InstallArchiveActivity.this);
-				Log.d(TAG, "executing task with: " + fn + " , " + writeDirectory);
-				mUnzipTask.execute(writeDirectory, fn);
+				Log.d(TAG, "executing task with: " + writeDir + " , " + readDir);
+				mUnzipTask.execute(readDir, writeDir);
 
 			}
 
@@ -167,7 +167,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 		String fileNameString = currentRef.substring(lastIndex, dotIndex);
 
-		String myRef = getFolderName();
+		String myRef = getFolderGUIDName();
 
 		File mFile = new File(myRef+"/"+fileNameString);
 
@@ -178,7 +178,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			e1.printStackTrace();
 		}
 
-		String ref = "jr://archive/profile.xml";
+		String ref = "jr://archive/" + CommCareApplication._().getArchiveUUID() + "/profile.xml";
 
 		Intent i = new Intent(getIntent());
         i.putExtra("archive-ref", ref);
@@ -296,7 +296,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	}
 
 	public static String getFolderName(){
-		return CommCareApplication._().getAndroidFsRoot() + "app/" +  CommCareApplication._().getArchiveUUID();
+		return CommCareApplication._().getAndroidFsRoot() + "app/";
+	}
+	
+	public static String getFolderGUIDName(){
+		return CommCareApplication._().getAndroidFsRoot() + "app/"+CommCareApplication._().getArchiveUUID();
 	}
 
 }
