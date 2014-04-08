@@ -10,6 +10,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.MultimediaInflaterTask;
 import org.commcare.android.tasks.UnzipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
@@ -68,6 +69,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	public static String TAG = "install-archive";
 
 	private String currentRef;
+	private String mGUID;
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -75,17 +77,17 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
-			
+
 			//We got called from an outside application, it's gonna be a wild ride!
 			currentRef = this.getIntent().getData().toString();
-			
+
 			//remove file:/// prepend
 			currentRef = currentRef.substring(currentRef.indexOf("/storage/"));
-			
+
 			editFileLocation.setText(currentRef);
-			
+
 		}
 
 		btnFetchFiles.setOnClickListener(new OnClickListener() {
@@ -114,7 +116,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 		});
 	}
-	
+
 	public void createArchive(String filepath){
 		currentRef = filepath;
 
@@ -162,8 +164,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 	protected void onUnzipSuccessful(Integer result) {
 
-		ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
+		mGUID = PropertyUtils.genUUID().replace("-","");
+		ApplicationRecord newRecord = new ApplicationRecord(mGUID, ApplicationRecord.STATUS_UNINITIALIZED);
 		CommCareApp app = new CommCareApp(newRecord);
+		
+		System.out.println("4814 mGUID is: " + mGUID);
 
 		int lastIndex = currentRef.lastIndexOf("/");
 		int dotIndex = currentRef.lastIndexOf(".");
@@ -182,12 +187,50 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			e1.printStackTrace();
 		}
 
+		File multimediaZip = new File(myRef + "/commcare.zip");
+		System.out.println("4814 multi zip ref is: "  + multimediaZip.getAbsolutePath());
+		if(multimediaZip.exists()){
+			System.out.println("4814 zip exists!");
+			MultimediaInflaterTask<InstallArchiveActivity> mInflaterTask = new MultimediaInflaterTask<InstallArchiveActivity>(){
+
+				@Override
+				protected void deliverResult( InstallArchiveActivity receiver, Boolean result) {
+					if(result == Boolean.TRUE){
+						receiver.done = true;
+						receiver.setResult(Activity.RESULT_OK);
+						receiver.finish();
+						return;
+					} else {
+						//assume that we've already set the error message, but make it look scary
+						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+					}
+				}
+
+				@Override
+				protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
+					receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
+					receiver.txtInteractiveMessages.setText(update[0]);
+				}
+
+				@Override
+				protected void deliverError(InstallArchiveActivity receiver, Exception e) {
+					receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
+					receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+				}
+
+			};
+			mInflaterTask.connect(InstallArchiveActivity.this);
+			System.out.println("4814 multi storage root is: "  + app.storageRoot());
+			mInflaterTask.execute(myRef + "/commcare.zip", app.storageRoot());
+		}
+
 		String ref = "jr://archive/" + CommCareApplication._().getArchiveUUID() + "/profile.xml";
 
 		Intent i = new Intent(getIntent());
-        i.putExtra("archive-ref", ref);
-        setResult(RESULT_OK, i);
-        finish();
+		i.putExtra("archive-ref", ref);
+		i.putExtra("mm-ref", mGUID);
+		setResult(RESULT_OK, i);
+		finish();
 
 	}
 
@@ -244,12 +287,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
+
 		if(id == CommCareTask.GENERIC_TASK_ID) {
 			ProgressDialog progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle("Installing Resources");
-			progressDialog.setMessage("Installing resource 0...");
+			progressDialog.setTitle(Localization.get("mult.install.title"));
+			progressDialog.setMessage(Localization.get("mult.install.progress", new String[] {"0"}));
 			return progressDialog;
 		}
+
 		else if(id == UnzipTask.UNZIP_TASK_ID) {
 			ProgressDialog progressDialog = new ProgressDialog(this);
 			progressDialog.setTitle("Unzipping Files");
@@ -302,7 +347,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	public static String getFolderName(){
 		return CommCareApplication._().getAndroidFsRoot() + "app/";
 	}
-	
+
 	public static String getFolderGUIDName(){
 		return CommCareApplication._().getAndroidFsRoot() + "app/"+CommCareApplication._().getArchiveUUID();
 	}

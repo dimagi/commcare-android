@@ -132,6 +132,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     int previousUrlPosition=0;
 	 
 	boolean partialMode = false;
+	String mGUID;
 	
 	CommCareApp ccApp;
 	
@@ -394,6 +395,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				//Basically nothing
 			} else if(resultCode == Activity.RESULT_OK) {
     			String result = data.getStringExtra("archive-ref");
+    			mGUID = data.getStringExtra("mm-ref");
 				incomingRef = result;
 				//Definitely have a URI now.
 				try{
@@ -442,9 +444,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			return ccApp;
 		}
 		else{
-			ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
-			app = new CommCareApp(newRecord);
-			return app;
+			if(mGUID == null){
+				ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
+				app = new CommCareApp(newRecord);
+				return app;
+			} else{
+				ApplicationRecord newRecord = new ApplicationRecord(mGUID, ApplicationRecord.STATUS_UNINITIALIZED);
+				app = new CommCareApp(newRecord);
+				return app;
+			}
 		}
 	}
 
