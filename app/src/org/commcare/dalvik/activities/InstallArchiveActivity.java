@@ -3,31 +3,19 @@
  */
 package org.commcare.dalvik.activities;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
-import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.UnzipTask;
-import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -36,9 +24,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -49,7 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * @author ctsims
+ * @author wspride
  *
  */
 
@@ -89,6 +75,18 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
+			
+			//We got called from an outside application, it's gonna be a wild ride!
+			currentRef = this.getIntent().getData().toString();
+			
+			//remove file:/// prepend
+			currentRef = currentRef.substring(currentRef.indexOf("/storage/"));
+			
+			editFileLocation.setText(currentRef);
+			
+		}
 
 		btnFetchFiles.setOnClickListener(new OnClickListener() {
 
@@ -110,51 +108,56 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			@Override
 			public void onClick(View v) {
 
-				currentRef = editFileLocation.getText().toString();
-
-				UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
-
-					@Override
-					protected void deliverResult( InstallArchiveActivity receiver, Integer result) {
-						Log.d(TAG, "delivering unzip result");
-						if(result > 0){
-							receiver.onUnzipSuccessful(result);
-							return;
-						} else {
-							//assume that we've already set the error message, but make it look scary
-							receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-						}
-					}
-
-					@Override
-					protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
-						Log.d(TAG, "delivering unzip upate");
-						receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
-						receiver.txtInteractiveMessages.setText(update[0]);
-					}
-
-					@Override
-					protected void deliverError(InstallArchiveActivity receiver, Exception e) {
-						Log.d(TAG, "unzip deliver error: " + e.getMessage());
-						receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[] {e.getMessage()}));
-						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-					}
-				};
-
-				String readDir = currentRef;
-				File mFile = new File(currentRef);
-				File parent = mFile.getParentFile();
-				//String fn = parent.toString() + "/" + ARCHIVE_UNZIP_LOCATION;
-				String writeDir = getFolderGUIDName();
-				FileUtil.deleteFileOrDir(writeDir);
-
-				mUnzipTask.connect(InstallArchiveActivity.this);
-				Log.d(TAG, "executing task with: " + writeDir + " , " + readDir);
-				mUnzipTask.execute(readDir, writeDir);
+				InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
 
 			}
 
 		});
+	}
+	
+	public void createArchive(String filepath){
+		currentRef = filepath;
+
+		UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
+
+			@Override
+			protected void deliverResult( InstallArchiveActivity receiver, Integer result) {
+				Log.d(TAG, "delivering unzip result");
+				if(result > 0){
+					receiver.onUnzipSuccessful(result);
+					return;
+				} else {
+					//assume that we've already set the error message, but make it look scary
+					receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+				}
+			}
+
+			@Override
+			protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
+				Log.d(TAG, "delivering unzip upate");
+				receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
+				receiver.txtInteractiveMessages.setText(update[0]);
+			}
+
+			@Override
+			protected void deliverError(InstallArchiveActivity receiver, Exception e) {
+				Log.d(TAG, "unzip deliver error: " + e.getMessage());
+				receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[] {e.getMessage()}));
+				receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+			}
+		};
+
+		String readDir = currentRef;
+		File mFile = new File(currentRef);
+		File parent = mFile.getParentFile();
+		//String fn = parent.toString() + "/" + ARCHIVE_UNZIP_LOCATION;
+		String writeDir = getFolderGUIDName();
+		FileUtil.deleteFileOrDir(writeDir);
+
+		mUnzipTask.connect(InstallArchiveActivity.this);
+		Log.d(TAG, "executing task with: " + writeDir + " , " + readDir);
+		mUnzipTask.execute(readDir, writeDir);
+
 	}
 
 	protected void onUnzipSuccessful(Integer result) {
@@ -172,6 +175,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		File mFile = new File(myRef+"/"+fileNameString);
 
 		try {
+			System.out.println("4814 trying copy deep: " + mFile.getAbsolutePath() + ", : " + myRef);
 			FileUtil.copyFileDeep(mFile, new File(myRef));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
