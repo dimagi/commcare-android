@@ -17,6 +17,7 @@ import java.util.zip.ZipFile;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.MultimediaInflaterTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
@@ -100,80 +101,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 		btnInstallMultimedia.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				CommCareTask<String, String, Boolean, MultimediaInflaterActivity> task = new CommCareTask<String, String, Boolean, MultimediaInflaterActivity>() {
-
-					@Override
-					protected Boolean doTaskBackground(String... params) {
-						File archive = new File(params[0]);
-						File destination = new File(params[1]);
-						
-						int count = 0;
-						ZipFile zipfile;
-						//From stackexchange
-						try {
-							zipfile = new ZipFile(archive);
-						} catch(IOException ioe) {
-							publishProgress(Localization.get("mult.install.bad"));
-							return false;
-						}
-		                for (Enumeration e = zipfile.entries(); e.hasMoreElements();) {
-		                	Localization.get("mult.install.progress", new String[] {String.valueOf(count)});
-		                	count++;
-		                    ZipEntry entry = (ZipEntry) e.nextElement();
-		                    
-		                    if (entry.isDirectory()) {
-		                    	FileUtil.createFolder(new File(destination, entry.getName()).toString());
-		                    	//If it's a directory we can move on to the next one
-		                    	continue;
-		                    }
-
-		                    File outputFile = new File(destination, entry.getName());
-		                    if (!outputFile.getParentFile().exists()) {
-		                    	FileUtil.createFolder(outputFile.getParentFile().toString());
-		                    }
-		                    if(outputFile.exists()) {
-		                    	//Try to overwrite if we can
-		                    	if(!outputFile.delete()) {
-		                    		//If we couldn't, just skip for now
-		                    		continue;
-		                    	}
-		                    }
-		                    BufferedInputStream inputStream;
-		                    try {
-		                    	inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
-		                    } catch(IOException ioe) {
-	                    		this.publishProgress(Localization.get("mult.install.progress.badentry", new String[] {entry.getName()}));
-	                    		return false;
-		                    }
-		                    
-		                    BufferedOutputStream outputStream;
-		                    try {
-		                    	outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-		                    } catch(IOException ioe) {
-	                    		this.publishProgress(Localization.get("mult.install.progress.baddest", new String[] {outputFile.getName()}));
-	                    		return false;
-	                    	}
-
-		                    try {
-		                    	try {
-		                    		AndroidStreamUtil.writeFromInputToOutput(inputStream, outputStream);
-		                    	} catch(IOException ioe) {
-		                    		this.publishProgress(Localization.get("mult.install.progress.errormoving"));
-		                    		return false;
-		                    	}
-		                    } finally {
-		                    	try {
-		                        outputStream.close();
-		                    	} catch(IOException ioe) {}
-		                    	try {
-		                        inputStream.close();
-		                    	} catch(IOException ioe) {}
-		                    }
-		                }
-
-						
-						return true;
-					}
+				MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask<MultimediaInflaterActivity>() {
 
 					@Override
 					protected void deliverResult( MultimediaInflaterActivity receiver, Boolean result) {
