@@ -53,6 +53,8 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
 	/** Problem reported via connection diagnostic tool **/
 	public static final String CONNECTION_DIAGNOSTIC_REPORT = "connection-report";
 	
+	public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
+	
 	@UiElement(R.id.screen_bulk_image1)
 	ImageView banner;
 	
@@ -136,10 +138,14 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
 					        		{
 						            	LogSubmissionTask reportSubmitter = new LogSubmissionTask(CommCareApplication._(), true, CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title), url);
 						            	reportSubmitter.execute();
+						            	ConnectionDiagnosticActivity.this.finish();
+					    				Toast.makeText(CommCareApplication._(), Localization.get("connection.task.report.commcare.popup"), Toast.LENGTH_LONG).show();
 					        		} 
 					        		else 
 					        		{
-					        			//idk what to do here
+					        			Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
+					        			ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(Localization.get("connection.task.unset.posturl"));
+					        			ConnectionDiagnosticActivity.this.txtInteractiveMessages.setVisibility(View.VISIBLE);
 					        		}
 								}
 							});

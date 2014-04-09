@@ -243,11 +243,11 @@ activity.task.error.generic=Unexpected error! Please try again.
 dialog.ok=Ok
 
 connection.test.prompt=This will try to fix connection problems that you may be having.
-connection.test.run=Run Connection Test.
+connection.test.run=Run Connection Test
 connection.test.messages=-
 connection.test.access.settings=Go to Internet settings
 connection.test.run.title=Running Connection Tests...
-connection.test.now.running=Currently running x test.
+connection.test.now.running=Currently running tests.
 connection.test.update.message=Working.
 connection.test.error.message=There's been an error.
 connection.test.report.button.message=Send to commCare.
@@ -258,6 +258,8 @@ connection.task.remote.ping.fail=There has been an issue while reaching the Inte
 connection.task.commcare.html.fail=There is an issue with CommCare's server. Please report this problem to CommCare.
 connection.task.success=No problems were detected.
 
+connection.task.report.commcare.popup=Your logs are being sent to CommCare!
+connection.task.unset.posturl=There has been an error on CommCare's end. Please report this problem to CommCare Support.
 
 
 

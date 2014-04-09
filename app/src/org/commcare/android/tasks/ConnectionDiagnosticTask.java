@@ -39,7 +39,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 	public static final String googleURL = "www.google.com";
 	public static final String commcareURL = "http://www.commcarehq.org/serverup.txt";
 	public static final String commcareHTML = "success";
-	public static final String pingCommand = "ping -c 1 ";
+	public static final String pingPrefix = "ping -c 1 ";
 	
 	
 	
@@ -67,25 +67,11 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 	}
 	
 	//onProgressUpdate(<B>)
-	@Override
-	protected void onProgressUpdate(String... values) 
-	{
-		super.onProgressUpdate(values);
-	}
 	
 	//onPostExecute(<C>)
-	@Override
-	protected void onPostExecute(ArrayList<Tuple<Boolean, String>> result) 
-	{
-		super.onPostExecute(result);
-	}
 	
 	//onCancelled()
-	@Override
-	protected void onCancelled() 
-	{
-		super.onCancelled();
-	}
+
 	
 	//doTaskBackground(<A>) returns <C>
 	@Override
@@ -94,9 +80,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 		ArrayList<Tuple<Boolean, String>> out = new ArrayList<Tuple<Boolean, String>>();
 		out.add(isOnline(this.c));
 		out.add(pingSuccess(googleURL));
-		out.add(pingCC(commcareURL));
-		
-		
+		out.add(pingCC(commcareURL));		
 		return out;
 	}
 	
@@ -115,16 +99,16 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 	//check if a ping to a specific ip address (used for google url) is successful.
 	private static Tuple<Boolean, String> pingSuccess(String url)
 	{
-		Process proc = null;
+		Process pingCommand = null;
 		try {
 			//append the input url to the ping command
-			StringBuilder a = new StringBuilder(pingCommand);
-			a.append(url);
-			String inp = a.toString();
+			StringBuilder pingURLBuilder = new StringBuilder(pingPrefix);
+			pingURLBuilder.append(url);
+			String pingURL = pingURLBuilder.toString();
 			
 			//run the ping command at runtime
-			proc = java.lang.Runtime.getRuntime().exec(inp);
-			if(proc == null)
+			pingCommand = java.lang.Runtime.getRuntime().exec(pingURL);
+			if(pingCommand == null)
 			{
 				return new Tuple<Boolean, String>(false, logGoogleNullPointerMessage);
 			}
@@ -133,18 +117,18 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 		{
 			return new Tuple<Boolean, String>(false, logGoogleIOErrorMessage );
 		}
-		int out = Integer.MAX_VALUE;
+		int pingReturn = Integer.MAX_VALUE;
 		try 
 		{
-			out = proc.waitFor();
+			pingReturn = pingCommand.waitFor();
 		} 
 		catch (InterruptedException e) 
 		{
 			return new Tuple<Boolean, String>(false, logGoogleInterruptedMessage);
 		} 
 		//0 if success, 2 if fail
-		String messageOut = out==0? logGoogleSuccessMessage : logGoogleUnexpectedResultMessage;
-		return new Tuple<Boolean, String>(out == 0, messageOut);
+		String messageOut = pingReturn==0? logGoogleSuccessMessage : logGoogleUnexpectedResultMessage;
+		return new Tuple<Boolean, String>(pingReturn == 0, messageOut);
 	}
 	
 	private static Tuple<Boolean, String> pingCC(String url)
@@ -153,15 +137,15 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 		HttpClient client = new DefaultHttpClient();
 		HttpGet get = new HttpGet(url);
 		InputStream stream = null;
-		String out = null;
+		String htmlLine = null;
 		try {
 			//read html using an input stream reader
 			stream = client.execute(get).getEntity().getContent();
 			InputStreamReader reader = new InputStreamReader(stream);
-			BufferedReader buff = new BufferedReader(reader);
+			BufferedReader buffer = new BufferedReader(reader);
 			//should read "success" if the server is up.
-			out = buff.readLine();
-			buff.close();
+			htmlLine = buffer.readLine();
+			buffer.close();
 			reader.close();
 			stream.close();
 		} catch (IllegalStateException e) {
@@ -174,8 +158,9 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 			//error on client side
 			return new Tuple<Boolean, String>(false, logCCIOErrorMessage);
 		}
-		return out.equals(commcareHTML)? new Tuple<Boolean, String>(true, logCCSuccessMessage) 
-									   : new Tuple<Boolean, String>(false, logCCUnexpectedResultMessage);
+		
+		return htmlLine.equals(commcareHTML)? new Tuple<Boolean, String>(true, logCCSuccessMessage) 
+									   		: new Tuple<Boolean, String>(false, logCCUnexpectedResultMessage);
 	}
 	
 }
