@@ -94,8 +94,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	public static final int MISSING_MEDIA_ACTIVITY=256;
 	public static final int DUMP_FORMS_ACTIVITY=512;
 	public static final int WIFI_DIRECT_ACTIVITY=1024;
-	//blah
-	public static final int CONNECTION_DIAG_ACTIVITY=2048;
+	public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
 	
 	public static final int USE_OLD_DIALOG = 1;
 	public static final int DIALOG_CORRUPTED = 4;
@@ -108,8 +107,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 4;
 	private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
 	private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
-	//blah
-	private static final int MENU_CONNECTION_DIAG = Menu.FIRST + 7;
+	private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 7;
 	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;	
@@ -1427,8 +1425,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         		android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_WIFI_DIRECT, 0, "Wifi Direct").setIcon(
         		android.R.drawable.ic_menu_upload);
-        //blah
-        menu.add(0, MENU_CONNECTION_DIAG, 0, "Connection Test").setIcon(
+        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, "Connection Test").setIcon(
         		android.R.drawable.ic_menu_upload);
         return true;
     }
@@ -1449,8 +1446,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(enableMenus);
 			menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
 			menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus &&  hasP2p());
-			//blah
-			menu.findItem(MENU_CONNECTION_DIAG).setVisible(enableMenus);
+			menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
@@ -1492,8 +1488,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             case MENU_WIFI_DIRECT:
             	startWifiDirectActivity();
             	return true;
-            //blah
-            case MENU_CONNECTION_DIAG:
+            case MENU_CONNECTION_DIAGNOSTIC:
             	startMenuConnectionActivity();
             	return true;
         }
@@ -1522,8 +1517,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	
 	private void startMenuConnectionActivity()
 	{
-		Intent i = new Intent(this, CommCareConnectionDiagActivity.class);
-		CommCareHomeActivity.this.startActivityForResult(i, CONNECTION_DIAG_ACTIVITY);
+		Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
+		CommCareHomeActivity.this.startActivityForResult(i, CONNECTION_DIAGNOSTIC_ACTIVITY);
 	}
 	
 //    @Override

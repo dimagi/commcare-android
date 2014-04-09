@@ -176,21 +176,6 @@ bulk.form.messages=-
 bulk.form.error=Unexpected Error dumping forms! Please try again. Error Text: ${0}
 bulk.form.foldername=filedump
 
-connection.test.prompt=This will try to fix connection problems that you may be having.
-connection.test.run=Run Connection Test.
-connection.test.messages=-
-connection.test.access.settings=Go to Internet settings
-connection.test.run.title=Running Connection Tests...
-connection.test.now.running=Currently running x test.
-connection.test.update.message=Working.
-connection.test.error.message=There's been an error.
-connection.test.report.button.message=Send to commCare.
-
-connection.task.internet.fail=You are not connected the Internet. Please run this test again after connecting to Wi-Fi or Mobile Data.
-connection.task.remote.ping.fail=There has been an issue while reaching the Internet.
-connection.task.commcare.html.fail=There is an issue with CommCare's server. Please report this problem to CommCare.
-connection.task.success=No problems were detected.
-
 bulk.form.submit.2=Submit Forms (${0})
 bulk.form.dump.2=Dump Forms (${0})
 
@@ -256,6 +241,36 @@ title.datum.wrapper=[${0}]
 activity.task.error.generic=Unexpected error! Please try again.
 
 dialog.ok=Ok
+
+connection.test.prompt=This will try to fix connection problems that you may be having.
+connection.test.run=Run Connection Test.
+connection.test.messages=-
+connection.test.access.settings=Go to Internet settings
+connection.test.run.title=Running Connection Tests...
+connection.test.now.running=Currently running x test.
+connection.test.update.message=Working.
+connection.test.error.message=There's been an error.
+connection.test.report.button.message=Send to commCare.
+
+connection.task.internet.fail=You are not connected the Internet. Please run this test again after connecting to Wi-Fi or mobile data.
+connection.task.internet.success=You are connected to the Internet.
+connection.task.remote.ping.fail=There has been an issue while reaching the Internet. Please run this test again after verifying your network connection.
+connection.task.commcare.html.fail=There is an issue with CommCare's server. Please report this problem to CommCare.
+connection.task.success=No problems were detected.
+
+
+
+
+
+
+
+#Add new localization strings here
+
+
+
+
+
+
 
 #Put these into their own file
 

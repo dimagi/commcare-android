@@ -3,6 +3,10 @@
  */
 package org.commcare.android.tasks.templates;
 
+import java.io.IOException;
+
+import org.apache.http.client.ClientProtocolException;
+
 import android.os.AsyncTask;
 
 /**
@@ -40,7 +44,7 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 		}
 	}
 	
-	protected abstract C doTaskBackground(A... params);
+	protected abstract C doTaskBackground(A... params) throws ClientProtocolException, IOException;
 
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#onCancelled()
