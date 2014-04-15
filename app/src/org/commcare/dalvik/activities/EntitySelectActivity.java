@@ -694,9 +694,24 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 	@Override
 	public void deliverError(Exception e) {
-		String[] stringArgs = new String[3];
-		stringArgs[2] = e.getMessage();
-		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Predicate, stringArgs), true);
+        String mErrorMessage = e.getMessage();
+        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
+        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
+        mAlertDialog.setTitle(Localization.get("notification.case.predicate.title"));
+        mAlertDialog.setMessage(Localization.get("notification.case.predicate.action", new String[] {mErrorMessage}));
+        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON1:
+                    	finish();
+                    	break;
+                }
+            }
+        };
+        mAlertDialog.setCancelable(false);
+        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
+        mAlertDialog.show();
     	finish();
 	}
 

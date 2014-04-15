@@ -62,11 +62,6 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 	protected void onPostExecute(Pair<List<Entity<TreeReference>>, List<TreeReference>> result) {
 		super.onPostExecute(result);
 		
-		if(mException != null){
-			listener.deliverError(mException);
-			return;
-		}
-		
 		waitingTime = System.currentTimeMillis();
 		//Ok. So. time to try to deliver the result
 		while(true) {
@@ -74,6 +69,12 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 			synchronized(pending) {
 				//If our listener is still live, we can deliver our result
 				if(listener != null) {
+					
+					if(mException != null){
+						listener.deliverError(mException);
+						return;
+					}
+					
 					//pass those params
 					listener.deliverResult(result.first, result.second);
 					this.pending[0] = null;

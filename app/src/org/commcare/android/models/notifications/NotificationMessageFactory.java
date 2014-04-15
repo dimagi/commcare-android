@@ -60,9 +60,6 @@ public class NotificationMessageFactory {
 		/** Your case fitler does not match the data type **/
 		Bad_Case_Filter("notification.case.filter"),
 		
-		/** Your case predicate was invalid **/
-		Bad_Case_Predicate("notification.case.predicate"),
-		
 		/** You updated with incomplete forms **/
 		Incomplete_Form_Update("notification.incomplete.update"),
 		
