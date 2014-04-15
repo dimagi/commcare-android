@@ -14,6 +14,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathMissingInstanceException;
 
 import android.os.AsyncTask;
@@ -117,8 +118,10 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 		
 		return new Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references);
 		
-		} catch (XPathMissingInstanceException xme){
-			mException = xme;
+		} catch (XPathException xe){
+			XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
+			me.setSource(xe.getSource());
+			mException = me;
 			return null;
 		}
 	}

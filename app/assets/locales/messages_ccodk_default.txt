@@ -169,9 +169,6 @@ mult.install.progress.errormoving=There was a problem copying the multimedia fro
 mult.install.prompt=From here you can install your app multimedia from a ZIP file on the local filesystem
 mult.install.button=Install Multimedia
 
-archive.install.prompt=From here you can install your CommCare app from a ZIP file on the local filesystem
-archive.install.button=Install App
-
 bulk.form.prompt=From here you can dump forms to and submit forms from your external SD card. You have ${0} unsynced forms on your phone and ${1} unsynced forms on your SD card
 bulk.form.submit=Submit Forms
 bulk.form.dump=Dump Forms
@@ -357,9 +354,9 @@ verification.fail.message=Some of your application's multimedia has not been ins
 wifi.direct.base.folder=wifidirect
 wifi.direct.submit.missing=The folder ${0} you are trying to submit does not exist. Please verify that this file is where it should be. 
 
-notification.case.predicate.title=Case List failed to load
-notification.case.predicate.detail=Your case filter predicate had a bad path
-notification.case.predicate.action=Generating your case list failed with ad bad predicate. Please fix this in form builder and udpate your app. Error was ${0}.
+notification.case.predicate.title=List failed to load
+notification.case.predicate.detail=Your list filter expression had a bad path.
+notification.case.predicate.action=Filtering your list failed with a bad filter expression. Please fix this in app builder and udpate your app. Error was ${0}.
 
 notification.incomplete.update.title=Updated App with Incomplete Forms
 notification.incomplete.update.detail=You updated your application while having incomplete forms. This can cause out of sync data. 

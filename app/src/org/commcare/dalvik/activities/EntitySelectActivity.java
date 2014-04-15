@@ -697,8 +697,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		String[] stringArgs = new String[3];
 		stringArgs[2] = e.getMessage();
 		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Predicate, stringArgs), true);
-    	Intent i = new Intent(this, CommCareHomeActivity.class);
-    	this.startActivity(i);
     	finish();
 	}
 
