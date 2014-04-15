@@ -712,8 +712,5 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         mAlertDialog.setCancelable(false);
         mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
         mAlertDialog.show();
-    	finish();
 	}
-
-
 }
