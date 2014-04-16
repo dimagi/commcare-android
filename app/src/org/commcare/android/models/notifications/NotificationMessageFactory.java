@@ -59,10 +59,7 @@ public class NotificationMessageFactory {
 		
 		/** Your case fitler does not match the data type **/
 		Bad_Case_Filter("notification.case.filter"),
-		
-		/** You updated with incomplete forms **/
-		Incomplete_Form_Update("notification.incomplete.update"),
-		
+
 		/**Bad SSL Certificate **/
 		BadSSLCertificate("notification.bad.certificate");
 	

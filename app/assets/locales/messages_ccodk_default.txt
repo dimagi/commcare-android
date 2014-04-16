@@ -356,7 +356,3 @@ wifi.direct.submit.missing=The folder ${0} you are trying to submit does not exi
 
 notification.case.predicate.title=List failed to load
 notification.case.predicate.action=Filtering your list failed with a bad filter expression. Please fix this and re-deploy your app. Error was ${0}.
-
-notification.incomplete.update.title=Updated App with Incomplete Forms
-notification.incomplete.update.detail=You updated your application while having incomplete forms. This can cause out of sync data. 
-notification.incomplete.update.action=You might be unable to open old, incomplete forms with your updated forms in your applications. To recover these forms, you will need to revert to the old version and complete and submit the forms. Refer to public CommCare documentation for instructions.

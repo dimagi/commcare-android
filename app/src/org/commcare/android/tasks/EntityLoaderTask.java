@@ -70,6 +70,10 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 				//If our listener is still live, we can deliver our result
 				if(listener != null) {
 					
+					//zero this out to free up reference. this is used as an indicator below to determine if work still needs to be done
+					this.pending[0] = null;
+					
+					// if we have encountered an exception, deliver it and return
 					if(mException != null){
 						listener.deliverError(mException);
 						return;
@@ -77,7 +81,7 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 					
 					//pass those params
 					listener.deliverResult(result.first, result.second);
-					this.pending[0] = null;
+					
 					return;
 				}
 				
