@@ -87,10 +87,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
 	private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
 	private static final int RECOVERY_MODE = Menu.FIRST + 3;
-	
-	public static String TAG = "cc-preferences";
-	
-	private EditTextPreference serverEditText;
 
     @Override	
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,7 +226,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 				String localizedString = Localization.get(prependedKey);
 				screen.getPreference(i).setTitle(localizedString);
 			} catch(NoLocalizedTextException nle){
-				Logger.log(TAG, "No localization for key");
+				
 			}
 		}
 	}
