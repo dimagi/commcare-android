@@ -21,19 +21,22 @@ import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener{
@@ -102,7 +105,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         lp.setKey("cur_locale");
         lp.setDialogTitle("Choose your Locale");
         this.getPreferenceScreen().addPreference(lp);
-        
+        updatePreferencesText();
         setTitle("CommCare" + " > " + "Application Preferences");
     }
     
@@ -212,4 +215,20 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     	//otherwise, see if we're in sense mode
     	return "none";
 	}
+	
+	public void updatePreferencesText(){
+		PreferenceScreen screen = getPreferenceScreen();
+		int i;
+		for(i = 0; i < screen.getPreferenceCount(); i++) {
+			try{
+				String key = screen.getPreference(i).getKey();
+				String prependedKey = "preferences.title."+key;
+				String localizedString = Localization.get(prependedKey);
+				screen.getPreference(i).setTitle(localizedString);
+			} catch(NoLocalizedTextException nle){
+				
+			}
+		}
+	}
+
 }
