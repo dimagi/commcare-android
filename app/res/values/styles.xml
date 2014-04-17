@@ -60,7 +60,10 @@
   
    <color name="grey_grad_start">#80D3D3D3</color>
    <color name="grey_grad_end">#A0D3D3D3</color>
-      
+   
+   
+   <color name="border_grey">#20959699</color>
+   
    
    <color name="title_border">#444444</color>
    <color name="title_neutral_grad_end">#FFB3B3B3</color>
