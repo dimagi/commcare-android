@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="lib" path="lib/android-support-v4.jar"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare.cases"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="lib" path="lib/apache-mime4j-0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-codec.jar"/>
@@ -13,7 +15,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/sqlcipher.jar"/>
 	<classpathentry exported="true" kind="lib" path="/opendatakit.collect/lib/joda-time-2.0.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
-	<classpathentry exported="true" kind="lib" path="lib/commcare-libraries.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/javarosa-libraries.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -35,5 +35,5 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
 		setResult(RESULT_OK);
 		finish();
 	}
-	
+
 }
