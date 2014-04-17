@@ -1423,9 +1423,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         		android.R.drawable.ic_menu_gallery);
         menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
         		android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_WIFI_DIRECT, 0, "Wifi Direct").setIcon(
+        menu.add(0, MENU_WIFI_DIRECT, 0, Localization.get("home.menu.wifi.direct")).setIcon(
         		android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, "Connection Test").setIcon(
+        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
         		android.R.drawable.ic_menu_upload);
         return true;
     }

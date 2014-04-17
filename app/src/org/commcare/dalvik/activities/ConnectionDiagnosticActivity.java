@@ -1,38 +1,20 @@
 package org.commcare.dalvik.activities;
 
-import java.util.Map;
-import org.commcare.android.util.Tuple;
-
-import java.util.ArrayList;
-
-
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.ConnectionDiagnosticTask;
-import org.commcare.android.tasks.DumpTask;
-import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.LogSubmissionTask;
-import org.commcare.android.tasks.SendTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -50,8 +32,6 @@ import android.widget.Toast;
 public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
 	
 
-	/** Problem reported via connection diagnostic tool **/
-	public static final String CONNECTION_DIAGNOSTIC_REPORT = "connection-report";
 	
 	public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
 	
@@ -84,82 +64,51 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
 			@Override
 			public void onClick(View v)
 			{
-				ConnectionDiagnosticTask<ConnectionDiagnosticActivity> mConnectionDiagTask = 
-				new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform())
+				ConnectionDiagnosticTask<ConnectionDiagnosticActivity> mConnectionDiagnosticTask = 
+				new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(
+						getApplicationContext(), 
+						CommCareApplication._().getCurrentApp().getCommCarePlatform())
 				{	
 				@Override
 					//<R> receiver, <C> result. 
-					//<C> is the return from DoTaskBackground, of type ArrayList<Tuple<Boolean, String>>
-					protected void deliverResult(ConnectionDiagnosticActivity receiver, ArrayList<Tuple<Boolean, String>> testResults) 
+					//<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
+					protected void deliverResult(ConnectionDiagnosticActivity receiver, ConnectionDiagnosticTask.Test failedTest) 
 					{
-						for(int i = 0; i < testResults.size(); i++)
-						{
-							Logger.log(CONNECTION_DIAGNOSTIC_REPORT, testResults.get(i).y);
-						}
-						
-						boolean isConnected = testResults.get(0).x;
-						boolean canPingGoogle = testResults.get(1).x;
 						//user-caused connection issues
-						if(!isConnected || !canPingGoogle)
+						if(failedTest == ConnectionDiagnosticTask.Test.isOnline ||
+							failedTest == ConnectionDiagnosticTask.Test.googlePing)
 						{
 							//get the appropriate display message based on what the problem is
-							String displayMessage = !isConnected? Localization.get("connection.task.internet.fail") 
-																: Localization.get("connection.task.remote.ping.fail");
+							String displayMessage = failedTest == ConnectionDiagnosticTask.Test.isOnline ? 
+									Localization.get("connection.task.internet.fail") 
+									: Localization.get("connection.task.remote.ping.fail");
 							
 							receiver.txtInteractiveMessages.setText(displayMessage);
 							receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
 							
-							//Set a button that allows you to change your airplane mode settings
-							receiver.settingsButton.setOnClickListener( new OnClickListener()
-							{
-								@Override
-								public void onClick(View v)
-								{
-									startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
-								}
-							});
 							receiver.settingsButton.setVisibility(View.VISIBLE);
 						}
 						
 						//unable to ping commcare -- report this to cchq
-						else if(!testResults.get(2).x)
+						else if(failedTest == ConnectionDiagnosticTask.Test.commCarePing)
 						{
-							receiver.txtInteractiveMessages.setText(Localization.get("connection.task.commcare.html.fail"));
+							receiver.txtInteractiveMessages.setText(
+									Localization.get("connection.task.commcare.html.fail"));
 							receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
-							receiver.reportButton.setOnClickListener( new OnClickListener()
-							{
-								@Override
-								public void onClick(View v)
-								{
-					        		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-					        		String url = settings.getString("PostURL", null);
-					        		
-					        		if(url != null) 
-					        		{
-						            	LogSubmissionTask reportSubmitter = new LogSubmissionTask(CommCareApplication._(), true, CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title), url);
-						            	reportSubmitter.execute();
-						            	ConnectionDiagnosticActivity.this.finish();
-					    				Toast.makeText(CommCareApplication._(), Localization.get("connection.task.report.commcare.popup"), Toast.LENGTH_LONG).show();
-					        		} 
-					        		else 
-					        		{
-					        			Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
-					        			ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(Localization.get("connection.task.unset.posturl"));
-					        			ConnectionDiagnosticActivity.this.txtInteractiveMessages.setVisibility(View.VISIBLE);
-					        		}
-								}
-							});
+							
 							receiver.reportButton.setVisibility(View.VISIBLE);
 						}
 						
 						//all is well
-						else
+						else if(failedTest == null)
 						{
 							receiver.txtInteractiveMessages.setText(Localization.get("connection.task.success"));
 							receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
 							receiver.settingsButton.setVisibility(View.INVISIBLE);
 							receiver.reportButton.setVisibility(View.INVISIBLE);
 						}
+						
+						return;
 					}
 
 					@Override
@@ -176,8 +125,51 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
 					}
 				};
 				
-				mConnectionDiagTask.connect(ConnectionDiagnosticActivity.this);
-				mConnectionDiagTask.execute();				
+				mConnectionDiagnosticTask.connect(ConnectionDiagnosticActivity.this);
+				mConnectionDiagnosticTask.execute();				
+			}
+		});
+		
+		//Set a button that allows you to change your airplane mode settings
+		this.settingsButton.setOnClickListener( new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+			}
+		});
+		
+		this.reportButton.setOnClickListener( new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+        		SharedPreferences settings = 
+        				CommCareApplication._().getCurrentApp().getAppPreferences();
+        		String url = settings.getString("PostURL", null);
+        		
+        		if(url != null) 
+        		{
+	            	LogSubmissionTask reportSubmitter = 
+	            			new LogSubmissionTask(
+	            					CommCareApplication._(), 
+	            					true, 
+	            					CommCareApplication._().getSession().startDataSubmissionListener(
+	            							R.string.submission_logs_title), url);
+	            	reportSubmitter.execute();
+	            	ConnectionDiagnosticActivity.this.finish();
+    				Toast.makeText(
+    						CommCareApplication._(), 
+    						Localization.get("connection.task.report.commcare.popup"), 
+    						Toast.LENGTH_LONG).show();
+        		} 
+        		else 
+        		{
+        			Logger.log(ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
+        			ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(Localization.get("connection.task.unset.posturl"));
+        			ConnectionDiagnosticActivity.this.txtInteractiveMessages.setVisibility(View.VISIBLE);
+        		}
 			}
 		});
 	}
@@ -186,8 +178,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle((Localization.get("connection.test.run.title")));
-		builder.setMessage(Localization.get("connection.test.now.running"))
-		.setCancelable(true);		
+		builder.setMessage(Localization.get("connection.test.now.running")).setCancelable(true);		
 		AlertDialog dialog = builder.create();
 		return dialog;
 	}
