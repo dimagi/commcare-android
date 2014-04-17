@@ -51,7 +51,6 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
-import android.os.Build.VERSION_CODES;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -95,6 +94,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	public static final int DUMP_FORMS_ACTIVITY=512;
 	public static final int WIFI_DIRECT_ACTIVITY=1024;
 	public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
+	public static final int PREFERENCES_ACTIVITY=4096;
 	
 	public static final int USE_OLD_DIALOG = 1;
 	public static final int DIALOG_CORRUPTED = 4;
@@ -369,6 +369,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    			return;
 	    		}
 	    		break;
+	    	case PREFERENCES_ACTIVITY:
+	    		configUi();
+	    		return;
 	    	case MISSING_MEDIA_ACTIVITY:
 	    		if(resultCode == RESULT_CANCELED){
 	    			this.finish();
@@ -1493,6 +1496,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             	return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+	
+    private void createPreferencesMenu() {
+        Intent i = new Intent(this, CommCarePreferences.class);
+        CommCareHomeActivity.this.startActivityForResult(i, PREFERENCES_ACTIVITY);
+    }
+    
+    private void createCallLogActivity() {
+        Intent i = new Intent(this, PhoneLogActivity.class);
+        startActivity(i);
+
     }
     
 	private void startReportActivity() {

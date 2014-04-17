@@ -160,6 +160,7 @@ public class EntityView extends LinearLayout {
 			if(e.getField(i) == null) {
 				continue;
 			}
+			
 	        if("image".equals(forms[i])) {
 	        	ImageView iv = (ImageView)views[i];
 				Bitmap b;
@@ -167,6 +168,8 @@ public class EntityView extends LinearLayout {
 					if(!e.getField(i).equals("")) {
 						b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(e.getField(i)).getStream());
 						iv.setImageBitmap(b);
+					} else{
+						iv.setImageBitmap(null);
 					}
 				} catch (IOException ex) {
 					ex.printStackTrace();
