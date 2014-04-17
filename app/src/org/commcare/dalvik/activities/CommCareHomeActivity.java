@@ -1397,18 +1397,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	}
 	
 	//END - Process and Send Listeners
-	
-
-    private void createPreferencesMenu() {
-        Intent i = new Intent(this, CommCarePreferences.class);
-        startActivity(i);
-    }
-    
-    private void createCallLogActivity() {
-        Intent i = new Intent(this, PhoneLogActivity.class);
-        startActivity(i);
-
-    }
 
 	
     @Override
