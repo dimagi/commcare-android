@@ -47,13 +47,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 	Context c;
 	Long[] results;
 	File dumpFolder;
-	
-	public static final long FULL_SUCCESS = 0;
-	public static final long PARTIAL_SUCCESS = 1;
-	public static final long FAILURE = 2;
-	public static final long TRANSPORT_FAILURE = 4;
-	public static final long PROGRESS_ALL_PROCESSED = 8;
-	
+		
 	public static final long SUBMISSION_BEGIN = 16;
 	public static final long SUBMISSION_START = 32;
 	public static final long SUBMISSION_NOTIFY = 64;
@@ -149,7 +143,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 				}
 				catch(IOException ie){
 					publishProgress(("File writing failed: " + ie.getMessage()));
-					return ProcessAndSendTask.FAILURE;
+					return FormUploadUtil.FAILURE;
 				}
 			}
 			else{
@@ -158,11 +152,11 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 				}
 				catch(IOException ie){
 					publishProgress(("File writing failed: " + ie.getMessage()));
-					return ProcessAndSendTask.FAILURE;
+					return FormUploadUtil.FAILURE;
 				}
 			}
 		}
-        return ProcessAndSendTask.FULL_SUCCESS;
+        return FormUploadUtil.FULL_SUCCESS;
 	}
 	
 	@Override
@@ -236,7 +230,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     			results = new Long[records.length];
     			for(int i = 0; i < records.length ; ++i ) {
     				//Assume failure
-    				results[i] = ProcessAndSendTask.FAILURE;
+    				results[i] = FormUploadUtil.FAILURE;
     			}
     			
     			publishProgress(Localization.get("bulk.form.start"));
@@ -272,7 +266,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     						}
     					
     						//Check for success
-    						if(results[i].intValue() == ProcessAndSendTask.FULL_SUCCESS) {
+    						if(results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
     							FormRecordCleanupTask.wipeRecord(c, record);
     						    publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
     				        }

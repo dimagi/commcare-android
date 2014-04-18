@@ -49,6 +49,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
 	/** This form has been fully processed and is being retained for viewing in the future */
 	public static final String STATUS_SAVED = "saved";
 	
+	/** This form was complete, but something blocked it from processing and it's in a damaged state */
+	public static final String STATUS_LIMBO = "limbo";
+	
 	/** This form has been downloaded, but not processed for metadata */
 	public static final String STATUS_UNINDEXED = "unindexed";
 	
@@ -139,6 +142,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
 		
 	}
 
+	/**
+	 * Get the file system path to the encrypted XML submission file.
+	 * 
+	 * @param context Android context
+	 * @return A string containing the location of the encrypted XML instance for this form
+	 * @throws FileNotFoundException If there isn't a record available defining a path for this form
+	 */
 	public String getPath(Context context) throws FileNotFoundException {
 		Uri uri = getInstanceURI();
 		if(uri == null) { throw new FileNotFoundException("No form instance URI exists for formrecord " + recordId); }
@@ -147,5 +157,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
 		if(!c.moveToFirst()) { throw new FileNotFoundException("No Instances were found at for formrecord " + recordId + " at isntance URI " + uri.toString()); }
 		
 		return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Form Record[%s][Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.status, this.xmlns, this.lastModified.toString());
 	}
 }

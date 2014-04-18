@@ -27,6 +27,7 @@ import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.TextImageAudioView;
@@ -963,7 +964,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 				
 				int successfulSends = this.getSuccesfulSends();
 				
-				if(result == ProcessAndSendTask.FULL_SUCCESS) {
+				if(result == FormUploadUtil.FULL_SUCCESS) {
 					String label = Localization.get("sync.success.sent.singular", new String[] {String.valueOf(successfulSends)});
 					if(successfulSends > 1) {
 						label = Localization.get("sync.success.sent", new String[] {String.valueOf(successfulSends)});
@@ -973,7 +974,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 					if(syncAfterwards) {
 						syncData(true);
 					}
-				} else if(result == ProcessAndSendTask.FAILURE) {
+				} else if(result == FormUploadUtil.FAILURE) {
 					//Failures make their own notification box
 				} else {
 					receiver.displayMessage(Localization.get("sync.fail.unsent"), true);

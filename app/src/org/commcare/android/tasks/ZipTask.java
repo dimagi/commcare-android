@@ -154,7 +154,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 				catch(IOException ie){
 					Log.d(CommCareWiFiDirectActivity.TAG, "faield zip copywith2: " + f.getName());
 					publishProgress(("File writing failed: " + ie.getMessage()));
-					return ProcessAndSendTask.FAILURE;
+					return FormUploadUtil.FAILURE;
 				}
 			}
 			else{
@@ -165,11 +165,11 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 				catch(IOException ie){
 					Log.d(CommCareWiFiDirectActivity.TAG, "faield zip copy2 " + f.getName() + "with messageL " + ie.getMessage());
 					publishProgress(("File writing failed: " + ie.getMessage()));
-					return ProcessAndSendTask.FAILURE;
+					return FormUploadUtil.FAILURE;
 				}
 			}
 		}
-        return ProcessAndSendTask.FULL_SUCCESS;
+        return FormUploadUtil.FULL_SUCCESS;
 	}
 	
 	private boolean zipTargetFolder(File targetFilePath, String zipFile) throws IOException{
@@ -315,7 +315,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     			results = new Long[records.length];
     			for(int i = 0; i < records.length ; ++i ) {
     				//Assume failure
-    				results[i] = ProcessAndSendTask.FAILURE;
+    				results[i] = FormUploadUtil.FAILURE;
     			}
     			
     			publishProgress(Localization.get("bulk.form.start"));
@@ -351,12 +351,12 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     						}
     					
     						//Check for success
-    						if(results[i].intValue() == ProcessAndSendTask.FULL_SUCCESS) {
+    						if(results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
     							//FormRecordCleanupTask.wipeRecord(c, platform, record);
     						    //publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
     				        }
     						
-    						if(results[i].intValue() == ProcessAndSendTask.FAILURE) {
+    						if(results[i].intValue() == FormUploadUtil.FAILURE) {
     							publishProgress("Failure during zipping process");
     						 return null;	
     						}

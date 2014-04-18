@@ -56,7 +56,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 		StorageRemoved("notification.processing.nosdcard"),
 		
 		/** You were logged out while something was occurring **/
-		LoggedOut("notification.sending.loggedout", LoginActivity.NOTIFICATION_MESSAGE_LOGIN);
+		LoggedOut("notification.sending.loggedout", LoginActivity.NOTIFICATION_MESSAGE_LOGIN),
+		
+		/** Logs saved, but not actually submitted **/
+		RecordQuarantined("notification.sending.quarantine");
 		
 		ProcessIssues(String root) {this(root, "processing");}
 		ProcessIssues(String root, String category) {this.root = root;this.category = category;}
@@ -69,10 +72,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 	public static final int PROCESSING_PHASE_ID = 8;
 	public static final int SEND_PHASE_ID = 9;
 	
-	public static final long FULL_SUCCESS = 0;
-	public static final long PARTIAL_SUCCESS = 1;
-	public static final long FAILURE = 2;
-	public static final long TRANSPORT_FAILURE = 4;
+	
+	
+	
+	
 	public static final long PROGRESS_ALL_PROCESSED = 8;
 	
 	public static final long SUBMISSION_BEGIN = 16;
@@ -115,7 +118,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 		results = new Long[records.length];
 		for(int i = 0; i < records.length ; ++i ) {
 			//Assume failure
-			results[i] = FAILURE;
+			results[i] = FormUploadUtil.FAILURE;
 		}
 		//The first thing we need to do is make sure everything is processed,
 		//we can't actually proceed before that.
@@ -217,8 +220,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 		
 		for(int i = 0 ; i < records.length ; ++i) {
 			//See whether we are OK to proceed based on the last form. We're now guaranteeing
-			//that forms are sent in order, so we won't proceed unless we succeed
-			if(i > 0 && results[i - 1] != FULL_SUCCESS) {
+			//that forms are sent in order, so we won't proceed unless we succeed. We'll also permit
+			//proceeding if there was a local problem with a record, since we'll just move on from that
+			//processing.
+			if(i > 0 && !(results[i - 1] == FormUploadUtil.FULL_SUCCESS || results[i - 1] == FormUploadUtil.RECORD_FAILURE)) {
 				//Something went wrong with the last form, so we need to cancel this whole shebang
 				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
 				break;
@@ -247,11 +252,19 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 								Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
 							}
 							results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
-							if(results[i] == FULL_SUCCESS) {
+							if(results[i] == FormUploadUtil.FULL_SUCCESS) {
 								break;
 							} else {
 								attemptsMade++;
 							}
+						}
+						
+						if(results[i] == FormUploadUtil.RECORD_FAILURE) {
+							//We tried to submit multiple times and there was a local problem (not a remote problem).
+							//This implies that something is wrong with the current record, and we need to quarantine it.
+							processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
+							Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Quarantined Form Record");
+							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
 						}
 					} catch (FileNotFoundException e) {
 						if(CommCareApplication._().isStorageAvailable()) {
@@ -268,7 +281,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 					
 			        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
 					//Check for success
-					if(results[i].intValue() == FULL_SUCCESS) {
+					if(results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
 						//Only delete if this device isn't set up to review.
 					    if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
 					    	FormRecordCleanupTask.wipeRecord(c, record);
@@ -278,7 +291,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 						}
 			        }
 				} else {
-					results[i] = FULL_SUCCESS;
+					results[i] = FormUploadUtil.FULL_SUCCESS;
 				}
 				
 				
@@ -369,7 +382,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 	protected int getSuccesfulSends() {
 		int successes = 0;
 		for(Long formResult : results) {
-			if(formResult != null && FULL_SUCCESS == formResult.intValue()) {
+			if(formResult != null && FormUploadUtil.FULL_SUCCESS == formResult.intValue()) {
 				successes ++;
 			}
 		}

@@ -16,25 +16,33 @@
 
 package org.commcare.dalvik.activities;
 
+import java.io.IOException;
+
 import org.commcare.android.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.StorageFullException;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -42,6 +50,7 @@ import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -63,8 +72,11 @@ import android.widget.Toast;
 public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
 	private static final int OPEN_RECORD = Menu.FIRST;
 	private static final int DELETE_RECORD = Menu.FIRST  + 1;
+	private static final int RESTORE_RECORD = Menu.FIRST  + 2;
+	private static final int SCAN_RECORD = Menu.FIRST  + 3;
 	
 	private static final int DOWNLOAD_FORMS = Menu.FIRST;
+	private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
 	
 	private static final int CLEANUP_ID = 0;
 	
@@ -94,7 +106,10 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 		Pending("form.record.filter.pending", new String[] {FormRecord.STATUS_UNSENT}),
 		
 		/** Incomplete forms **/
-		Incomplete("form.record.filter.incomplete", new String[] {FormRecord.STATUS_INCOMPLETE}, false);
+		Incomplete("form.record.filter.incomplete", new String[] {FormRecord.STATUS_INCOMPLETE}, false),
+		
+		/** Limbo forms **/
+		Limbo("form.record.filter.limbo", new String[] {FormRecord.STATUS_LIMBO}, false);
 		
 		FormRecordFilter(String message, String[] statuses) {this(message, statuses, true);}
 		FormRecordFilter(String message, String[] statuses, boolean visible) {this.message = message; this.statuses = statuses; this.visible = visible;}
@@ -164,6 +179,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 						adapter.setFormFilter(FormRecordFilter.values()[index]);
 						adapter.resetRecords();
 						adapter.notifyDataSetChanged();
+						invalidateOptionsMenu();
 					}
 
 					@Override
@@ -254,8 +270,16 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         IncompleteFormRecordView ifrv = (IncompleteFormRecordView)adapter.getView(info.position, null, null);
         menu.setHeaderTitle(ifrv.mPrimaryTextView.getText() + " (" + ifrv.mRightTextView.getText() + ")");
         
+        FormRecord value = (FormRecord)adapter.getItem(info.position);
+        
         menu.add(Menu.NONE, OPEN_RECORD, OPEN_RECORD, Localization.get("app.workflow.forms.open"));
-        menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));        
+        menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
+
+        if(FormRecord.STATUS_LIMBO.equals(value.getStatus())) {
+        	menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD, Localization.get("app.workflow.forms.restore"));
+        }
+        
+        menu.add(Menu.NONE, SCAN_RECORD, SCAN_RECORD, Localization.get("app.workflow.forms.scan"));
     }
     
     @Override
@@ -269,6 +293,21 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 	      case DELETE_RECORD:
 	    	  FormRecordCleanupTask.wipeRecord(this, CommCareApplication._().getUserStorage(FormRecord.class).read((int)info.id));
 	    	  listView.post(new Runnable() { public void run() {adapter.notifyDataSetInvalidated();}});
+	      case RESTORE_RECORD:
+	          FormRecord record = (FormRecord)adapter.getItem(info.position);
+	          try {
+				new FormRecordProcessor(this).updateRecordStatus(record, FormRecord.STATUS_UNSENT);
+				adapter.resetRecords();
+				adapter.notifyDataSetChanged();
+				return true;
+			} catch (StorageFullException e) {} 
+	          catch (IOException e) {
+				Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "error restoring quarantined record: " + e.getMessage());
+			}
+	      case SCAN_RECORD:
+	    	  FormRecord theRecord = (FormRecord)adapter.getItem(info.position);
+	    	  Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
+	    	  createFormRecordScanResultDialog(result);
 	      }
 	      
 	      return true;
@@ -278,7 +317,27 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     	}
     }
 
-    @Override
+    private void createFormRecordScanResultDialog(Pair<Boolean, String> result) {
+        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
+        mAlertDialog.setIcon(result.first ? R.drawable.checkmark : R.drawable.redx);
+        mAlertDialog.setTitle(result.first ? Localization.get("app.workflow.forms.scan.title.valid") : Localization.get("app.workflow.forms.scan.title.invalid"));
+        mAlertDialog.setMessage(result.second);
+        
+        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON1:
+                    	break;
+                }
+            }
+        };
+        mAlertDialog.setCancelable(false);
+        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
+        mAlertDialog.show();
+	}
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
         if(!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
@@ -289,10 +348,26 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     		if(!(source == null || source.equals(""))) {
     			menu.add(0, DOWNLOAD_FORMS, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
     		}
+            menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
 	        return true;
         }
         return parent;
     }
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
+		if(quarantine != null) {
+			if(FormRecordFilter.Limbo.equals(adapter.getFilter())) {
+				quarantine.setVisible(true);
+			} else { 
+				quarantine.setVisible(false);
+			}
+		}
+		return menu.hasVisibleItems();
+	}
+	
 
     TextToSpeech mTts;
 
@@ -375,13 +450,28 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             	pull.connect(this);
             	pull.execute();
                 return true;
+                
+            case MENU_SUBMIT_QUARANTINE_REPORT:
+            	generateQuarantineReport();
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
     
     
-    
-    @Override
+    private void generateQuarantineReport() {
+    	FormRecordProcessor processor = new FormRecordProcessor(this);
+    	Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Beginning form Quarantine report");
+		for(int i = 0 ; i < adapter.getCount() ; ++i) {
+			FormRecord r = (FormRecord)adapter.getItem(i);
+			Pair<Boolean, String> integrity = processor.verifyFormRecordIntegrity(r);
+			String passfail = integrity.first ? "PASS:": "FAIL:";
+			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,passfail + integrity.second);
+		}
+		CommCareUtil.triggerLogSubmission(this);
+	}
+
+	@Override
     protected void onDestroy() {
     	super.onDestroy();
     	adapter.release();
