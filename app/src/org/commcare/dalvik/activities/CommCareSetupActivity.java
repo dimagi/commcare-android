@@ -83,11 +83,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	public static final int MODE_BASIC = Menu.FIRST;
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
+	public static final int MODE_ARCHIVE = Menu.FIRST + 2;
 	
 	public static final int DIALOG_INSTALL_PROGRESS = 0;
 	
 	public static final int BARCODE_CAPTURE = 1;
 	public static final int MISSING_MEDIA_ACTIVITY=2;
+	public static final int ARCHIVE_INSTALL = 3;
 	
 	public static final int RETRY_LIMIT = 20;
 	
@@ -130,6 +132,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     int previousUrlPosition=0;
 	 
 	boolean partialMode = false;
+	String mGUID;
 	
 	CommCareApp ccApp;
 	
@@ -387,6 +390,25 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				this.refreshView();
 			}
 		}
+		if(requestCode == ARCHIVE_INSTALL){
+			if(resultCode == Activity.RESULT_CANCELED) {
+				//Basically nothing
+			} else if(resultCode == Activity.RESULT_OK) {
+    			String result = data.getStringExtra("archive-ref");
+    			mGUID = data.getStringExtra("mm-ref");
+				incomingRef = result;
+				//Definitely have a URI now.
+				try{
+					ReferenceManager._().DeriveReference(incomingRef);
+				}
+				catch(InvalidReferenceException ire){
+					this.setModeToBasic(Localization.get("install.bad.ref"));
+					return;
+				}
+				setUiState(UiState.ready);
+				this.refreshView();
+			}
+		}
 	}
 	
 	private String getRef(){
@@ -422,9 +444,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			return ccApp;
 		}
 		else{
-			ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
-			app = new CommCareApp(newRecord);
-			return app;
+			if(mGUID == null){
+				ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
+				app = new CommCareApp(newRecord);
+				return app;
+			} else{
+				ApplicationRecord newRecord = new ApplicationRecord(mGUID, ApplicationRecord.STATUS_UNINITIALIZED);
+				app = new CommCareApp(newRecord);
+				return app;
+			}
 		}
 	}
 
@@ -508,6 +536,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
     	menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
     	menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
+    	menu.add(0, MODE_ARCHIVE, 0, "Archive").setIcon(android.R.drawable.ic_menu_upload);
         return true;
     }
     
@@ -612,7 +641,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         case MODE_ADVANCED:
         	setUiState(UiState.advanced);
             break;
-        }
+    	case MODE_ARCHIVE:
+  	       Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
+  	       startActivityForResult(i, ARCHIVE_INSTALL);
+  	       break;
+    	}
         
         refreshView();
         return true;

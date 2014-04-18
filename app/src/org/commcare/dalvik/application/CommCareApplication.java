@@ -27,7 +27,6 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
-import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.FormRecord;
@@ -40,6 +39,7 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationClearReceiver;
 import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.storage.framework.Table;
@@ -52,6 +52,7 @@ import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.InstallArchiveActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -67,6 +68,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -120,6 +122,8 @@ public class CommCareApplication extends Application {
 	
 	private CommCareApp currentApp;
 	
+	private String archiveUUID;
+	
 	private AndroidSessionWrapper sessionWrapper;
 	
 	/** Generalize **/
@@ -134,6 +138,8 @@ public class CommCareApplication extends Application {
 		super.onCreate();
 		
 		CommCareApplication.app = this;
+		
+		archiveUUID = PropertyUtils.genUUID().replace("-","");
 		
 		//TODO: Make this robust
 		PreInitLogger pil = new PreInitLogger();
@@ -331,11 +337,15 @@ public class CommCareApplication extends Application {
 		JavaHttpRoot http = new JavaHttpRoot();
 		
 		AssetFileRoot afr = new AssetFileRoot(this);
-
+		
+		ArchiveFileRoot arfr = new ArchiveFileRoot(InstallArchiveActivity.getFolderName());
+		
 		ReferenceManager._().addReferenceFactory(http);
 		ReferenceManager._().addReferenceFactory(afr);
+		ReferenceManager._().addReferenceFactory(arfr);
 		//ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",GlobalConstants.MEDIA_REF));
+		//ReferenceManager._().addRootTranslator(new RootTranslator("jr://archive/",GlobalConstants.ARCHIVE_REF));
 	}
 	
 	private int initializeAppResources() {
@@ -1069,5 +1079,9 @@ public class CommCareApplication extends Application {
 
 	public String getAndroidFsRoot() {
 		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/files/";
+	}
+	
+	public String getArchiveUUID(){
+		return this.archiveUUID;
 	}
 }

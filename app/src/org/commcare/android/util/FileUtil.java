@@ -255,6 +255,7 @@ public class FileUtil {
 				for(File oldFile : oldFolder.listFiles()) {
 					File newFile = new File(newFolder.getPath() + File.separator + oldFile.getName());
 					if(oldFile.isDirectory()) {
+						System.out.println("444 recurse: " + oldFile + " to " + newFile);
 						copyFileDeep(oldFile, newFile);
 					} else {
 						FileUtil.copyFile(oldFile, newFile);

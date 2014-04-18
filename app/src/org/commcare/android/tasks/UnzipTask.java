@@ -52,7 +52,7 @@ import android.widget.TextView;
  * @author ctsims
  *
  */
-public abstract class UnzipTask extends CommCareTask<String, String, Integer, CommCareWiFiDirectActivity> {
+public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer, R> {
 		
 		public static final int UNZIP_TASK_ID = 7212435;
 		
@@ -146,6 +146,7 @@ public abstract class UnzipTask extends CommCareTask<String, String, Integer, Co
             
             Log.d(CommCareWiFiDirectActivity.TAG, "Exited Loop");
             Logger.log(CommCareWiFiDirectActivity.TAG, "Successfully unzipped files");
+            
 			return count;
 		}
 }

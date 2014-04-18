@@ -100,7 +100,18 @@
                 <data android:pathPattern=".*\\.ccpr" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.InstallArchiveActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:pathPattern=".*\\.cczf" />
+                <data android:host="*" />
+            </intent-filter>
+        </activity>
         <!-- Enable Shortcuts for Command Actions -->
         <activity
             android:name=".application.AndroidShortcuts"
@@ -206,22 +217,39 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.commcare.dalvik.activities.CommCareSetupActivity" />
         </activity>
-        <activity android:name=".activities.CommCareVerificationActivity" android:windowSoftInputMode="adjustResize"></activity>
-        <activity android:theme="@style/Theme.Transparent" android:name=".activities.UnrecoverableErrorActivity"></activity>
-        <activity android:name=".activities.KeyAccessRequestActivity"><intent-filter>
+        <activity
+            android:name=".activities.CommCareVerificationActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name=".activities.UnrecoverableErrorActivity"
+            android:theme="@style/Theme.Transparent" >
+        </activity>
+        <activity android:name=".activities.KeyAccessRequestActivity" >
+            <intent-filter>
                 <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <receiver android:name="org.commcare.android.api.ExternalApiReceiver">
-            <intent-filter><action android:name="org.commcare.dalvik.api.action.ExternalAction" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
+
+        <receiver android:name="org.commcare.android.api.ExternalApiReceiver" >
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.api.action.ExternalAction" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </receiver>
-        <activity android:name=".activities.MultimediaInflaterActivity"></activity>
-        <activity android:name=".activities.CommCareFormDumpActivity"></activity>
-        <activity android:name=".activities.CommCareWiFiDirectActivity"></activity>
+
+        <activity android:name=".activities.MultimediaInflaterActivity" >
+        </activity>
+        <activity android:name=".activities.CommCareFormDumpActivity" >
         <activity android:name=".activities.ConnectionDiagnosticActivity"></activity>
-        <activity android:name=".activities.RecoveryActivity"></activity>
+        </activity>
+        <activity android:name=".activities.CommCareWiFiDirectActivity" >
+        </activity>
+        <activity android:name=".activities.RecoveryActivity" >
+        </activity>
     </application>
 
     <uses-feature
@@ -242,7 +270,7 @@
         android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.INTERNET" />	
+        android:name="android.permission.INTERNET" />
     <uses-permission
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -250,16 +278,14 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-	<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="14" >

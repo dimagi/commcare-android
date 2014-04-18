@@ -284,15 +284,11 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 		File baseDirectory = new File(CommCareWiFiDirectActivity.baseDirectory);
 		File sourceDirectory = new File(CommCareWiFiDirectActivity.sourceDirectory);
 		
-		System.out.println("827 doing wifi direct task with baseDirectory: " + baseDirectory);
-		
 		if(baseDirectory.exists() && baseDirectory.isDirectory()){
 			baseDirectory.delete();
 		}
 		
 		baseDirectory.mkdirs();
-		
-		System.out.println("827 doing wifi direct task with targetDirectory: " + sourceDirectory);
 		
 		sourceDirectory.mkdirs();
 		
