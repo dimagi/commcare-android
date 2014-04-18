@@ -122,8 +122,6 @@ public class CommCareApplication extends Application {
 	
 	private CommCareApp currentApp;
 	
-	private String archiveUUID;
-	
 	private AndroidSessionWrapper sessionWrapper;
 	
 	/** Generalize **/
@@ -132,14 +130,14 @@ public class CommCareApplication extends Application {
 	
 	//Kind of an odd way to do this
 	boolean updatePending = false;
+	
+	private ArchiveFileRoot mArchiveFileRoot;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		
 		CommCareApplication.app = this;
-		
-		archiveUUID = PropertyUtils.genUUID().replace("-","");
 		
 		//TODO: Make this robust
 		PreInitLogger pil = new PreInitLogger();
@@ -338,7 +336,9 @@ public class CommCareApplication extends Application {
 		
 		AssetFileRoot afr = new AssetFileRoot(this);
 		
-		ArchiveFileRoot arfr = new ArchiveFileRoot(InstallArchiveActivity.getFolderName());
+		ArchiveFileRoot arfr = new ArchiveFileRoot();
+		
+		mArchiveFileRoot = arfr;
 		
 		ReferenceManager._().addReferenceFactory(http);
 		ReferenceManager._().addReferenceFactory(afr);
@@ -1081,7 +1081,7 @@ public class CommCareApplication extends Application {
 		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/files/";
 	}
 	
-	public String getArchiveUUID(){
-		return this.archiveUUID;
+	public ArchiveFileRoot getArchiveFileRoot(){
+		return mArchiveFileRoot;
 	}
 }

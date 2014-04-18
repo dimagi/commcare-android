@@ -10,6 +10,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.tasks.MultimediaInflaterTask;
 import org.commcare.android.tasks.UnzipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
@@ -17,8 +18,12 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.reference.ReferenceFactory;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
+import org.odk.collect.android.logic.FileReferenceFactory;
+import org.odk.collect.android.utilities.FileUtils;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -26,6 +31,7 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -62,13 +68,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	ImageButton btnFetchFiles;
 
 	@UiElement(value = R.id.screen_multimedia_inflater_install, locale="archive.install.button")
-	Button btnInstallMultimedia;
+	Button btnInstallArchive;
 
 	boolean done = false;
 
 	public static String TAG = "install-archive";
 
 	private String currentRef;
+	private String targetDirectory;
 	private String mGUID;
 
 	/* (non-Javadoc)
@@ -106,7 +113,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		});
 
 
-		btnInstallMultimedia.setOnClickListener(new OnClickListener() {
+		btnInstallArchive.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
@@ -153,82 +160,42 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		File mFile = new File(currentRef);
 		File parent = mFile.getParentFile();
 		//String fn = parent.toString() + "/" + ARCHIVE_UNZIP_LOCATION;
-		String writeDir = getFolderGUIDName();
-		FileUtil.deleteFileOrDir(writeDir);
+		String targetDirectory = getTargetFolder();;
+		FileUtil.deleteFileOrDir(targetDirectory);
 
 		mUnzipTask.connect(InstallArchiveActivity.this);
-		Log.d(TAG, "executing task with: " + writeDir + " , " + readDir);
-		mUnzipTask.execute(readDir, writeDir);
+		Log.d(TAG, "executing task with: " + targetDirectory + " , " + readDir);
+		mUnzipTask.execute(readDir, targetDirectory);
 
 	}
 
 	protected void onUnzipSuccessful(Integer result) {
-
-		mGUID = PropertyUtils.genUUID().replace("-","");
-		ApplicationRecord newRecord = new ApplicationRecord(mGUID, ApplicationRecord.STATUS_UNINITIALIZED);
-		CommCareApp app = new CommCareApp(newRecord);
-		
-		System.out.println("4814 mGUID is: " + mGUID);
 
 		int lastIndex = currentRef.lastIndexOf("/");
 		int dotIndex = currentRef.lastIndexOf(".");
 
 		String fileNameString = currentRef.substring(lastIndex, dotIndex);
 
-		String myRef = getFolderGUIDName();
+		String fileDestination = getTargetFolder();
+		
+        ArchiveFileRoot afr = CommCareApplication._().getArchiveFileRoot();
+        String mGUID = afr.addArchiveFile(fileDestination);
 
-		File mFile = new File(myRef+"/"+fileNameString);
+		File mFile = new File(fileDestination+"/"+fileNameString);
+		
+		//need to copy evetything down a level to get the correct structure
 
 		try {
-			System.out.println("4814 trying copy deep: " + mFile.getAbsolutePath() + ", : " + myRef);
-			FileUtil.copyFileDeep(mFile, new File(myRef));
+			FileUtil.copyFileDeep(mFile, new File(fileDestination));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
-		File multimediaZip = new File(myRef + "/commcare.zip");
-		System.out.println("4814 multi zip ref is: "  + multimediaZip.getAbsolutePath());
-		if(multimediaZip.exists()){
-			System.out.println("4814 zip exists!");
-			MultimediaInflaterTask<InstallArchiveActivity> mInflaterTask = new MultimediaInflaterTask<InstallArchiveActivity>(){
-
-				@Override
-				protected void deliverResult( InstallArchiveActivity receiver, Boolean result) {
-					if(result == Boolean.TRUE){
-						receiver.done = true;
-						receiver.setResult(Activity.RESULT_OK);
-						receiver.finish();
-						return;
-					} else {
-						//assume that we've already set the error message, but make it look scary
-						receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-					}
-				}
-
-				@Override
-				protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
-					receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
-					receiver.txtInteractiveMessages.setText(update[0]);
-				}
-
-				@Override
-				protected void deliverError(InstallArchiveActivity receiver, Exception e) {
-					receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
-					receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-				}
-
-			};
-			mInflaterTask.connect(InstallArchiveActivity.this);
-			System.out.println("4814 multi storage root is: "  + app.storageRoot());
-			mInflaterTask.execute(myRef + "/commcare.zip", app.storageRoot());
-		}
-
-		String ref = "jr://archive/" + CommCareApplication._().getArchiveUUID() + "/profile.xml";
+		String ref = "jr://archive/" + mGUID + "/profile.xml";
 
 		Intent i = new Intent(getIntent());
 		i.putExtra("archive-ref", ref);
-		i.putExtra("mm-ref", mGUID);
 		setResult(RESULT_OK, i);
 		finish();
 
@@ -308,7 +275,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		if(done) {
 			txtInteractiveMessages.setText(Localization.get("archive.install.state.done"));
 			this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
-			btnInstallMultimedia.setEnabled(false);
+			btnInstallArchive.setEnabled(false);
 			return;
 		}
 
@@ -316,21 +283,21 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		if("".equals(location)) {
 			txtInteractiveMessages.setText(Localization.get("archive.install.state.empty"));
 			this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
-			btnInstallMultimedia.setEnabled(false);
+			btnInstallArchive.setEnabled(false);
 			return;
 		}
 
 		if(!(new File(location)).exists()) {
 			txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
 			this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-			btnInstallMultimedia.setEnabled(false);
+			btnInstallArchive.setEnabled(false);
 			return;
 		}
 
 		else {
 			txtInteractiveMessages.setText(Localization.get("archive.install.state.ready"));
 			this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
-			btnInstallMultimedia.setEnabled(true);
+			btnInstallArchive.setEnabled(true);
 			return;
 		}
 	}
@@ -344,12 +311,12 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 	}
 
-	public static String getFolderName(){
-		return CommCareApplication._().getAndroidFsRoot() + "app/";
-	}
-
-	public static String getFolderGUIDName(){
-		return CommCareApplication._().getAndroidFsRoot() + "app/"+CommCareApplication._().getArchiveUUID();
+	public String getTargetFolder(){
+		if(targetDirectory != null){
+			return targetDirectory;
+		}
+		targetDirectory = CommCareApplication._().getAndroidFsRoot() + "app/"+PropertyUtils.genUUID();
+		return targetDirectory;
 	}
 
 }
