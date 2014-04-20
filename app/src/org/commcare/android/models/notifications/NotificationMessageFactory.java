@@ -59,7 +59,7 @@ public class NotificationMessageFactory {
 		
 		/** Your case fitler does not match the data type **/
 		Bad_Case_Filter("notification.case.filter"),
-
+		
 		/**Bad SSL Certificate **/
 		BadSSLCertificate("notification.bad.certificate");
 	
