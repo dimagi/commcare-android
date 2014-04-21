@@ -35,6 +35,7 @@ updates.resources.profile=Locating application...
 
 menu.basic=Basic Mode
 menu.advanced=Advanced Mode
+menu.archive=Offline Mode
 
 profile.found=Application found. ${0} resources loaded, of ${1} total
 

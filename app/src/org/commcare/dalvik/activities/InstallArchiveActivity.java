@@ -6,24 +6,17 @@ package org.commcare.dalvik.activities;
 import java.io.File;
 import java.io.IOException;
 
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.references.ArchiveFileRoot;
-import org.commcare.android.tasks.MultimediaInflaterTask;
 import org.commcare.android.tasks.UnzipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.reference.ReferenceFactory;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
-import org.odk.collect.android.logic.FileReferenceFactory;
-import org.odk.collect.android.utilities.FileUtils;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -31,7 +24,6 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -255,14 +247,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	@Override
 	protected Dialog onCreateDialog(int id) {
 
-		if(id == CommCareTask.GENERIC_TASK_ID) {
-			ProgressDialog progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle(Localization.get("mult.install.title"));
-			progressDialog.setMessage(Localization.get("mult.install.progress", new String[] {"0"}));
-			return progressDialog;
-		}
-
-		else if(id == UnzipTask.UNZIP_TASK_ID) {
+		if(id == UnzipTask.UNZIP_TASK_ID) {
 			ProgressDialog progressDialog = new ProgressDialog(this);
 			progressDialog.setTitle("Unzipping Files");
 			progressDialog.setMessage("Unzipping...");

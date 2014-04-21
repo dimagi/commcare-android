@@ -15,17 +15,19 @@ import java.util.zip.ZipFile;
 import org.javarosa.core.reference.Reference;
 
 /**
- * @author ctsims
+ * @author wspride
  *
  */
 public class ArchiveFileReference implements Reference {
 
+	String GUID;
 	String archiveURI;
 	String localroot;
 
-	public ArchiveFileReference(String localroot, String archiveURI) {
+	public ArchiveFileReference(String localroot, String GUID, String archiveURI) {
 		this.archiveURI = archiveURI;
 		this.localroot = localroot;
+		this.GUID = GUID;
 	}
 
 	public boolean doesBinaryExist() throws IOException {
@@ -47,7 +49,7 @@ public class ArchiveFileReference implements Reference {
 	}
 
 	public String getURI() {
-		return "jr://archive/" + archiveURI;
+		return "jr://archive/" + GUID + "/" + archiveURI;
 	}
 
 	public boolean isReadOnly() {

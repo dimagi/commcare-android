@@ -536,7 +536,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
     	menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
     	menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
-    	menu.add(0, MODE_ARCHIVE, 0, "Archive").setIcon(android.R.drawable.ic_menu_upload);
+    	menu.add(0, MODE_ARCHIVE, 0, "menu.archive").setIcon(android.R.drawable.ic_menu_upload);
         return true;
     }
     

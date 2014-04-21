@@ -13,7 +13,7 @@ import org.javarosa.core.util.PropertyUtils;
 
 
 /**
- * @author ctsims
+ * @author wspride
  *
  */
 public class ArchiveFileRoot implements ReferenceFactory {
@@ -28,8 +28,7 @@ public class ArchiveFileRoot implements ReferenceFactory {
 	}
 	
 	public Reference derive(String guidPath) throws InvalidReferenceException {
-		System.out.println("418 deriving reference: " + guidToFolderMap.get(getGUID(guidPath)) + ", path: " + getPath(guidPath) + ", guid path: " + guidPath);
-		return new ArchiveFileReference(guidToFolderMap.get(getGUID(guidPath)), getPath(guidPath));
+		return new ArchiveFileReference(guidToFolderMap.get(getGUID(guidPath)),getGUID(guidPath), getPath(guidPath));
 	}
 
 	public Reference derive(String URI, String context) throws InvalidReferenceException {
@@ -44,20 +43,16 @@ public class ArchiveFileRoot implements ReferenceFactory {
 	}
 	
 	public String addArchiveFile(String filepath){
-		System.out.println("418 adding filepath: " + filepath);
 		String mGUID = PropertyUtils.genGUID(guidLength);
 		guidToFolderMap.put(mGUID, filepath);
-		System.out.println("418 returning guid: " + mGUID);
 		return mGUID;
 	}
 	
 	public String getGUID(String jrpath){
-		System.out.println("418 getting guid from path: " + jrpath + " derived: " + jrpath.substring(jrLength, jrLength+10));
 		return jrpath.substring(jrLength, jrLength+10);
 	}
 	
 	public String getPath(String jrpath){
-		System.out.println("418 getting path from jrpath: " + jrpath + " dervied " + jrpath.substring(jrLength+10));
 		return jrpath.substring(jrLength+10);
 	}
 }
