@@ -389,3 +389,6 @@ verification.fail.message=Some of your application's multimedia has not been ins
 
 wifi.direct.base.folder=wifidirect
 wifi.direct.submit.missing=The folder ${0} you are trying to submit does not exist. Please verify that this file is where it should be. 
+
+notification.case.predicate.title=List failed to load
+notification.case.predicate.action=Filtering your list failed with a bad filter expression. Please fix this and re-deploy your app. Error was ${0}.

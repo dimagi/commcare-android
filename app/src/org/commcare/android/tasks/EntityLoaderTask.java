@@ -8,9 +8,14 @@ import java.util.List;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathMissingInstanceException;
 
 import android.os.AsyncTask;
 import android.util.Pair;
@@ -27,6 +32,7 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 	NodeEntityFactory factory;
 	EvaluationContext ec;
 	EntityLoaderListener listener;
+	Exception mException = null;
 	
 	private long waitingTime; 
 
@@ -63,9 +69,19 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 			synchronized(pending) {
 				//If our listener is still live, we can deliver our result
 				if(listener != null) {
+					
+					//zero this out to free up reference. this is used as an indicator below to determine if work still needs to be done
+					this.pending[0] = null;
+					
+					// if we have encountered an exception, deliver it and return
+					if(mException != null){
+						listener.deliverError(mException);
+						return;
+					}
+					
 					//pass those params
 					listener.deliverResult(result.first, result.second);
-					this.pending[0] = null;
+					
 					return;
 				}
 				
@@ -90,6 +106,8 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 
 	@Override
 	protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
+
+		try{
 		List<TreeReference> references = ec.expandReference(nodeset[0]);
 		
 		List<Entity<TreeReference>> full = new ArrayList<Entity<TreeReference>>(); 
@@ -104,6 +122,13 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
 		}
 		
 		return new Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references);
+		
+		} catch (XPathException xe){
+			XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
+			me.setSource(xe.getSource());
+			mException = me;
+			return null;
+		}
 	}
 
 	/**
