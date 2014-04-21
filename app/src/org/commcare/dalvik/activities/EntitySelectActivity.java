@@ -13,6 +13,8 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
@@ -690,5 +692,25 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	    ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
 	}
 
-
+	@Override
+	public void deliverError(Exception e) {
+        String mErrorMessage = e.getMessage();
+        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
+        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
+        mAlertDialog.setTitle(Localization.get("notification.case.predicate.title"));
+        mAlertDialog.setMessage(Localization.get("notification.case.predicate.action", new String[] {mErrorMessage}));
+        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON1:
+                    	finish();
+                    	break;
+                }
+            }
+        };
+        mAlertDialog.setCancelable(false);
+        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
+        mAlertDialog.show();
+	}
 }
