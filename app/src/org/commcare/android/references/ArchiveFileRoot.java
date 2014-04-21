@@ -49,10 +49,14 @@ public class ArchiveFileRoot implements ReferenceFactory {
 	}
 	
 	public String getGUID(String jrpath){
-		return jrpath.substring(jrLength, jrLength+10);
+		String prependRemoved = jrpath.substring("jr://archive/".length());
+		int slashindex = prependRemoved.indexOf("/");
+		return prependRemoved.substring(0, slashindex);
 	}
 	
 	public String getPath(String jrpath){
-		return jrpath.substring(jrLength+10);
+		String mGUID = getGUID(jrpath);
+		int mIndex = jrpath.indexOf(mGUID);
+		return jrpath.substring(mIndex + mGUID.length());
 	}
 }

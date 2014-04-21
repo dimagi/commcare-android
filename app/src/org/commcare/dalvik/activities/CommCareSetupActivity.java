@@ -152,9 +152,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				
 				//We got called from an outside application, it's gonna be a wild ride!
 				incomingRef = this.getIntent().getData().toString();
+				
+				if(incomingRef.contains(".ccz")){
+					incomingRef = incomingRef.substring(incomingRef.indexOf("/storage/"));
+			  	    Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
+			  	    i.putExtra("archive-ref", incomingRef);
+			  	    startActivityForResult(i, ARCHIVE_INSTALL);
+				}
+				
+				
 				this.uiState=uiState.ready;
 				//Now just start up normally.
-			}else{
+			} else{
 				
 				incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
 				
@@ -460,7 +469,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		this.startResourceInstall(true);
 	}
 	
-	
 	/* (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask()
 	 */
@@ -536,7 +544,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
     	menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
     	menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
-    	menu.add(0, MODE_ARCHIVE, 0, "menu.archive").setIcon(android.R.drawable.ic_menu_upload);
+    	menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         return true;
     }
     

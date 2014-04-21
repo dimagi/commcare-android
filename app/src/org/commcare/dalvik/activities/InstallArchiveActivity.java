@@ -6,6 +6,7 @@ package org.commcare.dalvik.activities;
 import java.io.File;
 import java.io.IOException;
 
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -24,6 +25,7 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,9 +42,6 @@ import android.widget.Toast;
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> {
-
-	private static final String LOG_TAG = "CommCare-ArchiveInstaller";
-
 	private static final int REQUEST_FILE_LOCATION = 1;
 
 	public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
@@ -68,7 +67,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 	private String currentRef;
 	private String targetDirectory;
-	private String mGUID;
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -77,16 +75,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
-
-			//We got called from an outside application, it's gonna be a wild ride!
-			currentRef = this.getIntent().getData().toString();
-
-			//remove file:/// prepend
-			currentRef = currentRef.substring(currentRef.indexOf("/storage/"));
-
+		if(this.getIntent().hasExtra("archive-ref")) {
+			currentRef = this.getIntent().getStringExtra("archive-ref");
 			editFileLocation.setText(currentRef);
-
+			InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
 		}
 
 		btnFetchFiles.setOnClickListener(new OnClickListener() {
@@ -300,7 +292,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		if(targetDirectory != null){
 			return targetDirectory;
 		}
-		targetDirectory = CommCareApplication._().getAndroidFsRoot() + "app/"+PropertyUtils.genUUID();
+		targetDirectory = Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/files/app/"+PropertyUtils.genUUID();
 		return targetDirectory;
 	}
 

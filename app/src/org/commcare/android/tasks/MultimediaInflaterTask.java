@@ -30,7 +30,6 @@ public abstract class MultimediaInflaterTask<R> extends CommCareTask<String, Str
 			return false;
 		}
         for (Enumeration e = zipfile.entries(); e.hasMoreElements();) {
-        	Localization.get("mult.install.progress", new String[] {String.valueOf(count)});
         	count++;
             ZipEntry entry = (ZipEntry) e.nextElement();
             

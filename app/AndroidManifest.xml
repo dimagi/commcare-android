@@ -91,7 +91,7 @@
                 <data android:pathPattern=".*\\.ccpr" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.DEFAULT" />
 
@@ -99,18 +99,19 @@
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.ccpr" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.InstallArchiveActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="file" />
-                <data android:pathPattern=".*\\.cczf" />
-                <data android:host="*" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.ccz"
+                    android:scheme="content" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.ccz"
+                    android:scheme="file" />
             </intent-filter>
+
         </activity>
         <!-- Enable Shortcuts for Command Actions -->
         <activity
@@ -188,6 +189,10 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
+            android:name="org.commcare.dalvik.activities.InstallArchiveActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
             android:name="org.odk.collect.android.views.FullScreenImage"
             android:windowSoftInputMode="adjustResize" >
         </activity>
@@ -243,9 +248,8 @@
 
         <activity android:name=".activities.MultimediaInflaterActivity" >
         </activity>
-        <activity android:name=".activities.CommCareFormDumpActivity" >
+        <activity android:name=".activities.CommCareFormDumpActivity" ></activity>
         <activity android:name=".activities.ConnectionDiagnosticActivity"></activity>
-        </activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity" >
         </activity>
         <activity android:name=".activities.RecoveryActivity" >

@@ -343,9 +343,7 @@ public class CommCareApplication extends Application {
 		ReferenceManager._().addReferenceFactory(http);
 		ReferenceManager._().addReferenceFactory(afr);
 		ReferenceManager._().addReferenceFactory(arfr);
-		//ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource/",GlobalConstants.RESOURCE_PATH));
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",GlobalConstants.MEDIA_REF));
-		//ReferenceManager._().addRootTranslator(new RootTranslator("jr://archive/",GlobalConstants.ARCHIVE_REF));
 	}
 	
 	private int initializeAppResources() {
