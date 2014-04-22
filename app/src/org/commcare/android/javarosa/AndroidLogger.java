@@ -35,6 +35,9 @@ public class AndroidLogger implements ILogger {
 	/** Some invariant application assumption has been violated */
 	public static final String TYPE_ERROR_WORKFLOW = "error-workflow";
 	
+	/** There is a problem with the underlying storage layer which is preventing the app from working correctly */
+	public static final String TYPE_ERROR_STORAGE = "error-storage";
+	
 	/** One of the config files (suite, profile, xform, locale, etc) contains something
 	 * which is invalid and prevented the app from working properly */
 	public static final String TYPE_ERROR_CONFIG_STRUCTURE = "error-config";

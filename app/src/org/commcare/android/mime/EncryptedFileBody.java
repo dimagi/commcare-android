@@ -15,6 +15,8 @@ import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.james.mime4j.message.Entity;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.io.StreamsUtil.InputIOException;
+import org.javarosa.core.io.StreamsUtil.OutputIOException;
 
 
 /**
@@ -53,8 +55,20 @@ public class EncryptedFileBody extends AbstractContentBody {
 
 	@Override
 	public void writeTo(OutputStream out) throws IOException {
+		//The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since
+		//it'll get caught when we initialize.
 		CipherInputStream cis = new CipherInputStream(new FileInputStream(file), cipher);
-		StreamsUtil.writeFromInputToOutput(cis, out);
+		
+		try {
+			StreamsUtil.writeFromInputToOutputSpecific(cis, out);
+		} catch(InputIOException iioe) {
+			//Here we want to retain the fundamental problem of the _input_ being responsible for the issue
+			//so we can differentiate between bad reads and bad network
+			throw iioe;
+		} catch(OutputIOException oe) {
+			//We want the original exception here.
+			throw oe.getWrapped();
+		}
 		cis.close();
 	}
 

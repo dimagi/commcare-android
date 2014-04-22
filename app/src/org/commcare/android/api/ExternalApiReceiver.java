@@ -23,6 +23,7 @@ import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -150,11 +151,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
 				@Override
 				protected void deliverResult(Object receiver, Integer result) {
-            		if(result == ProcessAndSendTask.FULL_SUCCESS) {
+            		if(result == FormUploadUtil.FULL_SUCCESS) {
             			//OK, all forms sent, sync time 
             			syncData(context);
             			
-            		} else if(result == ProcessAndSendTask.FAILURE) {
+            		} else if(result == FormUploadUtil.FAILURE) {
             			Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
             		} else  {
             			Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();

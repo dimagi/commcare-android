@@ -10,6 +10,7 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
@@ -95,12 +96,12 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
 						 
 						int successfulSends = this.getSuccesfulSends();
 						
-						if(result == ProcessAndSendTask.FULL_SUCCESS) {
+						if(result == FormUploadUtil.FULL_SUCCESS) {
 							receiver.displayMessage("Send succesful. All  " + successfulSends + " forms were submitted");
-						} else if(result == ProcessAndSendTask.FAILURE) {
+						} else if(result == FormUploadUtil.FAILURE) {
 							String remainder = successfulSends > 0 ? " Only " + successfulSends + " were submitted" : "";
 							receiver.displayMessage("There were errors submitting the forms." + remainder);
-						} else if(result == ProcessAndSendTask.TRANSPORT_FAILURE){
+						} else if(result == FormUploadUtil.TRANSPORT_FAILURE){
 							receiver.displayMessage("Unable to contact the remote server.");
 						} else {
 							

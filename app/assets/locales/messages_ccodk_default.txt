@@ -113,6 +113,11 @@ app.workflow.saved.heading=Saved Forms
 app.workflow.forms.open=Open
 app.workflow.forms.delete=Delete Record
 app.workflow.forms.fetch=Fetch Forms from Server
+app.workflow.forms.restore=Add Record Back to Unsent Queue
+app.workflow.forms.scan=Scan Record Integrity
+app.workflow.forms.scan.title.valid=Integrity Scan: PASS
+app.workflow.forms.scan.title.invalid=Integrity Scan: FAIL
+app.workflow.forms.quarantine.report=Submit Quarantine Report
 
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
@@ -124,6 +129,7 @@ home.logged.out=You were logged out. Please log back in to continue
 form.record.filter.subandpending=Filter By: All Completed Forms
 form.record.filter.submitted=Filter By: Only Submitted Forms
 form.record.filter.pending=Filter By: Only Unsent Forms
+form.record.filter.limbo=Filter: Quarantined Forms
 form.record.filter.incomplete=Only Incomplete Forms
 form.record.unsent=Unsent
 
@@ -378,6 +384,13 @@ notification.case.filter.action=Sorting failed because CommCare expected a numbe
 
 notification.send.malformed.title=Bad Form on SD Card
 notification.send.malformed.detail=The file ${0} on your SD card was malformed and couldn't be read. It has been removed as a precaution.
+
+notification.sending.quarantine.title=Form Record Quarantined
+notification.sending.quarantine.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
+notification.sending.quarantine.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue. 
+
+
+
 
 problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below

@@ -18,6 +18,7 @@ package org.commcare.dalvik.preferences;
 
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.ChangeLocaleUtil;
+import org.commcare.android.util.CommCareUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -136,16 +137,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
             	dialog.show();
             	return true;
             case FORCE_LOG_SUBMIT:
-        		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        		String url = settings.getString("PostURL", null);
-        		
-        		if(url == null) {
-	        		//This is mostly for dev purposes
-	        		Toast.makeText(this, "Couldn't submit logs! Invalid submission URL...", Toast.LENGTH_LONG);
-        		} else {
-	            	LogSubmissionTask reportSubmitter = new LogSubmissionTask(CommCareApplication._(), true, CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title), url);
-	            	reportSubmitter.execute();
-        		}
+            	CommCareUtil.triggerLogSubmission(this);
                 return true;
             case RECOVERY_MODE:
             	Intent i = new Intent(this,RecoveryActivity.class);

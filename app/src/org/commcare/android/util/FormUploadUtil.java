@@ -19,9 +19,12 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.io.DataSubmissionEntity;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.DataSubmissionListener;
+import org.javarosa.core.io.StreamsUtil.InputIOException;
+import org.javarosa.core.services.Logger;
 
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -29,11 +32,17 @@ import android.util.Log;
 
 public class FormUploadUtil {
 	
+	/** Everything worked great! **/
 	public static final long FULL_SUCCESS = 0;
-	public static final long PARTIAL_SUCCESS = 1;
+	
+	/** There was a problem with the server's response **/
 	public static final long FAILURE = 2;
+	
+	/** There was a problem with the transport layer during transit **/
 	public static final long TRANSPORT_FAILURE = 4;
-	public static final long PROGRESS_ALL_PROCESSED = 8;
+	
+	/** There is a problem with this record that prevented submission success **/
+	public static final long RECORD_FAILURE = 8;
 	
 	public static final long SUBMISSION_BEGIN = 16;
 	public static final long SUBMISSION_START = 32;
@@ -171,6 +180,9 @@ public class FormUploadUtil {
             	//fb = new InputStreamBody(new CipherInputStream(new FileInputStream(f), getDecryptCipher(aesKey)), "text/xml", f.getName());
             	
             	if(key != null){
+            		if(!validateSubmissionFile(f, FormUploadUtil.getDecryptCipher(key))) {
+            			return RECORD_FAILURE;
+            		}
             		fb = new EncryptedFileBody(f, FormUploadUtil.getDecryptCipher(key), "text/xml");
             	}
             	else{
@@ -226,6 +238,11 @@ public class FormUploadUtil {
         HttpResponse response = null;
         try {
         	response = generator.postData(url, entity);
+        } catch (InputIOException ioe ){
+        	//This implies that there was a problem with the _source_ of the 
+        	//transmission, not the processing or receiving end.
+        	Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Internal error reading form record during submission: " + ioe.getWrapped().getMessage());
+        	return RECORD_FAILURE;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
             return TRANSPORT_FAILURE;
@@ -247,6 +264,11 @@ public class FormUploadUtil {
         }
         int responseCode = response.getStatusLine().getStatusCode();
         Log.e(t, "Response code:" + responseCode);
+        //If this response code wasn't legit
+        if(!(responseCode >= 200 && responseCode < 300)) {
+        	//Log that so we can figure out what's up!
+        	Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Response Code: " + responseCode);
+        }
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         
         try {
@@ -259,7 +281,8 @@ public class FormUploadUtil {
 			e.printStackTrace();
 		}
         
-        System.out.println(new String(bos.toByteArray()));
+        String responseString = new String(bos.toByteArray());
+        System.out.println(responseString);
         
 
         if(responseCode >= 200 && responseCode < 300) {
@@ -267,5 +290,34 @@ public class FormUploadUtil {
         } else {
         	return FAILURE;
         }
+	}
+
+
+	/**
+	 * Validate the content body of the XML submission file.
+	 * 
+	 * TODO: this should really be the responsibility of the form record, not of the 
+	 * submission process, persay.
+	 * 
+	 * NOTE: this is a shallow validation (everything should be more or else constant time).
+	 * Throws an exception if the file is gone because that's a common issue that gets caught
+	 * to check if storage got removed 
+	 * 
+	 * @param f
+	 * @param decryptCipher
+	 * @return
+	 * @throws FileNotFoundException 
+	 */
+	public static boolean validateSubmissionFile(File f, Cipher decryptCipher) throws FileNotFoundException {
+		if(!f.exists()) {
+			throw new FileNotFoundException("Submission file: " + f.getAbsolutePath());
+		}
+		//Gotta check f exists here since f.length returns 0 if the file isn't there for some reason.
+		if(f.length() == 0 && f.exists()) {
+			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Submission body has no content at: " + f.getAbsolutePath());
+			return false;
+		}
+		
+		return true;
 	}
 }
