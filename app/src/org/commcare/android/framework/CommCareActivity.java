@@ -44,11 +44,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	protected final static String DIALOG_TEXT = "cca_dialog_text";
 	
 	StateFragment stateHolder;
+	
+	public static String KEY_FIRST_RUN = "cc-has-run";
+	private boolean firstRun = true;
 
 	@Override
 	@TargetApi(14)
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		firstRun = this.getIntent().getBooleanExtra(KEY_FIRST_RUN, false);
 		
 	    FragmentManager fm = this.getSupportFragmentManager();
 	    
@@ -166,6 +171,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    	this.setTitle(getTitle(this, getActivityTitle()));
 	    }
 	    visible = true;
+	    //set that this activity has run
+	    activityHasRun();
 	}
 	
 	/* (non-Javadoc)
@@ -381,5 +388,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 			returnValue += " > " + local;
 		}
 		return returnValue;
+	}
+	
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_FIRST_RUN, firstRun);
+    }
+	
+	public void activityHasRun(){
+		this.firstRun = false;
+	}
+	
+	public boolean isFirstRun(){
+		return this.firstRun;
 	}
 }

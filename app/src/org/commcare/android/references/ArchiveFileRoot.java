@@ -14,6 +14,9 @@ import org.javarosa.core.util.PropertyUtils;
 
 /**
  * @author wspride
+ * This class managers references between GUIDs and the associated path in the file system
+ * To register an archive file with this system call addArchiveFile(filepath) - this will return a GUID
+ * This GUID will allow you to derive files from this location using the ArchiveFileRefernece class
  *
  */
 public class ArchiveFileRoot implements ReferenceFactory {
@@ -21,8 +24,6 @@ public class ArchiveFileRoot implements ReferenceFactory {
 	private HashMap<String, String> guidToFolderMap = new HashMap<String, String>();
 	
 	private final int guidLength = 10;
-	// length of "jr://archive/"
-	private final int jrLength = 13;
 
 	public ArchiveFileRoot() {
 	}

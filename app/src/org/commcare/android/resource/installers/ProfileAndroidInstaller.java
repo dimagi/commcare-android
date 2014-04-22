@@ -56,8 +56,6 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 		try {
 		
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
-		
-			System.out.println("419 initialize prof local: " + local);
 			
 			ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null, 
 					Resource.RESOURCE_STATUS_INSTALLED, false);
@@ -89,8 +87,6 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException{
 		//First, make sure all the file stuff is managed.
 		super.install(r, location, ref, table, instance, upgrade);
-		
-		System.out.println("419 profile android installer: " + r.getDescriptor() + " location: " + location.getLocation());
 		
 		try {
 			Reference local = ReferenceManager._().DeriveReference(localLocation);

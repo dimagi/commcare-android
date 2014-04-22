@@ -16,6 +16,8 @@ import org.javarosa.core.reference.Reference;
 
 /**
  * @author wspride
+ * this class associates a GUID and relative path with a corresponding 
+ * real directory in the filesystem
  *
  */
 public class ArchiveFileReference implements Reference {

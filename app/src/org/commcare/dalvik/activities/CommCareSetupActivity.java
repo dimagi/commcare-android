@@ -132,7 +132,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     int previousUrlPosition=0;
 	 
 	boolean partialMode = false;
-	String mGUID;
 	
 	CommCareApp ccApp;
 	
@@ -154,15 +153,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				incomingRef = this.getIntent().getData().toString();
 				
 				if(incomingRef.contains(".ccz")){
-					incomingRef = incomingRef.substring(incomingRef.indexOf("/storage/"));
+					// remove file:// prepend
+					incomingRef = incomingRef.substring(incomingRef.indexOf("/")+2);
 			  	    Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
-			  	    i.putExtra("archive-ref", incomingRef);
+			  	    i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
 			  	    startActivityForResult(i, ARCHIVE_INSTALL);
 				}
-				
-				
-				this.uiState=uiState.ready;
-				//Now just start up normally.
+				else{
+					this.uiState=uiState.ready;
+					//Now just start up normally.
+				}
 			} else{
 				
 				incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
@@ -372,7 +372,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
-        
     }
 	
 	/* (non-Javadoc)
@@ -403,8 +402,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			if(resultCode == Activity.RESULT_CANCELED) {
 				//Basically nothing
 			} else if(resultCode == Activity.RESULT_OK) {
-    			String result = data.getStringExtra("archive-ref");
-    			mGUID = data.getStringExtra("mm-ref");
+    			String result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
 				incomingRef = result;
 				//Definitely have a URI now.
 				try{
@@ -453,15 +451,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			return ccApp;
 		}
 		else{
-			if(mGUID == null){
-				ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
-				app = new CommCareApp(newRecord);
-				return app;
-			} else{
-				ApplicationRecord newRecord = new ApplicationRecord(mGUID, ApplicationRecord.STATUS_UNINITIALIZED);
-				app = new CommCareApp(newRecord);
-				return app;
-			}
+			ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
+			app = new CommCareApp(newRecord);
+			return app;
 		}
 	}
 

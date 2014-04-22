@@ -64,6 +64,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	boolean done = false;
 
 	public static String TAG = "install-archive";
+	
+	public static String ARCHIVE_REFERENCE = "archive-ref";
 
 	private String currentRef;
 	private String targetDirectory;
@@ -75,14 +77,13 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if(this.getIntent().hasExtra("archive-ref")) {
-			currentRef = this.getIntent().getStringExtra("archive-ref");
+		if(this.getIntent().hasExtra(InstallArchiveActivity.ARCHIVE_REFERENCE) && !this.isFirstRun()) {
+			currentRef = this.getIntent().getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
 			editFileLocation.setText(currentRef);
 			InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
 		}
 
 		btnFetchFiles.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				//Go fetch us a file path!
@@ -95,7 +96,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 				}
 			}
 		});
-
 
 		btnInstallArchive.setOnClickListener(new OnClickListener() {
 			@Override
@@ -142,9 +142,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 		String readDir = currentRef;
 		File mFile = new File(currentRef);
-		File parent = mFile.getParentFile();
-		//String fn = parent.toString() + "/" + ARCHIVE_UNZIP_LOCATION;
-		String targetDirectory = getTargetFolder();;
+		String targetDirectory = getTargetFolder();
 		FileUtil.deleteFileOrDir(targetDirectory);
 
 		mUnzipTask.connect(InstallArchiveActivity.this);
@@ -155,31 +153,13 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 	protected void onUnzipSuccessful(Integer result) {
 
-		int lastIndex = currentRef.lastIndexOf("/");
-		int dotIndex = currentRef.lastIndexOf(".");
-
-		String fileNameString = currentRef.substring(lastIndex, dotIndex);
-
-		String fileDestination = getTargetFolder();
-		
         ArchiveFileRoot afr = CommCareApplication._().getArchiveFileRoot();
-        String mGUID = afr.addArchiveFile(fileDestination);
-
-		File mFile = new File(fileDestination+"/"+fileNameString);
-		
-		//need to copy evetything down a level to get the correct structure
-
-		try {
-			FileUtil.copyFileDeep(mFile, new File(fileDestination));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+        String mGUID = afr.addArchiveFile(getTargetFolder());
 
 		String ref = "jr://archive/" + mGUID + "/profile.xml";
 
 		Intent i = new Intent(getIntent());
-		i.putExtra("archive-ref", ref);
+		i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, ref);
 		setResult(RESULT_OK, i);
 		finish();
 
@@ -189,21 +169,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		updateProgress(CommCareTask.GENERIC_TASK_ID, Localization.get("profile.found", new String[]{""+done,""+total}));
 	}
 
-	public void reportSuccess(boolean appChanged) {
-		//If things worked, go ahead and clear out any warnings to the contrary
-		CommCareApplication._().clearNotifications("install_update");
-
-		if(!appChanged) {
-			Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
-		}
-		done(appChanged);
-	}
-
 	public void done(boolean requireRefresh) {
 		//TODO: We might have gotten here due to being called from the outside, in which
 		//case we should manually start up the home activity
 		Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
-		i.putExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, requireRefresh);
 		startActivity(i);
 		finish();
 		return;
@@ -241,8 +210,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 		if(id == UnzipTask.UNZIP_TASK_ID) {
 			ProgressDialog progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle("Unzipping Files");
-			progressDialog.setMessage("Unzipping...");
+			progressDialog.setTitle(Localization.get(("archive.install.title")));
+			progressDialog.setMessage(Localization.get("archive.install.unzip"));
 			return progressDialog;
 		}
 		return null;
