@@ -63,7 +63,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    if (stateHolder == null) {
 	    	stateHolder = new StateFragment();
 	    	fm.beginTransaction().add(stateHolder, "state").commit();
-	    }	    
+	    } else{
+	    	if(stateHolder.getPreviousState() != null){
+	    		firstRun = stateHolder.getPreviousState().isFirstRun();
+	    	} else{
+	    		firstRun = true;
+	    	}
+	    }
 		
 		if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
 			this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
@@ -82,6 +88,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		    	fm.beginTransaction().add(bar, "breadcrumbs").commit();
 		    }
 	    }
+	}
+	
+	public void fireOnceOnStart(){
+		// override when needed
 	}
 	
 	@Override
@@ -172,7 +182,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    }
 	    visible = true;
 	    //set that this activity has run
-	    activityHasRun();
+	    if(isFirstRun()){
+	    	fireOnceOnStart();
+	    	setActivityHasRun();
+	    }
 	}
 	
 	/* (non-Javadoc)
@@ -390,12 +403,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		return returnValue;
 	}
 	
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_FIRST_RUN, firstRun);
-    }
-	
-	public void activityHasRun(){
+	public void setActivityHasRun(){
 		this.firstRun = false;
 	}
 	

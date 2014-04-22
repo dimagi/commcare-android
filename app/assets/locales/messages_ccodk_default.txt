@@ -417,9 +417,5 @@ archive.install.cancelled=Offline installation cancelled
 archive.install.bad=The selected ZIP file is not valid. Please choose a valid zip file.
 archive.install.unzip=Unzipping
 
-archive.install.progress.baddest=Couldn't write application to the local filesystem at: ${0}
-archive.install.progress.badentry=There was a bad entry in the zip file: ${0}
-archive.install.progress.errormoving=There was a problem copying the application from the zip file, please try again.
-
 archive.install.prompt=Install your CommCare application from a .zip file
 archive.install.button=Install App

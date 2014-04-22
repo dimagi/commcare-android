@@ -77,12 +77,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if(this.getIntent().hasExtra(InstallArchiveActivity.ARCHIVE_REFERENCE) && !this.isFirstRun()) {
-			currentRef = this.getIntent().getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
-			editFileLocation.setText(currentRef);
-			InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
-		}
-
 		btnFetchFiles.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -106,6 +100,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			}
 
 		});
+	}
+	
+	public void fireOnceOnStart(){
+		if(this.getIntent().hasExtra(InstallArchiveActivity.ARCHIVE_REFERENCE)) {
+			currentRef = this.getIntent().getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
+			editFileLocation.setText(currentRef);
+			InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
+		}
 	}
 
 	public void createArchive(String filepath){
@@ -168,16 +170,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	public void updateProgress(int done, int total, int phase) {
 		updateProgress(CommCareTask.GENERIC_TASK_ID, Localization.get("profile.found", new String[]{""+done,""+total}));
 	}
-
-	public void done(boolean requireRefresh) {
-		//TODO: We might have gotten here due to being called from the outside, in which
-		//case we should manually start up the home activity
-		Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
-		startActivity(i);
-		finish();
-		return;
-	}
-
 
 	/*
 	 * (non-Javadoc)
@@ -261,7 +253,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		if(targetDirectory != null){
 			return targetDirectory;
 		}
-		targetDirectory = Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/files/app/"+PropertyUtils.genUUID();
+		
+		targetDirectory = CommCareApplication._().getAndroidFsRoot() + "/" + PropertyUtils.genUUID();
 		return targetDirectory;
 	}
 

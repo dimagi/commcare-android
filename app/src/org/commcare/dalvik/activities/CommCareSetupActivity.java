@@ -155,7 +155,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				if(incomingRef.contains(".ccz")){
 					// remove file:// prepend
 					incomingRef = incomingRef.substring(incomingRef.indexOf("/")+2);
-			  	    Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
+			  	    Intent i = new Intent(this, InstallArchiveActivity.class);
 			  	    i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
 			  	    startActivityForResult(i, ARCHIVE_INSTALL);
 				}
