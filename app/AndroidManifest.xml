@@ -100,16 +100,12 @@
                 <data android:pathPattern=".*\\.ccpr" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW"
+                    	android:icon="@drawable/icon" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\.ccz"
-                    android:scheme="content" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\.ccz"
-                    android:scheme="file" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.ccz" />
             </intent-filter>
 
         </activity>
