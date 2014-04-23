@@ -49,6 +49,7 @@ import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
+import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
@@ -587,6 +588,14 @@ public class CommCareApplication extends Application {
 			//(Eventually)
 			this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
 		}
+		
+		String tempRoot = this.getAndroidFsTemp();
+		FileUtil.deleteFileOrDir(tempRoot);
+		boolean success = FileUtil.createFolder(tempRoot);
+		if(!success){
+			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Couldn't create temp folder");
+		}
+		
 	}
 
 	public String getCurrentVersionString() {
@@ -1077,6 +1086,10 @@ public class CommCareApplication extends Application {
 
 	public String getAndroidFsRoot() {
 		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/files/";
+	}
+	
+	public String getAndroidFsTemp() {
+		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/temp/";
 	}
 	
 	public ArchiveFileRoot getArchiveFileRoot(){

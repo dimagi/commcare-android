@@ -104,7 +104,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	
 	public void fireOnceOnStart(){
 		if(this.getIntent().hasExtra(InstallArchiveActivity.ARCHIVE_REFERENCE)) {
-			currentRef = this.getIntent().getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
 			editFileLocation.setText(currentRef);
 			InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
 		}
@@ -158,7 +157,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         ArchiveFileRoot afr = CommCareApplication._().getArchiveFileRoot();
         String mGUID = afr.addArchiveFile(getTargetFolder());
 
-		String ref = "jr://archive/" + mGUID + "/profile.xml";
+		String ref = "jr://archive/" + mGUID + "/profile.ccpr";
 
 		Intent i = new Intent(getIntent());
 		i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, ref);
@@ -168,7 +167,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	}
 
 	public void updateProgress(int done, int total, int phase) {
-		updateProgress(CommCareTask.GENERIC_TASK_ID, Localization.get("profile.found", new String[]{""+done,""+total}));
+		updateProgress(CommCareTask.GENERIC_TASK_ID, Localization.get("archive.install.progress", new String[]{""+done,""+total}));
 	}
 
 	/*
@@ -254,7 +253,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			return targetDirectory;
 		}
 		
-		targetDirectory = CommCareApplication._().getAndroidFsRoot() + "/" + PropertyUtils.genUUID();
+		targetDirectory = CommCareApplication._().getAndroidFsTemp() + PropertyUtils.genUUID();
 		return targetDirectory;
 	}
 

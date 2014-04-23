@@ -153,11 +153,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				incomingRef = this.getIntent().getData().toString();
 				
 				if(incomingRef.contains(".ccz")){
-					// remove file:// prepend
-					incomingRef = incomingRef.substring(incomingRef.indexOf("/")+2);
-			  	    Intent i = new Intent(this, InstallArchiveActivity.class);
-			  	    i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
-			  	    startActivityForResult(i, ARCHIVE_INSTALL);
+					// make sure this is in the file system
+					boolean isFile = incomingRef.contains("file://");
+					if(isFile){
+						// remove file:// prepend
+						incomingRef = incomingRef.substring(incomingRef.indexOf("//")+2);
+						Intent i = new Intent(this, InstallArchiveActivity.class);
+						i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
+						startActivityForResult(i, ARCHIVE_INSTALL);
+					}
+					else{
+						// currently down allow other locations like http://
+						fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true, false);
+					}
 				}
 				else{
 					this.uiState=uiState.ready;

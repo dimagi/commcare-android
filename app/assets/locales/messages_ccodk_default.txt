@@ -335,6 +335,10 @@ notification.install.badreqs.title=Incompatible CommCare Version for Install
 notification.install.badreqs.detail=${0}
 notification.install.badreqs.action=${0}
 
+notification.install.badarchive.title=Archive must be in file system
+notification.install.badarchive.detail=Your .ccz archive file must be on your phone's file system
+notification.install.badarchive.action=Download this fule and place it on your phone's SD card and retry. 
+
 notification.install.unknown.title=Unknown failure during app install
 notification.install.unknown.detail=An unexpected failure happened while trying to install/upgrade your app. Please try again, and contact a supervisor if you cannot install.
 
@@ -408,7 +412,7 @@ notification.case.predicate.title=List failed to load
 notification.case.predicate.action=Filtering your list failed with a bad filter expression. Please fix this and re-deploy your app. Error was ${0}.
 
 archive.install.title=Unzipping your Application Resources
-archive.install.progress=Unzipped ${0} files...
+archive.install.progress=Unzipped ${0} out of ${1} resources
 archive.install.state.empty=Please select a ZIP file to begin
 archive.install.state.ready=Offline installer ready, press install to begin
 archive.install.state.done=Your zip file has been installed

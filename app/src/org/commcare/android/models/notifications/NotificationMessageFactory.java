@@ -60,6 +60,9 @@ public class NotificationMessageFactory {
 		/** Your case fitler does not match the data type **/
 		Bad_Case_Filter("notification.case.filter"),
 		
+		/** Your archive is not on the local filesystem **/
+		Bad_Archive_File("notification.install.badarchive"),
+		
 		/**Bad SSL Certificate **/
 		BadSSLCertificate("notification.bad.certificate");
 	
