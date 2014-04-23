@@ -173,6 +173,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchLabel.setText(Localization.get("select.search.label"));
         
         searchbox = (EditText)findViewById(R.id.searchbox);
+        searchbox.setMaxLines(3);
+        searchbox.setHorizontallyScrolling(false);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
