@@ -104,7 +104,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	
 	public void fireOnceOnStart(){
 		if(this.getIntent().hasExtra(InstallArchiveActivity.ARCHIVE_REFERENCE)) {
-			editFileLocation.setText(currentRef);
+			editFileLocation.setText(this.getIntent().getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE));
 			InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
 		}
 	}

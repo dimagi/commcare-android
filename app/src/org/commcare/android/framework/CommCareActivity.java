@@ -86,6 +86,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    }
 	}
 	
+	/*
+	 * Method to override in classes that need some functions called only once at the start 
+	 * of the life cycle. Called by the CommCareActivity onResume() method; so, after the onCreate()
+	 * method of all classes, but before the onResume() of the overriding activity. State maintained in
+	 * stateFragment Fragment and firstRun boolean. 
+	 */
 	public void fireOnceOnStart(){
 		// override when needed
 	}

@@ -157,6 +157,8 @@ public class CommCareApplication extends Application {
         		
 		setRoots();
 		
+		prepareTemporaryStorage();
+		
 		//Init global storage (Just application records, logs, etc)
 		dbState = initGlobalDb();
 		
@@ -589,13 +591,15 @@ public class CommCareApplication extends Application {
 			this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
 		}
 		
+	}
+	
+	public void prepareTemporaryStorage(){
 		String tempRoot = this.getAndroidFsTemp();
 		FileUtil.deleteFileOrDir(tempRoot);
 		boolean success = FileUtil.createFolder(tempRoot);
 		if(!success){
 			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Couldn't create temp folder");
 		}
-		
 	}
 
 	public String getCurrentVersionString() {
