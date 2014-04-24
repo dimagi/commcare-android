@@ -844,8 +844,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onBackPressed(){
         if(uiState == UiState.advanced) {
+        	setUiState(UiState.basic);
         	setModeToBasic();
         } else if(uiState == UiState.ready){
+        	setUiState(UiState.basic);
         	setModeToBasic();
         } else{
         	super.onBackPressed();

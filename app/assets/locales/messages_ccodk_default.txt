@@ -20,7 +20,7 @@ modules.m0=pregenancy
 
 install.barcode=Welcome to CommCare! Please choose an installation method below 
 install.manual=Please enter the URL
-install.ready=Welcome to CommCare! Make sure you have an internet connection and press the button below to install your app
+install.ready=Welcome to CommCare! Press the button below to install your app. If you are attempting to install from a server, make sure you have an active internet connection.
 install.button.enter=Enter URL
 install.button.startover=Start Over
 install.button.retry=Retry Installation
