@@ -148,9 +148,19 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
     }
     
     public static String getStackTrace(Throwable e) {
+    	return getStackTrace(e, false);
+    }
+    
+    
+    public static String getStackTrace(Throwable e, boolean fullContext) {
     	ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		e.printStackTrace(new PrintStream(bos));
-		return new String(bos.toByteArray());
+		String retString = new String(bos.toByteArray());
+		if(fullContext && e.getCause() != null) {
+			//Because sometimes it doesn't print us enough context.
+			retString += "Sub Context: \n" + getStackTrace(e.getCause(), false);
+		}
+		return retString;
     }
     
 }
