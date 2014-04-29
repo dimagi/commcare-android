@@ -18,6 +18,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
 
 import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -195,22 +198,30 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 			e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
 			
 			return e;
-			
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InstantiationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (IllegalAccessException e) {
+			RuntimeException re = new RuntimeException("Illegal Access Exception while inflating type " + ctype.getName());
+			re.initCause(e);
+			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
+			throw re;
+		} catch (InstantiationException e) {
+			RuntimeException re = new RuntimeException("Instantiation Exception while inflating type " + ctype.getName());
+			re.initCause(e);
+			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
+			throw re;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			RuntimeException re = new RuntimeException("Unexepcted dangerous IO Exception while inflating type " + ctype.getName());
+			re.initCause(e);
+			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
+			throw re;
 		} catch (DeserializationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			RuntimeException re = new RuntimeException("CommCare couldn't deserialize a class while inflating type: " + ctype.getName());
+			re.initCause(e);
+			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
+			throw re;
 		}
-		return null;
 	}
+	
+	
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
