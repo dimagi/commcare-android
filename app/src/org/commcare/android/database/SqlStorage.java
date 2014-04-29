@@ -199,27 +199,24 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 			
 			return e;
 		} catch (IllegalAccessException e) {
-			RuntimeException re = new RuntimeException("Illegal Access Exception while inflating type " + ctype.getName());
-			re.initCause(e);
-			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
-			throw re;
+			throw logAndWrap(e, "Illegal Access Exception");
 		} catch (InstantiationException e) {
-			RuntimeException re = new RuntimeException("Instantiation Exception while inflating type " + ctype.getName());
-			re.initCause(e);
-			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
-			throw re;
+			throw logAndWrap(e, "Instantiation Exception");
 		} catch (IOException e) {
-			RuntimeException re = new RuntimeException("Unexepcted dangerous IO Exception while inflating type " + ctype.getName());
-			re.initCause(e);
-			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
-			throw re;
+			throw logAndWrap(e, "Totally non-sensical IO Exception");
 		} catch (DeserializationException e) {
-			RuntimeException re = new RuntimeException("CommCare couldn't deserialize a class while inflating type: " + ctype.getName());
-			re.initCause(e);
-			Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
-			throw re;
+			throw logAndWrap(e, "CommCare ran into an issue deserializing data");
 		}
 	}
+	
+	private RuntimeException logAndWrap(Exception e, String message) {
+		RuntimeException re = new RuntimeException(message + " while inflating type " + ctype.getName());
+		re.initCause(e);
+		Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
+		return re;
+	}
+	
+	
 	
 	
 
