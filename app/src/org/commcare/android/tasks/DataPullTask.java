@@ -6,6 +6,7 @@ package org.commcare.android.tasks;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Hashtable;
@@ -18,6 +19,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -78,6 +80,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 	public static final int BAD_DATA = 2;
 	public static final int UNKNOWN_FAILURE = 4;
 	public static final int UNREACHABLE_HOST = 8;
+	public static final int CONNECTION_TIMEOUT = 16;
 	
 	public static final int PROGRESS_STARTED = 0;
 	public static final int PROGRESS_CLEANED = 1;
@@ -127,6 +130,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 		} catch(SessionUnavailableException sue) {
 			//expected if we aren't initialized.
 		}
+		
+		int responseError = UNKNOWN_FAILURE;
 		
     	//This should be per _user_, not per app
 		prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
@@ -182,7 +187,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 				}
 				//Either way, don't re-do this step
 				this.publishProgress(PROGRESS_CLEANED);
-				
+
 				HttpResponse response = requestor.makeCaseFetchRequest(server, useRequestFlags);
 				int responseCode = response.getStatusLine().getStatusCode();
 				if(responseCode == 401) {
@@ -302,17 +307,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 				}
 				
 				
+			} catch (SocketTimeoutException e) {
+				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+				responseError = CONNECTION_TIMEOUT;
+			} catch (ConnectTimeoutException e) {
+				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+				responseError = CONNECTION_TIMEOUT;
 			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
 			} catch (UnknownHostException e) {
-				this.publishProgress(PROGRESS_DONE);
-				if(loginNeeded) {
-					CommCareApplication._().logout();
-				}
 				Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
-				return UNREACHABLE_HOST;
+				responseError = UNREACHABLE_HOST;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -329,7 +335,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 				CommCareApplication._().logout();
 			}
 			this.publishProgress(PROGRESS_DONE);
-			return UNKNOWN_FAILURE;
+			return responseError;
 			
 	}
 		

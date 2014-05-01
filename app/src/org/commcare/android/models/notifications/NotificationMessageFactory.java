@@ -45,6 +45,9 @@ public class NotificationMessageFactory {
 		/** No network connectivity **/
 		Remote_NoNetwork ("notification.restore.nonetwork"),
 		
+		/** Network timed out **/
+		Remote_Timeout ("notification.network.timeout"),
+		
 		/**Unknown error during restore **/
 		Restore_Unknown ("notification.restore.unknown"),
 		
