@@ -50,6 +50,8 @@ public class EntityListAdapter implements ListAdapter {
 	
 	int currentSort[] = {};
 	boolean reverseSort = false;
+
+	private String[] currentSearchTerms;
 	
 	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts) throws SessionUnavailableException {
 		this.d = d;
@@ -69,24 +71,37 @@ public class EntityListAdapter implements ListAdapter {
 		this.tts = tts;
 	}
 
-	private void filterValues(String filter) {
+	private void filterValues(String filterRaw) {
+		String[] searchTerms = filterRaw.toLowerCase().split(" ");
+		
 		current.clear();
 		
 		full:
 		for(Entity<TreeReference> e : full) {
-			if("".equals(filter)) {
+			if("".equals(filterRaw)) {
 				current.add(e);
 				continue;
 			}
 			
-			for(int i = 0 ; i < e.getNumFields(); ++i) {
-				String field = e.getField(i);
-				if(field.toLowerCase().contains(filter.toLowerCase())) {
-					current.add(e);
-					continue full;
+			boolean add = false;
+			filter:
+			for(String filter: searchTerms) {
+				add = false;
+				for(int i = 0 ; i < e.getNumFields(); ++i) {
+					String field = e.getField(i);
+					if(field.toLowerCase().contains(filter)) {
+						add = true;
+						continue filter;
+					}				
 				}
+				if(!add) { break; }
+			}
+			if(add) {
+				current.add(e);
+				continue full;
 			}
 		}
+		this.currentSearchTerms = searchTerms;
 	}
 	
 	private void sort(int[] fields) {
@@ -234,8 +249,9 @@ public class EntityListAdapter implements ListAdapter {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if(emv == null) {
-			emv = new EntityView(context, d, e, tts);
+			emv = new EntityView(context, d, e, tts, currentSearchTerms);
 		} else{
+			emv.setSearchTerms(currentSearchTerms);
 			emv.setParams(e, e.getElement().equals(selected));
 		}
 		return emv;

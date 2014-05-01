@@ -63,7 +63,7 @@
    
    
    <color name="border_grey">#20959699</color>
-   
+   <color name="search_highlight">#FFE88F</color>
    
    <color name="title_border">#444444</color>
    <color name="title_neutral_grad_end">#FFB3B3B3</color>

@@ -15,6 +15,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.speech.tts.TextToSpeech;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.BackgroundColorSpan;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,9 +38,12 @@ public class EntityView extends LinearLayout {
 	private String[] forms;
 	
 	private TextToSpeech tts; 
+	
+	private String[] searchTerms;
 
-	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts) {
+	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts, String[] searchTerms) {
 		super(context);
+		this.searchTerms = searchTerms;
 		this.tts = tts;
 
 		this.setWeightSum(1);
@@ -102,6 +111,10 @@ public class EntityView extends LinearLayout {
         }
         return retVal;
 	}
+	
+	public void setSearchTerms(String[] terms) {
+		this.searchTerms = terms;
+	}
         
     private void setupLayout(View layout, final String text) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
@@ -127,8 +140,41 @@ public class EntityView extends LinearLayout {
 			params.width=LayoutParams.WRAP_CONTENT;
 			btn.setLayoutParams(params);
 		}
-		tv.setText(text == null ? "" : text);
+	    tv.setText(highlightSearches(text == null ? "" : text));
     }
+    
+    private Spannable highlightSearches(String input) {
+    	
+	    Spannable raw=new SpannableString(input);
+	    
+	    String normalized = input.toLowerCase();
+		
+    	if(searchTerms == null) {
+    		return raw;
+    	}
+	    
+	    //Zero out the existing spans
+	    BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
+		for (BackgroundColorSpan span : spans) {
+			raw.removeSpan(span);
+		}
+	    
+	    for(String searchText : searchTerms) {
+	    	if(searchText == "") { continue;}
+	
+		    int index=TextUtils.indexOf(normalized, searchText);
+		    
+		    while (index >= 0) {
+		      raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
+		          + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+		      index=TextUtils.indexOf(raw, searchText, index + searchText.length());
+		    }
+	    }
+	    
+	    return raw;
+    }
+    
+    
 	
 	private float[] calculateDetailWeights(int[] hints) {
 		float[] weights = new float[hints.length];
