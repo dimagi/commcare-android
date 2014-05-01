@@ -271,6 +271,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 				case DataPullTask.UNREACHABLE_HOST:
 					receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
 					break;
+				case DataPullTask.CONNECTION_TIMEOUT:
+					receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
+					break;
 				case DataPullTask.UNKNOWN_FAILURE:
 					receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
 					break;
