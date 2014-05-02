@@ -110,7 +110,7 @@ public class IncompleteFormListAdapter extends BaseAdapter {
 		
 		this.filterValues(currentQuery);
 		
-		loader.init(searchCache);
+		loader.init(searchCache, names);
 		loader.execute(records.toArray(new FormRecord[0]));
 	}
 	
