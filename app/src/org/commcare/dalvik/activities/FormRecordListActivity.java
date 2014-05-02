@@ -45,6 +45,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
@@ -179,7 +180,12 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 						adapter.setFormFilter(FormRecordFilter.values()[index]);
 						adapter.resetRecords();
 						adapter.notifyDataSetChanged();
-						invalidateOptionsMenu();
+						
+						//This is only relevant with the new menu format, old menus have a hard
+						//button and don't need their menu to be rebuilt
+						if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+							invalidateOptionsMenu();
+						}
 					}
 
 					@Override

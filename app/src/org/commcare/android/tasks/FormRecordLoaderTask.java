@@ -15,6 +15,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.suite.model.Text;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -37,6 +38,8 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 	private Queue<FormRecord> priorityQueue;
 	private HashSet<Integer> loaded;
 	
+	private Hashtable<String,Text> formNames;
+	
 	public FormRecordLoaderTask(Context c, SqlStorage<SessionStateDescriptor> descriptorStorage, AndroidCommCarePlatform platform) {
 		this(c, descriptorStorage, null, platform);
 	}
@@ -54,13 +57,14 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 		return task;
 	}
 	
-	public void init(Hashtable<Integer, String[]> searchCache) {
+	public void init(Hashtable<Integer, String[]> searchCache, Hashtable<String,Text> formNames) {
 		this.searchCache = searchCache;
 		if(descriptorCache == null) {
 			descriptorCache = new Hashtable<String,String>();
 		}
 		priorityQueue = new LinkedList<FormRecord>();
 		loaded = new HashSet<Integer>();
+		this.formNames = formNames;
 	}
 	
 	public void setListener(FormRecordLoadListener listener) {
@@ -130,6 +134,13 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 			}
 			
 			cache.add(dataTitle);
+			
+			if(formNames.containsKey(current.getFormNamespace())) {
+				Text name = formNames.get(current.getFormNamespace());
+				cache.add(name.evaluate());
+			}
+			
+			
 			
 			//Notify anyhting waiting on this record
 			this.publishProgress(new Pair<Integer, ArrayList<String>>(current.getID(), cache));
