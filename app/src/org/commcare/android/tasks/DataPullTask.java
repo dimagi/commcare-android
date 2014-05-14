@@ -81,6 +81,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 	public static final int UNKNOWN_FAILURE = 4;
 	public static final int UNREACHABLE_HOST = 8;
 	public static final int CONNECTION_TIMEOUT = 16;
+	public static final int SERVER_ERROR = 32;
 	
 	public static final int PROGRESS_STARTED = 0;
 	public static final int PROGRESS_CLEANED = 1;
@@ -299,11 +300,15 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 						return UNKNOWN_FAILURE;
 					}
 					
-					
-					
 					if(loginNeeded) {
 						CommCareApplication._().logout();
 					}
+				} else if(responseCode == 500) {
+					if(loginNeeded) {
+						CommCareApplication._().logout();
+					}
+					Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
+					return SERVER_ERROR;
 				}
 				
 				

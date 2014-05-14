@@ -279,6 +279,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		installButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {	
+System.out.println("[jls] in installButton listener");
 				//Now check on the resources
 				if(resourceState == CommCareApplication.STATE_READY) {
 					if(!inUpgradeMode || uiState != UiState.error) {
@@ -579,6 +580,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToReady(String incomingRef) {
+System.out.println("[jls] in setModeToReady");
     	buttonView.setVisibility(View.VISIBLE);
     	mainMessage.setText(Localization.get("install.ready"));
 		editProfileRef.setText(incomingRef);
@@ -592,6 +594,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToError(boolean canRetry){
+System.out.println("[jls] in setModeToError");
     	buttonView.setVisibility(View.VISIBLE);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.GONE);

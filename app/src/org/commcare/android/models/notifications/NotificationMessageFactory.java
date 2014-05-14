@@ -38,12 +38,15 @@ public class NotificationMessageFactory {
 		 * Server 500 when retrieving data.
 		 */
 		Restore_RemoteError	("notification.restore.remote.error"),
-		
+
 		/** The phone had a problem parsing the data from the server **/
 		Remote_BadRestore ("notification.restore.baddata"),
 		
 		/** No network connectivity **/
 		Remote_NoNetwork ("notification.restore.nonetwork"),
+		
+		/** Generic 500 error **/
+		Remote_ServerError ("notification.server.error"),
 		
 		/** Network timed out **/
 		Remote_Timeout ("notification.network.timeout"),

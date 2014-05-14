@@ -268,6 +268,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 				case DataPullTask.DOWNLOAD_SUCCESS:
 					receiver.displayMessage(Localization.get("sync.success.synced"));
 					break;
+				case DataPullTask.SERVER_ERROR:
+					receiver.displayMessage(Localization.get("sync.fail.server.error"));
+					break;
 				case DataPullTask.UNREACHABLE_HOST:
 					receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
 					break;

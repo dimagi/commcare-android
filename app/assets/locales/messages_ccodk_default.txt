@@ -82,6 +82,7 @@ sync.fail.auth.loggedin=Username or password has changed. Please log out and try
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occured with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
+sync.fail.server.error=The server had an error processing your data. Please try again later. If the problem persists, contact technical support.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
 
 sync.progress.title=Communicating with Server
@@ -399,6 +400,9 @@ notification.network.timeout.title=Timed out waiting for Remote Response
 notification.network.timeout.detail=The remote service did not respond to CommCare's request within the time limit. It may be busy or this may indicate a connection problem.
 notification.network.timeout.action=Wait a short period and try your request again, or try again later when the remote service may be less busy. If the problem persists, contact your supervisor. 
 
+notification.server.error.title=Server Error
+notification.server.error.detail=The server had an error processing your data
+notification.server.error.action=Please try again later. If the problem persists, contact technical support.
 
 problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below
