@@ -114,6 +114,12 @@
             android:text="Enter App Location" />
 
         <Button
+            android:id="@+id/view_notification"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="View Notification" />
+
+        <Button
             android:id="@+id/retry_install"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

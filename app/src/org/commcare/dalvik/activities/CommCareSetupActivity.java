@@ -4,6 +4,8 @@
  */
 package org.commcare.dalvik.activities;
 
+import java.lang.reflect.Method;
+
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -123,6 +125,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	Button addressEntryButton;
 	@UiElement(R.id.start_over)
 	Button startOverButton;
+	@UiElement(R.id.view_notification)
+	Button viewNotificationButton;
 	@UiElement(R.id.retry_install)
 	Button retryButton;
 	@UiElement(R.id.screen_first_start_banner)
@@ -268,6 +272,27 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				}
 			}
 			
+		});
+
+		viewNotificationButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				Object service = getSystemService("statusbar");
+				try {
+    				Class<?> statusBarManager = Class.forName("android.app.StatusBarManager");
+    				Method show;
+    				if(Build.VERSION.SDK_INT >= 17) {   // JELLY_BEAN
+    				    show = statusBarManager.getMethod("expandNotificationsPanel");
+    				}
+    				else {
+    				    show = statusBarManager.getMethod("expand");
+    				}
+    				show.invoke(service);
+				}
+				catch(Exception e) {
+				    // Another error would be a bit much, do nothing
+				}
+  				viewNotificationButton.setVisibility(View.GONE);
+			}
 		});
 		
 		retryButton.setOnClickListener(new OnClickListener() {
@@ -589,6 +614,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	startOverButton.setVisibility(View.VISIBLE);
     	addressEntryButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
+    	viewNotificationButton.setVisibility(View.GONE);
     }
     
     public void setModeToError(boolean canRetry){
@@ -618,6 +644,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	addressEntryButton.setVisibility(View.VISIBLE);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.VISIBLE);
+    	viewNotificationButton.setVisibility(View.GONE);
     	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
@@ -635,6 +662,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startOverButton.setText(Localization.get("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
     	installButton.setEnabled(true);
+    	viewNotificationButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
     	retryButton.setText(Localization.get("install.button.retry"));
     	startOverButton.setText(Localization.get("install.button.startover"));
@@ -816,7 +844,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 	public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
 		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
-		
+    	viewNotificationButton.setVisibility(View.VISIBLE);
 	}
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
