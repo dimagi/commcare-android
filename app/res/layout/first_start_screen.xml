@@ -37,13 +37,33 @@
             android:gravity="center"
             android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/str_setup_message"
+            <ScrollView
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."
-                android:textSize="14dp" />
+                android:layout_height="wrap_content">
+
+               <LinearLayout
+                   android:id="@+id/message_panel"
+                   android:layout_width="fill_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="vertical" >
+
+                   <TextView
+                       android:id="@+id/str_setup_message"
+                       android:layout_width="fill_parent"
+                       android:layout_height="wrap_content"
+                       android:gravity="center_horizontal"
+                       android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."
+                       android:textSize="14dp" />
+
+                   <TextView
+                       android:id="@+id/str_install_notification"
+                       android:layout_width="fill_parent"
+                       android:layout_height="wrap_content"
+                       android:gravity="center_horizontal"
+                       android:textSize="14dp" />
+
+                </LinearLayout>
+            </ScrollView>
 
             <LinearLayout
                 android:id="@+id/advanced_panel"
@@ -117,7 +137,7 @@
             android:id="@+id/view_notification"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="View Notification" />
+            android:text="See Notification" />
 
         <Button
             android:id="@+id/retry_install"
