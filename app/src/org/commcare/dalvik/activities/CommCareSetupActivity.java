@@ -285,6 +285,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 			    installNotification.setVisibility(View.GONE);
+			    viewNotificationButton.setVisibility(View.GONE);
 				partialMode = true;
 				startResourceInstall(false);
 			}
@@ -770,6 +771,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
 
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
+		if(message.getAction() != null && message.getAction() != "") {
+		    installNotification.setText(message.getAction());
+		    viewNotificationButton.setVisibility(View.VISIBLE);
+		}
 		
 		setUiState(UiState.error);
 		
@@ -838,10 +843,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	}
 
 	public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
-	    String notificationText = ure.getMessage();
-		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), notificationText}), ure.isMessageUseful());
-    	viewNotificationButton.setVisibility(View.VISIBLE);
-    	installNotification.setText(notificationText);
+		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
 	}
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
