@@ -177,6 +177,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 						case DataPullTask.CONNECTION_TIMEOUT:
 							receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_Timeout, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 							break;
+						case DataPullTask.SERVER_ERROR:
+							receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_ServerError, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+							break;
 						case DataPullTask.UNKNOWN_FAILURE:
 							receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
 							break;

@@ -23,7 +23,6 @@ import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionUnavailableException;
@@ -69,8 +68,6 @@ public class CommCareSessionService extends Service  {
     private Date sessionExpireDate;
     
     private Object lock = new Object();
-    
-    private DataPullTask mCurrentTask;
     
     private User user;
     

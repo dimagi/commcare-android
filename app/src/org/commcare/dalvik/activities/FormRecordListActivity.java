@@ -434,7 +434,10 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 							Toast.makeText(receiver, "Bad data from server. Please talk with your supervisor.", Toast.LENGTH_LONG).show();
 							break;							
 						case DataPullTask.CONNECTION_TIMEOUT:
-							Toast.makeText(receiver, "The server took to login to generate a response. Please try again later, and ask your supervisor if the problem persists.", Toast.LENGTH_LONG).show();
+							Toast.makeText(receiver, "The server took too long to generate a response. Please try again later, and ask your supervisor if the problem persists.", Toast.LENGTH_LONG).show();
+							break;
+						case DataPullTask.SERVER_ERROR:
+							Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact technical support if the problem persists.", Toast.LENGTH_LONG).show();
 							break;
 						case DataPullTask.UNREACHABLE_HOST:
 							Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
