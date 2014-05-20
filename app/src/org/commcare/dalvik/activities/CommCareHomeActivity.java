@@ -140,6 +140,20 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+    	
+    	//This is a workaround required by Android Bug #2373, which is that Apps are launched from the
+    	//Google Play store and from the App launcher with different intent flags than everywhere else
+    	//in Android, which ruins the back stack and prevents the app from launching a high affinity
+    	//task.
+        if (!isTaskRoot()) {
+            Intent intent = getIntent();
+            String action = intent.getAction();
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && action != null && action.equals(Intent.ACTION_MAIN)) {
+                finish();
+                return;
+            }
+        }
+        
         if(savedInstanceState != null) {
         	wasExternal = savedInstanceState.getBoolean("was_external");
         }
