@@ -89,52 +89,16 @@ public class TextImageAudioView extends RelativeLayout {
             audioParams.addRule(CENTER_VERTICAL);
             addView(mAudioButton, audioParams);
         }
-
-        // Now set up the image view
-        String errorMsg = null;
-        if (imageURI != null && !imageURI.equals("")) {
-            try {
-                String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                final File imageFile = new File(imageFilename);
-                if (imageFile.exists()) {
-                    Bitmap b = null;
-                    try {
-                        Display display =
-                            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                    .getDefaultDisplay();
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        b =
-                            FileUtils
-                                    .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
-                    } catch (OutOfMemoryError e) {
-                        errorMsg = "ERROR: " + e.getMessage();
-                    }
-
-                    if (b != null) {
-                        mImageView = new ImageView(getContext());
-                        mImageView.setPadding(10, 10, 10, 10);
-                        mImageView.setAdjustViewBounds(true);
-                        mImageView.setImageBitmap(b);
-                        mImageView.setId(23422634);
-                        imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                        addView(mImageView, imageParams);
-                    } else if (errorMsg == null) {
-                        // An error hasn't been logged and loading the image failed, so it's likely
-                        // a bad file.
-                        errorMsg = getContext().getString(R.string.file_invalid, imageFile);
-
-                    }
-                } else if (errorMsg == null) {
-                    // An error hasn't been logged. We should have an image, but the file doesn't
-                    // exist.
-                    errorMsg = getContext().getString(R.string.file_missing, imageFile);
-                }
-
-            } catch (InvalidReferenceException e) {
-                Log.e(t, "image invalid reference exception");
-                e.printStackTrace();
-            }
+        
+        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
+        if(b != null) {
+	        mImageView = new ImageView(getContext());
+	        mImageView.setPadding(10, 10, 10, 10);
+	        mImageView.setAdjustViewBounds(true);
+	        mImageView.setImageBitmap(b);
+	        mImageView.setId(23422634);
+	        imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+	        addView(mImageView, imageParams);
         }
         
         textParams.addRule(RelativeLayout.CENTER_VERTICAL);
