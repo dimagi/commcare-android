@@ -15,12 +15,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 
-import org.javarosa.core.io.StreamsUtil;
+import org.commcare.resources.model.MissingMediaException;
+import org.commcare.resources.model.Resource;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.PropertyUtils;
 
 import android.util.Log;
@@ -314,5 +319,19 @@ public class FileUtil {
 	     */
 	    public static String getGlobalStringUri(String fileLocation) {
 	    	return "file://" + fileLocation;
+	    }
+	    
+	    public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws IOException{
+			try{
+				Reference mRef = ReferenceManager._().DeriveReference(URI);
+				
+				if(!mRef.doesBinaryExist()){
+					String mLocalReference = mRef.getLocalURI();
+					problems.addElement(new MissingMediaException(r,"Missing external media: " + mLocalReference, mLocalReference));
+				}
+				
+			} catch(InvalidReferenceException ire){
+				//do nothing for now
+			}
 	    }
 }

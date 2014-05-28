@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
+import org.commcare.android.util.FileUtil;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -174,35 +175,20 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 			Hashtable<String,Entry> mHashtable = mSuite.getEntries();
 			for(Enumeration en = mHashtable.keys();en.hasMoreElements() ; ){
 				String key = (String)en.nextElement();
+				Entry mEntry = mHashtable.get(key);
+				
+				FileUtil.checkReferenceURI(r, mEntry.getAudioURI(), problems);
+				FileUtil.checkReferenceURI(r, mEntry.getImageURI(), problems);
+				
 			}
 			Vector<Menu> menus = mSuite.getMenus();
 			Enumeration e = menus.elements();
 			
 			while(e.hasMoreElements()){
 				Menu mMenu = (Menu)e.nextElement();
-				String aURI = mMenu.getAudioURI();
-				String iURI = mMenu.getImageURI();
 				
-				try{
-					Reference aRef = ReferenceManager._().DeriveReference(aURI);
-
-					if(!aRef.doesBinaryExist()){
-						String audioLocalReference = aRef.getLocalURI();
-						problems.addElement(new MissingMediaException(r,"Missing external media: " + audioLocalReference, audioLocalReference));
-					}
-				} catch(InvalidReferenceException ire){
-					//do nothing for now
-				}
-				try{
-					Reference iRef = ReferenceManager._().DeriveReference(iURI);
-
-					if(!iRef.doesBinaryExist()){
-						String imageLocalReference = iRef.getLocalURI();
-						problems.addElement(new MissingMediaException(r,"Missing external media: " + imageLocalReference, imageLocalReference));
-					}
-				} catch(InvalidReferenceException ire){
-					// do nothing for now
-				}
+				FileUtil.checkReferenceURI(r, mMenu.getAudioURI(), problems);
+				FileUtil.checkReferenceURI(r, mMenu.getImageURI(), problems);
 				
 			}
 		}
