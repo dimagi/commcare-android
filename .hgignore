@@ -1,14 +1,9 @@
 syntax: glob
 app/res/values/external_strings_dev.xml
-app/key.properties
-app/local.properties
 app/bin/*
 app/buildtmp/*
 app/dist/*
-libraries/mapballoons/android-mapviewballoons/bin/*
-libraries/mapballoons/android-mapviewballoons/gen/*
 app/gen/*
-libraries/mapballoons/android-mapviewballoons/local.properties
 app/assets/testing*
 test-app/bin/*
 test-app/gen/*
