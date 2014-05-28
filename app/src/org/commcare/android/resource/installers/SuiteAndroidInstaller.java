@@ -28,6 +28,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -156,7 +157,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
-
 		try{
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
 			Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null) {
@@ -165,6 +165,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 					//shouldn't be necessary
 					return null;
 				}
+				@Override
+				protected boolean inValidationMode(){
+					return true;
+				}
+				
 			}).parse();
 			Hashtable<String,Entry> mHashtable = mSuite.getEntries();
 			for(Enumeration en = mHashtable.keys();en.hasMoreElements() ; ){
@@ -172,6 +177,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 			}
 			Vector<Menu> menus = mSuite.getMenus();
 			Enumeration e = menus.elements();
+			
 			while(e.hasMoreElements()){
 				Menu mMenu = (Menu)e.nextElement();
 				String aURI = mMenu.getAudioURI();
@@ -201,7 +207,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 			}
 		}
 		catch(Exception e){
-			System.out.println("fail suite validation");
+			Logger.log("e", "suite validation failed with: " + e.getMessage());
+			System.out.println("Suite validation failed");
+			e.printStackTrace();
 		}
 
 		if(problems.size() == 0 ) { return false;}
