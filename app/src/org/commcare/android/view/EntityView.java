@@ -3,6 +3,7 @@
  */
 package org.commcare.android.view;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.commcare.android.models.Entity;
@@ -27,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.media.MediaPlayer;
 
 /**
  * @author ctsims
@@ -36,15 +38,15 @@ public class EntityView extends LinearLayout {
 	
 	private View[] views;
 	private String[] forms;
-	
 	private TextToSpeech tts; 
-	
+	private MediaPlayer mp;
 	private String[] searchTerms;
 
 	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts, String[] searchTerms) {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.tts = tts;
+		mp = new MediaPlayer();
 
 		this.setWeightSum(1);
 		
@@ -69,7 +71,7 @@ public class EntityView extends LinearLayout {
 		super(context);
 
 		this.setWeightSum(1);
-		
+		mp = new MediaPlayer();
 		views = new View[headerText.length];
 		
 		
@@ -79,7 +81,10 @@ public class EntityView extends LinearLayout {
 		for(int i = 0 ; i < views.length ; ++i) {
 			if(lengths[i] != 0) {
 		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
-		        
+		        /*this first call is just demarcating the space for each view in a row, and then
+		         * setParams will fill in those existing views with the appropriate content, depending
+		         * on the form type
+		         */
 		        views[i] = getView(context, headerText[i], headerForms[i]);
 		        views[i].setId(i);
 		        addView(views[i], l);
@@ -87,12 +92,16 @@ public class EntityView extends LinearLayout {
 		}
 	}
 	
+	/*
+	 * if form = "text", then 'text' field is just normal text
+	 * if form = "audio" or "image", then text is the path to the audio/image
+	 */
 	private View getView(Context context, String text, String form) {
 		View retVal;
-        if("image".equals(form)) {
+		if ("image".equals(form)) {
         	ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
-        	if(text != null) {
+        	if (text != null) {
 				try {
 					Bitmap b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
 					iv.setImageBitmap(b);
@@ -104,9 +113,15 @@ public class EntityView extends LinearLayout {
 					//No image
 				}
         	}
-        } else {
+        } 
+		else if ("audio".equals(form)) {
+			View layout = View.inflate(context, R.layout.component_audio_text, null);
+    		setupAudioLayout(layout,text);
+    		retVal = layout;
+        } 
+        else {
     		View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		setupLayout(layout, text);
+    		setupTTSLayout(layout, text);
     		retVal = layout;
         }
         return retVal;
@@ -115,8 +130,80 @@ public class EntityView extends LinearLayout {
 	public void setSearchTerms(String[] terms) {
 		this.searchTerms = terms;
 	}
+	
+
+	public void setParams(Entity e, boolean currentlySelected) {
+		for (int i = 0; i < e.getNumFields() ; ++i) {
+			String textField = e.getField(i);
+			View view = views[i];
+			String form = forms[i];
+			
+			if (view == null || textField == null) { continue; }
+			
+			if ("audio".equals(form)) {
+				setupAudioLayout(view, textField);
+			}
+			else if("image".equals(form)) {
+				setupImageLayout(view, textField);
+	        } 
+			else { //text to speech
+		        setupTTSLayout(view, textField);
+	        }
+		}
+		
+		if (currentlySelected) {
+			this.setBackgroundResource(R.drawable.grey_bordered_box);
+		} else {
+			this.setBackgroundDrawable(null);
+		}
+	}
         
-    private void setupLayout(View layout, final String text) {
+    private void setupAudioLayout(View layout, final String text) {
+    	ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
+		btn.setFocusable(false);
+		btn.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				if (mp.isPlaying()) {
+					mp.pause();
+				}
+				else {
+					try {
+						mp.setDataSource(text);
+						mp.prepare();
+						mp.start();
+					} catch (IllegalArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (SecurityException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalStateException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+    	});
+		
+		if (text == null || text.equals("")) {
+			btn.setVisibility(View.INVISIBLE);
+			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+			params.width= 0;
+			btn.setLayoutParams(params);
+		} else {
+			btn.setVisibility(View.VISIBLE);
+			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+			params.width=LayoutParams.WRAP_CONTENT;
+			btn.setLayoutParams(params);
+		}
+    }
+	
+	private void setupTTSLayout(View layout, final String text) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
 		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
 		btn.setFocusable(false);
@@ -142,6 +229,28 @@ public class EntityView extends LinearLayout {
 		}
 	    tv.setText(highlightSearches(text == null ? "" : text));
     }
+	
+	
+	public void setupImageLayout(View layout, final String text) {
+		ImageView iv = (ImageView) layout;
+		Bitmap b;
+		try {
+			if(!text.equals("")) {
+				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
+				iv.setImageBitmap(b);
+			} else{
+				iv.setImageBitmap(null);
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			//Error loading image
+			iv.setImageBitmap(null);
+		} catch (InvalidReferenceException ex) {
+			ex.printStackTrace();
+			//No image
+			iv.setImageBitmap(null);
+		}
+	}
     
     private Spannable highlightSearches(String input) {
     	
@@ -198,43 +307,4 @@ public class EntityView extends LinearLayout {
 		return weights;
 	}
 
-	public void setParams(Entity e, boolean currentlySelected) {
-		for(int i = 0; i < e.getNumFields() ; ++i) {
-			//Empty (width = 0) field
-			if(views[i] == null) { continue;}
-			
-			if(e.getField(i) == null) {
-				continue;
-			}
-			
-	        if("image".equals(forms[i])) {
-	        	ImageView iv = (ImageView)views[i];
-				Bitmap b;
-				try {
-					if(!e.getField(i).equals("")) {
-						b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(e.getField(i)).getStream());
-						iv.setImageBitmap(b);
-					} else{
-						iv.setImageBitmap(null);
-					}
-				} catch (IOException ex) {
-					ex.printStackTrace();
-					//Error loading image
-					iv.setImageBitmap(null);
-				} catch (InvalidReferenceException ex) {
-					ex.printStackTrace();
-					//No image
-					iv.setImageBitmap(null);
-				}
-	        } else {
-		        setupLayout(views[i], e.getField(i));
-	        }
-		}
-		
-		if(currentlySelected) {
-			this.setBackgroundResource(R.drawable.grey_bordered_box);
-		} else{
-			this.setBackgroundDrawable(null);
-		}
-	}
 }
