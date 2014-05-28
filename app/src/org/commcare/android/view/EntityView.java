@@ -190,7 +190,7 @@ public class EntityView extends LinearLayout {
 			}
     	});
 		
-		if (text == null || text.equals("")) {
+		if (text == null || text.equals("") || !new File(text).exists()) {
 			btn.setVisibility(View.INVISIBLE);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
 			params.width= 0;
@@ -216,7 +216,7 @@ public class EntityView extends LinearLayout {
 				tts.speak(textToRead, TextToSpeech.QUEUE_FLUSH, null);
 			}
     	});
-		if(tts == null || text == null || text.equals("")) {
+		if (tts == null || text == null || text.equals("")) {
 			btn.setVisibility(View.INVISIBLE);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
 			params.width= 0;
@@ -237,6 +237,7 @@ public class EntityView extends LinearLayout {
 		try {
 			if(!text.equals("")) {
 				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
+				//TODO: shouldn't this check if b is null?
 				iv.setImageBitmap(b);
 			} else{
 				iv.setImageBitmap(null);
