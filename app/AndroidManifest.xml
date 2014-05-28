@@ -9,7 +9,6 @@
      
     <application
         android:name=".application.CommCareApplication"
-        android:debuggable="true"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
         android:theme="@style/AppBaseTheme" >
@@ -171,6 +170,11 @@
         </activity>
         <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name="org.odk.collect.android.activities.DrawActivity"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize" >
         </activity>
