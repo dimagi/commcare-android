@@ -3,8 +3,11 @@
  */
 package org.commcare.android.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Locale;
+import java.io.InputStream;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.model.data.GeoPointData;
@@ -13,6 +16,9 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.io.StreamsUtil;
+import org.apache.commons.io.IOUtils;
+
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -45,6 +51,31 @@ public class MediaUtil {
         	return null;
         }
 	}
+	
+	public static FileInputStream inputStreamToFIS(InputStream in) {
+	    FileInputStream fis = null;
+	    FileOutputStream out = null;
+	    File tempFile = null;
+		try {
+			tempFile = File.createTempFile("stream2file", ".tmp");
+			tempFile.deleteOnExit();
+			out = new FileOutputStream(tempFile);
+			//TODO: try using StreamsUtil method for this, currently causes loop
+	        IOUtils.copy(in, out);
+	    }
+	    catch (Exception e) {
+			e.printStackTrace();
+		}
+	    try {
+			fis = new FileInputStream(tempFile);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return fis;	
+	}
+	
+
 	
 	/**
 	 * Pass in a string representing either a GeoPont or an address and get back a valid

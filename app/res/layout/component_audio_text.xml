@@ -6,14 +6,20 @@
     <ImageButton
         android:id="@+id/component_audio_text_btn_audio"
         android:layout_width="wrap_content"
+        android:visible="true"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:src="@android:drawable/ic_lock_silent_mode_off" android:layout_centerVertical="true"/>
+        android:layout_centerVertical="true" 
+        android:layout_centerHorizontal="true" 
+        android:src="@drawable/speakers" 
+        android:contentDescription="@string/image_button_desc"/>
 
     <TextView
         style="@style/EntityItemTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/EntityItemText" android:layout_alignParentRight="true" android:layout_toRightOf="@id/component_audio_text_btn_audio" android:layout_centerVertical="true" android:id="@+id/component_audio_text_txt"/>
+        android:textAppearance="@style/EntityItemText" 
+        android:layout_alignParentRight="true" 
+        android:layout_centerVertical="true" 
+        android:id="@+id/component_audio_text_txt"/>
 
 </RelativeLayout>
