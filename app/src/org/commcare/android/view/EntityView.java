@@ -3,27 +3,21 @@
  */
 package org.commcare.android.view;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.R.drawable;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.Reference;
-import org.odk.collect.android.utilities.MediaUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.speech.tts.TextToSpeech;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -47,7 +41,6 @@ public class EntityView extends LinearLayout {
 	
 	private View[] views;
 	private String[] forms;
-	private boolean[] isErrorView;
 	private TextToSpeech tts; 
 	private MediaPlayer mp;
 	private FileInputStream fis;
@@ -64,7 +57,6 @@ public class EntityView extends LinearLayout {
 		this.tts = tts;
 		this.setWeightSum(1);
 		views = new View[e.getNumFields()];
-		isErrorView = new boolean[views.length];
 		forms = d.getTemplateForms();
 		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
 		
@@ -91,7 +83,6 @@ public class EntityView extends LinearLayout {
 		this.context = context;
 		this.setWeightSum(1);
 		views = new View[headerText.length];
-		isErrorView = new boolean[views.length];
 		float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
 		String[] headerForms = d.getHeaderForms();
 		
@@ -132,16 +123,11 @@ public class EntityView extends LinearLayout {
 		this.searchTerms = terms;
 	}
 	
-	public void replaceWithFileMissingView(int replaceIndex) {
-		View fileMissingView = View.inflate(context, R.layout.component_missing_file, null);
-		views[replaceIndex] = fileMissingView;		
-		isErrorView[replaceIndex] = true;
-	}
-	
 
 	public void setParams(Entity e, boolean currentlySelected) {
 		for (int i = 0; i < e.getNumFields() ; ++i) {
 			String textField = e.getField(i);
+			System.out.println("Current Text: " + textField);
 			View view = views[i];
 			String form = forms[i];
 			
@@ -149,12 +135,17 @@ public class EntityView extends LinearLayout {
 			
 			if ("audio".equals(form)) {
 				setupAudioLayout(view, textField, i);
+				System.out.println("form is audio");
 			}
 			else if("image".equals(form)) {
 				setupImageLayout(view, textField, i);
+				System.out.println("form is image");
+
 	        } 
 			else { //text to speech
 		        setupTextAndTTSLayout(view, textField);
+				System.out.println("form is text");
+
 	        }
 		}
 		
@@ -167,12 +158,9 @@ public class EntityView extends LinearLayout {
 	 
         
     private void setupAudioLayout(View layout, final String text, int index) {
-    	if (isErrorView[index]) {
-    		replaceWithFileMissingView(index);
-    		return;
-    	}
     	Log.i("form", "setupAudioLayout entered");
     	ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
+    	btn.setVisibility(View.VISIBLE);
 		btn.setFocusable(false);
 		btn.setOnClickListener(new OnClickListener(){
 
@@ -203,7 +191,7 @@ public class EntityView extends LinearLayout {
     	});
 		
 		boolean mpFailure = true;
-		if (text != null) {
+		if (text != null && !text.equals("")) {
 			//try to initialize the media player
 			try {
 				mp = new MediaPlayer();
@@ -217,18 +205,15 @@ public class EntityView extends LinearLayout {
 				e.printStackTrace();
 			}
 		}
-		//show/hide audio button based on media player set-up
+		//enable/disable audio button based on media player set-up
 		if (mpFailure) {
-			replaceWithFileMissingView(layout.getId());
-			/*tv.setText("Unable to load file");
-			iv.setVisibility(View.VISIBLE);
-			btn.setVisibility(View.INVISIBLE);
+			btn.setEnabled(false);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-			params.width = 0;
-			btn.setLayoutParams(params);*/
+			params.width = LayoutParams.WRAP_CONTENT;
+			btn.setLayoutParams(params);
 		} 
 		else {
-			btn.setVisibility(View.VISIBLE);
+			btn.setEnabled(true);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
 			params.width = LayoutParams.WRAP_CONTENT;
 			btn.setLayoutParams(params);
@@ -264,18 +249,14 @@ public class EntityView extends LinearLayout {
 	
 	
 	public void setupImageLayout(View layout, final String text, int index) {
-    	if (isErrorView[index]) {
-    		replaceWithFileMissingView(index);
-    		return;
-    	}
 		ImageView iv = (ImageView) layout;
 		Bitmap b;
-		if (!text.equals("")) { //TODO: figure out why this check is necessary
+		if (!text.equals("")) {
 			try {
 				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
 				if (b == null) {
 					//Input stream could not be used to derive bitmap
-					replaceWithFileMissingView(index);
+					iv.setImageDrawable(getResources().getDrawable(R.drawable.question_mark));
 				}
 				else {
 					iv.setImageBitmap(b);
@@ -283,12 +264,15 @@ public class EntityView extends LinearLayout {
 			} catch (IOException ex) {
 				ex.printStackTrace();
 				//Error loading image
-				replaceWithFileMissingView(index);
+				iv.setImageDrawable(getResources().getDrawable(R.drawable.question_mark));
 			} catch (InvalidReferenceException ex) {
 				ex.printStackTrace();
 				//No image
-				replaceWithFileMissingView(index);
+				iv.setImageDrawable(getResources().getDrawable(R.drawable.question_mark));
 			}
+		}
+		else {
+			iv.setImageDrawable(getResources().getDrawable(R.drawable.question_mark));
 		}
 	}
     

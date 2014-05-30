@@ -16,9 +16,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.io.StreamsUtil;
 import org.apache.commons.io.IOUtils;
-
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -74,7 +72,6 @@ public class MediaUtil {
 		}
 		return fis;	
 	}
-	
 
 	
 	/**

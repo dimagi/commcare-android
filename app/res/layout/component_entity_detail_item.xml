@@ -66,6 +66,16 @@
             android:padding="15dp"
             android:scaleType="fitCenter"
             android:visibility="visible" />
+        
+       <ImageButton
+            android:id="@+id/detail_audio_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:src="@drawable/speakers"
+        	android:layout_marginLeft="11dp"
+            android:layout_marginRight="4dp"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/detail_address_view"

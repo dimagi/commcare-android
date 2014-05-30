@@ -161,7 +161,7 @@ public class EntityDetailView extends FrameLayout {
 				currentView = imageView;
 				current = IMAGE;
 			}
-		} /*else if ("audio".equals(form)) {
+		} else if ("audio".equals(form)) {
 			String audioLocation = e.getField(index);
 			
 			if (current != AUDIO) {
@@ -170,7 +170,7 @@ public class EntityDetailView extends FrameLayout {
 				currentView = audioButton;
 				current = AUDIO;
 			}
-		}*/ else if(FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
+		} else if(FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
 			String videoLocation = e.getField(index);
 			String localLocation = null;
 			try{ 

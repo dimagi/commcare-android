@@ -14,9 +14,3 @@ test-app/bin/*
 test-app/gen/*
 */bin/*
 commcare-odk-test/gen/*
-*.orig
-*.classpath
-*.properties
-*.so
-*/libs/*
-.classpath
