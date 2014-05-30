@@ -60,7 +60,6 @@ public class EntityView extends LinearLayout {
 	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts, String[] searchTerms) {
 		super(context);
 		this.context = context;
-		System.out.println("CONSTRUCTOR 2 CALLED");
 		this.searchTerms = searchTerms;
 		this.tts = tts;
 		this.setWeightSum(1);
@@ -68,7 +67,6 @@ public class EntityView extends LinearLayout {
 		isErrorView = new boolean[views.length];
 		forms = d.getTemplateForms();
 		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
-		//fileMissingView = View.inflate(context, R.layout.component_missing_file, null);
 		
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
@@ -90,14 +88,12 @@ public class EntityView extends LinearLayout {
 	 */
 	public EntityView(Context context, Detail d, String[] headerText) {
 		super(context);
-		System.out.println("CONSTRUCTOR 1 CALLED");
 		this.context = context;
 		this.setWeightSum(1);
 		views = new View[headerText.length];
 		isErrorView = new boolean[views.length];
 		float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
 		String[] headerForms = d.getHeaderForms();
-		//fileMissingView = View.inflate(context, R.layout.component_missing_file, null);
 		
 		for (int i = 0 ; i < views.length ; ++i) {
 			if (lengths[i] != 0) {
@@ -122,7 +118,6 @@ public class EntityView extends LinearLayout {
         } 
 		else if ("audio".equals(form)) {
 			View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		//setupAudioLayout(layout,text);
     		retVal = layout;
         } 
         else {
@@ -275,23 +270,25 @@ public class EntityView extends LinearLayout {
     	}
 		ImageView iv = (ImageView) layout;
 		Bitmap b;
-		try {
-			b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
-			if (b == null) {
-				//Input stream could not be used to derive bitmap
+		if (!text.equals("")) { //TODO: figure out why this check is necessary
+			try {
+				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
+				if (b == null) {
+					//Input stream could not be used to derive bitmap
+					replaceWithFileMissingView(index);
+				}
+				else {
+					iv.setImageBitmap(b);
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				//Error loading image
+				replaceWithFileMissingView(index);
+			} catch (InvalidReferenceException ex) {
+				ex.printStackTrace();
+				//No image
 				replaceWithFileMissingView(index);
 			}
-			else {
-				iv.setImageBitmap(b);
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			//Error loading image
-			replaceWithFileMissingView(index);
-		} catch (InvalidReferenceException ex) {
-			ex.printStackTrace();
-			//No image
-			replaceWithFileMissingView(index);
 		}
 	}
     
