@@ -11,15 +11,18 @@
         android:layout_centerVertical="true" 
         android:layout_centerHorizontal="true" 
         android:src="@drawable/speakers" 
-        android:contentDescription="@string/image_button_desc"/>
+        android:contentDescription="@string/image_button_desc"
+        android:visibility="invisible"/>
 
     <TextView
+        android:id="@+id/component_audio_text_txt"
         style="@style/EntityItemTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/EntityItemText" 
-        android:layout_alignParentRight="true" 
-        android:layout_centerVertical="true" 
-        android:id="@+id/component_audio_text_txt"/>
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="30dp"
+        android:textAppearance="@style/EntityItemText"
+        android:visibility="visible" />
 
 </RelativeLayout>
