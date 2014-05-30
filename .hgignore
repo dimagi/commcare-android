@@ -19,3 +19,4 @@ commcare-odk-test/gen/*
 *.properties
 *.so
 */libs/*
+.classpath

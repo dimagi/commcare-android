@@ -56,30 +56,21 @@ public class EntityView extends LinearLayout {
 	 */
 	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts, String[] searchTerms) {
 		super(context);
-		Log.i("EntityView", "constructor with setParams");
 		this.searchTerms = searchTerms;
 		this.tts = tts;
-
 		this.setWeightSum(1);
-		
 		views = new View[e.getNumFields()];
 		forms = d.getTemplateForms();
-		System.out.println("ALL FORMS FOR THIS ENTITY");
-		for (int i = 0 ; i < forms.length; i++) {
-			System.out.println(forms[i]);
-		}
-		
 		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
 		
 		for(int i = 0 ; i < views.length ; ++i) {
 			if (weights[i] != 0) {
 				LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
-		        views[i] = getView(context, null, forms[i]);
+		        views[i] = establishView(context, null, forms[i]);
 		        views[i].setId(i);
 		        addView(views[i], l);
 			}
 		}
-        
 		setParams(e, false);
 	}
 	
@@ -88,11 +79,8 @@ public class EntityView extends LinearLayout {
 	 */
 	public EntityView(Context context, Detail d, String[] headerText) {
 		super(context);
-		Log.i("EntityView", "constructor without setParams");
 		this.setWeightSum(1);
 		views = new View[headerText.length];
-		
-		
 		float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
 		String[] headerForms = d.getHeaderForms();
 		
@@ -103,8 +91,7 @@ public class EntityView extends LinearLayout {
 		         * setParams will fill in those existing views with the appropriate content, depending
 		         * on the form type
 		         */
-		        views[i] = getView(context, headerText[i], headerForms[i]);
-		        
+		        views[i] = establishView(context, headerText[i], headerForms[i]);      
 		        views[i].setId(i);
 		        addView(views[i], l);
 			}
@@ -115,33 +102,18 @@ public class EntityView extends LinearLayout {
 	 * if form = "text", then 'text' field is just normal text
 	 * if form = "audio" or "image", then text is the path to the audio/image
 	 */
-	private View getView(Context context, String text, String form) {
+	private View establishView(Context context, String text, String form) {
 		View retVal;
 		if ("image".equals(form)) {
-			Log.i("form","=image");
 			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
-        	if (text != null) {
-				try {
-					Bitmap b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
-					iv.setImageBitmap(b);
-				} catch (IOException e) {
-					e.printStackTrace();
-					//Error loading image
-				} catch (InvalidReferenceException e) {
-					e.printStackTrace();
-					//No image
-				}
-        	}
         } 
 		else if ("audio".equals(form)) {
-			Log.i("form","=audio");
 			View layout = View.inflate(context, R.layout.component_audio_text, null);
     		setupAudioLayout(layout,text);
     		retVal = layout;
         } 
         else {
-        	Log.i("form","=regular text");
     		View layout = View.inflate(context, R.layout.component_audio_text, null);
     		setupTextAndTTSLayout(layout, text);
     		retVal = layout;
@@ -157,12 +129,10 @@ public class EntityView extends LinearLayout {
 	public void setParams(Entity e, boolean currentlySelected) {
 		for (int i = 0; i < e.getNumFields() ; ++i) {
 			String textField = e.getField(i);
-			Log.i("EntityView","textField in setParams: " + textField);
 			View view = views[i];
 			String form = forms[i];
 			
 			if (view == null) { continue; }
-			//if (textField == null) continue;
 			
 			if ("audio".equals(form)) {
 				setupAudioLayout(view, textField);
@@ -215,43 +185,39 @@ public class EntityView extends LinearLayout {
 			}
     	});
 		
+		boolean mpFailure = true;
 		if (text != null) {
 			//try to initialize the media player
-			boolean mpFailure = false;
 			try {
 				mp = new MediaPlayer();
 				InputStream is = ReferenceManager._().DeriveReference(text).getStream();
 				fis = MediaUtil.inputStreamToFIS(is);
 				mp.setDataSource(fis.getFD());
 				mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+				mpFailure = false;
 			}
 			catch (Exception e) {
-				mpFailure = true;
-				System.out.println("could not set data source");
 				e.printStackTrace();
 			}
-			
-			//show/hide audio button based on media player set-up
-			if (mpFailure) {
-				System.out.println("audio button set to invisible");
-				btn.setVisibility(View.INVISIBLE);
-				RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-				params.width = 0;
-				btn.setLayoutParams(params);
-			} 
-			else {
-				System.out.println("audio button set to visible");
-				btn.setVisibility(View.VISIBLE);
-				RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-				params.width = LayoutParams.WRAP_CONTENT;
-				btn.setLayoutParams(params);
-			}
+		}
+		//show/hide audio button based on media player set-up
+		if (mpFailure) {
+			btn.setVisibility(View.INVISIBLE);
+			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+			params.width = 0;
+			btn.setLayoutParams(params);
+		} 
+		else {
+			btn.setVisibility(View.VISIBLE);
+			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+			params.width = LayoutParams.WRAP_CONTENT;
+			btn.setLayoutParams(params);
 		}
     }
 	
 	private void setupTextAndTTSLayout(View layout, final String text) {
-    	Log.i("form", "setupTextAndTTSLayout entered");
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
+	    tv.setText(highlightSearches(text == null ? "" : text));
 		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
 		btn.setFocusable(false);
 
@@ -274,12 +240,10 @@ public class EntityView extends LinearLayout {
 			params.width=LayoutParams.WRAP_CONTENT;
 			btn.setLayoutParams(params);
 		}
-	    tv.setText(highlightSearches(text == null ? "" : text));
     }
 	
 	
 	public void setupImageLayout(View layout, final String text) {
-    	Log.i("form", "setupImageLayout entered");
 		ImageView iv = (ImageView) layout;
 		Bitmap b;
 		try {
@@ -287,9 +251,7 @@ public class EntityView extends LinearLayout {
 				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
 				//TODO: shouldn't this check if b is null?
 				iv.setImageBitmap(b);
-				Log.i("form", "bitmap image set");
 			} else{
-				Log.i("form", "text is empty");
 				iv.setImageBitmap(null);
 			}
 		} catch (IOException ex) {
@@ -305,11 +267,10 @@ public class EntityView extends LinearLayout {
     
     private Spannable highlightSearches(String input) {
     	
-	    Spannable raw=new SpannableString(input);
-	    
+	    Spannable raw = new SpannableString(input);
 	    String normalized = input.toLowerCase();
 		
-    	if(searchTerms == null) {
+    	if (searchTerms == null) {
     		return raw;
     	}
 	    
@@ -319,10 +280,10 @@ public class EntityView extends LinearLayout {
 			raw.removeSpan(span);
 		}
 	    
-	    for(String searchText : searchTerms) {
-	    	if(searchText == "") { continue;}
+	    for (String searchText : searchTerms) {
+	    	if (searchText == "") { continue;}
 	
-		    int index=TextUtils.indexOf(normalized, searchText);
+		    int index = TextUtils.indexOf(normalized, searchText);
 		    
 		    while (index >= 0) {
 		      raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
