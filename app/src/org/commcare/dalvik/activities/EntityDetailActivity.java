@@ -190,4 +190,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 		intent.setDataAndType(Uri.parse(videoRef), "video/*");
 		startActivity(intent);
 	}
+
+
 }

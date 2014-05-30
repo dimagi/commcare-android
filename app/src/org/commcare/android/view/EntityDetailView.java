@@ -37,64 +37,52 @@ public class EntityDetailView extends FrameLayout {
 	private TextView data;
 	private TextView spacer;
 	private Button callout;
-	
 	private View addressView;
 	private Button addressButton;
 	private TextView addressText;
 	private ImageView imageView;
-
 	private ImageButton videoButton;
-	
+	private ImageButton audioButton;
 	private View valuePane;
-	
 	private View currentView;
-	private LinearLayout detailRow;
 	
+	private LinearLayout detailRow;
 	private LinearLayout.LayoutParams origValue;
 	private LinearLayout.LayoutParams origLabel;
-	
 	private LinearLayout.LayoutParams fill;
 	
 	private static final String FORM_VIDEO = "video";
-	
-	int current = TEXT;
 	private static final int TEXT = 0;
 	private static final int PHONE = 1;
 	private static final int ADDRESS = 2;
 	private static final int IMAGE = 3;
 	private static final int VIDEO = 4;
-	
+	private static final int AUDIO = 5;
+	int current = TEXT;
 	
 	DetailCalloutListener listener;
 
 	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index) {
 		super(context);
 		detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
-		
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
-        spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer);
-	    
+        spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer); 
 	    data = (TextView)detailRow.findViewById(R.id.detail_value_text);
 	    currentView = data;
-	    
 	    valuePane = detailRow.findViewById(R.id.detail_value_pane);
-	    
 	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
-	    
+	    audioButton = (ImageButton)detailRow.findViewById(R.id.detail_audio_button);
 	    callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
 	    //TODO: Still useful?
 	    //callout.setInputType(InputType.TYPE_CLASS_PHONE);
-	    
 	    addressView = (View)detailRow.findViewById(R.id.detail_address_view);
 	    addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
 	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
 	    imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
-	    
 	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
 	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 	    
 	    fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-	    
 	    this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 	    setParams(session, d, e, index);
 	}
@@ -109,8 +97,8 @@ public class EntityDetailView extends FrameLayout {
 		spacer.setText(labelText);
 		
 		boolean veryLong = false;
-		
-		if("phone".equals(d.getTemplateForms()[index])) {
+		String form = d.getTemplateForms()[index];
+		if("phone".equals(form)) {
 			callout.setText(e.getField(index));
 			if(current != PHONE) {
 				callout.setOnClickListener(new OnClickListener() {
@@ -126,7 +114,7 @@ public class EntityDetailView extends FrameLayout {
 				currentView = callout;
 				current = PHONE;
 			}
-		} else if("address".equals(d.getTemplateForms()[index])) {
+		} else if("address".equals(form)) {
 			final String address = e.getField(index);
 			
 			addressText.setText(address);
@@ -144,7 +132,7 @@ public class EntityDetailView extends FrameLayout {
 				currentView = addressView;
 				current = ADDRESS;
 			}
-		} else if("image".equals(d.getTemplateForms()[index])) {
+		} else if("image".equals(form)) {
 			String imageLocation = e.getField(index);
 			Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
 			
@@ -173,7 +161,16 @@ public class EntityDetailView extends FrameLayout {
 				currentView = imageView;
 				current = IMAGE;
 			}
-		} else if(FORM_VIDEO.equals(d.getTemplateForms()[index])) {
+		} /*else if ("audio".equals(form)) {
+			String audioLocation = e.getField(index);
+			
+			if (current != AUDIO) {
+				currentView.setVisibility(View.GONE);
+				videoButton.setVisibility(View.VISIBLE);
+				currentView = audioButton;
+				current = AUDIO;
+			}
+		}*/ else if(FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
 			String videoLocation = e.getField(index);
 			String localLocation = null;
 			try{ 
