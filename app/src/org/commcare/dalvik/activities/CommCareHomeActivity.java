@@ -822,7 +822,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 				session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
 				session.setDatum("", "awful");
 			} else {
-				session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+				try {
+					session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+				}
+				catch (RuntimeException e) {
+					displayException(e);
+					return;
+				}
 			}
 			startNextFetch();
     	}
