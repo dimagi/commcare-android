@@ -72,7 +72,8 @@ public class EntityDetailView extends FrameLayout {
 	
 	DetailCalloutListener listener;
 
-	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index) {
+	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
+			MediaPlayer mp) {
 		super(context);
 		detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
@@ -94,6 +95,7 @@ public class EntityDetailView extends FrameLayout {
 	    
 	    fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+	    this.mp = mp;
 	    setParams(session, d, e, index);
 	}
 	
@@ -172,13 +174,11 @@ public class EntityDetailView extends FrameLayout {
 				current = IMAGE;
 			}
 		} else if ("audio".equals(form)) {
-			System.out.println("form = audio in EntityDetailView");
 			String audioLocation = e.getField(index);
 			boolean mpFailure = true;
 			if (audioLocation != null && !audioLocation.equals("")) {
 				//try to initialize the media player
 				try {
-					mp = new MediaPlayer();
 					InputStream is = ReferenceManager._().DeriveReference(audioLocation).getStream();
 					fis = MediaUtil.inputStreamToFIS(is);
 					mp.setDataSource(fis.getFD());
@@ -191,11 +191,9 @@ public class EntityDetailView extends FrameLayout {
 			}
 			//enable/disable audio button based on media player set-up
 			if (mpFailure) {
-				System.out.println("audio button un-enabled");
 				audioButton.setEnabled(false);
 			} 
 			else {
-				System.out.println("audio button enabled");
 				audioButton.setEnabled(true);
 			}
 			
@@ -203,9 +201,7 @@ public class EntityDetailView extends FrameLayout {
 
 				@Override
 				public void onClick(View v) {
-					System.out.println("Audio button onClick called");
 					if (mp.isPlaying()) {
-						System.out.println("mp is playing");
 						mp.stop();
 						try {
 							fis.close();
@@ -214,7 +210,6 @@ public class EntityDetailView extends FrameLayout {
 						}
 					}
 					else {
-						System.out.println("mp is not playing");
 						try {
 							mp.prepare();
 							mp.start();

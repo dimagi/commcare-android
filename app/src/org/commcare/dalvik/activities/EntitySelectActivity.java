@@ -6,15 +6,12 @@ package org.commcare.dalvik.activities;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
@@ -44,6 +41,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -92,6 +90,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	ImageButton barcodeButton;
 	
 	TextToSpeech tts;
+	ArrayList<MediaPlayer> players;
 	
 	SessionDatum selectDatum;
 	
@@ -209,7 +208,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
         	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         }
-        
+        players = new ArrayList<MediaPlayer>();
 		//cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
     }
@@ -362,7 +361,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     		updateSelectedItem(selection, false);
     	} else {
     		Intent i = getDetailIntent(selection);
-    		if(mNoDetailMode) {
+    		if (mNoDetailMode) {
         		returnWithResult(i);
         	} else  {
         		startActivityForResult(i, CONFIRM_SELECT);
@@ -564,8 +563,22 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
     
     @Override
+    public void onPause() {
+    	super.onPause();
+    	System.out.println("onPause called for EntitySelectActivity");
+    	for (MediaPlayer mp : players) {
+    		if (mp.isPlaying()) {
+    			mp.stop();
+    		}
+        }
+    }
+    
+
+    
+    @Override
     public void onDestroy() {
     	super.onDestroy();
+    	System.out.println("onDestroy called for EntitySelectActivity");
     	if(loader != null) {
     		if(isFinishing()) {
     			loader.cancel(false);
@@ -577,6 +590,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if (tts != null) {
             tts.stop();
             tts.shutdown();
+        }
+        
+        for (MediaPlayer mp : players) {
+        	mp.reset();
+        	mp.release();
         }
     }
     
@@ -605,7 +623,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	}
 		
     	ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts);
+		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, players);
 		view.setAdapter(adapter);
 		
 		findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
@@ -653,6 +671,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	NodeEntityFactory factory;
 	
 	public void displayReferenceAwesome(final TreeReference selection) {
+		System.out.println("CALLED displayReferenceAwesome");
         selectedIntent = getDetailIntent(selection);
 		//this should be 100% "fragment" able
 		if(!rightFrameSetup) {
@@ -689,8 +708,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		}
 		
 		Entity entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
-
-		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null);
+		
+		//TODO: FIX THIS
+		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null, new MediaPlayer());
 	    ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
 	}
 

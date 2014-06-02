@@ -6,6 +6,8 @@ package org.commcare.android.view;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.MediaUtil;
@@ -42,23 +44,29 @@ public class EntityView extends LinearLayout {
 	private View[] views;
 	private String[] forms;
 	private TextToSpeech tts; 
-	private MediaPlayer mp;
 	private FileInputStream fis;
 	private String[] searchTerms;
 	private Context context;
+	private MediaPlayer mp;
+	private ArrayList<MediaPlayer> players;
+	private boolean[] audioInitialized;
 
 	/*
 	 * Constructor for row/column contents
 	 */
-	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts, String[] searchTerms) {
+	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts, MediaPlayer mp,
+			ArrayList<MediaPlayer> players, String[] searchTerms) {
 		super(context);
 		this.context = context;
 		this.searchTerms = searchTerms;
 		this.tts = tts;
+		this.mp = mp;
+		this.players = players;
 		this.setWeightSum(1);
 		views = new View[e.getNumFields()];
 		forms = d.getTemplateForms();
 		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
+		audioInitialized = new boolean[views.length];
 		
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
@@ -151,16 +159,54 @@ public class EntityView extends LinearLayout {
 	 
         
     private void setupAudioLayout(View layout, final String text, int index) {
-    	Log.i("form", "setupAudioLayout entered");
     	ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
     	btn.setVisibility(View.VISIBLE);
 		btn.setFocusable(false);
+		
+		boolean mpFailure = false;
+		if (text != null && !text.equals("")) {
+			if (!audioInitialized[index]) {
+				try {
+					InputStream is = ReferenceManager._().DeriveReference(text).getStream();
+					fis = MediaUtil.inputStreamToFIS(is);
+					mp.setDataSource(fis.getFD());
+					mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+					audioInitialized[index] = true;
+					System.out.println("setDataSource called for button with text " + text);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					mpFailure = true;
+				}
+			}			
+		}
+		else {
+			mpFailure = true;
+		}
+		//enable/disable audio button based on media player set-up
+		if (mpFailure) {
+			btn.setEnabled(false);
+			System.out.println("audio button disabled");
+		} 
+		else {
+			btn.setEnabled(true);
+			System.out.println("audio button enabled");
+		}
+
+		RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+		params.width = LayoutParams.WRAP_CONTENT;
+		btn.setLayoutParams(params);
 		btn.setOnClickListener(new OnClickListener(){
 
 			@Override
 			public void onClick(View v) {
-				if (mp.isPlaying()) {
-					mp.stop();
+				boolean wasPlaying = mp.isPlaying();
+				for (MediaPlayer player : players) {
+					System.out.println("stop called on button with text " + text);
+					if (player.isPlaying()) { player.stop(); }
+				}
+				if (wasPlaying) {
+					System.out.println("wasPlaying entered");
 					try {
 						fis.close();
 					} catch (IOException e) {
@@ -168,6 +214,7 @@ public class EntityView extends LinearLayout {
 					}
 				}
 				else {
+					System.out.println("was not playing entered");
 					try {
 						mp.prepare();
 						mp.start();
@@ -179,35 +226,6 @@ public class EntityView extends LinearLayout {
 				}
 			}
     	});
-		
-		boolean mpFailure = true;
-		if (text != null && !text.equals("")) {
-			//try to initialize the media player
-			try {
-				mp = new MediaPlayer();
-				InputStream is = ReferenceManager._().DeriveReference(text).getStream();
-				fis = MediaUtil.inputStreamToFIS(is);
-				mp.setDataSource(fis.getFD());
-				mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-				mpFailure = false;
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		//enable/disable audio button based on media player set-up
-		if (mpFailure) {
-			btn.setEnabled(false);
-			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-			params.width = LayoutParams.WRAP_CONTENT;
-			btn.setLayoutParams(params);
-		} 
-		else {
-			btn.setEnabled(true);
-			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-			params.width = LayoutParams.WRAP_CONTENT;
-			btn.setLayoutParams(params);
-		}
     }
 	
 	private void setupTextAndTTSLayout(View layout, final String text) {
@@ -228,12 +246,12 @@ public class EntityView extends LinearLayout {
 		if (tts == null || text == null || text.equals("")) {
 			btn.setVisibility(View.INVISIBLE);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-			params.width= 0;
+			params.width = 0;
 			btn.setLayoutParams(params);
 		} else {
 			btn.setVisibility(View.VISIBLE);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-			params.width=LayoutParams.WRAP_CONTENT;
+			params.width = LayoutParams.WRAP_CONTENT;
 			btn.setLayoutParams(params);
 		}
     }

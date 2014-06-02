@@ -24,6 +24,7 @@ import org.javarosa.core.model.instance.TreeReference;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -37,23 +38,19 @@ import android.widget.ListView;
  */
 @ManagedUi(R.layout.entity_detail)
 public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
+	
 	private CommCareSession session;
 	private AndroidSessionWrapper asw;
-	
 	private static final int CALL_OUT = 0;
-	
 	public static final String IS_DEAD_END = "eda_ide";
-	
 	public static final String CONTEXT_REFERENCE = "eda_crid";
-
 	public static final String DETAIL_ID = "eda_detail_id";
 		
 	Entry prototype;
-	
 	Entity<TreeReference> entity;
-	
 	EntityDetailAdapter adapter;
 	NodeEntityFactory factory;
+	MediaPlayer mp;
 	
 	@UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
 	Button next;
@@ -62,7 +59,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     public void onCreate(Bundle savedInstanceState) {        
         super.onCreate(savedInstanceState);
 
-        if(this.getString(R.string.panes).equals("two")) {
+        if (this.getString(R.string.panes).equals("two")) {
         	if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
         		//this occurs when the screen was rotated to be vertical on the select activity. We
         		//want to navigate back to that screen now.
@@ -71,8 +68,8 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         		return;
         	}
         }
-        
-        try{
+     
+        try {
 	        next.setOnClickListener(new OnClickListener() {
 	
 				public void onClick(View v) {
@@ -90,9 +87,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	        }
 	        
 	        asw = CommCareApplication._().getCurrentSessionWrapper();
-	        session = asw.getSession();
-	        
-	        
+	        session = asw.getSession();	        
 	        String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
 	        
 			Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
@@ -107,6 +102,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         } catch(SessionUnavailableException sue) {
         	//TODO: Login and return to try again
         }
+        mp = new MediaPlayer();
     }
     
     @Override
@@ -136,12 +132,23 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this);
+    	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, mp);
     	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }
         
     protected void loadOutgoingIntent(Intent i) {
     	i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
+    }
+    
+    @Override
+    public void onDestroy() {
+    	mp.reset();
+    	mp.release();
+    }
+    
+    @Override
+    public void onPause() {
+    	mp.stop();
     }
     
     /*

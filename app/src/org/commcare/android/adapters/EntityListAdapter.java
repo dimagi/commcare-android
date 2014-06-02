@@ -5,6 +5,7 @@ package org.commcare.android.adapters;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import org.commcare.android.models.Entity;
@@ -22,6 +23,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.media.MediaPlayer;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +45,7 @@ public class EntityListAdapter implements ListAdapter {
 	List<TreeReference> references;
 	Detail d;
 	TextToSpeech tts;
+	ArrayList<MediaPlayer> players;
 	
 	private TreeReference selected;
 	
@@ -53,13 +56,14 @@ public class EntityListAdapter implements ListAdapter {
 
 	private String[] currentSearchTerms;
 	
-	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts) throws SessionUnavailableException {
+	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, 
+			List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts, ArrayList<MediaPlayer> players) 
+					throws SessionUnavailableException {
 		this.d = d;
 		
 		this.full = full;
 		current = new ArrayList<Entity<TreeReference>>();
 		this.references = references;
-		
 		
 		this.context = context;
 		this.observers = new ArrayList<DataSetObserver>();
@@ -69,6 +73,7 @@ public class EntityListAdapter implements ListAdapter {
 		}
 		filterValues("");
 		this.tts = tts;
+		this.players = players;
 	}
 
 	private void filterValues(String filterRaw) {
@@ -249,7 +254,9 @@ public class EntityListAdapter implements ListAdapter {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if(emv == null) {
-			emv = new EntityView(context, d, e, tts, currentSearchTerms);
+			MediaPlayer mp = new MediaPlayer();
+			players.add(mp);
+			emv = new EntityView(context, d, e, tts, mp, players, currentSearchTerms);
 		} else{
 			emv.setSearchTerms(currentSearchTerms);
 			emv.setParams(e, e.getElement().equals(selected));

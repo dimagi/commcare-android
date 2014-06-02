@@ -14,6 +14,7 @@ import org.commcare.util.CommCareSession;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.media.MediaPlayer;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -30,13 +31,16 @@ public class EntityDetailAdapter implements ListAdapter {
 	Entity entity;
 	DetailCalloutListener listener;
 	List<Integer> valid;
+	MediaPlayer mp;
 	
-	public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, DetailCalloutListener listener) {		
+	public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
+			DetailCalloutListener listener, MediaPlayer mp) {		
 		this.context = context;
 		this.session = session;
 		this.detail = detail;
 		this.entity = entity;
 		this.listener = listener;
+		this.mp = mp;
 		valid = new ArrayList<Integer>(); 
 		for(int i = 0 ; i < entity.getNumFields() ; ++i ) {
 			if(!entity.getField(i).equals("")) {
@@ -92,8 +96,8 @@ public class EntityDetailAdapter implements ListAdapter {
 	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
 		EntityDetailView dv =(EntityDetailView)convertView;
-		if(dv == null) {
-			dv = new EntityDetailView(context, session, detail, entity, valid.get(position));
+		if (dv == null) {
+			dv = new EntityDetailView(context, session, detail, entity, valid.get(position), mp);
 			dv.setCallListener(listener);
 		} else{
 			dv.setParams(session, detail, entity, valid.get(position));
