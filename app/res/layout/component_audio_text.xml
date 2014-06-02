@@ -6,11 +6,10 @@
     <ImageButton
         android:id="@+id/component_audio_text_btn_audio"
         android:layout_width="wrap_content"
-        android:visible="true"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true" 
         android:layout_centerHorizontal="true" 
-        android:src="@drawable/speakers" 
+        android:src="@android:drawable/ic_media_play" 
         android:contentDescription="@string/image_button_desc"
         android:visibility="invisible"/>
 

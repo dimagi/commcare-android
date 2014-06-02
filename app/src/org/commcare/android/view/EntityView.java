@@ -101,7 +101,6 @@ public class EntityView extends LinearLayout {
 	 * if form = "audio" or "image", then text is the path to the audio/image
 	 */
 	private View establishView(String text, String form) {
-		System.out.println("ESTABLISH VIEW CALLED");
 		View retVal;
 		if ("image".equals(form)) {
 			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
@@ -127,7 +126,6 @@ public class EntityView extends LinearLayout {
 	public void setParams(Entity e, boolean currentlySelected) {
 		for (int i = 0; i < e.getNumFields() ; ++i) {
 			String textField = e.getField(i);
-			System.out.println("Current Text: " + textField);
 			View view = views[i];
 			String form = forms[i];
 			
@@ -135,17 +133,12 @@ public class EntityView extends LinearLayout {
 			
 			if ("audio".equals(form)) {
 				setupAudioLayout(view, textField, i);
-				System.out.println("form is audio");
 			}
 			else if("image".equals(form)) {
 				setupImageLayout(view, textField, i);
-				System.out.println("form is image");
-
 	        } 
 			else { //text to speech
 		        setupTextAndTTSLayout(view, textField);
-				System.out.println("form is text");
-
 	        }
 		}
 		
@@ -171,7 +164,6 @@ public class EntityView extends LinearLayout {
 					try {
 						fis.close();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -180,10 +172,8 @@ public class EntityView extends LinearLayout {
 						mp.prepare();
 						mp.start();
 					} catch (IllegalStateException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -222,6 +212,7 @@ public class EntityView extends LinearLayout {
 	
 	private void setupTextAndTTSLayout(View layout, final String text) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
+		tv.setVisibility(View.VISIBLE);
 	    tv.setText(highlightSearches(text == null ? "" : text));
 		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
 		btn.setFocusable(false);
@@ -256,7 +247,7 @@ public class EntityView extends LinearLayout {
 				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
 				if (b == null) {
 					//Input stream could not be used to derive bitmap
-					iv.setImageDrawable(getResources().getDrawable(R.drawable.question_mark));
+					iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
 				}
 				else {
 					iv.setImageBitmap(b);
@@ -264,15 +255,15 @@ public class EntityView extends LinearLayout {
 			} catch (IOException ex) {
 				ex.printStackTrace();
 				//Error loading image
-				iv.setImageDrawable(getResources().getDrawable(R.drawable.question_mark));
+				iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
 			} catch (InvalidReferenceException ex) {
 				ex.printStackTrace();
 				//No image
-				iv.setImageDrawable(getResources().getDrawable(R.drawable.question_mark));
+				iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
 			}
 		}
 		else {
-			iv.setImageDrawable(getResources().getDrawable(R.drawable.question_mark));
+			iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
 		}
 	}
     

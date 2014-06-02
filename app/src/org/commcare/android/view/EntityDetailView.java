@@ -3,6 +3,10 @@
  */
 package org.commcare.android.view;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -17,15 +21,20 @@ import org.javarosa.core.services.Logger;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
 
 /**
  * @author ctsims
@@ -45,7 +54,8 @@ public class EntityDetailView extends FrameLayout {
 	private ImageButton audioButton;
 	private View valuePane;
 	private View currentView;
-	
+	private MediaPlayer mp;
+	private FileInputStream fis;
 	private LinearLayout detailRow;
 	private LinearLayout.LayoutParams origValue;
 	private LinearLayout.LayoutParams origLabel;
@@ -162,11 +172,65 @@ public class EntityDetailView extends FrameLayout {
 				current = IMAGE;
 			}
 		} else if ("audio".equals(form)) {
+			System.out.println("form = audio in EntityDetailView");
 			String audioLocation = e.getField(index);
+			boolean mpFailure = true;
+			if (audioLocation != null && !audioLocation.equals("")) {
+				//try to initialize the media player
+				try {
+					mp = new MediaPlayer();
+					InputStream is = ReferenceManager._().DeriveReference(audioLocation).getStream();
+					fis = MediaUtil.inputStreamToFIS(is);
+					mp.setDataSource(fis.getFD());
+					mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+					mpFailure = false;
+				}
+				catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+			//enable/disable audio button based on media player set-up
+			if (mpFailure) {
+				System.out.println("audio button un-enabled");
+				audioButton.setEnabled(false);
+			} 
+			else {
+				System.out.println("audio button enabled");
+				audioButton.setEnabled(true);
+			}
+			
+			audioButton.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					System.out.println("Audio button onClick called");
+					if (mp.isPlaying()) {
+						System.out.println("mp is playing");
+						mp.stop();
+						try {
+							fis.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+					else {
+						System.out.println("mp is not playing");
+						try {
+							mp.prepare();
+							mp.start();
+						} catch (IllegalStateException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+	    	});
+			
 			
 			if (current != AUDIO) {
 				currentView.setVisibility(View.GONE);
-				videoButton.setVisibility(View.VISIBLE);
+				audioButton.setVisibility(View.VISIBLE);
 				currentView = audioButton;
 				current = AUDIO;
 			}
