@@ -64,10 +64,9 @@ public class EntityView extends LinearLayout {
 		
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
-		        ViewId uniqueId = new ViewId(rowId, i);
+		        Object uniqueId = new ViewId(rowId, i);
 		        views[i] = establishView(null, forms[i], uniqueId);
 		        views[i].setId(i);
-				
 			}
 		}
 		setParams(e, false, rowId);
@@ -103,7 +102,7 @@ public class EntityView extends LinearLayout {
 	 * if form = "text", then 'text' field is just normal text
 	 * if form = "audio" or "image", then text is the path to the audio/image
 	 */
-	private View establishView(String text, String form, ViewId uniqueId) {
+	private View establishView(String text, String form, Object uniqueId) {
 		View retVal;
 		if ("image".equals(form)) {
 			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);

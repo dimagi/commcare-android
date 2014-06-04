@@ -28,7 +28,6 @@ import org.odk.collect.android.views.media.ViewId;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -41,7 +40,7 @@ import android.widget.ListView;
  *
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener, AudioController {
+public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
 	
 	private CommCareSession session;
 	private AndroidSessionWrapper asw;
@@ -54,8 +53,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	Entity<TreeReference> entity;
 	EntityDetailAdapter adapter;
 	NodeEntityFactory factory;
-	MediaEntity currentEntity;
-	AudioButton currentButton;
 	
 	@UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
 	Button next;
@@ -147,15 +144,11 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @Override
     public void onDestroy() {
     	super.onDestroy();
-    	stopCurrent(); 
-    	removeCurrent();
     }
     
     @Override
     public void onPause() {
     	super.onPause();
-    	stopCurrent();
-    	removeCurrent();
     }
     
     /*
@@ -204,52 +197,5 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 		intent.setDataAndType(Uri.parse(videoRef), "video/*");
 		startActivity(intent);
 	}
-
-	@Override
-	public MediaEntity getCurrMedia() {
-		return currentEntity;
-	}
-	
-	@Override
-	public void refreshCurrentButton(AudioButton clicked) {
-    	if (currentButton != null && currentButton != clicked) {
-    		System.out.println("setting current button to ready state");
-    		currentButton.setStateToReady();
-    	}
-	}
-
-	@Override
-	public void setCurrent(MediaEntity e, AudioButton b) {
-		setCurrent(e);
-		currentButton = b;
-		System.out.println("current button in setCurrent has state " + currentButton.getButtonState());
-	}
-	
-	@Override
-	public void setCurrent(MediaEntity e) {
-		stopCurrent();
-		removeCurrent();
-		currentEntity = e;
-	}
-	
-	@Override
-	public void stopCurrent() {
-		if (currentEntity != null) {
-			MediaPlayer mp = currentEntity.getPlayer();
-			mp.reset();
-			mp.release();	
-		}
-	}
-	
-	@Override
-	public void removeCurrent() {
-		currentEntity = null;
-	}
-	
-	@Override
-	public ViewId getCurrId() {
-		return currentEntity.getId();
-	}
-
 
 }

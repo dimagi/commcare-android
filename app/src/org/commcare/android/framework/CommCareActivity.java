@@ -16,12 +16,16 @@ import org.commcare.util.SessionFrame;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.MediaEntity;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -38,14 +42,16 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R> {
+public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, AudioController {
 	
 	protected final static int DIALOG_PROGRESS = 32;
 	protected final static String DIALOG_TEXT = "cca_dialog_text";
-	
+
 	StateFragment stateHolder;
 	private boolean firstRun = true;
-
+	private MediaEntity currentEntity;
+	private AudioButton currentButton;
+	
 	@Override
 	@TargetApi(14)
 	protected void onCreate(Bundle savedInstanceState) {
@@ -197,6 +203,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	protected void onPause() {
 		super.onPause();
 	    visible = false;
+	    onImplementerPause();
 	}
 	
 	protected boolean isInVisibleState() {
@@ -209,6 +216,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		onImplementerDestroy();
 	}
 	
 	protected void updateProgress(int taskId, String updateText) {
@@ -412,4 +420,66 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	public boolean isFirstRun(){
 		return this.firstRun;
 	}
+	
+	@Override
+	public MediaEntity getCurrMedia() {
+		return currentEntity;
+	}
+	
+	@Override
+	public void refreshCurrentButton(AudioButton clicked) {
+    	if (currentButton != null && currentButton != clicked) {
+    		System.out.println("setting current button to ready state");
+    		currentButton.setStateToReady();
+    	}
+	}
+
+	@Override
+	public void setCurrent(MediaEntity e, AudioButton b) {
+		refreshCurrentButton(b);
+		setCurrent(e);
+		currentButton = b;
+		System.out.println("current button in setCurrent has state " + currentButton.getButtonState());
+	}
+	
+	@Override
+	public void setCurrent(MediaEntity e) {
+		stopCurrent();
+		removeCurrent();
+		currentEntity = e;
+	}
+	
+	@Override
+	public void stopCurrent() {
+		if (currentEntity != null) {
+			MediaPlayer mp = currentEntity.getPlayer();
+			mp.reset();
+			mp.release();	
+		}
+	}
+	
+	@Override
+	public void removeCurrent() {
+		currentEntity = null;
+	}
+	
+	@Override
+	public Object getCurrId() {
+		return currentEntity.getId();
+	}
+	
+	@Override
+	public void onImplementerPause() {
+    	refreshCurrentButton(null);
+        stopCurrent();
+        removeCurrent();
+	}
+	
+	@Override
+	public void onImplementerDestroy() {
+    	refreshCurrentButton(null);
+        stopCurrent();
+        removeCurrent();
+	}
+
 }

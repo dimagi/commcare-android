@@ -76,7 +76,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, AudioController  {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
 	private CommCareSession session;
 	private AndroidSessionWrapper asw;
 	
@@ -97,10 +97,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	ImageButton barcodeButton;
 	
 	TextToSpeech tts;
-	
-	
-	private MediaEntity currentEntity;
-	private AudioButton currentButton;
 	
 	SessionDatum selectDatum;
 	
@@ -136,7 +132,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         try {
         	asw = CommCareApplication._().getCurrentSessionWrapper();
         	session = asw.getSession();
-        }catch(SessionUnavailableException sue){
+        } catch(SessionUnavailableException sue){
         	//The user isn't logged in! bounce this back to where we came from
         	this.setResult(Activity.RESULT_CANCELED);
         	this.finish();
@@ -574,9 +570,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public void onPause() {
     	super.onPause();
-    	currentButton.setStateToReady();
-    	stopCurrent();
-    	removeCurrent();
     }
     
     @Override
@@ -595,10 +588,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             tts.stop();
             tts.shutdown();
         }
-        
-    	currentButton.setStateToReady();
-        stopCurrent();
-        removeCurrent();
     }
     
     @Override
@@ -737,52 +726,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         mAlertDialog.setCancelable(false);
         mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
         mAlertDialog.show();
-	}
-
-	@Override
-	public MediaEntity getCurrMedia() {
-		return currentEntity;
-	}
-	
-	@Override
-	public void refreshCurrentButton(AudioButton clicked) {
-    	if (currentButton != null && currentButton != clicked) {
-    		System.out.println("setting current button to ready state");
-    		currentButton.setStateToReady();
-    	}
-	}
-
-	@Override
-	public void setCurrent(MediaEntity e, AudioButton b) {
-		setCurrent(e);
-		currentButton = b;
-		System.out.println("current button in setCurrent has state " + currentButton.getButtonState());
-	}
-	
-	@Override
-	public void setCurrent(MediaEntity e) {
-		stopCurrent();
-		removeCurrent();
-		currentEntity = e;
-	}
-	
-	@Override
-	public void stopCurrent() {
-		if (currentEntity != null) {
-			MediaPlayer mp = currentEntity.getPlayer();
-			mp.reset();
-			mp.release();	
-		}
-	}
-	
-	@Override
-	public void removeCurrent() {
-		currentEntity = null;
-	}
-	
-	@Override
-	public ViewId getCurrId() {
-		return currentEntity.getId();
 	}
 
 
