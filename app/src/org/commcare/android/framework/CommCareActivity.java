@@ -18,6 +18,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ButtonState;
 import org.odk.collect.android.views.media.MediaEntity;
 
 import android.annotation.TargetApi;
@@ -428,8 +429,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void refreshCurrentButton(AudioButton clicked) {
+		System.out.println("refresh current button called");
     	if (currentButton != null && currentButton != clicked) {
-    		System.out.println("setting current button to ready state");
+    		System.out.println("FLAG: setting outgoing current button to ready state");
     		currentButton.setStateToReady();
     	}
 	}
@@ -480,6 +482,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     	refreshCurrentButton(null);
         stopCurrent();
         removeCurrent();
+	}
+	
+	@Override
+	public void setCurrState(ButtonState state) {
+		currentEntity.setState(state);
 	}
 
 }
