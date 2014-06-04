@@ -446,23 +446,37 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void setCurrent(MediaEntity e) {
-		stopCurrent();
 		removeCurrent();
 		currentEntity = e;
 	}
 	
+	
 	@Override
-	public void stopCurrent() {
+	public void removeCurrent() {
 		if (currentEntity != null) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.reset();
 			mp.release();	
 		}
+		currentEntity = null;
 	}
 	
 	@Override
-	public void removeCurrent() {
-		currentEntity = null;
+	public void playCurrent() {
+		if (currentEntity != null) {
+			MediaPlayer mp = currentEntity.getPlayer();
+			mp.start();	
+		}
+		currentEntity.setState(ButtonState.Playing);
+	}
+	
+	@Override
+	public void pauseCurrent() {
+		if (currentEntity != null) {
+			MediaPlayer mp = currentEntity.getPlayer();
+			mp.pause();	
+		}
+		currentEntity.setState(ButtonState.Paused);
 	}
 	
 	@Override
@@ -473,14 +487,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	public void onImplementerPause() {
     	refreshCurrentButton(null);
-        stopCurrent();
         removeCurrent();
 	}
 	
 	@Override
 	public void onImplementerDestroy() {
     	refreshCurrentButton(null);
-        stopCurrent();
         removeCurrent();
 	}
 	
@@ -488,5 +500,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	public void setCurrState(ButtonState state) {
 		currentEntity.setState(state);
 	}
+
 
 }
