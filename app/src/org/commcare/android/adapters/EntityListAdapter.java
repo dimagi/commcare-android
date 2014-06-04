@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -20,6 +21,8 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -45,7 +48,7 @@ public class EntityListAdapter implements ListAdapter {
 	List<TreeReference> references;
 	Detail d;
 	TextToSpeech tts;
-	ArrayList<MediaPlayer> players;
+	AudioController controller;
 	
 	private TreeReference selected;
 	
@@ -57,7 +60,7 @@ public class EntityListAdapter implements ListAdapter {
 	private String[] currentSearchTerms;
 	
 	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, 
-			List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts, ArrayList<MediaPlayer> players) 
+			List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts, AudioController controller) 
 					throws SessionUnavailableException {
 		this.d = d;
 		
@@ -73,7 +76,7 @@ public class EntityListAdapter implements ListAdapter {
 		}
 		filterValues("");
 		this.tts = tts;
-		this.players = players;
+		this.controller = controller;
 	}
 
 	private void filterValues(String filterRaw) {
@@ -250,16 +253,16 @@ public class EntityListAdapter implements ListAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
+	//either positon or getItemId(position) will give unique id for view, 
+	//plus knowing which view in a row you're talking about
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
-		if(emv == null) {
-			MediaPlayer mp = new MediaPlayer();
-			players.add(mp);
-			emv = new EntityView(context, d, e, tts, mp, players, currentSearchTerms);
-		} else{
+		if (emv == null) {
+			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position);
+		} else {
 			emv.setSearchTerms(currentSearchTerms);
-			emv.setParams(e, e.getElement().equals(selected));
+			emv.setParams(e, e.getElement().equals(selected), position);
 		}
 		return emv;
 	}

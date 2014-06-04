@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.ViewId;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -18,6 +20,7 @@ import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioController;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -42,6 +45,7 @@ import android.widget.LinearLayout.LayoutParams;
  */
 public class EntityDetailView extends FrameLayout {
 	
+	private String textField;
 	private TextView label;
 	private TextView data;
 	private TextView spacer;
@@ -51,10 +55,10 @@ public class EntityDetailView extends FrameLayout {
 	private TextView addressText;
 	private ImageView imageView;
 	private ImageButton videoButton;
-	private ImageButton audioButton;
+	private AudioButton audioButton;
 	private View valuePane;
 	private View currentView;
-	private MediaPlayer mp;
+	private AudioController controller;
 	private FileInputStream fis;
 	private LinearLayout detailRow;
 	private LinearLayout.LayoutParams origValue;
@@ -73,8 +77,12 @@ public class EntityDetailView extends FrameLayout {
 	DetailCalloutListener listener;
 
 	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
-			MediaPlayer mp) {
+			AudioController controller) {
 		super(context);
+		
+	    this.controller = controller;
+	    this.textField = e.getField(index);
+	    
 		detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
         spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer); 
@@ -82,7 +90,13 @@ public class EntityDetailView extends FrameLayout {
 	    currentView = data;
 	    valuePane = detailRow.findViewById(R.id.detail_value_pane);
 	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
-	    audioButton = (ImageButton)detailRow.findViewById(R.id.detail_audio_button);
+	    
+	    //TODO: AUDIO BUTTON
+	    //audioButton = (ImageButton)detailRow.findViewById(R.id.detail_audio_button);
+	    audioButton = new AudioButton(context, textField, new ViewId(index,0), controller);
+	    detailRow.addView(audioButton);
+	    audioButton.setVisibility(View.GONE);
+	    
 	    callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
 	    //TODO: Still useful?
 	    //callout.setInputType(InputType.TYPE_CLASS_PHONE);
@@ -92,10 +106,9 @@ public class EntityDetailView extends FrameLayout {
 	    imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
 	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
 	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
-	    
+
 	    fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-	    this.mp = mp;
 	    setParams(session, d, e, index);
 	}
 	
@@ -111,7 +124,7 @@ public class EntityDetailView extends FrameLayout {
 		boolean veryLong = false;
 		String form = d.getTemplateForms()[index];
 		if("phone".equals(form)) {
-			callout.setText(e.getField(index));
+			callout.setText(textField);
 			if(current != PHONE) {
 				callout.setOnClickListener(new OnClickListener() {
 
@@ -127,7 +140,7 @@ public class EntityDetailView extends FrameLayout {
 				current = PHONE;
 			}
 		} else if("address".equals(form)) {
-			final String address = e.getField(index);
+			final String address = textField;
 			
 			addressText.setText(address);
 			if(current != ADDRESS) {
@@ -145,7 +158,7 @@ public class EntityDetailView extends FrameLayout {
 				current = ADDRESS;
 			}
 		} else if("image".equals(form)) {
-			String imageLocation = e.getField(index);
+			String imageLocation = textField;
 			Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
 			
 			if(b == null) {
@@ -174,55 +187,7 @@ public class EntityDetailView extends FrameLayout {
 				current = IMAGE;
 			}
 		} else if ("audio".equals(form)) {
-			String audioLocation = e.getField(index);
-			boolean mpFailure = true;
-			if (audioLocation != null && !audioLocation.equals("")) {
-				//try to initialize the media player
-				try {
-					InputStream is = ReferenceManager._().DeriveReference(audioLocation).getStream();
-					fis = MediaUtil.inputStreamToFIS(is);
-					mp.setDataSource(fis.getFD());
-					mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-					mpFailure = false;
-				}
-				catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
-			//enable/disable audio button based on media player set-up
-			if (mpFailure) {
-				audioButton.setEnabled(false);
-			} 
-			else {
-				audioButton.setEnabled(true);
-			}
-			
-			audioButton.setOnClickListener(new OnClickListener(){
-
-				@Override
-				public void onClick(View v) {
-					if (mp.isPlaying()) {
-						mp.stop();
-						try {
-							fis.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					else {
-						try {
-							mp.prepare();
-							mp.start();
-						} catch (IllegalStateException e) {
-							e.printStackTrace();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-	    	});
-			
-			
+			audioButton.modifyButtonForNewView(new ViewId(index,0), textField);
 			if (current != AUDIO) {
 				currentView.setVisibility(View.GONE);
 				audioButton.setVisibility(View.VISIBLE);
@@ -230,7 +195,7 @@ public class EntityDetailView extends FrameLayout {
 				current = AUDIO;
 			}
 		} else if(FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
-			String videoLocation = e.getField(index);
+			String videoLocation = textField;
 			String localLocation = null;
 			try{ 
 				localLocation = ReferenceManager._().DeriveReference(videoLocation).getLocalURI();
@@ -266,7 +231,7 @@ public class EntityDetailView extends FrameLayout {
 				current = VIDEO;
 			}
 		} else {
-			String text = e.getField(index);
+			String text = textField;
 			data.setText(text);
 			if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
 				veryLong = true;

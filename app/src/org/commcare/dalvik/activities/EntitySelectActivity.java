@@ -4,8 +4,11 @@
 package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
+
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
@@ -33,6 +36,10 @@ import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathStringLiteral;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.MediaEntity;
+import org.odk.collect.android.views.media.ViewId;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -69,7 +76,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, AudioController  {
 	private CommCareSession session;
 	private AndroidSessionWrapper asw;
 	
@@ -90,7 +97,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	ImageButton barcodeButton;
 	
 	TextToSpeech tts;
-	ArrayList<MediaPlayer> players;
+	
+	
+	private MediaEntity currentEntity;
+	private AudioButton currentButton;
 	
 	SessionDatum selectDatum;
 	
@@ -208,7 +218,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
         	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         }
-        players = new ArrayList<MediaPlayer>();
 		//cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
     }
@@ -565,15 +574,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public void onPause() {
     	super.onPause();
-    	System.out.println("onPause called for EntitySelectActivity");
-    	for (MediaPlayer mp : players) {
-    		if (mp.isPlaying()) {
-    			mp.stop();
-    		}
-        }
+    	currentButton.setStateToReady();
+    	stopCurrent();
+    	removeCurrent();
     }
-    
-
     
     @Override
     public void onDestroy() {
@@ -592,10 +596,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             tts.shutdown();
         }
         
-        for (MediaPlayer mp : players) {
-        	mp.reset();
-        	mp.release();
-        }
+    	currentButton.setStateToReady();
+        stopCurrent();
+        removeCurrent();
     }
     
     @Override
@@ -623,7 +626,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	}
 		
     	ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, players);
+		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this);
 		view.setAdapter(adapter);
 		
 		findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
@@ -710,7 +713,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		Entity entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 		
 		//TODO: FIX THIS
-		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null, new MediaPlayer());
+		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null, this);
 	    ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
 	}
 
@@ -735,4 +738,52 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
         mAlertDialog.show();
 	}
+
+	@Override
+	public MediaEntity getCurrMedia() {
+		return currentEntity;
+	}
+	
+	@Override
+	public void refreshCurrentButton(AudioButton clicked) {
+    	if (currentButton != null && currentButton != clicked) {
+    		System.out.println("setting current button to ready state");
+    		currentButton.setStateToReady();
+    	}
+	}
+
+	@Override
+	public void setCurrent(MediaEntity e, AudioButton b) {
+		setCurrent(e);
+		currentButton = b;
+		System.out.println("current button in setCurrent has state " + currentButton.getButtonState());
+	}
+	
+	@Override
+	public void setCurrent(MediaEntity e) {
+		stopCurrent();
+		removeCurrent();
+		currentEntity = e;
+	}
+	
+	@Override
+	public void stopCurrent() {
+		if (currentEntity != null) {
+			MediaPlayer mp = currentEntity.getPlayer();
+			mp.reset();
+			mp.release();	
+		}
+	}
+	
+	@Override
+	public void removeCurrent() {
+		currentEntity = null;
+	}
+	
+	@Override
+	public ViewId getCurrId() {
+		return currentEntity.getId();
+	}
+
+
 }

@@ -21,6 +21,10 @@ import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.MediaEntity;
+import org.odk.collect.android.views.media.ViewId;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -37,7 +41,7 @@ import android.widget.ListView;
  *
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
+public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener, AudioController {
 	
 	private CommCareSession session;
 	private AndroidSessionWrapper asw;
@@ -50,7 +54,8 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	Entity<TreeReference> entity;
 	EntityDetailAdapter adapter;
 	NodeEntityFactory factory;
-	MediaPlayer mp;
+	MediaEntity currentEntity;
+	AudioButton currentButton;
 	
 	@UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
 	Button next;
@@ -102,7 +107,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         } catch(SessionUnavailableException sue) {
         	//TODO: Login and return to try again
         }
-        mp = new MediaPlayer();
     }
     
     @Override
@@ -132,7 +136,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, mp);
+    	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, this);
     	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }
         
@@ -142,13 +146,16 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     
     @Override
     public void onDestroy() {
-    	mp.reset();
-    	mp.release();
+    	super.onDestroy();
+    	stopCurrent(); 
+    	removeCurrent();
     }
     
     @Override
     public void onPause() {
-    	mp.stop();
+    	super.onPause();
+    	stopCurrent();
+    	removeCurrent();
     }
     
     /*
@@ -196,6 +203,52 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 		intent.setAction(Intent.ACTION_VIEW);
 		intent.setDataAndType(Uri.parse(videoRef), "video/*");
 		startActivity(intent);
+	}
+
+	@Override
+	public MediaEntity getCurrMedia() {
+		return currentEntity;
+	}
+	
+	@Override
+	public void refreshCurrentButton(AudioButton clicked) {
+    	if (currentButton != null && currentButton != clicked) {
+    		System.out.println("setting current button to ready state");
+    		currentButton.setStateToReady();
+    	}
+	}
+
+	@Override
+	public void setCurrent(MediaEntity e, AudioButton b) {
+		setCurrent(e);
+		currentButton = b;
+		System.out.println("current button in setCurrent has state " + currentButton.getButtonState());
+	}
+	
+	@Override
+	public void setCurrent(MediaEntity e) {
+		stopCurrent();
+		removeCurrent();
+		currentEntity = e;
+	}
+	
+	@Override
+	public void stopCurrent() {
+		if (currentEntity != null) {
+			MediaPlayer mp = currentEntity.getPlayer();
+			mp.reset();
+			mp.release();	
+		}
+	}
+	
+	@Override
+	public void removeCurrent() {
+		currentEntity = null;
+	}
+	
+	@Override
+	public ViewId getCurrId() {
+		return currentEntity.getId();
 	}
 
 

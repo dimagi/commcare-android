@@ -11,6 +11,7 @@ import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.view.EntityDetailView;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
+import org.odk.collect.android.views.media.AudioController;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -31,16 +32,16 @@ public class EntityDetailAdapter implements ListAdapter {
 	Entity entity;
 	DetailCalloutListener listener;
 	List<Integer> valid;
-	MediaPlayer mp;
+	AudioController controller;
 	
 	public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
-			DetailCalloutListener listener, MediaPlayer mp) {		
+			DetailCalloutListener listener, AudioController controller) {		
 		this.context = context;
 		this.session = session;
 		this.detail = detail;
 		this.entity = entity;
 		this.listener = listener;
-		this.mp = mp;
+		this.controller = controller;
 		valid = new ArrayList<Integer>(); 
 		for(int i = 0 ; i < entity.getNumFields() ; ++i ) {
 			if(!entity.getField(i).equals("")) {
@@ -97,7 +98,7 @@ public class EntityDetailAdapter implements ListAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		EntityDetailView dv =(EntityDetailView)convertView;
 		if (dv == null) {
-			dv = new EntityDetailView(context, session, detail, entity, valid.get(position), mp);
+			dv = new EntityDetailView(context, session, detail, entity, valid.get(position), controller);
 			dv.setCallListener(listener);
 		} else{
 			dv.setParams(session, detail, entity, valid.get(position));

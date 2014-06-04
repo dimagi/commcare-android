@@ -3,18 +3,17 @@
  */
 package org.commcare.android.view;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
 
 import org.commcare.android.models.Entity;
-import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.MediaEntity;
+import org.odk.collect.android.views.media.ViewId;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -25,15 +24,13 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
-import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 
 /**
  * @author ctsims
@@ -44,42 +41,39 @@ public class EntityView extends LinearLayout {
 	private View[] views;
 	private String[] forms;
 	private TextToSpeech tts; 
-	private FileInputStream fis;
 	private String[] searchTerms;
 	private Context context;
-	private MediaPlayer mp;
-	private ArrayList<MediaPlayer> players;
-	private boolean[] audioInitialized;
+	private AudioController controller;
+	private long rowId;
 
 	/*
 	 * Constructor for row/column contents
 	 */
-	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts, MediaPlayer mp,
-			ArrayList<MediaPlayer> players, String[] searchTerms) {
+	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
+			String[] searchTerms, AudioController controller, long rowId) {
 		super(context);
 		this.context = context;
 		this.searchTerms = searchTerms;
 		this.tts = tts;
-		this.mp = mp;
-		this.players = players;
 		this.setWeightSum(1);
+		this.controller = controller;
+		this.rowId = rowId;
 		views = new View[e.getNumFields()];
 		forms = d.getTemplateForms();
 		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
-		audioInitialized = new boolean[views.length];
 		
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
-		        views[i] = establishView(null, forms[i]);
+		        ViewId uniqueId = new ViewId(rowId, i);
+		        views[i] = establishView(null, forms[i], uniqueId);
 		        views[i].setId(i);
+				
 			}
 		}
-		setParams(e, false);
+		setParams(e, false, rowId);
 		for (int i = 0; i < views.length; i++) {
-			if (weights[i] != 0) {
-				LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
-				addView(views[i], l);
-			}
+	        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+			addView(views[i], l);
 		}
 	}
 	
@@ -97,7 +91,8 @@ public class EntityView extends LinearLayout {
 		for (int i = 0 ; i < views.length ; ++i) {
 			if (lengths[i] != 0) {
 		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
-		        views[i] = establishView(headerText[i], headerForms[i]);      
+		        ViewId uniqueId = new ViewId(rowId, i);
+		        views[i] = establishView(headerText[i], headerForms[i], uniqueId);      
 		        views[i].setId(i);
 		        addView(views[i], l);
 			}
@@ -108,15 +103,15 @@ public class EntityView extends LinearLayout {
 	 * if form = "text", then 'text' field is just normal text
 	 * if form = "audio" or "image", then text is the path to the audio/image
 	 */
-	private View establishView(String text, String form) {
+	private View establishView(String text, String form, ViewId uniqueId) {
 		View retVal;
 		if ("image".equals(form)) {
 			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
         } 
 		else if ("audio".equals(form)) {
-			View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		retVal = layout;
+    		AudioButton b = new AudioButton(context, text, uniqueId, controller);
+    		retVal = b;
         } 
         else {
     		View layout = View.inflate(context, R.layout.component_audio_text, null);
@@ -131,7 +126,7 @@ public class EntityView extends LinearLayout {
 	}
 	
 
-	public void setParams(Entity e, boolean currentlySelected) {
+	public void setParams(Entity e, boolean currentlySelected, long rowId) {
 		for (int i = 0; i < e.getNumFields() ; ++i) {
 			String textField = e.getField(i);
 			View view = views[i];
@@ -140,10 +135,11 @@ public class EntityView extends LinearLayout {
 			if (view == null) { continue; }
 			
 			if ("audio".equals(form)) {
-				setupAudioLayout(view, textField, i);
+				ViewId uniqueId = new ViewId(rowId, i);
+				setupAudioLayout(view, textField, uniqueId);
 			}
 			else if("image".equals(form)) {
-				setupImageLayout(view, textField, i);
+				setupImageLayout(view, textField);
 	        } 
 			else { //text to speech
 		        setupTextAndTTSLayout(view, textField);
@@ -158,74 +154,10 @@ public class EntityView extends LinearLayout {
 	}
 	 
         
-    private void setupAudioLayout(View layout, final String text, int index) {
-    	ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
-    	btn.setVisibility(View.VISIBLE);
-		btn.setFocusable(false);
-		
-		boolean mpFailure = false;
-		if (text != null && !text.equals("")) {
-			if (!audioInitialized[index]) {
-				try {
-					InputStream is = ReferenceManager._().DeriveReference(text).getStream();
-					fis = MediaUtil.inputStreamToFIS(is);
-					mp.setDataSource(fis.getFD());
-					mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-					audioInitialized[index] = true;
-					System.out.println("setDataSource called for button with text " + text);
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-					mpFailure = true;
-				}
-			}			
-		}
-		else {
-			mpFailure = true;
-		}
-		//enable/disable audio button based on media player set-up
-		if (mpFailure) {
-			btn.setEnabled(false);
-			System.out.println("audio button disabled");
-		} 
-		else {
-			btn.setEnabled(true);
-			System.out.println("audio button enabled");
-		}
-
-		RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-		params.width = LayoutParams.WRAP_CONTENT;
-		btn.setLayoutParams(params);
-		btn.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				boolean wasPlaying = mp.isPlaying();
-				for (MediaPlayer player : players) {
-					System.out.println("stop called on button with text " + text);
-					if (player.isPlaying()) { player.stop(); }
-				}
-				if (wasPlaying) {
-					System.out.println("wasPlaying entered");
-					try {
-						fis.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				else {
-					System.out.println("was not playing entered");
-					try {
-						mp.prepare();
-						mp.start();
-					} catch (IllegalStateException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-    	});
+    private void setupAudioLayout(View layout, String text, ViewId uniqueId) {
+    	//layout will be the previous audioButton that was scrolled off
+    	AudioButton b = (AudioButton)layout;
+    	b.modifyButtonForNewView(uniqueId, text);
     }
 	
 	private void setupTextAndTTSLayout(View layout, final String text) {
@@ -257,7 +189,7 @@ public class EntityView extends LinearLayout {
     }
 	
 	
-	public void setupImageLayout(View layout, final String text, int index) {
+	public void setupImageLayout(View layout, final String text) {
 		ImageView iv = (ImageView) layout;
 		Bitmap b;
 		if (!text.equals("")) {
