@@ -429,9 +429,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void refreshCurrentButton(AudioButton clicked) {
-		System.out.println("refresh current button called");
     	if (currentButton != null && currentButton != clicked) {
-    		System.out.println("FLAG: setting outgoing current button to ready state");
     		currentButton.setStateToReady();
     	}
 	}
@@ -441,7 +439,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		refreshCurrentButton(b);
 		setCurrent(e);
 		currentButton = b;
-		System.out.println("current button in setCurrent has state " + currentButton.getButtonState());
 	}
 	
 	@Override
