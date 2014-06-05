@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Vector;
 
@@ -81,6 +82,10 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		try {
 			OutputStream os;
 			Reference local;
+			
+			//Moved this up before the local stuff, in case the local reference fails, we don't want to start dealing with it
+			InputStream input = ref.getStream();
+			
 			//Stream to location
 			try {
 				Pair<String, String> fileDetails = getResourceName(r,location);
@@ -93,7 +98,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 				throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
 			}
 			
-			AndroidStreamUtil.writeFromInputToOutput(ref.getStream(), os);
+			AndroidStreamUtil.writeFromInputToOutput(input, os);
 			
 			int status = customInstall(r, local, upgrade);
 			
