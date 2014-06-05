@@ -47,6 +47,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	protected final static int DIALOG_PROGRESS = 32;
 	protected final static String DIALOG_TEXT = "cca_dialog_text";
+	private final static String CURRENT_ENTITY = "currMediaEntity";
+	private final static String CURRENT_BUTTON = "currAudioButton";
 
 	StateFragment stateHolder;
 	private boolean firstRun = true;
@@ -66,9 +68,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    if (stateHolder == null) {
 	    	stateHolder = new StateFragment();
 	    	fm.beginTransaction().add(stateHolder, "state").commit();
-	    } else{
+	    } else {
 	    	if(stateHolder.getPreviousState() != null){
 	    		firstRun = stateHolder.getPreviousState().isFirstRun();
+		    	loadPreviousAudio(stateHolder.getPreviousState()); 
 	    	} else{
 	    		firstRun = true;
 	    	}
@@ -91,6 +94,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		    	fm.beginTransaction().add(bar, "breadcrumbs").commit();
 		    }
 	    }
+	}
+	
+	private void loadPreviousAudio(AudioController oldController) {
+		MediaEntity oldEntity = oldController.getCurrMedia();
+		if (oldEntity != null) {
+			this.currentEntity = oldEntity;
+			switch (currentEntity.getState()) {
+			case PausedForRenewal:
+				playCurrent();
+				break;
+			case Paused:
+				break;
+			case Playing:
+			case Ready:
+				System.out.println("WARNING: state in loadPreviousAudio is invalid");
+			}
+		}
 	}
 	
 	/*
@@ -204,7 +224,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	protected void onPause() {
 		super.onPause();
 	    visible = false;
-	    onImplementerPause();
+	    if (currentEntity != null) onImplementerPause();
 	}
 	
 	protected boolean isInVisibleState() {
@@ -217,7 +237,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		onImplementerDestroy();
 	}
 	
 	protected void updateProgress(int taskId, String updateText) {
@@ -436,6 +455,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 
 	@Override
 	public void setCurrent(MediaEntity e, AudioButton b) {
+		System.out.println("setCurrent called on entity with id " + e.getId());
 		refreshCurrentButton(b);
 		setCurrent(e);
 		currentButton = b;
@@ -445,6 +465,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	public void setCurrent(MediaEntity e) {
 		removeCurrent();
 		currentEntity = e;
+	}
+	
+	@Override
+	public void setCurrentButton(AudioButton b) {
+		currentButton = b;
 	}
 	
 	
@@ -462,18 +487,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	public void playCurrent() {
 		if (currentEntity != null) {
 			MediaPlayer mp = currentEntity.getPlayer();
-			mp.start();	
+			mp.start();			
+			currentEntity.setState(ButtonState.Playing);
 		}
-		currentEntity.setState(ButtonState.Playing);
 	}
 	
 	@Override
 	public void pauseCurrent() {
-		if (currentEntity != null) {
+		System.out.println("state at beginning of pause current is " + currentEntity.getState());
+		if (currentEntity != null && currentEntity.getState().equals(ButtonState.Playing)) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.pause();	
+			currentEntity.setState(ButtonState.Paused);
+			System.out.println("pauseCurrent called");
 		}
-		currentEntity.setState(ButtonState.Paused);
 	}
 	
 	@Override
@@ -483,14 +510,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void onImplementerPause() {
+    	pauseCurrent();
+    	currentEntity.setState(ButtonState.PausedForRenewal);
     	refreshCurrentButton(null);
-        removeCurrent();
-	}
-	
-	@Override
-	public void onImplementerDestroy() {
-    	refreshCurrentButton(null);
-        removeCurrent();
 	}
 	
 	@Override

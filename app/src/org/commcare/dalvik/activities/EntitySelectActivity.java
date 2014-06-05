@@ -575,7 +575,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public void onDestroy() {
     	super.onDestroy();
-    	System.out.println("onDestroy called for EntitySelectActivity");
     	if(loader != null) {
     		if(isFinishing()) {
     			loader.cancel(false);
@@ -663,7 +662,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	NodeEntityFactory factory;
 	
 	public void displayReferenceAwesome(final TreeReference selection) {
-		System.out.println("CALLED displayReferenceAwesome");
         selectedIntent = getDetailIntent(selection);
 		//this should be 100% "fragment" able
 		if(!rightFrameSetup) {
