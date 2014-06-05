@@ -363,6 +363,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 	@Override
 	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+		if(id == EntityListAdapter.SPECIAL_ACTION) {
+			triggerDetailAction();
+			return;
+		}
+		
     	TreeReference selection = adapter.getItem(position);
     	if(inAwesomeMode) {
     		displayReferenceAwesome(selection, position);
@@ -518,16 +523,20 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             	this.startActivityForResult(i, MAP_SELECT);
             	return true;
             case MENU_ACTION:
-                Action action = shortSelect.getCustomAction();
-                asw.executeStackActions(action.getStackOperations());
-                this.setResult(CommCareHomeActivity.RESULT_RESTART);
-                this.finish();
+            	triggerDetailAction();
             	return true;
         }
         return super.onOptionsItemSelected(item);
     }
     
-    private void createSortMenu() {
+    private void triggerDetailAction() {
+        Action action = shortSelect.getCustomAction();
+        asw.executeStackActions(action.getStackOperations());
+        this.setResult(CommCareHomeActivity.RESULT_RESTART);
+        this.finish();
+	}
+
+	private void createSortMenu() {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	
         builder.setTitle(Localization.get("select.menu.sort"));
