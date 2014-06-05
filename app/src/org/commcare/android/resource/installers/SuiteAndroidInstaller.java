@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
+import org.commcare.android.util.FileUtil;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -28,6 +29,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -156,7 +158,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 	}
 	
 	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
-
 		try{
 			Reference local = ReferenceManager._().DeriveReference(localLocation);
 			Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null) {
@@ -165,43 +166,36 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 					//shouldn't be necessary
 					return null;
 				}
+				@Override
+				protected boolean inValidationMode(){
+					return true;
+				}
+				
 			}).parse();
 			Hashtable<String,Entry> mHashtable = mSuite.getEntries();
 			for(Enumeration en = mHashtable.keys();en.hasMoreElements() ; ){
 				String key = (String)en.nextElement();
+				Entry mEntry = mHashtable.get(key);
+				
+				FileUtil.checkReferenceURI(r, mEntry.getAudioURI(), problems);
+				FileUtil.checkReferenceURI(r, mEntry.getImageURI(), problems);
+				
 			}
 			Vector<Menu> menus = mSuite.getMenus();
 			Enumeration e = menus.elements();
+			
 			while(e.hasMoreElements()){
 				Menu mMenu = (Menu)e.nextElement();
-				String aURI = mMenu.getAudioURI();
-				String iURI = mMenu.getImageURI();
 				
-				try{
-					Reference aRef = ReferenceManager._().DeriveReference(aURI);
-
-					if(!aRef.doesBinaryExist()){
-						String audioLocalReference = aRef.getLocalURI();
-						problems.addElement(new MissingMediaException(r,"Missing external media: " + audioLocalReference, audioLocalReference));
-					}
-				} catch(InvalidReferenceException ire){
-					//do nothing for now
-				}
-				try{
-					Reference iRef = ReferenceManager._().DeriveReference(iURI);
-
-					if(!iRef.doesBinaryExist()){
-						String imageLocalReference = iRef.getLocalURI();
-						problems.addElement(new MissingMediaException(r,"Missing external media: " + imageLocalReference, imageLocalReference));
-					}
-				} catch(InvalidReferenceException ire){
-					// do nothing for now
-				}
+				FileUtil.checkReferenceURI(r, mMenu.getAudioURI(), problems);
+				FileUtil.checkReferenceURI(r, mMenu.getImageURI(), problems);
 				
 			}
 		}
 		catch(Exception e){
-			System.out.println("fail suite validation");
+			Logger.log("e", "suite validation failed with: " + e.getMessage());
+			System.out.println("Suite validation failed");
+			e.printStackTrace();
 		}
 
 		if(problems.size() == 0 ) { return false;}
