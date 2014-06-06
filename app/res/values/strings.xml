@@ -4,8 +4,6 @@
     <string name="application_name">CommCare ODK</string>
     
     <string name="title_bar_name">CommCare</string>
-    <string name="image_button_desc">Press to play sound</string>
-    <string name="file_not_found_string">Unable to load file</string>
     
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
@@ -18,7 +16,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>13</item>
+        <item>12</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>

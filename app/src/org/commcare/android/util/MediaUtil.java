@@ -50,6 +50,11 @@ public class MediaUtil {
         }
 	}
 	
+	
+	/*
+	 * Warning: Use of temp file could cause sloweness. 
+	 * Not currently used, but could potentially be useful down the road.
+	 */
 	public static FileInputStream inputStreamToFIS(InputStream in) {
 	    FileInputStream fis = null;
 	    FileOutputStream out = null;
