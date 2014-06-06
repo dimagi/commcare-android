@@ -98,9 +98,11 @@ public class EntityDetailAdapter implements ListAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		EntityDetailView dv =(EntityDetailView)convertView;
 		if (dv == null) {
+			System.out.println("new EntityDetailView created with position " + position);
 			dv = new EntityDetailView(context, session, detail, entity, valid.get(position), controller);
 			dv.setCallListener(listener);
 		} else{
+			System.out.println("old EntityDetailView reinstantiated with position " + position);
 			dv.setParams(session, detail, entity, valid.get(position));
 			dv.setCallListener(listener);
 		}

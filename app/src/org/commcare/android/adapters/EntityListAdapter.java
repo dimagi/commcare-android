@@ -249,6 +249,10 @@ public class EntityListAdapter implements ListAdapter {
 	public int getItemViewType(int position) {
 		return 0;
 	}
+	
+	public void setController(AudioController controller) {
+		this.controller = controller;
+	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
@@ -259,10 +263,8 @@ public class EntityListAdapter implements ListAdapter {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if (emv == null) {
-			//System.out.println("creating a new EntityView with rowId " + position);
 			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position);
 		} else {
-			//System.out.println("reinstantiating an EntityView with new rowId " + position);
 			emv.setSearchTerms(currentSearchTerms);
 			emv.setParams(e, e.getElement().equals(selected), position);
 		}

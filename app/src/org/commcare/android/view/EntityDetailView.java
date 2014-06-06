@@ -78,8 +78,7 @@ public class EntityDetailView extends FrameLayout {
 
 	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
 			AudioController controller) {
-		super(context);
-		
+		super(context);		
 	    this.controller = controller;
 	    this.textField = e.getField(index);
 	    
@@ -91,8 +90,7 @@ public class EntityDetailView extends FrameLayout {
 	    valuePane = detailRow.findViewById(R.id.detail_value_pane);
 	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 	    
-	    //TODO: AUDIO BUTTON
-	    //audioButton = (ImageButton)detailRow.findViewById(R.id.detail_audio_button);
+	    //System.out.println("AudioController in EntityDetailView: " + controller);
 	    audioButton = new AudioButton(context, textField, index, controller);
 	    detailRow.addView(audioButton);
 	    audioButton.setVisibility(View.GONE);

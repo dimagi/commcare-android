@@ -133,6 +133,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      * Get form list from database and insert into view.
      */
     private void refreshView() {
+    	//System.out.println("AudioController in EntityDetailActivity " + this);
     	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, this);
     	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }

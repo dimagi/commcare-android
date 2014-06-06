@@ -97,8 +97,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	}
 	
 	private void loadPreviousAudio(AudioController oldController) {
+		System.out.println("loadPreviousAudio called");
+		System.out.println("AudioController in CommCareActivity: " + this);
 		MediaEntity oldEntity = oldController.getCurrMedia();
 		if (oldEntity != null) {
+			System.out.println("oldEntity NOT NULL in loadPreviousAudio");
 			this.currentEntity = oldEntity;
 			switch (currentEntity.getState()) {
 			case PausedForRenewal:
@@ -111,6 +114,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 				System.out.println("WARNING: state in loadPreviousAudio is invalid");
 			}
 		}
+		//oldController.nullCurrent();
 	}
 	
 	/*
@@ -475,6 +479,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void removeCurrent() {
+		System.out.println("removeCurrent called");
 		if (currentEntity != null) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.reset();
@@ -494,12 +499,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void pauseCurrent() {
-		System.out.println("state at beginning of pause current is " + currentEntity.getState());
 		if (currentEntity != null && currentEntity.getState().equals(ButtonState.Playing)) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.pause();	
 			currentEntity.setState(ButtonState.Paused);
-			System.out.println("pauseCurrent called");
 		}
 	}
 	
@@ -510,14 +513,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void onImplementerPause() {
+		ButtonState oldState = currentEntity.getState();
     	pauseCurrent();
-    	currentEntity.setState(ButtonState.PausedForRenewal);
+    	if (oldState.equals(ButtonState.Playing)) {
+    		currentEntity.setState(ButtonState.PausedForRenewal);
+    	}
     	refreshCurrentButton(null);
 	}
 	
 	@Override
 	public void setCurrState(ButtonState state) {
 		currentEntity.setState(state);
+	}
+	
+	@Override
+	public void nullCurrent() {
+		System.out.println("nullCurrent called");
+		currentEntity = null;
 	}
 
 

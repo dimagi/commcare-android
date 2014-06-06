@@ -146,6 +146,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         	//See if we're on a big 'ol screen.
         	
         	if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        		System.out.println("entering 2-panel, landscape orientation in EntitySelectActivity");
         		//If we're in landscape mode, we can display this with the awesome UI.
         		
         		//Inflate and set up the normal view for now.
@@ -211,6 +212,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         if(oldActivity != null) {
         	adapter = oldActivity.adapter;
+        	adapter.setController(this);
     	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
         	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         }
