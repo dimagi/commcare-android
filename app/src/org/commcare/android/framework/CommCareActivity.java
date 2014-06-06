@@ -71,7 +71,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    } else {
 	    	if(stateHolder.getPreviousState() != null){
 	    		firstRun = stateHolder.getPreviousState().isFirstRun();
-		    	loadPreviousAudio(stateHolder.getPreviousState()); 
+	    		loadPreviousAudio(stateHolder.getPreviousState());
 	    	} else{
 	    		firstRun = true;
 	    	}
@@ -103,18 +103,22 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		if (oldEntity != null) {
 			System.out.println("oldEntity NOT NULL in loadPreviousAudio");
 			this.currentEntity = oldEntity;
-			switch (currentEntity.getState()) {
-			case PausedForRenewal:
-				playCurrent();
-				break;
-			case Paused:
-				break;
-			case Playing:
-			case Ready:
-				System.out.println("WARNING: state in loadPreviousAudio is invalid");
-			}
+			oldController.nullCurrent();
 		}
-		//oldController.nullCurrent();
+	}
+	
+	private void playPreviousAudio() {
+		if (currentEntity == null) return;
+		switch (currentEntity.getState()) {
+		case PausedForRenewal:
+			playCurrent();
+			break;
+		case Paused:
+			break;
+		case Playing:
+		case Ready:
+			System.out.println("WARNING: state in loadPreviousAudio is invalid");
+		}
 	}
 	
 	/*
@@ -214,6 +218,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    	this.setTitle(getTitle(this, getActivityTitle()));
 	    }
 	    visible = true;
+	    playPreviousAudio();
 	    //set that this activity has run
 	    if(isFirstRun()){
 	    	fireOnceOnStart();

@@ -21,11 +21,6 @@ import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.MediaEntity;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -54,12 +49,19 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	EntityDetailAdapter adapter;
 	NodeEntityFactory factory;
 	
+	private int detailIndex;
+	
 	@UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
 	Button next;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {        
+    public void onCreate(Bundle savedInstanceState) {   
         super.onCreate(savedInstanceState);
+        System.out.println("CONTROLLER in EntityDetailActivity " + this);
+        System.out.println("EntityDetailActivity created");
+        Intent i = getIntent();
+        this.detailIndex = i.getIntExtra("entity_detail_index", -1);
+        if (detailIndex == -1) { System.out.println("WARNING: detailIndex not assigned from intent"); }
 
         if (this.getString(R.string.panes).equals("two")) {
         	if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -134,7 +136,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      */
     private void refreshView() {
     	//System.out.println("AudioController in EntityDetailActivity " + this);
-    	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, this);
+    	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, this, detailIndex);
     	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }
         

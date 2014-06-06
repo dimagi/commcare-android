@@ -77,7 +77,7 @@ public class EntityDetailView extends FrameLayout {
 	DetailCalloutListener listener;
 
 	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
-			AudioController controller) {
+			AudioController controller, int detailNumber) {
 		super(context);		
 	    this.controller = controller;
 	    this.textField = e.getField(index);
@@ -91,7 +91,8 @@ public class EntityDetailView extends FrameLayout {
 	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 	    
 	    //System.out.println("AudioController in EntityDetailView: " + controller);
-	    audioButton = new AudioButton(context, textField, index, controller);
+	    ViewId uniqueId = new ViewId(detailNumber, index);
+	    audioButton = new AudioButton(context, textField, uniqueId, controller);
 	    detailRow.addView(audioButton);
 	    audioButton.setVisibility(View.GONE);
 	    
@@ -107,14 +108,14 @@ public class EntityDetailView extends FrameLayout {
 
 	    fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-	    setParams(session, d, e, index);
+	    setParams(session, d, e, index, detailNumber);
 	}
 	
 	public void setCallListener(final DetailCalloutListener listener) {
 		this.listener = listener;
 	}
 
-	public void setParams(CommCareSession session, Detail d, Entity e, int index) {
+	public void setParams(CommCareSession session, Detail d, Entity e, int index, int detailNumber) {
 		String labelText = d.getFields()[index].getHeader().evaluate();
 		label.setText(labelText);
 		spacer.setText(labelText);
@@ -185,7 +186,8 @@ public class EntityDetailView extends FrameLayout {
 				current = IMAGE;
 			}
 		} else if ("audio".equals(form)) {
-			audioButton.modifyButtonForNewView(index, textField);
+			ViewId uniqueId = new ViewId(detailNumber, index);
+			audioButton.modifyButtonForNewView(uniqueId, textField);
 			if (current != AUDIO) {
 				currentView.setVisibility(View.GONE);
 				audioButton.setVisibility(View.VISIBLE);

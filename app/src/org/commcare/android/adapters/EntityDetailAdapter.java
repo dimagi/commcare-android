@@ -33,9 +33,11 @@ public class EntityDetailAdapter implements ListAdapter {
 	DetailCalloutListener listener;
 	List<Integer> valid;
 	AudioController controller;
+	int detailIndex;
+	
 	
 	public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
-			DetailCalloutListener listener, AudioController controller) {		
+			DetailCalloutListener listener, AudioController controller, int detailIndex) {	
 		this.context = context;
 		this.session = session;
 		this.detail = detail;
@@ -48,6 +50,9 @@ public class EntityDetailAdapter implements ListAdapter {
 				valid.add(i);
 			}
 		}
+		this.detailIndex = detailIndex;
+        System.out.println("CONTROLLER in EntityDetailAdapter " + controller);
+
 	}
 	
 	/* (non-Javadoc)
@@ -98,12 +103,15 @@ public class EntityDetailAdapter implements ListAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		EntityDetailView dv =(EntityDetailView)convertView;
 		if (dv == null) {
-			System.out.println("new EntityDetailView created with position " + position);
-			dv = new EntityDetailView(context, session, detail, entity, valid.get(position), controller);
+			System.out.println("new EntityDetailView created with detailIndex " + detailIndex
+					+ " and position " + position);
+			dv = new EntityDetailView(context, session, detail, entity, valid.get(position), controller, 
+					detailIndex);
 			dv.setCallListener(listener);
 		} else{
-			System.out.println("old EntityDetailView reinstantiated with position " + position);
-			dv.setParams(session, detail, entity, valid.get(position));
+			System.out.println("old EntityDetailView reinstantiated with detailIndex " + detailIndex
+					+ " and position " + position);
+			dv.setParams(session, detail, entity, valid.get(position), detailIndex);
 			dv.setCallListener(listener);
 		}
 		return dv;
