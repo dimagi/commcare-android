@@ -51,15 +51,10 @@
                        android:id="@+id/str_setup_message"
                        android:layout_width="fill_parent"
                        android:layout_height="wrap_content"
+                       android:layout_marginLeft="10px"
+                       android:layout_marginRight="10px"
                        android:gravity="center_horizontal"
                        android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."
-                       android:textSize="14dp" />
-
-                   <TextView
-                       android:id="@+id/str_install_notification"
-                       android:layout_width="fill_parent"
-                       android:layout_height="wrap_content"
-                       android:gravity="center_horizontal"
                        android:textSize="14dp" />
 
                 </LinearLayout>
@@ -147,7 +142,7 @@
 
         <Button
             android:id="@+id/start_over"
-            android:layout_width="fill_parent"	
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Start Over" />
     </LinearLayout>

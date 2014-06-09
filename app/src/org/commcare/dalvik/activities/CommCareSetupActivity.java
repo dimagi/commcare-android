@@ -767,7 +767,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
 		if(message.getAction() != null && message.getAction() != "") {
-		    System.out.println("[jls] should be displaying message, visibility is " + mainMessage.getVisibility() + " and message is " + message.getAction());
 		    notificationMessage = message.getAction();
 		    viewNotificationButton.setVisibility(View.VISIBLE);
 		}
