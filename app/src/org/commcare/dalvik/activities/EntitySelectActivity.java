@@ -36,10 +36,6 @@ import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathStringLiteral;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.MediaEntity;
-import org.odk.collect.android.views.media.ViewId;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -48,7 +44,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -146,7 +141,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         	//See if we're on a big 'ol screen.
         	
         	if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        		System.out.println("entering 2-panel, landscape orientation in EntitySelectActivity");
         		//If we're in landscape mode, we can display this with the awesome UI.
         		
         		//Inflate and set up the normal view for now.
@@ -363,7 +357,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 	@Override
 	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-		System.out.println("CONTROLLER in EntitySelectActivity: " + this);
     	TreeReference selection = adapter.getItem(position);
     	if(inAwesomeMode) {
     		System.out.println("IN AWESOME MODE");

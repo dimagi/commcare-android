@@ -91,7 +91,7 @@ public class EntityDetailView extends FrameLayout {
 	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 	    
 	    //System.out.println("AudioController in EntityDetailView: " + controller);
-	    ViewId uniqueId = new ViewId(detailNumber, index);
+	    ViewId uniqueId = new ViewId(detailNumber, index, true);
 	    audioButton = new AudioButton(context, textField, uniqueId, controller);
 	    detailRow.addView(audioButton);
 	    audioButton.setVisibility(View.GONE);
@@ -186,8 +186,10 @@ public class EntityDetailView extends FrameLayout {
 				current = IMAGE;
 			}
 		} else if ("audio".equals(form)) {
-			ViewId uniqueId = new ViewId(detailNumber, index);
+			ViewId uniqueId = new ViewId(detailNumber, index, true);
+			System.out.println("AudioButton modified from EntityDetailView");
 			audioButton.modifyButtonForNewView(uniqueId, textField);
+			//audioButton.setTwin(buttonPassedIn);
 			if (current != AUDIO) {
 				currentView.setVisibility(View.GONE);
 				audioButton.setVisibility(View.VISIBLE);

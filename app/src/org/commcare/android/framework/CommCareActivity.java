@@ -4,11 +4,17 @@
 package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.android.util.DatastructureUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -54,12 +60,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	private boolean firstRun = true;
 	private MediaEntity currentEntity;
 	private AudioButton currentButton;
+	private HashMap<Object, Set<AudioButton>> idToButtons;
+	private ButtonState stateBeforePause;
 	
 	@Override
 	@TargetApi(14)
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		System.out.println("ONCREATE CALLED");
 	    FragmentManager fm = this.getSupportFragmentManager();
 	    
 	    stateHolder = (StateFragment) fm.findFragmentByTag("state");
@@ -97,11 +105,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	}
 	
 	private void loadPreviousAudio(AudioController oldController) {
-		System.out.println("loadPreviousAudio called");
-		System.out.println("AudioController in CommCareActivity: " + this);
+		//System.out.println("loadPreviousAudio called");
+		//System.out.println("AudioController in CommCareActivity: " + this);
 		MediaEntity oldEntity = oldController.getCurrMedia();
 		if (oldEntity != null) {
-			System.out.println("oldEntity NOT NULL in loadPreviousAudio");
+			//System.out.println("oldEntity NOT NULL in loadPreviousAudio");
 			this.currentEntity = oldEntity;
 			oldController.nullCurrent();
 		}
@@ -246,6 +254,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		if (currentEntity != null) onImplementerDestroy();
 	}
 	
 	protected void updateProgress(int taskId, String updateText) {
@@ -457,8 +466,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void refreshCurrentButton(AudioButton clicked) {
-    	if (currentButton != null && currentButton != clicked) {
-    		currentButton.setStateToReady();
+		if (currentButton != null && currentButton != clicked) {
+			System.out.println("At time of setCurrent, currentButton is at " + currentButton.locationToString());
+    		currentButton.setStateToReady(true);
+    		System.out.println("refreshCurrentButton CALLED");
     	}
 	}
 
@@ -484,7 +495,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void removeCurrent() {
-		System.out.println("removeCurrent called");
+		//System.out.println("removeCurrent called");
 		if (currentEntity != null) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.reset();
@@ -517,12 +528,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	}
 	
 	@Override
-	public void onImplementerPause() {
-		ButtonState oldState = currentEntity.getState();
-    	pauseCurrent();
-    	if (oldState.equals(ButtonState.Playing)) {
+	public void onImplementerDestroy() {
+		if (stateBeforePause != null && stateBeforePause.equals(ButtonState.Playing)) {
     		currentEntity.setState(ButtonState.PausedForRenewal);
     	}
+	}
+	
+	@Override
+	public void onImplementerPause() {
+		stateBeforePause = currentEntity.getState();
+    	pauseCurrent();
     	refreshCurrentButton(null);
 	}
 	
@@ -533,8 +548,54 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void nullCurrent() {
-		System.out.println("nullCurrent called");
 		currentEntity = null;
+	}
+	
+	@Override
+	public AudioButton getCurrButton() {
+		return currentButton;
+	}
+	
+	@Override
+	public Map<Object, Set<AudioButton>> getActiveButtonViewIds() {
+		return idToButtons;
+	}
+
+	@Override
+	public void addIdButtonMapping(Object id, AudioButton b) {
+		if (idToButtons == null) {
+			idToButtons = new HashMap<Object, Set<AudioButton>>();
+		}
+		Set<AudioButton> existingValues = idToButtons.get(id);
+		if (existingValues == null) {
+			existingValues = new HashSet<AudioButton>();
+		}
+		else {
+			if (existingValues.size() > 0) {
+				//pair the new button and existing button
+				AudioButton b2 = (AudioButton) DatastructureUtil.getOne(existingValues);
+				b2.setTwin(b);
+				b.setTwin(b2);
+			}
+
+		}
+		existingValues.add(b);
+		idToButtons.put(id, existingValues);
+	}
+	
+	@Override
+	public void removeIdButtonMapping(Object id, AudioButton b) {
+		Set<AudioButton> existingValues = idToButtons.get(id);
+		boolean removed;
+		if (existingValues != null) {
+			removed = existingValues.remove(b);
+		}
+		else {
+			removed = false;
+		}
+		if (!removed) {
+			System.out.println("WARNING: mapping did not exist in removeIdButtonMapping");
+		}
 	}
 
 
