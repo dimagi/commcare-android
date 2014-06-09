@@ -132,7 +132,7 @@
             android:id="@+id/view_notification"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="See Notification" />
+            android:text="See More" />
 
         <Button
             android:id="@+id/retry_install"

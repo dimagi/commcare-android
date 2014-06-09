@@ -786,7 +786,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			done(false);
 		} else {
 			if(alwaysNotify) {
-				this.displayMessage= Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()});
+				this.displayMessage= Localization.get("notification.for.details.setup.wrapper", new String[] {message.getDetails()});
 				this.canRetry = canRetry;
 				mainMessage.setText(displayMessage);
 			} else {
