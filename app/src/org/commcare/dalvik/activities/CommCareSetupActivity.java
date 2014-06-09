@@ -104,6 +104,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public String incomingRef;
 	public boolean canRetry;
 	public String displayMessage;
+	public String notificationMessage;
 	
 	@UiElement(R.id.advanced_panel)
 	View advancedView;
@@ -113,8 +114,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	EditText editProfileRef;
 	@UiElement(R.id.str_setup_message)
 	TextView mainMessage;
-	@UiElement(R.id.str_install_notification)
-	TextView installNotification;
 	@UiElement(R.id.url_spinner)
 	Spinner urlSpinner;
 	@UiElement(R.id.start_install)
@@ -276,15 +275,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 		viewNotificationButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-			    installNotification.setVisibility(View.VISIBLE);
   				viewNotificationButton.setVisibility(View.GONE);
-  				mainMessage.setVisibility(View.GONE);
+  				mainMessage.setText(notificationMessage);
 			}
 		});
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-			    installNotification.setVisibility(View.GONE);
+			    mainMessage.setText("");
 			    viewNotificationButton.setVisibility(View.GONE);
 				partialMode = true;
 				startResourceInstall(false);
@@ -605,7 +603,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	addressEntryButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
     	viewNotificationButton.setVisibility(View.GONE);
-    	installNotification.setVisibility(View.GONE);
     }
     
     public void setModeToError(boolean canRetry){
@@ -638,7 +635,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.VISIBLE);
     	viewNotificationButton.setVisibility(View.GONE);
-    	installNotification.setVisibility(View.GONE);
     	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
@@ -658,7 +654,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startOverButton.setVisibility(View.VISIBLE);
     	installButton.setEnabled(true);
     	viewNotificationButton.setVisibility(View.GONE);
-    	installNotification.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
     	retryButton.setText(Localization.get("install.button.retry"));
     	startOverButton.setText(Localization.get("install.button.startover"));
@@ -772,7 +767,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
 		if(message.getAction() != null && message.getAction() != "") {
-		    installNotification.setText(message.getAction());
+		    System.out.println("[jls] should be displaying message, visibility is " + mainMessage.getVisibility() + " and message is " + message.getAction());
+		    notificationMessage = message.getAction();
 		    viewNotificationButton.setVisibility(View.VISIBLE);
 		}
 		
