@@ -282,8 +282,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-			    mainMessage.setText("");
-			    viewNotificationButton.setVisibility(View.GONE);
+				mainMessage.setText("");		// clear any old notification message
+				viewNotificationButton.setVisibility(View.GONE);
 				partialMode = true;
 				startResourceInstall(false);
 			}
@@ -607,7 +607,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     public void setModeToError(boolean canRetry){
     	buttonView.setVisibility(View.VISIBLE);
- 		mainMessage.setVisibility(View.VISIBLE);
+    	mainMessage.setVisibility(View.VISIBLE);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
@@ -627,7 +627,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     public void setModeToBasic(String message){
     	buttonView.setVisibility(View.VISIBLE);
- 		mainMessage.setVisibility(View.VISIBLE);
+    	mainMessage.setVisibility(View.VISIBLE);
     	editProfileRef.setText("");	
     	this.incomingRef = null;
     	mainMessage.setText(message);
@@ -644,7 +644,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public void setModeToAdvanced(){
     	buttonView.setVisibility(View.VISIBLE);
- 		mainMessage.setVisibility(View.VISIBLE);
+    	mainMessage.setVisibility(View.VISIBLE);
     	mainMessage.setText(Localization.get("install.manual"));
     	advancedView.setVisibility(View.VISIBLE);
     	mScanBarcodeButton.setVisibility(View.GONE);
