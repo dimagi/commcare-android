@@ -47,6 +47,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -825,7 +826,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 				try {
 					session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
 				}
-				catch (RuntimeException e) {
+				catch (XPathException e) {
 					displayException(e);
 					return;
 				}
