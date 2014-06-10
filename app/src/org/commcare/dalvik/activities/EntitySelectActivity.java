@@ -359,11 +359,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
     	TreeReference selection = adapter.getItem(position);
     	if(inAwesomeMode) {
-    		System.out.println("IN AWESOME MODE");
     		displayReferenceAwesome(selection, position);
     		updateSelectedItem(selection, false);
     	} else {
-    		System.out.println("NOT IN AWESOME MODE");
     		Intent i = getDetailIntent(selection);
     		i.putExtra("entity_detail_index", position);
     		if (mNoDetailMode) {

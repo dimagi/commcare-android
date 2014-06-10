@@ -175,7 +175,6 @@
         </activity>
         <activity
             android:name="org.odk.collect.android.activities.DrawActivity"
-            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity

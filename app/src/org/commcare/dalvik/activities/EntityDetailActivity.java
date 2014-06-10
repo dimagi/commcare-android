@@ -57,11 +57,10 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @Override
     public void onCreate(Bundle savedInstanceState) {   
         super.onCreate(savedInstanceState);
-        System.out.println("CONTROLLER in EntityDetailActivity " + this);
-        System.out.println("EntityDetailActivity created");
         Intent i = getIntent();
         this.detailIndex = i.getIntExtra("entity_detail_index", -1);
-        if (detailIndex == -1) { System.out.println("WARNING: detailIndex not assigned from intent"); }
+        System.out.println("DETAIL INDEX in EntityDetailActivity: " + detailIndex);
+        //if (detailIndex == -1) { System.out.println("WARNING: detailIndex not assigned from intent"); }
 
         if (this.getString(R.string.panes).equals("two")) {
         	if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -135,7 +134,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	//System.out.println("AudioController in EntityDetailActivity " + this);
     	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, this, detailIndex);
     	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }

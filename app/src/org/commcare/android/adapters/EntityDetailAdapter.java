@@ -51,8 +51,7 @@ public class EntityDetailAdapter implements ListAdapter {
 			}
 		}
 		this.detailIndex = detailIndex;
-        //System.out.println("CONTROLLER in EntityDetailAdapter " + controller);
-
+        System.out.println("DETAIL INDEX in EntityDetailAdapter: " + detailIndex);
 	}
 	
 	/* (non-Javadoc)
@@ -103,14 +102,10 @@ public class EntityDetailAdapter implements ListAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		EntityDetailView dv =(EntityDetailView)convertView;
 		if (dv == null) {
-			//System.out.println("new EntityDetailView created with detailIndex " + detailIndex
-					//+ " and position " + position);
 			dv = new EntityDetailView(context, session, detail, entity, valid.get(position), controller, 
 					detailIndex);
 			dv.setCallListener(listener);
 		} else{
-			//System.out.println("old EntityDetailView reinstantiated with detailIndex " + detailIndex
-				//	+ " and position " + position);
 			dv.setParams(session, detail, entity, valid.get(position), detailIndex);
 			dv.setCallListener(listener);
 		}

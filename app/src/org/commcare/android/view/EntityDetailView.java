@@ -66,6 +66,11 @@ public class EntityDetailView extends FrameLayout {
 	private LinearLayout.LayoutParams fill;
 	
 	private static final String FORM_VIDEO = "video";
+	private static final String FORM_AUDIO = "audio";
+	private static final String FORM_PHONE = "phone";
+	private static final String FORM_ADDRESS = "address";
+	private static final String FORM_IMAGE = "image";
+
 	private static final int TEXT = 0;
 	private static final int PHONE = 1;
 	private static final int ADDRESS = 2;
@@ -90,8 +95,7 @@ public class EntityDetailView extends FrameLayout {
 	    valuePane = detailRow.findViewById(R.id.detail_value_pane);
 	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 	    
-	    //System.out.println("AudioController in EntityDetailView: " + controller);
-	    ViewId uniqueId = new ViewId(detailNumber, index, true);
+	    ViewId uniqueId = new ViewId(detailNumber, index);
 	    audioButton = new AudioButton(context, textField, uniqueId, controller);
 	    detailRow.addView(audioButton);
 	    audioButton.setVisibility(View.GONE);
@@ -122,7 +126,7 @@ public class EntityDetailView extends FrameLayout {
 		
 		boolean veryLong = false;
 		String form = d.getTemplateForms()[index];
-		if("phone".equals(form)) {
+		if(FORM_PHONE.equals(form)) {
 			callout.setText(textField);
 			if(current != PHONE) {
 				callout.setOnClickListener(new OnClickListener() {
@@ -138,7 +142,7 @@ public class EntityDetailView extends FrameLayout {
 				currentView = callout;
 				current = PHONE;
 			}
-		} else if("address".equals(form)) {
+		} else if(FORM_ADDRESS.equals(form)) {
 			final String address = textField;
 			
 			addressText.setText(address);
@@ -156,7 +160,7 @@ public class EntityDetailView extends FrameLayout {
 				currentView = addressView;
 				current = ADDRESS;
 			}
-		} else if("image".equals(form)) {
+		} else if(FORM_IMAGE.equals(form)) {
 			String imageLocation = textField;
 			Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
 			
@@ -185,11 +189,9 @@ public class EntityDetailView extends FrameLayout {
 				currentView = imageView;
 				current = IMAGE;
 			}
-		} else if ("audio".equals(form)) {
-			ViewId uniqueId = new ViewId(detailNumber, index, true);
-			System.out.println("AudioButton modified from EntityDetailView");
+		} else if (FORM_AUDIO.equals(form)) {
+			ViewId uniqueId = new ViewId(detailNumber, index);
 			audioButton.modifyButtonForNewView(uniqueId, textField);
-			//audioButton.setTwin(buttonPassedIn);
 			if (current != AUDIO) {
 				currentView.setVisibility(View.GONE);
 				audioButton.setVisibility(View.VISIBLE);

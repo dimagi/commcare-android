@@ -5,6 +5,7 @@ package org.commcare.android.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,17 +63,17 @@ public class MediaUtil {
 		try {
 			tempFile = File.createTempFile("stream2file", ".tmp");
 			tempFile.deleteOnExit();
-			out = new FileOutputStream(tempFile);
 			//TODO: try using StreamsUtil method for this, currently causes loop
-	        IOUtils.copy(in, out);
-	    }
-	    catch (Exception e) {
-			e.printStackTrace();
+			out = new FileOutputStream(tempFile);
+			IOUtils.copy(in, out);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	    try {
 			fis = new FileInputStream(tempFile);
-		}
-		catch (Exception e) {
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return fis;	

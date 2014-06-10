@@ -64,7 +64,7 @@ public class EntityView extends LinearLayout {
 		
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
-		        Object uniqueId = new ViewId(rowId, i, false);
+		        Object uniqueId = new ViewId(rowId, i);
 		        views[i] = establishView(null, forms[i], uniqueId);
 		        views[i].setId(i);
 			}
@@ -90,7 +90,7 @@ public class EntityView extends LinearLayout {
 		for (int i = 0 ; i < views.length ; ++i) {
 			if (lengths[i] != 0) {
 		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
-		        ViewId uniqueId = new ViewId(rowId, i, false);
+		        ViewId uniqueId = new ViewId(rowId, i);
 		        views[i] = establishView(headerText[i], headerForms[i], uniqueId);      
 		        views[i].setId(i);
 		        addView(views[i], l);
@@ -134,7 +134,7 @@ public class EntityView extends LinearLayout {
 			if (view == null) { continue; }
 			
 			if ("audio".equals(form)) {
-				ViewId uniqueId = new ViewId(rowId, i, false);
+				ViewId uniqueId = new ViewId(rowId, i);
 				setupAudioLayout(view, textField, uniqueId);
 			}
 			else if("image".equals(form)) {
@@ -154,7 +154,6 @@ public class EntityView extends LinearLayout {
 	 
         
     private void setupAudioLayout(View layout, String text, ViewId uniqueId) {
-    	//layout will be the previous audioButton that was scrolled off
     	AudioButton b = (AudioButton)layout;
     	b.modifyButtonForNewView(uniqueId, text);
     }
