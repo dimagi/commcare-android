@@ -463,7 +463,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	public void refreshCurrentButton(AudioButton clicked) {
 		if (currentButton != null && currentButton != clicked) {
-    		currentButton.setStateToReady(true);
+    		currentButton.setStateToReady();
     	}
 	}
 
@@ -543,7 +543,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		currentEntity = null;
 	}
 	
-	@Override
+	/*@Override
 	public AudioButton getCurrButton() {
 		return currentButton;
 	}
@@ -591,7 +591,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		if (!removed) {
 			System.out.println("WARNING: mapping did not exist in removeIdButtonMapping");
 		}
-	}
+	}*/
 
 
 }
