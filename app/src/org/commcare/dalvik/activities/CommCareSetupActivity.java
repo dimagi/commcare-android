@@ -465,8 +465,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		}
 	}
 
+	//KEY: changed this so that the default for startResourceInstall is NOT to start over
 	private void startResourceInstall() {
-		this.startResourceInstall(true);
+		this.startResourceInstall(false);
+		//this.startResourceInstall(true);
 	}
 	
 	/* (non-Javadoc)
@@ -487,6 +489,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		this.startAllowed = true;
 	}
 	
+	/**
+	 * @param startOverUpgrade - what determines whether CommCarePlatform.stageUpgradeTable()
+	 * reuses the last version of the upgrade table, or starts over
+	 */
 	private void startResourceInstall(boolean startOverUpgrade) {
 
 		if(startAllowed) {
