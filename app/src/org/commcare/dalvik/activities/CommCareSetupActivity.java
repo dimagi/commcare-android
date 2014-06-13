@@ -68,6 +68,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final String KEY_ERROR_MODE = "app_error_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	public static final String KEY_AUTO = "is_auto_update";
+	public static final String KEY_START_OVER = "start_over_uprgrade";
+	public static final String KEY_INSTALL_TIME = "last_install_time";
 	
 	/*
 	 * enum indicating which UI mconfiguration should be shown.
@@ -117,6 +119,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	Spinner urlSpinner;
 	@UiElement(R.id.start_install)
 	Button installButton;
+	@UiElement(R.id.keep_trying_install)
+	Button keepTryingButton;
 	@UiElement(R.id.btn_fetch_uri)
 	Button mScanBarcodeButton;
 	@UiElement(R.id.enter_app_location)
@@ -137,6 +141,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
 	boolean isAuto = false;
+	
+	//fields for installation retry
+	long lastInstallTime;
+	boolean startOverInstall;
+	static final long START_OVER_THRESHOLD = 172800000; //2 days in milliseconds
+	
 
 	
 	@Override
@@ -184,6 +194,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	        incomingRef = savedInstanceState.getString("profileref");
 	        inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
+	        //added
+	        startOverInstall = savedInstanceState.getBoolean(KEY_START_OVER);
+	        lastInstallTime = savedInstanceState.getLong(KEY_INSTALL_TIME);
 	        
 	        //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
 	        startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -291,6 +304,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			}
 		});
 		
+		keepTryingButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
         final View activityRootView = findViewById(R.id.screen_first_start_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
@@ -380,6 +403,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
+        outState.putBoolean(KEY_START_OVER, startOverInstall);
+        outState.putLong(KEY_INSTALL_TIME, lastInstallTime);
     }
 	
 	/* (non-Javadoc)
@@ -465,10 +490,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		}
 	}
 
-	//KEY: changed this so that the default for startResourceInstall is NOT to start over
 	private void startResourceInstall() {
-		this.startResourceInstall(false);
-		//this.startResourceInstall(true);
+		if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
+			startResourceInstall(true);
+		}
+		else {
+			startResourceInstall(this.startOverInstall);
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -504,24 +532,36 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			
 			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, inUpgradeMode, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
 
+				//TODO: Check decisions for startOverInstall with Clayton
 				@Override
 				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
+					lastInstallTime = System.currentTimeMillis();
+					
 					if(result == ResourceEngineOutcomes.StatusInstalled){
 						receiver.reportSuccess(true);
+						receiver.startOverInstall = false;
 					} else if(result == ResourceEngineOutcomes.StatusUpToDate){
 						receiver.reportSuccess(false);
+						receiver.startOverInstall = false;
 					} else if(result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
 						receiver.failMissingResource(this.missingResourceException, result);
+						receiver.startOverInstall = false;
+						//Talk to Clayton about the issue that Will brought up -- maybe we can differentiate between bad connection and bad path?
 					} else if(result == ResourceEngineOutcomes.StatusBadReqs){
 						receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
+						receiver.startOverInstall = false;
 					} else if(result == ResourceEngineOutcomes.StatusFailState){
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+						receiver.startOverInstall = true;
 					} else if(result == ResourceEngineOutcomes.StatusNoLocalStorage) {
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
+						receiver.startOverInstall = true;
 					} else if(result == ResourceEngineOutcomes.StatusBadCertificate){
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
+						receiver.startOverInstall = false;
 					} else {
 						receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
+						receiver.startOverInstall = true;
 					}
 				}
 
@@ -627,6 +667,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
+    	keepTryingButton.setVisibility(View.GONE);
     	retryButton.setText(Localization.get("install.button.retry"));
     	startOverButton.setText(Localization.get("install.button.startover"));
     }

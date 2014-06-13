@@ -4,9 +4,7 @@
 package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
@@ -256,7 +254,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
 	        		
 	        		Intent i = getDetailIntent(entity);
-	        		i.putExtra("entity_detail_index", adapter.getPosition(entity));
+	        		if (adapter != null) {
+	        			i.putExtra("entity_detail_index", adapter.getPosition(entity));
+	        		}
 	        		startActivityForResult(i, CONFIRM_SELECT);
 	        		return;
         		}
@@ -357,6 +357,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 	@Override
 	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+		System.out.println("EntitySelectActivity onItemClick called");
     	TreeReference selection = adapter.getItem(position);
     	if(inAwesomeMode) {
     		displayReferenceAwesome(selection, position);
@@ -407,6 +408,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		    			this.displayReferenceAwesome(r, adapter.getPosition(r));
 		    			updateSelectedItem(r, true);
 		    		}
+		    		releaseCurrentMediaEntity();		
 	    		}
         		return;
     		}

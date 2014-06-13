@@ -14,7 +14,6 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
-import org.commcare.android.util.DatastructureUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -58,9 +57,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 
 	StateFragment stateHolder;
 	private boolean firstRun = true;
+	
+	//Fields for implementation of AudioController
 	private MediaEntity currentEntity;
 	private AudioButton currentButton;
-	private HashMap<Object, Set<AudioButton>> idToButtons;
 	private ButtonState stateBeforePause;
 	
 	@Override
@@ -107,7 +107,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		MediaEntity oldEntity = oldController.getCurrMedia();
 		if (oldEntity != null) {
 			this.currentEntity = oldEntity;
-			oldController.nullCurrent();
+			oldController.removeCurrentMediaEntity();
 		}
 	}
 	
@@ -115,7 +115,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		if (currentEntity == null) return;
 		switch (currentEntity.getState()) {
 		case PausedForRenewal:
-			playCurrent();
+			playCurrentMediaEntity();
 			break;
 		case Paused:
 			break;
@@ -237,7 +237,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	protected void onPause() {
 		super.onPause();
 	    visible = false;
-	    if (currentEntity != null) onImplementerPause();
+	    if (currentEntity != null) saveEntityStateAndClear();
 	}
 	
 	protected boolean isInVisibleState() {
@@ -250,7 +250,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (currentEntity != null) onImplementerDestroy();
+		if (currentEntity != null) attemptSetStateToPauseForRenewal();
 	}
 	
 	protected void updateProgress(int taskId, String updateText) {
@@ -455,13 +455,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		return this.firstRun;
 	}
 	
+	/*
+	 * All methods for implementation of AudioController
+	 */
+	
 	@Override
 	public MediaEntity getCurrMedia() {
 		return currentEntity;
 	}
 	
 	@Override
-	public void refreshCurrentButton(AudioButton clicked) {
+	public void refreshCurrentAudioButton(AudioButton clicked) {
+		if (currentButton != null) {
+			System.out.println("refreshCurrentAudioButton called on button in view " + currentButton.locationToString());
+		}
 		if (currentButton != null && currentButton != clicked) {
     		currentButton.setStateToReady();
     	}
@@ -469,25 +476,27 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 
 	@Override
 	public void setCurrent(MediaEntity e, AudioButton b) {
-		refreshCurrentButton(b);
+		refreshCurrentAudioButton(b);
 		setCurrent(e);
-		currentButton = b;
+		setCurrentAudioButton(b);
 	}
 	
 	@Override
 	public void setCurrent(MediaEntity e) {
-		removeCurrent();
+		releaseCurrentMediaEntity();
 		currentEntity = e;
 	}
 	
 	@Override
-	public void setCurrentButton(AudioButton b) {
+	public void setCurrentAudioButton(AudioButton b) {
+		System.out.println("setCurrentAudioButton called on button " + b.toString() + 
+				" in location " + b.locationToString());
 		currentButton = b;
 	}
 	
 	
 	@Override
-	public void removeCurrent() {
+	public void releaseCurrentMediaEntity() {
 		if (currentEntity != null) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.reset();
@@ -497,7 +506,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	}
 	
 	@Override
-	public void playCurrent() {
+	public void playCurrentMediaEntity() {
 		if (currentEntity != null) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.start();			
@@ -506,7 +515,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	}
 	
 	@Override
-	public void pauseCurrent() {
+	public void pauseCurrentMediaEntity() {
 		if (currentEntity != null && currentEntity.getState().equals(ButtonState.Playing)) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.pause();	
@@ -515,83 +524,33 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	}
 	
 	@Override
-	public Object getCurrId() {
+	public Object getMediaEntityId() {
 		return currentEntity.getId();
 	}
 	
 	@Override
-	public void onImplementerDestroy() {
+	public void attemptSetStateToPauseForRenewal() {
 		if (stateBeforePause != null && stateBeforePause.equals(ButtonState.Playing)) {
     		currentEntity.setState(ButtonState.PausedForRenewal);
     	}
 	}
 	
 	@Override
-	public void onImplementerPause() {
+	public void saveEntityStateAndClear() {
 		stateBeforePause = currentEntity.getState();
-    	pauseCurrent();
-    	refreshCurrentButton(null);
+    	pauseCurrentMediaEntity();
+    	refreshCurrentAudioButton(null);
 	}
 	
 	@Override
-	public void setCurrState(ButtonState state) {
+	public void setMediaEntityState(ButtonState state) {
 		currentEntity.setState(state);
 	}
 	
 	@Override
-	public void nullCurrent() {
+	public void removeCurrentMediaEntity() {
 		currentEntity = null;
 	}
 	
-	/*@Override
-	public AudioButton getCurrButton() {
-		return currentButton;
-	}
-	
-	@Override
-	public Map<Object, Set<AudioButton>> getActiveButtonViewIds() {
-		return idToButtons;
-	}
-
-	@Override
-	public void addIdButtonMapping(Object id, AudioButton b) {
-		System.out.println("Button added -- " + b + " with location " + b.locationToString());
-		if (idToButtons == null) {
-			idToButtons = new HashMap<Object, Set<AudioButton>>();
-		}
-		Set<AudioButton> existingValues = idToButtons.get(id);
-		if (existingValues == null) {
-			existingValues = new HashSet<AudioButton>();
-		}
-		else {
-			if (existingValues.size() > 0) {
-				//pair the new button and existing button
-				AudioButton b2 = (AudioButton) DatastructureUtil.getOne(existingValues);
-				System.out.println("TWIN BUTTONS SET for buttons " + b + " and " + b2);
-				b2.setTwin(b);
-				b.setTwin(b2);
-			}
-
-		}
-		existingValues.add(b);
-		idToButtons.put(id, existingValues);
-	}
-	
-	@Override
-	public void removeIdButtonMapping(Object id, AudioButton b) {
-		System.out.println("Button removed -- " + b + " with location " + b.locationToString());
-		Set<AudioButton> existingValues = idToButtons.get(id);
-		boolean removed;
-		if (existingValues != null) {
-			removed = existingValues.remove(b);
-		}
-		else {
-			removed = false;
-		}
-		if (!removed) {
-			System.out.println("WARNING: mapping did not exist in removeIdButtonMapping");
-		}
-	}*/
-
 
 }

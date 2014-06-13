@@ -52,6 +52,7 @@ public class EntityView extends LinearLayout {
 	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
 			String[] searchTerms, AudioController controller, long rowId) {
 		super(context);
+		//System.out.println("EntityView content constructor called with rowId " + rowId);
 		this.context = context;
 		this.searchTerms = searchTerms;
 		this.tts = tts;
@@ -65,13 +66,20 @@ public class EntityView extends LinearLayout {
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
 		        Object uniqueId = new ViewId(rowId, i, false);
-		        views[i] = establishView(null, forms[i], uniqueId);
+		        views[i] = initView(null, forms[i], uniqueId);
 		        views[i].setId(i);
 			}
 		}
-		setParams(e, false, rowId);
+		refreshViewsForNewEntity(e, false, rowId);
 		for (int i = 0; i < views.length; i++) {
 	        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+	        /*View v = getChildAt(i);
+	        if (v == null) {
+	        	System.out.println("Preexisting view at location where new view is being added was null");
+	        }
+	        else {
+	        	System.out.println("Preexisting view at location where new view is being added was NOT null");
+	        }*/
 			addView(views[i], l);
 		}
 	}
@@ -81,6 +89,7 @@ public class EntityView extends LinearLayout {
 	 */
 	public EntityView(Context context, Detail d, String[] headerText) {
 		super(context);
+		System.out.println("EntityView HEADER constructor called");
 		this.context = context;
 		this.setWeightSum(1);
 		views = new View[headerText.length];
@@ -91,7 +100,7 @@ public class EntityView extends LinearLayout {
 			if (lengths[i] != 0) {
 		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
 		        ViewId uniqueId = new ViewId(rowId, i, false);
-		        views[i] = establishView(headerText[i], headerForms[i], uniqueId);      
+		        views[i] = initView(headerText[i], headerForms[i], uniqueId);      
 		        views[i].setId(i);
 		        addView(views[i], l);
 			}
@@ -99,10 +108,10 @@ public class EntityView extends LinearLayout {
 	}
 	
 	/*
-	 * if form = "text", then 'text' field is just normal text
-	 * if form = "audio" or "image", then text is the path to the audio/image
+	 * Creates up a new view in the view with ID uniqueid, based upon
+	 * the entity's text and form
 	 */
-	private View establishView(String text, String form, Object uniqueId) {
+	private View initView(String text, String form, Object uniqueId) {
 		View retVal;
 		if ("image".equals(form)) {
 			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
@@ -110,6 +119,8 @@ public class EntityView extends LinearLayout {
         } 
 		else if ("audio".equals(form)) {
     		AudioButton b = new AudioButton(context, text, uniqueId, controller);
+			//System.out.println("EntityView " + this + " has created button " + b + " "
+				//	+ "at position " + b.locationToString());
     		retVal = b;
         } 
         else {
@@ -125,7 +136,7 @@ public class EntityView extends LinearLayout {
 	}
 	
 
-	public void setParams(Entity e, boolean currentlySelected, long rowId) {
+	public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
 		for (int i = 0; i < e.getNumFields() ; ++i) {
 			String textField = e.getField(i);
 			View view = views[i];
@@ -152,12 +163,18 @@ public class EntityView extends LinearLayout {
 		}
 	}
 	 
-        
-    private void setupAudioLayout(View layout, String text, ViewId uniqueId) {
+    /*
+     * Updates the AudioButton layout that is passed in, based on the  
+     * new id and source
+     */
+    private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
     	AudioButton b = (AudioButton)layout;
-    	b.modifyButtonForNewView(uniqueId, text);
+    	b.modifyButtonForNewView(uniqueId, source);
     }
 	
+    /*
+     * Updates the text layout that is passed in, based on the new text
+     */
 	private void setupTextAndTTSLayout(View layout, final String text) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
 		tv.setVisibility(View.VISIBLE);
@@ -187,12 +204,16 @@ public class EntityView extends LinearLayout {
     }
 	
 	
-	public void setupImageLayout(View layout, final String text) {
+	 /*
+     * Updates the ImageView layout that is passed in, based on the  
+     * new id and source
+     */
+	public void setupImageLayout(View layout, final String source) {
 		ImageView iv = (ImageView) layout;
 		Bitmap b;
-		if (!text.equals("")) {
+		if (!source.equals("")) {
 			try {
-				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
+				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
 				if (b == null) {
 					//Input stream could not be used to derive bitmap
 					iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));

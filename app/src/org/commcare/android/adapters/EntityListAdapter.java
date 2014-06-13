@@ -21,12 +21,10 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
 
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.media.MediaPlayer;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.ViewGroup;
@@ -257,17 +255,24 @@ public class EntityListAdapter implements ListAdapter {
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
-	//either positon or getItemId(position) will give unique id for view, 
-	//plus knowing which view in a row you're talking about
+	/* Note that position gives a unique "row" id, EXCEPT that the header row AND the first content row
+	 * are both assigned position 0 -- this is not an issue for current usage, but it could be in future
+	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
+		//System.out.println("EntityListAdapter.getView called with position " + position);
+		//System.out.println("Adapter: " + this.toString());
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if (emv == null) {
+			//System.out.println("creating new EntityView");
 			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position);
 		} else {
+			//System.out.println("modifying old EntityView");
 			emv.setSearchTerms(currentSearchTerms);
-			emv.setParams(e, e.getElement().equals(selected), position);
+			emv.refreshViewsForNewEntity(e, e.getElement().equals(selected), position);
 		}
+		//System.out.println("getView returning EntityView at position " + position + ": " + emv.toString());
+		//System.out.println("Returning EntityView for row " + position + " for ViewGroup " + parent);
 		return emv;
 	}
 
