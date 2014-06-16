@@ -4,6 +4,8 @@
  */
 package org.commcare.dalvik.activities;
 
+import java.util.ArrayList;
+
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -27,7 +29,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -273,6 +278,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			}
 			
 		});
+
+		System.out.println("[jls] registering receiver");
+		registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				System.out.println("[jls] onReceive fired");
+				//if it's the relevant notification...
+				viewNotificationButton.setVisibility(View.GONE);
+			}
+		}, new IntentFilter("jls"));
 
 		viewNotificationButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {

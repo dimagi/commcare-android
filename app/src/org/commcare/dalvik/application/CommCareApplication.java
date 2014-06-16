@@ -984,6 +984,7 @@ public class CommCareApplication extends Application {
 			
 	        // The PendingIntent to launch our activity if the user selects this notification
 	        Intent i = new Intent(this, MessageActivity.class);
+	        i.setAction("jls");
 	        
 	        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 	        
@@ -993,9 +994,12 @@ public class CommCareApplication extends Application {
 	        // Set the info for the views that show in the notification panel.
 	        messageNotification.setLatestEventInfo(this, title, Localization.get("notifications.prompt.details", new String[] {additional}), contentIntent);
 	        
-	        messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0);
+	        Intent deleteIntent = new Intent(this, NotificationClearReceiver.class);
+	        deleteIntent.setAction("jls");
+	        messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, deleteIntent, 0);
 	
 	    	//Send the notification.
+	        System.out.println("[jls] sending notification");
 	    	mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
 		}
 
@@ -1003,6 +1007,8 @@ public class CommCareApplication extends Application {
 	
 	public ArrayList<NotificationMessage> purgeNotifications() {
 		synchronized(pendingMessages) {
+			System.out.println("[jls] purging notifications");
+	    	this.sendBroadcast(new Intent("jls"));
 			ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
 			clearNotifications(null);
 			return cloned;
