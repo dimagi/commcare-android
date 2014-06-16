@@ -119,8 +119,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	Spinner urlSpinner;
 	@UiElement(R.id.start_install)
 	Button installButton;
-	@UiElement(R.id.keep_trying_install)
-	Button keepTryingButton;
 	@UiElement(R.id.btn_fetch_uri)
 	Button mScanBarcodeButton;
 	@UiElement(R.id.enter_app_location)
@@ -145,7 +143,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	//fields for installation retry
 	long lastInstallTime;
 	boolean startOverInstall;
-	static final long START_OVER_THRESHOLD = 172800000; //2 days in milliseconds
+	static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
 	
 
 	
@@ -304,15 +302,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			}
 		});
 		
-		keepTryingButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
 		
         final View activityRootView = findViewById(R.id.screen_first_start_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -667,7 +656,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
-    	keepTryingButton.setVisibility(View.GONE);
     	retryButton.setText(Localization.get("install.button.retry"));
     	startOverButton.setText(Localization.get("install.button.startover"));
     }
