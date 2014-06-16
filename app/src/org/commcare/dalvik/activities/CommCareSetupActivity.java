@@ -137,6 +137,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	boolean partialMode = false;
 	
 	CommCareApp ccApp;
+	CommCareSetupActivity thisActivity = this;
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
 	boolean isAuto = false;
@@ -276,7 +277,29 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		viewNotificationButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
   				viewNotificationButton.setVisibility(View.GONE);
-  				mainMessage.setText(notificationMessage);
+  				//mainMessage.setText(notificationMessage);
+
+/*			String title = pendingMessages.get(0).getTitle();
+			
+			Notification messageNotification = new Notification(org.commcare.dalvik.R.drawable.notification, title, System.currentTimeMillis());
+			messageNotification.number = pendingMessages.size();
+			
+	        // The PendingIntent to launch our activity if the user selects this notification
+	        Intent i = new Intent(this, MessageActivity.class);
+	        
+	        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+	        
+	        String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[] {String.valueOf(pendingMessages.size() - 1)}) : ""; 
+	
+	        // Set the info for the views that show in the notification panel.
+	        messageNotification.setLatestEventInfo(this, title, Localization.get("notifications.prompt.details", new String[] {additional}), contentIntent);
+	        
+	        messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0);
+	
+	    	//Send the notification.
+	    	mNM.notify(MESSAGE_NOTIFICATION, messageNotification);*/
+				Intent i = new Intent(thisActivity, MessageActivity.class);
+				thisActivity.startActivity(i);
 			}
 		});
 		
