@@ -41,12 +41,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -107,7 +105,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public String incomingRef;
 	public boolean canRetry;
 	public String displayMessage;
-	public String notificationMessage;
 	
 	@UiElement(R.id.advanced_panel)
 	View advancedView;
@@ -277,7 +274,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			
 		});
 
-		// Hide "See More" button when notification is cleared (by any method)
+		// Hide "See More" button when notification is cleared
+		// (by any method: button press, viewing from drawer, or clearing from drawer)
 		registerReceiver(new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -285,6 +283,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			}
 		}, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
 
+		// "See More" launches standard notification-viewing activity
 		viewNotificationButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				Intent i = new Intent(thisActivity, MessageActivity.class);
@@ -294,7 +293,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				mainMessage.setText("");		// clear any old notification message
 				viewNotificationButton.setVisibility(View.GONE);
 				partialMode = true;
 				startResourceInstall(false);
@@ -605,7 +603,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void setModeToReady(String incomingRef) {
     	buttonView.setVisibility(View.VISIBLE);
     	mainMessage.setText(Localization.get("install.ready"));
- 		mainMessage.setVisibility(View.VISIBLE);
 		editProfileRef.setText(incomingRef);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.GONE);
@@ -619,7 +616,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     public void setModeToError(boolean canRetry){
     	buttonView.setVisibility(View.VISIBLE);
-    	mainMessage.setVisibility(View.VISIBLE);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
@@ -639,7 +635,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     public void setModeToBasic(String message){
     	buttonView.setVisibility(View.VISIBLE);
-    	mainMessage.setVisibility(View.VISIBLE);
     	editProfileRef.setText("");	
     	this.incomingRef = null;
     	mainMessage.setText(message);
@@ -656,7 +651,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public void setModeToAdvanced(){
     	buttonView.setVisibility(View.VISIBLE);
-    	mainMessage.setVisibility(View.VISIBLE);
     	mainMessage.setText(Localization.get("install.manual"));
     	advancedView.setVisibility(View.VISIBLE);
     	mScanBarcodeButton.setVisibility(View.GONE);
@@ -779,7 +773,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
 		if(message.getAction() != null && message.getAction() != "") {
-		    notificationMessage = message.getAction();
 		    viewNotificationButton.setVisibility(View.VISIBLE);
 		}
 		
