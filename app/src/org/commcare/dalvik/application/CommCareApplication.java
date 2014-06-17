@@ -1002,7 +1002,7 @@ public class CommCareApplication extends Application {
 	
 	public ArrayList<NotificationMessage> purgeNotifications() {
 		synchronized(pendingMessages) {
-	    	this.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
+			this.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
 			ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
 			clearNotifications(null);
 			return cloned;
