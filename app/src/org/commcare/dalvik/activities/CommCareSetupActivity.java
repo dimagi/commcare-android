@@ -4,8 +4,6 @@
  */
 package org.commcare.dalvik.activities;
 
-import java.util.ArrayList;
-
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -279,40 +277,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			
 		});
 
-		System.out.println("[jls] registering receiver");
+		// Hide "See More" button when notification is cleared (by any method)
 		registerReceiver(new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				System.out.println("[jls] onReceive fired");
-				//if it's the relevant notification...
 				viewNotificationButton.setVisibility(View.GONE);
 			}
-		}, new IntentFilter("jls"));
+		}, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
 
 		viewNotificationButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-  				viewNotificationButton.setVisibility(View.GONE);
-  				//mainMessage.setText(notificationMessage);
-
-/*			String title = pendingMessages.get(0).getTitle();
-			
-			Notification messageNotification = new Notification(org.commcare.dalvik.R.drawable.notification, title, System.currentTimeMillis());
-			messageNotification.number = pendingMessages.size();
-			
-	        // The PendingIntent to launch our activity if the user selects this notification
-	        Intent i = new Intent(this, MessageActivity.class);
-	        
-	        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-	        
-	        String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[] {String.valueOf(pendingMessages.size() - 1)}) : ""; 
-	
-	        // Set the info for the views that show in the notification panel.
-	        messageNotification.setLatestEventInfo(this, title, Localization.get("notifications.prompt.details", new String[] {additional}), contentIntent);
-	        
-	        messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0);
-	
-	    	//Send the notification.
-	    	mNM.notify(MESSAGE_NOTIFICATION, messageNotification);*/
 				Intent i = new Intent(thisActivity, MessageActivity.class);
 				thisActivity.startActivity(i);
 			}

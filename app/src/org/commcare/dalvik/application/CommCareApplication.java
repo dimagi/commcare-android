@@ -53,7 +53,6 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.InstallArchiveActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -69,7 +68,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -115,6 +113,8 @@ public class CommCareApplication extends Application {
 	public static final int STATE_UPGRADE = 1;
 	public static final int STATE_READY = 2;
 	public static final int STATE_CORRUPTED = 4;
+	
+	public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 	
 	private int dbState;
 	private int resourceState;
@@ -984,22 +984,17 @@ public class CommCareApplication extends Application {
 			
 	        // The PendingIntent to launch our activity if the user selects this notification
 	        Intent i = new Intent(this, MessageActivity.class);
-	        i.setAction("jls");
 	        
 	        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 	        
 	        String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[] {String.valueOf(pendingMessages.size() - 1)}) : ""; 
-	        
 	
 	        // Set the info for the views that show in the notification panel.
 	        messageNotification.setLatestEventInfo(this, title, Localization.get("notifications.prompt.details", new String[] {additional}), contentIntent);
 	        
-	        Intent deleteIntent = new Intent(this, NotificationClearReceiver.class);
-	        deleteIntent.setAction("jls");
-	        messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, deleteIntent, 0);
+	        messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0);
 	
 	    	//Send the notification.
-	        System.out.println("[jls] sending notification");
 	    	mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
 		}
 
@@ -1007,8 +1002,7 @@ public class CommCareApplication extends Application {
 	
 	public ArrayList<NotificationMessage> purgeNotifications() {
 		synchronized(pendingMessages) {
-			System.out.println("[jls] purging notifications");
-	    	this.sendBroadcast(new Intent("jls"));
+	    	this.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
 			ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
 			clearNotifications(null);
 			return cloned;
