@@ -521,7 +521,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			
 			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, inUpgradeMode, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
 
-				//TODO: Check decisions for startOverInstall with Clayton
 				@Override
 				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
 					lastInstallTime = System.currentTimeMillis();
@@ -535,7 +534,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 					} else if(result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
 						receiver.failMissingResource(this.missingResourceException, result);
 						receiver.startOverInstall = false;
-						//Talk to Clayton about the issue that Will brought up -- maybe we can differentiate between bad connection and bad path?
 					} else if(result == ResourceEngineOutcomes.StatusBadReqs){
 						receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
 						receiver.startOverInstall = false;

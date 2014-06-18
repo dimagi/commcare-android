@@ -567,11 +567,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
     
     @Override
-    public void onPause() {
-    	super.onPause();
-    }
-    
-    @Override
     public void onDestroy() {
     	super.onDestroy();
     	if(loader != null) {

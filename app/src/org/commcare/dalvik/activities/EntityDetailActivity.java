@@ -141,16 +141,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     	i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
     }
     
-    @Override
-    public void onDestroy() {
-    	super.onDestroy();
-    }
-    
-    @Override
-    public void onPause() {
-    	super.onPause();
-    }
-    
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)

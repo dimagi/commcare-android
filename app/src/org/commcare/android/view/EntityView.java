@@ -12,7 +12,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.MediaEntity;
 import org.odk.collect.android.views.media.ViewId;
 
 import android.content.Context;
@@ -24,7 +23,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
-import android.util.Pair;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;

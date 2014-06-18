@@ -54,8 +54,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	protected final static int DIALOG_PROGRESS = 32;
 	protected final static String DIALOG_TEXT = "cca_dialog_text";
-	private final static String CURRENT_ENTITY = "currMediaEntity";
-	private final static String CURRENT_BUTTON = "currAudioButton";
 
 	StateFragment stateHolder;
 	private boolean firstRun = true;
