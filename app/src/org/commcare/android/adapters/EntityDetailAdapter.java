@@ -51,7 +51,6 @@ public class EntityDetailAdapter implements ListAdapter {
 			}
 		}
 		this.detailIndex = detailIndex;
-        System.out.println("DETAIL INDEX in EntityDetailAdapter: " + detailIndex);
 	}
 	
 	/* (non-Javadoc)

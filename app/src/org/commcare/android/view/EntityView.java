@@ -65,9 +65,6 @@ public class EntityView extends LinearLayout {
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
 		        Object uniqueId = new ViewId(rowId, i, false);
-		        if ("audio".equals(forms[i])) {
-		        	System.out.println("text in EntityView constructor: " + e.getField(i));
-		        }
 		        views[i] = initView(e.getField(i), forms[i], uniqueId);
 		        views[i].setId(i);
 			}

@@ -259,20 +259,14 @@ public class EntityListAdapter implements ListAdapter {
 	 * are both assigned position 0 -- this is not an issue for current usage, but it could be in future
 	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
-		//System.out.println("EntityListAdapter.getView called with position " + position);
-		//System.out.println("Adapter: " + this.toString());
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if (emv == null) {
-			//System.out.println("creating new EntityView");
 			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position);
 		} else {
-			//System.out.println("modifying old EntityView");
 			emv.setSearchTerms(currentSearchTerms);
 			emv.refreshViewsForNewEntity(e, e.getElement().equals(selected), position);
 		}
-		//System.out.println("getView returning EntityView at position " + position + ": " + emv.toString());
-		//System.out.println("Returning EntityView for row " + position + " for ViewGroup " + parent);
 		return emv;
 	}
 
