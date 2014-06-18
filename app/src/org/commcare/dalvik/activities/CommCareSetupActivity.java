@@ -9,17 +9,21 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.framework.WrappingSpinnerAdapter;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -481,7 +485,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 	private void startResourceInstall() {
 		if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
-			startResourceInstall(true);
+			/*If we are triggering a start over install due to the time threshold
+			 * when there is a partial resource table that we could be using, send
+			 * a message to log this.
+			 */
+			AndroidCommCarePlatform platform = getCommCareApp().getCommCarePlatform();
+			ResourceTable temporary = platform.getUpgradeResourceTable();
+			if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL) {
+				Logger.log(AndroidLogger.TYPE_RESOURCES, "A start-over on installation has been "
+						+ "triggered by the time threshold when there is an existing partial "
+						+ "resource table that could be used.");
+			}
+		    startResourceInstall(true);
 		}
 		else {
 			startResourceInstall(this.startOverInstall);
