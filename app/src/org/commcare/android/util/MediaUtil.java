@@ -17,7 +17,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.apache.commons.io.IOUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -53,31 +52,33 @@ public class MediaUtil {
 	
 	
 	/*
-	 * Warning: Use of temp file could cause sloweness. 
-	 * Not currently used, but could potentially be useful down the road.
+	 * Warning: Use of temp file could cause slowness.
+	 *  
+	 * Not currently used, so commented out because requires
+	 * import of external commons.io jar file, but could 
+	 * potentially be useful down the road.
 	 */
-	public static FileInputStream inputStreamToFIS(InputStream in) {
+	
+	/*public static FileInputStream inputStreamToFIS(InputStream in) {
 	    FileInputStream fis = null;
 	    FileOutputStream out = null;
 	    File tempFile = null;
 		try {
 			tempFile = File.createTempFile("stream2file", ".tmp");
 			tempFile.deleteOnExit();
-			//TODO: try using StreamsUtil method for this, currently causes loop
+			//TODO: try using StreamsUtil method for this, currently causes inf loop
 			out = new FileOutputStream(tempFile);
 			IOUtils.copy(in, out);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	    try {
 			fis = new FileInputStream(tempFile);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return fis;	
-	}
+	}*/
 
 	
 	/**
