@@ -85,12 +85,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 	protected int phase = -1;  
 	boolean upgradeMode = false;
 	boolean partialMode = false;
-	/*IMP: 
-	 * -changed this to false so that DEFAULT behavior is to reuse the last update table
-	 * -constructor for ResourceEngineTask can still change this -- this is what will be used
-	 * to make decisions based on other heuristics
-	 */
-	boolean startOverUpgrade = false;
+	boolean startOverUpgrade;
 	
 	protected String vAvailable;
 	protected String vRequired;
@@ -140,8 +135,8 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 				if(!sanityTest1) return ResourceEngineOutcomes.StatusFailState;
 				global.setStateListener(this);
 				
-				/* temporary is the upgrade table -- starts out in the state that it was left 
-				 * after the last install: partially populated if it stopped in middle, empty
+				/* temporary is the upgrade table, which starts out in the state that it was left 
+				 * after the last install- partially populated if it stopped in middle, empty
 				 * if the install was successful
 				 */
 				ResourceTable temporary = platform.getUpgradeResourceTable();
@@ -160,9 +155,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 	    		}
 
 				phase = PHASE_CHECKING;
-				/*Replace the global table with temporary table,
-				 * or w/ recovery if something goes wrong
-				 */
+				//Replaces global table with temporary, or w/ recovery if something goes wrong
 				platform.upgrade(global, temporary, recovery);
 				
 				//And see where we ended up to see whether an upgrade actually occurred				
