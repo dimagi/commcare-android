@@ -6,7 +6,7 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.AudioButton;
+import org.odk.collect.android.views.media.AudioButton;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -184,7 +184,7 @@ public class TextImageAudioView extends RelativeLayout {
         super.onWindowVisibilityChanged(visibility);
         if (visibility != View.VISIBLE) {
             if (mAudioButton != null) {
-                mAudioButton.stopPlaying();
+                mAudioButton.endPlaying();
             }
         }
     }

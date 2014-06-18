@@ -92,7 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical" >
-
+   
         <Button
             android:id="@+id/btn_fetch_uri"
             android:layout_width="fill_parent"
@@ -118,12 +118,20 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Retry Installation" />
+        
+        <Button
+            android:id="@+id/keep_trying_install"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Keep Trying Installation" />
 
         <Button
             android:id="@+id/start_over"
             android:layout_width="fill_parent"	
             android:layout_height="wrap_content"
             android:text="Start Over" />
+        
+        
     </LinearLayout>
 
 </RelativeLayout>

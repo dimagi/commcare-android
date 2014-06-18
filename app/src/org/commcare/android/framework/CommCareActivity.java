@@ -4,6 +4,11 @@
 package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -16,6 +21,10 @@ import org.commcare.util.SessionFrame;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ButtonState;
+import org.odk.collect.android.views.media.MediaEntity;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -24,6 +33,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -40,19 +50,25 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R> {
+public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, AudioController {
 	
 	protected final static int DIALOG_PROGRESS = 32;
 	protected final static String DIALOG_TEXT = "cca_dialog_text";
-	
+	private final static String CURRENT_ENTITY = "currMediaEntity";
+	private final static String CURRENT_BUTTON = "currAudioButton";
+
 	StateFragment stateHolder;
 	private boolean firstRun = true;
-
+	
+	//Fields for implementation of AudioController
+	private MediaEntity currentEntity;
+	private AudioButton currentButton;
+	private ButtonState stateBeforePause;
+	
 	@Override
 	@TargetApi(14)
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 	    FragmentManager fm = this.getSupportFragmentManager();
 	    
 	    stateHolder = (StateFragment) fm.findFragmentByTag("state");
@@ -61,9 +77,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    if (stateHolder == null) {
 	    	stateHolder = new StateFragment();
 	    	fm.beginTransaction().add(stateHolder, "state").commit();
-	    } else{
+	    } else {
 	    	if(stateHolder.getPreviousState() != null){
 	    		firstRun = stateHolder.getPreviousState().isFirstRun();
+	    		loadPreviousAudio(stateHolder.getPreviousState());
 	    	} else{
 	    		firstRun = true;
 	    	}
@@ -86,6 +103,28 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		    	fm.beginTransaction().add(bar, "breadcrumbs").commit();
 		    }
 	    }
+	}
+	
+	private void loadPreviousAudio(AudioController oldController) {
+		MediaEntity oldEntity = oldController.getCurrMedia();
+		if (oldEntity != null) {
+			this.currentEntity = oldEntity;
+			oldController.removeCurrentMediaEntity();
+		}
+	}
+	
+	private void playPreviousAudio() {
+		if (currentEntity == null) return;
+		switch (currentEntity.getState()) {
+		case PausedForRenewal:
+			playCurrentMediaEntity();
+			break;
+		case Paused:
+			break;
+		case Playing:
+		case Ready:
+			System.out.println("WARNING: state in loadPreviousAudio is invalid");
+		}
 	}
 	
 	/*
@@ -185,6 +224,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    	this.setTitle(getTitle(this, getActivityTitle()));
 	    }
 	    visible = true;
+	    playPreviousAudio();
 	    //set that this activity has run
 	    if(isFirstRun()){
 	    	fireOnceOnStart();
@@ -199,6 +239,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	protected void onPause() {
 		super.onPause();
 	    visible = false;
+	    if (currentEntity != null) saveEntityStateAndClear();
 	}
 	
 	protected boolean isInVisibleState() {
@@ -211,6 +252,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		if (currentEntity != null) attemptSetStateToPauseForRenewal();
 	}
 	
 	protected void updateProgress(int taskId, String updateText) {
@@ -439,4 +481,103 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	public boolean isFirstRun(){
 		return this.firstRun;
 	}
+	
+	/*
+	 * All methods for implementation of AudioController
+	 */
+	
+	@Override
+	public MediaEntity getCurrMedia() {
+		return currentEntity;
+	}
+	
+	@Override
+	public void refreshCurrentAudioButton(AudioButton clicked) {
+		if (currentButton != null) {
+			System.out.println("refreshCurrentAudioButton called on button in view " + currentButton.locationToString());
+		}
+		if (currentButton != null && currentButton != clicked) {
+    		currentButton.setStateToReady();
+    	}
+	}
+
+	@Override
+	public void setCurrent(MediaEntity e, AudioButton b) {
+		refreshCurrentAudioButton(b);
+		setCurrent(e);
+		setCurrentAudioButton(b);
+	}
+	
+	@Override
+	public void setCurrent(MediaEntity e) {
+		releaseCurrentMediaEntity();
+		currentEntity = e;
+	}
+	
+	@Override
+	public void setCurrentAudioButton(AudioButton b) {
+		System.out.println("setCurrentAudioButton called on button " + b.toString() + 
+				" in location " + b.locationToString());
+		currentButton = b;
+	}
+	
+	
+	@Override
+	public void releaseCurrentMediaEntity() {
+		if (currentEntity != null) {
+			MediaPlayer mp = currentEntity.getPlayer();
+			mp.reset();
+			mp.release();	
+		}
+		currentEntity = null;
+	}
+	
+	@Override
+	public void playCurrentMediaEntity() {
+		if (currentEntity != null) {
+			MediaPlayer mp = currentEntity.getPlayer();
+			mp.start();			
+			currentEntity.setState(ButtonState.Playing);
+		}
+	}
+	
+	@Override
+	public void pauseCurrentMediaEntity() {
+		if (currentEntity != null && currentEntity.getState().equals(ButtonState.Playing)) {
+			MediaPlayer mp = currentEntity.getPlayer();
+			mp.pause();	
+			currentEntity.setState(ButtonState.Paused);
+		}
+	}
+	
+	@Override
+	public Object getMediaEntityId() {
+		return currentEntity.getId();
+	}
+	
+	@Override
+	public void attemptSetStateToPauseForRenewal() {
+		if (stateBeforePause != null && stateBeforePause.equals(ButtonState.Playing)) {
+    		currentEntity.setState(ButtonState.PausedForRenewal);
+    	}
+	}
+	
+	@Override
+	public void saveEntityStateAndClear() {
+		stateBeforePause = currentEntity.getState();
+    	pauseCurrentMediaEntity();
+    	refreshCurrentAudioButton(null);
+	}
+	
+	@Override
+	public void setMediaEntityState(ButtonState state) {
+		currentEntity.setState(state);
+	}
+	
+	@Override
+	public void removeCurrentMediaEntity() {
+		currentEntity = null;
+	}
+	
+
 }
