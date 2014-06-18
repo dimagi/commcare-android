@@ -59,7 +59,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         super.onCreate(savedInstanceState);
         Intent i = getIntent();
         this.detailIndex = i.getIntExtra("entity_detail_index", -1);
-        System.out.println("DETAIL INDEX in EntityDetailActivity: " + detailIndex);
         //if (detailIndex == -1) { System.out.println("WARNING: detailIndex not assigned from intent"); }
 
         if (this.getString(R.string.panes).equals("two")) {

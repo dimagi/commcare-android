@@ -357,7 +357,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 	@Override
 	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-		System.out.println("EntitySelectActivity onItemClick called");
     	TreeReference selection = adapter.getItem(position);
     	if(inAwesomeMode) {
     		displayReferenceAwesome(selection, position);
