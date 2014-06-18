@@ -493,9 +493,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void refreshCurrentAudioButton(AudioButton clicked) {
-		if (currentButton != null) {
-			System.out.println("refreshCurrentAudioButton called on button in view " + currentButton.locationToString());
-		}
 		if (currentButton != null && currentButton != clicked) {
     		currentButton.setStateToReady();
     	}
@@ -516,8 +513,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void setCurrentAudioButton(AudioButton b) {
-		System.out.println("setCurrentAudioButton called on button " + b.toString() + 
-				" in location " + b.locationToString());
 		currentButton = b;
 	}
 	

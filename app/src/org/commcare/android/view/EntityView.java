@@ -52,7 +52,6 @@ public class EntityView extends LinearLayout {
 	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
 			String[] searchTerms, AudioController controller, long rowId) {
 		super(context);
-		//System.out.println("EntityView content constructor called with rowId " + rowId);
 		this.context = context;
 		this.searchTerms = searchTerms;
 		this.tts = tts;
@@ -66,20 +65,16 @@ public class EntityView extends LinearLayout {
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
 		        Object uniqueId = new ViewId(rowId, i, false);
-		        views[i] = initView(null, forms[i], uniqueId);
+		        if ("audio".equals(forms[i])) {
+		        	System.out.println("text in EntityView constructor: " + e.getField(i));
+		        }
+		        views[i] = initView(e.getField(i), forms[i], uniqueId);
 		        views[i].setId(i);
 			}
 		}
 		refreshViewsForNewEntity(e, false, rowId);
 		for (int i = 0; i < views.length; i++) {
 	        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
-	        /*View v = getChildAt(i);
-	        if (v == null) {
-	        	System.out.println("Preexisting view at location where new view is being added was null");
-	        }
-	        else {
-	        	System.out.println("Preexisting view at location where new view is being added was NOT null");
-	        }*/
 			addView(views[i], l);
 		}
 	}
@@ -89,7 +84,6 @@ public class EntityView extends LinearLayout {
 	 */
 	public EntityView(Context context, Detail d, String[] headerText) {
 		super(context);
-		System.out.println("EntityView HEADER constructor called");
 		this.context = context;
 		this.setWeightSum(1);
 		views = new View[headerText.length];
@@ -118,9 +112,13 @@ public class EntityView extends LinearLayout {
 			retVal = iv;
         } 
 		else if ("audio".equals(form)) {
-    		AudioButton b = new AudioButton(context, text, uniqueId, controller);
-			//System.out.println("EntityView " + this + " has created button " + b + " "
-				//	+ "at position " + b.locationToString());
+    		AudioButton b;
+    		if (text != null & text.length() > 0) {
+    			b = new AudioButton(context, text, uniqueId, controller, true);
+    		}
+    		else {
+    			b = new AudioButton(context, text, uniqueId, controller, false);
+    		}
     		retVal = b;
         } 
         else {
@@ -167,11 +165,16 @@ public class EntityView extends LinearLayout {
      * Updates the AudioButton layout that is passed in, based on the  
      * new id and source
      */
-    private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
-    	AudioButton b = (AudioButton)layout;
-    	b.modifyButtonForNewView(uniqueId, source);
-    }
-	
+	private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
+		AudioButton b = (AudioButton)layout;
+		if (source != null && source.length() > 0) {
+			b.modifyButtonForNewView(uniqueId, source, true);
+		}
+		else {
+			b.modifyButtonForNewView(uniqueId, source, false);
+		}
+	}
+
     /*
      * Updates the text layout that is passed in, based on the new text
      */

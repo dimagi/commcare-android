@@ -80,7 +80,7 @@ public class TextImageAudioView extends RelativeLayout {
         // First set up the audio button
         if (audioFilename != "" && audioFile.exists()) {
             // An audio file is specified
-            mAudioButton = new AudioButton(getContext(), audioURI);
+            mAudioButton = new AudioButton(getContext(), audioURI, true);
             mAudioButton.setId(3245345); // random ID to be used by the relative layout.
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
