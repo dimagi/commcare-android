@@ -18,6 +18,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -287,6 +288,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
 	}
 	
+	/**
+	 * Display exception details as a pop-up to the user.
+	 *
+	 * @param e Exception to handle
+	 */
 	protected void displayException(Exception e) {
 		String mErrorMessage = e.getMessage();
 		AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
