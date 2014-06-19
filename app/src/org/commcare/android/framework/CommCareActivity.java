@@ -19,8 +19,10 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -285,6 +287,26 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
 	}
 	
+	protected void displayException(Exception e) {
+		String mErrorMessage = e.getMessage();
+		AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
+		mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
+		mAlertDialog.setTitle(Localization.get("notification.case.predicate.title"));
+		mAlertDialog.setMessage(Localization.get("notification.case.predicate.action", new String[] {mErrorMessage}));
+		DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int i) {
+				switch (i) {
+					case DialogInterface.BUTTON1:
+						finish();
+						break;
+				}
+			}
+		};
+		mAlertDialog.setCancelable(false);
+		mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
+		mAlertDialog.show();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
