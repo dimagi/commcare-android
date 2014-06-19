@@ -137,7 +137,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	boolean partialMode = false;
 	
 	CommCareApp ccApp;
-	CommCareSetupActivity thisActivity = this;
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
 	boolean isAuto = false;
@@ -286,8 +285,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		// "See More" launches standard notification-viewing activity
 		viewNotificationButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				Intent i = new Intent(thisActivity, MessageActivity.class);
-				thisActivity.startActivity(i);
+				Intent i = new Intent(CommCareSetupActivity.this, MessageActivity.class);
+				CommCareSetupActivity.this.startActivity(i);
 			}
 		});
 		
