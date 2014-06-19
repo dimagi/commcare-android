@@ -23,7 +23,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.ButtonState;
+import org.odk.collect.android.views.media.MediaState;
 import org.odk.collect.android.views.media.MediaEntity;
 
 import android.annotation.TargetApi;
@@ -61,7 +61,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	//Fields for implementation of AudioController
 	private MediaEntity currentEntity;
 	private AudioButton currentButton;
-	private ButtonState stateBeforePause;
+	private MediaState stateBeforePause;
 	
 	@Override
 	@TargetApi(14)
@@ -530,16 +530,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		if (currentEntity != null) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.start();			
-			currentEntity.setState(ButtonState.Playing);
+			currentEntity.setState(MediaState.Playing);
 		}
 	}
 	
 	@Override
 	public void pauseCurrentMediaEntity() {
-		if (currentEntity != null && currentEntity.getState().equals(ButtonState.Playing)) {
+		if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
 			MediaPlayer mp = currentEntity.getPlayer();
 			mp.pause();	
-			currentEntity.setState(ButtonState.Paused);
+			currentEntity.setState(MediaState.Paused);
 		}
 	}
 	
@@ -550,8 +550,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	
 	@Override
 	public void attemptSetStateToPauseForRenewal() {
-		if (stateBeforePause != null && stateBeforePause.equals(ButtonState.Playing)) {
-    		currentEntity.setState(ButtonState.PausedForRenewal);
+		if (stateBeforePause != null && stateBeforePause.equals(MediaState.Playing)) {
+    		currentEntity.setState(MediaState.PausedForRenewal);
     	}
 	}
 	
@@ -563,7 +563,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	}
 	
 	@Override
-	public void setMediaEntityState(ButtonState state) {
+	public void setMediaEntityState(MediaState state) {
 		currentEntity.setState(state);
 	}
 	
