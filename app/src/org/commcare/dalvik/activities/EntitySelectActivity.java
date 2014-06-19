@@ -125,7 +125,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         try {
         	asw = CommCareApplication._().getCurrentSessionWrapper();
         	session = asw.getSession();
-        }catch(SessionUnavailableException sue){
+        } catch(SessionUnavailableException sue){
         	//The user isn't logged in! bounce this back to where we came from
         	this.setResult(Activity.RESULT_CANCELED);
         	this.finish();
@@ -204,10 +204,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         if(oldActivity != null) {
         	adapter = oldActivity.adapter;
+        	adapter.setController(this);
     	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
         	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         }
-        
 		//cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
     }
@@ -247,13 +247,16 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         	
         	if(entity != null) {
         		if(inAwesomeMode) {
-        			displayReferenceAwesome(entity);
+        			displayReferenceAwesome(entity, adapter.getPosition(entity));
         			updateSelectedItem(entity, true);
         		} else {
 	        		//Once we've done the initial dispatch, we don't want to end up triggering it later.
 	        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
 	        		
 	        		Intent i = getDetailIntent(entity);
+	        		if (adapter != null) {
+	        			i.putExtra("entity_detail_index", adapter.getPosition(entity));
+	        		}
 	        		startActivityForResult(i, CONFIRM_SELECT);
 	        		return;
         		}
@@ -356,11 +359,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
     	TreeReference selection = adapter.getItem(position);
     	if(inAwesomeMode) {
-    		displayReferenceAwesome(selection);
+    		displayReferenceAwesome(selection, position);
     		updateSelectedItem(selection, false);
     	} else {
     		Intent i = getDetailIntent(selection);
-    		if(mNoDetailMode) {
+    		i.putExtra("entity_detail_index", position);
+    		if (mNoDetailMode) {
         		returnWithResult(i);
         	} else  {
         		startActivityForResult(i, CONFIRM_SELECT);
@@ -400,9 +404,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	    		if(inAwesomeMode) {
 		    		TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
 		    		if(r != null) {
-		    			this.displayReferenceAwesome(r);
+		    			this.displayReferenceAwesome(r, adapter.getPosition(r));
 		    			updateSelectedItem(r, true);
 		    		}
+		    		releaseCurrentMediaEntity();		
 	    		}
         		return;
     		}
@@ -411,7 +416,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	    		TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
 	    		
 	    		if(inAwesomeMode) {
-	    			this.displayReferenceAwesome(r);
+	    			this.displayReferenceAwesome(r, adapter.getPosition(r));
 	    		} else {
 		        	Intent i = this.getDetailIntent(r);
 		        	if(mNoDetailMode) {
@@ -419,7 +424,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		        	} else  {
 			    		//To go back to map mode if confirm is false
 			        	mResultIsMap = true;
-			        	
+		        		i.putExtra("entity_detail_index", adapter.getPosition(r));
 			            startActivityForResult(i, CONFIRM_SELECT);
 		        	}
 		            return;
@@ -603,7 +608,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	}
 		
     	ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts);
+		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this);
 		view.setAdapter(adapter);
 		
 		findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
@@ -650,7 +655,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	boolean rightFrameSetup = false;
 	NodeEntityFactory factory;
 	
-	public void displayReferenceAwesome(final TreeReference selection) {
+	public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection);
 		//this should be 100% "fragment" able
 		if(!rightFrameSetup) {
@@ -687,8 +692,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		}
 		
 		Entity entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
-
-		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null);
+		
+		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null, this, detailIndex);
 	    ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
 	}
 
@@ -696,4 +701,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	public void deliverError(Exception e) {
         displayException(e);
 	}
+
+
 }

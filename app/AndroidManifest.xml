@@ -175,6 +175,10 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
+            android:name="org.odk.collect.android.activities.DrawActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
             android:name="org.odk.collect.android.activities.FormHierarchyActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>

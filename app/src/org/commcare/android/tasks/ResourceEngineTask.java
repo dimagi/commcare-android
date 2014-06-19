@@ -85,7 +85,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 	protected int phase = -1;  
 	boolean upgradeMode = false;
 	boolean partialMode = false;
-	boolean startOverUpgrade = true;
+	boolean startOverUpgrade;
 	
 	protected String vAvailable;
 	protected String vRequired;
@@ -135,10 +135,18 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 				if(!sanityTest1) return ResourceEngineOutcomes.StatusFailState;
 				global.setStateListener(this);
 				
+				/* temporary is the upgrade table, which starts out in the state that it was left 
+				 * after the last install- partially populated if it stopped in middle, empty
+				 * if the install was successful
+				 */
 				ResourceTable temporary = platform.getUpgradeResourceTable();
 				ResourceTable recovery = platform.getRecoveryTable();
 				temporary.setStateListener(this);
 
+				/*this populates the upgrade table with resources based on binary files,
+				 * starting with the profile file. If the new profile is not a newer version,
+				 * statgeUpgradeTable doesn't actually pull in all the new references
+				 */
 				platform.stageUpgradeTable(global, temporary, profileRef, startOverUpgrade);
 	    		Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
 	    		if(!newProfile.isNewer(profile)) {
@@ -147,6 +155,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 	    		}
 
 				phase = PHASE_CHECKING;
+				//Replaces global table with temporary, or w/ recovery if something goes wrong
 				platform.upgrade(global, temporary, recovery);
 				
 				//And see where we ended up to see whether an upgrade actually occurred				
