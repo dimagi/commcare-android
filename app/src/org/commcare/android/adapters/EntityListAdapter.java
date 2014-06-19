@@ -5,7 +5,9 @@ package org.commcare.android.adapters;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -19,6 +21,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.odk.collect.android.views.media.AudioController;
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -43,6 +46,7 @@ public class EntityListAdapter implements ListAdapter {
 	List<TreeReference> references;
 	Detail d;
 	TextToSpeech tts;
+	AudioController controller;
 	
 	private TreeReference selected;
 	
@@ -53,13 +57,14 @@ public class EntityListAdapter implements ListAdapter {
 
 	private String[] currentSearchTerms;
 	
-	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts) throws SessionUnavailableException {
+	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, 
+			List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts, AudioController controller) 
+					throws SessionUnavailableException {
 		this.d = d;
 		
 		this.full = full;
 		current = new ArrayList<Entity<TreeReference>>();
 		this.references = references;
-		
 		
 		this.context = context;
 		this.observers = new ArrayList<DataSetObserver>();
@@ -69,6 +74,7 @@ public class EntityListAdapter implements ListAdapter {
 		}
 		filterValues("");
 		this.tts = tts;
+		this.controller = controller;
 	}
 
 	private void filterValues(String filterRaw) {
@@ -241,18 +247,25 @@ public class EntityListAdapter implements ListAdapter {
 	public int getItemViewType(int position) {
 		return 0;
 	}
+	
+	public void setController(AudioController controller) {
+		this.controller = controller;
+	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 	 */
+	/* Note that position gives a unique "row" id, EXCEPT that the header row AND the first content row
+	 * are both assigned position 0 -- this is not an issue for current usage, but it could be in future
+	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
-		if(emv == null) {
-			emv = new EntityView(context, d, e, tts, currentSearchTerms);
-		} else{
+		if (emv == null) {
+			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position);
+		} else {
 			emv.setSearchTerms(currentSearchTerms);
-			emv.setParams(e, e.getElement().equals(selected));
+			emv.refreshViewsForNewEntity(e, e.getElement().equals(selected), position);
 		}
 		return emv;
 	}

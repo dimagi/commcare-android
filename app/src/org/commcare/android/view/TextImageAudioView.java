@@ -6,7 +6,7 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.AudioButton;
+import org.odk.collect.android.views.media.AudioButton;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -80,7 +80,7 @@ public class TextImageAudioView extends RelativeLayout {
         // First set up the audio button
         if (audioFilename != "" && audioFile.exists()) {
             // An audio file is specified
-            mAudioButton = new AudioButton(getContext(), audioURI);
+            mAudioButton = new AudioButton(getContext(), audioURI, true);
             mAudioButton.setId(3245345); // random ID to be used by the relative layout.
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
@@ -184,7 +184,7 @@ public class TextImageAudioView extends RelativeLayout {
         super.onWindowVisibilityChanged(visibility);
         if (visibility != View.VISIBLE) {
             if (mAudioButton != null) {
-                mAudioButton.stopPlaying();
+                mAudioButton.endPlaying();
             }
         }
     }

@@ -145,6 +145,7 @@ app.storage.missing.button=Shutdown CommCare
 cchq.case=Case
 select.placeholder.message=Please select a ${0}
 notification.for.details.wrapper=${0} (See notification for details)
+notification.for.details.setup.wrapper=${0} (Press "See More" or see notification for details)
 
 app.handled.error.title=Unrecoverable Error
 app.menu.display.cond.bad.xpath=Invalid form display condition (${0}): ${1}

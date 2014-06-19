@@ -180,6 +180,10 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
+            android:name="org.odk.collect.android.activities.DrawActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
             android:name="org.odk.collect.android.activities.FormHierarchyActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
@@ -302,12 +306,9 @@
         android:targetSdkVersion="14" >
     </uses-sdk>
 
-    <uses-permission android:name="android.permission.READ_CONTACTS" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.WAKE_LOCK" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.READ_SMS" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     
     <permission android:name="org.commcare.dalvik.provider.cases.read" android:label="@string/permission_case_provider_label" android:description="@string/permission_case_provider_description" android:protectionLevel="dangerous"></permission>
     

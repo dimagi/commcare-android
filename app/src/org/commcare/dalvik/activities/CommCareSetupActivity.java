@@ -9,17 +9,21 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.framework.WrappingSpinnerAdapter;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -27,7 +31,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -38,12 +45,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,6 +73,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final String KEY_ERROR_MODE = "app_error_mode";
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	public static final String KEY_AUTO = "is_auto_update";
+	public static final String KEY_START_OVER = "start_over_uprgrade";
+	public static final String KEY_LAST_INSTALL = "last_install_time";
 	
 	/*
 	 * enum indicating which UI mconfiguration should be shown.
@@ -123,6 +130,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	Button addressEntryButton;
 	@UiElement(R.id.start_over)
 	Button startOverButton;
+	@UiElement(R.id.view_notification)
+	Button viewNotificationButton;
 	@UiElement(R.id.retry_install)
 	Button retryButton;
 	@UiElement(R.id.screen_first_start_banner)
@@ -137,6 +146,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
 	boolean isAuto = false;
+	
+	/* used to keep track of whether or not the previous resource table was in a 
+	 * 'fresh' (empty or installed) state before the last install ran
+	 */
+	boolean resourceTableWasFresh;
+	static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
+	
 
 	
 	@Override
@@ -269,9 +285,27 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			}
 			
 		});
+
+		// Hide "See More" button when notification is cleared
+		// (by any method: button press, viewing from drawer, or clearing from drawer)
+		registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				viewNotificationButton.setVisibility(View.GONE);
+			}
+		}, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
+
+		// "See More" launches standard notification-viewing activity
+		viewNotificationButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				Intent i = new Intent(CommCareSetupActivity.this, MessageActivity.class);
+				CommCareSetupActivity.this.startActivity(i);
+			}
+		});
 		
 		retryButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				viewNotificationButton.setVisibility(View.GONE);
 				partialMode = true;
 				startResourceInstall(false);
 			}
@@ -290,6 +324,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				}
 			}
 		});
+		
 		
         final View activityRootView = findViewById(R.id.screen_first_start_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -466,7 +501,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	}
 
 	private void startResourceInstall() {
-		this.startResourceInstall(true);
+		long lastInstallTime = ccApp.getAppPreferences().getLong(KEY_LAST_INSTALL, -1);
+		if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
+			/*If we are triggering a start over install due to the time threshold
+			 * when there is a partial resource table that we could be using, send
+			 * a message to log this.
+			 */
+			ResourceTable temporary = ccApp.getCommCarePlatform().getUpgradeResourceTable();
+			if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL) {
+				Logger.log(AndroidLogger.TYPE_RESOURCES, "A start-over on installation has been "
+						+ "triggered by the time threshold when there is an existing partial "
+						+ "resource table that could be used.");
+			}
+		    startResourceInstall(true);
+		}
+		else {
+			startResourceInstall(ccApp.getAppPreferences().getBoolean(KEY_START_OVER, true));
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -487,6 +538,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		this.startAllowed = true;
 	}
 	
+	/**
+	 * @param startOverUpgrade - what determines whether CommCarePlatform.stageUpgradeTable()
+	 * reuses the last version of the upgrade table, or starts over
+	 */
 	private void startResourceInstall(boolean startOverUpgrade) {
 
 		if(startAllowed) {
@@ -495,27 +550,63 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			CommCareApp app = getCommCareApp();
 			
 			ccApp = app;
+
+			/* store what the state of the resource table was before this install, 
+			 * so we can compare it to the state after and decide if this should 
+			 * count as a 'last install time'
+			 */
+			int tableStateBeforeInstall = ccApp.getCommCarePlatform().getUpgradeResourceTable().
+					getTableReadiness();
+			this.resourceTableWasFresh = tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY ||
+					 tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED;
 			
 			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, inUpgradeMode, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
 
 				@Override
 				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
+					boolean startOverInstall;
+					
 					if(result == ResourceEngineOutcomes.StatusInstalled){
 						receiver.reportSuccess(true);
+						startOverInstall = false;
 					} else if(result == ResourceEngineOutcomes.StatusUpToDate){
 						receiver.reportSuccess(false);
+						startOverInstall = false;
 					} else if(result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
 						receiver.failMissingResource(this.missingResourceException, result);
+						startOverInstall = false;
 					} else if(result == ResourceEngineOutcomes.StatusBadReqs){
 						receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
+						startOverInstall = false;
 					} else if(result == ResourceEngineOutcomes.StatusFailState){
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+						startOverInstall = true;
 					} else if(result == ResourceEngineOutcomes.StatusNoLocalStorage) {
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
+						startOverInstall = true;
 					} else if(result == ResourceEngineOutcomes.StatusBadCertificate){
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
+						startOverInstall = false;
 					} else {
 						receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
+						startOverInstall = true;
+					}
+					
+					/*
+					 * startOverInstall will be used on next install to indicate whether
+					 * we want to start from the existing resource table or a new one,
+					 * based on the outcome of this install
+					 */
+					ccApp.getAppPreferences().edit().putBoolean(KEY_START_OVER, startOverInstall).commit();
+
+					/* 
+					 * Check if we want to record this as a 'last install time', based on the 
+					 * state of the resource table before and after this install took place
+					 */
+					ResourceTable temporary = ccApp.getCommCarePlatform().getUpgradeResourceTable();
+					if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL && 
+							receiver.resourceTableWasFresh) {
+						ccApp.getAppPreferences().edit().putLong(KEY_LAST_INSTALL, System.currentTimeMillis()).commit();
 					}
 				}
 
@@ -589,6 +680,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	startOverButton.setVisibility(View.VISIBLE);
     	addressEntryButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
+    	viewNotificationButton.setVisibility(View.GONE);
     }
     
     public void setModeToError(boolean canRetry){
@@ -618,6 +710,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	addressEntryButton.setVisibility(View.VISIBLE);
     	advancedView.setVisibility(View.GONE);
     	mScanBarcodeButton.setVisibility(View.VISIBLE);
+    	viewNotificationButton.setVisibility(View.GONE);
     	startOverButton.setVisibility(View.GONE);
     	installButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
@@ -635,6 +728,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startOverButton.setText(Localization.get("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
     	installButton.setEnabled(true);
+    	viewNotificationButton.setVisibility(View.GONE);
     	retryButton.setVisibility(View.GONE);
     	retryButton.setText(Localization.get("install.button.retry"));
     	startOverButton.setText(Localization.get("install.button.startover"));
@@ -747,6 +841,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
 
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
+		if(message.getAction() != null && message.getAction() != "") {
+		    viewNotificationButton.setVisibility(View.VISIBLE);
+		}
 		
 		setUiState(UiState.error);
 		
@@ -763,7 +860,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			done(false);
 		} else {
 			if(alwaysNotify) {
-				this.displayMessage= Localization.get("notification.for.details.wrapper", new String[] {message.getDetails()});
+				this.displayMessage= Localization.get("notification.for.details.setup.wrapper", new String[] {message.getDetails()});
 				this.canRetry = canRetry;
 				mainMessage.setText(displayMessage);
 			} else {
@@ -816,7 +913,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 	public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
 		fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
-		
 	}
 
 	public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {

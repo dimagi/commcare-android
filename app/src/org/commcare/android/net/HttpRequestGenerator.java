@@ -84,7 +84,7 @@ public class HttpRequestGenerator {
 		
 		this.credentials = new UsernamePasswordCredentials(domainedUsername, password);
 		
-		passwordAuthentication = new PasswordAuthentication (username, password.toCharArray());
+		passwordAuthentication = new PasswordAuthentication (domainedUsername, password.toCharArray());
 		this.username = username;
 	}
 	
@@ -288,19 +288,23 @@ public class HttpRequestGenerator {
 			
 			if(passwordAuthentication != null) {
 		 		Authenticator.setDefault(new Authenticator() {
+		 			  @Override
 					  protected PasswordAuthentication getPasswordAuthentication() {
 						  return passwordAuthentication;
 					  }
 		 		});
 			}
 			
+			int responseCode =-1;
+			
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			
 			setup(con);
 			// Start the query
 			con.connect();
 			
 			try {
-				int responseCode = con.getResponseCode();
+				responseCode = con.getResponseCode();
 				//It's possible we're getting redirected from http to https
 				//if so, we need to handle it explicitly
 				if(responseCode == 301) {
@@ -321,7 +325,7 @@ public class HttpRequestGenerator {
 				
 				return con.getInputStream();
 			} catch(IOException e) {
-				if(e.getMessage().toLowerCase().contains("authentication")) {
+				if(e.getMessage().toLowerCase().contains("authentication") || responseCode == 401) {
 					//Android http libraries _suuuuuck_, let's try apache.
 				} else {
 					throw e;
