@@ -58,6 +58,12 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     public void onCreate(Bundle savedInstanceState) {   
         super.onCreate(savedInstanceState);
         Intent i = getIntent();
+        
+        /* Caution: The detailIndex field comes from EntitySelectActivity, which is the 
+         * source of this intent. In some instances, the detailIndex may not have been assigned,
+         * in which case it will take on a value of -1. If making use of the detailIndex, it may
+         * be useful to include the debugging print statement below.
+         */
         this.detailIndex = i.getIntExtra("entity_detail_index", -1);
         //if (detailIndex == -1) { System.out.println("WARNING: detailIndex not assigned from intent"); }
 

@@ -693,7 +693,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		
 		Entity entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 		
-		//TODO: FIX THIS
 		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null, this, detailIndex);
 	    ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
 	}

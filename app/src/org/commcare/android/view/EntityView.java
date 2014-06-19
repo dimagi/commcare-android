@@ -43,6 +43,8 @@ public class EntityView extends LinearLayout {
 	private Context context;
 	private AudioController controller;
 	private long rowId;
+	private static final String FORM_AUDIO = "audio";
+	private static final String FORM_IMAGE = "image";
 
 	/*
 	 * Constructor for row/column contents
@@ -102,11 +104,11 @@ public class EntityView extends LinearLayout {
 	 */
 	private View initView(String text, String form, Object uniqueId) {
 		View retVal;
-		if ("image".equals(form)) {
+		if (FORM_IMAGE.equals(form)) {
 			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
         } 
-		else if ("audio".equals(form)) {
+		else if (FORM_AUDIO.equals(form)) {
     		AudioButton b;
     		if (text != null & text.length() > 0) {
     			b = new AudioButton(context, text, uniqueId, controller, true);
@@ -137,11 +139,11 @@ public class EntityView extends LinearLayout {
 			
 			if (view == null) { continue; }
 			
-			if ("audio".equals(form)) {
+			if (FORM_AUDIO.equals(form)) {
 				ViewId uniqueId = new ViewId(rowId, i, false);
 				setupAudioLayout(view, textField, uniqueId);
 			}
-			else if("image".equals(form)) {
+			else if(FORM_IMAGE.equals(form)) {
 				setupImageLayout(view, textField);
 	        } 
 			else { //text to speech

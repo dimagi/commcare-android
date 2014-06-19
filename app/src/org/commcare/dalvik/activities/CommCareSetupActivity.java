@@ -196,7 +196,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	        incomingRef = savedInstanceState.getString("profileref");
 	        inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
-	        //added
 	        startOverInstall = savedInstanceState.getBoolean(KEY_START_OVER);
 	        lastInstallTime = savedInstanceState.getLong(KEY_INSTALL_TIME);
 	        
