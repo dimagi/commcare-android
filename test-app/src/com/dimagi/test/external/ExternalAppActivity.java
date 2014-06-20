@@ -28,6 +28,7 @@ public class ExternalAppActivity extends Activity {
 	
 	Button login;
 	Button sync;
+	Button content;
 	
 	byte[] publicKey;
 	String keyId;
@@ -102,6 +103,20 @@ public class ExternalAppActivity extends Activity {
 				}
         	
         });
+        
+        content = (Button)this.findViewById(R.id.button_content);
+        content.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				Intent i = new Intent(ExternalAppActivity.this, CaseContentActivity.class);
+				
+				ExternalAppActivity.this.startActivity(i);
+				}
+        	
+        });
+        
+        
+        
         
     }
 	/* (non-Javadoc)

@@ -10,12 +10,14 @@ import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ViewId;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.speech.tts.TextToSpeech;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -36,77 +38,89 @@ public class EntityView extends LinearLayout {
 	
 	private View[] views;
 	private String[] forms;
-	
 	private TextToSpeech tts; 
-	
 	private String[] searchTerms;
+	private Context context;
+	private AudioController controller;
+	private long rowId;
+	private static final String FORM_AUDIO = "audio";
+	private static final String FORM_IMAGE = "image";
 
-	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts, String[] searchTerms) {
+	/*
+	 * Constructor for row/column contents
+	 */
+	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
+			String[] searchTerms, AudioController controller, long rowId) {
 		super(context);
+		this.context = context;
 		this.searchTerms = searchTerms;
 		this.tts = tts;
-
 		this.setWeightSum(1);
-		
+		this.controller = controller;
+		this.rowId = rowId;
 		views = new View[e.getNumFields()];
 		forms = d.getTemplateForms();
-		
 		float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
 		
-		for(int i = 0 ; i < views.length ; ++i) {
-			if(weights[i] != 0) {
-				LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
-		        views[i] = getView(context, null, forms[i]);
+		for (int i = 0; i < views.length; ++i) {
+			if (weights[i] != 0) {
+		        Object uniqueId = new ViewId(rowId, i, false);
+		        views[i] = initView(e.getField(i), forms[i], uniqueId);
 		        views[i].setId(i);
-		        addView(views[i], l);
 			}
 		}
-        
-		setParams(e, false);
+		refreshViewsForNewEntity(e, false, rowId);
+		for (int i = 0; i < views.length; i++) {
+	        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+			addView(views[i], l);
+		}
 	}
 	
+	/*
+	 * Constructor for row/column headers
+	 */
 	public EntityView(Context context, Detail d, String[] headerText) {
 		super(context);
-
+		this.context = context;
 		this.setWeightSum(1);
-		
 		views = new View[headerText.length];
-		
-		
 		float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
 		String[] headerForms = d.getHeaderForms();
 		
-		for(int i = 0 ; i < views.length ; ++i) {
-			if(lengths[i] != 0) {
+		for (int i = 0 ; i < views.length ; ++i) {
+			if (lengths[i] != 0) {
 		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
-		        
-		        views[i] = getView(context, headerText[i], headerForms[i]);
+		        ViewId uniqueId = new ViewId(rowId, i, false);
+		        views[i] = initView(headerText[i], headerForms[i], uniqueId);      
 		        views[i].setId(i);
 		        addView(views[i], l);
 			}
 		}
 	}
 	
-	private View getView(Context context, String text, String form) {
+	/*
+	 * Creates up a new view in the view with ID uniqueid, based upon
+	 * the entity's text and form
+	 */
+	private View initView(String text, String form, Object uniqueId) {
 		View retVal;
-        if("image".equals(form)) {
-        	ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
+		if (FORM_IMAGE.equals(form)) {
+			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
-        	if(text != null) {
-				try {
-					Bitmap b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(text).getStream());
-					iv.setImageBitmap(b);
-				} catch (IOException e) {
-					e.printStackTrace();
-					//Error loading image
-				} catch (InvalidReferenceException e) {
-					e.printStackTrace();
-					//No image
-				}
-        	}
-        } else {
+        } 
+		else if (FORM_AUDIO.equals(form)) {
+    		AudioButton b;
+    		if (text != null & text.length() > 0) {
+    			b = new AudioButton(context, text, uniqueId, controller, true);
+    		}
+    		else {
+    			b = new AudioButton(context, text, uniqueId, controller, false);
+    		}
+    		retVal = b;
+        } 
+        else {
     		View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		setupLayout(layout, text);
+    		setupTextAndTTSLayout(layout, text);
     		retVal = layout;
         }
         return retVal;
@@ -115,9 +129,56 @@ public class EntityView extends LinearLayout {
 	public void setSearchTerms(String[] terms) {
 		this.searchTerms = terms;
 	}
-        
-    private void setupLayout(View layout, final String text) {
+	
+
+	public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
+		for (int i = 0; i < e.getNumFields() ; ++i) {
+			String textField = e.getField(i);
+			View view = views[i];
+			String form = forms[i];
+			
+			if (view == null) { continue; }
+			
+			if (FORM_AUDIO.equals(form)) {
+				ViewId uniqueId = new ViewId(rowId, i, false);
+				setupAudioLayout(view, textField, uniqueId);
+			}
+			else if(FORM_IMAGE.equals(form)) {
+				setupImageLayout(view, textField);
+	        } 
+			else { //text to speech
+		        setupTextAndTTSLayout(view, textField);
+	        }
+		}
+		
+		if (currentlySelected) {
+			this.setBackgroundResource(R.drawable.grey_bordered_box);
+		} else {
+			this.setBackgroundDrawable(null);
+		}
+	}
+	 
+    /*
+     * Updates the AudioButton layout that is passed in, based on the  
+     * new id and source
+     */
+	private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
+		AudioButton b = (AudioButton)layout;
+		if (source != null && source.length() > 0) {
+			b.modifyButtonForNewView(uniqueId, source, true);
+		}
+		else {
+			b.modifyButtonForNewView(uniqueId, source, false);
+		}
+	}
+
+    /*
+     * Updates the text layout that is passed in, based on the new text
+     */
+	private void setupTextAndTTSLayout(View layout, final String text) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
+		tv.setVisibility(View.VISIBLE);
+	    tv.setText(highlightSearches(text == null ? "" : text));
 		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
 		btn.setFocusable(false);
 
@@ -129,27 +190,58 @@ public class EntityView extends LinearLayout {
 				tts.speak(textToRead, TextToSpeech.QUEUE_FLUSH, null);
 			}
     	});
-		if(tts == null || text == null || text.equals("")) {
+		if (tts == null || text == null || text.equals("")) {
 			btn.setVisibility(View.INVISIBLE);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-			params.width= 0;
+			params.width = 0;
 			btn.setLayoutParams(params);
 		} else {
 			btn.setVisibility(View.VISIBLE);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-			params.width=LayoutParams.WRAP_CONTENT;
+			params.width = LayoutParams.WRAP_CONTENT;
 			btn.setLayoutParams(params);
 		}
-	    tv.setText(highlightSearches(text == null ? "" : text));
     }
+	
+	
+	 /*
+     * Updates the ImageView layout that is passed in, based on the  
+     * new id and source
+     */
+	public void setupImageLayout(View layout, final String source) {
+		ImageView iv = (ImageView) layout;
+		Bitmap b;
+		if (!source.equals("")) {
+			try {
+				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
+				if (b == null) {
+					//Input stream could not be used to derive bitmap
+					iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+				}
+				else {
+					iv.setImageBitmap(b);
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				//Error loading image
+				iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+			} catch (InvalidReferenceException ex) {
+				ex.printStackTrace();
+				//No image
+				iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+			}
+		}
+		else {
+			iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+		}
+	}
     
     private Spannable highlightSearches(String input) {
     	
-	    Spannable raw=new SpannableString(input);
-	    
+	    Spannable raw = new SpannableString(input);
 	    String normalized = input.toLowerCase();
 		
-    	if(searchTerms == null) {
+    	if (searchTerms == null) {
     		return raw;
     	}
 	    
@@ -159,10 +251,10 @@ public class EntityView extends LinearLayout {
 			raw.removeSpan(span);
 		}
 	    
-	    for(String searchText : searchTerms) {
-	    	if(searchText == "") { continue;}
+	    for (String searchText : searchTerms) {
+	    	if (searchText == "") { continue;}
 	
-		    int index=TextUtils.indexOf(normalized, searchText);
+		    int index = TextUtils.indexOf(normalized, searchText);
 		    
 		    while (index >= 0) {
 		      raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
@@ -198,43 +290,4 @@ public class EntityView extends LinearLayout {
 		return weights;
 	}
 
-	public void setParams(Entity e, boolean currentlySelected) {
-		for(int i = 0; i < e.getNumFields() ; ++i) {
-			//Empty (width = 0) field
-			if(views[i] == null) { continue;}
-			
-			if(e.getField(i) == null) {
-				continue;
-			}
-			
-	        if("image".equals(forms[i])) {
-	        	ImageView iv = (ImageView)views[i];
-				Bitmap b;
-				try {
-					if(!e.getField(i).equals("")) {
-						b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(e.getField(i)).getStream());
-						iv.setImageBitmap(b);
-					} else{
-						iv.setImageBitmap(null);
-					}
-				} catch (IOException ex) {
-					ex.printStackTrace();
-					//Error loading image
-					iv.setImageBitmap(null);
-				} catch (InvalidReferenceException ex) {
-					ex.printStackTrace();
-					//No image
-					iv.setImageBitmap(null);
-				}
-	        } else {
-		        setupLayout(views[i], e.getField(i));
-	        }
-		}
-		
-		if(currentlySelected) {
-			this.setBackgroundResource(R.drawable.grey_bordered_box);
-		} else{
-			this.setBackgroundDrawable(null);
-		}
-	}
 }

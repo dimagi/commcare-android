@@ -43,6 +43,11 @@
         <provider
             android:name=".odk.provider.InstanceProvider"
             android:authorities="org.commcare.android.provider.odk.instances" />
+        
+        <provider
+            android:name=".provider.CaseDataContentProvider"
+            android:authorities="org.commcare.dalvik.case" 
+            android:readPermission="org.commcare.dalvik.provider.cases.read" android:enabled="false"/>
 
         <activity android:name=".preferences.CommCarePreferences" >
         </activity>
@@ -175,6 +180,10 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
+            android:name="org.odk.collect.android.activities.DrawActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
             android:name="org.odk.collect.android.activities.FormHierarchyActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
@@ -300,5 +309,8 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <permission android:name="org.commcare.dalvik.provider.cases.read" android:label="@string/permission_case_provider_label" android:description="@string/permission_case_provider_description" android:protectionLevel="dangerous"></permission>
+    
 
 </manifest>

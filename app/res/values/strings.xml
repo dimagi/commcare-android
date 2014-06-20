@@ -78,6 +78,10 @@ Copyright (c) 2012 readyState Software Ltd.</string>
 
     <string name="hello_world">Please enter your issues below</string>
     <string name="menu_settings">Settings</string>
+    <string name="permission_case_provider_label">Read Secure CommCare Data</string>
+    <string name="permission_case_provider_description">Allows this app to read data from CommCare while a user is logged in</string>
+    
+    
     <string name="title_activity_report_problem">ReportProblemActivity</string>
     <string name="title_activity_comm_care_verification">CommCareVerificationActivity</string>
     

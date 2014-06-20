@@ -3,8 +3,12 @@
  */
 package org.commcare.android.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Locale;
+import java.io.InputStream;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.model.data.GeoPointData;
@@ -45,6 +49,37 @@ public class MediaUtil {
         	return null;
         }
 	}
+	
+	
+	/*
+	 * Warning: Use of temp file could cause slowness.
+	 *  
+	 * Not currently used, so commented out because requires
+	 * import of external commons.io jar file, but could 
+	 * potentially be useful down the road.
+	 */
+	
+	/*public static FileInputStream inputStreamToFIS(InputStream in) {
+	    FileInputStream fis = null;
+	    FileOutputStream out = null;
+	    File tempFile = null;
+		try {
+			tempFile = File.createTempFile("stream2file", ".tmp");
+			tempFile.deleteOnExit();
+			//TODO: try using StreamsUtil method for this, currently causes inf loop
+			out = new FileOutputStream(tempFile);
+			IOUtils.copy(in, out);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	    try {
+			fis = new FileInputStream(tempFile);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return fis;	
+	}*/
+
 	
 	/**
 	 * Pass in a string representing either a GeoPont or an address and get back a valid
