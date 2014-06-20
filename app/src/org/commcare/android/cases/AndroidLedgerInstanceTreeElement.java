@@ -11,8 +11,9 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.instance.CaseChildElement;
-import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.cases.model.Case;
+import org.commcare.cases.ledger.Ledger;
+import org.commcare.cases.ledger.instance.LedgerChildElement;
+import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.DataUtil;
@@ -21,24 +22,24 @@ import org.javarosa.core.util.DataUtil;
  * @author ctsims
  *
  */
-public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement {
-	SqlStorageIterator<ACase> iter;
+public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement {
+	SqlStorageIterator<Ledger> iter;
 	
-	public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
-		super(instanceRoot, storage, reportMode);
+	public AndroidLedgerInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<Ledger> storage) {
+		super(instanceRoot, storage);
 	}
 	
 	
-	protected synchronized void getCases() {
-		if(cases != null) {
+	protected synchronized void getLedgers() {
+		if(ledgers != null) {
 			return;
 		}
 		objectIdMapping = new Hashtable<Integer, Integer>();
-		cases = new Vector<CaseChildElement>();
+		ledgers = new Vector<LedgerChildElement>();
 		int mult = 0;
-		for(IStorageIterator i = ((SqlStorage<ACase>)storage).iterate(false); i.hasMore();) {
+		for(IStorageIterator i = ((SqlStorage<ACase>)getStorage()).iterate(false); i.hasMore();) {
 			int id = i.nextID();
-			cases.addElement(new CaseChildElement(this, id, null, mult));
+			ledgers.addElement(new LedgerChildElement(this, id, null, mult));
 			objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
 			mult++;
 		}
