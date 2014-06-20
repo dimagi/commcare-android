@@ -501,6 +501,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	}
 
 	private void startResourceInstall() {
+		CommCareApp ccApp = getCommCareApp();
 		long lastInstallTime = ccApp.getAppPreferences().getLong(KEY_LAST_INSTALL, -1);
 		if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
 			/*If we are triggering a start over install due to the time threshold
