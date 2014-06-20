@@ -853,7 +853,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		if(isAuto || alwaysNotify) {
 			CommCareApplication._().reportNotificationMessage(message);
-		    viewNotificationButton.setVisibility(View.VISIBLE);
+			viewNotificationButton.setVisibility(View.VISIBLE);
 		}
 		if(isAuto) {
 			done(false);
