@@ -33,4 +33,10 @@
         android:layout_height="wrap_content"
         android:text="Sync CommCare" />
 
+    <Button
+        android:id="@+id/button_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Case Data" />
+
 </LinearLayout>
