@@ -842,9 +842,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
 
 		Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
-		if(message.getAction() != null && message.getAction() != "") {
-		    viewNotificationButton.setVisibility(View.VISIBLE);
-		}
 		
 		setUiState(UiState.error);
 		
@@ -856,6 +853,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		if(isAuto || alwaysNotify) {
 			CommCareApplication._().reportNotificationMessage(message);
+			viewNotificationButton.setVisibility(View.VISIBLE);
 		}
 		if(isAuto) {
 			done(false);
