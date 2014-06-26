@@ -247,8 +247,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         	
         	if(entity != null) {
         		if(inAwesomeMode) {
-        			displayReferenceAwesome(entity, adapter.getPosition(entity));
-        			updateSelectedItem(entity, true);
+        			if (adapter != null) {
+	        			displayReferenceAwesome(entity, adapter.getPosition(entity));
+	        			updateSelectedItem(entity, true);
+        			}
         		} else {
 	        		//Once we've done the initial dispatch, we don't want to end up triggering it later.
 	        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
