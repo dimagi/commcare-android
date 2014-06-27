@@ -879,6 +879,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    	
 	    	//We should now have a valid record for our state. Time to get to form entry.
 	    	FormRecord record = state.getFormRecord();
+	    	
+	    	if(platform == null) {
+	    		platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+	    	}
+	    	
 	    	//TODO: May need to pass session over manually
 	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
 	    	
