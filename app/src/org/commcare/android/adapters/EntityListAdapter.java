@@ -13,6 +13,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
@@ -78,7 +79,10 @@ public class EntityListAdapter implements ListAdapter {
 	}
 
 	private void filterValues(String filterRaw) {
-		String[] searchTerms = filterRaw.toLowerCase().split(" ");
+		String[] searchTerms = filterRaw.split(" ");
+		for(int i = 0 ; i < searchTerms.length ; ++i) {
+			searchTerms[i] = StringUtils.normalize(searchTerms[i]);
+		}
 		
 		current.clear();
 		
@@ -94,11 +98,25 @@ public class EntityListAdapter implements ListAdapter {
 			for(String filter: searchTerms) {
 				add = false;
 				for(int i = 0 ; i < e.getNumFields(); ++i) {
-					String field = e.getField(i);
+					String field = StringUtils.normalize(e.getField(i));
 					if(field.toLowerCase().contains(filter)) {
 						add = true;
 						continue filter;
-					}				
+					} else {
+						//We possibly now want to test for edit distance for fuzzy matching
+						
+						String sortField = e.getSortField(i);
+						if(sortField != null) {
+							//We always fuzzy match on the sort field and only if it is available
+							//(as a way to restrict possible matching)
+							sortField = StringUtils.normalize(sortField);
+							
+							if(StringUtils.fuzzyMatch(sortField, filter)) {
+								add = true;
+								continue filter;
+							}
+						}
+					}
 				}
 				if(!add) { break; }
 			}
@@ -141,6 +159,9 @@ public class EntityListAdapter implements ListAdapter {
 				
 				String a1 = object1.getSortField(index);
 				String a2 = object2.getSortField(index);
+				
+				if(a1 == null) { a1 = object1.getField(i); }
+				if(a2 == null) { a2 = object1.getField(i); }
 				
 				//TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
 				//For now, regardless of typing, blanks are always smaller than non-blanks

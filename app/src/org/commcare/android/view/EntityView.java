@@ -6,6 +6,7 @@ package org.commcare.android.view;
 import java.io.IOException;
 
 import org.commcare.android.models.Entity;
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -65,7 +66,7 @@ public class EntityView extends LinearLayout {
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
 		        Object uniqueId = new ViewId(rowId, i, false);
-		        views[i] = initView(e.getField(i), forms[i], uniqueId);
+		        views[i] = initView(e.getField(i), forms[i], uniqueId, e.getSortField(i));
 		        views[i].setId(i);
 			}
 		}
@@ -91,7 +92,7 @@ public class EntityView extends LinearLayout {
 			if (lengths[i] != 0) {
 		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
 		        ViewId uniqueId = new ViewId(rowId, i, false);
-		        views[i] = initView(headerText[i], headerForms[i], uniqueId);      
+		        views[i] = initView(headerText[i], headerForms[i], uniqueId, null);      
 		        views[i].setId(i);
 		        addView(views[i], l);
 			}
@@ -102,7 +103,7 @@ public class EntityView extends LinearLayout {
 	 * Creates up a new view in the view with ID uniqueid, based upon
 	 * the entity's text and form
 	 */
-	private View initView(String text, String form, Object uniqueId) {
+	private View initView(String text, String form, Object uniqueId, String sortField) {
 		View retVal;
 		if (FORM_IMAGE.equals(form)) {
 			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
@@ -120,7 +121,7 @@ public class EntityView extends LinearLayout {
         } 
         else {
     		View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		setupTextAndTTSLayout(layout, text);
+    		setupTextAndTTSLayout(layout, text, sortField);
     		retVal = layout;
         }
         return retVal;
@@ -147,7 +148,7 @@ public class EntityView extends LinearLayout {
 				setupImageLayout(view, textField);
 	        } 
 			else { //text to speech
-		        setupTextAndTTSLayout(view, textField);
+		        setupTextAndTTSLayout(view, textField, e.getSortField(i));
 	        }
 		}
 		
@@ -175,10 +176,10 @@ public class EntityView extends LinearLayout {
     /*
      * Updates the text layout that is passed in, based on the new text
      */
-	private void setupTextAndTTSLayout(View layout, final String text) {
+	private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
 		tv.setVisibility(View.VISIBLE);
-	    tv.setText(highlightSearches(text == null ? "" : text));
+	    tv.setText(highlightSearches(text == null ? "" : text, searchField));
 		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
 		btn.setFocusable(false);
 
@@ -236,10 +237,10 @@ public class EntityView extends LinearLayout {
 		}
 	}
     
-    private Spannable highlightSearches(String input) {
+    private Spannable highlightSearches(String displayString, String backgroundString) {
     	
-	    Spannable raw = new SpannableString(input);
-	    String normalized = input.toLowerCase();
+	    Spannable raw = new SpannableString(displayString);
+	    String normalizedDisplayString = StringUtils.normalize(displayString);
 		
     	if (searchTerms == null) {
     		return raw;
@@ -251,15 +252,31 @@ public class EntityView extends LinearLayout {
 			raw.removeSpan(span);
 		}
 	    
+		boolean matched = false;
 	    for (String searchText : searchTerms) {
-	    	if (searchText == "") { continue;}
+	    	if ("".equals(searchText)) { continue;}
 	
-		    int index = TextUtils.indexOf(normalized, searchText);
+		    int index = TextUtils.indexOf(normalizedDisplayString, searchText);
 		    
 		    while (index >= 0) {
 		      raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
 		          + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 		      index=TextUtils.indexOf(raw, searchText, index + searchText.length());
+		      
+		      //we have a non-fuzzy match, so make sure we don't fuck with it
+		      matched = true;
+		    }
+	    }
+	    
+	    if(!matched && backgroundString != null) {
+	    	backgroundString = StringUtils.normalize(backgroundString);
+		    for (String searchText : searchTerms) {
+		    	if ("".equals(searchText)) { continue;}
+		
+			    if(StringUtils.fuzzyMatch(backgroundString, searchText)) {
+				    raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_fuzzy_match)), 0, 
+				    		raw.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+			    }
 		    }
 	    }
 	    

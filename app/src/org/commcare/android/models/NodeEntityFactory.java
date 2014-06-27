@@ -60,7 +60,7 @@ public class NodeEntityFactory {
 				details[count] = f.getTemplate().evaluate(nodeContext);
 				Text sortText = f.getSort();
 				if(sortText == null) {
-					sortDetails[count] = details[count];
+					sortDetails[count] = null;
 				} else {
 					sortDetails[count] = sortText.evaluate(nodeContext);
 				}
