@@ -27,12 +27,13 @@
     <style name="MainPane">
         <item name="android:paddingRight">15dp</item>
     </style>
+    <dimen name="entity_padding">15dp</dimen>
     
     <style name="EntityItemTextView">
-        <item name="android:paddingLeft">15dp</item>
-        <item name="android:paddingTop">15dp</item>
-        <item name="android:paddingBottom">15dp</item>
-        <item name="android:paddingRight">15dp</item>
+        <item name="android:paddingLeft">@dimen/entity_padding</item>
+        <item name="android:paddingTop">@dimen/entity_padding</item>
+        <item name="android:paddingBottom">@dimen/entity_padding</item>
+        <item name="android:paddingRight">@dimen/entity_padding</item>
     </style>
     
    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
@@ -72,6 +73,11 @@
    <color name="title_case_grad_end">#FF3867AD</color>
    <color name="title_case_grad_start">#FF6884AD</color>
    
+   <color name="extra_display_item">#7FA1D4</color>
+   <color name="start_extra_display_item">#EBEBEB</color>
+   <color name="end_extra_display_item">#FFFFFF</color>
+   
+   <dimen name="menu_icon_size">60dp</dimen>
    
       
    <style name="Animation" />
