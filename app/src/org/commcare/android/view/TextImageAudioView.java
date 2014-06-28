@@ -7,6 +7,7 @@ import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
 import org.odk.collect.android.views.media.AudioButton;
 
 import android.content.Context;
@@ -56,7 +57,7 @@ public class TextImageAudioView extends RelativeLayout {
     
 
 	public void setDisplay(DisplayUnit display) {
-		setAVT(display.getText().evaluate(ec), display.getAudioURI(), display.getImageURI());
+		setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getAudioURI(), display.getImageURI());
 	}
     
     //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view

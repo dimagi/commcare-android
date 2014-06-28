@@ -416,6 +416,11 @@ public class AndroidSessionWrapper {
 	public boolean terminateSession() {
 		//Possible should re-name this one. We no longer go "home" by default. We might start a new session's frame.
 		
+		//CTS: note, this maybe should just be clearing volitiles either way (rather than cherry picking this one),
+		//but this is necessary to ensure that stack ops don't re-use the case casedb as the form if the form
+		//modified the case database before stack ops fire
+		initializer = null;
+		
 		//TODO: should this section get wrapped up in the session, maybe?
 		Vector<StackOperation> ops = session.getCurrentEntry().getPostEntrySessionOperations();
 		

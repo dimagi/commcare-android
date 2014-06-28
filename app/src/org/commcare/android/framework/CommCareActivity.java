@@ -444,7 +444,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 				try {
 				if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
 					//Haaack
-					if("case_id".equals(step[1])) {
+					if(step[1] != null && step[1].contains("case_id")) {
 						ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step[2]);
 						stepTitles[i] = Localization.get("title.datum.wrapper", new String[] { foundCase.getName()});
 					}
