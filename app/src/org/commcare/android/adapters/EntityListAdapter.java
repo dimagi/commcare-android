@@ -110,10 +110,11 @@ public class EntityListAdapter implements ListAdapter {
 							//We always fuzzy match on the sort field and only if it is available
 							//(as a way to restrict possible matching)
 							sortField = StringUtils.normalize(sortField);
-							
-							if(StringUtils.fuzzyMatch(sortField, filter)) {
-								add = true;
-								continue filter;
+							for(String fieldChunk : sortField.split(" ")) {
+								if(StringUtils.fuzzyMatch(fieldChunk, filter)) {
+									add = true;
+									continue filter;
+								}
 							}
 						}
 					}

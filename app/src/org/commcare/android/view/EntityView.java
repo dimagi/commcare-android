@@ -267,16 +267,27 @@ public class EntityView extends LinearLayout {
 		      matched = true;
 		    }
 	    }
-	    
+
 	    if(!matched && backgroundString != null) {
-	    	backgroundString = StringUtils.normalize(backgroundString);
+		    backgroundString = backgroundString.trim() + " ";
+
+	    	backgroundString = StringUtils.normalize(backgroundString).trim() + " ";
 		    for (String searchText : searchTerms) {
+		    	
 		    	if ("".equals(searchText)) { continue;}
-		
-			    if(StringUtils.fuzzyMatch(backgroundString, searchText)) {
-				    raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_fuzzy_match)), 0, 
-				    		raw.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-			    }
+		    	
+		    	
+		    	int curStart = 0;
+		    	int curEnd = backgroundString.indexOf(" ", curStart);
+				while(curEnd != -1) {
+					//Walk the string to find words that are fuzzy matched
+				    if(StringUtils.fuzzyMatch(backgroundString.substring(curStart, curEnd), searchText)) {
+					    raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_fuzzy_match)), curStart, 
+					    		curEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				    }
+				    curStart = curEnd + 1;
+			    	curEnd = backgroundString.indexOf(" ", curStart);
+				}
 		    }
 	    }
 	    
