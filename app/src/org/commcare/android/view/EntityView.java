@@ -4,6 +4,7 @@
 package org.commcare.android.view;
 
 import java.io.IOException;
+import java.util.Vector;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.StringUtils;
@@ -251,6 +252,8 @@ public class EntityView extends LinearLayout {
 		for (BackgroundColorSpan span : spans) {
 			raw.removeSpan(span);
 		}
+		
+		Vector<int[]> matches = new Vector<int[]>(); 
 	    
 		boolean matched = false;
 	    for (String searchText : searchTerms) {
@@ -261,6 +264,9 @@ public class EntityView extends LinearLayout {
 		    while (index >= 0) {
 		      raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
 		          + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+		      
+		      matches.add(new int[] {index, index + searchText.length() } );
+		      
 		      index=TextUtils.indexOf(raw, searchText, index + searchText.length());
 		      
 		      //we have a non-fuzzy match, so make sure we don't fuck with it
@@ -268,7 +274,7 @@ public class EntityView extends LinearLayout {
 		    }
 	    }
 
-	    if(!matched && backgroundString != null) {
+	    if(backgroundString != null) {
 		    backgroundString = backgroundString.trim() + " ";
 
 	    	backgroundString = StringUtils.normalize(backgroundString).trim() + " ";
@@ -280,11 +286,25 @@ public class EntityView extends LinearLayout {
 		    	int curStart = 0;
 		    	int curEnd = backgroundString.indexOf(" ", curStart);
 				while(curEnd != -1) {
-					//Walk the string to find words that are fuzzy matched
-				    if(StringUtils.fuzzyMatch(backgroundString.substring(curStart, curEnd), searchText)) {
-					    raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_fuzzy_match)), curStart, 
-					    		curEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-				    }
+					
+					boolean skip = matches.size() != 0;
+					
+					//See whether the fuzzy match overlaps at all with the concrete matches
+					for(int[] textMatch : matches) {
+						if(curStart < textMatch[0] && curEnd <= textMatch[0]) {
+							skip = false;
+						} else if(curStart >= textMatch[1] &&  curEnd > textMatch[1]) {
+							skip = false;
+						}
+					}
+					
+					if(!skip) {
+						//Walk the string to find words that are fuzzy matched
+					    if(StringUtils.fuzzyMatch(backgroundString.substring(curStart, curEnd), searchText)) {
+						    raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_fuzzy_match)), curStart, 
+						    		curEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+					    }
+					}
 				    curStart = curEnd + 1;
 			    	curEnd = backgroundString.indexOf(" ", curStart);
 				}
