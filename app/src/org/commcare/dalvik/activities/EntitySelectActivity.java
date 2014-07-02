@@ -212,9 +212,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         if(oldActivity != null) {
         	adapter = oldActivity.adapter;
-        	adapter.setController(this);
-    	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
-        	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        	//not sure how this happens, but seem plausible.
+        	if(adapter != null) {
+	        	adapter.setController(this);
+	    	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
+	        	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        	}
         }
 		//cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
@@ -690,6 +693,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     		findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
 	        View.inflate(this, R.layout.entity_detail, rightFrame);
 	        Button next = (Button)findViewById(R.id.entity_select_button);
+	        next.setText(Localization.get("select.detail.confirm"));
 	        next.setOnClickListener(new OnClickListener() {
 
 				public void onClick(View v) {
