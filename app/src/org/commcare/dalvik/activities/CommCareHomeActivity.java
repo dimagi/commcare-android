@@ -1460,12 +1460,20 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 		try {
 			User u = CommCareApplication._().getSession().getLoggedInUser();
 			boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+			menu.findItem(MENU_CALL_LOG).setTitle(Localization.get("home.menu.call.log"));
+			menu.findItem(MENU_REPORT_PROBLEM).setTitle(Localization.get("problem.report.menuitem"));
 			menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
+			menu.findItem(MENU_PREFERENCES).setTitle(Localization.get("home.menu.settings"));
 			menu.findItem(MENU_UPDATE).setVisible(enableMenus);
+			menu.findItem(MENU_UPDATE).setTitle(Localization.get("home.menu.update"));
 			menu.findItem(MENU_VALIDATE_MEDIA).setVisible(enableMenus);
+			menu.findItem(MENU_VALIDATE_MEDIA).setTitle(Localization.get("home.menu.validate"));
 			menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
+			menu.findItem(MENU_DUMP_FORMS).setTitle(Localization.get("home.menu.formdump"));
 			menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus &&  hasP2p());
+			menu.findItem(MENU_WIFI_DIRECT).setTitle(Localization.get("home.menu.wifi.direct"));
 			menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
+			menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setTitle(Localization.get("home.menu.connection.diagnostic"));
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
