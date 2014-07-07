@@ -391,6 +391,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	        // create intent for return and store path
 	        	returnWithResult(intent);
         		return;
+	        } else if (mViewMode) {
+    			Intent i = new Intent(getApplicationContext(), GraphActivity.class);
+            	startActivity(i);
+            	return;
     		} else {
     			//Did we enter the detail from mapping mode? If so, go back to that
 	    		if(mResultIsMap) {
