@@ -45,7 +45,6 @@ import android.widget.LinearLayout.LayoutParams;
  */
 public class EntityDetailView extends FrameLayout {
 	
-	private String textField;
 	private TextView label;
 	private TextView data;
 	private TextView spacer;
@@ -85,7 +84,6 @@ public class EntityDetailView extends FrameLayout {
 			AudioController controller, int detailNumber) {
 		super(context);		
 	    this.controller = controller;
-	    this.textField = e.getField(index);
 	    
 		detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
@@ -96,7 +94,7 @@ public class EntityDetailView extends FrameLayout {
 	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 	    
 	    ViewId uniqueId = new ViewId(detailNumber, index, true);
-	    audioButton = new AudioButton(context, textField, uniqueId, controller, false);
+	    audioButton = new AudioButton(context, e.getField(index), uniqueId, controller, false);
 	    detailRow.addView(audioButton);
 	    audioButton.setVisibility(View.GONE);
 	    
@@ -124,6 +122,7 @@ public class EntityDetailView extends FrameLayout {
 		label.setText(labelText);
 		spacer.setText(labelText);
 		
+		String textField = e.getField(index);
 		boolean veryLong = false;
 		String form = d.getTemplateForms()[index];
 		if(FORM_PHONE.equals(form)) {
