@@ -10,6 +10,7 @@ import java.util.Hashtable;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Entry;
@@ -71,7 +72,7 @@ public class IncompleteFormRecordView extends LinearLayout {
 		if(names.containsKey(record.getFormNamespace())) {
 			Text name = names.get(record.getFormNamespace());
 			
-			mPrimaryTextView.setText(name.evaluate());
+			mPrimaryTextView.setText(MediaUtil.stripArguments(name.evaluate()));
 		} else {
 			formExists = false;
 			mPrimaryTextView.setText(Localization.get("form.record.gone"));
