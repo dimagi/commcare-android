@@ -138,7 +138,7 @@ public class CommCareApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Collect.setStaticContext(this);
+		Collect.setStaticApplicationContext(this);
 		
 		CommCareApplication.app = this;
 		
