@@ -99,12 +99,9 @@ public class MediaUtil {
 			return "geo:0,0?q=" + rawInput;
 		}
 	}
-	
+	// remove all ${[0-9]} arg tags that aren't used
 	public static String stripArguments(String input){
-		if(input.contains("{") && input.contains("}")){
-			String replaced = input.substring(input.indexOf("{")-1, input.indexOf("}")+1);
-			return input.replace(replaced, "").trim();
-		}
+		input.replaceAll("\\${\\d+}", "");
 		return input;
 	}
 }
