@@ -424,6 +424,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    			refreshView();
 	    			return;
 	    		}
+	    	case CONNECTION_DIAGNOSTIC_ACTIVITY:
+	    		return;
 	    	case WIFI_DIRECT_ACTIVITY:
 	    		if(resultCode == RESULT_CANCELED){
 	    			return;
