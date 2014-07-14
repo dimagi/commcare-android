@@ -3,8 +3,10 @@
  */
 package org.commcare.dalvik.provider;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
@@ -14,7 +16,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -36,6 +37,10 @@ import android.net.Uri;
  *
  */
 public class CaseDataContentProvider extends ContentProvider {
+	
+	//Valid sql selectors
+	HashMap<String, String> caseMetaIndexTable = new HashMap<String, String>();
+	
 	
 	//TODO: Caching - Use a cache table here or use an LRU or other system provided cache?
 	
@@ -67,7 +72,10 @@ public class CaseDataContentProvider extends ContentProvider {
 	 * @see android.content.ContentProvider#onCreate()
 	 */
 	@Override
-	public boolean onCreate() {		
+	public boolean onCreate() {
+		caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.CASE_ID, Case.INDEX_CASE_ID);
+		caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.CASE_TYPE, Case.INDEX_CASE_TYPE);
+		caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.STATUS, Case.INDEX_CASE_STATUS);
 		return true;
 	}
 
@@ -126,7 +134,59 @@ public class CaseDataContentProvider extends ContentProvider {
 																CaseDataAPI.MetadataColumns.OWNER_ID,
 																CaseDataAPI.MetadataColumns.STATUS});
 		
-		//We either need to iterate over all cases, or just get back the one.
+		//Allow for some selection processing, basically very simple AND filtering on indexes
+		
+		Vector<String> keys = new Vector<String>();
+		Vector<String> values = new Vector<String>();
+
+		//If we don't have any selection args, skip all of this
+		if(selection != null) {
+			int currentArgVal = 0;
+			String[] selections = selection.toLowerCase().split("\\sand\\s");
+			for(String individualSelection : selections) {
+				String[] parts = individualSelection.split("=");
+				
+				if(parts.length != 2) { throw new RuntimeException("Malformed content provider selection string component: " + individualSelection); }
+				String key = parts[0].trim();
+				if(!caseMetaIndexTable.containsKey(key)) {
+					throw new RuntimeException("Invalid selection key for case metadata: " + key);
+				}
+				
+				String indexName = caseMetaIndexTable.get(key);
+				
+				//remove any quotation marks and trim
+				String value = parts[1].replace("\"","").replace("'", "").trim();
+				
+
+				//replace all "?"'s with arguments
+				while(value.indexOf("?") != -1) {
+					if(currentArgVal >= selectionArgs.length) { throw new RuntimeException("Selection string missing required arguments" + selection); }
+					value = value.substring(0, value.indexOf("?")) + selectionArgs[currentArgVal] + value.substring(value.indexOf("?") + 1);
+					currentArgVal++;
+				}
+				
+				keys.add(indexName);
+				values.add(value);
+			}
+		
+			//If we're matching a specific case (or trying to), add that as well)
+			if(CaseDataAPI.UriMatch(uri) != CaseDataAPI.MetadataColumns.MATCH_CASES)  {
+				keys.add(ACase.INDEX_CASE_ID);
+				values.add(uri.getLastPathSegment());
+			}
+			
+			//Do the db records fetch (one at a time, so as to not overload our working memory)
+			Vector<Integer> recordIds = storage.getIDsForValues((String[])keys.toArray(new String[0]), (String[])values.toArray(new String[0]));
+			for(int i : recordIds) {
+				Case c = storage.read(i);
+				retCursor.addRow(new Object[] {c.getID(), c.getCaseId(), c.getName(), c.getTypeId(), c.getDateOpened(), c.getLastModified(), c.getUserId(), c.isClosed() ? "closed" : "open"});
+			}
+			return retCursor;
+			
+		}
+		
+		//Otherwise we either need to iterate over all cases, or just get back the one (these are actually both generalizations of the above
+		//that should get centralized)
 
 		//No Case
 		if(CaseDataAPI.UriMatch(uri) == CaseDataAPI.MetadataColumns.MATCH_CASES)  {
