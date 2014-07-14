@@ -110,6 +110,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
 	private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
 	private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 7;
+	private static final int MENU_SAVED_FORMS = Menu.FIRST + 8;
 	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;	
@@ -1446,6 +1447,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         		android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
         		android.R.drawable.ic_menu_upload);
+        menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
+        		R.drawable.notebook_full);
         return true;
     }
     
@@ -1466,6 +1469,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
 			menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus &&  hasP2p());
 			menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
+			menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
@@ -1509,6 +1513,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             	return true;
             case MENU_CONNECTION_DIAGNOSTIC:
             	startMenuConnectionActivity();
+            	return true;
+            case MENU_SAVED_FORMS:
+            	goToFormArchive(false);
             	return true;
         }
         return super.onOptionsItemSelected(item);
