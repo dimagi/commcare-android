@@ -17,6 +17,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -72,7 +73,7 @@ public class IncompleteFormRecordView extends LinearLayout {
 		if(names.containsKey(record.getFormNamespace())) {
 			Text name = names.get(record.getFormNamespace());
 			
-			mPrimaryTextView.setText(MediaUtil.stripArguments(name.evaluate()));
+			mPrimaryTextView.setText(Localizer.processArguments(name.evaluate(), new String[] {""}).trim());
 		} else {
 			formExists = false;
 			mPrimaryTextView.setText(Localization.get("form.record.gone"));
