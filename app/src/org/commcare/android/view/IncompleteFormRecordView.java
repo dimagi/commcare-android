@@ -5,20 +5,16 @@ package org.commcare.android.view;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -71,7 +67,7 @@ public class IncompleteFormRecordView extends LinearLayout {
 		if(names.containsKey(record.getFormNamespace())) {
 			Text name = names.get(record.getFormNamespace());
 			
-			mPrimaryTextView.setText(name.evaluate());
+			mPrimaryTextView.setText(Localizer.processArguments(name.evaluate(), new String[] {""}).trim());
 		} else {
 			formExists = false;
 			mPrimaryTextView.setText(Localization.get("form.record.gone"));
