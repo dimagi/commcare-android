@@ -147,7 +147,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 				 * starting with the profile file. If the new profile is not a newer version,
 				 * statgeUpgradeTable doesn't actually pull in all the new references
 				 */
-				platform.stageUpgradeTable(global, temporary, profileRef, startOverUpgrade);
+				platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
 	    		Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
 	    		if(!newProfile.isNewer(profile)) {
 	    			Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");

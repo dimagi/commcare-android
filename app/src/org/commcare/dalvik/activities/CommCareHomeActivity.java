@@ -111,6 +111,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
 	private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 7;
 	
+	/**
+	 * Restart is a special CommCare return code which means that the session was invalidated in the 
+	 * calling activity and that the current session should be resynced
+	 */
+	public static final int RESULT_RESTART = 3;
+	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;	
 	
@@ -359,6 +365,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    	if(resultCode == RESULT_RESTART) {
+	    	startNextFetch();
+	    	return;
+    	}
+    	
+    	
     	try {
     		// if handling new return code (want to return to home screen) but a return at the end of your statement
 	    	switch(requestCode) {
@@ -879,6 +891,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    	
 	    	//We should now have a valid record for our state. Time to get to form entry.
 	    	FormRecord record = state.getFormRecord();
+	    	
+	    	if(platform == null) {
+	    		platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+	    	}
+	    	
 	    	//TODO: May need to pass session over manually
 	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
 	    	
