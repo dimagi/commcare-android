@@ -33,9 +33,9 @@ upgrade.button.startover=Restart Upgrade
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application...
 
-menu.basic=Basic Mode
-menu.advanced=Advanced Mode
-menu.archive=Offline Mode
+menu.basic=Basic Install
+menu.advanced=Advanced Install
+menu.archive=Offline Install
 
 profile.found=Application found. ${0} resources loaded, of ${1} total
 
