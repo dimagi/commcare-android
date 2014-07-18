@@ -8,9 +8,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACESS_NETWORK_STATE" />
      
+    
     <application
         android:name=".application.CommCareApplication"
-        android:debuggable="true"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
         android:theme="@style/AppBaseTheme" >
@@ -27,6 +27,18 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name=".activities.MultipleAppsManagerActivity"
+            android:label="@string/manager_activity_name"
+            android:icon="@drawable/icon" 
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/application_name"

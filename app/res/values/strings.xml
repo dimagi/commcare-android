@@ -2,6 +2,7 @@
 <resources>
 
     <string name="application_name">CommCare ODK</string>
+    <string name="manager_activity_name">App Manager</string>
     
     <string name="title_bar_name">CommCare</string>
     
@@ -18,7 +19,6 @@
         <item>2</item>
         <item>14</item>
     </integer-array>
-
     <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Logged Into Commcare</string>
     <string name="expirenotification">CommCare Login Expired</string>
