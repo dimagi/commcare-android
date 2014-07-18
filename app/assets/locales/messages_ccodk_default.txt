@@ -33,9 +33,9 @@ upgrade.button.startover=Restart Upgrade
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application...
 
-menu.basic=Basic Mode
-menu.advanced=Advanced Mode
-menu.archive=Offline Mode
+menu.basic=Basic Install
+menu.advanced=Advanced Install
+menu.archive=Offline Install
 
 profile.found=Application found. ${0} resources loaded, of ${1} total
 
@@ -66,6 +66,7 @@ home.menu.change.locale=Change Locale
 home.menu.formdump=Manage SD
 home.menu.wifi.direct=Wifi Direct
 home.menu.connection.diagnostic=Connection Test
+home.menu.saved.forms=Saved Forms
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare ODK Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
