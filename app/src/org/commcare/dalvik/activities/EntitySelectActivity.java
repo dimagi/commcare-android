@@ -391,26 +391,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	        // create intent for return and store path
 	        	returnWithResult(intent);
         		return;
-	        } else if (mViewMode) {
-    			//Intent i = new Intent(getApplicationContext(), GraphActivity.class);
-   		TreeReference contextRef = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-    	TreeReference valueRef = XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
-    	AbstractTreeElement element = asw.getEvaluationContext().resolveReference(valueRef.contextualize(contextRef));
-    	String value = "";
-    	if(element != null && element.getValue() != null) {
-    		value = element.getValue().uncast().getString();
-    	}
-   
-    	Intent i = new Intent(getApplicationContext(), GraphActivity.class);
-    	if(selectDatum.getLongDetail() != null) {
-    		i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
-    	}
-   
-    	i.putExtra(SessionFrame.STATE_DATUM_VAL, value);
-    	CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
-    			//i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail());
-            	startActivity(i);
-            	return;
     		} else {
     			//Did we enter the detail from mapping mode? If so, go back to that
 	    		if(mResultIsMap) {

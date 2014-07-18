@@ -57,7 +57,6 @@ public class EntityDetailView extends FrameLayout {
 	private TextView data;
 	private TextView spacer;
 	private Button callout;
-	//dummy
 	private View addressView;
 	private Button addressButton;
 	private TextView addressText;

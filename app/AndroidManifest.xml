@@ -28,10 +28,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.GraphActivity"
-            android:label="@string/application_name" >
-        </activity>
-        <activity
             android:name=".activities.LoginActivity"
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize" >
