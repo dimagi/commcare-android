@@ -6,9 +6,16 @@ package org.commcare.android.view;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Pattern;
 
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
+import org.achartengine.ChartFactory;
+import org.achartengine.GraphicalView;
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -50,16 +57,17 @@ public class EntityDetailView extends FrameLayout {
 	private TextView data;
 	private TextView spacer;
 	private Button callout;
+	//dummy
 	private View addressView;
 	private Button addressButton;
 	private TextView addressText;
 	private ImageView imageView;
+	private LinearLayout graphLayout;
 	private ImageButton videoButton;
 	private AudioButton audioButton;
 	private View valuePane;
 	private View currentView;
 	private AudioController controller;
-	private FileInputStream fis;
 	private LinearLayout detailRow;
 	private LinearLayout.LayoutParams origValue;
 	private LinearLayout.LayoutParams origLabel;
@@ -70,6 +78,7 @@ public class EntityDetailView extends FrameLayout {
 	private static final String FORM_PHONE = "phone";
 	private static final String FORM_ADDRESS = "address";
 	private static final String FORM_IMAGE = "image";
+	private static final String FORM_GRAPH = "graph";
 
 	private static final int TEXT = 0;
 	private static final int PHONE = 1;
@@ -77,6 +86,7 @@ public class EntityDetailView extends FrameLayout {
 	private static final int IMAGE = 3;
 	private static final int VIDEO = 4;
 	private static final int AUDIO = 5;
+	private static final int GRAPH = 6;
 	int current = TEXT;
 	
 	DetailCalloutListener listener;
@@ -107,6 +117,7 @@ public class EntityDetailView extends FrameLayout {
 	    addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
 	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
 	    imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
+	    graphLayout = (LinearLayout)detailRow.findViewById(R.id.graph_layout);
 	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
 	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 
@@ -188,6 +199,38 @@ public class EntityDetailView extends FrameLayout {
 				imageView.setVisibility(View.VISIBLE);
 				currentView = imageView;
 				current = IMAGE;
+			}
+		} else if (FORM_GRAPH.equals(form)) {
+			String[] points = textField.split("&");
+			XYSeries series = new XYSeries("Sample Data");
+			XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
+			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
+			dataset.addSeries(series);
+			XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
+			renderer.addSeriesRenderer(currentRenderer);
+			renderer.setInScroll(true);
+			for (String point : points) {
+				String[] floats = point.split(",");
+				if (floats.length == 2) {
+					series.add(Double.valueOf(floats[0]), Double.valueOf(floats[1]));
+				}
+			}
+            GraphicalView graph = ChartFactory.getLineChartView(getContext(), dataset, renderer);
+            graph.refreshDrawableState();
+            graph.repaint();
+			
+            graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+			if (current != GRAPH) {
+				label.setVisibility(View.GONE);
+				LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+				graphValueLayout.weight = 10;
+				valuePane.setLayoutParams(graphValueLayout);
+				
+				data.setVisibility(View.GONE);
+				currentView.setVisibility(View.GONE);
+				graphLayout.setVisibility(View.VISIBLE);
+				currentView = graphLayout;
+				current = GRAPH;
 			}
 		} else if (FORM_AUDIO.equals(form)) {
 			ViewId uniqueId = new ViewId(detailNumber, index, true);

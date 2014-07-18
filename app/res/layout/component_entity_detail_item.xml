@@ -68,6 +68,13 @@
             android:visibility="visible" />
 
         <LinearLayout
+            android:id="@+id/graph_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" 
+            android:visibility="gone"/>
+
+        <LinearLayout
             android:id="@+id/detail_address_view"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
