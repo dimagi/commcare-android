@@ -210,7 +210,11 @@ public class EntityDetailView extends FrameLayout {
 			renderer.setInScroll(true);
 			for (String point : points) {
 				String[] floats = point.split(",");
-				if (floats.length == 2) {
+				if (
+					floats.length == 2
+					&& !floats[0].equals("")
+					&& !floats[1].equals("")
+				) {
 					series.add(Double.valueOf(floats[0]), Double.valueOf(floats[1]));
 				}
 			}
