@@ -225,21 +225,8 @@ public class EntityDetailView extends FrameLayout {
 					}
 				}
 			}
-			Context context = getContext();
-			renderer.setBackgroundColor(context.getResources().getColor(R.drawable.white));
-			renderer.setMarginsColor(context.getResources().getColor(R.drawable.white));
-			renderer.setXLabelsColor(context.getResources().getColor(R.drawable.black));
-			renderer.setYLabelsColor(0, context.getResources().getColor(R.drawable.black));
-			renderer.setYLabelsAlign(Paint.Align.RIGHT);
-			renderer.setYLabelsPadding(10);
-			renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
-			renderer.setMargins(new int[]{20, 40, 20, 20});
-			renderer.setLabelsTextSize(21);
-			renderer.setShowLabels(true);
-			renderer.setApplyBackgroundColor(true);
-			renderer.setShowLegend(false);
-			renderer.setShowGrid(true);
-            GraphicalView graph = ChartFactory.getLineChartView(context, dataset, renderer);
+			setGraphLookAndFeel(renderer);
+            GraphicalView graph = ChartFactory.getLineChartView(getContext(), dataset, renderer);
             graph.refreshDrawableState();
             graph.repaint();
             graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
@@ -248,7 +235,7 @@ public class EntityDetailView extends FrameLayout {
 				LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
 				graphValueLayout.weight = 10;
 				valuePane.setLayoutParams(graphValueLayout);
-				
+
 				data.setVisibility(View.GONE);
 				currentView.setVisibility(View.GONE);
 				graphLayout.setVisibility(View.VISIBLE);
@@ -331,5 +318,24 @@ public class EntityDetailView extends FrameLayout {
 				valuePane.setLayoutParams(origValue);
 			}
 		}
+	}
+	
+	private void setGraphLookAndFeel(XYMultipleSeriesRenderer renderer) {
+		Context context = getContext();
+		renderer.setBackgroundColor(context.getResources().getColor(R.drawable.white));
+		renderer.setMarginsColor(context.getResources().getColor(R.drawable.white));
+		renderer.setXLabelsColor(context.getResources().getColor(R.drawable.black));
+		renderer.setYLabelsColor(0, context.getResources().getColor(R.drawable.black));
+		renderer.setYLabelsAlign(Paint.Align.RIGHT);
+		renderer.setYLabelsPadding(10);
+		renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
+		renderer.setXAxisMin(0, 0);
+		renderer.setYAxisMin(0, 0);
+		renderer.setMargins(new int[]{20, 40, 20, 20});
+		renderer.setLabelsTextSize(21);
+		renderer.setShowLabels(true);
+		renderer.setApplyBackgroundColor(true);
+		renderer.setShowLegend(false);
+		renderer.setShowGrid(true);
 	}
 }
