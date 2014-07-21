@@ -200,28 +200,30 @@ public class EntityDetailView extends FrameLayout {
 				current = IMAGE;
 			}
 		} else if (FORM_GRAPH.equals(form)) {
-			String[] points = textField.split("&");
-			XYSeries series = new XYSeries("Sample Data");
+			String[] seriesStrings = textField.split("===");
 			XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
-			dataset.addSeries(series);
-			XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-			renderer.addSeriesRenderer(currentRenderer);
-			renderer.setInScroll(true);
-			for (String point : points) {
-				String[] floats = point.split(",");
-				if (
-					floats.length == 2
-					&& !floats[0].equals("")
-					&& !floats[1].equals("")
-				) {
-					series.add(Double.valueOf(floats[0]), Double.valueOf(floats[1]));
+			for (String seriesString : seriesStrings) {
+				String[] points = seriesString.split("&");
+				XYSeries series = new XYSeries("Sample Data");
+				dataset.addSeries(series);
+				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
+				renderer.addSeriesRenderer(currentRenderer);
+				renderer.setInScroll(true);
+				for (String point : points) {
+					String[] floats = point.split(",");
+					if (
+						floats.length == 2
+						&& !floats[0].equals("")
+						&& !floats[1].equals("")
+					) {
+						series.add(Double.valueOf(floats[0]), Double.valueOf(floats[1]));
+					}
 				}
 			}
             GraphicalView graph = ChartFactory.getLineChartView(getContext(), dataset, renderer);
             graph.refreshDrawableState();
             graph.repaint();
-			
             graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
 			if (current != GRAPH) {
 				label.setVisibility(View.GONE);
