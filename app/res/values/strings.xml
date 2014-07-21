@@ -14,6 +14,8 @@
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
+    <string name="install_app">Install a New App</string>
+    <string name="uninstall_app">Uninstall an App</string>
 
     <integer-array name="commcare_version">
         <item>2</item>
