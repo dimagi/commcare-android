@@ -350,8 +350,11 @@ public class CommCareApplication extends Application {
 	}
 	
 	private int initializeAppResources() {
+		System.out.println("initializeAppResources called");
 		//There should be exactly one of these for now
-		for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
+		SqlStorage<ApplicationRecord> appRecords = getGlobalStorage(ApplicationRecord.class);
+		System.out.println("NUMBER OF APPS IN GLOBAL STORAGE: " + appRecords.getNumRecords());
+		for(ApplicationRecord record : appRecords) {
 			if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
 				//We have an app record ready to go
 				return initializeAppResources(new CommCareApp(record));
@@ -361,6 +364,7 @@ public class CommCareApplication extends Application {
 	}
 
 	private int initializeAppResources(CommCareApp app) {
+		System.out.println("initializeAppResources called");
 		try {
 			currentApp = app;
 			if(currentApp.initializeApplication()) {

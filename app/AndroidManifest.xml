@@ -32,7 +32,7 @@
             android:name=".activities.MultipleAppsManagerActivity"
             android:label="@string/manager_activity_name"
             android:icon="@drawable/icon" 
-            android:launchMode="singleInstance">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

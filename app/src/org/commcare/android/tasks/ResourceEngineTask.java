@@ -175,7 +175,8 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 				
 			} else { 
 				//this is a standard, clean install
-				if(sanityTest1) return ResourceEngineOutcomes.StatusFailState;
+				System.out.println("REACHED removed sanityTest");
+				//if(sanityTest1) return ResourceEngineOutcomes.StatusFailState;
 				global.setStateListener(this);
 				platform.init(profileRef, global, false);
 				

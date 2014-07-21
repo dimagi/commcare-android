@@ -138,6 +138,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     int previousUrlPosition=0;
 	 
 	boolean partialMode = false;
+	boolean fromManager;
 	
 	BroadcastReceiver mBroadcastReceiver;
 	
@@ -159,6 +160,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		super.onCreate(savedInstanceState);
 		
 		CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
+		this.fromManager = this.getIntent().getBooleanExtra
+				(MultipleAppsManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
     	//Retrieve instance state
 		if(savedInstanceState == null) {
@@ -236,9 +239,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		if(!Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
-			//and we can just skip this unless it's upgradeMode
-			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY && !inUpgradeMode) {
-		        Intent i = new Intent(getIntent());	
+			//and we can just skip this, unless it's upgradeMode OR we were called from the MultipleAppsManagerActivity
+			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY 
+					&& !inUpgradeMode && !fromManager) {
+				Intent i = new Intent(getIntent());	
 		        setResult(RESULT_OK, i);
 		        finish();
 		        return;
@@ -247,7 +251,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		    	
 		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-                try {	
+				done(false);
+                /*try {	
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                 	//Barcode only
                     i.putExtra("SCAN_FORMATS","QR_CODE");
@@ -255,8 +260,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(CommCareSetupActivity.this,"No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
                     mScanBarcodeButton.setVisibility(View.GONE);
-                }
-
+                }*/
 			}
 			
 		});
@@ -311,14 +315,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		});
 		
 		installButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {	
+			public void onClick(View v) {
 				//Now check on the resources
-				if(resourceState == CommCareApplication.STATE_READY) {
+				if(!fromManager && resourceState == CommCareApplication.STATE_READY) {
 					if(!inUpgradeMode || uiState != UiState.error) {
 						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
 					}
 				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED || 
-						(resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode)) {
+						(resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode) ||
+						(resourceState == CommCareApplication.STATE_READY && fromManager)) {
 					startResourceInstall();
 				}
 			}
@@ -775,22 +780,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 	
 	public void done(boolean requireRefresh) {
+		System.out.println("done entered");
 		//TODO: We might have gotten here due to being called from the outside, in which
 		//case we should manually start up the home activity
-		
 		if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+			System.out.println("HERE");
 			//Call out to CommCare Home
  	       Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
  	       i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
  	       startActivity(i);
  	       finish();
- 	       
  	       return;
 		} else {
+			System.out.println("THERE");
 			//Good to go
-	        Intent i = new Intent(getIntent());
-	        i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
-	        setResult(RESULT_OK, i);
+			Intent i = new Intent(getIntent());
+			i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+			setResult(RESULT_OK, i);
 	        finish();
 	        return;
 		}
