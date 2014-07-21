@@ -12,6 +12,7 @@ import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
+import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
@@ -31,6 +32,7 @@ import org.odk.collect.android.views.media.AudioController;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.view.Display;
@@ -203,13 +205,15 @@ public class EntityDetailView extends FrameLayout {
 			String[] seriesStrings = textField.split("===");
 			XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
+			renderer.setInScroll(true);
 			for (String seriesString : seriesStrings) {
+				System.out.println("[jls] data = " + seriesString);
 				String[] points = seriesString.split("&");
 				XYSeries series = new XYSeries("Sample Data");
 				dataset.addSeries(series);
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
+				currentRenderer.setPointStyle(PointStyle.CIRCLE);
 				renderer.addSeriesRenderer(currentRenderer);
-				renderer.setInScroll(true);
 				for (String point : points) {
 					String[] floats = point.split(",");
 					if (
@@ -221,7 +225,21 @@ public class EntityDetailView extends FrameLayout {
 					}
 				}
 			}
-            GraphicalView graph = ChartFactory.getLineChartView(getContext(), dataset, renderer);
+			Context context = getContext();
+			renderer.setBackgroundColor(context.getResources().getColor(R.drawable.white));
+			renderer.setMarginsColor(context.getResources().getColor(R.drawable.white));
+			renderer.setXLabelsColor(context.getResources().getColor(R.drawable.black));
+			renderer.setYLabelsColor(0, context.getResources().getColor(R.drawable.black));
+			renderer.setYLabelsAlign(Paint.Align.RIGHT);
+			renderer.setYLabelsPadding(10);
+			renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
+			renderer.setMargins(new int[]{20, 40, 20, 20});
+			renderer.setLabelsTextSize(21);
+			renderer.setShowLabels(true);
+			renderer.setApplyBackgroundColor(true);
+			renderer.setShowLegend(false);
+			renderer.setShowGrid(true);
+            GraphicalView graph = ChartFactory.getLineChartView(context, dataset, renderer);
             graph.refreshDrawableState();
             graph.repaint();
             graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
