@@ -52,7 +52,7 @@ public class NodeEntityFactory {
 		
 		//return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 		
-		String[] details = new String[detail.getHeaderForms().length];
+		Object[] details = new String[detail.getHeaderForms().length];
 		String[] sortDetails = new String[detail.getHeaderForms().length];
 		int count = 0;
 		for(DetailField f : this.getDetail().getFields()) {
@@ -60,7 +60,7 @@ public class NodeEntityFactory {
 				details[count] = f.getTemplate().evaluate(nodeContext);
 				Text sortText = f.getSort();
 				if(sortText == null) {
-					sortDetails[count] = details[count];
+					sortDetails[count] = details[count] instanceof String ? (String) details[count] : "";
 				} else {
 					sortDetails[count] = sortText.evaluate(nodeContext);
 				}

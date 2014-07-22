@@ -12,20 +12,20 @@ package org.commcare.android.models;
 public class Entity<T> {
 	
 	T t;
-	String[] data;
+	Object[] data;
 	String[] sortData;
 	
 	protected Entity(T t) {
 		this.t = t;
 	}
 	
-	public Entity(String[] data, String[] sortData, T t) {
+	public Entity(Object[] data, String[] sortData, T t) {
 		this.t = t;
 		this.sortData = sortData;
 		this.data = data;
 	}
 	
-	public String getField(int i) {
+	public Object getField(int i) {
 		return data[i];
 	}
 	

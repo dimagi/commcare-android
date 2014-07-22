@@ -45,6 +45,7 @@ public class EntityView extends LinearLayout {
 	private long rowId;
 	private static final String FORM_AUDIO = "audio";
 	private static final String FORM_IMAGE = "image";
+	private static final String FORM_GRAPH = "graph";
 
 	/*
 	 * Constructor for row/column contents
@@ -102,13 +103,14 @@ public class EntityView extends LinearLayout {
 	 * Creates up a new view in the view with ID uniqueid, based upon
 	 * the entity's text and form
 	 */
-	private View initView(String text, String form, Object uniqueId) {
+	private View initView(Object data, String form, Object uniqueId) {
 		View retVal;
 		if (FORM_IMAGE.equals(form)) {
-			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
+			ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
         } 
 		else if (FORM_AUDIO.equals(form)) {
+			String text = (String) data;
     		AudioButton b;
     		if (text != null & text.length() > 0) {
     			b = new AudioButton(context, text, uniqueId, controller, true);
@@ -118,9 +120,13 @@ public class EntityView extends LinearLayout {
     		}
     		retVal = b;
         } 
+		else if (FORM_GRAPH.equals(form)) {
+    		View layout = View.inflate(context, R.layout.entity_item_graph, null);
+    		retVal = layout;
+		}
         else {
     		View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		setupTextAndTTSLayout(layout, text);
+    		setupTextAndTTSLayout(layout, (String) data);
     		retVal = layout;
         }
         return retVal;
@@ -133,7 +139,7 @@ public class EntityView extends LinearLayout {
 
 	public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
 		for (int i = 0; i < e.getNumFields() ; ++i) {
-			String textField = e.getField(i);
+			Object field = e.getField(i);
 			View view = views[i];
 			String form = forms[i];
 			
@@ -141,13 +147,16 @@ public class EntityView extends LinearLayout {
 			
 			if (FORM_AUDIO.equals(form)) {
 				ViewId uniqueId = new ViewId(rowId, i, false);
-				setupAudioLayout(view, textField, uniqueId);
+				setupAudioLayout(view, (String) field, uniqueId);
 			}
 			else if(FORM_IMAGE.equals(form)) {
-				setupImageLayout(view, textField);
+				setupImageLayout(view, (String) field);
 	        } 
+			else if (FORM_GRAPH.equals(form)) {
+				// nothing special to do for graphs
+			}
 			else { //text to speech
-		        setupTextAndTTSLayout(view, textField);
+		        setupTextAndTTSLayout(view, (String) field);
 	        }
 		}
 		
