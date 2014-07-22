@@ -3,6 +3,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" 
     android:id="@+id/screen_login_main">
+    
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingBottom="100sp"
+        android:id="@+id/screen_login_banner_pane">
+
+        <ImageView
+            android:id="@+id/screen_login_top_banner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitStart"
+            android:src="@drawable/ccbanner" android:adjustViewBounds="true"/>
+
+    </FrameLayout>
+    
+    <Spinner
+        android:id="@+id/app_selection_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:prompt="@string/select_app_prompt"
+        android:layout_below="@id/screen_login_banner_pane"
+        android:spinnerMode="dropdown" />
+            
 
     <LinearLayout
         android:id="@+id/screen_login_bottom_pane"
@@ -23,26 +49,15 @@
             android:layout_gravity="bottom"
             android:nextFocusUp="@+id/edit_password" />
     </LinearLayout>
-
+    
+   
     <LinearLayout
+        android:id="@+id/main_pane"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/screen_login_bottom_pane"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/app_selection_spinner"
+        android:paddingTop="100sp"
         android:orientation="vertical" >
-
-        <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0px" android:layout_weight=".2" android:id="@+id/screen_login_banner_pane">
-
-            <ImageView
-                android:id="@+id/screen_login_top_banner"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:scaleType="fitStart"
-                android:src="@drawable/ccbanner" android:adjustViewBounds="true"/>
-
-        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/LinearLayout01"
@@ -51,16 +66,7 @@
             android:layout_weight=".8"
             android:gravity="center_vertical"
             android:orientation="vertical">
-            
-            <Spinner
-                android:id="@+id/app_selection_spinner"
-                android:spinnerMode="dropdown"
-                android:prompt="@string/select_app_prompt"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" 
-                android:gravity="center_horizontal"
-                android:paddingBottom="30sp"/>
-            
+
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

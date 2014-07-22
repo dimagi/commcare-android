@@ -471,12 +471,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-		System.out.println("onItemSelected called");
 		String selected = (String) parent.getItemAtPosition(position);
 		ApplicationRecord r = idsToRecords.get(selected);
-		System.out.println("ApplicationRecord selected: " + r);
 		CommCareApplication._().initializeAppResources(new CommCareApp(r));
-		
 	}
 
 	@Override

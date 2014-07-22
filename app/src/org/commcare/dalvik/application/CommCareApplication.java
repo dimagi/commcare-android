@@ -349,10 +349,8 @@ public class CommCareApplication extends Application {
 	}
 	
 	private int initializeAppResources() {
-		System.out.println("initializeAppResources called");
 		//There should be exactly one of these for now
 		SqlStorage<ApplicationRecord> appRecords = getInstalledAppRecords();
-		System.out.println("NUMBER OF APPS IN GLOBAL STORAGE: " + appRecords.getNumRecords());
 		for(ApplicationRecord record : appRecords) {
 			if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
 				//We have an app record ready to go

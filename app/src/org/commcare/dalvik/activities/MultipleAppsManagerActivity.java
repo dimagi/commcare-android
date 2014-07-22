@@ -25,7 +25,6 @@ public class MultipleAppsManagerActivity extends Activity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		System.out.println("RETURNED to MultipleAppsManagerActivity");
 	}
 	
 	public void uninstallAppClicked(View v) {
