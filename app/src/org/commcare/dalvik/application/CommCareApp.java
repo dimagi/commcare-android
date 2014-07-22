@@ -261,4 +261,11 @@ public class CommCareApp {
 	public String getPreferencesFilename(){
 		return record.getApplicationId();
 	}
+	
+	/*
+	 * Return the uniqueId assigned to this app from HQ
+	 */
+	public String getUniqueId() {
+		return getCommCarePlatform().getCurrentProfile().getUniqueId();
+	}
 }
