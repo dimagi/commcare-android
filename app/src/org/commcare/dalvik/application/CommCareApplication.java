@@ -285,7 +285,6 @@ public class CommCareApplication extends Application {
 	public CommCareApp getCurrentApp() {
 		return this.currentApp;
 	}
-	
 
 	/**
 	 * Get the current CommCare session that's being executed
@@ -352,7 +351,7 @@ public class CommCareApplication extends Application {
 	private int initializeAppResources() {
 		System.out.println("initializeAppResources called");
 		//There should be exactly one of these for now
-		SqlStorage<ApplicationRecord> appRecords = getGlobalStorage(ApplicationRecord.class);
+		SqlStorage<ApplicationRecord> appRecords = getInstalledAppRecords();
 		System.out.println("NUMBER OF APPS IN GLOBAL STORAGE: " + appRecords.getNumRecords());
 		for(ApplicationRecord record : appRecords) {
 			if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
@@ -362,8 +361,12 @@ public class CommCareApplication extends Application {
 		}
 		return STATE_UNINSTALLED;
 	}
+	
+	public SqlStorage<ApplicationRecord> getInstalledAppRecords() {
+		return getGlobalStorage(ApplicationRecord.class);
+	} 
 
-	private int initializeAppResources(CommCareApp app) {
+	public int initializeAppResources(CommCareApp app) {
 		System.out.println("initializeAppResources called");
 		try {
 			currentApp = app;

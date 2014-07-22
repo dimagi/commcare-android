@@ -251,8 +251,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		    	
 		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				done(false);
-                /*try {	
+                try {	
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                 	//Barcode only
                     i.putExtra("SCAN_FORMATS","QR_CODE");
@@ -260,7 +259,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(CommCareSetupActivity.this,"No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
                     mScanBarcodeButton.setVisibility(View.GONE);
-                }*/
+                }
 			}
 			
 		});

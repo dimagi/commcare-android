@@ -5,9 +5,13 @@ package org.commcare.dalvik.activities;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -22,6 +26,7 @@ import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -39,8 +44,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,10 +58,12 @@ import android.widget.Toast;
  *
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivity extends CommCareActivity<LoginActivity> {
+public class LoginActivity extends CommCareActivity<LoginActivity> implements OnItemSelectedListener {
+	 
+	public static final int MENU_DEMO = Menu.FIRST;
+        public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
 	
-	public final static int MENU_DEMO = Menu.FIRST;
-    public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
+
 	public static String ALREADY_LOGGED_IN = "la_loggedin";
 	
 	@UiElement(value=R.id.login_button, locale="login.button")
@@ -70,7 +81,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 	
 	@UiElement(R.id.edit_password)
 	EditText password;
-	
+		
 	@UiElement(R.id.screen_login_banner_pane)
 	View banner;
 	
@@ -79,7 +90,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 	
 	public static final int TASK_KEY_EXCHANGE = 1;
 	
-	SqlStorage<UserKeyRecord> storage;
+	SqlStorage<UserKeyRecord> storage;    	
+	Map<String,ApplicationRecord> idsToRecords = new HashMap<String,ApplicationRecord>();
+
 	
     /** Called when the activity is first created. */
     @Override
@@ -110,8 +123,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         });
         
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
-        
-        
+                
         final View activityRootView = findViewById(R.id.screen_login_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
@@ -233,7 +245,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     		return;
         }
         }catch(SessionUnavailableException sue) {
-        	//Nothing, we're logging in here anyway
+        	populateAvailableAppsSpinner();
         }
         
         refreshView();
@@ -412,6 +424,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 		Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
     }
     
+
     
 	/** Implementation of generateProgressDialog() for DialogController -- other methods
 	 * handled entirely in CommCareActivity
@@ -438,4 +451,38 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     	return dialog;
     }
     
+
+    
+    private void populateAvailableAppsSpinner() {
+    	SqlStorage<ApplicationRecord> allApps = CommCareApplication._().getInstalledAppRecords();
+        ArrayList<String> availableAppNames = new ArrayList<String>();
+        for (ApplicationRecord r : allApps) {
+        	String uniqueId = r.getApplicationId();
+        	availableAppNames.add(uniqueId);
+        	idsToRecords.put(uniqueId, r);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.spinner_text_view, availableAppNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    	Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
+    }
+
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int position,
+			long id) {
+		System.out.println("onItemSelected called");
+		String selected = (String) parent.getItemAtPosition(position);
+		ApplicationRecord r = idsToRecords.get(selected);
+		System.out.println("ApplicationRecord selected: " + r);
+		CommCareApplication._().initializeAppResources(new CommCareApp(r));
+		
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

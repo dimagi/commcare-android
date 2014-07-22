@@ -52,6 +52,15 @@
             android:gravity="center_vertical"
             android:orientation="vertical">
             
+            <Spinner
+                android:id="@+id/app_selection_spinner"
+                android:spinnerMode="dropdown"
+                android:prompt="@string/select_app_prompt"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" 
+                android:gravity="center_horizontal"
+                android:paddingBottom="30sp"/>
+            
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
