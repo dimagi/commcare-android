@@ -95,6 +95,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 					upgrade ? Resource.RESOURCE_STATUS_UNINITIALIZED : Resource.RESOURCE_STATUS_UNINITIALIZED, false);
 			
 			Profile p = parser.parse();
+			instance.setProfile(p); //ADDED, MAY NOT BE OK
 			
 			if(!upgrade) {
 				initProperties(p);

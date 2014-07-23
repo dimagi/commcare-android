@@ -9,6 +9,8 @@ import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
@@ -65,7 +67,10 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 		StatusUpToDate("notification.install.uptodate"),
 		
 		/** Certificate was bad **/
-		StatusBadCertificate("notification.install.badcert");
+		StatusBadCertificate("notification.install.badcert"),
+		
+		/** Attempting to install an app that is already installed **/
+		StatusDuplicateApp("notification.install.duplicate");
 		
 		ResourceEngineOutcomes(String root) {this.root = root;}
 		private final String root;
@@ -87,16 +92,20 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 	boolean upgradeMode = false;
 	boolean partialMode = false;
 	boolean startOverUpgrade;
+
 	//This boolean is set from CommCareSetupActivity -- If we are in keep trying mode for installation,
 	//we want to sleep in between attempts to launch this task
 	boolean shouldSleep;
+	boolean installFromManager;
+
 	
 	protected String vAvailable;
 	protected String vRequired;
 	protected boolean majorIsProblem;
 	
+
 	public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app, 
-			boolean startOverUpgrade, int taskId, boolean shouldSleep) 
+				  boolean startOverUpgrade, int taskId, boolean shouldSleep, boolean fromManager) 
 					throws SessionUnavailableException{
 		this.partialMode = partialMode;
 		this.c = c;
@@ -105,6 +114,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 		this.startOverUpgrade = startOverUpgrade;
 		this.taskId = taskId;
 		this.shouldSleep = shouldSleep;
+		this.installFromManager = fromManager;
 	}
 	
 	/* (non-Javadoc)
@@ -136,7 +146,6 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
     		Resource profile = global.getResourceWithId("commcare-application-profile");
     		
     		boolean sanityTest1 = (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
-    		
     		
 			if(upgradeMode){
 				
@@ -175,13 +184,21 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 				
 			} else { 
 				//this is a standard, clean install
-				System.out.println("REACHED removed sanityTest");
-				//if(sanityTest1) return ResourceEngineOutcomes.StatusFailState;
+				if(!installFromManager && sanityTest1) return ResourceEngineOutcomes.StatusFailState;
 				global.setStateListener(this);
 				platform.init(profileRef, global, false);
 				
+	    		String newAppId = app.getUniqueId();
+	    		System.out.println("id of new app: " + newAppId);
+				SqlStorage<ApplicationRecord> allApps = CommCareApplication._().getInstalledAppRecords();
+				System.out.println("num apps installed: " + allApps.getNumRecords());
+				for (ApplicationRecord r : allApps) {
+					if (r.getUniqueId().equals(newAppId)) {
+						return ResourceEngineOutcomes.StatusDuplicateApp;
+					}
+				}
+
 				app.writeInstalled();
-				
 			}
     		
 			//Initialize them now that they're installed
@@ -205,7 +222,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 			
 			Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Couldn't install file to local storage|" + e.getMessage());
 			return ResourceEngineOutcomes.StatusNoLocalStorage;
-		}catch (UnfullfilledRequirementsException e) {
+		} catch (UnfullfilledRequirementsException e) {
 			e.printStackTrace();
 			badReqCode = e.getRequirementCode();
 			

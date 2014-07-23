@@ -568,13 +568,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			this.resourceTableWasFresh = tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY ||
 					 tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED;
 			
+
 			CustomProgressDialog lastDialog = getCurrentDialog();
 			/* used to tell the ResourceEngineTask whether or not it should sleep before 
 			 * it starts, set based on whether we are currently in keep trying mode */
 	    	boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
 	    	
-			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, 
-					inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep) {
+
+			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, inUpgradeMode, partialMode, app, 
+						     startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep, fromManager) {
+
 
 				@Override
 				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
@@ -606,7 +609,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 					} else if(result == ResourceEngineOutcomes.StatusBadCertificate){
 						startOverInstall = false;
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
-					} else {
+				        } else if(result == ResourceEngineOutcomes.StatusDuplicateApp) { 
+						receiver.failWithNotification(ResourceEngineOutcomes.StatusDuplicateApp);
+						startOverInstall = true;
+					}
+					else {
 						startOverInstall = true;
 						receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
 					}
@@ -779,11 +786,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 	
 	public void done(boolean requireRefresh) {
-		System.out.println("done entered");
 		//TODO: We might have gotten here due to being called from the outside, in which
 		//case we should manually start up the home activity
 		if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
-			System.out.println("HERE");
 			//Call out to CommCare Home
  	       Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
  	       i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
@@ -791,7 +796,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
  	       finish();
  	       return;
 		} else {
-			System.out.println("THERE");
 			//Good to go
 			Intent i = new Intent(getIntent());
 			i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);

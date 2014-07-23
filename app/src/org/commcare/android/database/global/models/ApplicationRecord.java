@@ -32,6 +32,8 @@ public class ApplicationRecord extends Persisted {
 	@Persisting(2)
 	@MetaField(META_STATUS)
 	int status;
+	@Persisting(3)
+	String uniqueId;
 	
 	/*
 	 * Deserialization only
@@ -47,6 +49,14 @@ public class ApplicationRecord extends Persisted {
 	
 	public String getApplicationId() {
 		return applicationId;
+	}
+	
+	public void setUniqueId(String id) {
+		this.uniqueId = id;
+	}
+	
+	public String getUniqueId() {
+		return uniqueId;
 	}
 	
 	public int getStatus() {

@@ -251,6 +251,7 @@ public class CommCareApp {
 
 	public void writeInstalled() {
 		record.setStatus(ApplicationRecord.STATUS_INSTALLED);
+		record.setUniqueId(getUniqueId());
 		try {
 			CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
 		} catch (StorageFullException e) {
@@ -266,6 +267,11 @@ public class CommCareApp {
 	 * Return the uniqueId assigned to this app from HQ
 	 */
 	public String getUniqueId() {
-		return getCommCarePlatform().getCurrentProfile().getUniqueId();
+		//if this record has already been assigned the unique id, pull it from there
+		if (record.getUniqueId() != null) {
+			return record.getUniqueId();
+		} else { //otherwise, this is the first time we are getting it, so pull from the profile
+			return getCommCarePlatform().getCurrentProfile().getUniqueId();
+		}
 	}
 }

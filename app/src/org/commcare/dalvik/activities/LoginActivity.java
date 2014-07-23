@@ -455,13 +455,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     
     private void populateAvailableAppsSpinner() {
     	SqlStorage<ApplicationRecord> allApps = CommCareApplication._().getInstalledAppRecords();
-        ArrayList<String> availableAppNames = new ArrayList<String>();
+        ArrayList<String> appUniqueIds = new ArrayList<String>();
         for (ApplicationRecord r : allApps) {
-        	String uniqueId = r.getApplicationId();
-        	availableAppNames.add(uniqueId);
+        	String uniqueId = r.getUniqueId();
+        	appUniqueIds.add(uniqueId);
         	idsToRecords.put(uniqueId, r);
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.spinner_text_view, availableAppNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.spinner_text_view, appUniqueIds);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
         spinner.setAdapter(adapter);
