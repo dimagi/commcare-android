@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 public class MultipleAppsManagerActivity extends Activity {
 	
@@ -25,6 +26,12 @@ public class MultipleAppsManagerActivity extends Activity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		switch(requestCode) {
+		case CommCareHomeActivity.INIT_APP:
+			if (resultCode == RESULT_OK) {
+				Toast.makeText(this, "App installed successfully", Toast.LENGTH_LONG).show();
+			}
+		}
 	}
 	
 	public void uninstallAppClicked(View v) {
