@@ -94,8 +94,7 @@ public class EntityListAdapter implements ListAdapter {
 			for(String filter: searchTerms) {
 				add = false;
 				for(int i = 0 ; i < e.getNumFields(); ++i) {
-					String field = e.getField(i) instanceof String ? (String) e.getField(i) : "";
-					if(field.toLowerCase().contains(filter)) {
+					if(e.getFieldString(i).toLowerCase().contains(filter)) {
 						add = true;
 						continue filter;
 					}				

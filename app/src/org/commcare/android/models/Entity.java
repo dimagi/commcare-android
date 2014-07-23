@@ -29,6 +29,14 @@ public class Entity<T> {
 		return data[i];
 	}
 	
+	public String getFieldString(int i) {
+		Object field = getField(i);
+		if (field instanceof String) {
+			return (String) field;
+		}
+		return "";
+	}
+	
 	public String getSortField(int i) {
 		return sortData[i];
 	}

@@ -105,7 +105,7 @@ public class EntityDetailView extends FrameLayout {
 	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 	    
 	    ViewId uniqueId = new ViewId(detailNumber, index, true);
-	    String audioText = e.getField(index) instanceof String ? (String) e.getField(index) : "";
+	    String audioText = e.getFieldString(index);
 	    audioButton = new AudioButton(context, audioText, uniqueId, controller, false);
 	    detailRow.addView(audioButton);
 	    audioButton.setVisibility(View.GONE);
@@ -136,7 +136,7 @@ public class EntityDetailView extends FrameLayout {
 		spacer.setText(labelText);
 		
 		Object field = e.getField(index);
-		String textField = field instanceof String ? (String) field : "";
+		String textField = e.getFieldString(index);
 		boolean veryLong = false;
 		String form = d.getTemplateForms()[index];
 		if(FORM_PHONE.equals(form)) {

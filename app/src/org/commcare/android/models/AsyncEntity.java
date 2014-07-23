@@ -46,7 +46,7 @@ public class AsyncEntity<T> extends Entity<T>{
 			try {
 				Text sortText = fields[i].getSort();
 				if(sortText == null) {
-					sortData[i] = getField(i) instanceof String ? (String) getField(i) : "";
+					sortData[i] = getFieldString(i);
 				} else {
 					sortData[i] = sortText.evaluate(context);
 				}
