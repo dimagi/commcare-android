@@ -13,6 +13,8 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.CachingAsyncImageLoader;
+import org.commcare.android.view.AdvancedEntityView;
 import org.commcare.android.view.EntityView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
@@ -33,18 +35,23 @@ import android.widget.Toast;
 
 /**
  * @author ctsims
- *
+ * @author wspride
+ * 
+ * This adapter class handles displaying the cases for a CommCareODK user.
+ * Depending on the <grid> block of the Detail this adapter is constructed with, cases might be
+ * displayed as normal EntityViews or as AdvancedEntityViews
  */
 public class EntityListAdapter implements ListAdapter {
 	
 	Context context;
+	Detail detail;
 	
 	List<DataSetObserver> observers;
 	
 	List<Entity<TreeReference>> full;
 	List<Entity<TreeReference>> current;
 	List<TreeReference> references;
-	Detail d;
+
 	TextToSpeech tts;
 	AudioController controller;
 	
@@ -57,10 +64,15 @@ public class EntityListAdapter implements ListAdapter {
 
 	private String[] currentSearchTerms;
 	
-	public EntityListAdapter(Context context, Detail d, List<TreeReference> references, 
-			List<Entity<TreeReference>> full, int[] sort, TextToSpeech tts, AudioController controller) 
-					throws SessionUnavailableException {
-		this.d = d;
+	public static int SCALE_FACTOR = 4;			// How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
+	private CachingAsyncImageLoader mImageLoader;			// Asyncronous image loader, allows rows with images to scroll smoothly
+	private boolean usesGridView = false;		// false until we determine the Detail has at least one <grid> block
+	
+	private boolean inAwesomeMode = false;
+	
+	public EntityListAdapter(Context context, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
+			int[] sort, TextToSpeech tts, AudioController controller) throws SessionUnavailableException {
+		this.detail = detail;
 		
 		this.full = full;
 		current = new ArrayList<Entity<TreeReference>>();
@@ -75,6 +87,9 @@ public class EntityListAdapter implements ListAdapter {
 		filterValues("");
 		this.tts = tts;
 		this.controller = controller;
+		mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
+		
+		usesGridView = detail.usesGridView();
 	}
 
 	private void filterValues(String filterRaw) {
@@ -128,7 +143,7 @@ public class EntityListAdapter implements ListAdapter {
 
 			public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
 				for(int i = 0 ; i < currentSort.length ; ++i) {
-					boolean reverseLocal = (d.getFields()[currentSort[i]].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
+					boolean reverseLocal = (detail.getFields()[currentSort[i]].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
 					int cmp =  (reverseLocal ? -1 : 1) * getCmp(object1, object2, currentSort[i]);
 					if(cmp != 0 ) { return cmp;}
 				}
@@ -137,7 +152,7 @@ public class EntityListAdapter implements ListAdapter {
 			
 			private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
 
-				int i = d.getFields()[index].getSortType();
+				int i = detail.getFields()[index].getSortType();
 				
 				String a1 = object1.getSortField(index);
 				String a2 = object2.getSortField(index);
@@ -259,15 +274,34 @@ public class EntityListAdapter implements ListAdapter {
 	 * are both assigned position 0 -- this is not an issue for current usage, but it could be in future
 	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Entity<TreeReference> e = current.get(position);
-		EntityView emv =(EntityView)convertView;
-		if (emv == null) {
-			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position);
-		} else {
-			emv.setSearchTerms(currentSearchTerms);
-			emv.refreshViewsForNewEntity(e, e.getElement().equals(selected), position);
+		Entity<TreeReference> entity = current.get(position);
+		// if we use a <grid>, setup an AdvancedEntityView
+		if(usesGridView){
+			AdvancedEntityView emv =(AdvancedEntityView)convertView;
+			
+			if(emv == null) {
+				emv = new AdvancedEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller);
+			} else{
+				emv.setViews(context, detail, entity);
+			}
+			return emv;
+			
+		} 
+		// if not, just use the normal row
+		else{
+			EntityView emv =(EntityView)convertView;
+			
+			if(emv == null) {
+				emv = new EntityView(context, detail, entity, tts, currentSearchTerms, controller, position);
+			} else{
+				emv.setSearchTerms(currentSearchTerms);
+			emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
+			}
+			return emv;
 		}
-		return emv;
+		
+		//AdvancedEntityView emv = new AdvancedEntityView(context, d, e, currentSearchTerms);
+		
 	}
 
 	/* (non-Javadoc)
@@ -331,6 +365,10 @@ public class EntityListAdapter implements ListAdapter {
 	public void notifyCurrentlyHighlighted(TreeReference chosen) {
 		this.selected = chosen;
 		update();
+	}
+	
+	public void setAwesomeMode(boolean awesome){
+		inAwesomeMode = awesome;
 	}
 
 	public int getPosition(TreeReference chosen) {

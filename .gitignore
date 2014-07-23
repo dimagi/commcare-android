@@ -14,7 +14,7 @@ test-app/bin/*
 test-app/gen/*
 */bin/*
 commcare-odk-test/gen/*
-
+*.rej
 *.orig
 *.swp
 .hg*
