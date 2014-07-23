@@ -6,6 +6,7 @@ package org.commcare.android.view;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import org.odk.collect.android.views.media.AudioButton;
@@ -24,6 +25,9 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
+import org.commcare.suite.model.graph.PointData;
+import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -203,27 +207,21 @@ public class EntityDetailView extends FrameLayout {
 				current = IMAGE;
 			}
 		} else if (FORM_GRAPH.equals(form)) {
-			String[] seriesStrings = textField.split("===");
+			GraphData graphData = (GraphData) field;
 			XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
 			renderer.setInScroll(true);
-			for (String seriesString : seriesStrings) {
-				System.out.println("[jls] data = " + seriesString);
-				String[] points = seriesString.split("&");
+			Iterator<SeriesData> seriesIterator = graphData.getSeriesIterator();
+			while (seriesIterator.hasNext()) {
 				XYSeries series = new XYSeries("Sample Data");
 				dataset.addSeries(series);
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
 				currentRenderer.setPointStyle(PointStyle.CIRCLE);
 				renderer.addSeriesRenderer(currentRenderer);
-				for (String point : points) {
-					String[] floats = point.split(",");
-					if (
-						floats.length == 2
-						&& !floats[0].equals("")
-						&& !floats[1].equals("")
-					) {
-						series.add(Double.valueOf(floats[0]), Double.valueOf(floats[1]));
-					}
+				Iterator<PointData> pointsIterator = seriesIterator.next().getPointsIterator();
+				while (pointsIterator.hasNext()) {
+					PointData p = pointsIterator.next();
+					series.add(p.getX(), p.getY());
 				}
 			}
 			setGraphLookAndFeel(renderer);
