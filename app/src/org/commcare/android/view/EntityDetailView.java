@@ -6,7 +6,10 @@ package org.commcare.android.view;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.odk.collect.android.views.media.AudioButton;
@@ -16,6 +19,7 @@ import org.achartengine.GraphicalView;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
+import org.achartengine.model.XYValueSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -212,20 +216,39 @@ public class EntityDetailView extends FrameLayout {
 			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
 			renderer.setInScroll(true);
 			Iterator<SeriesData> seriesIterator = graphData.getSeriesIterator();
+			boolean isBubble = false;
 			while (seriesIterator.hasNext()) {
-				XYSeries series = new XYSeries("Sample Data");
+				SeriesData s = seriesIterator.next();
+				isBubble = isBubble || s.hasRadius();
+				XYSeries series = isBubble ? new XYValueSeries("Sample Data") : new XYSeries("Sample Data");
 				dataset.addSeries(series);
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
 				currentRenderer.setPointStyle(PointStyle.CIRCLE);
 				renderer.addSeriesRenderer(currentRenderer);
-				Iterator<PointData> pointsIterator = seriesIterator.next().getPointsIterator();
+				
+				// achartengine won't render a bubble chart with its points out of order
+				Vector<PointData> sortedPoints = new Vector<PointData>(s.size());
+				Iterator<PointData> pointsIterator = s.getPointsIterator();
 				while (pointsIterator.hasNext()) {
-					PointData p = pointsIterator.next();
-					series.add(p.getX(), p.getY());
+					sortedPoints.add(pointsIterator.next());
+				}
+				Collections.sort(sortedPoints, new PointComparator());
+				
+				for (PointData p : sortedPoints) {
+					if (isBubble) {
+						((XYValueSeries) series).add(p.getX(), p.getY(), p.getRadius());
+					}
+					else {
+						series.add(p.getX(), p.getY());
+					}
 				}
 			}
 			setGraphLookAndFeel(renderer);
-            GraphicalView graph = ChartFactory.getLineChartView(getContext(), dataset, renderer);
+            GraphicalView graph = isBubble
+            	? ChartFactory.getBubbleChartView(getContext(), dataset, renderer)
+            	: ChartFactory.getLineChartView(getContext(), dataset, renderer)
+            ;
+			
             graph.refreshDrawableState();
             graph.repaint();
             graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
@@ -336,5 +359,23 @@ public class EntityDetailView extends FrameLayout {
 		renderer.setApplyBackgroundColor(true);
 		renderer.setShowLegend(false);
 		renderer.setShowGrid(true);
+	}
+	
+	/**
+	 * Comparator to sort PointData objects by x value.
+	 * @author jschweers
+	 *
+	 */
+	private class PointComparator implements Comparator<PointData> {
+		@Override
+		public int compare(PointData lhs, PointData rhs) {
+			if (lhs.getX() > rhs.getX()) {
+				return 1;
+			}
+			if (lhs.getX() < rhs.getX()) {
+				return -1;
+			}
+			return 0;
+		}
 	}
 }
