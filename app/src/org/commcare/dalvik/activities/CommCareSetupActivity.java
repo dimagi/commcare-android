@@ -161,7 +161,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
 		this.fromManager = this.getIntent().getBooleanExtra
-				(MultipleAppsManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+				(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
     	//Retrieve instance state
 		if(savedInstanceState == null) {

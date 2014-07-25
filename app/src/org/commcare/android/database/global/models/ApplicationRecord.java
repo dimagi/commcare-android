@@ -95,4 +95,8 @@ public class ApplicationRecord extends Persisted {
 	public void setResourcesValidated() {
 		this.resourcesValidated = true;
 	}
+	
+	public boolean resourcesValidated() {
+		return this.resourcesValidated;
+	}
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+    
+    <TextView 
+        android:id="@+id/app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+    
+    <LinearLayout
+        android:id="@+id/buttons_panel"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
+        
+        <Button
+            android:id="@+id/uninstall_button"
+            android:text="@string/uninstall_app"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="uninstallSelectedApp" />
+        
+        <Button
+            android:id="@+id/archive_button"
+            android:text="@string/archive_app"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:onClick="archiveSelectedApp" />
+        
+   </LinearLayout>
+    
+    <ImageView 
+        android:id="@+id/resources_flag"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@android:drawable/stat_notify_error"
+        android:contentDescription="@string/resources_warning"
+        android:visibility="invisible" />
+
+</LinearLayout>
