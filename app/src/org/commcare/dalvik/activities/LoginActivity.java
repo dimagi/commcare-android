@@ -461,7 +461,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         	appUniqueIds.add(uniqueId);
         	idsToRecords.put(uniqueId, r);
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.spinner_text_view, appUniqueIds);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
         spinner.setAdapter(adapter);

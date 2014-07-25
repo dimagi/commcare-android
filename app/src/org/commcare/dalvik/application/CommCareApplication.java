@@ -363,6 +363,15 @@ public class CommCareApplication extends Application {
 	public SqlStorage<ApplicationRecord> getInstalledAppRecords() {
 		return getGlobalStorage(ApplicationRecord.class);
 	} 
+	
+	public ApplicationRecord getRecordById(String uniqueId) {
+		for (ApplicationRecord r : getInstalledAppRecords()) {
+			if (r.getUniqueId().equals(uniqueId)) {
+				return r;
+			}
+		}
+		return null;
+	}
 
 	public int initializeAppResources(CommCareApp app) {
 		System.out.println("initializeAppResources called");

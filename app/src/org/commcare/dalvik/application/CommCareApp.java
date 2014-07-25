@@ -203,6 +203,7 @@ public class CommCareApp {
 		SharedPreferences.Editor editor = getAppPreferences().edit();
 		editor.putBoolean("isValidated", isValidated);
 		editor.commit();
+		record.setResourcesValidated();
 	}
 	
 	public void teardownSandbox() {	
@@ -252,6 +253,7 @@ public class CommCareApp {
 	public void writeInstalled() {
 		record.setStatus(ApplicationRecord.STATUS_INSTALLED);
 		record.setUniqueId(getUniqueId());
+		record.setDisplayName(getDisplayName());
 		try {
 			CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
 		} catch (StorageFullException e) {
@@ -273,5 +275,21 @@ public class CommCareApp {
 		} else { //otherwise, this is the first time we are getting it, so pull from the profile
 			return getCommCarePlatform().getCurrentProfile().getUniqueId();
 		}
+	}
+	
+	/*
+	 * Return the app name assigned to this app from HQ
+	 */
+	public String getDisplayName() {
+		//if this record has already been assigned a name, pull it from there
+		if (record.getDisplayName() != null) {
+			return record.getDisplayName();
+		} else { //otherwise, this is the first time we are getting it, so pull from the profile
+			return getCommCarePlatform().getCurrentProfile().getDisplayName();
+		}
+	}
+	
+	public ApplicationRecord getAppRecord() {
+		return this.record;
 	}
 }

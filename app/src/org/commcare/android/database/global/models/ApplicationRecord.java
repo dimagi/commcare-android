@@ -34,6 +34,13 @@ public class ApplicationRecord extends Persisted {
 	int status;
 	@Persisting(3)
 	String uniqueId;
+	@Persisting(4)
+	String displayName;
+	@Persisting(5)
+	boolean isArchived;
+	@Persisting(6)
+	boolean resourcesValidated;
+	
 	
 	/*
 	 * Deserialization only
@@ -55,6 +62,14 @@ public class ApplicationRecord extends Persisted {
 		this.uniqueId = id;
 	}
 	
+	public void setDisplayName(String appName) {
+		this.displayName = appName;
+	}
+	
+	public String getDisplayName() {
+		return this.displayName;
+	}
+	
 	public String getUniqueId() {
 		return uniqueId;
 	}
@@ -65,5 +80,19 @@ public class ApplicationRecord extends Persisted {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	
+	public void setArchiveStatus(boolean b) {
+		this.isArchived = b;
+	}
+	
+	@Override
+	public String toString() {
+		//TODO: change this to return displayName when it is available
+		return this.uniqueId;
+	}
+	
+	public void setResourcesValidated() {
+		this.resourcesValidated = true;
 	}
 }
