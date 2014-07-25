@@ -12,6 +12,7 @@ import java.util.Vector;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -34,6 +35,7 @@ public class StorageUtils {
     	if(ids.size() == 0) {
     		return new FormRecord[0];
     	}
+
     	
 		//We need to give these ids a valid order so the server can process them correctly.
 		//NOTE: This is slower than it need be. We could batch query this with SQL.
@@ -72,6 +74,30 @@ public class StorageUtils {
 		for(int i = 0 ; i < ids.size() ; ++i) {
 			records[i] = storage.read(ids.elementAt(i).intValue());
 		}
-		return records;
+		return filterByCurrentApp(records);
+	}
+	
+	public static FormRecord[] filterByCurrentApp(FormRecord[] forms) {
+		int numValid = 0;
+		//Null out any forms that are from a different app than the current one
+		String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
+		for (int i = 0; i < forms.length; i++) {
+			if (forms[i].getAppId().equals(currAppId)) {
+				numValid++;
+			}
+			else {
+				forms[i] = null;
+			}
+		}
+		//Copy over remaining forms to new array and return
+		FormRecord[] filtered = new FormRecord[numValid];
+		int filteredIndex = 0;
+		for (int i = 0; i < forms.length; i++) {
+			if (forms[i] != null) {
+				filtered[filteredIndex] = forms[i];
+				filteredIndex++;
+			}
+		}
+		return filtered;
 	}
 }

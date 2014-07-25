@@ -1063,7 +1063,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void dispatchHomeScreen() {
-    	System.out.println("dispatchHomeScreen called");
     	try {
 	        
 	        //First make sure nothing catastrophic has happened
@@ -1150,7 +1149,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void returnToLogin() {
-    	System.out.println("returnToLogin called");
     	returnToLogin(Localization.get("app.workflow.login.lost"));
     }
     

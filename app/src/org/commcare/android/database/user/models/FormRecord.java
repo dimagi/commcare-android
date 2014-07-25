@@ -72,6 +72,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
 	@Persisting(6)
 	@MetaField(META_LAST_MODIFIED)
 	private Date lastModified;
+	@Persisting(7)
+	private String idOfOriginApp;
 	
 	//Placeholder
 	private Hashtable<String, String> metadata = null;
@@ -98,6 +100,12 @@ public class FormRecord extends Persisted implements EncryptedModel {
 		if(lastModified == null) { lastModified = new Date(); } ;
 	}
 	
+	public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, 
+			String uuid, Date lastModified, String appId) {
+		this(instanceURI, status, xmlns, aesKey, uuid, lastModified);
+		this.idOfOriginApp = appId;
+	}
+	
 	public FormRecord updateStatus(String instanceURI, String newStatus) {
 		FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified);
 		fr.recordId = this.recordId;
@@ -107,6 +115,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
 	public Uri getInstanceURI() {
 		if("".equals(instanceURI)) { return null; }
 		return Uri.parse(instanceURI);
+	}
+	
+	public String getAppId() {
+		return idOfOriginApp;
 	}
 	
 	public byte[] getAesKey() {
