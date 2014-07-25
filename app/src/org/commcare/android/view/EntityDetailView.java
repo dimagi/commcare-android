@@ -21,6 +21,7 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.model.XYValueSeries;
+import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -245,6 +246,8 @@ public class EntityDetailView extends FrameLayout {
 				}
 			}
 			configureGraph(graphData, renderer);
+			renderer.setChartTitle(labelText);
+			
             GraphicalView graph = isBubble
             	? ChartFactory.getBubbleChartView(getContext(), dataset, renderer)
             	: ChartFactory.getLineChartView(getContext(), dataset, renderer)
@@ -349,6 +352,7 @@ public class EntityDetailView extends FrameLayout {
 		// Default options
 		renderer.setBackgroundColor(context.getResources().getColor(R.drawable.white));
 		renderer.setMarginsColor(context.getResources().getColor(R.drawable.white));
+		renderer.setLabelsColor(getContext().getResources().getColor(R.drawable.black));
 		renderer.setXLabelsColor(context.getResources().getColor(R.drawable.black));
 		renderer.setYLabelsColor(0, context.getResources().getColor(R.drawable.black));
 		renderer.setYLabelsAlign(Paint.Align.RIGHT);
