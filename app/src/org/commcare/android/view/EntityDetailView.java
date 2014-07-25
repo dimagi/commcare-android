@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -243,7 +244,7 @@ public class EntityDetailView extends FrameLayout {
 					}
 				}
 			}
-			setGraphLookAndFeel(renderer);
+			configureGraph(graphData, renderer);
             GraphicalView graph = isBubble
             	? ChartFactory.getBubbleChartView(getContext(), dataset, renderer)
             	: ChartFactory.getLineChartView(getContext(), dataset, renderer)
@@ -342,8 +343,10 @@ public class EntityDetailView extends FrameLayout {
 		}
 	}
 	
-	private void setGraphLookAndFeel(XYMultipleSeriesRenderer renderer) {
+	private void configureGraph(GraphData data, XYMultipleSeriesRenderer renderer) {
 		Context context = getContext();
+		
+		// Default options
 		renderer.setBackgroundColor(context.getResources().getColor(R.drawable.white));
 		renderer.setMarginsColor(context.getResources().getColor(R.drawable.white));
 		renderer.setXLabelsColor(context.getResources().getColor(R.drawable.black));
@@ -351,14 +354,26 @@ public class EntityDetailView extends FrameLayout {
 		renderer.setYLabelsAlign(Paint.Align.RIGHT);
 		renderer.setYLabelsPadding(10);
 		renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
-		renderer.setXAxisMin(0, 0);
-		renderer.setYAxisMin(0, 0);
 		renderer.setMargins(new int[]{20, 40, 20, 20});
 		renderer.setLabelsTextSize(21);
 		renderer.setShowLabels(true);
 		renderer.setApplyBackgroundColor(true);
 		renderer.setShowLegend(false);
 		renderer.setShowGrid(true);
+
+		// User-configurable options
+		if (data.getConfiguration("x-axis-min") != null) {
+			renderer.setXAxisMin(Double.valueOf(data.getConfiguration("x-axis-min")));
+		}
+		if (data.getConfiguration("x-axis-max") != null) {
+			renderer.setXAxisMax(Double.valueOf(data.getConfiguration("x-axis-max")));
+		}
+		if (data.getConfiguration("y-axis-min") != null) {
+			renderer.setYAxisMin(Double.valueOf(data.getConfiguration("y-axis-min")));
+		}
+		if (data.getConfiguration("y-axis-max") != null) {
+			renderer.setYAxisMax(Double.valueOf(data.getConfiguration("y-axis-max")));
+		}
 	}
 	
 	/**
