@@ -31,6 +31,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.GraphTemplate;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.PointData;
 import org.commcare.suite.model.graph.SeriesData;
@@ -218,11 +219,12 @@ public class EntityDetailView extends FrameLayout {
 			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
 			renderer.setInScroll(true);
 			Iterator<SeriesData> seriesIterator = graphData.getSeriesIterator();
-			boolean isBubble = false;
+			boolean isBubble = graphData.getType().equals(GraphTemplate.TYPE_BUBBLE);
+System.out.println("[jls] type = " + graphData.getType());
+System.out.println("[jls] isBubble = " + isBubble);
 			while (seriesIterator.hasNext()) {
 				SeriesData s = seriesIterator.next();
-				isBubble = isBubble || s.hasRadius();
-				XYSeries series = isBubble ? new XYValueSeries("Sample Data") : new XYSeries("Sample Data");
+				XYSeries series = isBubble ? new XYValueSeries("") : new XYSeries("");
 				dataset.addSeries(series);
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
 				currentRenderer.setPointStyle(PointStyle.CIRCLE);
