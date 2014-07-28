@@ -43,6 +43,7 @@ import org.odk.collect.android.views.media.AudioController;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -220,15 +221,42 @@ public class EntityDetailView extends FrameLayout {
 			renderer.setInScroll(true);
 			Iterator<SeriesData> seriesIterator = graphData.getSeriesIterator();
 			boolean isBubble = graphData.getType().equals(GraphTemplate.TYPE_BUBBLE);
-System.out.println("[jls] type = " + graphData.getType());
-System.out.println("[jls] isBubble = " + isBubble);
 			while (seriesIterator.hasNext()) {
 				SeriesData s = seriesIterator.next();
 				XYSeries series = isBubble ? new XYValueSeries("") : new XYSeries("");
 				dataset.addSeries(series);
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-				currentRenderer.setPointStyle(PointStyle.CIRCLE);
 				renderer.addSeriesRenderer(currentRenderer);
+				
+				String showPoints = s.getConfiguration("show-points"); 
+				if (showPoints == null || !(new Boolean(showPoints)).equals(Boolean.FALSE)) {
+					currentRenderer.setPointStyle(PointStyle.CIRCLE);
+					currentRenderer.setFillPoints(true);
+				}
+				
+				String lineColor = s.getConfiguration("line-color");
+				if (lineColor != null) {
+					currentRenderer.setColor(Color.parseColor(lineColor));
+				}
+				else {
+					currentRenderer.setColor(getContext().getResources().getColor(R.drawable.black));
+				}
+				
+				String[] fillProperties = new String[]{"fill-above", "fill-below"};
+				//x
+				XYSeriesRenderer.FillOutsideLine.Type[] fillTypes = new XYSeriesRenderer.FillOutsideLine.Type[]{
+					XYSeriesRenderer.FillOutsideLine.Type.ABOVE, 
+					XYSeriesRenderer.FillOutsideLine.Type.BELOW
+				};
+				for (int i = 0; i < fillProperties.length; i++) {
+					String fillProperty = s.getConfiguration(fillProperties[i]);
+					if (fillProperty != null) {
+						XYSeriesRenderer.FillOutsideLine fill = new XYSeriesRenderer.FillOutsideLine(fillTypes[i]);
+						fill.setColor(Color.parseColor(fillProperty));
+						currentRenderer.addFillOutsideLine(fill);
+					}					
+				}
+				
 				
 				// achartengine won't render a bubble chart with its points out of order
 				Vector<PointData> sortedPoints = new Vector<PointData>(s.size());
@@ -258,6 +286,8 @@ System.out.println("[jls] isBubble = " + isBubble);
             graph.refreshDrawableState();
             graph.repaint();
             graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+            
+            // TODO: This is likely what breaks non-graph items when you scroll them offscreen and then back on
 			if (current != GRAPH) {
 				label.setVisibility(View.GONE);
 				LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
