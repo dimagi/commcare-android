@@ -87,14 +87,9 @@ public class AdvancedEntityView extends GridLayout {
 		
 		int densityDpi = metrics.densityDpi;
 		
-		System.out.println("717 densityDpi: " + densityDpi);
-		System.out.println("717 density: " + DENSITY);
-		
 		if(densityDpi == DisplayMetrics.DENSITY_XHIGH){
-			System.out.println("717 screen density xhigh");
 			densityRowMultiplier = 2.0;
 		} else if(densityDpi == DisplayMetrics.DENSITY_HIGH){
-			System.out.println("717 screen density high");
 			densityRowMultiplier = 1.5;
 		} else if(densityDpi == DisplayMetrics.DENSITY_MEDIUM){
 
@@ -107,15 +102,10 @@ public class AdvancedEntityView extends GridLayout {
 		screenWidth = size.x-1;
 		screenHeight = size.y-1;
 		
-		System.out.println("717 screenWidth is: " + screenWidth);
-		System.out.println("717 screenHeight is: " + screenHeight);
-		
 		// If screen is rotated, use width for cell height measurement
 		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-			System.out.println("717 screen rotated");
 			
 			if(((EntitySelectActivity)context).inAwesomeMode()){
-				System.out.println("717 in awesome mode");
 				screenWidth = screenWidth/2;
 			}
 			
@@ -123,21 +113,13 @@ public class AdvancedEntityView extends GridLayout {
 			rowWidth = screenWidth;
 			
 		} else{
-			System.out.println("717 screen not rotated");
 			rowHeight = screenHeight/(CELL_HEIGHT_DIVISOR_TALL*densityRowMultiplier);
 			rowWidth = screenWidth;
 		}
 		
-		System.out.println("717 rowWidth is: " + rowWidth);
-		System.out.println("717 rowHeight is: " + rowHeight);
-		
-		
 		mImageLoader = mLoader;
 		cellWidth = rowWidth/NUMBER_COLUMNS;
 		cellHeight = rowHeight / NUMBER_ROWS;
-		
-		System.out.println("717 cell width: " + cellWidth);
-		System.out.println("717 cell height: " + cellHeight);
 		
 		// now ready to setup all these views
 		setViews(context, detail, entity);
@@ -191,8 +173,6 @@ public class AdvancedEntityView extends GridLayout {
 	 * @param entity - the Entity describing the actual data of each entry
 	 */
 	public void setViews(Context context, Detail detail, Entity entity){
-		
-		System.out.println("627 setview called");
 		
 		// clear all previous entries in this grid
 		this.removeAllViews();
