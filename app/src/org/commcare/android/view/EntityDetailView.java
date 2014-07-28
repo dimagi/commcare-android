@@ -45,6 +45,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.view.Display;
@@ -224,12 +225,16 @@ public class EntityDetailView extends FrameLayout {
 			while (seriesIterator.hasNext()) {
 				SeriesData s = seriesIterator.next();
 				XYSeries series = isBubble ? new XYValueSeries("") : new XYSeries("");
+				/*if (dataset.getSeriesCount() == 0) {
+					series.addAnnotation("Alert", 3.0,  7.0);
+					series.addAnnotation("Action", 7.0, 7.0);
+				}*/
 				dataset.addSeries(series);
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
 				renderer.addSeriesRenderer(currentRenderer);
 				
 				String showPoints = s.getConfiguration("show-points"); 
-				if (showPoints == null || !(new Boolean(showPoints)).equals(Boolean.FALSE)) {
+				if (showPoints == null || !Boolean.valueOf(showPoints).equals(Boolean.FALSE)) {
 					currentRenderer.setPointStyle(PointStyle.CIRCLE);
 					currentRenderer.setFillPoints(true);
 				}
@@ -243,7 +248,6 @@ public class EntityDetailView extends FrameLayout {
 				}
 				
 				String[] fillProperties = new String[]{"fill-above", "fill-below"};
-				//x
 				XYSeriesRenderer.FillOutsideLine.Type[] fillTypes = new XYSeriesRenderer.FillOutsideLine.Type[]{
 					XYSeriesRenderer.FillOutsideLine.Type.ABOVE, 
 					XYSeriesRenderer.FillOutsideLine.Type.BELOW
@@ -275,8 +279,26 @@ public class EntityDetailView extends FrameLayout {
 					}
 				}
 			}
+			
+			// Annotations
+			Iterator<PointData> i = graphData.getAnnotationIterator();
+			if (i.hasNext()) {
+				XYSeries series = new XYSeries("");
+				while (i.hasNext()) {
+					PointData p = i.next();
+					series.addAnnotation(p.getAnnotation(), p.getX(), p.getY());
+				}
+				series.add(0.0, 0.0);
+				dataset.addSeries(series);
+				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
+				currentRenderer.setAnnotationsTextSize(21);
+				currentRenderer.setAnnotationsColor(getContext().getResources().getColor(R.drawable.black));
+				renderer.addSeriesRenderer(currentRenderer);
+			}
+
 			configureGraph(graphData, renderer);
 			renderer.setChartTitle(labelText);
+			renderer.setChartTitleTextSize(21);		// TODO: constant for text size
 			
             GraphicalView graph = isBubble
             	? ChartFactory.getBubbleChartView(getContext(), dataset, renderer)
@@ -287,7 +309,7 @@ public class EntityDetailView extends FrameLayout {
             graph.repaint();
             graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
             
-            // TODO: This is likely what breaks non-graph items when you scroll them offscreen and then back on
+            // TODO: This is likely what breaks non-graph items when you scroll them off-screen and then back on
 			if (current != GRAPH) {
 				label.setVisibility(View.GONE);
 				LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
