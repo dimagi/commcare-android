@@ -107,7 +107,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
 	}
 	
 	public FormRecord updateStatus(String instanceURI, String newStatus) {
-		FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified);
+		FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified, idOfOriginApp);
 		fr.recordId = this.recordId;
 		return fr;
 	}
