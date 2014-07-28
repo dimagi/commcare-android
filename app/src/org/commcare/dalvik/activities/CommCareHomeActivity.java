@@ -1021,6 +1021,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 				} else if(result == FormUploadUtil.FAILURE) {
 					//Failures make their own notification box
 				} else {
+					System.out.println("deliverResult called");
 					receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
 				} 
 
@@ -1033,6 +1034,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
 			@Override
 			protected void deliverError(CommCareHomeActivity receiver,Exception e) {	
+				System.out.println("deliverError called");
 				//TODO: Display somewhere useful
 				receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
 			}

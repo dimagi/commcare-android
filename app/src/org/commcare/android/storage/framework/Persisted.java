@@ -137,6 +137,9 @@ public class Persisted implements Persistable, IMetaData {
 					f.set(o, ExtUtil.readBytes(in));
 					return;
 				}
+			} else if (type.equals(Boolean.TYPE)) {
+				f.setBoolean(o, ExtUtil.readBool(in));
+				return;
 			}
 		} finally {
 			f.setAccessible(false);
@@ -168,6 +171,9 @@ public class Persisted implements Persistable, IMetaData {
 					ExtUtil.writeBytes(out,(byte[])f.get(o));
 					return;
 				}
+			} else if (type.equals(Boolean.TYPE)) {
+				ExtUtil.writeBool(out, f.getBoolean(o));
+				return;
 			}
 		} finally {
 			f.setAccessible(false);

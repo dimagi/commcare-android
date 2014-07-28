@@ -20,7 +20,6 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
 	public AppManagerAdapter(Context context, int resource, List<ApplicationRecord> objects) {
 		super(context, resource, objects);
 		this.context = (AppManagerActivity) context;
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -41,7 +40,6 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
 			flag.setVisibility(View.VISIBLE);
 		}
 		return v;
-		
 	}
 
 }

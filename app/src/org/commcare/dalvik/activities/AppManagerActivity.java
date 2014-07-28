@@ -27,6 +27,13 @@ public class AppManagerActivity extends Activity {
 				android.R.layout.simple_list_item_1, appRecordArray()));
 	}
 	
+	public void onResume() {
+		super.onResume();
+		ListView lv = (ListView) findViewById(R.id.apps_list_view);
+		lv.setAdapter(new ArrayAdapter<ApplicationRecord>(this, 
+				android.R.layout.simple_list_item_1, appRecordArray()));
+	}
+	
 	private ApplicationRecord[] appRecordArray() {
 		SqlStorage<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
 		ApplicationRecord[] appArray = new ApplicationRecord[appList.getNumRecords()];

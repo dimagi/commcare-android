@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:dividerHeight="1sp" />
+        android:dividerHeight="5sp" />
      
     <Button
          android:id="@+id/install_app_button"
