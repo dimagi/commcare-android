@@ -9,7 +9,7 @@ import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 
 /**
- * An Application Record tracks an indvidiual CommCare app on the current
+ * An Application Record tracks an individual CommCare app on the current
  * install.
  * 
  * @author ctsims
@@ -40,7 +40,7 @@ public class ApplicationRecord extends Persisted {
 	boolean isArchived;
 	@Persisting(6)
 	boolean resourcesValidated;
-	
+
 	
 	/*
 	 * Deserialization only
@@ -83,7 +83,7 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public void setArchiveStatus(boolean b) {
-		this.isArchived = b;
+		//this.isArchived = b;
 	}
 	
 	@Override
@@ -99,4 +99,5 @@ public class ApplicationRecord extends Persisted {
 	public boolean resourcesValidated() {
 		return this.resourcesValidated;
 	}
+	
 }

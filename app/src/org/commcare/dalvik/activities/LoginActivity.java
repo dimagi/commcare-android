@@ -38,6 +38,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -65,6 +66,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 	
 
 	public static String ALREADY_LOGGED_IN = "la_loggedin";
+	public static String KEY_LAST_POSITION = "last_position_selected";
 	
 	@UiElement(value=R.id.login_button, locale="login.button")
 	Button login;
@@ -231,26 +233,26 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
      */
     @Override
     protected void onResume() {
-        super.onResume();
-        
-        try {
-        	//TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
-        if(CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
-    		Intent i = new Intent();
-    		i.putExtra(ALREADY_LOGGED_IN, true);
-            setResult(RESULT_OK, i);
-            
-            CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-    		finish();
-    		return;
-        }
-        }catch(SessionUnavailableException sue) {
-        	populateAvailableAppsSpinner();
-        }
-        
-        refreshView();
+    	super.onResume();
+
+    	try {
+    		//TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
+    		if(CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
+    			Intent i = new Intent();
+    			i.putExtra(ALREADY_LOGGED_IN, true);
+    			setResult(RESULT_OK, i);
+
+    			CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
+    			finish();
+    			return;
+    		}
+    	} catch(SessionUnavailableException sue) {
+    		populateAvailableAppsSpinner();
+    	}
+
+    	refreshView();
     }
-    
+
     private void refreshView() {
     }
     
@@ -466,11 +468,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     	Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		spinner.setSelection(prefs.getInt(KEY_LAST_POSITION, 0));
     }
 
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.edit().putInt(KEY_LAST_POSITION, position).commit();
+		
 		String selected = (String) parent.getItemAtPosition(position);
 		ApplicationRecord r = idsToRecords.get(selected);
 		CommCareApplication._().initializeAppResources(new CommCareApp(r));

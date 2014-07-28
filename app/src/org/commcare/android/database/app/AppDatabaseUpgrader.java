@@ -14,6 +14,7 @@ import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.app.models.ResourceModelUpdater;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -66,7 +67,7 @@ public class AppDatabaseUpgrader {
 		}
 	}
 
-	private  boolean upgradeTwoThree(SQLiteDatabase db) {
+	private boolean upgradeTwoThree(SQLiteDatabase db) {
 		
 		DbHelper helper = new ConcreteDbHelper(c,db);
 		
@@ -76,6 +77,18 @@ public class AppDatabaseUpgrader {
 			updateModels(new SqlStorage<Resource>("GLOBAL_RESOURCE_TABLE", ResourceModelUpdater.class,helper));
 			updateModels(new SqlStorage<Resource>("UPGRADE_RESOURCE_TABLE", ResourceModelUpdater.class,helper));
 			updateModels(new SqlStorage<Resource>("RECOVERY_RESOURCE_TABLE", ResourceModelUpdater.class,helper));
+			db.setTransactionSuccessful();
+			return true;
+		} finally {
+			db.endTransaction();
+		}
+	}
+	
+	private boolean upgradeThreeFour(SQLiteDatabase db) {
+		DbHelper helper = new ConcreteDbHelper(c,db);
+		db.beginTransaction();
+		try {
+			//update stuff here
 			db.setTransactionSuccessful();
 			return true;
 		} finally {
