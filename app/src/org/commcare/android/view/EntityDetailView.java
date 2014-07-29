@@ -225,10 +225,6 @@ public class EntityDetailView extends FrameLayout {
 			while (seriesIterator.hasNext()) {
 				SeriesData s = seriesIterator.next();
 				XYSeries series = isBubble ? new XYValueSeries("") : new XYSeries("");
-				/*if (dataset.getSeriesCount() == 0) {
-					series.addAnnotation("Alert", 3.0,  7.0);
-					series.addAnnotation("Action", 7.0, 7.0);
-				}*/
 				dataset.addSeries(series);
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
 				renderer.addSeriesRenderer(currentRenderer);
@@ -414,20 +410,29 @@ public class EntityDetailView extends FrameLayout {
 		renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
 		renderer.setMargins(new int[]{20, 40, 20, 20});
 		renderer.setLabelsTextSize(21);
+		renderer.setAxisTitleTextSize(21);
 		renderer.setShowLabels(true);
 		renderer.setApplyBackgroundColor(true);
 		renderer.setShowLegend(false);
 		renderer.setShowGrid(true);
 
 		// User-configurable options
+		if (data.getConfiguration("x-axis-title") != null) {
+			renderer.setXTitle(data.getConfiguration("x-axis-title"));
+		}
+		if (data.getConfiguration("y-axis-title") != null) {
+			renderer.setYTitle(data.getConfiguration("y-axis-title"));
+		}
+
 		if (data.getConfiguration("x-axis-min") != null) {
 			renderer.setXAxisMin(Double.valueOf(data.getConfiguration("x-axis-min")));
 		}
-		if (data.getConfiguration("x-axis-max") != null) {
-			renderer.setXAxisMax(Double.valueOf(data.getConfiguration("x-axis-max")));
-		}
 		if (data.getConfiguration("y-axis-min") != null) {
 			renderer.setYAxisMin(Double.valueOf(data.getConfiguration("y-axis-min")));
+		}
+		
+		if (data.getConfiguration("x-axis-max") != null) {
+			renderer.setXAxisMax(Double.valueOf(data.getConfiguration("x-axis-max")));
 		}
 		if (data.getConfiguration("y-axis-max") != null) {
 			renderer.setYAxisMax(Double.valueOf(data.getConfiguration("y-axis-max")));
