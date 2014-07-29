@@ -613,8 +613,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		
     	ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
     	
-    	System.out.println("717 in aweomse select : " + inAwesomeMode);
-    	
 		adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this);
 		
 		view.setAdapter(adapter);
