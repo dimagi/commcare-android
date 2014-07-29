@@ -83,7 +83,7 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public void setArchiveStatus(boolean b) {
-		//this.isArchived = b;
+		this.isArchived = b;
 	}
 	
 	@Override
