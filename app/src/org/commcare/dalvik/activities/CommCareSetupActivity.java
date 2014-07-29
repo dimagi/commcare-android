@@ -15,10 +15,10 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -28,14 +28,11 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.InputType;
@@ -92,11 +89,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public static final int MODE_ADVANCED = Menu.FIRST + 1;
 	public static final int MODE_ARCHIVE = Menu.FIRST + 2;
 	
-	public static final int DIALOG_INSTALL_PROGRESS = 0;
-	
 	public static final int BARCODE_CAPTURE = 1;
 	public static final int MISSING_MEDIA_ACTIVITY=2;
 	public static final int ARCHIVE_INSTALL = 3;
+	public static final int DIALOG_INSTALL_PROGRESS = 4; 
+
 	
 	public static final int RETRY_LIMIT = 20;
 	
@@ -142,6 +139,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	 
 	boolean partialMode = false;
 	
+	BroadcastReceiver mBroadcastReceiver;
+	
 	CommCareApp ccApp;
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
@@ -152,8 +151,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	 */
 	boolean resourceTableWasFresh;
 	static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
-	
-
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -200,10 +197,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	        incomingRef = savedInstanceState.getString("profileref");
 	        inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
 	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
-	        
 	        //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
 	        startAllowed = savedInstanceState.getBoolean("startAllowed");
-		}
+	    }
 		
 		// if we are in upgrade mode we want the UiState to reflect that, unless we are showing an error
 		if(inUpgradeMode && this.uiState != UiState.error){
@@ -283,17 +279,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 					refreshView();
 				}
 			}
-			
+
 		});
 
 		// Hide "See More" button when notification is cleared
 		// (by any method: button press, viewing from drawer, or clearing from drawer)
-		registerReceiver(new BroadcastReceiver() {
+		this.mBroadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				viewNotificationButton.setVisibility(View.GONE);
 			}
-		}, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
+		};
+		registerReceiver(mBroadcastReceiver, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
 
 		// "See More" launches standard notification-viewing activity
 		viewNotificationButton.setOnClickListener(new OnClickListener() {
@@ -343,14 +340,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
              }
         });
-        
+
         // reclaim ccApp for resuming installation
         if(oldActivity != null) {
         	this.ccApp = oldActivity.ccApp;
         }
-        
         refreshView();
-        
         //prevent the keyboard from popping up on entry by refocusing on the main layout
         findViewById(R.id.mainLayout).requestFocus();
         
@@ -402,9 +397,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
 	}
 	
+	
     /*
      * (non-Javadoc)
-     * 
      * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
      */
     @Override
@@ -544,12 +539,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	 * reuses the last version of the upgrade table, or starts over
 	 */
 	private void startResourceInstall(boolean startOverUpgrade) {
-
 		if(startAllowed) {
 			String ref = getRef();
 			
 			CommCareApp app = getCommCareApp();
-			
+
 			ccApp = app;
 
 			/* store what the state of the resource table was before this install, 
@@ -561,36 +555,47 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			this.resourceTableWasFresh = tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY ||
 					 tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED;
 			
-			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, inUpgradeMode, partialMode, app, startOverUpgrade,DIALOG_INSTALL_PROGRESS) {
+			CustomProgressDialog lastDialog = getCurrentDialog();
+			/* used to tell the ResourceEngineTask whether or not it should sleep before 
+			 * it starts, set based on whether we are currently in keep trying mode */
+	    	boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
+	    	
+			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, 
+					inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
 				@Override
 				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
 					boolean startOverInstall;
-					
 					if(result == ResourceEngineOutcomes.StatusInstalled){
+						startOverInstall = false;
 						receiver.reportSuccess(true);
-						startOverInstall = false;
 					} else if(result == ResourceEngineOutcomes.StatusUpToDate){
+						startOverInstall = false;
 						receiver.reportSuccess(false);
+					} else if (result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
 						startOverInstall = false;
-					} else if(result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
-						receiver.failMissingResource(this.missingResourceException, result);
+						CustomProgressDialog lastDialog = receiver.getCurrentDialog();
+						boolean inKeepTryingMode = (lastDialog == null) ? false : lastDialog.isChecked();
+						if (inKeepTryingMode) {
+							receiver.startResourceInstall(false);
+						} else {
+							receiver.failMissingResource(this.missingResourceException, result);
+						}
+					} else if (result == ResourceEngineOutcomes.StatusBadReqs){
 						startOverInstall = false;
-					} else if(result == ResourceEngineOutcomes.StatusBadReqs){
 						receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
-						startOverInstall = false;
-					} else if(result == ResourceEngineOutcomes.StatusFailState){
+					} else if (result == ResourceEngineOutcomes.StatusFailState){
+						startOverInstall = true;
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+					} else if (result == ResourceEngineOutcomes.StatusNoLocalStorage) {
 						startOverInstall = true;
-					} else if(result == ResourceEngineOutcomes.StatusNoLocalStorage) {
 						receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
-						startOverInstall = true;
 					} else if(result == ResourceEngineOutcomes.StatusBadCertificate){
-						receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
 						startOverInstall = false;
+						receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
 					} else {
-						receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
 						startOverInstall = true;
+						receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
 					}
 					
 					/*
@@ -598,17 +603,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 					 * we want to start from the existing resource table or a new one,
 					 * based on the outcome of this install
 					 */
-					ccApp.getAppPreferences().edit().putBoolean(KEY_START_OVER, startOverInstall).commit();
+					receiver.ccApp.getAppPreferences().edit().putBoolean(KEY_START_OVER, startOverInstall).commit();
 
 					/* 
 					 * Check if we want to record this as a 'last install time', based on the 
 					 * state of the resource table before and after this install took place
 					 */
-					ResourceTable temporary = ccApp.getCommCarePlatform().getUpgradeResourceTable();
+					ResourceTable temporary = receiver.ccApp.getCommCarePlatform().getUpgradeResourceTable();
 					if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL && 
 							receiver.resourceTableWasFresh) {
-						ccApp.getAppPreferences().edit().putLong(KEY_LAST_INSTALL, System.currentTimeMillis()).commit();
+						receiver.ccApp.getAppPreferences().edit().putLong(KEY_LAST_INSTALL, System.currentTimeMillis()).commit();
 					}
+
 				}
 
 				@Override
@@ -624,11 +630,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			};
 			
 			task.connect(this);
-			
 			task.execute(ref);
 		} else {
 			Log.i("commcare-install", "Blocked a resource install press since a task was already running");
 		}
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(this.mBroadcastReceiver);
 	}
 
     @Override
@@ -753,61 +764,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         refreshView();
         return true;
     }
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateDialog(int)
-	 */
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		if(id == DIALOG_INSTALL_PROGRESS) {
-			ProgressDialog mProgressDialog = new ProgressDialog(this) {
-				/* (non-Javadoc)
-				 * @see android.app.Dialog#onWindowFocusChanged(boolean)
-				 */
-				@Override
-				public void onWindowFocusChanged(boolean hasFocus) {
-					super.onWindowFocusChanged(hasFocus);
-					//TODO: Should we generalize this in some way? Not sure if it's happening elsewhere.
-					if(hasFocus && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-						try {
-							getWindow().getDecorView().invalidate();
-							getWindow().getDecorView().requestLayout();
-						} catch(Exception e){
-							e.printStackTrace();
-							Log.i("CommCare", "Error came up while forcing re-layout for dialog box");
-						}
-					}
-				}
-			};
-            if(uiState == UiState.upgrade) {
-            	mProgressDialog.setTitle(Localization.get("updates.title"));
-            	mProgressDialog.setMessage(Localization.get("updates.checking"));
-            	refreshView();
-            } else {
-            	mProgressDialog.setTitle(Localization.get("updates.resources.initialization"));
-            	mProgressDialog.setMessage(Localization.get("updates.resources.profile"));
-            	refreshView();	
-            }
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setCancelable(false);
-            return mProgressDialog;
-		}
-		return null;
-	}
-	
-
-	public void updateProgress(int done, int total, int phase) {
-        if(inUpgradeMode) {
-        	if(phase == ResourceEngineTask.PHASE_DOWNLOAD) {
-        		updateProgress(DIALOG_INSTALL_PROGRESS, Localization.get("updates.found", new String[] {""+done,""+total}));
-        	} if(phase == ResourceEngineTask.PHASE_COMMIT) {
-        		updateProgress(DIALOG_INSTALL_PROGRESS,Localization.get("updates.downloaded"));
-        	}
-        }
-		else {
-			updateProgress(DIALOG_INSTALL_PROGRESS, Localization.get("profile.found", new String[]{""+done,""+total}));
-		}
-	}
 	
 	public void done(boolean requireRefresh) {
 		//TODO: We might have gotten here due to being called from the outside, in which
@@ -896,9 +852,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	}
 		this.uiState = newUiState;
 	}
+	
+    @Override
+    public void onBackPressed(){
+        if(uiState == UiState.advanced || uiState == UiState.ready) {
+        	setUiState(UiState.basic);
+        	setModeToBasic();
+        } else {
+        	super.onBackPressed();
+        }
+    }
 
 	// All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
 	// Everything here should call one of: fail() or done() 
+	
+	/** All methods for implementation of ResourceEngineListener **/
 	
 	public void reportSuccess(boolean appChanged) {
 		//If things worked, go ahead and clear out any warnings to the contrary
@@ -931,21 +899,49 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	public void failUnknown(ResourceEngineOutcomes unknown) {
 		fail(NotificationMessageFactory.message(unknown));
 	}
+	
+	public void updateProgress(int done, int total, int phase) {
+        if(inUpgradeMode) {       
+        	if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
+        		updateProgress(Localization.get("updates.found", new String[] {""+done,""+total}), DIALOG_INSTALL_PROGRESS);
+        	} else if (phase == ResourceEngineTask.PHASE_COMMIT) {
+        		updateProgress(Localization.get("updates.downloaded"), DIALOG_INSTALL_PROGRESS);
+        	}
+        }
+		else {
+    		updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);
+		}
+	}
 
 	public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
 		fail(NotificationMessageFactory.message(statusfailstate), true);
 	}
     
-    @Override
-    public void onBackPressed(){
-        if(uiState == UiState.advanced) {
-        	setUiState(UiState.basic);
-        	setModeToBasic();
-        } else if(uiState == UiState.ready){
-        	setUiState(UiState.basic);
-        	setModeToBasic();
-        } else{
-        	super.onBackPressed();
-        }
-    }
+    
+    /** implementation of generateProgressDialog() for DialogController --
+     * all other methods handled entirely in CommCareActivity **/
+	
+	@Override
+	public CustomProgressDialog generateProgressDialog(int taskId) {
+		if (taskId != DIALOG_INSTALL_PROGRESS) {
+			System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+    				+ "any valid possibilities in CommCareSetupActivity");		
+    		return null;
+		}
+		String title, message;
+		if (uiState == UiState.upgrade) {
+			title = Localization.get("updates.title");
+			message = Localization.get("updates.checking");
+		} else {
+			title = Localization.get("updates.resources.initialization");
+			message = Localization.get("updates.resources.profile");
+		}
+		CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+		String checkboxText = "Persist attempting installation through poor network connection";
+		CustomProgressDialog lastDialog = getCurrentDialog();
+		boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
+		dialog.addCheckbox(checkboxText, isChecked);
+		return dialog;
+	}
+
 }

@@ -4,11 +4,6 @@
 package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -17,6 +12,8 @@ import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -28,15 +25,13 @@ import org.odk.collect.android.views.media.MediaEntity;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.MenuItem;
@@ -51,10 +46,12 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, AudioController {
+public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
+	AudioController, DialogController {
 	
 	protected final static int DIALOG_PROGRESS = 32;
 	protected final static String DIALOG_TEXT = "cca_dialog_text";
+	public final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
 	StateFragment stateHolder;
 	private boolean firstRun = true;
@@ -63,6 +60,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	private MediaEntity currentEntity;
 	private AudioButton currentButton;
 	private MediaState stateBeforePause;
+	
+	//fields for implementing task transitions for CommCareTaskConnector
+	boolean inTaskTransition;
+	boolean shouldDismissDialog = true;
 	
 	@Override
 	@TargetApi(14)
@@ -253,12 +254,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		super.onDestroy();
 		if (currentEntity != null) attemptSetStateToPauseForRenewal();
 	}
-	
-	protected void updateProgress(int taskId, String updateText) {
-		Bundle b = new Bundle();
-		b.putString(DIALOG_TEXT, updateText);
-		this.showDialog(taskId, b);
-	}
 
 	/* (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#connectTask(org.commcare.android.tasks.templates.CommCareTask)
@@ -269,8 +264,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		//this step
 		wakelock();
 		stateHolder.connectTask(task);
+		
+		//If we've left an old dialog showing during the task transition and it was from the same task
+		//as the one that is starting, don't dismiss it
+		CustomProgressDialog currDialog = getCurrentDialog();
+		if (currDialog != null && currDialog.getTaskId() == task.getTaskId()) {
+			shouldDismissDialog = false;
+		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#getReceiver()
@@ -288,8 +290,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask()
 	 */
 	@Override
-	public void startBlockingForTask(int id) {
-		this.showDialog(id);
+	public void startBlockingForTask(int id) {		
+		//attempt to dismiss the dialog from the last task before showing this one
+		attemptDismissDialog();
+		
+		//ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the last dialog during transition, show a new one
+		if (id >= 0 && shouldDismissDialog) {
+			this.showProgressDialog(id);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -297,23 +305,35 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	 */
 	@Override
 	public void stopBlockingForTask(int id) {
-		if(id != -1 ) {
-			this.dismissDialog(id);
+		if (id >= 0) { 
+			if (inTaskTransition) {
+				shouldDismissDialog = true;
+			}
+			else {
+				dismissProgressDialog();
+			}
 		}
 		unlock();
 	}
 	
-    
-    /* (non-Javadoc)
-	 * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog, android.os.Bundle)
-	 */
 	@Override
-	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
-		super.onPrepareDialog(id, dialog, args);
-		if(dialog instanceof ProgressDialog) {
-			if(args != null && args.containsKey(CommCareActivity.DIALOG_TEXT)) {
-				((ProgressDialog)dialog).setMessage(args.getString(CommCareActivity.DIALOG_TEXT));
-			}
+	public void startTaskTransition() {
+		inTaskTransition = true;
+	}
+	
+	@Override
+	public void stopTaskTransition() {
+		inTaskTransition = false;
+		attemptDismissDialog();
+		//reset shouldDismissDialog to true after this transition cycle is over
+		shouldDismissDialog = true;
+	}
+	
+	//if shouldDismiss flag has not been set to false in the course of a task transition,
+	//then dismiss the dialog
+	public void attemptDismissDialog() {
+		if (shouldDismissDialog) {
+			dismissProgressDialog();
 		}
 	}
 	
@@ -573,5 +593,50 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		currentEntity = null;
 	}
 	
+	/** All methods for implementation of DialogController **/
 
+
+	@Override
+	public void updateProgress(String updateText, int taskId) {
+		CustomProgressDialog mProgressDialog = getCurrentDialog();
+		if (mProgressDialog != null) {
+			if (mProgressDialog.getTaskId() == taskId) {
+				mProgressDialog.updateMessage(updateText);
+			}
+			else {
+				Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, 
+						"Attempting to update a progress dialog whose taskId does not match the"
+						+ "task for which the update message was intended.");
+			}
+		}
+	}
+
+	@Override
+	public void showProgressDialog(int taskId) {
+		CustomProgressDialog dialog = generateProgressDialog(taskId);
+		if (dialog != null) {
+			dialog.show(getSupportFragmentManager(), KEY_DIALOG_FRAG);
+		}
+	}
+	
+	@Override
+	public CustomProgressDialog getCurrentDialog() {
+		return (CustomProgressDialog) getSupportFragmentManager().
+				findFragmentByTag(KEY_DIALOG_FRAG);
+	}
+
+	@Override
+	public void dismissProgressDialog() {
+		CustomProgressDialog mProgressDialog = getCurrentDialog();
+		if (mProgressDialog != null && mProgressDialog.isAdded()) {
+			mProgressDialog.dismiss();
+		}
+	}
+	
+	@Override
+	public CustomProgressDialog generateProgressDialog(int taskId) {
+		//dummy method for compilation, implementation handled in those subclasses that need it
+		return null;
+	}
+	
 }

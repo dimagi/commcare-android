@@ -127,4 +127,6 @@
        <item name ="android:textColor">@color/red</item>
    </style>
    
+   <style name="DialogBaseTheme" parent="android:Theme.Dialog"/>
+   
 </resources>
