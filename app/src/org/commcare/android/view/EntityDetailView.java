@@ -32,6 +32,7 @@ import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.GraphTemplate;
+import org.commcare.suite.model.graph.ConfigurableData;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.PointData;
 import org.commcare.suite.model.graph.SeriesData;
@@ -229,7 +230,7 @@ public class EntityDetailView extends FrameLayout {
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
 				renderer.addSeriesRenderer(currentRenderer);
 				
-				String showPoints = s.getConfiguration("show-points"); 
+				String showPoints = s.getConfiguration("show-points");
 				if (showPoints == null || !Boolean.valueOf(showPoints).equals(Boolean.FALSE)) {
 					currentRenderer.setPointStyle(PointStyle.CIRCLE);
 					currentRenderer.setFillPoints(true);
@@ -415,8 +416,16 @@ public class EntityDetailView extends FrameLayout {
 		renderer.setApplyBackgroundColor(true);
 		renderer.setShowLegend(false);
 		renderer.setShowGrid(true);
+		renderer.setPanEnabled(false, false);
 
 		// User-configurable options
+		if (data.getConfiguration("x-label-count") != null) {
+			renderer.setXLabels(Integer.valueOf(data.getConfiguration("x-label-count")));
+		}
+		if (data.getConfiguration("y-label-count") != null) {
+			renderer.setYLabels(Integer.valueOf(data.getConfiguration("y-label-count")));
+		}
+		
 		if (data.getConfiguration("x-axis-title") != null) {
 			renderer.setXTitle(data.getConfiguration("x-axis-title"));
 		}
