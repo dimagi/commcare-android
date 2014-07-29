@@ -152,6 +152,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	boolean resourceTableWasFresh;
 	static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
 	
+	private BroadcastReceiver purgeNotificationReceiver = null;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -284,13 +286,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 		// Hide "See More" button when notification is cleared
 		// (by any method: button press, viewing from drawer, or clearing from drawer)
-		this.mBroadcastReceiver = new BroadcastReceiver() {
+		purgeNotificationReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				viewNotificationButton.setVisibility(View.GONE);
 			}
 		};
-		registerReceiver(mBroadcastReceiver, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
+		registerReceiver(purgeNotificationReceiver, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
 
 		// "See More" launches standard notification-viewing activity
 		viewNotificationButton.setOnClickListener(new OnClickListener() {
@@ -349,6 +351,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //prevent the keyboard from popping up on entry by refocusing on the main layout
         findViewById(R.id.mainLayout).requestFocus();
         
+	}
+	
+	@Override
+	public void onDestroy() {
+		if (purgeNotificationReceiver != null) {
+			unregisterReceiver(purgeNotificationReceiver);
+		}
 	}
 	
 	public void refreshView(){
