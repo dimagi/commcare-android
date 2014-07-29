@@ -378,17 +378,21 @@ public class EntityDetailView extends FrameLayout {
 			}
 		}
 		
+		if (!FORM_GRAPH.equals(form)) {
+			label.setVisibility(View.VISIBLE);
+			LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+			graphValueLayout.weight = 10;
+			valuePane.setLayoutParams(origValue);
+			data.setVisibility(View.VISIBLE);
+		}
+		
 		if(veryLong) {
-			
 			detailRow.setOrientation(LinearLayout.VERTICAL);
 			spacer.setVisibility(View.GONE);
 			label.setLayoutParams(fill);
 			valuePane.setLayoutParams(fill);
-			
 		} else {
-			
 			if(detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
-				
 				detailRow.setOrientation(LinearLayout.HORIZONTAL);
 				spacer.setVisibility(View.INVISIBLE);
 				label.setLayoutParams(origLabel);
