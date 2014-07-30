@@ -101,6 +101,9 @@ public class EntityDetailView extends FrameLayout {
 	private static final int VIDEO = 4;
 	private static final int AUDIO = 5;
 	private static final int GRAPH = 6;
+	
+	private static final int GRAPH_TEXT_SIZE = 21;
+	
 	int current = TEXT;
 	
 	DetailCalloutListener listener;
@@ -283,14 +286,14 @@ public class EntityDetailView extends FrameLayout {
 				series.add(0.0, 0.0);
 				dataset.addSeries(series);
 				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-				currentRenderer.setAnnotationsTextSize(21);
+				currentRenderer.setAnnotationsTextSize(GRAPH_TEXT_SIZE);
 				currentRenderer.setAnnotationsColor(getContext().getResources().getColor(R.drawable.black));
 				renderer.addSeriesRenderer(currentRenderer);
 			}
 
 			configureGraph(graphData, renderer);
 			renderer.setChartTitle(labelText);
-			renderer.setChartTitleTextSize(21);		// TODO: constant for text size
+			renderer.setChartTitleTextSize(GRAPH_TEXT_SIZE);
 			int topMargin = labelText.equals("") ? 0 : 30;
 			int leftMargin = renderer.getYTitle().equals("") ? 20 : 70;
 			renderer.setMargins(new int[]{topMargin, leftMargin, 0, 20});  // top, left, bottom, right
@@ -407,7 +410,7 @@ public class EntityDetailView extends FrameLayout {
 	
 	private void reduceLabels(boolean isX, XYMultipleSeriesRenderer renderer, int dimension) {
 		int count = isX ? renderer.getXLabels() : renderer.getYLabels();
-		while (count * 21 > dimension) {
+		while (count * GRAPH_TEXT_SIZE > dimension) {
 			count = count % 2 != 0 && count % 3 == 0 ? count / 3 : count / 2;
 			if (isX) {
 				renderer.setXLabels(count);
@@ -430,8 +433,8 @@ public class EntityDetailView extends FrameLayout {
 		renderer.setYLabelsAlign(Paint.Align.RIGHT);
 		renderer.setYLabelsPadding(10);
 		renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
-		renderer.setLabelsTextSize(21);
-		renderer.setAxisTitleTextSize(21);
+		renderer.setLabelsTextSize(GRAPH_TEXT_SIZE);
+		renderer.setAxisTitleTextSize(GRAPH_TEXT_SIZE);
 		renderer.setShowLabels(true);
 		renderer.setApplyBackgroundColor(true);
 		renderer.setShowLegend(false);
