@@ -88,7 +88,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 		
 		if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
 			this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
-			loadFields();
+			loadFields(true);
 		}
 	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 	    	getActionBar().setDisplayShowCustomEnabled(true);
@@ -155,7 +155,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	    }
 	}
 	
-	private void loadFields() {
+	protected void loadFields(boolean restoreOld) {
 		CommCareActivity oldActivity = stateHolder.getPreviousState();
 		Class c = this.getClass();
 		for(Field f : c.getDeclaredFields()) {
@@ -168,7 +168,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 						View v = this.findViewById(element.value());
 						f.set(this, v);
 						
-						if(oldActivity != null) {
+						if(oldActivity != null && restoreOld) {
 							View oldView = (View)f.get(oldActivity);
 							if(oldView != null) {
 								if(v instanceof TextView) {
