@@ -67,7 +67,8 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public String getDisplayName() {
-		return this.displayName;
+		//return this.displayName;
+		return "TEST_DISPLAY_NAME";
 	}
 	
 	public String getUniqueId() {

@@ -6,34 +6,33 @@
     
     <TextView 
         android:id="@+id/app_name"
-        android:textSize="13sp"
+        android:textSize="14sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
          
     <Button
          android:id="@+id/uninstall_button"
          android:text="@string/uninstall_app"
-         android:textSize="12sp"
+         android:textSize="14sp"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         android:onClick="uninstallSelectedApp"
-         android:visibility="visible" />
+         android:onClick="uninstallSelected" />
                 
      <Button
          android:id="@+id/archive_button"
          android:text="@string/archive_app"
-         android:textSize="12sp"            
+         android:textSize="14sp"            
          android:layout_width="wrap_content"
-         android:layout_height="wrap_content" 
-         android:onClick="archiveSelectedApp"
-         android:visibility="visible" />
+         android:layout_height="wrap_content"
+         android:onClick="archiveSelected" />
             
-    <ImageView 
-        android:id="@+id/resources_flag"
+    <Button
+        android:id="@+id/verify_button"
+        android:text="@string/verify_resources"
+        android:textSize="14sp"            
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:src="@android:drawable/stat_notify_error"
-        android:contentDescription="@string/resources_warning"
-        android:visibility="invisible" />
+        android:layout_height="wrap_content"
+        android:clickable="true" 
+        android:onClick="verifyResourcesForSelected" />
 
 </LinearLayout>

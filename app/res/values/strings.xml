@@ -14,14 +14,14 @@
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
-    <string name="install_app">Install a New App</string>
+    <string name="install_app">Install A New App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
+    <string name="verify_resources">Validate Multimedia</string>
     <string name="select_app_prompt">Select an app to install</string>
     <string name="resources_warning">Warning: Multimedia resources for this app have not been validated</string>
-    <string name="skipped_verification_warning">You did not verify multimedia resources for the app that was just
-         installed! Make sure to do so before passing this device to any workers for use, by clicking on 
-         the warning flag that will appear next to the app on this screen.</string>
+    <string name="skipped_verification_warning">You did not validate multimedia resources for the app that was just
+         installed! This app will not be visible on the log-in screen until multimedia is validated.</string>
     <integer-array name="commcare_version">
         <item>2</item>
         <item>14</item>

@@ -459,9 +459,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     	SqlStorage<ApplicationRecord> allApps = CommCareApplication._().getInstalledAppRecords();
         ArrayList<String> appUniqueIds = new ArrayList<String>();
         for (ApplicationRecord r : allApps) {
-        	String uniqueId = r.getUniqueId();
-        	appUniqueIds.add(uniqueId);
-        	idsToRecords.put(uniqueId, r);
+        	if (r.resourcesValidated()) {
+        		String uniqueId = r.getUniqueId();
+        		appUniqueIds.add(uniqueId);
+        		idsToRecords.put(uniqueId, r);
+        	}
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -481,7 +483,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 		String selected = (String) parent.getItemAtPosition(position);
 		ApplicationRecord r = idsToRecords.get(selected);
 		CommCareApplication._().initializeAppResources(new CommCareApp(r));
-		loadFields(false); //refresh UI for new language
+		loadFields(false); //refresh UI for potential new language
 	}
 
 	@Override

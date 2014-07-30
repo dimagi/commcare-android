@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.adapters.AppManagerAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
@@ -11,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,14 +25,14 @@ public class AppManagerActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.app_manager);
 		ListView lv = (ListView) findViewById(R.id.apps_list_view);
-		lv.setAdapter(new ArrayAdapter<ApplicationRecord>(this, 
+		lv.setAdapter(new AppManagerAdapter(this, 
 				android.R.layout.simple_list_item_1, appRecordArray()));
 	}
 	
 	public void onResume() {
 		super.onResume();
 		ListView lv = (ListView) findViewById(R.id.apps_list_view);
-		lv.setAdapter(new ArrayAdapter<ApplicationRecord>(this, 
+		lv.setAdapter(new AppManagerAdapter(this, 
 				android.R.layout.simple_list_item_1, appRecordArray()));
 	}
 	
@@ -58,14 +58,6 @@ public class AppManagerActivity extends Activity {
 		Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
 		i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
 	    this.startActivityForResult(i, CommCareHomeActivity.INIT_APP);
-	}
-	
-	public void uninstallSelectedApp(View v) {
-		
-	}
-	
-	public void archiveSelectedApp(View v) {
-		
 	}
 	
 	@Override
@@ -106,6 +98,18 @@ public class AppManagerActivity extends Activity {
     		}
     		break;
 		}
+	}
+	
+	public void uninstallSelected(View v) {
+		
+	}
+	
+	public void archiveSelected(View v) {
+		
+	}
+	
+	public void verifyResourcesForSelected(View v) {
+		
 	}
 
 }
