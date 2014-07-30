@@ -300,9 +300,10 @@ public class EntityDetailView extends FrameLayout {
             	: ChartFactory.getLineChartView(getContext(), dataset, renderer)
             ;
 			
-            graph.refreshDrawableState();
-            graph.repaint();
-            int height = getScreenWidth() / 2;
+            int width = getScreenWidth();
+            int height = width / 2;
+            reduceLabels(true, renderer, width);
+            reduceLabels(false, renderer, height);
             graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, height));
             
 			if (current != GRAPH) {
@@ -402,6 +403,19 @@ public class EntityDetailView extends FrameLayout {
 	private int getScreenWidth() {
 		Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 		return display.getWidth();
+	}
+	
+	private void reduceLabels(boolean isX, XYMultipleSeriesRenderer renderer, int dimension) {
+		int count = isX ? renderer.getXLabels() : renderer.getYLabels();
+		while (count * 21 > dimension) {
+			count = count % 2 != 0 && count % 3 == 0 ? count / 3 : count / 2;
+			if (isX) {
+				renderer.setXLabels(count);
+			}
+			else {
+				renderer.setYLabels(count);
+			}
+		}
 	}
 	
 	private void configureGraph(GraphData data, XYMultipleSeriesRenderer renderer) {
