@@ -19,7 +19,9 @@
     <string name="archive_app">Archive</string>
     <string name="select_app_prompt">Select an app to install</string>
     <string name="resources_warning">Warning: Multimedia resources for this app have not been validated</string>
-
+    <string name="skipped_verification_warning">You did not verify multimedia resources for the app that was just
+         installed! Make sure to do so before passing this device to any workers for use, by clicking on 
+         the warning flag that will appear next to the app on this screen.</string>
     <integer-array name="commcare_version">
         <item>2</item>
         <item>14</item>

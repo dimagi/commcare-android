@@ -32,6 +32,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	
 	Button retryButton;
+	Button skipButton;
 	
 	VerificationTask task;
 	
@@ -46,8 +47,15 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         setContentView(R.layout.missing_multimedia_layout);
         
         retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
-        
         retryButton.setOnClickListener(this);
+                
+        boolean fromManager = this.getIntent().
+        		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        if (fromManager) {
+        	skipButton = (Button)findViewById(R.id.skip_verification_button);
+        	skipButton.setVisibility(View.VISIBLE);
+        	skipButton.setOnClickListener(this);
+        }
         
         missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
         
@@ -174,15 +182,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		if(marker<0){return rawString;}
 		else{return rawString.substring(marker);}
 	}
-
-	@Override
-	public void onClick(View v) {		
-		switch(v.getId()){
-		case R.id.screen_multimedia_retry:
-			verifyResourceInstall();
-			return;
-		}
-	}
 	
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -218,6 +217,21 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
 				+ "any valid possibilities in CommCareVerificationActivity");		
 		return null;
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.skip_verification_button:
+			Intent i = new Intent(getIntent());
+	        setResult(RESULT_CANCELED, i);
+	        finish();
+			break;
+		case R.id.screen_multimedia_retry:
+			verifyResourceInstall();
+			break;
+		}
+		
 	}
     
 }
