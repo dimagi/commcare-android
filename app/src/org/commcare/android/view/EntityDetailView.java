@@ -31,10 +31,12 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.AnnotationData;
+import org.commcare.suite.model.graph.BubblePointData;
 import org.commcare.suite.model.graph.ConfigurableData;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.PointData;
+import org.commcare.suite.model.graph.XYPointData;
 import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -258,16 +260,17 @@ public class EntityDetailView extends FrameLayout {
 				
 				
 				// achartengine won't render a bubble chart with its points out of order
-				Vector<PointData> sortedPoints = new Vector<PointData>(s.size());
-				Iterator<PointData> pointsIterator = s.getPointsIterator();
+				Vector<XYPointData> sortedPoints = new Vector<XYPointData>(s.size());
+				Iterator<XYPointData> pointsIterator = s.getPointsIterator();
 				while (pointsIterator.hasNext()) {
 					sortedPoints.add(pointsIterator.next());
 				}
 				Collections.sort(sortedPoints, new PointComparator());
 				
-				for (PointData p : sortedPoints) {
+				for (XYPointData p : sortedPoints) {
 					if (isBubble) {
-						((XYValueSeries) series).add(p.getX(), p.getY(), p.getRadius());
+						BubblePointData b = (BubblePointData) p;
+						((XYValueSeries) series).add(b.getX(), b.getY(), b.getRadius());
 					}
 					else {
 						series.add(p.getX(), p.getY());
@@ -276,12 +279,12 @@ public class EntityDetailView extends FrameLayout {
 			}
 			
 			// Annotations
-			Iterator<PointData> i = graphData.getAnnotationIterator();
+			Iterator<AnnotationData> i = graphData.getAnnotationIterator();
 			if (i.hasNext()) {
 				XYSeries series = new XYSeries("");
 				while (i.hasNext()) {
-					PointData p = i.next();
-					series.addAnnotation(p.getAnnotation(), p.getX(), p.getY());
+					AnnotationData a = i.next();
+					series.addAnnotation(a.getAnnotation(), a.getX(), a.getY());
 				}
 				series.add(0.0, 0.0);
 				dataset.addSeries(series);
@@ -476,9 +479,9 @@ public class EntityDetailView extends FrameLayout {
 	 * @author jschweers
 	 *
 	 */
-	private class PointComparator implements Comparator<PointData> {
+	private class PointComparator implements Comparator<XYPointData> {
 		@Override
-		public int compare(PointData lhs, PointData rhs) {
+		public int compare(XYPointData lhs, XYPointData rhs) {
 			if (lhs.getX() > rhs.getX()) {
 				return 1;
 			}
