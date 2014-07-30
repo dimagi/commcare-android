@@ -217,7 +217,7 @@ public class EntityView extends LinearLayout {
 			try {
 				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
 				if (b == null) {
-					//Input stream could not be used to derive bitmap
+					//Input stream could not be used to derive bitmap, so showing error-indicating image
 					iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
 				}
 				else {
@@ -234,7 +234,7 @@ public class EntityView extends LinearLayout {
 			}
 		}
 		else {
-			iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+			iv.setImageDrawable(getResources().getDrawable(R.drawable.white));
 		}
 	}
     
