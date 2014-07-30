@@ -139,9 +139,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	 
 	boolean partialMode = false;
 	boolean fromManager;
-	
-	BroadcastReceiver mBroadcastReceiver;
-	
+		
 	CommCareApp ccApp;
 	
 	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
@@ -359,6 +357,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	@Override
 	public void onDestroy() {
+		super.onDestroy();
 		if (purgeNotificationReceiver != null) {
 			unregisterReceiver(purgeNotificationReceiver);
 		}
@@ -654,12 +653,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		} else {
 			Log.i("commcare-install", "Blocked a resource install press since a task was already running");
 		}
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unregisterReceiver(this.mBroadcastReceiver);
 	}
 
     @Override
