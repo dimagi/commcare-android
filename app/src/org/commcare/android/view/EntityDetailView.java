@@ -194,13 +194,8 @@ public class EntityDetailView extends FrameLayout {
 			if(b == null) {
 				imageView.setImageDrawable(null);
 			} else {
-				
-                Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                int screenWidth = display.getWidth();
-
-				
 				//Ok, so. We should figure out whether our image is large or small.
-				if(b.getWidth() > (screenWidth / 2)) {
+				if(b.getWidth() > (getScreenWidth() / 2)) {
 					veryLong = true;
 				}
 				
@@ -296,6 +291,9 @@ public class EntityDetailView extends FrameLayout {
 			configureGraph(graphData, renderer);
 			renderer.setChartTitle(labelText);
 			renderer.setChartTitleTextSize(21);		// TODO: constant for text size
+			int topMargin = labelText.equals("") ? 0 : 30;
+			int leftMargin = renderer.getYTitle().equals("") ? 20 : 70;
+			renderer.setMargins(new int[]{topMargin, leftMargin, 0, 20});  // top, left, bottom, right
 			
             GraphicalView graph = isBubble
             	? ChartFactory.getBubbleChartView(getContext(), dataset, renderer)
@@ -304,9 +302,9 @@ public class EntityDetailView extends FrameLayout {
 			
             graph.refreshDrawableState();
             graph.repaint();
-            graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+            int height = getScreenWidth() / 2;
+            graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, height));
             
-            // TODO: This is likely what breaks non-graph items when you scroll them off-screen and then back on
 			if (current != GRAPH) {
 				label.setVisibility(View.GONE);
 				LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
@@ -401,6 +399,11 @@ public class EntityDetailView extends FrameLayout {
 		}
 	}
 	
+	private int getScreenWidth() {
+		Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+		return display.getWidth();
+	}
+	
 	private void configureGraph(GraphData data, XYMultipleSeriesRenderer renderer) {
 		Context context = getContext();
 		
@@ -413,7 +416,6 @@ public class EntityDetailView extends FrameLayout {
 		renderer.setYLabelsAlign(Paint.Align.RIGHT);
 		renderer.setYLabelsPadding(10);
 		renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
-		renderer.setMargins(new int[]{20, 40, 20, 20});
 		renderer.setLabelsTextSize(21);
 		renderer.setAxisTitleTextSize(21);
 		renderer.setShowLabels(true);
