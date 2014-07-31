@@ -127,35 +127,23 @@ public class EntityDetailView extends FrameLayout {
 			callout.setText(textField);
 			if(current != PHONE) {
 				callout.setOnClickListener(new OnClickListener() {
-
 					public void onClick(View v) {
 						listener.callRequested(callout.getText().toString());				
 					}
-					
 				});
-				currentView.setVisibility(View.GONE);
-				callout.setVisibility(View.VISIBLE);
 				this.removeView(currentView);
-				currentView = callout;
-				current = PHONE;
+				updateCurrentView(PHONE, callout);
 			}
 		} else if(FORM_ADDRESS.equals(form)) {
 			final String address = textField;
-			
 			addressText.setText(address);
 			if(current != ADDRESS) {
 				addressButton.setOnClickListener(new OnClickListener() {
-
 					public void onClick(View v) {
 						listener.addressRequested(MediaUtil.getGeoIntentURI(address));
 					}
-					
 				});
-				
-				currentView.setVisibility(View.GONE);
-				addressView.setVisibility(View.VISIBLE);
-				currentView = addressView;
-				current = ADDRESS;
+				updateCurrentView(ADDRESS, addressView);
 			}
 		} else if(FORM_IMAGE.equals(form)) {
 			String imageLocation = textField;
@@ -175,12 +163,7 @@ public class EntityDetailView extends FrameLayout {
 				imageView.setId(23422634);
 			}
 			
-			if(current != IMAGE) {
-				currentView.setVisibility(View.GONE);
-				imageView.setVisibility(View.VISIBLE);
-				currentView = imageView;
-				current = IMAGE;
-			}
+			updateCurrentView(IMAGE, imageView);
 		} else if (FORM_GRAPH.equals(form)) {
             GraphView g = new GraphView(getContext(), (GraphData) field);
             g.setTitle(labelText);
@@ -189,26 +172,18 @@ public class EntityDetailView extends FrameLayout {
             graphLayout.addView(g.getView(), g.getLayoutParams());
             
 			if (current != GRAPH) {
-				label.setVisibility(View.GONE);
 				LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
 				graphValueLayout.weight = 10;
 				valuePane.setLayoutParams(graphValueLayout);
 
+				label.setVisibility(View.GONE);
 				data.setVisibility(View.GONE);
-				currentView.setVisibility(View.GONE);
-				graphLayout.setVisibility(View.VISIBLE);
-				currentView = graphLayout;
-				current = GRAPH;
+				updateCurrentView(GRAPH, graphLayout);
 			}
 		} else if (FORM_AUDIO.equals(form)) {
 			ViewId uniqueId = new ViewId(detailNumber, index, true);
 			audioButton.modifyButtonForNewView(uniqueId, textField, true);
-			if (current != AUDIO) {
-				currentView.setVisibility(View.GONE);
-				audioButton.setVisibility(View.VISIBLE);
-				currentView = audioButton;
-				current = AUDIO;
-			}
+			updateCurrentView(AUDIO, audioButton);
 		} else if(FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
 			String videoLocation = textField;
 			String localLocation = null;
@@ -239,32 +214,15 @@ public class EntityDetailView extends FrameLayout {
 				videoButton.setEnabled(true);
 			}
 			
-			if(current != VIDEO) {
-				currentView.setVisibility(View.GONE);
-				videoButton.setVisibility(View.VISIBLE);
-				currentView = videoButton;
-				current = VIDEO;
-			}
+			updateCurrentView(VIDEO, videoButton);
 		} else {
 			String text = textField;
 			data.setText(text);
 			if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
 				veryLong = true;
 			}
-			if(current != TEXT) {
-				currentView.setVisibility(View.GONE);
-				data.setVisibility(View.VISIBLE);
-				currentView = data;
-				current = TEXT;
-			}
-		}
-		
-		if (!FORM_GRAPH.equals(form)) {
-			label.setVisibility(View.VISIBLE);
-			LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
-			graphValueLayout.weight = 10;
-			valuePane.setLayoutParams(origValue);
-			data.setVisibility(View.VISIBLE);
+
+			updateCurrentView(TEXT, data);
 		}
 		
 		if(veryLong) {
@@ -279,6 +237,23 @@ public class EntityDetailView extends FrameLayout {
 				label.setLayoutParams(origLabel);
 				valuePane.setLayoutParams(origValue);
 			}
+		}
+	}
+	
+	private void updateCurrentView(int newCurrent, View newView) {
+		if (newCurrent != current) {
+			currentView.setVisibility(View.GONE);
+			newView.setVisibility(View.VISIBLE);
+			currentView = newView;
+			current = newCurrent;
+		}
+		
+		if (current != GRAPH) {
+			label.setVisibility(View.VISIBLE);
+			LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+			graphValueLayout.weight = 10;
+			valuePane.setLayoutParams(origValue);
+			data.setVisibility(View.VISIBLE);
 		}
 	}
 	
