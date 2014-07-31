@@ -77,7 +77,7 @@ public class AppManagerActivity extends Activity {
 			}
 			break;
 		case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
-    		if (resultCode == RESULT_CANCELED){
+    		if (resultCode == RESULT_CANCELED) {
     			AlertDialog.Builder builder = new AlertDialog.Builder(this);
     			builder.setTitle("Media Not Verified");
     			builder.setMessage(R.string.skipped_verification_warning)
@@ -93,7 +93,7 @@ public class AppManagerActivity extends Activity {
     			AlertDialog dialog = builder.create();
     			dialog.show();
     		}
-    		else if (resultCode == RESULT_OK){
+    		else if (resultCode == RESULT_OK) {
     			Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
     		}
     		break;
