@@ -1,3 +1,7 @@
+/*
+ * View containing a graph. Note that this does not derive from View; call getView to get a view for adding to other views, etc.
+ * @author jschweers
+ */
 package org.commcare.android.view;
 
 import java.util.Collections;
@@ -29,26 +33,26 @@ import android.widget.LinearLayout;
 public class GraphView {
 	private static final int TEXT_SIZE = 21;
 
-	private Context context;
-	private GraphData data;
-	private XYMultipleSeriesDataset dataset;
-	private XYMultipleSeriesRenderer renderer; 
+	private Context mContext;
+	private GraphData mData;
+	private XYMultipleSeriesDataset mDataset;
+	private XYMultipleSeriesRenderer mRenderer; 
 	
-	private int height;
-	private int width;
+	private int mHeight = 0;
+	private int mWidth = 0;
 
 	public GraphView(Context context, GraphData data) {
-		this.context = context;
-		this.data = data;
-		dataset = new XYMultipleSeriesDataset();
-		renderer = new XYMultipleSeriesRenderer();
-
-		renderer.setInScroll(true);
+		mContext = context;
+		mData = data;
+		mDataset = new XYMultipleSeriesDataset();
+		mRenderer = new XYMultipleSeriesRenderer();
+		
+		mRenderer.setInScroll(true);
 		Iterator<SeriesData> seriesIterator = data.getSeriesIterator();
 		while (seriesIterator.hasNext()) {
 			SeriesData s = seriesIterator.next();
 			XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-			renderer.addSeriesRenderer(currentRenderer);
+			mRenderer.addSeriesRenderer(currentRenderer);
 			
 			configureSeries(s, currentRenderer);
 			renderSeries(s);
@@ -59,32 +63,44 @@ public class GraphView {
 		setMargins();
 	} 
 	
+	/*
+	 * Set title of graph, and adjust spacing accordingly.
+	 */
 	public void setTitle(String title) {
-		renderer.setChartTitle(title);
-		renderer.setChartTitleTextSize(TEXT_SIZE);
+		mRenderer.setChartTitle(title);
+		mRenderer.setChartTitleTextSize(TEXT_SIZE);
 		setMargins();
 	}
 	
+	/*
+	 * Set margins. Should also be called after altering chart title or axis titles.
+	 */
 	private void setMargins() {
-		int topMargin = renderer.getChartTitle().equals("") ? 0 : 30;
+		int topMargin = mRenderer.getChartTitle().equals("") ? 0 : 30;
 		int rightMargin = 20;
-		int leftMargin = renderer.getYTitle().equals("") ? 20 : 70;
-		int bottomMargin = renderer.getXTitle().equals("") ? 0 : 50;
-		renderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
+		int leftMargin = mRenderer.getYTitle().equals("") ? 20 : 70;
+		int bottomMargin = mRenderer.getXTitle().equals("") ? 0 : 50;
+		mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
 	}
 		
+	/*
+	 * Get a View object that will display this graph.
+	 */
 	public View getView() {
-		if (isBubble()) {
-        	return ChartFactory.getBubbleChartView(context, dataset, renderer);
+		if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        	return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
 		}
-        return ChartFactory.getLineChartView(context, dataset, renderer);
+        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
 	}
 	
+	/*
+	 * Set up a single series.
+	 */
 	private void renderSeries(SeriesData s) {
-		XYSeries series = isBubble() ? new XYValueSeries("") : new XYSeries("");
-		dataset.addSeries(series);
+		XYSeries series = mData.getType().equals(Graph.TYPE_BUBBLE) ? new XYValueSeries("") : new XYSeries("");
+		mDataset.addSeries(series);
 
-		// achartengine won't render a bubble chart with its points out of order
+		// Bubble charts will throw an index out of bounds exception if given points out of order
 		Vector<XYPointData> sortedPoints = new Vector<XYPointData>(s.size());
 		Iterator<XYPointData> pointsIterator = s.getPointsIterator();
 		while (pointsIterator.hasNext()) {
@@ -93,7 +109,7 @@ public class GraphView {
 		Collections.sort(sortedPoints, new PointComparator());
 		
 		for (XYPointData p : sortedPoints) {
-			if (isBubble()) {
+			if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
 				BubblePointData b = (BubblePointData) p;
 				((XYValueSeries) series).add(b.getX(), b.getY(), b.getRadius());
 			}
@@ -103,65 +119,88 @@ public class GraphView {
 		}
 	}
 	
-	private boolean isBubble() {
-		return data.getType().equals(Graph.TYPE_BUBBLE);
-	}
-	
+	/*
+	 * Get layout params for this graph, which assume that graph will fill parent
+	 * unless dimensions have been provided via setWidth and/or setHeight.
+	 */
 	public LinearLayout.LayoutParams getLayoutParams() {
-		return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, height);	
+		int height = mHeight == 0 ? LinearLayout.LayoutParams.FILL_PARENT : mHeight;
+		int width = mWidth == 0 ? LinearLayout.LayoutParams.FILL_PARENT : mWidth;
+		return new LinearLayout.LayoutParams(width, height);	
 	}
 	
 	public void setHeight(int height) {
-		this.height = height;
-        configureLabels(false, height);
+		mHeight = height;
+        reduceLabels(false);
 	}
 	
 	public void setWidth(int width) {
-		this.width = width;
-        configureLabels(true, width);
+		mWidth = width;
+        reduceLabels(true);
 	}
 	
-	private void configureLabels(boolean isX, int dimension) {
+	/*
+	 * Attempt to remove some axis labels if graph is too short or narrow for them all.
+	 */
+	private void reduceLabels(boolean isX) {
+		// Get number of labels user originally asked for
 		configureLabels(isX);
-		int count = isX ? renderer.getXLabels() : renderer.getYLabels();
+
+		int count = isX ? mRenderer.getXLabels() : mRenderer.getYLabels();
+		int dimension = isX ? mWidth : mHeight;
+		
+		// Guess if labels will be too crowded
 		while (count * TEXT_SIZE > dimension) {
 			count = count % 2 != 0 && count % 3 == 0 ? count / 3 : count / 2;
 			if (isX) {
-				renderer.setXLabels(count);
+				mRenderer.setXLabels(count);
 			}
 			else {
-				renderer.setYLabels(count);
+				mRenderer.setYLabels(count);
 			}
 		}
 	}
 	
+	/*
+	 * Set number of axis labels based on user configuration.
+	 */
 	private void configureLabels(boolean isX) {
-		if (isX && data.getConfiguration("x-label-count") != null) {
-			renderer.setXLabels(Integer.valueOf(data.getConfiguration("x-label-count")));
+		if (isX && mData.getConfiguration("x-label-count") != null) {
+			mRenderer.setXLabels(Integer.valueOf(mData.getConfiguration("x-label-count")));
 		}
-		if (!isX && data.getConfiguration("y-label-count") != null) {
-			renderer.setYLabels(Integer.valueOf(data.getConfiguration("y-label-count")));
+		if (!isX && mData.getConfiguration("y-label-count") != null) {
+			mRenderer.setYLabels(Integer.valueOf(mData.getConfiguration("y-label-count")));
 		}
 		
 	}
 	
+	/*
+	 * Set up any annotations.
+	 */
 	private void renderAnnotations() {
-		Iterator<AnnotationData> i = data.getAnnotationIterator();
+		Iterator<AnnotationData> i = mData.getAnnotationIterator();
 		if (i.hasNext()) {
+			// Create a fake series for the annotations
 			XYSeries series = new XYSeries("");
 			while (i.hasNext()) {
 				AnnotationData a = i.next();
 				series.addAnnotation(a.getAnnotation(), a.getX(), a.getY());
 			}
+			
+			// Annotations won't display unless the series has some data in it
 			series.add(0.0, 0.0);
-			dataset.addSeries(series);
+
+			mDataset.addSeries(series);
 			XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
 			currentRenderer.setAnnotationsTextSize(TEXT_SIZE);
-			currentRenderer.setAnnotationsColor(context.getResources().getColor(R.drawable.black));
-			renderer.addSeriesRenderer(currentRenderer);
+			currentRenderer.setAnnotationsColor(mContext.getResources().getColor(R.drawable.black));
+			mRenderer.addSeriesRenderer(currentRenderer);
 		}
 	}
 
+	/*
+	 * Apply any user-requested look and feel changes to graph.
+	 */
 	private void configureSeries(SeriesData s, XYSeriesRenderer currentRenderer) {
 		String showPoints = s.getConfiguration("show-points");
 		if (showPoints == null || !Boolean.valueOf(showPoints).equals(Boolean.FALSE)) {
@@ -174,13 +213,16 @@ public class GraphView {
 			currentRenderer.setColor(Color.parseColor(lineColor));
 		}
 		else {
-			currentRenderer.setColor(context.getResources().getColor(R.drawable.black));
+			currentRenderer.setColor(mContext.getResources().getColor(R.drawable.black));
 		}
 		
 		fillOutsideLine(s, currentRenderer, "fill-above", XYSeriesRenderer.FillOutsideLine.Type.ABOVE);
 		fillOutsideLine(s, currentRenderer, "fill-below", XYSeriesRenderer.FillOutsideLine.Type.BELOW);
 	}
 	
+	/*
+	 * Helper function for setting up color fills above or below a series.
+	 */
 	private void fillOutsideLine(SeriesData s, XYSeriesRenderer currentRenderer, String property, XYSeriesRenderer.FillOutsideLine.Type type) {
 		property = s.getConfiguration(property);
 		if (property != null) {
@@ -190,46 +232,49 @@ public class GraphView {
 		}
 	}
 
+	/*
+	 * Configure graph's look and feel based on default assumptions and user-requested configuration.
+	 */
 	private void configure() {
 		// Default options
-		renderer.setBackgroundColor(context.getResources().getColor(R.drawable.white));
-		renderer.setMarginsColor(context.getResources().getColor(R.drawable.white));
-		renderer.setLabelsColor(context.getResources().getColor(R.drawable.black));
-		renderer.setXLabelsColor(context.getResources().getColor(R.drawable.black));
-		renderer.setYLabelsColor(0, context.getResources().getColor(R.drawable.black));
-		renderer.setXLabelsAlign(Paint.Align.CENTER);
-		renderer.setYLabelsAlign(Paint.Align.RIGHT);
-		renderer.setYLabelsPadding(10);
-		renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
-		renderer.setLabelsTextSize(TEXT_SIZE);
-		renderer.setAxisTitleTextSize(TEXT_SIZE);
-		renderer.setShowLabels(true);
-		renderer.setApplyBackgroundColor(true);
-		renderer.setShowLegend(false);
-		renderer.setShowGrid(true);
-		renderer.setPanEnabled(false, false);
+		mRenderer.setBackgroundColor(mContext.getResources().getColor(R.drawable.white));
+		mRenderer.setMarginsColor(mContext.getResources().getColor(R.drawable.white));
+		mRenderer.setLabelsColor(mContext.getResources().getColor(R.drawable.black));
+		mRenderer.setXLabelsColor(mContext.getResources().getColor(R.drawable.black));
+		mRenderer.setYLabelsColor(0, mContext.getResources().getColor(R.drawable.black));
+		mRenderer.setXLabelsAlign(Paint.Align.CENTER);
+		mRenderer.setYLabelsAlign(Paint.Align.RIGHT);
+		mRenderer.setYLabelsPadding(10);
+		mRenderer.setAxesColor(mContext.getResources().getColor(R.drawable.black));
+		mRenderer.setLabelsTextSize(TEXT_SIZE);
+		mRenderer.setAxisTitleTextSize(TEXT_SIZE);
+		mRenderer.setShowLabels(true);
+		mRenderer.setApplyBackgroundColor(true);
+		mRenderer.setShowLegend(false);
+		mRenderer.setShowGrid(true);
+		mRenderer.setPanEnabled(false, false);
 
 		// User-configurable options
-		if (data.getConfiguration("x-axis-title") != null) {
-			renderer.setXTitle(data.getConfiguration("x-axis-title"));
+		if (mData.getConfiguration("x-axis-title") != null) {
+			mRenderer.setXTitle(mData.getConfiguration("x-axis-title"));
 		}
-		if (data.getConfiguration("y-axis-title") != null) {
-			renderer.setYTitle(data.getConfiguration("y-axis-title"));
+		if (mData.getConfiguration("y-axis-title") != null) {
+			mRenderer.setYTitle(mData.getConfiguration("y-axis-title"));
 		}
 		setMargins();
 
-		if (data.getConfiguration("x-axis-min") != null) {
-			renderer.setXAxisMin(Double.valueOf(data.getConfiguration("x-axis-min")));
+		if (mData.getConfiguration("x-axis-min") != null) {
+			mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-axis-min")));
 		}
-		if (data.getConfiguration("y-axis-min") != null) {
-			renderer.setYAxisMin(Double.valueOf(data.getConfiguration("y-axis-min")));
+		if (mData.getConfiguration("y-axis-min") != null) {
+			mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-axis-min")));
 		}
 		
-		if (data.getConfiguration("x-axis-max") != null) {
-			renderer.setXAxisMax(Double.valueOf(data.getConfiguration("x-axis-max")));
+		if (mData.getConfiguration("x-axis-max") != null) {
+			mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-axis-max")));
 		}
-		if (data.getConfiguration("y-axis-max") != null) {
-			renderer.setYAxisMax(Double.valueOf(data.getConfiguration("y-axis-max")));
+		if (mData.getConfiguration("y-axis-max") != null) {
+			mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
 		}
 		
 		configureLabels(true);
@@ -239,7 +284,6 @@ public class GraphView {
 	/**
 	 * Comparator to sort PointData objects by x value.
 	 * @author jschweers
-	 *
 	 */
 	private class PointComparator implements Comparator<XYPointData> {
 		@Override

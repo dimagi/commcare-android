@@ -65,14 +65,14 @@ public class EntityView extends LinearLayout {
 		
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
-		        Object uniqueId = new ViewId(rowId, i, false);
-		        views[i] = initView(e.getField(i), forms[i], uniqueId);
-		        views[i].setId(i);
+				Object uniqueId = new ViewId(rowId, i, false);
+				views[i] = initView(e.getField(i), forms[i], uniqueId);
+				views[i].setId(i);
 			}
 		}
 		refreshViewsForNewEntity(e, false, rowId);
 		for (int i = 0; i < views.length; i++) {
-	        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+			LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
 			addView(views[i], l);
 		}
 	}
@@ -90,11 +90,11 @@ public class EntityView extends LinearLayout {
 		
 		for (int i = 0 ; i < views.length ; ++i) {
 			if (lengths[i] != 0) {
-		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
-		        ViewId uniqueId = new ViewId(rowId, i, false);
-		        views[i] = initView(headerText[i], headerForms[i], uniqueId);      
-		        views[i].setId(i);
-		        addView(views[i], l);
+				LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
+					ViewId uniqueId = new ViewId(rowId, i, false);
+					views[i] = initView(headerText[i], headerForms[i], uniqueId);
+					views[i].setId(i);
+					addView(views[i], l);
 			}
 		}
 	}
@@ -108,28 +108,28 @@ public class EntityView extends LinearLayout {
 		if (FORM_IMAGE.equals(form)) {
 			ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
-        } 
+		} 
 		else if (FORM_AUDIO.equals(form)) {
 			String text = (String) data;
-    		AudioButton b;
-    		if (text != null & text.length() > 0) {
-    			b = new AudioButton(context, text, uniqueId, controller, true);
-    		}
-    		else {
-    			b = new AudioButton(context, text, uniqueId, controller, false);
-    		}
-    		retVal = b;
-        } 
+			AudioButton b;
+			if (text != null & text.length() > 0) {
+				b = new AudioButton(context, text, uniqueId, controller, true);
+			}
+			else {
+				b = new AudioButton(context, text, uniqueId, controller, false);
+			}
+			retVal = b;
+		} 
 		else if (FORM_GRAPH.equals(form)) {
-    		View layout = View.inflate(context, R.layout.entity_item_graph, null);
-    		retVal = layout;
+			View layout = View.inflate(context, R.layout.entity_item_graph, null);
+			retVal = layout;
 		}
-        else {
-    		View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		setupTextAndTTSLayout(layout, (String) data);
-    		retVal = layout;
-        }
-        return retVal;
+		else {
+			View layout = View.inflate(context, R.layout.component_audio_text, null);
+			setupTextAndTTSLayout(layout, (String) data);
+			retVal = layout;
+		}
+		return retVal;
 	}
 	
 	public void setSearchTerms(String[] terms) {
@@ -151,13 +151,13 @@ public class EntityView extends LinearLayout {
 			}
 			else if(FORM_IMAGE.equals(form)) {
 				setupImageLayout(view, (String) field);
-	        } 
+			} 
 			else if (FORM_GRAPH.equals(form)) {
 				// nothing special to do for graphs
 			}
 			else { //text to speech
-		        setupTextAndTTSLayout(view, (String) field);
-	        }
+				setupTextAndTTSLayout(view, (String) field);
+			}
 		}
 		
 		if (currentlySelected) {
@@ -167,10 +167,10 @@ public class EntityView extends LinearLayout {
 		}
 	}
 	 
-    /*
-     * Updates the AudioButton layout that is passed in, based on the  
-     * new id and source
-     */
+	/*
+	 * Updates the AudioButton layout that is passed in, based on the
+	 * new id and source
+	 */
 	private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
 		AudioButton b = (AudioButton)layout;
 		if (source != null && source.length() > 0) {
@@ -181,13 +181,13 @@ public class EntityView extends LinearLayout {
 		}
 	}
 
-    /*
-     * Updates the text layout that is passed in, based on the new text
-     */
+	/*
+	 * Updates the text layout that is passed in, based on the new text
+	 */
 	private void setupTextAndTTSLayout(View layout, final String text) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
 		tv.setVisibility(View.VISIBLE);
-	    tv.setText(highlightSearches(text == null ? "" : text));
+		tv.setText(highlightSearches(text == null ? "" : text));
 		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
 		btn.setFocusable(false);
 
@@ -198,7 +198,7 @@ public class EntityView extends LinearLayout {
 				String textToRead = text;
 				tts.speak(textToRead, TextToSpeech.QUEUE_FLUSH, null);
 			}
-    	});
+		});
 		if (tts == null || text == null || text.equals("")) {
 			btn.setVisibility(View.INVISIBLE);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
@@ -210,13 +210,13 @@ public class EntityView extends LinearLayout {
 			params.width = LayoutParams.WRAP_CONTENT;
 			btn.setLayoutParams(params);
 		}
-    }
+	}
 	
 	
 	 /*
-     * Updates the ImageView layout that is passed in, based on the  
-     * new id and source
-     */
+	 * Updates the ImageView layout that is passed in, based on the  
+	 * new id and source
+	 */
 	public void setupImageLayout(View layout, final String source) {
 		ImageView iv = (ImageView) layout;
 		Bitmap b;
@@ -244,38 +244,35 @@ public class EntityView extends LinearLayout {
 			iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
 		}
 	}
-    
-    private Spannable highlightSearches(String input) {
-    	
-	    Spannable raw = new SpannableString(input);
-	    String normalized = input.toLowerCase();
+	
+	private Spannable highlightSearches(String input) {
+		Spannable raw = new SpannableString(input);
+		String normalized = input.toLowerCase();
 		
-    	if (searchTerms == null) {
-    		return raw;
-    	}
-	    
-	    //Zero out the existing spans
-	    BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
+		if (searchTerms == null) {
+			return raw;
+		}
+		
+		//Zero out the existing spans
+		BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
 		for (BackgroundColorSpan span : spans) {
 			raw.removeSpan(span);
 		}
-	    
-	    for (String searchText : searchTerms) {
-	    	if (searchText == "") { continue;}
+		
+		for (String searchText : searchTerms) {
+			if (searchText == "") { continue;}
 	
-		    int index = TextUtils.indexOf(normalized, searchText);
-		    
-		    while (index >= 0) {
-		      raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
-		          + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-		      index=TextUtils.indexOf(raw, searchText, index + searchText.length());
-		    }
-	    }
-	    
-	    return raw;
-    }
-    
-    
+			int index = TextUtils.indexOf(normalized, searchText);
+			
+			while (index >= 0) {
+			  raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
+				  + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+			  index=TextUtils.indexOf(raw, searchText, index + searchText.length());
+			}
+		}
+		
+		return raw;
+	}
 	
 	private float[] calculateDetailWeights(int[] hints) {
 		float[] weights = new float[hints.length];

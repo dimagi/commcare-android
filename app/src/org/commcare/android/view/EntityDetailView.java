@@ -165,13 +165,14 @@ public class EntityDetailView extends FrameLayout {
 			
 			updateCurrentView(IMAGE, imageView);
 		} else if (FORM_GRAPH.equals(form)) {
-            GraphView g = new GraphView(getContext(), (GraphData) field);
-            g.setTitle(labelText);
-            g.setWidth(getScreenWidth());
-            g.setHeight(getScreenWidth() / 2);
-            graphLayout.addView(g.getView(), g.getLayoutParams());
-            
+			GraphView g = new GraphView(getContext(), (GraphData) field);
+			g.setTitle(labelText);
+			g.setWidth(getScreenWidth());
+			g.setHeight(getScreenWidth() / 2);
+			graphLayout.addView(g.getView(), g.getLayoutParams());
+
 			if (current != GRAPH) {
+				// Hide field label and expand value to take up full screen width
 				LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
 				graphValueLayout.weight = 10;
 				valuePane.setLayoutParams(graphValueLayout);
@@ -240,6 +241,9 @@ public class EntityDetailView extends FrameLayout {
 		}
 	}
 	
+	/*
+	 * Appropriately set current & currentView.
+	 */
 	private void updateCurrentView(int newCurrent, View newView) {
 		if (newCurrent != current) {
 			currentView.setVisibility(View.GONE);
@@ -257,6 +261,9 @@ public class EntityDetailView extends FrameLayout {
 		}
 	}
 	
+	/*
+	 * Get current device screen width
+	 */
 	private int getScreenWidth() {
 		Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 		return display.getWidth();

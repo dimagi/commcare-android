@@ -29,6 +29,10 @@ public class Entity<T> {
 		return data[i];
 	}
 	
+	/*
+	 * Same as getField, but guaranteed to return a string.
+	 * If field is not already a string, will return blank string.
+	 */
 	public String getFieldString(int i) {
 		Object field = getField(i);
 		if (field instanceof String) {
