@@ -629,7 +629,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 	public void dismissProgressDialog() {
 		CustomProgressDialog mProgressDialog = getCurrentDialog();
 		if (mProgressDialog != null && mProgressDialog.isAdded()) {
-			mProgressDialog.dismiss();
+			mProgressDialog.dismissAllowingStateLoss();
 		}
 	}
 	
