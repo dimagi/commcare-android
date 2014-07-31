@@ -3,27 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Vector;
-import java.util.regex.Pattern;
-
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.ViewId;
-import org.achartengine.ChartFactory;
-import org.achartengine.GraphicalView;
-import org.achartengine.chart.PointStyle;
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.model.XYValueSeries;
-import org.achartengine.renderer.DefaultRenderer;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -31,38 +10,26 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.AnnotationData;
-import org.commcare.suite.model.graph.BubblePointData;
-import org.commcare.suite.model.graph.ConfigurableData;
 import org.commcare.suite.model.graph.GraphData;
-import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.XYPointData;
-import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ViewId;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Paint.Align;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
 
 /**
  * @author ctsims
@@ -104,8 +71,6 @@ public class EntityDetailView extends FrameLayout {
 	private static final int AUDIO = 5;
 	private static final int GRAPH = 6;
 	
-	private static final int GRAPH_TEXT_SIZE = 21;
-	
 	int current = TEXT;
 	
 	DetailCalloutListener listener;
@@ -136,7 +101,7 @@ public class EntityDetailView extends FrameLayout {
 	    addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
 	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
 	    imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
-	    graphLayout = (LinearLayout)detailRow.findViewById(R.id.graph_layout);
+	    graphLayout = (LinearLayout)detailRow.findViewById(R.id.graph);
 	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
 	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 
@@ -217,100 +182,11 @@ public class EntityDetailView extends FrameLayout {
 				current = IMAGE;
 			}
 		} else if (FORM_GRAPH.equals(form)) {
-			GraphData graphData = (GraphData) field;
-			XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
-			renderer.setInScroll(true);
-			Iterator<SeriesData> seriesIterator = graphData.getSeriesIterator();
-			boolean isBubble = graphData.getType().equals(Graph.TYPE_BUBBLE);
-			while (seriesIterator.hasNext()) {
-				SeriesData s = seriesIterator.next();
-				XYSeries series = isBubble ? new XYValueSeries("") : new XYSeries("");
-				dataset.addSeries(series);
-				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-				renderer.addSeriesRenderer(currentRenderer);
-				
-				String showPoints = s.getConfiguration("show-points");
-				if (showPoints == null || !Boolean.valueOf(showPoints).equals(Boolean.FALSE)) {
-					currentRenderer.setPointStyle(PointStyle.CIRCLE);
-					currentRenderer.setFillPoints(true);
-				}
-				
-				String lineColor = s.getConfiguration("line-color");
-				if (lineColor != null) {
-					currentRenderer.setColor(Color.parseColor(lineColor));
-				}
-				else {
-					currentRenderer.setColor(getContext().getResources().getColor(R.drawable.black));
-				}
-				
-				String[] fillProperties = new String[]{"fill-above", "fill-below"};
-				XYSeriesRenderer.FillOutsideLine.Type[] fillTypes = new XYSeriesRenderer.FillOutsideLine.Type[]{
-					XYSeriesRenderer.FillOutsideLine.Type.ABOVE, 
-					XYSeriesRenderer.FillOutsideLine.Type.BELOW
-				};
-				for (int i = 0; i < fillProperties.length; i++) {
-					String fillProperty = s.getConfiguration(fillProperties[i]);
-					if (fillProperty != null) {
-						XYSeriesRenderer.FillOutsideLine fill = new XYSeriesRenderer.FillOutsideLine(fillTypes[i]);
-						fill.setColor(Color.parseColor(fillProperty));
-						currentRenderer.addFillOutsideLine(fill);
-					}					
-				}
-				
-				
-				// achartengine won't render a bubble chart with its points out of order
-				Vector<XYPointData> sortedPoints = new Vector<XYPointData>(s.size());
-				Iterator<XYPointData> pointsIterator = s.getPointsIterator();
-				while (pointsIterator.hasNext()) {
-					sortedPoints.add(pointsIterator.next());
-				}
-				Collections.sort(sortedPoints, new PointComparator());
-				
-				for (XYPointData p : sortedPoints) {
-					if (isBubble) {
-						BubblePointData b = (BubblePointData) p;
-						((XYValueSeries) series).add(b.getX(), b.getY(), b.getRadius());
-					}
-					else {
-						series.add(p.getX(), p.getY());
-					}
-				}
-			}
-			
-			// Annotations
-			Iterator<AnnotationData> i = graphData.getAnnotationIterator();
-			if (i.hasNext()) {
-				XYSeries series = new XYSeries("");
-				while (i.hasNext()) {
-					AnnotationData a = i.next();
-					series.addAnnotation(a.getAnnotation(), a.getX(), a.getY());
-				}
-				series.add(0.0, 0.0);
-				dataset.addSeries(series);
-				XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-				currentRenderer.setAnnotationsTextSize(GRAPH_TEXT_SIZE);
-				currentRenderer.setAnnotationsColor(getContext().getResources().getColor(R.drawable.black));
-				renderer.addSeriesRenderer(currentRenderer);
-			}
-
-			configureGraph(graphData, renderer);
-			renderer.setChartTitle(labelText);
-			renderer.setChartTitleTextSize(GRAPH_TEXT_SIZE);
-			int topMargin = labelText.equals("") ? 0 : 30;
-			int leftMargin = renderer.getYTitle().equals("") ? 20 : 70;
-			renderer.setMargins(new int[]{topMargin, leftMargin, 0, 20});  // top, left, bottom, right
-			
-            GraphicalView graph = isBubble
-            	? ChartFactory.getBubbleChartView(getContext(), dataset, renderer)
-            	: ChartFactory.getLineChartView(getContext(), dataset, renderer)
-            ;
-			
-            int width = getScreenWidth();
-            int height = width / 2;
-            reduceLabels(true, renderer, width);
-            reduceLabels(false, renderer, height);
-            graphLayout.addView(graph, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, height));
+            GraphView g = new GraphView(getContext(), (GraphData) field);
+            g.setTitle(labelText);
+            g.setWidth(getScreenWidth());
+            g.setHeight(getScreenWidth() / 2);
+            graphLayout.addView(g.getView(), g.getLayoutParams());
             
 			if (current != GRAPH) {
 				label.setVisibility(View.GONE);
@@ -411,84 +287,4 @@ public class EntityDetailView extends FrameLayout {
 		return display.getWidth();
 	}
 	
-	private void reduceLabels(boolean isX, XYMultipleSeriesRenderer renderer, int dimension) {
-		int count = isX ? renderer.getXLabels() : renderer.getYLabels();
-		while (count * GRAPH_TEXT_SIZE > dimension) {
-			count = count % 2 != 0 && count % 3 == 0 ? count / 3 : count / 2;
-			if (isX) {
-				renderer.setXLabels(count);
-			}
-			else {
-				renderer.setYLabels(count);
-			}
-		}
-	}
-	
-	private void configureGraph(GraphData data, XYMultipleSeriesRenderer renderer) {
-		Context context = getContext();
-		
-		// Default options
-		renderer.setBackgroundColor(context.getResources().getColor(R.drawable.white));
-		renderer.setMarginsColor(context.getResources().getColor(R.drawable.white));
-		renderer.setLabelsColor(getContext().getResources().getColor(R.drawable.black));
-		renderer.setXLabelsColor(context.getResources().getColor(R.drawable.black));
-		renderer.setYLabelsColor(0, context.getResources().getColor(R.drawable.black));
-		renderer.setYLabelsAlign(Paint.Align.RIGHT);
-		renderer.setYLabelsPadding(10);
-		renderer.setAxesColor(context.getResources().getColor(R.drawable.black));
-		renderer.setLabelsTextSize(GRAPH_TEXT_SIZE);
-		renderer.setAxisTitleTextSize(GRAPH_TEXT_SIZE);
-		renderer.setShowLabels(true);
-		renderer.setApplyBackgroundColor(true);
-		renderer.setShowLegend(false);
-		renderer.setShowGrid(true);
-		renderer.setPanEnabled(false, false);
-
-		// User-configurable options
-		if (data.getConfiguration("x-label-count") != null) {
-			renderer.setXLabels(Integer.valueOf(data.getConfiguration("x-label-count")));
-		}
-		if (data.getConfiguration("y-label-count") != null) {
-			renderer.setYLabels(Integer.valueOf(data.getConfiguration("y-label-count")));
-		}
-		
-		if (data.getConfiguration("x-axis-title") != null) {
-			renderer.setXTitle(data.getConfiguration("x-axis-title"));
-		}
-		if (data.getConfiguration("y-axis-title") != null) {
-			renderer.setYTitle(data.getConfiguration("y-axis-title"));
-		}
-
-		if (data.getConfiguration("x-axis-min") != null) {
-			renderer.setXAxisMin(Double.valueOf(data.getConfiguration("x-axis-min")));
-		}
-		if (data.getConfiguration("y-axis-min") != null) {
-			renderer.setYAxisMin(Double.valueOf(data.getConfiguration("y-axis-min")));
-		}
-		
-		if (data.getConfiguration("x-axis-max") != null) {
-			renderer.setXAxisMax(Double.valueOf(data.getConfiguration("x-axis-max")));
-		}
-		if (data.getConfiguration("y-axis-max") != null) {
-			renderer.setYAxisMax(Double.valueOf(data.getConfiguration("y-axis-max")));
-		}
-	}
-	
-	/**
-	 * Comparator to sort PointData objects by x value.
-	 * @author jschweers
-	 *
-	 */
-	private class PointComparator implements Comparator<XYPointData> {
-		@Override
-		public int compare(XYPointData lhs, XYPointData rhs) {
-			if (lhs.getX() > rhs.getX()) {
-				return 1;
-			}
-			if (lhs.getX() < rhs.getX()) {
-				return -1;
-			}
-			return 0;
-		}
-	}
 }
