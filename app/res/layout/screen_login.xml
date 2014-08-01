@@ -27,7 +27,8 @@
         android:layout_centerHorizontal="true"
         android:prompt="@string/select_app_prompt"
         android:layout_below="@id/screen_login_banner_pane"
-        android:spinnerMode="dropdown" />
+        android:spinnerMode="dropdown"
+        android:visibility="gone" />
             
 
     <LinearLayout

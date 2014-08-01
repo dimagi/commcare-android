@@ -456,6 +456,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     
     private void populateAvailableAppsSpinner() {
+    	Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
     	SqlStorage<ApplicationRecord> allApps = CommCareApplication._().getInstalledAppRecords();
         ArrayList<String> appUniqueIds = new ArrayList<String>();
         for (ApplicationRecord r : allApps) {
@@ -465,13 +466,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         		idsToRecords.put(uniqueId, r);
         	}
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    	Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		spinner.setSelection(prefs.getInt(KEY_LAST_POSITION, 0));
+        if (appUniqueIds.size() > 1) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        	spinner.setVisibility(View.VISIBLE);
+            spinner.setAdapter(adapter);
+            spinner.setOnItemSelectedListener(this);
+    		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    		spinner.setSelection(prefs.getInt(KEY_LAST_POSITION, 0));
+        } else spinner.setVisibility(View.GONE);
     }
 
 	@Override
