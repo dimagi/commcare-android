@@ -114,6 +114,7 @@ public class CustomProgressDialog extends DialogFragment {
 	        this.usingCancelButton = savedInstanceState.getBoolean(KEY_USING_BUTTON);
 	        this.taskId = savedInstanceState.getInt(KEY_TASK_ID);
 	        this.isCancelable = savedInstanceState.getBoolean(KEY_CANCELABLE);
+	        
     	}
     }
 
@@ -179,10 +180,11 @@ public class CustomProgressDialog extends DialogFragment {
 	}
     
 	public void updateMessage(String text) {
+		this.message = text;
 		AlertDialog pd = (AlertDialog) getDialog();
 		if (pd != null) {
 			TextView tv = (TextView) pd.findViewById(R.id.progress_dialog_message);
-			tv.setText(text);
+			tv.setText(this.message);
 		}
 	}
 	
