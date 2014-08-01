@@ -47,7 +47,7 @@
          android:layout_alignParentBottom="true"
          android:onClick="installAppClicked"
          android:text="@string/install_app"
-         android:textSize="25sp" />
+         android:textSize="20sp" />
      	
 
 </RelativeLayout>
