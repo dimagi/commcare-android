@@ -457,14 +457,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     
     private void populateAvailableAppsSpinner() {
     	Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
-    	SqlStorage<ApplicationRecord> allApps = CommCareApplication._().getInstalledAppRecords();
+    	ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
         ArrayList<String> appUniqueIds = new ArrayList<String>();
-        for (ApplicationRecord r : allApps) {
-        	if (r.resourcesValidated()) {
-        		String uniqueId = r.getUniqueId();
-        		appUniqueIds.add(uniqueId);
-        		idsToRecords.put(uniqueId, r);
-        	}
+        for (ApplicationRecord r : readyApps) {
+        	String uniqueId = r.getUniqueId();
+        	appUniqueIds.add(uniqueId);
+        	idsToRecords.put(uniqueId, r);
         }
         if (appUniqueIds.size() > 1) {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
@@ -482,7 +480,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 			long id) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.edit().putInt(KEY_LAST_POSITION, position).commit();
-		
 		String selected = (String) parent.getItemAtPosition(position);
 		ApplicationRecord r = idsToRecords.get(selected);
 		CommCareApplication._().initializeAppResources(new CommCareApp(r));

@@ -350,7 +350,9 @@ public class CommCareApplication extends Application {
 	}
 	
 	private int initializeAppResources() {
-		//There should be exactly one of these for now
+		//There may now be multiple of these, bc of multiple apps support.
+		//For now, onCreate of CommCareApplication is still picking the first one arbitrarily,
+		//may want to change this
 		SqlStorage<ApplicationRecord> appRecords = getInstalledAppRecords();
 		for(ApplicationRecord record : appRecords) {
 			if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
@@ -372,6 +374,17 @@ public class CommCareApplication extends Application {
 			}
 		}
 		return null;
+	}
+	
+	/**Return all ApplicationRecords that are installed AND have MM resources validated **/
+	public ArrayList<ApplicationRecord> getReadyAppRecords() {
+		ArrayList<ApplicationRecord> ready = new ArrayList<ApplicationRecord>();
+		for (ApplicationRecord r : getInstalledAppRecords()) {
+			if (r.resourcesValidated()) {
+				ready.add(r);
+			}
+		}
+		return ready;
 	}
 
 	public int initializeAppResources(CommCareApp app) {
