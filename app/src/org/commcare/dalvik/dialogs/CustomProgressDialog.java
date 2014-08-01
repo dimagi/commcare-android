@@ -114,7 +114,6 @@ public class CustomProgressDialog extends DialogFragment {
 	        this.usingCancelButton = savedInstanceState.getBoolean(KEY_USING_BUTTON);
 	        this.taskId = savedInstanceState.getInt(KEY_TASK_ID);
 	        this.isCancelable = savedInstanceState.getBoolean(KEY_CANCELABLE);
-	        
     	}
     }
 
