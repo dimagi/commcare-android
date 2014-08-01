@@ -15,6 +15,11 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
+/**
+ * 
+ * @author amstone326
+ *
+ */
 
 public class AppManagerActivity extends Activity {
 	
@@ -25,8 +30,7 @@ public class AppManagerActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.app_manager);
 		ListView lv = (ListView) findViewById(R.id.apps_list_view);
-		lv.setAdapter(new AppManagerAdapter(this, 
-				android.R.layout.simple_list_item_1, appRecordArray()));
+		lv.setAdapter(new AppManagerAdapter(this, R.layout.custom_list_item_view, appRecordArray()));
 	}
 	
 	public void onResume() {
@@ -109,6 +113,10 @@ public class AppManagerActivity extends Activity {
 	}
 	
 	public void verifyResourcesForSelected(View v) {
+		
+	}
+	
+	public void updateSelected(View v) {
 		
 	}
 

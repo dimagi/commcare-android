@@ -17,6 +17,7 @@
     <string name="install_app">Install A New App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
+    <string name="update_app">Update</string>
     <string name="verify_resources">Validate Multimedia</string>
     <string name="select_app_prompt">Select an app to install</string>
     <string name="resources_warning">Warning: Multimedia resources for this app have not been validated</string>
