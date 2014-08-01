@@ -199,11 +199,12 @@ public class CommCareApp {
 		return appPreferences.getBoolean("isValidated",false) || appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES);
 	}
 	
-	public void setResourcesValidated(boolean isValidated){
+	public void setResourcesValidated(boolean isValidated) {
 		SharedPreferences.Editor editor = getAppPreferences().edit();
 		editor.putBoolean("isValidated", isValidated);
 		editor.commit();
 		record.setResourcesValidated();
+		CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
 	}
 	
 	public void teardownSandbox() {	
