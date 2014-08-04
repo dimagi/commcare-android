@@ -164,7 +164,7 @@ public class EntityDetailView extends FrameLayout {
 			}
 			
 			updateCurrentView(IMAGE, imageView);
-		} else if (FORM_GRAPH.equals(form)) {
+		} else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {	// if graph parsing had errors, they'll be stored as a string
 			GraphView g = new GraphView(getContext(), (GraphData) field);
 			g.setTitle(labelText);
 			g.setWidth(getScreenWidth());

@@ -78,7 +78,7 @@ public class GraphView {
 	private void setMargins() {
 		int topMargin = mRenderer.getChartTitle().equals("") ? 0 : 30;
 		int rightMargin = 20;
-		int leftMargin = mRenderer.getYTitle().equals("") ? 20 : 70;
+		int leftMargin = mRenderer.getYTitle().equals("") ? 50 : 70;
 		int bottomMargin = mRenderer.getXTitle().equals("") ? 0 : 50;
 		mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
 	}
