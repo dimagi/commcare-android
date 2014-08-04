@@ -15,8 +15,10 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * @author ctsims
@@ -52,8 +54,10 @@ public class NodeEntityFactory {
 		
 		//return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 		
-		String[] details = new String[detail.getHeaderForms().length];
-		String[] sortDetails = new String[detail.getHeaderForms().length];
+		int length = detail.getHeaderForms().length;
+		String[] details = new String[length];
+		String[] sortDetails = new String[length];
+		boolean[] relevancyDetails = new boolean[length];
 		int count = 0;
 		for(DetailField f : this.getDetail().getFields()) {
 			try {
@@ -64,6 +68,18 @@ public class NodeEntityFactory {
 				} else {
 					sortDetails[count] = sortText.evaluate(nodeContext);
 				}
+				String relevancy = f.getRelevancy();
+				System.out.println("[jls] header => " + f.getHeader().evaluate(nodeContext) + ", relevancy => " + f.getRelevancy());
+				boolean isRelevant = true;
+				if (relevancy != null) {
+					try {
+						XPathExpression parsed = XPathParseTool.parseXPath(relevancy);
+						isRelevant = XPathFuncExpr.toBoolean(parsed.eval(nodeContext)).booleanValue();
+					} catch (XPathSyntaxException e) {
+						e.printStackTrace();
+					}
+				}
+				relevancyDetails[count] = isRelevant;
 			} catch(XPathException xpe) {
 				xpe.printStackTrace();
 				details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
@@ -71,6 +87,6 @@ public class NodeEntityFactory {
 			count++;
 		}
 		
-		return new Entity<TreeReference>(details, sortDetails, data);
+		return new Entity<TreeReference>(details, sortDetails, relevancyDetails, data);
 	}
 }
