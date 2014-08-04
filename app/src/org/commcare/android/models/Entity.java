@@ -31,6 +31,10 @@ public class Entity<T> {
 		return data[i];
 	}
 	
+	/**
+	 * @param i index of field
+	 * @return True iff the given field is relevant and has a non-blank value.
+	 */
 	public boolean isValidField(int i) {
 		return !getField(i).equals("") && relevancyData[i];
 	}

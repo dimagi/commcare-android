@@ -24,7 +24,6 @@ import android.widget.ListAdapter;
  * @author ctsims
  *
  */
-//
 public class EntityDetailAdapter implements ListAdapter {
 	
 	Context context;

@@ -69,7 +69,6 @@ public class NodeEntityFactory {
 					sortDetails[count] = sortText.evaluate(nodeContext);
 				}
 				String relevancy = f.getRelevancy();
-				System.out.println("[jls] header => " + f.getHeader().evaluate(nodeContext) + ", relevancy => " + f.getRelevancy());
 				boolean isRelevant = true;
 				if (relevancy != null) {
 					try {
