@@ -169,6 +169,7 @@ public class EntityDetailView extends FrameLayout {
 			g.setTitle(labelText);
 			g.setWidth(getScreenWidth());
 			g.setHeight(getScreenWidth() / 2);
+			graphLayout.removeAllViews();
 			graphLayout.addView(g.getView(), g.getLayoutParams());
 
 			if (current != GRAPH) {
