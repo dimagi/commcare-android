@@ -3,16 +3,9 @@
  */
 package org.commcare.dalvik.activities;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Vector;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -24,28 +17,20 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.ReflectionUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -62,7 +47,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	
 	@UiElement(R.id.screen_bulk_image1)
 	ImageView banner;
-	
+	 
 	@UiElement(value = R.id.screen_bulk_form_prompt, locale="bulk.form.prompt")
 	TextView txtDisplayPrompt;
 	
@@ -118,9 +103,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 				SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
 						settings.getString("PostURL", url), getFolderPath()){
-					
-					protected int taskId = BULK_SEND_ID;
-					
+										
 					@Override
 					protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
 						
@@ -134,14 +117,14 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 						} else {
 							//assume that we've already set the error message, but make it look scary
 							CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
-							updateCounters();
+							receiver.updateCounters();
 							receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
 						}
 					}
 
 					@Override
 					protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
-						receiver.updateProgress(BULK_SEND_ID, update[0]);
+						receiver.updateProgress(update[0], BULK_SEND_ID);
 						receiver.txtInteractiveMessages.setText(update[0]);
 					}
 					
@@ -187,7 +170,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 
 					@Override
 					protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
-						receiver.updateProgress(BULK_DUMP_ID, update[0]);
+						receiver.updateProgress(update[0], BULK_DUMP_ID);
 						receiver.txtInteractiveMessages.setText(update[0]);
 					}
 
@@ -309,34 +292,35 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
 	}
 	
 	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateDialog(int)
-	 */
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		if(id == DumpTask.BULK_DUMP_ID) {
-			ProgressDialog progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle(Localization.get("bulk.dump.dialog.title"));
-			progressDialog.setMessage(Localization.get("bulk.dump.dialog.progress", new String[] {"0"}));
-			progressDialog.setCancelable(false);
-			return progressDialog;
-		}
-		else if (id == SendTask.BULK_SEND_ID) {
-			ProgressDialog progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle(Localization.get("bulk.send.dialog.title"));
-			progressDialog.setMessage(Localization.get("bulk.send.dialog.progress", new String[] {"0"}));
-			progressDialog.setCancelable(false);
-			return progressDialog;
-		}
-		return null;
-	}
-	
-	/* (non-Javadoc)
 	 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
 	 */
 	@Override
 	public void taskCancelled(int id) {
 		txtInteractiveMessages.setText(Localization.get("bulk.form.cancel"));
 		this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+	}
+	
+	/** Implementation of generateProgressDialog() for DialogController -- other methods
+	 * handled entirely in CommCareActivity
+	 */
+	
+	@Override
+	public CustomProgressDialog generateProgressDialog(int taskId) {
+		String title, message;
+		if(taskId == DumpTask.BULK_DUMP_ID) {
+			title = Localization.get("bulk.dump.dialog.title");
+			message = Localization.get("bulk.dump.dialog.progress", new String[] {"0"});
+		}
+		else if (taskId == SendTask.BULK_SEND_ID) {
+			title = Localization.get("bulk.send.dialog.title");
+			message = Localization.get("bulk.send.dialog.progress", new String[] {"0"});
+		}
+		else {
+			System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+        			+ "any valid possibilities in CommCareFormDumpActivity");
+			return null;
+		}
+		return CustomProgressDialog.newInstance(title, message, taskId);
 	}
 	
 	

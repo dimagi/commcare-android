@@ -70,6 +70,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.odk.collect.android.application.Collect;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -137,6 +138,7 @@ public class CommCareApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Collect.setStaticApplicationContext(this);
 		
 		CommCareApplication.app = this;
 		

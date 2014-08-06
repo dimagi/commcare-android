@@ -35,13 +35,12 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -405,11 +404,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 								protected void deliverUpdate( FormRecordListActivity receiver, Integer... values) {
 									if(values[0] < 0) {
 										if(values[0] == FormRecordCleanupTask.STATUS_CLEANUP) {
-											receiver.updateProgress(CLEANUP_ID, "Forms Processed. Cleaning up form records...");
+											receiver.updateProgress("Forms Processed. "
+													+ "Cleaning up form records...", CLEANUP_ID);
 										}
 									}
 									else {
-										receiver.updateProgress(CLEANUP_ID, "Forms downloaded. Processing " + values[0] + " of " + values[1] +"...");
+										receiver.updateProgress("Forms downloaded. Processing "
+												+ values[0] + " of " + values[1] +"...", CLEANUP_ID);
 									}
 									
 								}
@@ -449,7 +450,9 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 					protected void deliverUpdate(FormRecordListActivity receiver, Integer... update) {
 						switch(update[0]){
 						case DataPullTask.PROGRESS_AUTHED:
-							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, "Authed with server, downloading forms" + (update[1] == 0 ? "" : " (" +update[1] + ")"));
+							receiver.updateProgress("Authed with server, downloading forms" + 
+									(update[1] == 0 ? "" : " (" +update[1] + ")"), 
+									DataPullTask.DATA_PULL_TASK_ID);
 							break;
 						}
 					}
@@ -494,32 +497,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     	return PowerManager.PARTIAL_WAKE_LOCK;
     }
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreateDialog(int)
-     */
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-        case DataPullTask.DATA_PULL_TASK_ID:
-                ProgressDialog mProgressDialog = new ProgressDialog(this);
-                mProgressDialog.setTitle("Fetching Old Forms");
-                mProgressDialog.setMessage("Connecting to server...");
-                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setCancelable(false);
-                return mProgressDialog;
-        case CLEANUP_ID:
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setTitle("Fetching Old Forms");
-			mProgressDialog.setMessage("Forms downloaded. Processing...");
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setCancelable(false);
-            return mProgressDialog;
-        }
-        return null;
-    }
-    
 	public void afterTextChanged(Editable s) {
 		if(searchbox.getText() == s) {
 			adapter.applyTextFilter(s.toString());
@@ -548,4 +525,29 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 	public void notifyLoaded() {
 		enableSearch();
 	}
+	
+    
+    /** Implementation of generateProgressDialog() for DialogController -- other methods
+     * handled entirely in CommCareActivity
+     */
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+    	String title, message;
+    	switch (taskId) {
+    	case DataPullTask.DATA_PULL_TASK_ID:
+    		title = "Fetching Old Forms";
+    		message = "Connecting to server...";
+    		break;
+    	case CLEANUP_ID:
+    		title = "Fetching Old Forms";
+    		message = "Forms downloaded. Processing...";
+    		break;
+    	default:
+    		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+    				+ "any valid possibilities in FormRecordListActivity");	
+    		return null;
+    	}
+    	return CustomProgressDialog.newInstance(title, message, taskId);
+    }
 }

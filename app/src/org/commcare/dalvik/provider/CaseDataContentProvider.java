@@ -1,7 +1,3 @@
-/**
- * 
- */
-package org.commcare.dalvik.provider;
 
 import java.util.HashMap;
 import java.util.Hashtable;

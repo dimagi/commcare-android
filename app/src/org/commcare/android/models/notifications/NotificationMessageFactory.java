@@ -60,6 +60,9 @@ public class NotificationMessageFactory {
 		/**In airplane mode while trying to sync**/
 		Sync_AirplaneMode("notification.sync.airplane"),
 		
+		/**No connections while trying to sync **/
+		Sync_NoConnections("notification.sync.connections"),
+		
 		/**One of your files on the SD was bad**/
 		Send_MalformedFile("notification.send.malformed"),
 		

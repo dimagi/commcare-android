@@ -23,15 +23,15 @@ import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Menu;
@@ -51,8 +51,8 @@ import android.widget.Toast;
 @ManagedUi(R.layout.screen_login)
 public class LoginActivity extends CommCareActivity<LoginActivity> {
 	
-	public static final int MENU_DEMO = Menu.FIRST;
-	
+	public final static int MENU_DEMO = Menu.FIRST;
+    public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
 	public static String ALREADY_LOGGED_IN = "la_loggedin";
 	
 	@UiElement(value=R.id.login_button, locale="login.button")
@@ -85,7 +85,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         
         //Only on the initial creation
@@ -190,17 +189,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 					@Override
 					protected void deliverUpdate( LoginActivity receiver, Integer... update) {
 						if(update[0] == DataPullTask.PROGRESS_STARTED) {
-							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.purge"));
+							receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
 						} else if(update[0] == DataPullTask.PROGRESS_CLEANED) {
-							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.authing"));
+							receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
 						} else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
-							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.downloading"));
+							receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
 						} else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.recover.needed"));
+							receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
 						} else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-							receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.recover.started"));
+							receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
 						}
-						
 					}
 
 					@Override
@@ -293,16 +291,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 					if(triggerTooManyUsers) {
 						//We've successfully pulled down new user data. 
 						//Should see if the user already has a sandbox and let them know that their old data doesn't transition
-						raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3]), true);
+						r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3]), true);
 						Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
 					}
-					done();
+					r.done();
 				}
 
 				@Override
 				public void keysReadyForSync(LoginActivity r) {
 					//TODO: we only wanna do this on the _first_ try. Not subsequent ones (IE: On return from startOta)
-					startOta();
+					r.startOta();
 				}
 
 				@Override
@@ -334,7 +332,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 			}) {
 				@Override
 				protected void deliverUpdate(LoginActivity receiver, String... update) {
-					receiver.updateProgress(this.getTaskId(), update[0]);
+					receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
 				}
 			};
 			
@@ -396,52 +394,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 		}
 	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreateDialog(int)
-     */
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-        case TASK_KEY_EXCHANGE:
-        	ProgressDialog progress = new ProgressDialog(this);
-        	//Add cancelling
-//            DialogInterface.OnClickListener loadingButtonListener =
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();
-//                            //If it is null, this is tricky to recover from? 
-//                            if(dataPuller != null) {
-//                            	dataPuller.cancel(true);
-//                            }
-//                        }
-//                    };
-        	progress.setTitle(Localization.get("key.manage.title"));
-        	progress.setMessage(Localization.get("key.manage.start"));
-        	progress.setIndeterminate(true);
-        	progress.setCancelable(false);
-            return progress;
-        	
-            case DataPullTask.DATA_PULL_TASK_ID:
-            	ProgressDialog mProgressDialog = new ProgressDialog(this);
-                DialogInterface.OnClickListener loadingButtonListener =
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //If it is null, this is tricky to recover from? 
-                                	LoginActivity.this.cancelCurrentTask();
-                                }
-                            };
-                mProgressDialog.setTitle(Localization.get("sync.progress.title"));
-                mProgressDialog.setMessage(Localization.get("sync.progress.starting"));
-                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setCancelable(false);
-                mProgressDialog.setButton(Localization.get("option.cancel"), loadingButtonListener);
-                return mProgressDialog;
-        }
-        return null;
-    }
-
 	private void raiseMessage(NotificationMessage message) {
     	raiseMessage(message, true);
     }
@@ -460,5 +412,30 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 		Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
     }
     
-    public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
+    
+	/** Implementation of generateProgressDialog() for DialogController -- other methods
+	 * handled entirely in CommCareActivity
+	 */
+    
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+    	CustomProgressDialog dialog;
+    	switch (taskId) {
+    	case TASK_KEY_EXCHANGE:
+    		dialog = CustomProgressDialog.newInstance(Localization.get("key.manage.title"), 
+    				Localization.get("key.manage.start"), taskId);
+    		break;
+    	case DataPullTask.DATA_PULL_TASK_ID:
+    		dialog = CustomProgressDialog.newInstance(Localization.get("sync.progress.title"),
+    				Localization.get("sync.progress.starting"), taskId);
+    		dialog.addCancelButton();
+    		break;
+    	default:
+    		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+    				+ "any valid possibilities in LoginActivity");
+    		return null;
+    	}
+    	return dialog;
+    }
+    
 }

@@ -3,30 +3,20 @@
  */
 package org.commcare.dalvik.activities;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.MultimediaInflaterTask;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
@@ -77,7 +67,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		btnFetchFiles.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -119,7 +108,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 
 					@Override
 					protected void deliverUpdate(MultimediaInflaterActivity receiver, String... update) {
-						receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
+						receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
 						receiver.txtInteractiveMessages.setText(update[0]);
 					}
 
@@ -170,20 +159,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 	protected void onResume() {
 		super.onResume();
 		evalState();
-	}
-	
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateDialog(int)
-	 */
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		if(id == CommCareTask.GENERIC_TASK_ID) {
-			ProgressDialog progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle(Localization.get("mult.install.title"));
-			progressDialog.setMessage(Localization.get("mult.install.progress", new String[] {"0"}));
-			return progressDialog;
-		}
-		return null;
 	}
 
 	private void evalState() {
@@ -294,5 +269,21 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 			editFileLocation.setText(bestMatch.getAbsolutePath());
 		}
 	}
-
+	
+	
+	/** Implementation of generateProgressDialog() for DialogController -- other methods
+	 * handled entirely in CommCareActivity
+	 */
+	
+	@Override
+	public CustomProgressDialog generateProgressDialog(int taskId) {
+		if(taskId == CommCareTask.GENERIC_TASK_ID) {
+			String title = Localization.get("mult.install.title");
+			String message = Localization.get("mult.install.progress", new String[] {"0"});
+			return CustomProgressDialog.newInstance(title, message, taskId);
+		}
+		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+				+ "any valid possibilities in MultiMediaInflaterActivity");
+		return null;
+	}
 }

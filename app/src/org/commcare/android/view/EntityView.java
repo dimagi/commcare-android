@@ -182,7 +182,7 @@ public class EntityView extends LinearLayout {
 	private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
 		tv.setVisibility(View.VISIBLE);
-	    tv.setText(highlightSearches(text == null ? "" : text, searchField));
+	        tv.setText(highlightSearches(text == null ? "" : text, searchField));
 		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
 		btn.setFocusable(false);
 
@@ -206,6 +206,39 @@ public class EntityView extends LinearLayout {
 			btn.setLayoutParams(params);
 		}
     }
+	
+	
+	 /*
+     * Updates the ImageView layout that is passed in, based on the  
+     * new id and source
+     */
+	public void setupImageLayout(View layout, final String source) {
+		ImageView iv = (ImageView) layout;
+		Bitmap b;
+		if (!source.equals("")) {
+			try {
+				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
+				if (b == null) {
+					//Input stream could not be used to derive bitmap, so showing error-indicating image
+					iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+				}
+				else {
+					iv.setImageBitmap(b);
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				//Error loading image
+				iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+			} catch (InvalidReferenceException ex) {
+				ex.printStackTrace();
+				//No image
+				iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+			}
+		}
+		else {
+			iv.setImageDrawable(getResources().getDrawable(R.drawable.white));
+		}
+	}
 	
 	
 	 /*
