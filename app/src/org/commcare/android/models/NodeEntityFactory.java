@@ -15,7 +15,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -68,20 +67,12 @@ public class NodeEntityFactory {
 				} else {
 					sortDetails[count] = sortText.evaluate(nodeContext);
 				}
-				String relevancy = f.getRelevancy();
-				boolean isRelevant = true;
-				if (relevancy != null) {
-					try {
-						XPathExpression parsed = XPathParseTool.parseXPath(relevancy);
-						isRelevant = XPathFuncExpr.toBoolean(parsed.eval(nodeContext)).booleanValue();
-					} catch (XPathSyntaxException e) {
-						e.printStackTrace();
-					}
-				}
-				relevancyDetails[count] = isRelevant;
+				relevancyDetails[count] = f.isRelevant(nodeContext);
 			} catch(XPathException xpe) {
 				xpe.printStackTrace();
 				details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
+			} catch (XPathSyntaxException e) {
+				e.printStackTrace();
 			}
 			count++;
 		}
