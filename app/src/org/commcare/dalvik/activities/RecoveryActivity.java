@@ -70,6 +70,10 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
 		
 		sendForms.setOnClickListener(new OnClickListener() {
 
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@SuppressLint("NewApi")
 			@Override
 			public void onClick(View v) {
@@ -88,6 +92,10 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
 						displayMessage("Submitting form(s) to the server...");
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
+					 */
 					@Override
 					protected void deliverResult(RecoveryActivity receiver, Integer result) {
 						 if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
@@ -110,11 +118,19 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
 
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
+					 */
 					@Override
 					protected void deliverUpdate(RecoveryActivity receiver, Long... update) {
 						//we don't need to deliver updates here, it happens on the notification bar
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
+					 */
 					@Override
 					protected void deliverError(RecoveryActivity receiver,Exception e) {
 						Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,"Error in recovery form send: " + ExceptionReportTask.getStackTrace(e));
@@ -140,6 +156,10 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
 		
 		btnRecoverApp.setOnClickListener(new OnClickListener() {
 
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@Override
 			public void onClick(View v) {
 				displayMessage("App recovery is not yet enabled. Please clear user data (After sending all of your forms!) and re-install.");

@@ -49,42 +49,70 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 	
 	CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#connectTask(org.commcare.android.tasks.templates.CommCareTask)
+		 */
 		@Override
 		public void connectTask(CommCareTask task) {
 			// TODO Auto-generated method stub
 			
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask(int)
+		 */
 		@Override
 		public void startBlockingForTask(int id) {
 			// TODO Auto-generated method stub
 			
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopBlockingForTask(int)
+		 */
 		@Override
 		public void stopBlockingForTask(int id) {
 			// TODO Auto-generated method stub
 			
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
+		 */
 		@Override
 		public void taskCancelled(int id) {
 			// TODO Auto-generated method stub
 			
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#getReceiver()
+		 */
 		@Override
 		public Object getReceiver() {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startTaskTransition()
+		 */
 		@Override
 		public void startTaskTransition() {
 			// TODO Auto-generated method stub
 			
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopTaskTransition()
+		 */
 		@Override
 		public void stopTaskTransition() {
 			// TODO Auto-generated method stub
@@ -161,6 +189,10 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     		ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
 
 
+    			/*
+    			 * (non-Javadoc)
+    			 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
+    			 */
 				@Override
 				protected void deliverResult(Object receiver, Integer result) {
             		if(result == FormUploadUtil.FULL_SUCCESS) {
@@ -174,12 +206,20 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             		}
 				}
 
+				/*
+				 * (non-Javadoc)
+				 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
+				 */
 				@Override
 				protected void deliverUpdate(Object receiver, Long... update) {
 					// TODO Auto-generated method stub
 					
 				}
 
+				/*
+				 * (non-Javadoc)
+				 * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
+				 */
 				@Override
 				protected void deliverError(Object receiver, Exception e) {
 					// TODO Auto-generated method stub
@@ -204,6 +244,10 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
 		DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",c.getString(R.string.ota_restore_url)), "", c) {
 
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
+			 */
 			@Override
 			protected void deliverResult(Object receiver, Integer result) {
 				if(result != DataPullTask.DOWNLOAD_SUCCESS) {
@@ -213,12 +257,20 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 				}
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
+			 */
 			@Override
 			protected void deliverUpdate(Object receiver, Integer... update) {
 				// TODO Auto-generated method stub
 				
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
+			 */
 			@Override
 			protected void deliverError(Object receiver, Exception e) {
 				// TODO Auto-generated method stub
@@ -289,6 +341,10 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 				}
 				
 			}) {
+				/*
+				 * (non-Javadoc)
+				 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
+				 */
 				@Override
 				protected void deliverUpdate(Object r, String... update) {
 				}

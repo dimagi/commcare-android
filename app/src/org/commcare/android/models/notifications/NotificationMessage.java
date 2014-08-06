@@ -21,11 +21,19 @@ public class NotificationMessage implements Parcelable {
 	private String category, title, details, actions;
 	private Date date;
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.os.Parcelable#describeContents()
+	 */
 	@Override
 	public int describeContents() {
 		return 0;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.os.Parcelable#writeToParcel(android.os.Parcel, int)
+	 */
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeStringArray(new String[] {category, title, details, actions});
@@ -34,6 +42,10 @@ public class NotificationMessage implements Parcelable {
 
 	public static final Parcelable.Creator<NotificationMessage> CREATOR = new Parcelable.Creator<NotificationMessage>() {
 
+		/*
+		 * (non-Javadoc)
+		 * @see android.os.Parcelable.Creator#createFromParcel(android.os.Parcel)
+		 */
 		@Override
 		public NotificationMessage createFromParcel(Parcel source) {
 			String[] array = new String[3];
@@ -43,6 +55,10 @@ public class NotificationMessage implements Parcelable {
 			
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see android.os.Parcelable.Creator#newArray(int)
+		 */
 		@Override
 		public NotificationMessage[] newArray(int size) {
 			return new NotificationMessage[size]; 
@@ -73,6 +89,10 @@ public class NotificationMessage implements Parcelable {
 		return details;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if(!(o instanceof NotificationMessage)) { return false; }

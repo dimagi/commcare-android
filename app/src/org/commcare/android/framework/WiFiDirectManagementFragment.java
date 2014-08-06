@@ -70,11 +70,19 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 	public Channel mChannel;
 	WiFiDirectBroadcastReceiver mReceiver;
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
+     */
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
@@ -85,6 +93,10 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -178,6 +190,10 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 	    this.mManager = mManager;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener#onConnectionInfoAvailable(android.net.wifi.p2p.WifiP2pInfo)
+	 */
 	@Override
 	public void onConnectionInfoAvailable(WifiP2pInfo info) {
     	
@@ -239,18 +255,30 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
 		this.isWifiP2pEnabled = isWifiP2pEnabled;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.net.wifi.p2p.WifiP2pManager.ActionListener#onFailure(int)
+	 */
 	@Override
 	public void onFailure(int reason) {
 		//setStatusText("Failed to create group for rason: " + reason);
 		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.net.wifi.p2p.WifiP2pManager.ActionListener#onSuccess()
+	 */
 	@Override
 	public void onSuccess() {
 		//setStatusText("Successfully created group");
 		
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see android.net.wifi.p2p.WifiP2pManager.ChannelListener#onChannelDisconnected()
+	 */
     @Override
     public void onChannelDisconnected() {
         // we will try once more

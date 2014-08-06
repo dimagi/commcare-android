@@ -186,6 +186,10 @@ public class EntityView extends LinearLayout {
 
 		btn.setOnClickListener(new OnClickListener(){
 
+			/*
+			 * (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@Override
 			public void onClick(View v) {
 				String textToRead = text;

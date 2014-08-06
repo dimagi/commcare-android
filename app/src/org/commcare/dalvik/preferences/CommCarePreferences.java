@@ -89,6 +89,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 	private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
 	private static final int RECOVERY_MODE = Menu.FIRST + 3;
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
+	 */
     @Override	
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +114,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         setTitle("CommCare" + " > " + "Application Preferences");
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -125,6 +133,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -174,6 +186,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     	return !isInSenseMode();
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onResume()
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -182,6 +198,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onPause()
+     */
     @Override
     protected void onPause() {
         super.onPause();

@@ -73,6 +73,10 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 		return true;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.resource.installers.FileSystemInstaller#customInstall(org.commcare.resources.model.Resource, org.javarosa.core.reference.Reference, boolean)
+	 */
 	@Override
 	protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
 		//Ugh. Really need to sync up the Xform libs between ccodk and odk.

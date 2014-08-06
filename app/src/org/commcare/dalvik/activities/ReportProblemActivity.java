@@ -17,6 +17,10 @@ import android.widget.TextView;
 
 public class ReportProblemActivity extends Activity implements OnClickListener {
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +31,10 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         ((TextView)findViewById(R.id.ReportPrompt01)).setText(Localization.get("problem.report.prompt"));
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.view.View.OnClickListener#onClick(android.view.View)
+     */
 	@Override
 	public void onClick(View v) {
 		EditText mEdit = (EditText)findViewById(R.id.ReportText01);

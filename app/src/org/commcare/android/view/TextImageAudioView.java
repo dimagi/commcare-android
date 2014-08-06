@@ -179,6 +179,10 @@ public class TextImageAudioView extends RelativeLayout {
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.view.View#onWindowVisibilityChanged(int)
+     */
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);

@@ -247,6 +247,10 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceInstaller#unstage(org.commcare.resources.model.Resource, int)
+	 */
 	@Override
 	public boolean unstage(Resource r, int newStatus) {
 		try {
@@ -284,6 +288,10 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceInstaller#revert(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
+	 */
 	@Override
 	public boolean revert(Resource r, ResourceTable table) {
 		String finalLocation = null;

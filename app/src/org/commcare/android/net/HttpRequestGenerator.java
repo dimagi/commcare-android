@@ -288,6 +288,10 @@ public class HttpRequestGenerator {
 			
 			if(passwordAuthentication != null) {
 		 		Authenticator.setDefault(new Authenticator() {
+		 			/*
+		 			 * (non-Javadoc)
+		 			 * @see java.net.Authenticator#getPasswordAuthentication()
+		 			 */
 		 			  @Override
 					  protected PasswordAuthentication getPasswordAuthentication() {
 						  return passwordAuthentication;
