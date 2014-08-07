@@ -310,9 +310,8 @@ public class EntityView extends LinearLayout {
 	    }
 
 	    if(backgroundString != null) {
-		    backgroundString = backgroundString.trim() + " ";
+		    backgroundString = StringUtils.normalize(backgroundString).trim() + " ";
 
-	    	backgroundString = StringUtils.normalize(backgroundString).trim() + " ";
 		    for (String searchText : searchTerms) {
 		    	
 		    	if ("".equals(searchText)) { continue;}
