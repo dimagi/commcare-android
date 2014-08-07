@@ -25,7 +25,7 @@
         android:id="@+id/log_in_local"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log Into CommCafre" />
+        android:text="Log Into CommCare" />
 
     <Button
         android:id="@+id/sync"
