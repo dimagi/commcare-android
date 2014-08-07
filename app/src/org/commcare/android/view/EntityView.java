@@ -239,39 +239,6 @@ public class EntityView extends LinearLayout {
 			iv.setImageDrawable(getResources().getDrawable(R.drawable.white));
 		}
 	}
-	
-	
-	 /*
-     * Updates the ImageView layout that is passed in, based on the  
-     * new id and source
-     */
-	public void setupImageLayout(View layout, final String source) {
-		ImageView iv = (ImageView) layout;
-		Bitmap b;
-		if (!source.equals("")) {
-			try {
-				b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
-				if (b == null) {
-					//Input stream could not be used to derive bitmap
-					iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-				}
-				else {
-					iv.setImageBitmap(b);
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				//Error loading image
-				iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-			} catch (InvalidReferenceException ex) {
-				ex.printStackTrace();
-				//No image
-				iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-			}
-		}
-		else {
-			iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-		}
-	}
     
     private Spannable highlightSearches(String displayString, String backgroundString) {
     	

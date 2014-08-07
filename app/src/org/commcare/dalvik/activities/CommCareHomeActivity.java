@@ -1484,9 +1484,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             case MENU_SAVED_FORMS:
             	goToFormArchive(false);
             	return true;
-            case MENU_SAVED_FORMS:
-            	goToFormArchive(false);
-            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
