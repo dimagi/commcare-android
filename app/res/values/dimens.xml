@@ -10,4 +10,14 @@
     <dimen name="tab_gradient_radius">300dp</dimen>
     
     <dimen name="login_box_margins">30dp</dimen>
+    
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="font_size_small">12sp</dimen>
+    <dimen name="font_size_medium">15sp</dimen>
+    <dimen name="font_size_large">18sp</dimen>
+	<dimen name="font_size_xlarge">21sp</dimen>
+    
 </resources>

@@ -161,7 +161,7 @@ public class EntityDetailView extends FrameLayout {
 			}
 		} else if(FORM_IMAGE.equals(form)) {
 			String imageLocation = textField;
-			Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
+			Bitmap b = MediaUtil.getScaledImageFromReference(imageLocation);
 			
 			if(b == null) {
 				imageView.setImageDrawable(null);

@@ -40,4 +40,8 @@ public class Entity<T> {
 	public int getNumFields() {
 		return data.length;
 	}
+	
+	public String[] getData(){
+		return data;
+	}
 }

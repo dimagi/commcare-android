@@ -43,8 +43,8 @@ public class EntityView extends LinearLayout {
 	private Context context;
 	private AudioController controller;
 	private long rowId;
-	private static final String FORM_AUDIO = "audio";
-	private static final String FORM_IMAGE = "image";
+	public static final String FORM_AUDIO = "audio";
+	public static final String FORM_IMAGE = "image";
 
 	/*
 	 * Constructor for row/column contents
