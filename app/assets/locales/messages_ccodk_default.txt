@@ -410,6 +410,10 @@ notification.server.error.title=Server Error
 notification.server.error.detail=The server had an error processing your data
 notification.server.error.action=Please try again later. If the problem persists, contact technical support.
 
+notification.multiple.apps.unverified.title=Missing Multimedia
+notification.multiple.apps.unverified.detail=All of your installed apps are missing their associated multimedia resources.
+notificaiton.multiple.apps.unverified.action=Please notify your supervisor that he/she can fix this though the CommCare App Manager page.
+
 problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below
 problem.report.menuitem=Report Problem
@@ -437,3 +441,5 @@ archive.install.unzip=Unzipping
 
 archive.install.prompt=Install your CommCare application from a .zip file
 archive.install.button=Install App
+
+
