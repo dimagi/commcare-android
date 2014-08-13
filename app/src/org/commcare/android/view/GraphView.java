@@ -202,9 +202,15 @@ public class GraphView {
 	 * Apply any user-requested look and feel changes to graph.
 	 */
 	private void configureSeries(SeriesData s, XYSeriesRenderer currentRenderer) {
-		String showPoints = s.getConfiguration("show-points");
-		if (showPoints == null || !Boolean.valueOf(showPoints).equals(Boolean.FALSE)) {
-			currentRenderer.setPointStyle(PointStyle.CIRCLE);
+		// Default to circular points, but allow Xs or no points at all
+		String pointStyle = s.getConfiguration("point-style");
+		if (pointStyle == null || !pointStyle.toLowerCase().equals("none")) {
+			pointStyle = pointStyle == null ? "circle" : pointStyle.toLowerCase();
+			PointStyle style = PointStyle.CIRCLE;
+			if (pointStyle.equals("x")) {
+				style = PointStyle.X;
+			}
+			currentRenderer.setPointStyle(style);
 			currentRenderer.setFillPoints(true);
 		}
 		
