@@ -416,15 +416,21 @@ public class AndroidSessionWrapper {
 	public boolean terminateSession() {
 		//Possible should re-name this one. We no longer go "home" by default. We might start a new session's frame.
 		
+		//CTS: note, this maybe should just be clearing volitiles either way (rather than cherry picking this one),
+		//but this is necessary to ensure that stack ops don't re-use the case casedb as the form if the form
+		//modified the case database before stack ops fire
+		initializer = null;
+		
 		//TODO: should this section get wrapped up in the session, maybe?
 		Vector<StackOperation> ops = session.getCurrentEntry().getPostEntrySessionOperations();
+		
+		//Let the session know that the current frame shouldn't work its way back onto the stack
+		session.markCurrentFrameForDeath();
 		
 		//First, see if we have operations to run
 		if(ops.size() > 0) {
 			EvaluationContext ec = getEvaluationContext();
-			for(StackOperation op : ops) {
-				session.executeStackOperation(op, ec);
-			}
+			session.executeStackOperations(ops, ec);
 		}
 		
 		//Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
@@ -438,6 +444,18 @@ public class AndroidSessionWrapper {
 			reset();
 			return false;
 		}
+	}
+	
+	/**
+	 * Execute a stack action in the current session environment. Note: This action will
+	 * always require a fresh jump to the central controller.  
+	 */
+	public void executeStackActions(Vector<StackOperation> ops) {
+		session.executeStackOperations(ops, getEvaluationContext());
+		
+		//regardless of whether we just updated the current stack, we need to
+		//assume our current volatile states are no longer relevant
+		cleanVolatiles();
 	}
 
 }

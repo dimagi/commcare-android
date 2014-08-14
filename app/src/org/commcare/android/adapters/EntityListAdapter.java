@@ -13,7 +13,10 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
+import org.commcare.android.view.TextImageAudioView;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -29,13 +32,17 @@ import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
-import android.widget.Toast;
 
 /**
  * @author ctsims
  *
  */
 public class EntityListAdapter implements ListAdapter {
+	
+	public static final int SPECIAL_ACTION = -2;
+	
+	private int actionPosition = -1;
+	private boolean actionEnabled; 
 	
 	Context context;
 	
@@ -75,10 +82,17 @@ public class EntityListAdapter implements ListAdapter {
 		filterValues("");
 		this.tts = tts;
 		this.controller = controller;
+		
+		if(d.getCustomAction() != null) {
+			actionEnabled = true;
+		}
 	}
 
 	private void filterValues(String filterRaw) {
-		String[] searchTerms = filterRaw.toLowerCase().split(" ");
+		String[] searchTerms = filterRaw.split(" ");
+		for(int i = 0 ; i < searchTerms.length ; ++i) {
+			searchTerms[i] = StringUtils.normalize(searchTerms[i]);
+		}
 		
 		current.clear();
 		
@@ -94,11 +108,26 @@ public class EntityListAdapter implements ListAdapter {
 			for(String filter: searchTerms) {
 				add = false;
 				for(int i = 0 ; i < e.getNumFields(); ++i) {
-					String field = e.getField(i);
+					String field = StringUtils.normalize(e.getField(i));
 					if(field.toLowerCase().contains(filter)) {
 						add = true;
 						continue filter;
-					}				
+					} else {
+						//We possibly now want to test for edit distance for fuzzy matching
+						
+						String sortField = e.getSortField(i);
+						if(sortField != null) {
+							//We always fuzzy match on the sort field and only if it is available
+							//(as a way to restrict possible matching)
+							sortField = StringUtils.normalize(sortField);
+							for(String fieldChunk : sortField.split(" ")) {
+								if(StringUtils.fuzzyMatch(fieldChunk, filter)) {
+									add = true;
+									continue filter;
+								}
+							}
+						}
+					}
 				}
 				if(!add) { break; }
 			}
@@ -108,6 +137,10 @@ public class EntityListAdapter implements ListAdapter {
 			}
 		}
 		this.currentSearchTerms = searchTerms;
+		
+		if(actionEnabled) {
+			actionPosition = current.size(); 
+		}
 	}
 	
 	private void sort(int[] fields) {
@@ -141,6 +174,9 @@ public class EntityListAdapter implements ListAdapter {
 				
 				String a1 = object1.getSortField(index);
 				String a2 = object2.getSortField(index);
+				
+				if(a1 == null) { a1 = object1.getField(i); }
+				if(a2 == null) { a2 = object2.getField(i); }
 				
 				//TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
 				//For now, regardless of typing, blanks are always smaller than non-blanks
@@ -224,7 +260,8 @@ public class EntityListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getCount()
 	 */
 	public int getCount() {
-		return current.size();
+		//Always one extra element if the action is defined
+		return current.size() + (actionEnabled ? 1 : 0);
 	}
 
 	/* (non-Javadoc)
@@ -238,6 +275,11 @@ public class EntityListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getItemId(int)
 	 */
 	public long getItemId(int position) {
+		if(actionEnabled) {
+			if(position == actionPosition) {
+				return SPECIAL_ACTION;
+			}
+		}
 		return references.indexOf(current.get(position).getElement());
 	}
 
@@ -245,6 +287,11 @@ public class EntityListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getItemViewType(int)
 	 */
 	public int getItemViewType(int position) {
+		if(actionEnabled) {
+			if(position == actionPosition) {
+				return 1;
+			}
+		}
 		return 0;
 	}
 	
@@ -259,6 +306,21 @@ public class EntityListAdapter implements ListAdapter {
 	 * are both assigned position 0 -- this is not an issue for current usage, but it could be in future
 	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
+		if(actionEnabled && position == actionPosition) {
+			TextImageAudioView tiav =(TextImageAudioView)convertView;
+
+			if(tiav == null) {
+				tiav = new TextImageAudioView(context);
+			}
+			tiav.setDisplay(d.getCustomAction().getDisplay());
+			tiav.setBackgroundResource(R.drawable.list_bottom_tab);
+			//We're gonna double pad this because we want to give it some visual distinction
+			//and keep the icon more centered
+			int padding = (int) context.getResources().getDimension(R.dimen.entity_padding);
+			tiav.setPadding(padding, padding, padding, padding);
+			return tiav;
+		}
+
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if (emv == null) {
@@ -274,7 +336,7 @@ public class EntityListAdapter implements ListAdapter {
 	 * @see android.widget.Adapter#getViewTypeCount()
 	 */
 	public int getViewTypeCount() {
-		return 1;
+		return actionEnabled? 2 : 1;
 	}
 
 	/* (non-Javadoc)

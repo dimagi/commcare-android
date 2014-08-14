@@ -25,7 +25,7 @@
         android:id="@+id/log_in_local"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log Into CommCafre" />
+        android:text="Log Into CommCare" />
 
     <Button
         android:id="@+id/sync"
@@ -38,5 +38,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="View Case Data" />
+
+    <Button
+        android:id="@+id/button_receiver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test Broadcast Receiver" />
 
 </LinearLayout>
