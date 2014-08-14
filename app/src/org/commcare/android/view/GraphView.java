@@ -59,10 +59,20 @@ public class GraphView {
 	 * Set margins.
 	 */
 	private void setMargins() {
-		int topMargin = mRenderer.getChartTitle().equals("") ? 0 : 30;
-		int rightMargin = 20;
-		int leftMargin = mRenderer.getYTitle().equals("") ? 50 : 70;
-		int bottomMargin = mRenderer.getXTitle().equals("") ? 0 : 50;
+		int textAllowance = (int) mContext.getResources().getDimension(R.dimen.graph_text_margin);
+		int topMargin = (int) mContext.getResources().getDimension(R.dimen.graph_y_margin);
+		if (!mRenderer.getChartTitle().equals("")) {
+			topMargin += textAllowance;
+		}
+		int rightMargin = (int) mContext.getResources().getDimension(R.dimen.graph_x_margin);
+		int leftMargin = (int) mContext.getResources().getDimension(R.dimen.graph_x_margin);
+		if (!mRenderer.getYTitle().equals("")) {
+			leftMargin += textAllowance;
+		}
+		int bottomMargin = (int) mContext.getResources().getDimension(R.dimen.graph_y_margin);
+		if (!mRenderer.getXTitle().equals("")) {
+			bottomMargin += textAllowance;
+		}
 		mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
 	}
 		
