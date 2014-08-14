@@ -3,6 +3,9 @@
  */
 package org.commcare.android.view;
 
+import java.util.Hashtable;
+import java.util.Vector;
+
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -46,6 +49,7 @@ public class EntityDetailView extends FrameLayout {
 	private TextView addressText;
 	private ImageView imageView;
 	private LinearLayout graphLayout;
+	private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;	// index => { width => GraphView }
 	private ImageButton videoButton;
 	private AudioButton audioButton;
 	private View valuePane;
@@ -102,6 +106,7 @@ public class EntityDetailView extends FrameLayout {
 	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
 	    imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
 	    graphLayout = (LinearLayout)detailRow.findViewById(R.id.graph);
+	    renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
 	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
 	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 
@@ -165,12 +170,26 @@ public class EntityDetailView extends FrameLayout {
 			
 			updateCurrentView(IMAGE, imageView);
 		} else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {	// if graph parsing had errors, they'll be stored as a string
-			GraphView g = new GraphView(getContext(), (GraphData) field);
-			g.setTitle(labelText);
-			g.setWidth(getScreenWidth());
-			g.setHeight(getScreenWidth() / 2);
+			GraphView g = null;
+			View rendered = null;
+			int width = getScreenWidth();
+			if (renderedGraphsCache.get(index) != null) {
+				rendered = renderedGraphsCache.get(index).get(width);
+			}
+			else {
+				renderedGraphsCache.put(index, new Hashtable<Integer, View>());
+			}
+			if (g == null) {
+				g = new GraphView(getContext());
+				g.setTitle(labelText);
+				g.setWidth(width);
+				g.setHeight(width / 2);
+				rendered = g.renderView((GraphData) field);
+				renderedGraphsCache.get(index).put(width, rendered);
+			}
 			graphLayout.removeAllViews();
-			graphLayout.addView(g.getView(), g.getLayoutParams());
+
+			graphLayout.addView(rendered, g.getLayoutParams());
 
 			if (current != GRAPH) {
 				// Hide field label and expand value to take up full screen width

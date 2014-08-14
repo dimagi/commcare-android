@@ -27,7 +27,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 /*
- * View containing a graph. Note that this does not derive from View; call getView to get a view for adding to other views, etc.
+ * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
  * @author jschweers
  */
 public class GraphView {
@@ -41,37 +41,22 @@ public class GraphView {
 	private int mHeight = 0;
 	private int mWidth = 0;
 
-	public GraphView(Context context, GraphData data) {
+	public GraphView(Context context) {
 		mContext = context;
-		mData = data;
 		mDataset = new XYMultipleSeriesDataset();
 		mRenderer = new XYMultipleSeriesRenderer();
-		
-		mRenderer.setInScroll(true);
-		for (SeriesData s : data.getSeries()) {
-			XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-			mRenderer.addSeriesRenderer(currentRenderer);
-			
-			configureSeries(s, currentRenderer);
-			renderSeries(s);
-		}
-		
-		renderAnnotations();
-		configure();
-		setMargins();
 	} 
 	
 	/*
-	 * Set title of graph, and adjust spacing accordingly.
+	 * Set title of graph, and adjust spacing accordingly. Caller should re-render afterwards.
 	 */
 	public void setTitle(String title) {
 		mRenderer.setChartTitle(title);
 		mRenderer.setChartTitleTextSize(TEXT_SIZE);
-		setMargins();
 	}
 	
 	/*
-	 * Set margins. Should also be called after altering chart title or axis titles.
+	 * Set margins.
 	 */
 	private void setMargins() {
 		int topMargin = mRenderer.getChartTitle().equals("") ? 0 : 30;
@@ -82,9 +67,27 @@ public class GraphView {
 	}
 		
 	/*
-	 * Get a View object that will display this graph.
+	 * Get a View object that will display this graph. This should be called after making
+	 * any changes to graph's configuration, title, etc.
 	 */
-	public View getView() {
+	public View renderView(GraphData data) {
+		mData = data;
+		mRenderer.setInScroll(true);
+		for (SeriesData s : data.getSeries()) {
+			XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
+			mRenderer.addSeriesRenderer(currentRenderer);
+			
+			configureSeries(s, currentRenderer);
+			renderSeries(s);
+		}
+		
+		renderAnnotations();
+
+		configure();
+		reduceLabels(true);
+		reduceLabels(false);
+		setMargins();
+		
 		if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
         	return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
 		}
@@ -126,14 +129,18 @@ public class GraphView {
 		return new LinearLayout.LayoutParams(width, height);	
 	}
 	
+	/*
+	 * Set overall graph height. Caller should re-render afterwards.
+	 */
 	public void setHeight(int height) {
 		mHeight = height;
-        reduceLabels(false);
 	}
 	
+	/*
+	 * Set overall graph width. Caller should re-render afterwards.
+	 */
 	public void setWidth(int width) {
 		mWidth = width;
-        reduceLabels(true);
 	}
 	
 	/*
@@ -162,10 +169,10 @@ public class GraphView {
 	 * Set number of axis labels based on user configuration.
 	 */
 	private void configureLabels(boolean isX) {
-		if (isX && mData.getConfiguration("x-label-count") != null) {
+		if (isX && mData != null && mData.getConfiguration("x-label-count") != null) {
 			mRenderer.setXLabels(Integer.valueOf(mData.getConfiguration("x-label-count")));
 		}
-		if (!isX && mData.getConfiguration("y-label-count") != null) {
+		if (!isX && mData != null && mData.getConfiguration("y-label-count") != null) {
 			mRenderer.setYLabels(Integer.valueOf(mData.getConfiguration("y-label-count")));
 		}
 		
@@ -263,7 +270,6 @@ public class GraphView {
 		if (mData.getConfiguration("y-axis-title") != null) {
 			mRenderer.setYTitle(mData.getConfiguration("y-axis-title"));
 		}
-		setMargins();
 
 		if (mData.getConfiguration("x-axis-min") != null) {
 			mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-axis-min")));
