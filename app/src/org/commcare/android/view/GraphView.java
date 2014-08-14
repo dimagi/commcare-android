@@ -1,7 +1,3 @@
-/*
- * View containing a graph. Note that this does not derive from View; call getView to get a view for adding to other views, etc.
- * @author jschweers
- */
 package org.commcare.android.view;
 
 import java.util.Collections;
@@ -30,6 +26,10 @@ import android.graphics.Paint;
 import android.view.View;
 import android.widget.LinearLayout;
 
+/*
+ * View containing a graph. Note that this does not derive from View; call getView to get a view for adding to other views, etc.
+ * @author jschweers
+ */
 public class GraphView {
 	private static final int TEXT_SIZE = 21;
 
@@ -48,9 +48,7 @@ public class GraphView {
 		mRenderer = new XYMultipleSeriesRenderer();
 		
 		mRenderer.setInScroll(true);
-		Iterator<SeriesData> seriesIterator = data.getSeriesIterator();
-		while (seriesIterator.hasNext()) {
-			SeriesData s = seriesIterator.next();
+		for (SeriesData s : data.getSeries()) {
 			XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
 			mRenderer.addSeriesRenderer(currentRenderer);
 			
@@ -102,9 +100,8 @@ public class GraphView {
 
 		// Bubble charts will throw an index out of bounds exception if given points out of order
 		Vector<XYPointData> sortedPoints = new Vector<XYPointData>(s.size());
-		Iterator<XYPointData> pointsIterator = s.getPointsIterator();
-		while (pointsIterator.hasNext()) {
-			sortedPoints.add(pointsIterator.next());
+		for (XYPointData d : s.getPoints()) {
+			sortedPoints.add(d);
 		}
 		Collections.sort(sortedPoints, new PointComparator());
 		
@@ -178,12 +175,11 @@ public class GraphView {
 	 * Set up any annotations.
 	 */
 	private void renderAnnotations() {
-		Iterator<AnnotationData> i = mData.getAnnotationIterator();
-		if (i.hasNext()) {
+		Vector<AnnotationData> annotations = mData.getAnnotations();
+		if (!annotations.isEmpty()) {
 			// Create a fake series for the annotations
 			XYSeries series = new XYSeries("");
-			while (i.hasNext()) {
-				AnnotationData a = i.next();
+			for (AnnotationData a : annotations) {
 				series.addAnnotation(a.getAnnotation(), a.getX(), a.getY());
 			}
 			
