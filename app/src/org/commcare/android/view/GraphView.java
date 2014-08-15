@@ -2,7 +2,6 @@ package org.commcare.android.view;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Vector;
 
 import org.achartengine.ChartFactory;
@@ -37,9 +36,6 @@ public class GraphView {
 	private GraphData mData;
 	private XYMultipleSeriesDataset mDataset;
 	private XYMultipleSeriesRenderer mRenderer; 
-	
-	private int mHeight = 0;
-	private int mWidth = 0;
 
 	public GraphView(Context context) {
 		mContext = context;
@@ -94,14 +90,12 @@ public class GraphView {
 		renderAnnotations();
 
 		configure();
-		reduceLabels(true);
-		reduceLabels(false);
 		setMargins();
 		
 		if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
         	return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
 		}
-        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
+		return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
 	}
 	
 	/*
@@ -134,58 +128,7 @@ public class GraphView {
 	 * unless dimensions have been provided via setWidth and/or setHeight.
 	 */
 	public LinearLayout.LayoutParams getLayoutParams() {
-		int height = mHeight == 0 ? LinearLayout.LayoutParams.FILL_PARENT : mHeight;
-		int width = mWidth == 0 ? LinearLayout.LayoutParams.FILL_PARENT : mWidth;
-		return new LinearLayout.LayoutParams(width, height);	
-	}
-	
-	/*
-	 * Set overall graph height. Caller should re-render afterwards.
-	 */
-	public void setHeight(int height) {
-		mHeight = height;
-	}
-	
-	/*
-	 * Set overall graph width. Caller should re-render afterwards.
-	 */
-	public void setWidth(int width) {
-		mWidth = width;
-	}
-	
-	/*
-	 * Attempt to remove some axis labels if graph is too short or narrow for them all.
-	 */
-	private void reduceLabels(boolean isX) {
-		// Get number of labels user originally asked for
-		configureLabels(isX);
-
-		int count = isX ? mRenderer.getXLabels() : mRenderer.getYLabels();
-		int dimension = isX ? mWidth : mHeight;
-		
-		// Guess if labels will be too crowded
-		while (count * TEXT_SIZE > dimension) {
-			count = count % 2 != 0 && count % 3 == 0 ? count / 3 : count / 2;
-			if (isX) {
-				mRenderer.setXLabels(count);
-			}
-			else {
-				mRenderer.setYLabels(count);
-			}
-		}
-	}
-	
-	/*
-	 * Set number of axis labels based on user configuration.
-	 */
-	private void configureLabels(boolean isX) {
-		if (isX && mData != null && mData.getConfiguration("x-label-count") != null) {
-			mRenderer.setXLabels(Integer.valueOf(mData.getConfiguration("x-label-count")));
-		}
-		if (!isX && mData != null && mData.getConfiguration("y-label-count") != null) {
-			mRenderer.setYLabels(Integer.valueOf(mData.getConfiguration("y-label-count")));
-		}
-		
+		return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);	
 	}
 	
 	/*
@@ -295,8 +238,12 @@ public class GraphView {
 			mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
 		}
 		
-		configureLabels(true);
-		configureLabels(false);
+		if (mData.getConfiguration("x-label-count") != null) {
+			mRenderer.setXLabels(Integer.valueOf(mData.getConfiguration("x-label-count")));
+		}
+		if (mData.getConfiguration("y-label-count") != null) {
+			mRenderer.setYLabels(Integer.valueOf(mData.getConfiguration("y-label-count")));
+		}
 	}
 	
 	/**

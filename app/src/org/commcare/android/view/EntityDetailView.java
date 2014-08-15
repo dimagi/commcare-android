@@ -5,7 +5,6 @@ package org.commcare.android.view;
 
 import java.util.Hashtable;
 import java.util.Vector;
-
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -21,7 +20,6 @@ import org.javarosa.core.services.Logger;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.Display;
@@ -48,8 +46,8 @@ public class EntityDetailView extends FrameLayout {
 	private Button addressButton;
 	private TextView addressText;
 	private ImageView imageView;
-	private LinearLayout graphLayout;
-	private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;	// index => { width => GraphView }
+	private AspectRatioLayout graphLayout;
+	private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;	// index => { orientation => GraphView }
 	private ImageButton videoButton;
 	private AudioButton audioButton;
 	private View valuePane;
@@ -105,7 +103,7 @@ public class EntityDetailView extends FrameLayout {
 	    addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
 	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
 	    imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
-	    graphLayout = (LinearLayout)detailRow.findViewById(R.id.graph);
+	    graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
 	    renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
 	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
 	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
@@ -172,9 +170,9 @@ public class EntityDetailView extends FrameLayout {
 		} else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {	// if graph parsing had errors, they'll be stored as a string
 			GraphView g = null;
 			View rendered = null;
-			int width = getScreenWidth();
+			int orientation = getResources().getConfiguration().orientation;
 			if (renderedGraphsCache.get(index) != null) {
-				rendered = renderedGraphsCache.get(index).get(width);
+				rendered = renderedGraphsCache.get(index).get(orientation);
 			}
 			else {
 				renderedGraphsCache.put(index, new Hashtable<Integer, View>());
@@ -182,10 +180,8 @@ public class EntityDetailView extends FrameLayout {
 			if (g == null) {
 				g = new GraphView(getContext());
 				g.setTitle(labelText);
-				g.setWidth(width);
-				g.setHeight(width / 2);
 				rendered = g.renderView((GraphData) field);
-				renderedGraphsCache.get(index).put(width, rendered);
+				renderedGraphsCache.get(index).put(orientation, rendered);
 			}
 			graphLayout.removeAllViews();
 
