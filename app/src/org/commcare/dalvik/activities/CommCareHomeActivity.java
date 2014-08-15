@@ -1096,8 +1096,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        		!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
 	        	Intent i = new Intent(this, CommCareVerificationActivity.class);
 	        	this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
-	        	//2) If there are multiple apps installed and none are verified,
-	        	//display an error message and then close the app
+	        //2) If there are multiple apps installed and none are verified,
+	        //display an error message and then close the app
 	        } else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() > 1 
 	        		&& CommCareApplication._().getReadyAppRecords().size() == 0) {
 	        	CommCareApplication._().triggerHandledAppExit(this, 
