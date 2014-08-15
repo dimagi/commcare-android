@@ -1092,7 +1092,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
 	        //1) If there is only one app installed and it doesn't have resources validated,
 	        //redirect to MM verification (bc we are assuming no multiple apps manager)
-	        else if(CommCareApplication._().getReadyAppRecords().size() == 1 &&
+	        else if(CommCareApplication._().getInstalledAppRecords().getNumRecords() == 1 &&
 	        		!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
 	        	Intent i = new Intent(this, CommCareVerificationActivity.class);
 	        	this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
