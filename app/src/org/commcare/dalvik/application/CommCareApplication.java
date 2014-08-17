@@ -325,7 +325,6 @@ public class CommCareApplication extends Application {
 	}
 	
 	public void intializeDefaultLocalizerData() {
-		System.out.println("initializeDefaultLocalizerData called");
 		Localization.init(true);
 		Localization.registerLanguageReference("default", "jr://asset/locales/messages_ccodk_default.txt");
 		Localization.setDefaultLocale("default");
