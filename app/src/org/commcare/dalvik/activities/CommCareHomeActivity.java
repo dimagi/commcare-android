@@ -1066,7 +1066,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     	try {
 	        
 	        //First make sure nothing catastrophic has happened
-	        if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
+	        if (CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
 	           CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
 	        	if(!CommCareApplication._().isStorageAvailable()) {
 	        		createNoStorageDialog();
@@ -1083,31 +1083,16 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        }  
 	        //Now we need to catch any resource or database upgrade flags and make sure that the application
 	        //is ready to go.
-	        else if(CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
+	        else if (CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
 	        		CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY ||
 	        		CommCareApplication._().getInstalledAppRecords().getNumRecords() == 0) {
 	        	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
 	        	this.startActivityForResult(i, INIT_APP);
-	        }
-
-	        //1) If there is only one app installed and it doesn't have resources validated,
-	        //redirect to MM verification (bc we are assuming no multiple apps manager)
-	        else if(CommCareApplication._().getInstalledAppRecords().getNumRecords() == 1 &&
-	        		!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
-	        	Intent i = new Intent(this, CommCareVerificationActivity.class);
-	        	this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
-	        //2) If there are multiple apps installed and none are verified,
-	        //display an error message and then close the app
-	        } else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() > 1 
-	        		&& CommCareApplication._().getReadyAppRecords().size() == 0) {
-	        	CommCareApplication._().triggerHandledAppExit(this, 
-	        			Localization.get("notification.multiple.apps.unverified"));
 	        } 
 	        
-	        else if(!CommCareApplication._().getSession().isLoggedIn()) {
-	        	//We got brought back to this point despite 
-	        	returnToLogin();
-	        } else if(this.getIntent().hasExtra(SESSION_REQUEST)) {
+	        else if (!CommCareApplication._().getSession().isLoggedIn()) {
+	        	loginDecisionProcess();
+	        } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
 	        	wasExternal = true;
 	        	String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
 	        	SessionStateDescriptor ssd = new SessionStateDescriptor();
@@ -1115,8 +1100,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        	CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
 	        	this.startNextFetch();
 	        	return;
-	        } else if(this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-
+	        } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
 	        	//We were launched in shortcut mode. Get the command and load us up.
 	        	CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
 	        	startNextFetch();
@@ -1124,7 +1108,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        	this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
 	        } 
 	        
-	        else if(CommCareApplication._().isUpdatePending()) {
+	        else if (CommCareApplication._().isUpdatePending()) {
 	        	//We've got an update pending that we need to check on.
 	        	
     	    	Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
@@ -1140,22 +1124,37 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             	
             	startActivityForResult(i,UPGRADE_APP);
             	return;
-	        } else if(CommCareApplication._().isSyncPending(false)) {
+	        } else if (CommCareApplication._().isSyncPending(false)) {
 	        	long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
 	        	String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
 	        	Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
 	        	refreshView();
 	        	this.syncData(false);
 	        }
-	        
 	        //Normal Home Screen login time! 
-	        else {
-	        	refreshView();
-	        }
-    	} catch(SessionUnavailableException sue) {
-    		//TODO: See how much context we have, and go login
-    		returnToLogin();
+	        else refreshView();
+    	} catch (SessionUnavailableException sue) {
+    		loginDecisionProcess();
     	}
+    }
+    
+    private void loginDecisionProcess() {
+    	boolean currentAppValidated = (CommCareApplication._().getCurrentApp() == null) ?
+        		false : CommCareApplication._().getCurrentApp().areResourcesValidated();
+        //1) If there are no apps installed or, only one app installed and it doesn't 
+        //have resources validated, redirect to MM verification (bc assuming not using multiple apps)
+        if (CommCareApplication._().getInstalledAppRecords().getNumRecords() <= 1 
+        		&& !currentAppValidated) {
+        	Intent i = new Intent(this, CommCareVerificationActivity.class);
+        	this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+        //2) If there are multiple apps installed and none are verified,
+        //display an error message and then close the app
+        } else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() > 1 
+        		&& CommCareApplication._().getReadyAppRecords().size() == 0) {
+        	CommCareApplication._().triggerHandledAppExit(this, 
+        			Localization.get("multiple.apps.unverified.message"), 
+        			Localization.get("multiple.apps.unverified.title"));
+        } else returnToLogin();
     }
     
     private void returnToLogin() {
