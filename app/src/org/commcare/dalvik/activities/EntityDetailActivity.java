@@ -17,10 +17,16 @@ import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
+
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
+import android.app.ActionBar.Tab;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -28,7 +34,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * @author ctsims
@@ -51,10 +59,13 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	
 	private int detailIndex;
 	
+	@UiElement(value=R.id.screen_entity_detail_menu)
+	LinearLayout menu;
+	
 	@UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
 	Button next;
 	
-    @Override
+	@Override
     public void onCreate(Bundle savedInstanceState) {   
         super.onCreate(savedInstanceState);
         Intent i = getIntent();
@@ -110,6 +121,27 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         } catch(SessionUnavailableException sue) {
         	//TODO: Login and return to try again
         }
+        
+        Detail[] details = factory.getDetail().getDetails();
+        if (details.length > 0) {
+	        LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
+	        	LinearLayout.LayoutParams.WRAP_CONTENT, 
+	        	LinearLayout.LayoutParams.WRAP_CONTENT, 
+	        	10f / details.length
+	        );
+	        for (Detail d : details) {
+	        	Button view = new Button(this);
+	        	view.setText(d.getTitle().evaluate());
+	        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
+	        	view.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						System.out.println("[jls] do something");
+					}
+	        	});
+	        	menu.addView(view, fillLayout);
+	        }
+        }
     }
     
     @Override
@@ -139,7 +171,11 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, this, detailIndex);
+    	Detail currentDetail = factory.getDetail();
+    	if (currentDetail.isCompound()) {
+    		currentDetail = currentDetail.getDetails()[0];
+    	}
+    	adapter = new EntityDetailAdapter(this, session, currentDetail, entity, this, this, detailIndex);
     	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }
         
