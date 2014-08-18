@@ -4,6 +4,7 @@ import org.commcare.android.adapters.AppManagerAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 
 import android.app.Activity;
@@ -12,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -104,20 +106,42 @@ public class AppManagerActivity extends Activity {
 		}
 	}
 	
+	/** Uninstalls the selected app **/
 	public void uninstallSelected(View v) {
-		
+		String appId = (String) v.getContentDescription();
+		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
 	}
 	
-	public void archiveSelected(View v) {
-		
+	/** If the app is not archived, sets it to archived (i.e. still installed but 
+	 * not visible to users; If it is archived, sets it to unarchived **/
+	public void toggleArchiveSelected(View v) {
+		String appId = (String) v.getContentDescription();
+		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
+		selected.setArchiveStatus(!selected.isArchived());
+		Button b = (Button) v;
+		if (selected.isArchived()) {
+			System.out.println("AppManagerActivity setting button to 'Unarchive'");
+			b.setText("Unarchive");
+		} else {
+			System.out.println("AppManagerAdapter setting button to 'Archive'");
+			b.setText("Archive");
+		}
 	}
 	
+	/** Opens the MM verification activity for the selected app **/
 	public void verifyResourcesForSelected(View v) {
-		
+		String appId = (String) v.getContentDescription();
+		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
+		CommCareApplication._().initializeAppResources(new CommCareApp(selected));
+		Intent i = new Intent(this, CommCareVerificationActivity.class);
+        i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
+        this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
 	}
 	
+	/** Conducts an update for the selected app **/
 	public void updateSelected(View v) {
-		
+		String appId = (String) v.getContentDescription();
+		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
 	}
 
 }

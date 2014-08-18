@@ -87,6 +87,10 @@ public class ApplicationRecord extends Persisted {
 		this.isArchived = b;
 	}
 	
+	public boolean isArchived() {
+		return this.isArchived;
+	}
+	
 	@Override
 	public String toString() {
 		//TODO: change this to return displayName when it is available

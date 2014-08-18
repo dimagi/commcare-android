@@ -460,9 +460,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     	ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
         ArrayList<String> appUniqueIds = new ArrayList<String>();
         for (ApplicationRecord r : readyApps) {
-        	String uniqueId = r.getUniqueId();
-        	appUniqueIds.add(uniqueId);
-        	idsToRecords.put(uniqueId, r);
+        	if (!r.isArchived()) {
+        		String uniqueId = r.getUniqueId();
+        		appUniqueIds.add(uniqueId);
+        		idsToRecords.put(uniqueId, r);
+        	}
         }
         if (appUniqueIds.size() > 1) {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
