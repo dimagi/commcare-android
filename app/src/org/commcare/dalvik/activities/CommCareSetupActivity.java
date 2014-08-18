@@ -939,7 +939,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			message = Localization.get("updates.resources.profile");
 		}
 		CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-		String checkboxText = "Persist attempting installation through poor network connection";
+		String checkboxText = "Keep trying if network is interrupted";
 		CustomProgressDialog lastDialog = getCurrentDialog();
 		boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
 		dialog.addCheckbox(checkboxText, isChecked);
