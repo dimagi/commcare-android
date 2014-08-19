@@ -40,7 +40,6 @@ public class EntityDetailFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Bundle args = getArguments();
-		//System.out.println("[jls] receiving DETAIL_ID=" + args.getString(DETAIL_ID) + ", CHILD_DETAIL_INDEX=" + args.getInt(CHILD_DETAIL_INDEX, -1) + ", DETAIL_INDEX=" + args.getInt(DETAIL_INDEX, -1));
 
 		Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
 		Detail childDetail = detail;
@@ -55,7 +54,6 @@ public class EntityDetailFragment extends Fragment {
 
 		View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
 		EntityDetailActivity thisActivity = (EntityDetailActivity) getActivity();
-		System.out.println("[jls] creating view for " + childDetail.getTitle().evaluate());
     	adapter = new EntityDetailAdapter(
     		thisActivity, asw.getSession(), childDetail, entity, 
     		thisActivity, thisActivity, args.getInt(DETAIL_INDEX)

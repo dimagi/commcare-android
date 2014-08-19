@@ -35,7 +35,6 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 			args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
 		}
 		args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
-		//System.out.println("[jls] sending DETAIL_ID=" + detail.getId() + ", CHILD_DETAIL_INDEX=" + (detail.isCompound() ? i : -1) + ", DETAIL_INDEX=" + detailIndex);
 		fragment.setArguments(args);
 		return fragment;
 	}
