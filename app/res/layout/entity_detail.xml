@@ -13,8 +13,8 @@
 	    android:weightSum="10">
 	</LinearLayout>
 	    
-	<ListView
-	    android:id="@+id/screen_entity_detail_list"
+	<android.support.v4.view.ViewPager
+	    android:id="@+id/entity_detail_pager"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:layout_below="@+id/screen_entity_detail_menu" />

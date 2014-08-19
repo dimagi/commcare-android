@@ -6,6 +6,7 @@ package org.commcare.dalvik.activities;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
+import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -31,6 +32,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -58,6 +60,8 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	NodeEntityFactory factory;
 	
 	private int detailIndex;
+	private EntityDetailPagerAdapter mEntityDetailPagerAdapter;
+	private ViewPager mViewPager;
 	
 	@UiElement(value=R.id.screen_entity_detail_menu)
 	LinearLayout menu;
@@ -172,11 +176,9 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      */
     private void refreshView() {
     	Detail currentDetail = factory.getDetail();
-    	if (currentDetail.isCompound()) {
-    		currentDetail = currentDetail.getDetails()[0];
-    	}
-    	adapter = new EntityDetailAdapter(this, session, currentDetail, entity, this, this, detailIndex);
-    	((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
+        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), currentDetail, detailIndex);
+        mViewPager = (ViewPager) findViewById(R.id.entity_detail_pager);
+        mViewPager.setAdapter(mEntityDetailPagerAdapter);
     }
         
     protected void loadOutgoingIntent(Intent i) {
