@@ -24,9 +24,10 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 public class EntityDetailFragment extends Fragment {
-	public static final String CHILD_DETAIL_INDEX = "child_detail_index";
-	public static final String DETAIL_ID = "detail_id";
-	public static final String DETAIL_INDEX = "detail_index";
+	public static final String CHILD_DETAIL_INDEX = "edf_child_detail_index";
+	public static final String DETAIL_ID = "edf_detail_id";
+	public static final String DETAIL_INDEX = "edf_detail_index";
+	public static final String HAS_LISTENER = "edf_has_listener";
 	
 	private AndroidSessionWrapper asw;
 	private NodeEntityFactory factory;
@@ -53,10 +54,10 @@ public class EntityDetailFragment extends Fragment {
 		);
 
 		View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
-		EntityDetailActivity thisActivity = (EntityDetailActivity) getActivity();
+		CommCareActivity thisActivity = (CommCareActivity) getActivity();
     	adapter = new EntityDetailAdapter(
     		thisActivity, asw.getSession(), childDetail, entity, 
-    		thisActivity, thisActivity, args.getInt(DETAIL_INDEX)
+    		(args.getBoolean(HAS_LISTENER, false) ? (EntityDetailActivity) thisActivity : null), thisActivity, args.getInt(DETAIL_INDEX)
     	);
     	((ListView) rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
 		return rootView;

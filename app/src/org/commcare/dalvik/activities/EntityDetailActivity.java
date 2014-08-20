@@ -180,7 +180,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      */
     private void refreshView() {
     	Detail currentDetail = factory.getDetail();
-        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), currentDetail, detailIndex);
+        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), currentDetail, detailIndex, true);
         mViewPager = (ViewPager) findViewById(R.id.entity_detail_pager);
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
     }

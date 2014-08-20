@@ -18,16 +18,17 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 	
 	Detail detail;
 	int detailIndex;
+	boolean hasListener;
 
-	public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex) {	
+	public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, boolean hasListener) {	
 		super(fm);
 		this.detail = detail;
 		this.detailIndex = detailIndex;
+		this.hasListener = hasListener;
 	}
 
 	@Override
 	public Fragment getItem(int i) {
-		System.out.println("EntityDetailPagerAdapter.getItem is getting item #" + i);
 		Fragment fragment = new EntityDetailFragment();
 		Bundle args = new Bundle();
 		args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
@@ -35,6 +36,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 			args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
 		}
 		args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
+		args.putBoolean(EntityDetailFragment.HAS_LISTENER, hasListener);
 		fragment.setArguments(args);
 		return fragment;
 	}

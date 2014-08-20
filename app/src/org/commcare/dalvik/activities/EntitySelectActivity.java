@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
+import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -46,6 +47,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -266,7 +268,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	        		//Once we've done the initial dispatch, we don't want to end up triggering it later.
 	        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
 	        		
-	        		Intent i = getDetailIntent(entity);
+	        		Intent i = getDetailIntent(entity, null);
 	        		if (adapter != null) {
 	        			i.putExtra("entity_detail_index", adapter.getPosition(entity));
 	        		}
@@ -313,9 +315,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	}
     }
 
-    protected Intent getDetailIntent(TreeReference contextRef) {
+    protected Intent getDetailIntent(TreeReference contextRef, Intent i) {
     	//Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
     	//we return
+    	if (i == null) {
+    		i = new Intent(getApplicationContext(), EntityDetailActivity.class);
+    	}
     	
     	TreeReference valueRef = XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
     	AbstractTreeElement element = asw.getEvaluationContext().resolveReference(valueRef.contextualize(contextRef));
@@ -323,8 +328,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     	if(element != null && element.getValue() != null) {
     		value = element.getValue().uncast().getString();
     	}
-   
-    	Intent i = new Intent(getApplicationContext(), EntityDetailActivity.class);
     	
     	//See if we even have a long datum
     	if(selectDatum.getLongDetail() != null) {
@@ -334,6 +337,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
    
     	i.putExtra(SessionFrame.STATE_DATUM_VAL, value);
     	CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
+    	//CommCareApplication._().serializeToIntent(i2, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
     	
     	return i;
     }
@@ -378,7 +382,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     		displayReferenceAwesome(selection, position);
     		updateSelectedItem(selection, false);
     	} else {
-    		Intent i = getDetailIntent(selection);
+    		Intent i = getDetailIntent(selection, null);
     		i.putExtra("entity_detail_index", position);
     		if (mNoDetailMode) {
         		returnWithResult(i);
@@ -434,7 +438,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	    		if(inAwesomeMode) {
 	    			this.displayReferenceAwesome(r, adapter.getPosition(r));
 	    		} else {
-		        	Intent i = this.getDetailIntent(r);
+		        	Intent i = this.getDetailIntent(r, null);
 		        	if(mNoDetailMode) {
 		        		returnWithResult(i);
 		        	} else  {
@@ -687,7 +691,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	NodeEntityFactory factory;
 	
 	public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
-        selectedIntent = getDetailIntent(selection);
+        selectedIntent = getDetailIntent(selection, getIntent());
 		//this should be 100% "fragment" able
 		if(!rightFrameSetup) {
     		findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
@@ -705,7 +709,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 	    	        finish();
 	        		return;
-
 				}
 	        	
 	        });
@@ -723,10 +726,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		    rightFrameSetup = true;
 		}
 		
-		Entity entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
+		TreeReference temp = CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+		Entity entity = factory.getEntity(temp);
 		
-		EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null, this, detailIndex);
-	    ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
+        EntityDetailPagerAdapter adapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), factory.getDetail(), detailIndex, false);
+        ((ViewPager) findViewById(R.id.entity_detail_pager)).setAdapter(adapter);
 	}
 
 	@Override
