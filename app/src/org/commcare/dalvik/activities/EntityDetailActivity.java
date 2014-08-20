@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -140,7 +141,10 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	        	view.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						System.out.println("[jls] do something");
+						if (mViewPager != null) {
+							int index = ((ViewGroup) v.getParent()).indexOfChild(v);
+							mViewPager.setCurrentItem(index, true);
+						}
 					}
 	        	});
 	        	menu.addView(view, fillLayout);
