@@ -16,6 +16,8 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.EntityDetailView;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
@@ -37,6 +39,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -134,11 +138,14 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	        	LinearLayout.LayoutParams.WRAP_CONTENT, 
 	        	10f / details.length
 	        );
+	        // TODO: This code is duplicated in EntitySelectActivity, which doesn't have the most recent changes here
 	        for (Detail d : details) {
-	        	Button view = new Button(this);
-	        	view.setText(d.getTitle().evaluate());
-	        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
-	        	view.setOnClickListener(new OnClickListener() {
+	        	String form = d.getTitleForm();
+	        	if (form == null) {
+	        		form = "";
+	        	}
+	        	String title = d.getTitle().evaluate();
+	        	OnClickListener listener = new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						if (mViewPager != null) {
@@ -146,8 +153,33 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 							mViewPager.setCurrentItem(index, true);
 						}
 					}
-	        	});
-	        	menu.addView(view, fillLayout);
+	        	};
+		        // Button vs ImageButton
+	        	if (form.equals(EntityDetailView.FORM_IMAGE)) {
+	        		ImageButton view = new ImageButton(this);
+	        		view.setImageBitmap(ViewUtil.inflateDisplayImage(this, title));
+	        		view.setOnClickListener(listener);
+	        		menu.addView(view, fillLayout);
+	        	}
+	        	else {
+		        	Button view = new Button(this);
+		        	view.setText(title);
+		        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
+		        	view.setOnClickListener(listener);
+		        	menu.addView(view, fillLayout);
+	        	}
+	        	// TextView vs ImageView
+	        	/*if (form.equals(EntityDetailView.FORM_IMAGE)) {
+	        		ImageView view = new ImageView(this);
+	        		view.setImageBitmap(ViewUtil.inflateDisplayImage(this, title));
+		        	menu.addView(view, fillLayout);	        		
+	        	}
+	        	else {
+		        	TextView view = new TextView(this);
+		        	view.setText(title);
+		        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
+		        	menu.addView(view, fillLayout);	        		
+	        	}*/
 	        }
         }
     }

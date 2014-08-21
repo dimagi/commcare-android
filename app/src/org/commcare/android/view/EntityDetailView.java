@@ -64,11 +64,12 @@ public class EntityDetailView extends FrameLayout {
 	private LinearLayout.LayoutParams origLabel;
 	private LinearLayout.LayoutParams fill;
 	
-	private static final String FORM_VIDEO = "video";
-	private static final String FORM_AUDIO = "audio";
-	private static final String FORM_PHONE = "phone";
-	private static final String FORM_ADDRESS = "address";
-	private static final String FORM_IMAGE = "image";
+	// TODO: Move to ViewUtil?
+	public static final String FORM_VIDEO = "video";
+	public static final String FORM_AUDIO = "audio";
+	public static final String FORM_PHONE = "phone";
+	public static final String FORM_ADDRESS = "address";
+	public static final String FORM_IMAGE = "image";
 
 	private static final int TEXT = 0;
 	private static final int PHONE = 1;
