@@ -33,8 +33,10 @@ import android.app.ActionBar.Tab;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -149,27 +151,41 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 					@Override
 					public void onClick(View v) {
 						if (mViewPager != null) {
-							int index = ((ViewGroup) v.getParent()).indexOfChild(v);
+							ViewGroup parent = (ViewGroup) v.getParent();
+							int index = parent.indexOfChild(v);
 							mViewPager.setCurrentItem(index, true);
+							for (int i = 0; i < parent.getChildCount(); i++) {
+								parent.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
+							}
+							v.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_case_tab_vertical));
 						}
 					}
 	        	};
+	        	// TODO: DRY up
 	        	if (form.equals(EntityDetailView.FORM_IMAGE)) {
 	        		ImageView view = new ImageView(this);
 	        		view.setImageBitmap(ViewUtil.inflateDisplayImage(this, title));
 	        		view.setClickable(true);
 	        		view.setOnClickListener(listener);
+        			view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
 		        	menu.addView(view, fillLayout);	        		
 	        	}
 	        	else {
 		        	TextView view = new TextView(this);
 		        	view.setText(title);
 		        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
+		        	view.setGravity(Gravity.CENTER);
 	        		view.setClickable(true);
 	        		view.setOnClickListener(listener);
+        			view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
 		        	menu.addView(view, fillLayout);	        		
 	        	}
 	        }
+	        menu.setVisibility(View.VISIBLE);
+	        menu.getChildAt(0).performClick();
+        }
+        else {
+        	menu.setVisibility(View.GONE);
         }
     }
     
@@ -203,6 +219,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     	Detail currentDetail = factory.getDetail();
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), currentDetail, detailIndex, true);
         mViewPager = (ViewPager) findViewById(R.id.entity_detail_pager);
+        mViewPager.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_top_black));
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
     }
         

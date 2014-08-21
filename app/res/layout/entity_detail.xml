@@ -8,6 +8,7 @@
 	<LinearLayout
 	    android:id="@+id/screen_entity_detail_menu"
 	    android:orientation="horizontal"
+	    android:layout_marginTop="@+dimen/title_padding"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:weightSum="10">
