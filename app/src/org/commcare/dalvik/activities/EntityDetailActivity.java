@@ -154,32 +154,21 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 						}
 					}
 	        	};
-		        // Button vs ImageButton
 	        	if (form.equals(EntityDetailView.FORM_IMAGE)) {
-	        		ImageButton view = new ImageButton(this);
-	        		view.setImageBitmap(ViewUtil.inflateDisplayImage(this, title));
-	        		view.setOnClickListener(listener);
-	        		menu.addView(view, fillLayout);
-	        	}
-	        	else {
-		        	Button view = new Button(this);
-		        	view.setText(title);
-		        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
-		        	view.setOnClickListener(listener);
-		        	menu.addView(view, fillLayout);
-	        	}
-	        	// TextView vs ImageView
-	        	/*if (form.equals(EntityDetailView.FORM_IMAGE)) {
 	        		ImageView view = new ImageView(this);
 	        		view.setImageBitmap(ViewUtil.inflateDisplayImage(this, title));
+	        		view.setClickable(true);
+	        		view.setOnClickListener(listener);
 		        	menu.addView(view, fillLayout);	        		
 	        	}
 	        	else {
 		        	TextView view = new TextView(this);
 		        	view.setText(title);
 		        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
+	        		view.setClickable(true);
+	        		view.setOnClickListener(listener);
 		        	menu.addView(view, fillLayout);	        		
-	        	}*/
+	        	}
 	        }
         }
     }
