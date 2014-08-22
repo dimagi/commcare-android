@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -270,6 +271,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 						try {
 							
 							String externalMedia = localeData.get(key).render();
+							externalMedia = URLEncoder.encode(externalMedia);
 							Reference ref = ReferenceManager._().DeriveReference(externalMedia);
 							String localName = ref.getLocalURI();
 							try {
