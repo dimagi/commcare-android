@@ -150,15 +150,9 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	        	OnClickListener listener = new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						if (mViewPager != null) {
-							ViewGroup parent = (ViewGroup) v.getParent();
-							int index = parent.indexOfChild(v);
-							mViewPager.setCurrentItem(index, true);
-							for (int i = 0; i < parent.getChildCount(); i++) {
-								parent.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-							}
-							v.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_case_tab_vertical));
-						}
+						int index = ((ViewGroup) v.getParent()).indexOfChild(v);
+						mViewPager.setCurrentItem(index, true);
+						markSelectedTab(index);
 					}
 	        	};
 	        	// TODO: DRY up
@@ -182,7 +176,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	        	}
 	        }
 	        menu.setVisibility(View.VISIBLE);
-	        menu.getChildAt(0).performClick();
+	        markSelectedTab(0);
         }
         else {
         	menu.setVisibility(View.GONE);
@@ -192,6 +186,13 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @Override
     protected boolean isTopNavEnabled() {
     	return true;
+    }
+    
+    private void markSelectedTab(int position) {
+		for (int i = 0; i < menu.getChildCount(); i++) {
+			menu.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
+		}
+		menu.getChildAt(position).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_case_tab_vertical));
     }
 
 
@@ -218,9 +219,22 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     private void refreshView() {
     	Detail currentDetail = factory.getDetail();
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), currentDetail, detailIndex, true);
+        // TODO: move some of this to onCreate
         mViewPager = (ViewPager) findViewById(R.id.entity_detail_pager);
         mViewPager.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_top_black));
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			
+			@Override
+			public void onPageSelected(int position) { markSelectedTab(position); }
+			
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) { }
+			
+			@Override
+			public void onPageScrollStateChanged(int arg0) { }
+
+		});
     }
         
     protected void loadOutgoingIntent(Intent i) {

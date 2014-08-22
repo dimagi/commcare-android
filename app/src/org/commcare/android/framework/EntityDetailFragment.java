@@ -27,7 +27,7 @@ public class EntityDetailFragment extends Fragment {
 	public static final String CHILD_DETAIL_INDEX = "edf_child_detail_index";
 	public static final String DETAIL_ID = "edf_detail_id";
 	public static final String DETAIL_INDEX = "edf_detail_index";
-	public static final String HAS_LISTENER = "edf_has_listener";
+	public static final String HAS_DETAIL_CALLOUT_LISTENER = "edf_has_detail_callout_listener";
 	
 	private AndroidSessionWrapper asw;
 	private NodeEntityFactory factory;
@@ -57,7 +57,7 @@ public class EntityDetailFragment extends Fragment {
 		CommCareActivity thisActivity = (CommCareActivity) getActivity();
     	adapter = new EntityDetailAdapter(
     		thisActivity, asw.getSession(), childDetail, entity, 
-    		(args.getBoolean(HAS_LISTENER, false) ? (EntityDetailActivity) thisActivity : null), thisActivity, args.getInt(DETAIL_INDEX)
+    		(args.getBoolean(HAS_DETAIL_CALLOUT_LISTENER, false) ? (EntityDetailActivity) thisActivity : null), thisActivity, args.getInt(DETAIL_INDEX)
     	);
     	((ListView) rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
 		return rootView;

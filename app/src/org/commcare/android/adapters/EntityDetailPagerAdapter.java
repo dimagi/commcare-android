@@ -18,13 +18,13 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 	
 	Detail detail;
 	int detailIndex;
-	boolean hasListener;
+	boolean hasDetailCalloutListener;
 
-	public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, boolean hasListener) {	
+	public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, boolean hasDetailCalloutListener) {	
 		super(fm);
 		this.detail = detail;
 		this.detailIndex = detailIndex;
-		this.hasListener = hasListener;
+		this.hasDetailCalloutListener = hasDetailCalloutListener;
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 			args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
 		}
 		args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
-		args.putBoolean(EntityDetailFragment.HAS_LISTENER, hasListener);
+		args.putBoolean(EntityDetailFragment.HAS_DETAIL_CALLOUT_LISTENER, hasDetailCalloutListener);
 		fragment.setArguments(args);
 		return fragment;
 	}
