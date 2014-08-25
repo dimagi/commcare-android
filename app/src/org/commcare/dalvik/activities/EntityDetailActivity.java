@@ -18,6 +18,7 @@ import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityDetailView;
+import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -46,6 +47,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -68,14 +70,15 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	NodeEntityFactory factory;
 	
 	private int detailIndex;
-	private EntityDetailPagerAdapter mEntityDetailPagerAdapter;
-	private ViewPager mViewPager;
 	
-	@UiElement(value=R.id.screen_entity_detail_menu)
-	LinearLayout menu;
+	@UiElement(value=R.id.entity_detail)
+	RelativeLayout container;
 	
 	@UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
 	Button next;
+	
+	@UiElement(value=R.id.entity_detail_tabs)
+	TabbedDetailView mDetailView;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {   
@@ -127,74 +130,14 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 	        factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
-	        
-	        // Set up ViewPager, which will be used to flip between any tabs
-	        mViewPager = (ViewPager) findViewById(R.id.entity_detail_pager);
-	        mViewPager.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_top_black));
-	        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-				
-				@Override
-				public void onPageSelected(int position) { markSelectedTab(position); }
-				
-				@Override
-				public void onPageScrolled(int arg0, float arg1, int arg2) { }
-				
-				@Override
-				public void onPageScrollStateChanged(int arg0) { }
-	
-			});
-	        
-	        refreshView();
+		    
+		    mDetailView.initialize(this, container);
+   			mDetailView.refresh(factory.getDetail(), detailIndex, true);
         } catch(SessionUnavailableException sue) {
         	//TODO: Login and return to try again
         }
         
-        Detail[] details = factory.getDetail().getDetails();
-        if (details.length > 0) {
-	        LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
-	        	LinearLayout.LayoutParams.WRAP_CONTENT, 
-	        	LinearLayout.LayoutParams.WRAP_CONTENT, 
-	        	10f / details.length
-	        );
-	        // TODO: This code is duplicated in EntitySelectActivity, which doesn't have the most recent changes here
-	        for (Detail d : details) {
-	        	String form = d.getTitleForm();
-	        	if (form == null) {
-	        		form = "";
-	        	}
-	        	String title = d.getTitle().evaluate();
-	        	OnClickListener listener = new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						int index = ((ViewGroup) v.getParent()).indexOfChild(v);
-						mViewPager.setCurrentItem(index, true);
-						markSelectedTab(index);
-					}
-	        	};
-	        	
-	        	// Create either TextView or ImageView for tab
-	        	View view;
-	        	if (form.equals(MediaUtil.FORM_IMAGE)) {
-	        		view = new ImageView(this);
-	        		((ImageView) view).setImageBitmap(ViewUtil.inflateDisplayImage(this, title));
-	        	}
-	        	else {
-	        		view = new TextView(this);
-		        	((TextView) view).setText(title);
-		        	((TextView) view).setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
-		        	((TextView) view).setGravity(Gravity.CENTER);
-	        	}
-        		view.setClickable(true);
-        		view.setOnClickListener(listener);
-       			view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-		        menu.addView(view, fillLayout);	        		
-	        }
-	        menu.setVisibility(View.VISIBLE);
-	        markSelectedTab(0);
-        }
-        else {
-        	menu.setVisibility(View.GONE);
-        }
+        mDetailView.setDetail(factory.getDetail());
     }
     
     @Override
@@ -202,14 +145,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     	return true;
     }
     
-    private void markSelectedTab(int position) {
-		for (int i = 0; i < menu.getChildCount(); i++) {
-			menu.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-		}
-		menu.getChildAt(position).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_case_tab_vertical));
-    }
-
-
     @Override
     public String getActivityTitle() {
     	//Skipping this until it's a more general pattern
@@ -225,16 +160,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 //    	
 //    	return title;
 	}
-
-
-	/**
-     * Get form list from database and insert into view.
-     */
-    private void refreshView() {
-    	Detail currentDetail = factory.getDetail();
-        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), currentDetail, detailIndex, true);
-        mViewPager.setAdapter(mEntityDetailPagerAdapter);
-    }
         
     protected void loadOutgoingIntent(Intent i) {
     	i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
@@ -249,7 +174,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     	switch(requestCode) {
     	case CALL_OUT:
     		if(resultCode == RESULT_CANCELED) {
-    			refreshView();
+    			mDetailView.refresh(factory.getDetail(), detailIndex, true);
     			return;
     		} else {
     			long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
