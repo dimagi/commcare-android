@@ -128,6 +128,21 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 	        
+	        // Set up ViewPager, which will be used to flip between any tabs
+	        mViewPager = (ViewPager) findViewById(R.id.entity_detail_pager);
+	        mViewPager.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_top_black));
+	        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+				
+				@Override
+				public void onPageSelected(int position) { markSelectedTab(position); }
+				
+				@Override
+				public void onPageScrolled(int arg0, float arg1, int arg2) { }
+				
+				@Override
+				public void onPageScrollStateChanged(int arg0) { }
+	
+			});
 	        
 	        refreshView();
         } catch(SessionUnavailableException sue) {
@@ -218,22 +233,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     private void refreshView() {
     	Detail currentDetail = factory.getDetail();
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), currentDetail, detailIndex, true);
-        // TODO: move some of this to onCreate
-        mViewPager = (ViewPager) findViewById(R.id.entity_detail_pager);
-        mViewPager.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_top_black));
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-			
-			@Override
-			public void onPageSelected(int position) { markSelectedTab(position); }
-			
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) { }
-			
-			@Override
-			public void onPageScrollStateChanged(int arg0) { }
-
-		});
     }
         
     protected void loadOutgoingIntent(Intent i) {
