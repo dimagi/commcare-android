@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/progress_fragment"
     style="@style/ProgressDialog.MessageText"
     android:layout_width="wrap_content"
@@ -12,7 +13,8 @@
    		android:layout_width="wrap_content"
    		android:layout_height="wrap_content"
    		android:visibility="visible"
-   		android:paddingBottom="15sp" />
+   		android:paddingBottom="15sp"
+   		android:layout_marginLeft="5dp" />
     
     <TextView
         android:id="@+id/progress_dialog_message"
@@ -29,7 +31,10 @@
     	android:layout_height="wrap_content"
     	android:layout_below="@id/progress_dialog_message"
     	android:focusable="true"
-    	android:visibility="gone" >
+    	android:visibility="gone"
+    	android:layout_marginLeft="5dp"
+    	android:layout_marginTop="3dp"
+    	android:layout_marginBottom="5dp" >
     </CheckBox>
 
      <Button
