@@ -15,6 +15,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityDetailView;
 import org.commcare.android.view.ViewUtil;
@@ -155,25 +156,23 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 						markSelectedTab(index);
 					}
 	        	};
-	        	// TODO: DRY up
-	        	if (form.equals(EntityDetailView.FORM_IMAGE)) {
-	        		ImageView view = new ImageView(this);
-	        		view.setImageBitmap(ViewUtil.inflateDisplayImage(this, title));
-	        		view.setClickable(true);
-	        		view.setOnClickListener(listener);
-        			view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-		        	menu.addView(view, fillLayout);	        		
+	        	
+	        	// Create either TextView or ImageView for tab
+	        	View view;
+	        	if (form.equals(MediaUtil.FORM_IMAGE)) {
+	        		view = new ImageView(this);
+	        		((ImageView) view).setImageBitmap(ViewUtil.inflateDisplayImage(this, title));
 	        	}
 	        	else {
-		        	TextView view = new TextView(this);
-		        	view.setText(title);
-		        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
-		        	view.setGravity(Gravity.CENTER);
-	        		view.setClickable(true);
-	        		view.setOnClickListener(listener);
-        			view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-		        	menu.addView(view, fillLayout);	        		
+	        		view = new TextView(this);
+		        	((TextView) view).setText(title);
+		        	((TextView) view).setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
+		        	((TextView) view).setGravity(Gravity.CENTER);
 	        	}
+        		view.setClickable(true);
+        		view.setOnClickListener(listener);
+       			view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
+		        menu.addView(view, fillLayout);	        		
 	        }
 	        menu.setVisibility(View.VISIBLE);
 	        markSelectedTab(0);
