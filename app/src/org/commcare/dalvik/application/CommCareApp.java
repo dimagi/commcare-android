@@ -203,7 +203,7 @@ public class CommCareApp {
 		SharedPreferences.Editor editor = getAppPreferences().edit();
 		editor.putBoolean("isValidated", isValidated);
 		editor.commit();
-		record.setResourcesValidated();
+		record.setResourcesStatus(true);
 		CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
 	}
 	
@@ -255,6 +255,7 @@ public class CommCareApp {
 		record.setStatus(ApplicationRecord.STATUS_INSTALLED);
 		record.setUniqueId(getUniqueId());
 		record.setDisplayName(getDisplayName());
+		record.setResourcesStatus(areResourcesValidated());
 		try {
 			CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
 		} catch (StorageFullException e) {
