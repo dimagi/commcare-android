@@ -238,11 +238,18 @@ public class GraphView {
 			mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
 		}
 		
-		if (mData.getConfiguration("x-label-count") != null) {
-			mRenderer.setXLabels(Integer.valueOf(mData.getConfiguration("x-label-count")));
+		Integer xLabelCount = mData.getConfiguration("x-label-count") == null ? null : new Integer(mData.getConfiguration("x-label-count"));
+		Integer yLabelCount = mData.getConfiguration("y-label-count") == null ? null : new Integer(mData.getConfiguration("y-label-count"));
+		if (xLabelCount == 0 && yLabelCount == 0) {
+			mRenderer.setShowLabels(false);
 		}
-		if (mData.getConfiguration("y-label-count") != null) {
-			mRenderer.setYLabels(Integer.valueOf(mData.getConfiguration("y-label-count")));
+		else {
+			if (xLabelCount != null) {
+				mRenderer.setXLabels(Integer.valueOf(xLabelCount));
+			}
+			if (yLabelCount != null) {
+				mRenderer.setYLabels(Integer.valueOf(yLabelCount));
+			}
 		}
 	}
 	
