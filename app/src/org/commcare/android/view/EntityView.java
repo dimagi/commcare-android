@@ -121,7 +121,7 @@ public class EntityView extends LinearLayout {
 			}
 			retVal = b;
 		} 
-		else if (FORM_GRAPH.equals(form)) {
+		else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
 			View layout = View.inflate(context, R.layout.entity_item_graph, null);
 			retVal = layout;
 		}
@@ -153,7 +153,7 @@ public class EntityView extends LinearLayout {
 			else if(FORM_IMAGE.equals(form)) {
 				setupImageLayout(view, (String) field);
 			} 
-			else if (FORM_GRAPH.equals(form)) {
+			else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
 				GraphView g = new GraphView(context);
 				View rendered = g.renderView((GraphData) field);
 				((LinearLayout) view).removeAllViews();
