@@ -721,7 +721,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 			prototype = entries.elementAt(0);
 			
 			detailView = new TabbedDetailView(this);
-			detailView.initialize(this, (ViewGroup) rightFrame.findViewById(R.id.entity_detail));
+			detailView.setRoot((ViewGroup) rightFrame.findViewById(R.id.entity_detail));
 
 			factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));			
 			detailView.setDetail(factory.getDetail());

@@ -28,21 +28,22 @@ public class TabbedDetailView extends RelativeLayout {
 	
 	public TabbedDetailView(Context context) {
 		super(context);
+		mContext = (FragmentActivity) context;
 	}
 
 	public TabbedDetailView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		mContext = (FragmentActivity) context;
 	}
 	
 	@SuppressLint("NewApi")
 	public TabbedDetailView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		mContext = (FragmentActivity) context;
 	}
 	
-	public void initialize(FragmentActivity context, ViewGroup root) {
-		mContext = context;
-		
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	public void setRoot(ViewGroup root) {
+		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
 		mMenu = (LinearLayout) root.findViewById(R.id.tabbed_detail_menu);
@@ -132,4 +133,5 @@ public class TabbedDetailView extends RelativeLayout {
 		}
 		mMenu.getChildAt(position).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_case_tab_vertical));
     }
+    
 }

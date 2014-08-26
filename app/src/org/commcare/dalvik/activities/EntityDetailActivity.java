@@ -112,7 +112,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 		    
-		    mDetailView.initialize(this, container);
+		    mDetailView.setRoot(container);
    			mDetailView.refresh(factory.getDetail(), detailIndex, true);
         } catch(SessionUnavailableException sue) {
         	//TODO: Login and return to try again
