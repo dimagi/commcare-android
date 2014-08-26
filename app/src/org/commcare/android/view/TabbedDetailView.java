@@ -16,9 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class TabbedDetailView extends LinearLayout {
+public class TabbedDetailView extends RelativeLayout {
 	private FragmentActivity mContext;
 	
 	private LinearLayout mMenu;
@@ -42,10 +43,10 @@ public class TabbedDetailView extends LinearLayout {
 		mContext = context;
 		
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.tabbed_detail_view, this, true);
+		inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
-		mMenu = (LinearLayout) this.findViewById(R.id.tabbed_detail_menu);
-		mViewPager = (ViewPager) this.findViewById(R.id.tabbed_detail_pager);
+		mMenu = (LinearLayout) root.findViewById(R.id.tabbed_detail_menu);
+		mViewPager = (ViewPager) root.findViewById(R.id.tabbed_detail_pager);
 
         mViewPager.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_top_black));
 
@@ -104,8 +105,8 @@ public class TabbedDetailView extends LinearLayout {
        			view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
 		        mMenu.addView(view, fillLayout);	        		
 	        }
-	        mMenu.setVisibility(View.VISIBLE);
 	        markSelectedTab(0);
+	        mMenu.setVisibility(View.VISIBLE);
         }
         else {
         	mMenu.setVisibility(View.GONE);
@@ -118,9 +119,14 @@ public class TabbedDetailView extends LinearLayout {
 	public void refresh(Detail detail, int index, boolean hasDetailCalloutListener) {
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, hasDetailCalloutListener);
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
+        markSelectedTab(0);
 	}
 
     private void markSelectedTab(int position) {
+    	if (mMenu.getChildCount() <= position) {
+    		return;
+    	}
+    	
 		for (int i = 0; i < mMenu.getChildCount(); i++) {
 			mMenu.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
 		}

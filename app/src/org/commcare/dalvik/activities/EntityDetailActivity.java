@@ -6,49 +6,30 @@ package org.commcare.dalvik.activities;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
-import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.view.EntityDetailView;
 import org.commcare.android.view.TabbedDetailView;
-import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
 
-import android.annotation.SuppressLint;
-import android.app.ActionBar;
-import android.app.FragmentTransaction;
-import android.app.ActionBar.Tab;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * @author ctsims

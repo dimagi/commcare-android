@@ -12,6 +12,7 @@
 	    
 	<android.support.v4.view.ViewPager
 	    android:id="@+id/tabbed_detail_pager"
+	    android:layout_below="@id/tabbed_detail_menu"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent" />
 

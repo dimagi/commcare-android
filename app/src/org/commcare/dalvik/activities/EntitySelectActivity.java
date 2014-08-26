@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -19,6 +17,7 @@ import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
+import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -47,7 +46,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -112,8 +110,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	
 	private boolean inAwesomeMode = false;
 	FrameLayout rightFrame;
-	private LinearLayout mMenu;
-	private ViewPager mViewPager;
+	TabbedDetailView detailView;
 	
 	Intent selectedIntent = null;
 	
@@ -696,7 +693,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		//this should be 100% "fragment" able
 		if(!rightFrameSetup) {
     		findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
-	        View.inflate(this, R.layout.entity_detail, rightFrame);
+    		View.inflate(this, R.layout.entity_detail, rightFrame);
 	        Button next = (Button)findViewById(R.id.entity_select_button);
 	        next.setText(Localization.get("select.detail.confirm"));
 	        next.setOnClickListener(new OnClickListener() {
@@ -718,49 +715,20 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	        	next.setText("Done");
 	        }
 
-        	mMenu = (LinearLayout) findViewById(R.id.screen_entity_detail_menu);
-        	mViewPager = (ViewPager) findViewById(R.id.entity_detail_pager);
-	        
 	        String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
 	        
 			Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
 			prototype = entries.elementAt(0);
+			
+			detailView = new TabbedDetailView(this);
+			detailView.initialize(this, (ViewGroup) rightFrame.findViewById(R.id.entity_detail));
 
 			factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));			
+			detailView.setDetail(factory.getDetail());
 		    rightFrameSetup = true;
 		}
 
-		// TODO: DRY up (duplicated in EntityDetailActivity)
-        Detail[] details = factory.getDetail().getDetails();
-        if (details.length > 0) {
-        	mMenu.removeAllViews();
-	        LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
-	        	LinearLayout.LayoutParams.WRAP_CONTENT, 
-	        	LinearLayout.LayoutParams.WRAP_CONTENT, 
-	        	10f / details.length
-	        );
-	        for (Detail d : details) {
-	        	Button view = new Button(this);
-	        	view.setText(d.getTitle().evaluate());
-	        	view.setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
-	        	view.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						if (mViewPager != null) {
-							int index = ((ViewGroup) v.getParent()).indexOfChild(v);
-							mViewPager.setCurrentItem(index, true);
-						}
-					}
-	        	});
-	        	mMenu.addView(view, fillLayout);
-	        }
-        }
-		
-		TreeReference temp = CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-		Entity entity = factory.getEntity(temp);
-		
-        EntityDetailPagerAdapter adapter = new EntityDetailPagerAdapter(getSupportFragmentManager(), factory.getDetail(), detailIndex, false);
-        ((ViewPager) findViewById(R.id.entity_detail_pager)).setAdapter(adapter);
+   		detailView.refresh(factory.getDetail(), detailIndex, false);
 	}
 
 	@Override
