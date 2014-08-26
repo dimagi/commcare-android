@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.commcare.android.models.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.odk.collect.android.views.media.AudioButton;
@@ -153,7 +154,11 @@ public class EntityView extends LinearLayout {
 				setupImageLayout(view, (String) field);
 			} 
 			else if (FORM_GRAPH.equals(form)) {
-				// nothing special to do for graphs
+				GraphView g = new GraphView(context);
+				View rendered = g.renderView((GraphData) field);
+				((LinearLayout) view).removeAllViews();
+				((LinearLayout) view).addView(rendered, g.getLayoutParams());
+				view.setVisibility(VISIBLE);
 			}
 			else { //text to speech
 				setupTextAndTTSLayout(view, (String) field);
