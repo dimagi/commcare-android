@@ -238,6 +238,17 @@ public class GraphView {
 			mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
 		}
 		
+		String showGrid = mData.getConfiguration("show-grid");
+		if (showGrid != null && Boolean.valueOf(showGrid).equals(Boolean.FALSE)) {
+			mRenderer.setShowGridX(false);
+			mRenderer.setShowGridY(false);
+		}
+
+		String showAxes = mData.getConfiguration("show-axes");
+		if (showAxes != null && Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
+			mRenderer.setShowAxes(false);
+		}
+		
 		Integer xLabelCount = mData.getConfiguration("x-label-count") == null ? null : new Integer(mData.getConfiguration("x-label-count"));
 		Integer yLabelCount = mData.getConfiguration("y-label-count") == null ? null : new Integer(mData.getConfiguration("y-label-count"));
 		if (xLabelCount == 0 && yLabelCount == 0) {
