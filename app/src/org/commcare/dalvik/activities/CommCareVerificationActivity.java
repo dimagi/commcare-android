@@ -9,12 +9,11 @@ import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.resources.model.MissingMediaException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
 
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
@@ -29,7 +28,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 	
 	TextView missingMediaPrompt;
 	private static final int MENU_UNZIP = Menu.FIRST;
-	private ProgressDialog vProgressDialog;
 	
 	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
 	
@@ -45,7 +43,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 	public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         
-        Bundle extras = getIntent().getExtras();
         setContentView(R.layout.missing_multimedia_layout);
         
         retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
@@ -72,6 +69,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         		this.task = last.task;
         		last.task.setListener(this);
         	} else {
+        		verifyResourceInstall();
         		//don't worry about it
         	}
         }
@@ -80,13 +78,13 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 	public void verifyResourceInstall() {
 		task = new VerificationTask(this);
 		task.setListener(this);
-		this.showDialog(DIALOG_VERIFY_PROGRESS);
+		showProgressDialog(DIALOG_VERIFY_PROGRESS);
 		task.execute((String[])null);
 	}
 
 	@Override
 	public void onFinished(SizeBoundVector<MissingMediaException> problems) {
-		vProgressDialog.dismiss();
+		dismissProgressDialog();
 		if(problems.size() > 0 ) {
 			String message = Localization.get("verification.fail.message");
 			
@@ -121,31 +119,22 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 			
 			missingMediaPrompt.setText(message);
 		}
-		
-		//this.showDialog(DIALOG_VERIFY_PROGRESS);
-	}
-	
-	protected Dialog onCreateDialog(int id) {
-		if(id == DIALOG_VERIFY_PROGRESS) {
-			vProgressDialog = new ProgressDialog(this);
-			vProgressDialog.setTitle(Localization.get("verification.title"));
-			vProgressDialog.setMessage(Localization.get("verification.checking"));
-			return vProgressDialog;
-		}
-		return null;
 	}
 
 	@Override
 	public void updateVerifyProgress(int done, int pending) {
-		vProgressDialog.setMessage(Localization.get("verification.progress",new String[] {""+done,""+pending}));
+		updateProgress(Localization.get("verification.progress",new String[] {""+done,""+pending}),
+			DIALOG_VERIFY_PROGRESS);
 		
 	}
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+	@Override
+    protected void onPostResume() {
+    	super.onPostResume();
     	fire();
     }
 	
 	public void done(boolean requireRefresh) {
-		//unlock();
 		
 		//TODO: We might have gotten here due to being called from the outside, in which
 		//case we should manually start up the home activity
@@ -187,10 +176,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 	}
 
 	@Override
-	public void onClick(View v) {
-		
-		Intent mIntent = new Intent();
-		
+	public void onClick(View v) {		
 		switch(v.getId()){
 		case R.id.screen_multimedia_retry:
 			verifyResourceInstall();
@@ -217,5 +203,21 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         }
         return super.onOptionsItemSelected(item);
     }
+    
+	
+	/** Implementation of generateProgressDialog() for DialogController -- other methods
+	 * handled entirely in CommCareActivity
+	 */
+    
+	@Override
+	public CustomProgressDialog generateProgressDialog(int taskId) {
+		if (taskId == DIALOG_VERIFY_PROGRESS) {
+			return CustomProgressDialog.newInstance
+					(Localization.get("verification.title"), Localization.get("verification.checking"), taskId);
+		}
+		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+				+ "any valid possibilities in CommCareVerificationActivity");		
+		return null;
+	}
     
 }

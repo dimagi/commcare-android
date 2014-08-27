@@ -29,6 +29,7 @@ public class ExternalAppActivity extends Activity {
 	Button login;
 	Button sync;
 	Button content;
+	Button receiver;
 	
 	byte[] publicKey;
 	String keyId;
@@ -114,6 +115,19 @@ public class ExternalAppActivity extends Activity {
 				}
         	
         });
+        
+        
+        receiver = (Button)this.findViewById(R.id.button_receiver);
+        receiver.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				Intent i = new Intent(ExternalAppActivity.this, IntentReceiverTest.class);
+				
+				ExternalAppActivity.this.startActivity(i);
+				}
+        	
+        });
+        
         
         
         

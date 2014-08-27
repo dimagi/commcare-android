@@ -76,7 +76,8 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
 				FormRecord[] records = StorageUtils.getUnsentRecords(CommCareApplication._().getUserStorage(FormRecord.class));
 				SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 				
-				ProcessAndSendTask<RecoveryActivity> mProcess = new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, settings.getString("PostURL", RecoveryActivity.this.getString(R.string.PostURL)), SEND_TASK_ID){
+				ProcessAndSendTask<RecoveryActivity> mProcess = new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, settings.getString("PostURL", 
+						RecoveryActivity.this.getString(R.string.PostURL)), SEND_TASK_ID, true){
 
 					/* (non-Javadoc)
 					 * @see org.commcare.android.tasks.templates.CommCareTask#onPreExecute()

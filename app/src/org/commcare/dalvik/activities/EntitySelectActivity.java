@@ -18,8 +18,10 @@ import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
@@ -82,6 +84,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	
 	private static final int MENU_SORT = Menu.FIRST;
 	private static final int MENU_MAP = Menu.FIRST + 1;
+	private static final int MENU_ACTION = Menu.FIRST + 2;
 	
 	EditText searchbox;
 	EntityListAdapter adapter;
@@ -112,6 +115,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	
 	String filterString = "";
 	
+	private Detail shortSelect;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,6 +137,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         	return;
         }
 		selectDatum = session.getNeededDatum();
+		
+		shortSelect = session.getDetail(selectDatum.getShortDetail());
 		
 		mNoDetailMode = selectDatum.getLongDetail() == null;
         
@@ -180,6 +187,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
 		prototype = entries.elementAt(0);
 		
+		
 		//(We shouldn't need the "" here, but we're avoiding making changes to commcare core for release issues)
 		if(entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
 			mViewMode = true;
@@ -204,9 +212,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         if(oldActivity != null) {
         	adapter = oldActivity.adapter;
-        	adapter.setController(this);
-    	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
-        	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        	//not sure how this happens, but seem plausible.
+        	if(adapter != null) {
+	        	adapter.setController(this);
+	    	    ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
+	        	findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        	}
         }
 		//cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
@@ -247,8 +258,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         	
         	if(entity != null) {
         		if(inAwesomeMode) {
-        			displayReferenceAwesome(entity, adapter.getPosition(entity));
-        			updateSelectedItem(entity, true);
+        			if (adapter != null) {
+	        			displayReferenceAwesome(entity, adapter.getPosition(entity));
+	        			updateSelectedItem(entity, true);
+        			}
         		} else {
 	        		//Once we've done the initial dispatch, we don't want to end up triggering it later.
 	        		this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
@@ -270,21 +283,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-    	try {
-	    	final Detail detail = session.getDetail(selectDatum.getShortDetail());
-	    	
+    	try {	    	
 	    	//TODO: Get ec into these text's
-	    	String[] headers = new String[detail.getFields().length];
+	    	String[] headers = new String[shortSelect.getFields().length];
 	    	
 	    	for(int i = 0 ; i < headers.length ; ++i) {
-	    		headers[i] = detail.getFields()[i].getHeader().evaluate();
-	    		if("address".equals(detail.getFields()[i].getTemplateForm())) {
+	    		headers[i] = shortSelect.getFields()[i].getHeader().evaluate();
+	    		if("address".equals(shortSelect.getFields()[i].getTemplateForm())) {
 	    			this.mMappingEnabled = true;
 	    		}
 	    	}
 	    	
 	    	//Hm, sadly we possibly need to rebuild this each time. 
-	    	EntityView v = new EntityView(this, detail, headers);
+	    	EntityView v = new EntityView(this, shortSelect, headers);
 	    	header.removeAllViews();
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 	    	v.setBackgroundResource(R.drawable.blue_tabbed_box);
@@ -292,7 +303,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 	    	
 	    	
 	    	if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
-	    		EntityLoaderTask theloader = new EntityLoaderTask(detail, asw.getEvaluationContext());
+	    		EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
 		    	theloader.attachListener(this);
 		    	
 		    	theloader.execute(selectDatum.getNodeset());
@@ -357,6 +368,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
 	@Override
 	public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+		if(id == EntityListAdapter.SPECIAL_ACTION) {
+			triggerDetailAction();
+			return;
+		}
+		
     	TreeReference selection = adapter.getItem(position);
     	if(inAwesomeMode) {
     		displayReferenceAwesome(selection, position);
@@ -474,12 +490,17 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_SORT, 0, Localization.get("select.menu.sort")).setIcon(
+        menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if(mMappingEnabled) {
-	        menu.add(0, MENU_MAP, 1, Localization.get("select.menu.map")).setIcon(
+	        menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
 	                android.R.drawable.ic_menu_mapmode);
         }
+        Action action = shortSelect.getCustomAction();
+        if(action != null) {
+        	ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION, action.getDisplay());
+        }
+
         return true;
     }
     
@@ -506,11 +527,21 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             	Intent i = new Intent(this, EntityMapActivity.class);
             	this.startActivityForResult(i, MAP_SELECT);
             	return true;
+            case MENU_ACTION:
+            	triggerDetailAction();
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
     
-    private void createSortMenu() {
+    private void triggerDetailAction() {
+        Action action = shortSelect.getCustomAction();
+        asw.executeStackActions(action.getStackOperations());
+        this.setResult(CommCareHomeActivity.RESULT_RESTART);
+        this.finish();
+	}
+
+	private void createSortMenu() {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	
         builder.setTitle(Localization.get("select.menu.sort"));
@@ -662,6 +693,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     		findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
 	        View.inflate(this, R.layout.entity_detail, rightFrame);
 	        Button next = (Button)findViewById(R.id.entity_select_button);
+	        next.setText(Localization.get("select.detail.confirm"));
 	        next.setOnClickListener(new OnClickListener() {
 
 				public void onClick(View v) {

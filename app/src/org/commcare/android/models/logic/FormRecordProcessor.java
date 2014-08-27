@@ -34,6 +34,7 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Pair;
 
 /**
@@ -89,6 +90,10 @@ public class FormRecordProcessor {
 		
 		parser.parse();
 		is.close();
+		
+		//Let anyone who is listening know!
+		Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
+		this.c.sendBroadcast(i);
 		
 		return updateRecordStatus(record, FormRecord.STATUS_UNSENT);
 	}

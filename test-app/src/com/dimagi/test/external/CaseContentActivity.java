@@ -8,9 +8,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.SimpleCursorAdapter.ViewBinder;
 
 public class CaseContentActivity extends Activity {
 	
@@ -20,9 +20,28 @@ public class CaseContentActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_page);
-        ListView la = (ListView)this.findViewById(R.id.list_view);
-        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.case/casedb/case"), null, null, null, null);
+        showCaseData(null, null);
+    }
+    
+    
+    
+    protected void showCaseData(String selection, String[] selectionArgs) {
+    	ListView la = (ListView)this.findViewById(R.id.list_view);
+        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.case/casedb/case"), null, selection, selectionArgs, null);
+        
         final SimpleCursorAdapter sca = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, c, new String[] {"case_name", "case_id"}, new int[] { android.R.id.text1, android.R.id.text2});
+        
+        la.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+				Cursor cursor =  sca.getCursor();
+			    cursor.moveToPosition(position);
+			       
+				String caseType = cursor.getString(cursor.getColumnIndex("case_type"));
+				CaseContentActivity.this.showCaseData("case_type = ? AND\nstatus=?", new String[] { caseType,"open" });
+				return true;
+			}
+        });
 
         la.setAdapter(sca);
         la.setOnItemClickListener(new OnItemClickListener(){
@@ -37,6 +56,7 @@ public class CaseContentActivity extends Activity {
         	
         });
     }
+    
 	protected void moveToDataAtapter(String caseId) {
         Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.case/casedb/data/" + caseId), null, null, null, null);
 		

@@ -29,6 +29,7 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.SystemClock;
 
 /**
  * This task is responsible for 
@@ -86,18 +87,24 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 	boolean upgradeMode = false;
 	boolean partialMode = false;
 	boolean startOverUpgrade;
+	//This boolean is set from CommCareSetupActivity -- If we are in keep trying mode for installation,
+	//we want to sleep in between attempts to launch this task
+	boolean shouldSleep;
 	
 	protected String vAvailable;
 	protected String vRequired;
 	protected boolean majorIsProblem;
 	
-	public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app, boolean startOverUpgrade, int taskId) throws SessionUnavailableException{
+	public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app, 
+			boolean startOverUpgrade, int taskId, boolean shouldSleep) 
+					throws SessionUnavailableException{
 		this.partialMode = partialMode;
 		this.c = c;
 		this.upgradeMode = upgradeMode;
 		this.app = app;
 		this.startOverUpgrade = startOverUpgrade;
 		this.taskId = taskId;
+		this.shouldSleep = shouldSleep;
 	}
 	
 	/* (non-Javadoc)
@@ -118,6 +125,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 		
 		Logger.log(AndroidLogger.TYPE_RESOURCES, "Beginning install attempt for profile " + profileRefs[0]);
 		
+		if (shouldSleep) SystemClock.sleep(2000);
 		
 		try {
 			
@@ -147,7 +155,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 				 * starting with the profile file. If the new profile is not a newer version,
 				 * statgeUpgradeTable doesn't actually pull in all the new references
 				 */
-				platform.stageUpgradeTable(global, temporary, profileRef, startOverUpgrade);
+				platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
 	    		Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
 	    		if(!newProfile.isNewer(profile)) {
 	    			Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");

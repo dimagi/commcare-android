@@ -4,28 +4,23 @@
 package org.commcare.dalvik.activities;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.tasks.UnzipTask;
-import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -129,7 +124,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 			@Override
 			protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
 				Log.d(TAG, "delivering unzip upate");
-				receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
+				//
+				receiver.updateProgress(update[0], UnzipTask.UNZIP_TASK_ID);
 				receiver.txtInteractiveMessages.setText(update[0]);
 			}
 
@@ -166,10 +162,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
 	}
 
-	public void updateProgress(int done, int total, int phase) {
-		updateProgress(CommCareTask.GENERIC_TASK_ID, Localization.get("archive.install.progress", new String[]{""+done,""+total}));
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
@@ -191,21 +183,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 	protected void onResume() {
 		super.onResume();
 		evalState();
-	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateDialog(int)
-	 */
-	@Override
-	protected Dialog onCreateDialog(int id) {
-
-		if(id == UnzipTask.UNZIP_TASK_ID) {
-			ProgressDialog progressDialog = new ProgressDialog(this);
-			progressDialog.setTitle(Localization.get(("archive.install.title")));
-			progressDialog.setMessage(Localization.get("archive.install.unzip"));
-			return progressDialog;
-		}
-		return null;
 	}
 
 	private void evalState() {
@@ -255,6 +232,25 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 		
 		targetDirectory = CommCareApplication._().getAndroidFsTemp() + PropertyUtils.genUUID();
 		return targetDirectory;
+	}
+	
+	
+	/** Implementation of generateProgressDialog() for DialogController -- other methods
+	 * handled entirely in CommCareActivity
+	 */
+	
+	@Override
+	public CustomProgressDialog generateProgressDialog(int taskId) {
+		if (taskId == UnzipTask.UNZIP_TASK_ID) {
+			String title = Localization.get("archive.install.title");
+			String message = Localization.get("archive.install.unzip");
+			return CustomProgressDialog.newInstance(title, message, taskId);
+		}
+		else {
+			System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+        			+ "any valid possibilities in InstallArchiveActivity");
+			return null;
+		}
 	}
 
 }

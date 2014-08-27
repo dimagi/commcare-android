@@ -78,6 +78,18 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public void startTaskTransition() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void stopTaskTransition() {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	};
 

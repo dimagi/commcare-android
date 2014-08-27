@@ -34,6 +34,7 @@ import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -57,13 +58,14 @@ import org.odk.collect.android.tasks.FormLoaderTask;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -110,6 +112,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
 	private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
 	private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 7;
+	private static final int MENU_SAVED_FORMS = Menu.FIRST + 8;
+	
+	/**
+	 * Restart is a special CommCare return code which means that the session was invalidated in the 
+	 * calling activity and that the current session should be resynced
+	 */
+	public static final int RESULT_RESTART = 3;
 	
 	public static int unsentFormNumberLimit;
 	public static int unsentFormTimeLimit;	
@@ -140,7 +149,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
     	
     	//This is a workaround required by Android Bug #2373, which is that Apps are launched from the
     	//Google Play store and from the App launcher with different intent flags than everywhere else
@@ -154,6 +162,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 return;
             }
         }
+        
         
         if(savedInstanceState != null) {
         	wasExternal = savedInstanceState.getBoolean("was_external");
@@ -212,15 +221,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         syncButton.setText(Localization.get("home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	
-            	if(isAirplaneModeOn()){
-            		displayMessage(Localization.get("notification.sync.airplane.action"),true,true);
-            		CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+            	if (!isOnline()) {
+            		if (isAirplaneModeOn()) {
+            			displayMessage(Localization.get("notification.sync.airplane.action"),true,true);
+            			CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+            		}
+            		else {
+            			displayMessage(Localization.get("notification.sync.connections.action"),true,true);
+            			CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
+            		}
             		return;
             	}
-            	else{
-            		CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
-            	}
+            	
+            	CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
             	
                 boolean formsToSend = checkAndStartUnsentTask(true);
                 
@@ -233,9 +246,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         });
     }
 
+    private boolean isOnline() {
+    	ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+    	NetworkInfo netInfo = cm.getActiveNetworkInfo();
+    	if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+    		return true;
+    	}
+    	return false;
+    }
+
     private void goToFormArchive(boolean incomplete) {
     	goToFormArchive(incomplete, null);
     }
+    
     private void goToFormArchive(boolean incomplete, FormRecord record) {
     	Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
     	if(incomplete) {
@@ -304,15 +327,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
 				
 				if(update[0] == DataPullTask.PROGRESS_STARTED) {
-					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.purge"));
+					receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
 				} else if(update[0] == DataPullTask.PROGRESS_CLEANED) {
-					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.authing"));
+					receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
 				} else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
-					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.progress.downloading"));
+					receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
 				}else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.recover.needed"));
+					receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
 				} else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-					receiver.updateProgress(DataPullTask.DATA_PULL_TASK_ID, Localization.get("sync.recover.started"));
+					receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
 				}
 			}
 
@@ -359,6 +382,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    	if(resultCode == RESULT_RESTART) {
+	    	startNextFetch();
+	    	return;
+    	}
+    	
+    	
     	try {
     		// if handling new return code (want to return to home screen) but a return at the end of your statement
 	    	switch(requestCode) {
@@ -424,6 +453,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    			refreshView();
 	    			return;
 	    		}
+	    	case CONNECTION_DIAGNOSTIC_ACTIVITY:
+	    		return;
 	    	case WIFI_DIRECT_ACTIVITY:
 	    		if(resultCode == RESULT_CANCELED){
 	    			return;
@@ -667,8 +698,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	        				}
 	        			}
 
-	        			
-	        			
 	        			//We're honoring in order submissions, now, so trigger a full submission
 	        			//cycle
 	        			checkAndStartUnsentTask(false);
@@ -879,6 +908,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 	    	
 	    	//We should now have a valid record for our state. Time to get to form entry.
 	    	FormRecord record = state.getFormRecord();
+	    	
+	    	if(platform == null) {
+	    		platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+	    	}
+	    	
 	    	//TODO: May need to pass session over manually
 	    	formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
 	    	
@@ -973,7 +1007,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
 		int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
 		
-		ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, getFormPostURL(), sendTaskId){
+		ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, getFormPostURL(), 
+				sendTaskId, syncAfterwards){
 
 			@Override
 			protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
@@ -1144,74 +1179,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     	i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     	startActivityForResult(i,LOGIN_USER);
 	}
-
-	/*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreateDialog(int)
-     */
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-        case ProcessAndSendTask.SEND_PHASE_ID:
-        	    ProgressDialog mProgressDialog = new ProgressDialog(this);
-                mProgressDialog.setTitle(Localization.get("sync.progress.submitting.title"));
-                mProgressDialog.setMessage(Localization.get("sync.progress.submitting"));
-                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setCancelable(false);
-                return mProgressDialog;
-        case ProcessAndSendTask.PROCESSING_PHASE_ID:
-	        	mProgressDialog = new ProgressDialog(this);
-	            mProgressDialog.setTitle(Localization.get("form.entry.processing.title"));
-	            mProgressDialog.setMessage(Localization.get("form.entry.processing"));
-	            mProgressDialog.setIndeterminate(true);
-	            mProgressDialog.setCancelable(false);
-	            return mProgressDialog;
-        case DataPullTask.DATA_PULL_TASK_ID:
-        	mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setTitle(Localization.get("sync.progress.title"));
-            mProgressDialog.setMessage(Localization.get("sync.progress.purge"));
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setCancelable(false);
-            return mProgressDialog;
-        case DIALOG_CORRUPTED:
-        	return createAskFixDialog();
-        }
-        return null;
-    }
-
-    public Dialog createAskFixDialog() {
-    	//TODO: Localize this in theory, but really shift it to the upgrade/management state
-    	
-    	mAttemptFixDialog = new AlertDialog.Builder(this).create();
-
-		mAttemptFixDialog.setTitle("Storage is Corrupt :/");
-		mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
-        DialogInterface.OnClickListener attemptFixDialog = new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int i) {
-            	try {
-	                switch (i) {
-						case DialogInterface.BUTTON1: // attempt repair
-							Intent intent = new Intent(CommCareHomeActivity.this, RecoveryActivity.class);
-							startActivity(intent);
-							break;
-
-	                    case DialogInterface.BUTTON2: // Shut down
-	                    	CommCareHomeActivity.this.finish();
-	                        break;
-	                }
-	            } catch(SessionUnavailableException sue) {
-	            	//should be impossible to get here.
-	            	throw new RuntimeException("Required session unavailable. Something is seriously wrong");
-	            }
-            }
-        };
-        mAttemptFixDialog.setCancelable(false);
-    	mAttemptFixDialog.setButton("Enter Recovery Mode", attemptFixDialog);
-    	mAttemptFixDialog.setButton2("Shut Down", attemptFixDialog);
-        
-        return mAttemptFixDialog;
-    }
     
     public void createNoStorageDialog() {
     	CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));        
@@ -1446,6 +1413,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         		android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
         		android.R.drawable.ic_menu_upload);
+        menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
+        		R.drawable.notebook_full);
         return true;
     }
     
@@ -1466,6 +1435,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 			menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
 			menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus &&  hasP2p());
 			menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
+			menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
 		} catch(SessionUnavailableException sue) {
 			//Nothing
 		}
@@ -1474,6 +1444,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
+		
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
             	//CommCareUtil.printInstance("jr://instance/stockdb");
@@ -1509,6 +1480,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             	return true;
             case MENU_CONNECTION_DIAGNOSTIC:
             	startMenuConnectionActivity();
+            	return true;
+            case MENU_SAVED_FORMS:
+            	goToFormArchive(false);
             	return true;
         }
         return super.onOptionsItemSelected(item);
@@ -1572,4 +1546,72 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private boolean hasP2p(){
     	return (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT));
     }
+    
+    protected Dialog onCreateDialog(int id) {
+    	if (id == DIALOG_CORRUPTED) {
+    		return createAskFixDialog();
+    	} else return null;
+    }
+    
+	public Dialog createAskFixDialog() {
+		//TODO: Localize this in theory, but really shift it to the upgrade/management state
+		mAttemptFixDialog = new AlertDialog.Builder(this).create();
+
+		mAttemptFixDialog.setTitle("Storage is Corrupt :/");
+		mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
+		DialogInterface.OnClickListener attemptFixDialog = new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int i) {
+				try {
+					switch (i) {
+					case DialogInterface.BUTTON1: // attempt repair
+					Intent intent = new Intent(CommCareHomeActivity.this, RecoveryActivity.class);
+					startActivity(intent);
+					break;
+
+					case DialogInterface.BUTTON2: // Shut down
+						CommCareHomeActivity.this.finish();
+						break;
+					}
+				} catch(SessionUnavailableException sue) {
+					//should be impossible to get here.
+					throw new RuntimeException("Required session unavailable. Something is seriously wrong");
+				}
+			}
+		};
+		mAttemptFixDialog.setCancelable(false);
+		mAttemptFixDialog.setButton("Enter Recovery Mode", attemptFixDialog);
+		mAttemptFixDialog.setButton2("Shut Down", attemptFixDialog);
+
+		return mAttemptFixDialog;
+	}
+    
+    
+    /** All methods for implementation of DialogController that are not already handled in CommCareActivity **/
+    
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+    	String title, message;
+    	switch (taskId) {
+    	case ProcessAndSendTask.SEND_PHASE_ID:
+    		title = Localization.get("sync.progress.submitting.title");
+    		message = Localization.get("sync.progress.submitting");
+    		break;
+    	case ProcessAndSendTask.PROCESSING_PHASE_ID:
+    		title = Localization.get("form.entry.processing.title");
+    		message = Localization.get("form.entry.processing");
+    		break;
+    	case DataPullTask.DATA_PULL_TASK_ID:
+    		title = Localization.get("sync.progress.title");
+    		message = Localization.get("sync.progress.purge");
+    		break;
+    	default:
+    		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+    				+ "any valid possibilities in CommCareHomeActivity");
+    		return null;
+    	}
+        return CustomProgressDialog.newInstance(title, message, taskId);
+    	
+    }
+	
 }

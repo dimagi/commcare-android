@@ -71,11 +71,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 	
 	public static final int PROCESSING_PHASE_ID = 8;
 	public static final int SEND_PHASE_ID = 9;
-	
-	
-	
-	
-	
 	public static final long PROGRESS_ALL_PROCESSED = 8;
 	
 	public static final long SUBMISSION_BEGIN = 16;
@@ -98,15 +93,21 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 	private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
 	
 	public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
-		this(c, url, SEND_PHASE_ID);
+		this(c, url, SEND_PHASE_ID, true);
 	}
 	
-	public ProcessAndSendTask(Context c, String url, int sendTaskId) throws SessionUnavailableException{
+	public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) 
+			throws SessionUnavailableException{
 		this.c = c;
 		this.url = url;
-		this.taskId = PROCESSING_PHASE_ID;
 		this.sendTaskId = sendTaskId;
 		this.processor = new FormRecordProcessor(c);
+		if (inSyncMode) {
+			this.taskId = PROCESSING_PHASE_ID;
+		}
+		else {
+			this.taskId = -1;
+		}
 	}
 	
 	/* (non-Javadoc)

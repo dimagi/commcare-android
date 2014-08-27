@@ -14,15 +14,17 @@ public class Entity<T> {
 	T t;
 	Object[] data;
 	String[] sortData;
+	boolean[] relevancyData;
 	
 	protected Entity(T t) {
 		this.t = t;
 	}
 	
-	public Entity(Object[] data, String[] sortData, T t) {
+	public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t) {
 		this.t = t;
 		this.sortData = sortData;
 		this.data = data;
+		this.relevancyData = relevancyData;
 	}
 	
 	public Object getField(int i) {
@@ -39,6 +41,14 @@ public class Entity<T> {
 			return (String) field;
 		}
 		return "";
+	}
+	
+	/**
+	 * @param i index of field
+	 * @return True iff the given field is relevant and has a non-blank value.
+	 */
+	public boolean isValidField(int i) {
+		return !getField(i).equals("") && relevancyData[i];
 	}
 	
 	public String getSortField(int i) {

@@ -3,18 +3,18 @@ package org.commcare.android.view;
 import java.io.File;
 
 import org.commcare.dalvik.R;
+import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.odk.collect.android.utilities.FileUtils;
+import org.javarosa.core.services.locale.Localizer;
 import org.odk.collect.android.views.media.AudioButton;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -33,24 +33,37 @@ public class TextImageAudioView extends RelativeLayout {
     private AudioButton mAudioButton;
     private ImageView mImageView;
     private TextView mMissingImage;
-    private final int imageDimension = 100;
+    private final int iconDimension;
     private final int fontSize = 20;
+    
+    private EvaluationContext ec;
 
-
+    
     public TextImageAudioView(Context c) {
+    	this(c, null);
+    }
+
+    public TextImageAudioView(Context c, EvaluationContext ec) {
         super(c);
         mTextView = null;
         mAudioButton = null;
         mImageView = null;
         mMissingImage = null;
+        this.ec = ec;
+        
+        this.iconDimension = (int) getResources().getDimension(R.dimen.menu_icon_size);
+
     }
+    
+
+	public void setDisplay(DisplayUnit display) {
+		setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getAudioURI(), display.getImageURI());
+	}
     
     //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
     public void setAVT(String displayText, String audioURI, String imageURI) {
     	this.removeAllViews();
     	
-        String mDisplayText = displayText;
-        
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         
         mTextView = (TextView)inflater.inflate(R.layout.entity_item_text, null);
@@ -58,12 +71,9 @@ public class TextImageAudioView extends RelativeLayout {
         mTextView.setText(displayText);
         
         // Layout configurations for our elements in the relative layout
-        RelativeLayout.LayoutParams textParams =
-            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams audioParams =
-            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams imageParams =
-            new RelativeLayout.LayoutParams(imageDimension,imageDimension);
+        RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams audioParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(iconDimension,iconDimension);
         
         String audioFilename = "";
         if(audioURI != null && !audioURI.equals("")) {
@@ -89,52 +99,17 @@ public class TextImageAudioView extends RelativeLayout {
             audioParams.addRule(CENTER_VERTICAL);
             addView(mAudioButton, audioParams);
         }
-
-        // Now set up the image view
-        String errorMsg = null;
-        if (imageURI != null && !imageURI.equals("")) {
-            try {
-                String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                final File imageFile = new File(imageFilename);
-                if (imageFile.exists()) {
-                    Bitmap b = null;
-                    try {
-                        Display display =
-                            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                    .getDefaultDisplay();
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        b =
-                            FileUtils
-                                    .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
-                    } catch (OutOfMemoryError e) {
-                        errorMsg = "ERROR: " + e.getMessage();
-                    }
-
-                    if (b != null) {
-                        mImageView = new ImageView(getContext());
-                        mImageView.setPadding(10, 10, 10, 10);
-                        mImageView.setAdjustViewBounds(true);
-                        mImageView.setImageBitmap(b);
-                        mImageView.setId(23422634);
-                        imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                        addView(mImageView, imageParams);
-                    } else if (errorMsg == null) {
-                        // An error hasn't been logged and loading the image failed, so it's likely
-                        // a bad file.
-                        errorMsg = getContext().getString(R.string.file_invalid, imageFile);
-
-                    }
-                } else if (errorMsg == null) {
-                    // An error hasn't been logged. We should have an image, but the file doesn't
-                    // exist.
-                    errorMsg = getContext().getString(R.string.file_missing, imageFile);
-                }
-
-            } catch (InvalidReferenceException e) {
-                Log.e(t, "image invalid reference exception");
-                e.printStackTrace();
-            }
+        
+        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
+        if(b != null) {
+	        mImageView = new ImageView(getContext());
+	        mImageView.setPadding(10, 10, 10, 10);
+	        mImageView.setAdjustViewBounds(true);
+	        mImageView.setImageBitmap(b);
+	        mImageView.setId(23422634);
+	        imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            audioParams.addRule(CENTER_VERTICAL);
+	        addView(mImageView, imageParams);
         }
         
         textParams.addRule(RelativeLayout.CENTER_VERTICAL);
@@ -188,5 +163,6 @@ public class TextImageAudioView extends RelativeLayout {
             }
         }
     }
+
 
 }

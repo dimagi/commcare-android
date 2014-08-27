@@ -7,11 +7,10 @@ import org.commcare.android.tasks.ConnectionDiagnosticTask;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -173,23 +172,24 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
 			}
 		});
 	}
-	
-	private AlertDialog newDialog()
-	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle((Localization.get("connection.test.run.title")));
-		builder.setMessage(Localization.get("connection.test.now.running")).setCancelable(true);		
-		AlertDialog dialog = builder.create();
-		return dialog;
-	}
+
+	/** Implementation of generateProgressDialog() for DialogController -- other methods
+	 * handled entirely in CommCareActivity
+	 */
 	
 	@Override
-	protected Dialog onCreateDialog(int id) 
-	{
-		if(id == ConnectionDiagnosticTask.CONNECTION_ID) 
-		{
-			return newDialog();
+	public CustomProgressDialog generateProgressDialog(int taskId) {
+		if (taskId == ConnectionDiagnosticTask.CONNECTION_ID) {
+			String title = Localization.get("connection.test.run.title");
+			String message = Localization.get("connection.test.now.running");
+			CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+			dialog.setCancelable();
+			return dialog;
 		}
-		return null;
+		else {
+			System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+    				+ "any valid possibilities in ConnectionDiagnosticActivity");
+    		return null;
+		}
 	}
 }

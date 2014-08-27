@@ -17,7 +17,6 @@ import org.commcare.android.framework.FileServerFragment;
 import org.commcare.android.framework.FileServerFragment.FileServerListener;
 import org.commcare.android.framework.WiFiDirectManagementFragment;
 import org.commcare.android.framework.WiFiDirectManagementFragment.WifiDirectManagerListener;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.FormTransferTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UnzipTask;
@@ -27,6 +26,7 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -34,8 +34,6 @@ import org.javarosa.core.services.locale.Localization;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -402,14 +400,12 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			@Override
 			protected void deliverResult(CommCareWiFiDirectActivity receiver,
 					Boolean result) {
-
 				receiver.onCleanSuccessful();
-
 			}
 
 			@Override
 			protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
-				receiver.updateProgress(WipeTask.WIPE_TASK_ID, update[0]);
+				receiver.updateProgress(update[0], WipeTask.WIPE_TASK_ID);
 				receiver.myStatusText.setText(update[0]);
 			}
 
@@ -471,7 +467,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 				settings.getString("PostURL", url), receiveFolder){
 
 			@Override
-			protected void deliverResult( CommCareWiFiDirectActivity receiver, Boolean result) {
+			protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {
 
 				if(result == Boolean.TRUE){
 					Intent i = new Intent(getIntent());
@@ -487,7 +483,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 			@Override
 			protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
-				receiver.updateProgress(BULK_SEND_ID, update[0]);
+				receiver.updateProgress(update[0], BULK_SEND_ID);
 				receiver.myStatusText.setText(update[0]);
 			}
 
@@ -547,7 +543,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			@Override
 			protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
 				Log.d(TAG, "delivering unzip upate");
-				receiver.updateProgress(CommCareTask.GENERIC_TASK_ID, update[0]);
+				receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
 				receiver.myStatusText.setText(update[0]);
 			}
 
@@ -786,7 +782,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 			@Override
 			protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
-				receiver.updateProgress(taskId, update[0]);
+				receiver.updateProgress(update[0], taskId);
 				receiver.myStatusText.setText(update[0]);
 			}
 
@@ -797,8 +793,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			}
 
 			@Override
-			protected void deliverResult(
-					CommCareWiFiDirectActivity receiver, FormRecord[] result) {
+			protected void deliverResult(CommCareWiFiDirectActivity receiver, FormRecord[] result) {
 				if(result != null){
 					receiver.onZipSuccesful(result);
 					return;
@@ -845,7 +840,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 			@Override
 			protected void deliverUpdate(CommCareWiFiDirectActivity receiver,
 					String... update) {
-				receiver.updateProgress(taskId, update[0]);
+				receiver.updateProgress(update[0], taskId);
 				receiver.myStatusText.setText(update[0]);
 			}
 
@@ -879,58 +874,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 	public void onSendFail(){
 		Logger.log(TAG, "Error Sending Files");
-	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateDialog(int)
-	 */
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-		case ZipTask.ZIP_TASK_ID:
-			ProgressDialog mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setTitle("Zipping Forms...");
-			mProgressDialog.setMessage("CommCare is compressing your data for transfer");
-			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.setCancelable(false);
-			return mProgressDialog;
-		case UnzipTask.UNZIP_TASK_ID:
-			mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setTitle("Unzipping forms");
-			mProgressDialog.setMessage("CommCare is decompressing your forms onto your SD card");
-			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.setCancelable(false);
-			return mProgressDialog;
-		case SendTask.BULK_SEND_ID:
-			mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setTitle("Submitting Forms");
-			mProgressDialog.setMessage("CommCare is submitting your forms to the server");
-			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.setCancelable(false);
-			return mProgressDialog;
-		case FormTransferTask.BULK_TRANSFER_ID:
-			mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setTitle("Sending Forms");
-			mProgressDialog.setMessage("CommCare is sending your forms to your peer");
-			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.setCancelable(false);
-			return mProgressDialog;
-		case FILE_SERVER_TASK_ID:
-			mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setTitle("Starting Receiving Files");
-			mProgressDialog.setMessage("CommCare is receiving files");
-			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.setCancelable(false);
-			return mProgressDialog;
-		case WipeTask.WIPE_TASK_ID:
-			mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setTitle("Wiping forms");
-			mProgressDialog.setMessage("Cleaning up after transfer");
-			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.setCancelable(false);
-			return mProgressDialog;
-		}
-		return null;
 	}
 
 	public void updateStatusText(){
@@ -1017,6 +960,47 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
 		fragment.updateThisDevice(mDevice);
 
+	}
+	
+	/** Implementation of generateProgressDialog() for DialogController -- other methods
+	 * handled entirely in CommCareActivity
+	 */
+	
+	@Override
+	public CustomProgressDialog generateProgressDialog(int taskId) {
+		String title, message;
+		switch (taskId) {
+		case ZipTask.ZIP_TASK_ID:
+			title = "Zipping Forms...";
+			message ="CommCare is compressing your data for transfer";
+			break;
+		case UnzipTask.UNZIP_TASK_ID:
+			title = "Unzipping forms";
+			message = "CommCare is decompressing your forms onto your SD card";
+			break;
+		case SendTask.BULK_SEND_ID:
+			title = "Submitting Forms";
+			message = "CommCare is submitting your forms to the server";
+			break;
+		case FormTransferTask.BULK_TRANSFER_ID:
+			title = "Sending Forms";
+			message = "CommCare is sending your forms to your peer";
+			break;
+		case FILE_SERVER_TASK_ID:
+			title = "Starting Receiving Files";
+			message = "CommCare is receiving files";
+			break;
+		case WipeTask.WIPE_TASK_ID:
+			title = "Wiping forms";
+			message = "Cleaning up after transfer";
+			break;
+		default:
+    		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+    				+ "any valid possibilities in CommCareWifiDirectActivity");		
+    		return null;
+    	}
+		CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+		return dialog;
 	}
 
 }

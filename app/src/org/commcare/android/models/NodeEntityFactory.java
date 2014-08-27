@@ -17,6 +17,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * @author ctsims
@@ -52,25 +53,30 @@ public class NodeEntityFactory {
 		
 		//return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 		
-		Object[] details = new Object[detail.getHeaderForms().length];
-		String[] sortDetails = new String[detail.getHeaderForms().length];
+		int length = detail.getHeaderForms().length;
+		Object[] details = new String[length];
+		String[] sortDetails = new String[length];
+		boolean[] relevancyDetails = new boolean[length];
 		int count = 0;
 		for(DetailField f : this.getDetail().getFields()) {
 			try {
 				details[count] = f.getTemplate().evaluate(nodeContext);
 				Text sortText = f.getSort();
 				if(sortText == null) {
-					sortDetails[count] = details[count] instanceof String ? (String) details[count] : "";
+					sortDetails[count] = null;
 				} else {
 					sortDetails[count] = sortText.evaluate(nodeContext);
 				}
+				relevancyDetails[count] = f.isRelevant(nodeContext);
 			} catch(XPathException xpe) {
 				xpe.printStackTrace();
 				details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
+			} catch (XPathSyntaxException e) {
+				e.printStackTrace();
 			}
 			count++;
 		}
 		
-		return new Entity<TreeReference>(details, sortDetails, data);
+		return new Entity<TreeReference>(details, sortDetails, relevancyDetails, data);
 	}
 }

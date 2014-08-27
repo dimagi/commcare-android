@@ -25,5 +25,9 @@
 	     <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle</item>
 	</style>
   	
+	<style name="ProgressDialog.MessageText" parent="@android:style/TextAppearance">
+	    <item name="android:textAppearance">@android:style/TextAppearance.DialogWindowTitle</item>
+	</style>
+	
 	<style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.WindowTitle"/>
 </resources>

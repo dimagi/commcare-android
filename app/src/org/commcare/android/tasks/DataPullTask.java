@@ -55,6 +55,7 @@ import org.javarosa.model.xform.XPathReference;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
@@ -241,7 +242,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 						if(loginNeeded) {						
 							CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
 						}
-
+						
+						//Let anyone who is listening know!
+						Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
+						this.c.sendBroadcast(i);
 						
 			    		Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
 						this.publishProgress(PROGRESS_DONE);

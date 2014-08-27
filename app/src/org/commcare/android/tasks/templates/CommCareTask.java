@@ -54,8 +54,10 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 				//TODO: FailedConnection
 				return;
 			}
+			connector.startTaskTransition();
 			connector.stopBlockingForTask(getTaskId());
 			connector.taskCancelled(getTaskId());
+			connector.stopTaskTransition();
 		}
 	}
 
@@ -72,13 +74,14 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
 				//TODO: FailedConnection
 				return;
 			}
-			
+			connector.startTaskTransition();
 			connector.stopBlockingForTask(getTaskId());
 			if(unknownError != null) { 
 				deliverError(connector.getReceiver(), unknownError);
 				return;
 			}
 			this.deliverResult(connector.getReceiver(), result);
+			connector.stopTaskTransition();
 		}
 	}
 
