@@ -18,7 +18,7 @@
          android:layout_height="wrap_content"
          android:onClick="uninstallSelected" />
                 
-     <Button
+    <Button
          android:id="@+id/archive_button"
          android:text="@string/archive_app"
          android:textSize="14sp"            

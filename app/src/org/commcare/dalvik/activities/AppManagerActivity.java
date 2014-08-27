@@ -18,7 +18,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 /**
- * 
  * @author amstone326
  *
  */
@@ -31,8 +30,12 @@ public class AppManagerActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.app_manager);
+		refreshView();
+	}
+	
+	private void refreshView() {
 		ListView lv = (ListView) findViewById(R.id.apps_list_view);
-		lv.setAdapter(new AppManagerAdapter(this, R.layout.custom_list_item_view, appRecordArray()));
+		lv.setAdapter(new AppManagerAdapter(this, R.layout.custom_list_item_view, appRecordArray()));		
 	}
 	
 	public void onResume() {
@@ -57,7 +60,10 @@ public class AppManagerActivity extends Activity {
 		if (index < 0 || index >= currentApps.length) {
 			System.out.println("WARNING: attempting to get ApplicationRecord from ManagerActivity at invalid index");
 			return null;
-		} else return currentApps[index];
+		} else {
+			System.out.println("returning ApplicationRecord at index " + index);
+			return currentApps[index];
+		}
 	}
 	
 	public void installAppClicked(View v) {
@@ -110,11 +116,14 @@ public class AppManagerActivity extends Activity {
 	public void uninstallSelected(View v) {
 		String appId = (String) v.getContentDescription();
 		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
+		CommCareApplication._().getGlobalStorage(ApplicationRecord.class).remove(selected.getID());
+		refreshView();
 	}
 	
 	/** If the app is not archived, sets it to archived (i.e. still installed but 
-	 * not visible to users; If it is archived, sets it to unarchived **/
+	 * not visible to users); If it is archived, sets it to unarchived **/
 	public void toggleArchiveSelected(View v) {
+		System.out.println("toggleArchiveSelected called");
 		String appId = (String) v.getContentDescription();
 		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
 		selected.setArchiveStatus(!selected.isArchived());

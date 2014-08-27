@@ -37,10 +37,9 @@ public class ApplicationRecord extends Persisted {
 	@Persisting(4)
 	String displayName;
 	@Persisting(5)
-	boolean isArchived;
-	@Persisting(6)
 	boolean resourcesValidated;
-
+	@Persisting(6)
+	boolean isArchived;
 	
 	/*
 	 * Deserialization only
@@ -84,10 +83,12 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public void setArchiveStatus(boolean b) {
+		System.out.println("setting archive status for AppRecord " + uniqueId + " to " + b);
 		this.isArchived = b;
 	}
 	
 	public boolean isArchived() {
+		System.out.println("isArchived returning " + this.isArchived + " for AppRecord " + uniqueId);
 		return this.isArchived;
 	}
 	

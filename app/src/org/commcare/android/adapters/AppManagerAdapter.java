@@ -22,6 +22,7 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		System.out.println("getView called");
 		View v = convertView;
 		if (v == null) {
 			v = View.inflate(context, R.layout.single_app_view, null);
@@ -44,9 +45,9 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
 		
 		//validate button only clickable if resources are not yet validated
 		if (toDisplay.resourcesValidated()) {
-			validateButton.setClickable(false);
+			validateButton.setEnabled(false);
 		} else {
-			validateButton.setClickable(true);
+			validateButton.setEnabled(true);
 		}
 		//change text for archive button depending on archive status
 		if (toDisplay.isArchived()) {
