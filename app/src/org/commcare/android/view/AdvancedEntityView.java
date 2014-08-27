@@ -290,7 +290,17 @@ public class AdvancedEntityView extends GridLayout {
 			} else if(textsize.equals("xlarge")){
 				((TextView)retVal).setTextSize(XLARGE_FONT/DENSITY);
 			} 
-			((TextView)retVal).setPadding(PADDING_HORIZONTAL,PADDING_VERTICAL,PADDING_HORIZONTAL,PADDING_VERTICAL);
+			//((TextView)retVal).setPadding(PADDING_HORIZONTAL,PADDING_VERTICAL,PADDING_HORIZONTAL,PADDING_VERTICAL);
+		}
+		
+		if(cssid != null && !cssid.equals("none")){
+			FontFitTextView mView = new FontFitTextView(context, width, height);
+			mView.setText(" ");
+			((TextView)mView).setHeight(height);
+			((TextView)mView).setWidth(width);
+			((TextView)mView).setText(Stylizer.getStyleSpannable(cssid," "));
+			viewQueue.add(mView);
+			paramsQueue.add(mGridParams);
 		}
 		
 		return retVal;
