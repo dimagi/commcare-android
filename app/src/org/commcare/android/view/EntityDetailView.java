@@ -168,7 +168,7 @@ public class EntityDetailView extends FrameLayout {
 			
 			updateCurrentView(IMAGE, imageView);
 		} else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {	// if graph parsing had errors, they'll be stored as a string
-			GraphView g = null;
+			GraphView g = new GraphView(getContext());
 			View rendered = null;
 			int orientation = getResources().getConfiguration().orientation;
 			if (renderedGraphsCache.get(index) != null) {
@@ -177,14 +177,12 @@ public class EntityDetailView extends FrameLayout {
 			else {
 				renderedGraphsCache.put(index, new Hashtable<Integer, View>());
 			}
-			if (g == null) {
-				g = new GraphView(getContext());
+			if (rendered == null) {
 				g.setTitle(labelText);
 				rendered = g.renderView((GraphData) field);
 				renderedGraphsCache.get(index).put(orientation, rendered);
 			}
 			graphLayout.removeAllViews();
-
 			graphLayout.addView(rendered, g.getLayoutParams());
 
 			if (current != GRAPH) {

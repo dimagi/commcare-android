@@ -4,6 +4,7 @@
 package org.commcare.android.view;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 import org.commcare.android.models.Entity;
 import org.commcare.dalvik.R;
@@ -43,6 +44,7 @@ public class EntityView extends LinearLayout {
 	private String[] searchTerms;
 	private Context context;
 	private AudioController controller;
+	private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;	// index => { orientation => GraphView }
 	private long rowId;
 	private static final String FORM_AUDIO = "audio";
 	private static final String FORM_IMAGE = "image";
@@ -59,6 +61,7 @@ public class EntityView extends LinearLayout {
 		this.tts = tts;
 		this.setWeightSum(1);
 		this.controller = controller;
+		this.renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
 		this.rowId = rowId;
 		views = new View[e.getNumFields()];
 		forms = d.getTemplateForms();
@@ -154,8 +157,19 @@ public class EntityView extends LinearLayout {
 				setupImageLayout(view, (String) field);
 			} 
 			else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+				int orientation = getResources().getConfiguration().orientation;
 				GraphView g = new GraphView(context);
-				View rendered = g.renderView((GraphData) field);
+				View rendered = null;
+	 			if (renderedGraphsCache.get(i) != null) {
+	 				rendered = renderedGraphsCache.get(i).get(orientation);
+	 			}
+	 			else {
+	 				renderedGraphsCache.put(i, new Hashtable<Integer, View>());
+	 			}
+	 			if (rendered == null) {
+	 				rendered = g.renderView((GraphData) field);
+	 				renderedGraphsCache.get(i).put(orientation, rendered);
+	 			}
 				((LinearLayout) view).removeAllViews();
 				((LinearLayout) view).addView(rendered, g.getLayoutParams());
 				view.setVisibility(VISIBLE);
