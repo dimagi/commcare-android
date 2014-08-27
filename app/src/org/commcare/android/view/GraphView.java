@@ -159,24 +159,21 @@ public class GraphView {
 	 */
 	private void configureSeries(SeriesData s, XYSeriesRenderer currentRenderer) {
 		// Default to circular points, but allow Xs or no points at all
-		String pointStyle = s.getConfiguration("point-style");
-		if (pointStyle == null || !pointStyle.toLowerCase().equals("none")) {
-			pointStyle = pointStyle == null ? "circle" : pointStyle.toLowerCase();
-			PointStyle style = PointStyle.CIRCLE;
-			if (pointStyle.equals("x")) {
+		String pointStyle = s.getConfiguration("point-style", "circle").toLowerCase();
+		if (!pointStyle.equals("none")) {
+			PointStyle style = null;
+			if (pointStyle.equals("circle")) {
+				style = PointStyle.CIRCLE;
+			}
+			else if (pointStyle.equals("x")) {
 				style = PointStyle.X;
 			}
 			currentRenderer.setPointStyle(style);
 			currentRenderer.setFillPoints(true);
 		}
 		
-		String lineColor = s.getConfiguration("line-color");
-		if (lineColor != null) {
-			currentRenderer.setColor(Color.parseColor(lineColor));
-		}
-		else {
-			currentRenderer.setColor(mContext.getResources().getColor(R.drawable.black));
-		}
+		String lineColor = s.getConfiguration("line-color", "#ff000000");
+		currentRenderer.setColor(Color.parseColor(lineColor));
 		
 		fillOutsideLine(s, currentRenderer, "fill-above", XYSeriesRenderer.FillOutsideLine.Type.ABOVE);
 		fillOutsideLine(s, currentRenderer, "fill-below", XYSeriesRenderer.FillOutsideLine.Type.BELOW);
@@ -217,12 +214,8 @@ public class GraphView {
 		mRenderer.setPanEnabled(false, false);
 
 		// User-configurable options
-		if (mData.getConfiguration("x-axis-title") != null) {
-			mRenderer.setXTitle(mData.getConfiguration("x-axis-title"));
-		}
-		if (mData.getConfiguration("y-axis-title") != null) {
-			mRenderer.setYTitle(mData.getConfiguration("y-axis-title"));
-		}
+		mRenderer.setXTitle(mData.getConfiguration("x-axis-title", ""));
+		mRenderer.setYTitle(mData.getConfiguration("y-axis-title", ""));
 
 		if (mData.getConfiguration("x-axis-min") != null) {
 			mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-axis-min")));
@@ -238,14 +231,14 @@ public class GraphView {
 			mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
 		}
 		
-		String showGrid = mData.getConfiguration("show-grid");
-		if (showGrid != null && Boolean.valueOf(showGrid).equals(Boolean.FALSE)) {
+		String showGrid = mData.getConfiguration("show-grid", "true");
+		if (Boolean.valueOf(showGrid).equals(Boolean.FALSE)) {
 			mRenderer.setShowGridX(false);
 			mRenderer.setShowGridY(false);
 		}
 
-		String showAxes = mData.getConfiguration("show-axes");
-		if (showAxes != null && Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
+		String showAxes = mData.getConfiguration("show-axes", "true");
+		if (Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
 			mRenderer.setShowAxes(false);
 		}
 		
