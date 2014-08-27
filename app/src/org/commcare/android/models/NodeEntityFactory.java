@@ -45,7 +45,7 @@ public class NodeEntityFactory {
 		EvaluationContext nodeContext = new EvaluationContext(ec, data);
 		Hashtable<String, XPathExpression> variables = getDetail().getVariableDeclarations();
 		//These are actually in an ordered hashtable, so we can't just get the keyset, since it's
-		//in a 1.3 hashtable equivilant
+		//in a 1.3 hashtable equivalent
 		for(Enumeration<String> en = variables.keys(); en.hasMoreElements();) {
 			String key = en.nextElement();
 			nodeContext.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(nodeContext)));
@@ -54,7 +54,7 @@ public class NodeEntityFactory {
 		//return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 		
 		int length = detail.getHeaderForms().length;
-		String[] details = new String[length];
+		Object[] details = new String[length];
 		String[] sortDetails = new String[length];
 		boolean[] relevancyDetails = new boolean[length];
 		int count = 0;

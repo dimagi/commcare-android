@@ -12,7 +12,7 @@ package org.commcare.android.models;
 public class Entity<T> {
 	
 	T t;
-	String[] data;
+	Object[] data;
 	String[] sortData;
 	boolean[] relevancyData;
 	
@@ -20,15 +20,27 @@ public class Entity<T> {
 		this.t = t;
 	}
 	
-	public Entity(String[] data, String[] sortData, boolean[] relevancyData, T t) {
+	public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t) {
 		this.t = t;
 		this.sortData = sortData;
 		this.data = data;
 		this.relevancyData = relevancyData;
 	}
 	
-	public String getField(int i) {
+	public Object getField(int i) {
 		return data[i];
+	}
+	
+	/*
+	 * Same as getField, but guaranteed to return a string.
+	 * If field is not already a string, will return blank string.
+	 */
+	public String getFieldString(int i) {
+		Object field = getField(i);
+		if (field instanceof String) {
+			return (String) field;
+		}
+		return "";
 	}
 	
 	/**

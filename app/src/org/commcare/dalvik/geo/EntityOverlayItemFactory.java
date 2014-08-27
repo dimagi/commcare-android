@@ -61,7 +61,7 @@ public class EntityOverlayItemFactory {
 	public EntityOverlayItem generateOverlay(GeoPoint gp, Entity<TreeReference> e) {
 		Drawable custom = null;
 		if(imageIndex != -1) {
-			String URI = e.getField(imageIndex);
+			String URI = (String) e.getField(imageIndex);
 			if(URI != null && URI != "") {
 				if(drawables.containsKey(URI)) {
 					custom = drawables.get(URI);
@@ -72,8 +72,8 @@ public class EntityOverlayItemFactory {
 				}
 			}
 		}
-		String big = bigTextIndex == -1 ? "" : e.getField(bigTextIndex);
-		String small = smallTextIndex == -1 ? "" : e.getField(smallTextIndex);
+		String big = bigTextIndex == -1 ? "" : (String) e.getField(bigTextIndex);
+		String small = smallTextIndex == -1 ? "" : (String) e.getField(smallTextIndex);
 		return new EntityOverlayItem(gp, big, small, custom);
 	}
 	
