@@ -179,10 +179,11 @@ public class CustomProgressDialog extends DialogFragment {
 	}
     
 	public void updateMessage(String text) {
+		this.message = text;
 		AlertDialog pd = (AlertDialog) getDialog();
 		if (pd != null) {
 			TextView tv = (TextView) pd.findViewById(R.id.progress_dialog_message);
-			tv.setText(text);
+			tv.setText(this.message);
 		}
 	}
 	
