@@ -3,6 +3,10 @@
  */
 package org.commcare.android.view;
 
+import java.util.ArrayList;
+
+import net.nightwhistler.htmlspanner.Stylizer;
+
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.dalvik.R;
@@ -70,7 +74,10 @@ public class AdvancedEntityView extends GridLayout {
 	public double rowWidth;
 	private CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
 	private AudioController controller;
-
+	
+	ArrayList<View> viewQueue;
+	ArrayList<GridLayout.LayoutParams> paramsQueue;
+	
 	public AdvancedEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, AudioController controller) {
 		super(context);
 		this.searchTerms = searchTerms;
@@ -120,6 +127,9 @@ public class AdvancedEntityView extends GridLayout {
 		mImageLoader = mLoader;
 		cellWidth = rowWidth/NUMBER_COLUMNS;
 		cellHeight = rowHeight / NUMBER_ROWS;
+		
+		paramsQueue = new ArrayList<GridLayout.LayoutParams>();
+		viewQueue = new ArrayList<View>();
 		
 		// now ready to setup all these views
 		setViews(context, detail, entity);
@@ -221,12 +231,19 @@ public class AdvancedEntityView extends GridLayout {
 			String horzAlign = mStyle.getHorzAlign();
 			String vertAlign = mStyle.getVertAlign();
 			String textsize = mStyle.getFontSize();
+			String CssID = mStyle.getCssID();
 			
-			mView = getView(context, multimediaType, mGridParams.width, mGridParams.height, horzAlign, vertAlign, textsize, mRowData[i], uniqueId);
+			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, mRowData[i], uniqueId, CssID);
 
 			mView.setLayoutParams(mGridParams);
 		
 			this.addView(mView, mGridParams);
+		}
+		
+		while(viewQueue.size() > 0){
+			System.out.println("821 adding view");
+			View queueView = viewQueue.remove(0);
+			this.addView(queueView, paramsQueue.remove(0));
 		}
         
 	}
@@ -243,8 +260,10 @@ public class AdvancedEntityView extends GridLayout {
 	 * @param rowData The actual data to display, either an XPath to media or a String to display
 	 * @return
 	 */
-	private View getView(Context context, String multimediaType, int width, int height,  String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId) {
+	private View getView(Context context, String multimediaType, GridLayout.LayoutParams mGridParams,  String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid) {
 		View retVal;
+		int height = mGridParams.height;
+		int width = mGridParams.width;
 		if(multimediaType.equals(EntityView.FORM_IMAGE)){
 			retVal = new ImageView(context);
 			// image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
@@ -259,7 +278,7 @@ public class AdvancedEntityView extends GridLayout {
     		else {
     			retVal = new AudioButton(context, rowData, uniqueId, controller, false);
     		}
-		}else{
+		} else{
 			retVal = new TextView(context);
 			((TextView)retVal).setText(rowData);
 			// handle horizontal alignment
