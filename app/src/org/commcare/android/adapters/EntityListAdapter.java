@@ -175,8 +175,8 @@ public class EntityListAdapter implements ListAdapter {
 				String a1 = object1.getSortField(index);
 				String a2 = object2.getSortField(index);
 				
-				if(a1 == null) { a1 = object1.getField(i); }
-				if(a2 == null) { a2 = object2.getField(i); }
+				if(a1 == null) { a1 = object1.getFieldString(i); }
+				if(a2 == null) { a2 = object2.getFieldString(i); }
 				
 				//TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
 				//For now, regardless of typing, blanks are always smaller than non-blanks
