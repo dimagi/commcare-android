@@ -181,12 +181,15 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchLabel.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
+				// get the focus on the edittext by performing click
+				searchbox.performClick();
+				// then force the keyboard up since performClick() apparently isn't enough on some devices
 				InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 				// only will trigger it if no physical keyboard is open
 				inputMethodManager.showSoftInput(searchbox, InputMethodManager.SHOW_IMPLICIT);
 			}
         });
-        
+       
         searchbox = (EditText)findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
