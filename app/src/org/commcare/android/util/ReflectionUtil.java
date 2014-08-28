@@ -19,7 +19,7 @@ public class ReflectionUtil {
 
    private static void initCompatibility() {
        try {
-    	   mExternalStorageEmulated = Environment.class.getMethod("isExternalStorageEmulated", new Class[0]);    	      	   
+           mExternalStorageEmulated = Environment.class.getMethod("isExternalStorageEmulated", new Class[0]);                     
            /* success, this is a newer device */
        } catch (NoSuchMethodException nsme) {
            /* failure, must be older device */
@@ -33,9 +33,9 @@ public class ReflectionUtil {
 
    private static boolean mIsExternalStorageEmulated() throws IOException {
        try {
-    	   Object obj = mExternalStorageEmulated.invoke(null , new Object[0]);
-    	   boolean isEmulated = (Boolean) obj;
-    	   return isEmulated;
+           Object obj = mExternalStorageEmulated.invoke(null , new Object[0]);
+           boolean isEmulated = (Boolean) obj;
+           return isEmulated;
        } catch (InvocationTargetException ite) {
            /* unpack original exception when possible */
            Throwable cause = ite.getCause();
@@ -53,8 +53,8 @@ public class ReflectionUtil {
            System.err.println("unexpected " + ie);
            throw new RuntimeException(ie);
        } catch(ClassCastException cce){
-    	   System.err.println("unexpected " + cce);
-    	   throw new RuntimeException(cce);
+           System.err.println("unexpected " + cce);
+           throw new RuntimeException(cce);
        }
    }
    
@@ -75,7 +75,7 @@ public class ReflectionUtil {
            } catch (RuntimeException e) {
                return true;
            } catch (IOException ie){
-        	   return true;
+               return true;
            }
        } else {
            /* external SD emulation not possible, return false */

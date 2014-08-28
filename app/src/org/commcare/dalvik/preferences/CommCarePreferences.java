@@ -42,9 +42,9 @@ import android.widget.Toast;
 
 public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener{
 
-	//So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
-	//out cleanly?
-	public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
+    //So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
+    //out cleanly?
+    public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
@@ -57,24 +57,24 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
     
-	public final static String LOG_WEEKLY_SUBMIT = "log_prop_weekly";
-	public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
-	
-	public final static String RESIZING_METHOD = "cc-resize-images";
-	
-	public final static String NEVER = "log_never";
-	public final static String SHORT = "log_short";
-	public final static String FULL = "log_full";
-	
-	public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
-	public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
-	
-	public final static String FORM_MANAGEMENT = "cc-form-management";
-	public final static String PROPERTY_ENABLED = "enabled";
-	public final static String PROPERTY_DISABLED = "disabled";
-	
-	
-	public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
+    public final static String LOG_WEEKLY_SUBMIT = "log_prop_weekly";
+    public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
+    
+    public final static String RESIZING_METHOD = "cc-resize-images";
+    
+    public final static String NEVER = "log_never";
+    public final static String SHORT = "log_short";
+    public final static String FULL = "log_full";
+    
+    public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
+    public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
+    
+    public final static String FORM_MANAGEMENT = "cc-form-management";
+    public final static String PROPERTY_ENABLED = "enabled";
+    public final static String PROPERTY_DISABLED = "disabled";
+    
+    
+    public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
     
     public final static String YES = "yes";
@@ -84,12 +84,12 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
 
-	private static final int CLEAR_USER_DATA = Menu.FIRST;
-	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
-	private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
-	private static final int RECOVERY_MODE = Menu.FIRST + 3;
+    private static final int CLEAR_USER_DATA = Menu.FIRST;
+    private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
+    private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
+    private static final int RECOVERY_MODE = Menu.FIRST + 3;
 
-    @Override	
+    @Override    
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
@@ -133,45 +133,45 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 this.finish();
                 return true;
             case ABOUT_COMMCARE:
-            	AlertDialog dialog = new AlertDialog.Builder(this).setMessage(R.string.aboutdialog).create();
-            	dialog.show();
-            	return true;
+                AlertDialog dialog = new AlertDialog.Builder(this).setMessage(R.string.aboutdialog).create();
+                dialog.show();
+                return true;
             case FORCE_LOG_SUBMIT:
-            	CommCareUtil.triggerLogSubmission(this);
+                CommCareUtil.triggerLogSubmission(this);
                 return true;
             case RECOVERY_MODE:
-            	Intent i = new Intent(this,RecoveryActivity.class);
-            	this.startActivity(i);
+                Intent i = new Intent(this,RecoveryActivity.class);
+                this.startActivity(i);
         }
         return super.onOptionsItemSelected(item);
     }
     
     public static boolean isInSenseMode(){
-    	return CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense");
+        return CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense");
     }
    
     public static boolean isIncompleteFormsEnabled() {
-    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-    	//If there is a setting for form management it takes precedence
-    	if(properties.contains(ENABLE_INCOMPLETE_FORMS)) {
-    		
-    		return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
-    	}
-    	
-    	//otherwise, see if we're in sense mode
-    	return !isInSenseMode();
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        //If there is a setting for form management it takes precedence
+        if(properties.contains(ENABLE_INCOMPLETE_FORMS)) {
+            
+            return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
+        }
+        
+        //otherwise, see if we're in sense mode
+        return !isInSenseMode();
     }
     
     public static boolean isSavedFormsEnabled(){
-    	
-    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-    	//If there is a setting for form management it takes precedence
-    	if(properties.contains(ENABLE_SAVED_FORMS)) {
-    		return properties.getString(ENABLE_SAVED_FORMS, YES).equals(YES);
-    	}
-    	
-    	//otherwise, see if we're in sense mode
-    	return !isInSenseMode();
+        
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        //If there is a setting for form management it takes precedence
+        if(properties.contains(ENABLE_SAVED_FORMS)) {
+            return properties.getString(ENABLE_SAVED_FORMS, YES).equals(YES);
+        }
+        
+        //otherwise, see if we're in sense mode
+        return !isInSenseMode();
     }
     
     @Override
@@ -192,35 +192,35 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) 
     {
-    	if(key.equals("cur_locale")) {
-    		Localization.setLocale(sharedPreferences.getString(key, "default"));
-    	}
+        if(key.equals("cur_locale")) {
+            Localization.setLocale(sharedPreferences.getString(key, "default"));
+        }
     }
 
-	public static String getResizeMethod() {
-    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-    	//If there is a setting for form management it takes precedence
-    	if(properties.contains(RESIZING_METHOD)) {
-    		return properties.getString(RESIZING_METHOD, "none");
-    	}
-    	
-    	//otherwise, see if we're in sense mode
-    	return "none";
-	}
-	
-	public void updatePreferencesText(){
-		PreferenceScreen screen = getPreferenceScreen();
-		int i;
-		for(i = 0; i < screen.getPreferenceCount(); i++) {
-			try{
-				String key = screen.getPreference(i).getKey();
-				String prependedKey = "preferences.title."+key;
-				String localizedString = Localization.get(prependedKey);
-				screen.getPreference(i).setTitle(localizedString);
-			} catch(NoLocalizedTextException nle){
-				
-			}
-		}
-	}
+    public static String getResizeMethod() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        //If there is a setting for form management it takes precedence
+        if(properties.contains(RESIZING_METHOD)) {
+            return properties.getString(RESIZING_METHOD, "none");
+        }
+        
+        //otherwise, see if we're in sense mode
+        return "none";
+    }
+    
+    public void updatePreferencesText(){
+        PreferenceScreen screen = getPreferenceScreen();
+        int i;
+        for(i = 0; i < screen.getPreferenceCount(); i++) {
+            try{
+                String key = screen.getPreference(i).getKey();
+                String prependedKey = "preferences.title."+key;
+                String localizedString = Localization.get(prependedKey);
+                screen.getPreference(i).setTitle(localizedString);
+            } catch(NoLocalizedTextException nle){
+                
+            }
+        }
+    }
 
 }

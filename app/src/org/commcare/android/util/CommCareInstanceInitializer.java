@@ -26,66 +26,66 @@ import org.javarosa.core.model.instance.TreeElement;
  *
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
-	CommCareSession session;
-	CaseInstanceTreeElement casebase;
-	LedgerInstanceTreeElement stockbase;
-	
-	public CommCareInstanceInitializer(){ 
-		this(null);
-	}
-	public CommCareInstanceInitializer(CommCareSession session) {
-		this.session = session;
-	}
-	
-	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
-		CommCareApplication app = CommCareApplication._();
-		String ref = instance.getReference();
-		if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
-			if(stockbase == null) {
-				SqlStorage<Ledger> storage = app.getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
-				stockbase =  new LedgerInstanceTreeElement(instance.getBase(), storage);
-			} else {
-				//re-use the existing model if it exists.
-				stockbase.rebase(instance.getBase());
-			}
-			return stockbase;
-		}else if(ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
-			if(casebase == null) {
-				SqlStorage<ACase> storage = app.getUserStorage(ACase.STORAGE_KEY, ACase.class);
-				casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false);
-			} else {
-				//re-use the existing model if it exists.
-				casebase.rebase(instance.getBase());
-			}
-			return casebase;
-		}else if(instance.getReference().indexOf("fixture") != -1) {
-			
-			//TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
-			
-			String userId = "";
-			User u = CommCareApplication._().getSession().getLoggedInUser();
-			if(u != null) {
-				userId = u.getUniqueId();
-			}
-			
-			String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
-			
-			FormInstance fixture = CommCareUtil.loadFixture(refId, userId);
-			
-			if(fixture == null) {
-				throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
-			}
-			
-			TreeElement root = fixture.getRoot();
-			root.setParent(instance.getBase());
-			return root;
-		}
-		if(instance.getReference().indexOf("session") != -1) {
-			User u = app.getSession().getLoggedInUser();
-			TreeElement root = session.getSessionInstance(app.getPhoneId(), app.getCurrentVersionString(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
-			root.setParent(instance.getBase());
-			return root;
-		}
-		return null;
-	}
+    CommCareSession session;
+    CaseInstanceTreeElement casebase;
+    LedgerInstanceTreeElement stockbase;
+    
+    public CommCareInstanceInitializer(){ 
+        this(null);
+    }
+    public CommCareInstanceInitializer(CommCareSession session) {
+        this.session = session;
+    }
+    
+    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+        CommCareApplication app = CommCareApplication._();
+        String ref = instance.getReference();
+        if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
+            if(stockbase == null) {
+                SqlStorage<Ledger> storage = app.getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
+                stockbase =  new LedgerInstanceTreeElement(instance.getBase(), storage);
+            } else {
+                //re-use the existing model if it exists.
+                stockbase.rebase(instance.getBase());
+            }
+            return stockbase;
+        }else if(ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
+            if(casebase == null) {
+                SqlStorage<ACase> storage = app.getUserStorage(ACase.STORAGE_KEY, ACase.class);
+                casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false);
+            } else {
+                //re-use the existing model if it exists.
+                casebase.rebase(instance.getBase());
+            }
+            return casebase;
+        }else if(instance.getReference().indexOf("fixture") != -1) {
+            
+            //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
+            
+            String userId = "";
+            User u = CommCareApplication._().getSession().getLoggedInUser();
+            if(u != null) {
+                userId = u.getUniqueId();
+            }
+            
+            String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
+            
+            FormInstance fixture = CommCareUtil.loadFixture(refId, userId);
+            
+            if(fixture == null) {
+                throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
+            }
+            
+            TreeElement root = fixture.getRoot();
+            root.setParent(instance.getBase());
+            return root;
+        }
+        if(instance.getReference().indexOf("session") != -1) {
+            User u = app.getSession().getLoggedInUser();
+            TreeElement root = session.getSessionInstance(app.getPhoneId(), app.getCurrentVersionString(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
+            root.setParent(instance.getBase());
+            return root;
+        }
+        return null;
+    }
 }

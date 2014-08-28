@@ -49,249 +49,249 @@ import com.google.android.maps.OverlayItem;
  */
 public class EntityMapActivity extends MapActivity {
 
-	MapView map;
-	MyLocationOverlay mMyLocationOverlay;
-	Geocoder mGeoCoder;
-	LocationManager mLocationManager;
-	
-	CommCareSession session;
-	Entry prototype;
-	
-	EntityOverlay mEntityOverlay;
-	Vector<Entity<TreeReference>> entities;
-	
-	/* (non-Javadoc)
-	 * @see com.google.android.maps.MapActivity#onCreate(android.os.Bundle)
-	 */
-	@Override
-	protected void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-		String licenseKey = getLicenseKey();
-		map = new MapView(this, licenseKey);
-		
-		this.setContentView(map);
-		
-		mGeoCoder = new Geocoder(this);
-		
-		// Get the location manager
-		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		// Define the criteria how to select the locatioin provider -> use
-		// default
-		Criteria criteria = new Criteria();
-		String provider = mLocationManager.getBestProvider(criteria, false);
-		Location location = mLocationManager.getLastKnownLocation(provider);
+    MapView map;
+    MyLocationOverlay mMyLocationOverlay;
+    Geocoder mGeoCoder;
+    LocationManager mLocationManager;
+    
+    CommCareSession session;
+    Entry prototype;
+    
+    EntityOverlay mEntityOverlay;
+    Vector<Entity<TreeReference>> entities;
+    
+    /* (non-Javadoc)
+     * @see com.google.android.maps.MapActivity#onCreate(android.os.Bundle)
+     */
+    @Override
+    protected void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
+        String licenseKey = getLicenseKey();
+        map = new MapView(this, licenseKey);
+        
+        this.setContentView(map);
+        
+        mGeoCoder = new Geocoder(this);
+        
+        // Get the location manager
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Define the criteria how to select the locatioin provider -> use
+        // default
+        Criteria criteria = new Criteria();
+        String provider = mLocationManager.getBestProvider(criteria, false);
+        Location location = mLocationManager.getLastKnownLocation(provider);
 
         session = CommCareApplication._().getCurrentSession();
-		Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
-		prototype = entries.elementAt(0);
-		
-		SessionDatum selectDatum = session.getNeededDatum();
-		Detail detail = session.getDetail(selectDatum.getShortDetail());
-		NodeEntityFactory factory = new NodeEntityFactory(detail, this.getEC());
-		
-    	Vector<TreeReference> references = getEC().expandReference(selectDatum.getNodeset());
-		
-    	entities = new Vector<Entity<TreeReference>>();
-		for(TreeReference ref : references) {
-			entities.add(factory.getEntity(ref));
-		}
+        Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
+        prototype = entries.elementAt(0);
+        
+        SessionDatum selectDatum = session.getNeededDatum();
+        Detail detail = session.getDetail(selectDatum.getShortDetail());
+        NodeEntityFactory factory = new NodeEntityFactory(detail, this.getEC());
+        
+        Vector<TreeReference> references = getEC().expandReference(selectDatum.getNodeset());
+        
+        entities = new Vector<Entity<TreeReference>>();
+        for(TreeReference ref : references) {
+            entities.add(factory.getEntity(ref));
+        }
 
-		System.out.println("Entities generated");
-		
-		map.displayZoomControls(true);
+        System.out.println("Entities generated");
+        
+        map.displayZoomControls(true);
         mMyLocationOverlay = new MyLocationOverlay(this, map);
         mMyLocationOverlay.runOnFirstFix(new Runnable() { public void run() {
             map.getController().animateTo(mMyLocationOverlay.getMyLocation());
         }});
         
         double[] boundHints = new double[4];
-		// Initialize the location fields
-		if (location != null) {
-			double lat = location.getLatitude();
-			double lng = location.getLongitude();
-			
-			//lLat
-			boundHints[0] = lat -1;
-			//lLng
-			boundHints[1] = lng -1;
-			
-			//uLat
-			boundHints[2] = lat + 1;
-			
-			//rLon
-			boundHints[3] = lng + 1;
-			
-			
-		} else {
-			//no location
-		}
-		
-		Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
-		mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
+        // Initialize the location fields
+        if (location != null) {
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+            
+            //lLat
+            boundHints[0] = lat -1;
+            //lLng
+            boundHints[1] = lng -1;
+            
+            //uLat
+            boundHints[2] = lat + 1;
+            
+            //rLon
+            boundHints[3] = lng + 1;
+            
+            
+        } else {
+            //no location
+        }
+        
+        Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
+        mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
 
-			@Override
-			protected void selected(TreeReference ref) {
-    	        Intent i = new Intent(EntityMapActivity.this.getIntent());
-    	        CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
-    	        
-    	        setResult(RESULT_OK, i);
+            @Override
+            protected void selected(TreeReference ref) {
+                Intent i = new Intent(EntityMapActivity.this.getIntent());
+                CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
+                
+                setResult(RESULT_OK, i);
 
-				EntityMapActivity.this.finish();				
-			}
-		};
-		System.out.println("Loading addresses...");
-		
-		int legit = 0;
-		int bogus = 0;
-		
-		EntityOverlayItemFactory overlayFactory = new EntityOverlayItemFactory(detail, defaultMarker);
-		
-		SqlStorage<GeocodeCacheModel> geoCache = CommCareApplication._().getUserStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class);
-		
-		for(Entity<TreeReference> e : entities) {
-			for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){
-				if("address".equals(detail.getTemplateForms()[i])) {
-					String val = e.getFieldString(i).trim();
-					if(val != null && val != "") {
-						GeoPoint gp = null;
-						try {
-							GeoPointData data = new GeoPointData().cast(new UncastData(val));
-							if(data != null) {
-								int lat = (int) (data.getValue()[0] * 1E6);
-								int lng = (int) (data.getValue()[1] * 1E6);
-								gp = new GeoPoint(lat, lng);
-							}
-						} catch(Exception ex) {
-							//We might not have a geopoint at all. Don't even trip
-						}
-						
-						boolean cached = false;
-						try {
-							GeocodeCacheModel record = geoCache.getRecordForValue(GeocodeCacheModel.META_LOCATION, val);
-							cached = true;
-							if(record.dataExists()){
-								gp = record.getGeoPoint();
-							}
-						} catch(NoSuchElementException nsee) {
-							//no record!
-						}
-						
-						//If we don't have a geopoint, let's try to find our address
-						if(!cached && boundHints != null) {
-							try {
-								List<Address> addresses = mGeoCoder.getFromLocationName(val, 3, boundHints[0], boundHints[1], boundHints[2], boundHints[3]);
-								for(Address a : addresses) {
-									if(a.hasLatitude() && a.hasLongitude()) {
-										int lat = (int) (a.getLatitude() * 1E6);
-										int lng = (int) (a.getLongitude() * 1E6);
-										gp = new GeoPoint(lat, lng);
-										
-										try {
-											geoCache.write(new GeocodeCacheModel(val, lat, lng));
-										} catch (StorageFullException e1) {
-											//this is the worst exception ever.
-										}
-										legit++;
-										break;
-									}
-								}
-								
-								//We didn't find an address, make a miss record
-								if(gp == null) {
-									try {
-										geoCache.write(GeocodeCacheModel.NoHitRecord(val));
-									} catch (StorageFullException e1) {
-										//this is the worst exception ever.
-									}
-								}
-							} catch (IOException e1) {
-								e1.printStackTrace();
-								//Yo. What? I guess bad connection?
-							}
-						}
-						
-						//Ok, so now we have an address or not. If we _do_ have one, let's have some fun
-						
-						if(gp != null) {
-							OverlayItem overlayItem = overlayFactory.generateOverlay(gp, e);
-							mEntityOverlay.addOverlay(overlayItem, e.getElement());
-						}
-						else { 
-							bogus++;
-						}
-					}
-				}
-			}
-		}
-		
-		System.out.println("Loaded. " + legit +" addresses discovered, " + bogus + " could not be located");
+                EntityMapActivity.this.finish();                
+            }
+        };
+        System.out.println("Loading addresses...");
+        
+        int legit = 0;
+        int bogus = 0;
+        
+        EntityOverlayItemFactory overlayFactory = new EntityOverlayItemFactory(detail, defaultMarker);
+        
+        SqlStorage<GeocodeCacheModel> geoCache = CommCareApplication._().getUserStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class);
+        
+        for(Entity<TreeReference> e : entities) {
+            for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){
+                if("address".equals(detail.getTemplateForms()[i])) {
+                    String val = e.getFieldString(i).trim();
+                    if(val != null && val != "") {
+                        GeoPoint gp = null;
+                        try {
+                            GeoPointData data = new GeoPointData().cast(new UncastData(val));
+                            if(data != null) {
+                                int lat = (int) (data.getValue()[0] * 1E6);
+                                int lng = (int) (data.getValue()[1] * 1E6);
+                                gp = new GeoPoint(lat, lng);
+                            }
+                        } catch(Exception ex) {
+                            //We might not have a geopoint at all. Don't even trip
+                        }
+                        
+                        boolean cached = false;
+                        try {
+                            GeocodeCacheModel record = geoCache.getRecordForValue(GeocodeCacheModel.META_LOCATION, val);
+                            cached = true;
+                            if(record.dataExists()){
+                                gp = record.getGeoPoint();
+                            }
+                        } catch(NoSuchElementException nsee) {
+                            //no record!
+                        }
+                        
+                        //If we don't have a geopoint, let's try to find our address
+                        if(!cached && boundHints != null) {
+                            try {
+                                List<Address> addresses = mGeoCoder.getFromLocationName(val, 3, boundHints[0], boundHints[1], boundHints[2], boundHints[3]);
+                                for(Address a : addresses) {
+                                    if(a.hasLatitude() && a.hasLongitude()) {
+                                        int lat = (int) (a.getLatitude() * 1E6);
+                                        int lng = (int) (a.getLongitude() * 1E6);
+                                        gp = new GeoPoint(lat, lng);
+                                        
+                                        try {
+                                            geoCache.write(new GeocodeCacheModel(val, lat, lng));
+                                        } catch (StorageFullException e1) {
+                                            //this is the worst exception ever.
+                                        }
+                                        legit++;
+                                        break;
+                                    }
+                                }
+                                
+                                //We didn't find an address, make a miss record
+                                if(gp == null) {
+                                    try {
+                                        geoCache.write(GeocodeCacheModel.NoHitRecord(val));
+                                    } catch (StorageFullException e1) {
+                                        //this is the worst exception ever.
+                                    }
+                                }
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                                //Yo. What? I guess bad connection?
+                            }
+                        }
+                        
+                        //Ok, so now we have an address or not. If we _do_ have one, let's have some fun
+                        
+                        if(gp != null) {
+                            OverlayItem overlayItem = overlayFactory.generateOverlay(gp, e);
+                            mEntityOverlay.addOverlay(overlayItem, e.getElement());
+                        }
+                        else { 
+                            bogus++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        System.out.println("Loaded. " + legit +" addresses discovered, " + bogus + " could not be located");
 
-		if(legit != 0 && mEntityOverlay.getCenter() != null) {
-			map.getController().animateTo(mEntityOverlay.getCenter());
-		} else if(location != null) {
-			int lat = (int) (location.getLatitude() * 1E6);
-			int lng = (int) (location.getLongitude() * 1E6);
-			GeoPoint point = new GeoPoint(lat, lng);
-			map.getController().animateTo(point);
+        if(legit != 0 && mEntityOverlay.getCenter() != null) {
+            map.getController().animateTo(mEntityOverlay.getCenter());
+        } else if(location != null) {
+            int lat = (int) (location.getLatitude() * 1E6);
+            int lng = (int) (location.getLongitude() * 1E6);
+            GeoPoint point = new GeoPoint(lat, lng);
+            map.getController().animateTo(point);
         }
         
         map.getOverlays().add(mMyLocationOverlay);
-		//The overlay crashes out if you try to draw it and it's empty,
-		//so only add it if we found something.
+        //The overlay crashes out if you try to draw it and it's empty,
+        //so only add it if we found something.
         if(mEntityOverlay.size() > 0) {
-        	map.getOverlays().add(mEntityOverlay);
+            map.getOverlays().add(mEntityOverlay);
         }
         map.getController().setZoom(18);
         map.setClickable(true);
         map.setEnabled(true);
-		System.out.println("Done loading");
-	}
-	
-	private String getLicenseKey() {
-		//If there's a defined debug key in the local environment, use that.
-		int debugId = this.getResources().getIdentifier("maps_api_key_debug","string", this.getPackageName());
-		if(debugId == 0) { 
-			debugId = R.string.maps_api_key;
-		}
-		return this.getString(debugId);
-	}
+        System.out.println("Done loading");
+    }
+    
+    private String getLicenseKey() {
+        //If there's a defined debug key in the local environment, use that.
+        int debugId = this.getResources().getIdentifier("maps_api_key_debug","string", this.getPackageName());
+        if(debugId == 0) { 
+            debugId = R.string.maps_api_key;
+        }
+        return this.getString(debugId);
+    }
 
-	EvaluationContext entityContext;
+    EvaluationContext entityContext;
 
     private EvaluationContext getEC() {
-    	if(entityContext == null) {
-    		entityContext = session.getEvaluationContext(getInstanceInit());
-    	}
-    	return entityContext;
+        if(entityContext == null) {
+            entityContext = session.getEvaluationContext(getInstanceInit());
+        }
+        return entityContext;
     }
     
     private CommCareInstanceInitializer getInstanceInit() {
-    	return new CommCareInstanceInitializer(session);
+        return new CommCareInstanceInitializer(session);
     }
 
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onStop()
-	 */
-	@Override
-	protected void onStop() {
-		super.onStop();
-		mMyLocationOverlay.disableCompass(); 
+    /* (non-Javadoc)
+     * @see android.app.Activity#onStop()
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mMyLocationOverlay.disableCompass(); 
         mMyLocationOverlay.disableMyLocation();
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see com.google.android.maps.MapActivity#onResume()
-	 */
-	@Override
-	protected void onResume() {
-		super.onResume();
+    /* (non-Javadoc)
+     * @see com.google.android.maps.MapActivity#onResume()
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
         mMyLocationOverlay.enableMyLocation();
         mMyLocationOverlay.enableCompass();
-	}
+    }
 
-	protected boolean isRouteDisplayed() {
-		return false;
-	}
+    protected boolean isRouteDisplayed() {
+        return false;
+    }
 
 }

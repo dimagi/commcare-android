@@ -62,7 +62,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onCreateView DeviceListFragment");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onCreateView DeviceListFragment");
         mContentView = inflater.inflate(R.layout.device_list, container);
         return mContentView;
     }
@@ -98,7 +98,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onListItemClick");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onListItemClick");
         WifiP2pDevice device = (WifiP2pDevice) getListAdapter().getItem(position);
         Log.d(CommCareWiFiDirectActivity.TAG, "device is: " + device.deviceAddress);
         //((DeviceActionListener) getActivity()).showDetails(device);
@@ -166,7 +166,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * @param device WifiP2pDevice object
      */
     public void updateThisDevice(WifiP2pDevice device) {
-    	 Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
+         Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
         this.device = device;
         TextView view = (TextView) mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);
@@ -176,7 +176,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
     @Override
     public void onPeersAvailable(WifiP2pDeviceList peerList) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onPeersAvailable");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onPeersAvailable");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
@@ -199,7 +199,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * 
      */
     public void onInitiateDiscovery() {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onInitiateDiscovery");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onInitiateDiscovery");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }

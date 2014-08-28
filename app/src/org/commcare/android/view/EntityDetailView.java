@@ -37,250 +37,250 @@ import android.widget.TextView;
  *
  */
 public class EntityDetailView extends FrameLayout {
-	
-	private TextView label;
-	private TextView data;
-	private TextView spacer;
-	private Button callout;
-	private View addressView;
-	private Button addressButton;
-	private TextView addressText;
-	private ImageView imageView;
-	private AspectRatioLayout graphLayout;
-	private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;	// index => { orientation => GraphView }
-	private ImageButton videoButton;
-	private AudioButton audioButton;
-	private View valuePane;
-	private View currentView;
-	private AudioController controller;
-	private LinearLayout detailRow;
-	private LinearLayout.LayoutParams origValue;
-	private LinearLayout.LayoutParams origLabel;
-	private LinearLayout.LayoutParams fill;
-	
-	private static final String FORM_VIDEO = "video";
-	private static final String FORM_AUDIO = "audio";
-	private static final String FORM_PHONE = "phone";
-	private static final String FORM_ADDRESS = "address";
-	private static final String FORM_IMAGE = "image";
-	private static final String FORM_GRAPH = "graph";
+    
+    private TextView label;
+    private TextView data;
+    private TextView spacer;
+    private Button callout;
+    private View addressView;
+    private Button addressButton;
+    private TextView addressText;
+    private ImageView imageView;
+    private AspectRatioLayout graphLayout;
+    private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
+    private ImageButton videoButton;
+    private AudioButton audioButton;
+    private View valuePane;
+    private View currentView;
+    private AudioController controller;
+    private LinearLayout detailRow;
+    private LinearLayout.LayoutParams origValue;
+    private LinearLayout.LayoutParams origLabel;
+    private LinearLayout.LayoutParams fill;
+    
+    private static final String FORM_VIDEO = "video";
+    private static final String FORM_AUDIO = "audio";
+    private static final String FORM_PHONE = "phone";
+    private static final String FORM_ADDRESS = "address";
+    private static final String FORM_IMAGE = "image";
+    private static final String FORM_GRAPH = "graph";
 
-	private static final int TEXT = 0;
-	private static final int PHONE = 1;
-	private static final int ADDRESS = 2;
-	private static final int IMAGE = 3;
-	private static final int VIDEO = 4;
-	private static final int AUDIO = 5;
-	private static final int GRAPH = 6;
-	
-	int current = TEXT;
-	
-	DetailCalloutListener listener;
+    private static final int TEXT = 0;
+    private static final int PHONE = 1;
+    private static final int ADDRESS = 2;
+    private static final int IMAGE = 3;
+    private static final int VIDEO = 4;
+    private static final int AUDIO = 5;
+    private static final int GRAPH = 6;
+    
+    int current = TEXT;
+    
+    DetailCalloutListener listener;
 
-	public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
-			AudioController controller, int detailNumber) {
-		super(context);		
-	    this.controller = controller;
-	    
-		detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
+    public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
+            AudioController controller, int detailNumber) {
+        super(context);        
+        this.controller = controller;
+        
+        detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
         spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer); 
-	    data = (TextView)detailRow.findViewById(R.id.detail_value_text);
-	    currentView = data;
-	    valuePane = detailRow.findViewById(R.id.detail_value_pane);
-	    videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
-	    
-	    ViewId uniqueId = new ViewId(detailNumber, index, true);
-	    String audioText = e.getFieldString(index);
-	    audioButton = new AudioButton(context, audioText, uniqueId, controller, false);
-	    detailRow.addView(audioButton);
-	    audioButton.setVisibility(View.GONE);
-	    
-	    callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
-	    //TODO: Still useful?
-	    //callout.setInputType(InputType.TYPE_CLASS_PHONE);
-	    addressView = (View)detailRow.findViewById(R.id.detail_address_view);
-	    addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
-	    addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
-	    imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
-	    graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
-	    renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
-	    origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
-	    origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
+        data = (TextView)detailRow.findViewById(R.id.detail_value_text);
+        currentView = data;
+        valuePane = detailRow.findViewById(R.id.detail_value_pane);
+        videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
+        
+        ViewId uniqueId = new ViewId(detailNumber, index, true);
+        String audioText = e.getFieldString(index);
+        audioButton = new AudioButton(context, audioText, uniqueId, controller, false);
+        detailRow.addView(audioButton);
+        audioButton.setVisibility(View.GONE);
+        
+        callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
+        //TODO: Still useful?
+        //callout.setInputType(InputType.TYPE_CLASS_PHONE);
+        addressView = (View)detailRow.findViewById(R.id.detail_address_view);
+        addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
+        addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
+        imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
+        graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
+        renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
+        origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
+        origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 
-	    fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-	    this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-	    setParams(session, d, e, index, detailNumber);
-	}
-	
-	public void setCallListener(final DetailCalloutListener listener) {
-		this.listener = listener;
-	}
+        fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        setParams(session, d, e, index, detailNumber);
+    }
+    
+    public void setCallListener(final DetailCalloutListener listener) {
+        this.listener = listener;
+    }
 
-	public void setParams(CommCareSession session, Detail d, Entity e, int index, int detailNumber) {
-		String labelText = d.getFields()[index].getHeader().evaluate();
-		label.setText(labelText);
-		spacer.setText(labelText);
-		
-		Object field = e.getField(index);
-		String textField = e.getFieldString(index);
-		boolean veryLong = false;
-		String form = d.getTemplateForms()[index];
-		if(FORM_PHONE.equals(form)) {
-			callout.setText(textField);
-			if(current != PHONE) {
-				callout.setOnClickListener(new OnClickListener() {
-					public void onClick(View v) {
-						listener.callRequested(callout.getText().toString());				
-					}
-				});
-				this.removeView(currentView);
-				updateCurrentView(PHONE, callout);
-			}
-		} else if(FORM_ADDRESS.equals(form)) {
-			final String address = textField;
-			addressText.setText(address);
-			if(current != ADDRESS) {
-				addressButton.setOnClickListener(new OnClickListener() {
-					public void onClick(View v) {
-						listener.addressRequested(MediaUtil.getGeoIntentURI(address));
-					}
-				});
-				updateCurrentView(ADDRESS, addressView);
-			}
-		} else if(FORM_IMAGE.equals(form)) {
-			String imageLocation = textField;
-			Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
-			
-			if(b == null) {
-				imageView.setImageDrawable(null);
-			} else {
-				//Ok, so. We should figure out whether our image is large or small.
-				if(b.getWidth() > (getScreenWidth() / 2)) {
-					veryLong = true;
-				}
-				
-				imageView.setPadding(10, 10, 10, 10);
-				imageView.setAdjustViewBounds(true);
-				imageView.setImageBitmap(b);
-				imageView.setId(23422634);
-			}
-			
-			updateCurrentView(IMAGE, imageView);
-		} else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {	// if graph parsing had errors, they'll be stored as a string
-			GraphView g = new GraphView(getContext());
-			View rendered = null;
-			int orientation = getResources().getConfiguration().orientation;
-			if (renderedGraphsCache.get(index) != null) {
-				rendered = renderedGraphsCache.get(index).get(orientation);
-			}
-			else {
-				renderedGraphsCache.put(index, new Hashtable<Integer, View>());
-			}
-			if (rendered == null) {
-				g.setTitle(labelText);
-				rendered = g.renderView((GraphData) field);
-				renderedGraphsCache.get(index).put(orientation, rendered);
-			}
-			graphLayout.removeAllViews();
-			graphLayout.addView(rendered, g.getLayoutParams());
+    public void setParams(CommCareSession session, Detail d, Entity e, int index, int detailNumber) {
+        String labelText = d.getFields()[index].getHeader().evaluate();
+        label.setText(labelText);
+        spacer.setText(labelText);
+        
+        Object field = e.getField(index);
+        String textField = e.getFieldString(index);
+        boolean veryLong = false;
+        String form = d.getTemplateForms()[index];
+        if(FORM_PHONE.equals(form)) {
+            callout.setText(textField);
+            if(current != PHONE) {
+                callout.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        listener.callRequested(callout.getText().toString());                
+                    }
+                });
+                this.removeView(currentView);
+                updateCurrentView(PHONE, callout);
+            }
+        } else if(FORM_ADDRESS.equals(form)) {
+            final String address = textField;
+            addressText.setText(address);
+            if(current != ADDRESS) {
+                addressButton.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        listener.addressRequested(MediaUtil.getGeoIntentURI(address));
+                    }
+                });
+                updateCurrentView(ADDRESS, addressView);
+            }
+        } else if(FORM_IMAGE.equals(form)) {
+            String imageLocation = textField;
+            Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
+            
+            if(b == null) {
+                imageView.setImageDrawable(null);
+            } else {
+                //Ok, so. We should figure out whether our image is large or small.
+                if(b.getWidth() > (getScreenWidth() / 2)) {
+                    veryLong = true;
+                }
+                
+                imageView.setPadding(10, 10, 10, 10);
+                imageView.setAdjustViewBounds(true);
+                imageView.setImageBitmap(b);
+                imageView.setId(23422634);
+            }
+            
+            updateCurrentView(IMAGE, imageView);
+        } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
+            GraphView g = new GraphView(getContext());
+            View rendered = null;
+            int orientation = getResources().getConfiguration().orientation;
+            if (renderedGraphsCache.get(index) != null) {
+                rendered = renderedGraphsCache.get(index).get(orientation);
+            }
+            else {
+                renderedGraphsCache.put(index, new Hashtable<Integer, View>());
+            }
+            if (rendered == null) {
+                g.setTitle(labelText);
+                rendered = g.renderView((GraphData) field);
+                renderedGraphsCache.get(index).put(orientation, rendered);
+            }
+            graphLayout.removeAllViews();
+            graphLayout.addView(rendered, g.getLayoutParams());
 
-			if (current != GRAPH) {
-				// Hide field label and expand value to take up full screen width
-				LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
-				graphValueLayout.weight = 10;
-				valuePane.setLayoutParams(graphValueLayout);
+            if (current != GRAPH) {
+                // Hide field label and expand value to take up full screen width
+                LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+                graphValueLayout.weight = 10;
+                valuePane.setLayoutParams(graphValueLayout);
 
-				label.setVisibility(View.GONE);
-				data.setVisibility(View.GONE);
-				updateCurrentView(GRAPH, graphLayout);
-			}
-		} else if (FORM_AUDIO.equals(form)) {
-			ViewId uniqueId = new ViewId(detailNumber, index, true);
-			audioButton.modifyButtonForNewView(uniqueId, textField, true);
-			updateCurrentView(AUDIO, audioButton);
-		} else if(FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
-			String videoLocation = textField;
-			String localLocation = null;
-			try{ 
-				localLocation = ReferenceManager._().DeriveReference(videoLocation).getLocalURI();
-				if(localLocation.startsWith("/")) {
-					//TODO: This should likely actually be happening with the getLocalURI _anyway_.
-					localLocation = FileUtil.getGlobalStringUri(localLocation);
-				}
-			} catch(InvalidReferenceException ire) {
-				Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Couldn't understand video reference format: " + localLocation + ". Error: " + ire.getMessage());
-			}
-			
-			final String location = localLocation;
-			
-			videoButton.setOnClickListener(new OnClickListener() {
+                label.setVisibility(View.GONE);
+                data.setVisibility(View.GONE);
+                updateCurrentView(GRAPH, graphLayout);
+            }
+        } else if (FORM_AUDIO.equals(form)) {
+            ViewId uniqueId = new ViewId(detailNumber, index, true);
+            audioButton.modifyButtonForNewView(uniqueId, textField, true);
+            updateCurrentView(AUDIO, audioButton);
+        } else if(FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
+            String videoLocation = textField;
+            String localLocation = null;
+            try{ 
+                localLocation = ReferenceManager._().DeriveReference(videoLocation).getLocalURI();
+                if(localLocation.startsWith("/")) {
+                    //TODO: This should likely actually be happening with the getLocalURI _anyway_.
+                    localLocation = FileUtil.getGlobalStringUri(localLocation);
+                }
+            } catch(InvalidReferenceException ire) {
+                Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Couldn't understand video reference format: " + localLocation + ". Error: " + ire.getMessage());
+            }
+            
+            final String location = localLocation;
+            
+            videoButton.setOnClickListener(new OnClickListener() {
 
-				public void onClick(View v) {
-					listener.playVideo(location);	
-				}
-				
-			});
-			
-			if(location == null) {
-				videoButton.setEnabled(false);
-				Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "No local video reference available for ref: " + videoLocation);
-			} else {
-				videoButton.setEnabled(true);
-			}
-			
-			updateCurrentView(VIDEO, videoButton);
-		} else {
-			String text = textField;
-			data.setText(text);
-			if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
-				veryLong = true;
-			}
+                public void onClick(View v) {
+                    listener.playVideo(location);    
+                }
+                
+            });
+            
+            if(location == null) {
+                videoButton.setEnabled(false);
+                Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "No local video reference available for ref: " + videoLocation);
+            } else {
+                videoButton.setEnabled(true);
+            }
+            
+            updateCurrentView(VIDEO, videoButton);
+        } else {
+            String text = textField;
+            data.setText(text);
+            if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
+                veryLong = true;
+            }
 
-			updateCurrentView(TEXT, data);
-		}
-		
-		if(veryLong) {
-			detailRow.setOrientation(LinearLayout.VERTICAL);
-			spacer.setVisibility(View.GONE);
-			label.setLayoutParams(fill);
-			valuePane.setLayoutParams(fill);
-		} else {
-			if(detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
-				detailRow.setOrientation(LinearLayout.HORIZONTAL);
-				spacer.setVisibility(View.INVISIBLE);
-				label.setLayoutParams(origLabel);
-				valuePane.setLayoutParams(origValue);
-			}
-		}
-	}
-	
-	/*
-	 * Appropriately set current & currentView.
-	 */
-	private void updateCurrentView(int newCurrent, View newView) {
-		if (newCurrent != current) {
-			currentView.setVisibility(View.GONE);
-			newView.setVisibility(View.VISIBLE);
-			currentView = newView;
-			current = newCurrent;
-		}
-		
-		if (current != GRAPH) {
-			label.setVisibility(View.VISIBLE);
-			LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
-			graphValueLayout.weight = 10;
-			valuePane.setLayoutParams(origValue);
-			data.setVisibility(View.VISIBLE);
-		}
-	}
-	
-	/*
-	 * Get current device screen width
-	 */
-	private int getScreenWidth() {
-		Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-		return display.getWidth();
-	}
-	
+            updateCurrentView(TEXT, data);
+        }
+        
+        if(veryLong) {
+            detailRow.setOrientation(LinearLayout.VERTICAL);
+            spacer.setVisibility(View.GONE);
+            label.setLayoutParams(fill);
+            valuePane.setLayoutParams(fill);
+        } else {
+            if(detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
+                detailRow.setOrientation(LinearLayout.HORIZONTAL);
+                spacer.setVisibility(View.INVISIBLE);
+                label.setLayoutParams(origLabel);
+                valuePane.setLayoutParams(origValue);
+            }
+        }
+    }
+    
+    /*
+     * Appropriately set current & currentView.
+     */
+    private void updateCurrentView(int newCurrent, View newView) {
+        if (newCurrent != current) {
+            currentView.setVisibility(View.GONE);
+            newView.setVisibility(View.VISIBLE);
+            currentView = newView;
+            current = newCurrent;
+        }
+        
+        if (current != GRAPH) {
+            label.setVisibility(View.VISIBLE);
+            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+            graphValueLayout.weight = 10;
+            valuePane.setLayoutParams(origValue);
+            data.setVisibility(View.VISIBLE);
+        }
+    }
+    
+    /*
+     * Get current device screen width
+     */
+    private int getScreenWidth() {
+        Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        return display.getWidth();
+    }
+    
 }

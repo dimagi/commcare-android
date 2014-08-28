@@ -16,24 +16,24 @@ import android.content.Context;
  *
  */
 public class AssetFileRoot implements ReferenceFactory {
-	private Context context;
+    private Context context;
 
-	public AssetFileRoot(Context context) {
-		this.context = context;
-	}
-	
-	public Reference derive(String URI) throws InvalidReferenceException {
-		return new AssetFileReference(context, URI.substring("jr://asset/".length()));
-	}
+    public AssetFileRoot(Context context) {
+        this.context = context;
+    }
+    
+    public Reference derive(String URI) throws InvalidReferenceException {
+        return new AssetFileReference(context, URI.substring("jr://asset/".length()));
+    }
 
-	public Reference derive(String URI, String context) throws InvalidReferenceException {
-		if(context.lastIndexOf('/') != -1) {
-			context = context.substring(0,context.lastIndexOf('/') + 1);
-		}
-		return ReferenceManager._().DeriveReference(context + URI);
-	}
+    public Reference derive(String URI, String context) throws InvalidReferenceException {
+        if(context.lastIndexOf('/') != -1) {
+            context = context.substring(0,context.lastIndexOf('/') + 1);
+        }
+        return ReferenceManager._().DeriveReference(context + URI);
+    }
 
-	public boolean derives(String URI) {
-		return URI.toLowerCase().startsWith("jr://asset/");
-	}
+    public boolean derives(String URI) {
+        return URI.toLowerCase().startsWith("jr://asset/");
+    }
 }

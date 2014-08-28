@@ -37,26 +37,26 @@ public class AndroidShortcuts extends Activity {
 
         //The Android needs to know what shortcuts are available, generate the list
         if (Intent.ACTION_CREATE_SHORTCUT.equals(action)) {
-        	buildMenuList();
+            buildMenuList();
         }
     }
     
     private void buildMenuList() {
-    	ArrayList<String> names = new ArrayList<String>();
-    	ArrayList<String> commands = new ArrayList<String>();
-    	
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	
+        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<String> commands = new ArrayList<String>();
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        
         builder.setTitle("Select CommCare Shortcut");
 
         for(Suite s : CommCareApplication._().getCommCarePlatform().getInstalledSuites()) {
-        	for(org.commcare.suite.model.Menu m : s.getMenus()) {
-        		if("root".equals(m.getRoot())) {
-        			String name = m.getName().evaluate();
-        			names.add(name);
-        			commands.add(m.getId());
-        		}
-        	}
+            for(org.commcare.suite.model.Menu m : s.getMenus()) {
+                if("root".equals(m.getRoot())) {
+                    String name = m.getName().evaluate();
+                    names.add(name);
+                    commands.add(m.getId());
+                }
+            }
         }
         this.names = names.toArray(new String[0]);
         this.commands = commands.toArray(new String[0]);
@@ -68,12 +68,12 @@ public class AndroidShortcuts extends Activity {
         });
         
         builder.setOnCancelListener(new OnCancelListener() {
-			public void onCancel(DialogInterface dialog) {
-				AndroidShortcuts sc = AndroidShortcuts.this;
-				sc.setResult(RESULT_CANCELED);
-		        sc.finish();
-		        return;
-			}
+            public void onCancel(DialogInterface dialog) {
+                AndroidShortcuts sc = AndroidShortcuts.this;
+                sc.setResult(RESULT_CANCELED);
+                sc.finish();
+                return;
+            }
         });
 
         

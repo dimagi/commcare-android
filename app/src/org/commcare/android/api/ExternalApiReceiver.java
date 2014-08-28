@@ -46,259 +46,259 @@ import android.widget.Toast;
  *
  */
 public class ExternalApiReceiver extends BroadcastReceiver {
-	
-	CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
+    
+    CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
 
-		@Override
-		public void connectTask(CommCareTask task) {
-			// TODO Auto-generated method stub
-			
-		}
+        @Override
+        public void connectTask(CommCareTask task) {
+            // TODO Auto-generated method stub
+            
+        }
 
-		@Override
-		public void startBlockingForTask(int id) {
-			// TODO Auto-generated method stub
-			
-		}
+        @Override
+        public void startBlockingForTask(int id) {
+            // TODO Auto-generated method stub
+            
+        }
 
-		@Override
-		public void stopBlockingForTask(int id) {
-			// TODO Auto-generated method stub
-			
-		}
+        @Override
+        public void stopBlockingForTask(int id) {
+            // TODO Auto-generated method stub
+            
+        }
 
-		@Override
-		public void taskCancelled(int id) {
-			// TODO Auto-generated method stub
-			
-		}
+        @Override
+        public void taskCancelled(int id) {
+            // TODO Auto-generated method stub
+            
+        }
 
-		@Override
-		public Object getReceiver() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        @Override
+        public Object getReceiver() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		@Override
-		public void startTaskTransition() {
-			// TODO Auto-generated method stub
-			
-		}
+        @Override
+        public void startTaskTransition() {
+            // TODO Auto-generated method stub
+            
+        }
 
-		@Override
-		public void stopTaskTransition() {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	};
+        @Override
+        public void stopTaskTransition() {
+            // TODO Auto-generated method stub
+            
+        }
+        
+    };
 
-	/* (non-Javadoc)
-	 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
-	 */
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		if(!intent.hasExtra(AndroidSharedKeyRecord.EXTRA_KEY_ID)) {
-			return;
-		}
-		
-		String keyId = intent.getStringExtra(AndroidSharedKeyRecord.EXTRA_KEY_ID);
-		SqlStorage<AndroidSharedKeyRecord> storage = CommCareApplication._().getGlobalStorage(AndroidSharedKeyRecord.class);
-		AndroidSharedKeyRecord sharingKey;
-		try {
-			sharingKey = storage.getRecordForValue(AndroidSharedKeyRecord.META_KEY_ID, keyId);
-		} catch(NoSuchElementException nsee) {
-			//No valid key record;
-			return;
-		}
-		
-		Bundle b = sharingKey.getIncomingCallout(intent);
-		
-		performAction(context, b);
-	}
+    /* (non-Javadoc)
+     * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+     */
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if(!intent.hasExtra(AndroidSharedKeyRecord.EXTRA_KEY_ID)) {
+            return;
+        }
+        
+        String keyId = intent.getStringExtra(AndroidSharedKeyRecord.EXTRA_KEY_ID);
+        SqlStorage<AndroidSharedKeyRecord> storage = CommCareApplication._().getGlobalStorage(AndroidSharedKeyRecord.class);
+        AndroidSharedKeyRecord sharingKey;
+        try {
+            sharingKey = storage.getRecordForValue(AndroidSharedKeyRecord.META_KEY_ID, keyId);
+        } catch(NoSuchElementException nsee) {
+            //No valid key record;
+            return;
+        }
+        
+        Bundle b = sharingKey.getIncomingCallout(intent);
+        
+        performAction(context, b);
+    }
 
-	private void performAction(final Context context, Bundle b) {
-		if(b.getString("commcareaction").equals("login")) {
-			String username = b.getString("username");
-			String password = b.getString("password");
-			tryLocalLogin(context, username, password);
-		} else if(b.getString("commcareaction").equals("sync")) {
-        	
+    private void performAction(final Context context, Bundle b) {
+        if(b.getString("commcareaction").equals("login")) {
+            String username = b.getString("username");
+            String password = b.getString("password");
+            tryLocalLogin(context, username, password);
+        } else if(b.getString("commcareaction").equals("sync")) {
+            
             boolean formsToSend = checkAndStartUnsentTask(context, new ProcessTaskListener() {
 
-				public void processTaskAllProcessed() {
-					//Don't cancel the dialog, we need it to stay in the foreground to ensure things are set
-				}
-            	
-            	public void processAndSendFinished(int result, int successfulSends) {
+                public void processTaskAllProcessed() {
+                    //Don't cancel the dialog, we need it to stay in the foreground to ensure things are set
+                }
+                
+                public void processAndSendFinished(int result, int successfulSends) {
 
-            	}
+                }
 
             });
             
             if(!formsToSend) {
-            	//No unsent forms, just sync
-            	syncData(context);
+                //No unsent forms, just sync
+                syncData(context);
             }
             
 
-		}
-	}
-	
+        }
+    }
+    
     
     protected boolean checkAndStartUnsentTask(final Context context, ProcessTaskListener listener) throws SessionUnavailableException {
-    	SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-    	
-    	//Get all forms which are either unsent or unprocessed
-    	Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
-    	ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
-    	if(ids.size() > 0) {
-    		FormRecord[] records = new FormRecord[ids.size()];
-    		for(int i = 0 ; i < ids.size() ; ++i) {
-    			records[i] = storage.read(ids.elementAt(i).intValue());
-    		}
-    		SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-    		ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
+        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        
+        //Get all forms which are either unsent or unprocessed
+        Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
+        ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
+        if(ids.size() > 0) {
+            FormRecord[] records = new FormRecord[ids.size()];
+            for(int i = 0 ; i < ids.size() ; ++i) {
+                records[i] = storage.read(ids.elementAt(i).intValue());
+            }
+            SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+            ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
 
 
-				@Override
-				protected void deliverResult(Object receiver, Integer result) {
-            		if(result == FormUploadUtil.FULL_SUCCESS) {
-            			//OK, all forms sent, sync time 
-            			syncData(context);
-            			
-            		} else if(result == FormUploadUtil.FAILURE) {
-            			Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
-            		} else  {
-            			Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
-            		}
-				}
+                @Override
+                protected void deliverResult(Object receiver, Integer result) {
+                    if(result == FormUploadUtil.FULL_SUCCESS) {
+                        //OK, all forms sent, sync time 
+                        syncData(context);
+                        
+                    } else if(result == FormUploadUtil.FAILURE) {
+                        Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+                    } else  {
+                        Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+                    }
+                }
 
-				@Override
-				protected void deliverUpdate(Object receiver, Long... update) {
-					// TODO Auto-generated method stub
-					
-				}
+                @Override
+                protected void deliverUpdate(Object receiver, Long... update) {
+                    // TODO Auto-generated method stub
+                    
+                }
 
-				@Override
-				protected void deliverError(Object receiver, Exception e) {
-					// TODO Auto-generated method stub
-					
-				}
-    			
-    		};
-    		mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-    		mProcess.connect(dummyconnector);
-    		mProcess.execute(records);
-    		return true;
-    	} else {
-    		//Nothing.
-    		return false;
-    	}
+                @Override
+                protected void deliverError(Object receiver, Exception e) {
+                    // TODO Auto-generated method stub
+                    
+                }
+                
+            };
+            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+            mProcess.connect(dummyconnector);
+            mProcess.execute(records);
+            return true;
+        } else {
+            //Nothing.
+            return false;
+        }
     }
     
     private void syncData(final Context c) {
-    	User u = CommCareApplication._().getSession().getLoggedInUser();
-    	
-		SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        User u = CommCareApplication._().getSession().getLoggedInUser();
+        
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-		DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",c.getString(R.string.ota_restore_url)), "", c) {
+        DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",c.getString(R.string.ota_restore_url)), "", c) {
 
-			@Override
-			protected void deliverResult(Object receiver, Integer result) {
-				if(result != DataPullTask.DOWNLOAD_SUCCESS) {
-					Toast.makeText(c, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
-				} else {
-					Toast.makeText(c, "CommCare synced!", Toast.LENGTH_LONG).show();
-				}
-			}
+            @Override
+            protected void deliverResult(Object receiver, Integer result) {
+                if(result != DataPullTask.DOWNLOAD_SUCCESS) {
+                    Toast.makeText(c, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(c, "CommCare synced!", Toast.LENGTH_LONG).show();
+                }
+            }
 
-			@Override
-			protected void deliverUpdate(Object receiver, Integer... update) {
-				// TODO Auto-generated method stub
-				
-			}
+            @Override
+            protected void deliverUpdate(Object receiver, Integer... update) {
+                // TODO Auto-generated method stub
+                
+            }
 
-			@Override
-			protected void deliverError(Object receiver, Exception e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		};
-		mDataPullTask.connect(dummyconnector);
-    	mDataPullTask.execute();
+            @Override
+            protected void deliverError(Object receiver, Exception e) {
+                // TODO Auto-generated method stub
+                
+            }
+            
+        };
+        mDataPullTask.connect(dummyconnector);
+        mDataPullTask.execute();
     }
 
-	
+    
     private boolean tryLocalLogin(Context context, String uname, String password) {
-    	try{
-	    	UserKeyRecord matchingRecord = null;
-	    	for(UserKeyRecord record : CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)) {
-	    		if(!record.getUsername().equals(uname)) {
-	    			continue;
-	    		}
-	    		String hash = record.getPasswordHash();
-	    		if(hash.contains("$")) {
-	        		String alg = "sha1";
-	        		String salt = hash.split("\\$")[1];
-	        		String check = hash.split("\\$")[2];
-	        		MessageDigest md = MessageDigest.getInstance("SHA-1");
-	        		BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
-	        		String hashed = number.toString(16);
-	        		
-	        		while(hashed.length() < check.length()) {
-	        			hashed = "0" + hashed;
-	        		}
-	        		
-	        		if(hash.equals(alg + "$" + salt + "$" + hashed)) {
-	        			matchingRecord = record;
-	        		}
-	        	}
-	    	}
-	    	
-	    	if(matchingRecord == null) {
-	    		return false;
-	    	}
-	    	//TODO: Extract this
-			byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), password);
-			if(matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-				LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication._().getCurrentApp(), key, matchingRecord);
-			}
-			//TODO: See if it worked first?
-			
-			CommCareApplication._().logIn(key, matchingRecord);
-			new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
+        try{
+            UserKeyRecord matchingRecord = null;
+            for(UserKeyRecord record : CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)) {
+                if(!record.getUsername().equals(uname)) {
+                    continue;
+                }
+                String hash = record.getPasswordHash();
+                if(hash.contains("$")) {
+                    String alg = "sha1";
+                    String salt = hash.split("\\$")[1];
+                    String check = hash.split("\\$")[2];
+                    MessageDigest md = MessageDigest.getInstance("SHA-1");
+                    BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
+                    String hashed = number.toString(16);
+                    
+                    while(hashed.length() < check.length()) {
+                        hashed = "0" + hashed;
+                    }
+                    
+                    if(hash.equals(alg + "$" + salt + "$" + hashed)) {
+                        matchingRecord = record;
+                    }
+                }
+            }
+            
+            if(matchingRecord == null) {
+                return false;
+            }
+            //TODO: Extract this
+            byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), password);
+            if(matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
+                LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication._().getCurrentApp(), key, matchingRecord);
+            }
+            //TODO: See if it worked first?
+            
+            CommCareApplication._().logIn(key, matchingRecord);
+            new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
-				@Override
-				public void keysLoginComplete(Object o) {
-					// TODO Auto-generated method stub
-					
-				}
+                @Override
+                public void keysLoginComplete(Object o) {
+                    // TODO Auto-generated method stub
+                    
+                }
 
-				@Override
-				public void keysReadyForSync(Object o) {
-					// TODO Auto-generated method stub
-					
-				}
+                @Override
+                public void keysReadyForSync(Object o) {
+                    // TODO Auto-generated method stub
+                    
+                }
 
-				@Override
-				public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-			}) {
-				@Override
-				protected void deliverUpdate(Object r, String... update) {
-				}
-			}.execute();
-			
-			return true;
-    	}catch (Exception e) {
-    		e.printStackTrace();
-    		return false;
-    	}
+                @Override
+                public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
+                    // TODO Auto-generated method stub
+                    
+                }
+                
+            }) {
+                @Override
+                protected void deliverUpdate(Object r, String... update) {
+                }
+            }.execute();
+            
+            return true;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 

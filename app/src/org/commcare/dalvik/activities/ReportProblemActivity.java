@@ -27,13 +27,13 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         ((TextView)findViewById(R.id.ReportPrompt01)).setText(Localization.get("problem.report.prompt"));
     }
 
-	@Override
-	public void onClick(View v) {
-		EditText mEdit = (EditText)findViewById(R.id.ReportText01);
-		String reportEntry = mEdit.getText().toString();
-		Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, reportEntry);
-		setResult(RESULT_OK);
-		finish();
-	}
+    @Override
+    public void onClick(View v) {
+        EditText mEdit = (EditText)findViewById(R.id.ReportText01);
+        String reportEntry = mEdit.getText().toString();
+        Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, reportEntry);
+        setResult(RESULT_OK);
+        finish();
+    }
 
 }

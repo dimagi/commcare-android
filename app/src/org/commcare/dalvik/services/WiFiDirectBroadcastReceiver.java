@@ -66,9 +66,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
      * android.content.Intent)
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	@Override
+    @Override
     public void onReceive(Context context, Intent intent) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "in on receive ");
+        Log.d(CommCareWiFiDirectActivity.TAG, "in on receive ");
         String action = intent.getAction();
         
         Logger.log(CommCareWiFiDirectActivity.TAG, "onReceive of BroadCastReceiver with action: " + action);
@@ -78,11 +78,11 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // UI update to indicate wifi p2p status.
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-            	Log.d(CommCareWiFiDirectActivity.TAG, "BR enabled");
+                Log.d(CommCareWiFiDirectActivity.TAG, "BR enabled");
                 // Wifi Direct mode is enabled
                 activity.setIsWifiP2pEnabled(true);
             } else {
-            	Log.d(CommCareWiFiDirectActivity.TAG, "BR not enabled");
+                Log.d(CommCareWiFiDirectActivity.TAG, "BR not enabled");
                 activity.setIsWifiP2pEnabled(false);
                 activity.resetData();
 
@@ -94,9 +94,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
             if (manager != null) {
-            	
-            	activity.onPeersChanged();
-            	
+                
+                activity.onPeersChanged();
+                
             }
             Log.d(CommCareWiFiDirectActivity.TAG, "P2P peers changed2");
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
@@ -111,12 +111,12 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             activity.onP2PConnectionChanged(networkInfo.isConnected());
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
-        	Log.d(CommCareWiFiDirectActivity.TAG, "in last else with device: " + intent.getParcelableExtra(
+            Log.d(CommCareWiFiDirectActivity.TAG, "in last else with device: " + intent.getParcelableExtra(
                     WifiP2pManager.EXTRA_WIFI_P2P_DEVICE).toString());
-        	
-        	
-        	activity.onThisDeviceChanged(intent);
-        	
+            
+            
+            activity.onThisDeviceChanged(intent);
+            
 
         }
     }

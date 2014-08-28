@@ -17,35 +17,35 @@ import android.util.Log;
  *
  */
 public class DataSubmissionEntity extends MultipartEntity {
-	
-	private DataSubmissionListener listener;
-	private int submissionId;
-	private int attempt = 1;
-	
-	public DataSubmissionEntity(DataSubmissionListener listener, int submissionId) {
-		super();
-		this.listener = listener;
-		this.submissionId = submissionId;
-	}
-	
-	@Override
-	public boolean isRepeatable() {
-		return true;
-	}
+    
+    private DataSubmissionListener listener;
+    private int submissionId;
+    private int attempt = 1;
+    
+    public DataSubmissionEntity(DataSubmissionListener listener, int submissionId) {
+        super();
+        this.listener = listener;
+        this.submissionId = submissionId;
+    }
+    
+    @Override
+    public boolean isRepeatable() {
+        return true;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.apache.http.entity.mime.MultipartEntity#writeTo(java.io.OutputStream)
-	 */
-	@Override
-	public void writeTo(OutputStream outstream) throws IOException {
-		if(attempt != 1) {
-			Log.i("commcare-transport", "Retrying submission, attempt #" + attempt);
-		}
-		super.writeTo(new CountingOutputStream(outstream, listener, submissionId));
-		attempt++;
-	}
-	
-	private class CountingOutputStream extends FilterOutputStream {
+    /* (non-Javadoc)
+     * @see org.apache.http.entity.mime.MultipartEntity#writeTo(java.io.OutputStream)
+     */
+    @Override
+    public void writeTo(OutputStream outstream) throws IOException {
+        if(attempt != 1) {
+            Log.i("commcare-transport", "Retrying submission, attempt #" + attempt);
+        }
+        super.writeTo(new CountingOutputStream(outstream, listener, submissionId));
+        attempt++;
+    }
+    
+    private class CountingOutputStream extends FilterOutputStream {
 
         private final DataSubmissionListener listener;
         private long transferred;
@@ -63,7 +63,7 @@ public class DataSubmissionEntity extends MultipartEntity {
             out.write(b, off, len);
             this.transferred += len;
             if(listener != null) {
-            	this.listener.notifyProgress(submissionId, this.transferred);
+                this.listener.notifyProgress(submissionId, this.transferred);
             }
         }
 
@@ -71,7 +71,7 @@ public class DataSubmissionEntity extends MultipartEntity {
             out.write(b);
             this.transferred++;
             if(listener != null) {
-            	this.listener.notifyProgress(submissionId, this.transferred);
+                this.listener.notifyProgress(submissionId, this.transferred);
             }
         }
     }

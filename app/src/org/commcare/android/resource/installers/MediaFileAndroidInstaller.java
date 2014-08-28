@@ -26,79 +26,79 @@ import android.util.Pair;
  */
 public class MediaFileAndroidInstaller extends FileSystemInstaller {
 
-	String path;
-	
-	public MediaFileAndroidInstaller() {
-		
-	}
-	
-	public MediaFileAndroidInstaller(String destination, String upgradeDestination, String path) {
-		super(destination + (path == null ? "" : "/" + path), upgradeDestination + (path == null ? "" : "/" + path));
-		//establish whether dir structure needs to be extended?
-		this.path = path;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable, org.commcare.resources.model.ResourceTable)
-	 */
-	public boolean uninstall(Resource r) throws UnresolvedResourceException {
-		boolean success = super.uninstall(r);
-		if( success == false ) { return false; }
-		//cleanup dirs
-		return FileUtil.cleanFilePath(this.localDestination, path);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
-	 */
-	public boolean upgrade(Resource r) {
-		return super.upgrade(r);
-	}
-	
-	protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
-		return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
-	}
+    String path;
+    
+    public MediaFileAndroidInstaller() {
+        
+    }
+    
+    public MediaFileAndroidInstaller(String destination, String upgradeDestination, String path) {
+        super(destination + (path == null ? "" : "/" + path), upgradeDestination + (path == null ? "" : "/" + path));
+        //establish whether dir structure needs to be extended?
+        this.path = path;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable, org.commcare.resources.model.ResourceTable)
+     */
+    public boolean uninstall(Resource r) throws UnresolvedResourceException {
+        boolean success = super.uninstall(r);
+        if( success == false ) { return false; }
+        //cleanup dirs
+        return FileUtil.cleanFilePath(this.localDestination, path);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
+     */
+    public boolean upgrade(Resource r) {
+        return super.upgrade(r);
+    }
+    
+    protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+        return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-	 */
-	public boolean requiresRuntimeInitialization() {
-		return false;
-	}
-	
-	@Override
-	public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
-		return false;
-	}
+    /* (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
+     */
+    public boolean requiresRuntimeInitialization() {
+        return false;
+    }
+    
+    @Override
+    public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
+        return false;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		super.readExternal(in, pf);
-		path = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+        path = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		super.writeExternal(out);
-		ExtUtil.writeString(out, ExtUtil.emptyIfNull(path));
-	}
-	
-	@Override
-	public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
-		int index = loc.getLocation().lastIndexOf("/");
-		if(index == -1 ) { return new Pair<String,String>(loc.getLocation(), ".dat"); }
-		String fileName = loc.getLocation().substring(index);
-		
-		String extension = ".dat";
-		int lastDot = fileName.lastIndexOf(".");
-		if(lastDot != -1) {
-			extension =fileName.substring(lastDot);
-			fileName = fileName.substring(0, lastDot);
-		}
-		return new Pair<String, String>(fileName, extension);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(path));
+    }
+    
+    @Override
+    public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
+        int index = loc.getLocation().lastIndexOf("/");
+        if(index == -1 ) { return new Pair<String,String>(loc.getLocation(), ".dat"); }
+        String fileName = loc.getLocation().substring(index);
+        
+        String extension = ".dat";
+        int lastDot = fileName.lastIndexOf(".");
+        if(lastDot != -1) {
+            extension =fileName.substring(lastDot);
+            fileName = fileName.substring(0, lastDot);
+        }
+        return new Pair<String, String>(fileName, extension);
+    }
 }

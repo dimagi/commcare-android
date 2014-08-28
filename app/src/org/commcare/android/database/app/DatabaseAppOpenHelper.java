@@ -22,63 +22,63 @@ import android.content.Context;
  *
  */
 public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
-	
-	/**
-	 * Version History
-	 * V.2 - Added recovery table
-	 * V.3 - Upgraded Resource models to have an optional descriptor field
-	 */
-	private static final int DB_VERSION_APP = 3;
-	
-	private static final String DB_LOCATOR_PREF_APP = "database_app_";
-	
-	private Context context;
+    
+    /**
+     * Version History
+     * V.2 - Added recovery table
+     * V.3 - Upgraded Resource models to have an optional descriptor field
+     */
+    private static final int DB_VERSION_APP = 3;
+    
+    private static final String DB_LOCATOR_PREF_APP = "database_app_";
+    
+    private Context context;
 
-	public DatabaseAppOpenHelper(Context context, String appId) {
-		super(context, getDbName(appId), null, DB_VERSION_APP);
-	}
-	
-	private static String getDbName(String appId) {
-		return DB_LOCATOR_PREF_APP + appId;
-	}
+    public DatabaseAppOpenHelper(Context context, String appId) {
+        super(context, getDbName(appId), null, DB_VERSION_APP);
+    }
+    
+    private static String getDbName(String appId) {
+        return DB_LOCATOR_PREF_APP + appId;
+    }
 
-	/* (non-Javadoc)
-	 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-	 */
-	@Override
-	public void onCreate(SQLiteDatabase database) {
-		try {
-			database.beginTransaction();
-			TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
-			builder.addData(new Resource());
-			database.execSQL(builder.getTableCreateString());
-			
-			builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
-			builder.addData(new Resource());
-			database.execSQL(builder.getTableCreateString());
-			
-			builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
-			builder.addData(new Resource());
-			database.execSQL(builder.getTableCreateString());
-			
-			builder = new TableBuilder("fixture");
-			builder.addData(new FormInstance());
-			database.execSQL(builder.getTableCreateString());
-			
-			builder = new TableBuilder(UserKeyRecord.class);
-			database.execSQL(builder.getTableCreateString());
-			database.setTransactionSuccessful();
-		} finally {
-			database.endTransaction();
-		}
-	}
+    /* (non-Javadoc)
+     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
+     */
+    @Override
+    public void onCreate(SQLiteDatabase database) {
+        try {
+            database.beginTransaction();
+            TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
+            builder.addData(new Resource());
+            database.execSQL(builder.getTableCreateString());
+            
+            builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
+            builder.addData(new Resource());
+            database.execSQL(builder.getTableCreateString());
+            
+            builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            builder.addData(new Resource());
+            database.execSQL(builder.getTableCreateString());
+            
+            builder = new TableBuilder("fixture");
+            builder.addData(new FormInstance());
+            database.execSQL(builder.getTableCreateString());
+            
+            builder = new TableBuilder(UserKeyRecord.class);
+            database.execSQL(builder.getTableCreateString());
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-	 */
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
-	}
+    /* (non-Javadoc)
+     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
+     */
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
+    }
 
 }

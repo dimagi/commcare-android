@@ -12,17 +12,17 @@ import android.content.Context;
  *
  */
 public class DirectDbHelper extends DbHelper {
-	
-	private SQLiteDatabase handle;
+    
+    private SQLiteDatabase handle;
 
-	public DirectDbHelper(Context c, SQLiteDatabase database) {
-		super(c);
-		handle = database;
-	}
+    public DirectDbHelper(Context c, SQLiteDatabase database) {
+        super(c);
+        handle = database;
+    }
 
-	@Override
-	public SQLiteDatabase getHandle() {
-		return handle;
-	}
-	
+    @Override
+    public SQLiteDatabase getHandle() {
+        return handle;
+    }
+    
 }

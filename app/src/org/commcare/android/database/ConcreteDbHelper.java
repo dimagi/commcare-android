@@ -14,16 +14,16 @@ import android.content.Context;
  *
  */
 public class ConcreteDbHelper extends DbHelper {
-	private SQLiteDatabase handle;
+    private SQLiteDatabase handle;
 
-	public ConcreteDbHelper(Context c, SQLiteDatabase handle) {
-		super(c);
-		this.handle = handle;
-	}
+    public ConcreteDbHelper(Context c, SQLiteDatabase handle) {
+        super(c);
+        this.handle = handle;
+    }
 
-	@Override
-	public SQLiteDatabase getHandle() {
-		return handle;
-	}
+    @Override
+    public SQLiteDatabase getHandle() {
+        return handle;
+    }
 
 }

@@ -92,22 +92,22 @@ public class InstanceProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-    	//This is so stupid.
+        //This is so stupid.
         return true;
     }
     
     public void init() {
-		//this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
-    	if(mDbHelper == null) {
+        //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
+        if(mDbHelper == null) {
             mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
-    	}
+        }
     }
 
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
-    	init();
+        init();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(INSTANCES_TABLE_NAME);
 
@@ -233,7 +233,7 @@ public class InstanceProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
-    	init();
+        init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
         
@@ -241,17 +241,17 @@ public class InstanceProvider extends ContentProvider {
             case INSTANCES:                
                 Cursor del = null;
                 try {
-                	del = this.query(uri, null, where, whereArgs, null);
-	                del.moveToPosition(-1);
-	                while (del.moveToNext()) {
-	                    String instanceFile = del.getString(del.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-	                    String instanceDir = (new File(instanceFile)).getParent();
-	                    deleteFileOrDir(instanceDir);
-	                }
+                    del = this.query(uri, null, where, whereArgs, null);
+                    del.moveToPosition(-1);
+                    while (del.moveToNext()) {
+                        String instanceFile = del.getString(del.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                        String instanceDir = (new File(instanceFile)).getParent();
+                        deleteFileOrDir(instanceDir);
+                    }
                 } finally {
-                	if ( del != null ) {
-                		del.close();
-                	}
+                    if ( del != null ) {
+                        del.close();
+                    }
                 }
                 count = db.delete(INSTANCES_TABLE_NAME, where, whereArgs);
                 break;
@@ -261,18 +261,18 @@ public class InstanceProvider extends ContentProvider {
 
                 Cursor c = null;
                 try {
-                	c = this.query(uri, null, where, whereArgs, null);
-	                // This should only ever return 1 record.  I hope.
-	                c.moveToPosition(-1);
-	                while (c.moveToNext()) {
-	                    String instanceFile = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-	                    String instanceDir = (new File(instanceFile)).getParent();
-	                    deleteFileOrDir(instanceDir);           
-	                }
+                    c = this.query(uri, null, where, whereArgs, null);
+                    // This should only ever return 1 record.  I hope.
+                    c.moveToPosition(-1);
+                    while (c.moveToNext()) {
+                        String instanceFile = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                        String instanceDir = (new File(instanceFile)).getParent();
+                        deleteFileOrDir(instanceDir);           
+                    }
                 } finally {
-                	if ( c != null ) {
-                		c.close();
-                	}
+                    if ( c != null ) {
+                        c.close();
+                    }
                 }
                 
                 count =
@@ -293,7 +293,7 @@ public class InstanceProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
-    	init();
+        init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
         String status = null;

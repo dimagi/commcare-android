@@ -52,46 +52,46 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
 {
     @Override
     protected String doInBackground(Throwable... values) {
-    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    	
-    	//TODO: This is ridiculous. Just do the normal log submission process
-    	DeviceReportWriter report;
-    	try{
-    		report = new DeviceReportWriter(baos);
-    	} catch(IOException e){
-    		report = null;
-    	}
-		
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        
+        //TODO: This is ridiculous. Just do the normal log submission process
+        DeviceReportWriter report;
+        try{
+            report = new DeviceReportWriter(baos);
+        } catch(IOException e){
+            report = null;
+        }
+        
 
-		String fallbacktext = null;
-		for(Throwable ex : values) {
-			String exceptionText = getStackTrace(ex);
-			if(fallbacktext == null) {
-				fallbacktext = exceptionText;
-			}
-			if(report != null) {
-				report.addReportElement(new AndroidLogSerializer(new AndroidLogEntry("forceclose", exceptionText, new Date())));
-			}
-		}
-		
-		byte[] data;
-		try {
-			if(report == null) { throw new IOException();}
-			report.write();
-			data = baos.toByteArray();
-		} catch (IOException e) {
-			//_weak_
-			e.printStackTrace();
-			String fsDate = new Date().toString();
-			data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate +"</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + fallbacktext + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
-		}
-		
+        String fallbacktext = null;
+        for(Throwable ex : values) {
+            String exceptionText = getStackTrace(ex);
+            if(fallbacktext == null) {
+                fallbacktext = exceptionText;
+            }
+            if(report != null) {
+                report.addReportElement(new AndroidLogSerializer(new AndroidLogEntry("forceclose", exceptionText, new Date())));
+            }
+        }
+        
+        byte[] data;
+        try {
+            if(report == null) { throw new IOException();}
+            report.write();
+            data = baos.toByteArray();
+        } catch (IOException e) {
+            //_weak_
+            e.printStackTrace();
+            String fsDate = new Date().toString();
+            data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate +"</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + fallbacktext + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
+        }
+        
         String URI = CommCareApplication._().getString(R.string.PostURL);
         try {
-        	SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        	URI = settings.getString("PostURL", CommCareApplication._().getString(R.string.PostURL));
+            SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+            URI = settings.getString("PostURL", CommCareApplication._().getString(R.string.PostURL));
         } catch(Exception e) {
-        	//D-oh. Really?
+            //D-oh. Really?
         }
         
         
@@ -101,66 +101,66 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
         
         MultipartEntity entity = new MultipartEntity();
         try {
-        	//Apparently if you don't have a filename in the multipart wrapper, some receivers
-        	//don't properly receive this post.
-        	StringBody body = new StringBody(payload, "text/xml", MIME.DEFAULT_CHARSET) {
-				@Override
-				public String getFilename() {
-					return "exceptionreport.xml";
-				}
-        	};
-			entity.addPart("xml_submission_file", body);
-		} catch (IllegalCharsetNameException e1) {
-			e1.printStackTrace();
-		} catch (UnsupportedCharsetException e1) {
-			e1.printStackTrace();
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
+            //Apparently if you don't have a filename in the multipart wrapper, some receivers
+            //don't properly receive this post.
+            StringBody body = new StringBody(payload, "text/xml", MIME.DEFAULT_CHARSET) {
+                @Override
+                public String getFilename() {
+                    return "exceptionreport.xml";
+                }
+            };
+            entity.addPart("xml_submission_file", body);
+        } catch (IllegalCharsetNameException e1) {
+            e1.printStackTrace();
+        } catch (UnsupportedCharsetException e1) {
+            e1.printStackTrace();
+        } catch (UnsupportedEncodingException e1) {
+            e1.printStackTrace();
+        }
         
         HttpRequestGenerator generator;
         try {
-        	User user = CommCareApplication._().getSession().getLoggedInUser();
+            User user = CommCareApplication._().getSession().getLoggedInUser();
             if(user.getUserType().equals(User.TYPE_DEMO)) {
-            	generator = new HttpRequestGenerator();
+                generator = new HttpRequestGenerator();
             } else {
-            	generator = new HttpRequestGenerator(user);
+                generator = new HttpRequestGenerator(user);
             }
         } catch(Exception e){
-        	generator = new HttpRequestGenerator();
+            generator = new HttpRequestGenerator();
         }
         
         
         try {
-			HttpResponse response = generator.postData(URI, entity);
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			response.getEntity().writeTo(bos);
-			System.out.println("Response: " + new String(bos.toByteArray()));
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//We seem to have to return something...
-		return null;
+            HttpResponse response = generator.postData(URI, entity);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            response.getEntity().writeTo(bos);
+            System.out.println("Response: " + new String(bos.toByteArray()));
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //We seem to have to return something...
+        return null;
     }
     
     public static String getStackTrace(Throwable e) {
-    	return getStackTrace(e, false);
+        return getStackTrace(e, false);
     }
     
     
     public static String getStackTrace(Throwable e, boolean fullContext) {
-    	ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		e.printStackTrace(new PrintStream(bos));
-		String retString = new String(bos.toByteArray());
-		if(fullContext && e.getCause() != null) {
-			//Because sometimes it doesn't print us enough context.
-			retString += "Sub Context: \n" + getStackTrace(e.getCause(), false);
-		}
-		return retString;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        e.printStackTrace(new PrintStream(bos));
+        String retString = new String(bos.toByteArray());
+        if(fullContext && e.getCause() != null) {
+            //Because sometimes it doesn't print us enough context.
+            retString += "Sub Context: \n" + getStackTrace(e.getCause(), false);
+        }
+        return retString;
     }
     
 }
