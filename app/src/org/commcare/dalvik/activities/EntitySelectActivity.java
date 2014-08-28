@@ -40,6 +40,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -53,6 +54,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -176,6 +178,14 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         searchLabel.setText(Localization.get("select.search.label"));
+        searchLabel.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+				// only will trigger it if no physical keyboard is open
+				inputMethodManager.showSoftInput(searchbox, InputMethodManager.SHOW_IMPLICIT);
+			}
+        });
         
         searchbox = (EditText)findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
