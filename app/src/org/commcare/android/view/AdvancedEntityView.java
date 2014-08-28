@@ -75,9 +75,6 @@ public class AdvancedEntityView extends GridLayout {
 	private CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
 	private AudioController controller;
 	
-	ArrayList<View> viewQueue;
-	ArrayList<GridLayout.LayoutParams> paramsQueue;
-	
 	public AdvancedEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, AudioController controller) {
 		super(context);
 		this.searchTerms = searchTerms;
@@ -127,9 +124,6 @@ public class AdvancedEntityView extends GridLayout {
 		mImageLoader = mLoader;
 		cellWidth = rowWidth/NUMBER_COLUMNS;
 		cellHeight = rowHeight / NUMBER_ROWS;
-		
-		paramsQueue = new ArrayList<GridLayout.LayoutParams>();
-		viewQueue = new ArrayList<View>();
 		
 		// now ready to setup all these views
 		setViews(context, detail, entity);
@@ -239,12 +233,6 @@ public class AdvancedEntityView extends GridLayout {
 		
 			this.addView(mView, mGridParams);
 		}
-		
-		while(viewQueue.size() > 0){
-			System.out.println("821 adding view");
-			View queueView = viewQueue.remove(0);
-			this.addView(queueView, paramsQueue.remove(0));
-		}
         
 	}
 	
@@ -309,17 +297,10 @@ public class AdvancedEntityView extends GridLayout {
 			} else if(textsize.equals("xlarge")){
 				((TextView)retVal).setTextSize(XLARGE_FONT/DENSITY);
 			} 
-			//((TextView)retVal).setPadding(PADDING_HORIZONTAL,PADDING_VERTICAL,PADDING_HORIZONTAL,PADDING_VERTICAL);
-		}
-		
-		if(cssid != null && !cssid.equals("none")){
-			FontFitTextView mView = new FontFitTextView(context, width, height);
-			mView.setText(" ");
-			((TextView)mView).setHeight(height);
-			((TextView)mView).setWidth(width);
-			((TextView)mView).setText(Stylizer.getStyleSpannable(cssid," "));
-			viewQueue.add(mView);
-			paramsQueue.add(mGridParams);
+			
+			if(cssid != null && !cssid.equals("none")){
+				((TextView)retVal).setText(Stylizer.getStyleSpannable(cssid,rowData));
+			}
 		}
 		
 		return retVal;
