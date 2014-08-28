@@ -111,7 +111,7 @@ public class EntityView extends LinearLayout {
 	 * Creates up a new view in the view with ID uniqueid, based upon
 	 * the entity's text and form
 	 */
-	private View initView(String text, String form, Object uniqueId, String sortField) {
+	private View initView(Object data, String form, Object uniqueId, String sortField) {
 		View retVal;
 		if (FORM_IMAGE.equals(form)) {
 			ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);
@@ -134,7 +134,7 @@ public class EntityView extends LinearLayout {
 		}
         else {
     		View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		setupTextAndTTSLayout(layout, text, sortField);
+    		setupTextAndTTSLayout(layout, (String) data, sortField);
     		retVal = layout;
         }
 		return retVal;
@@ -179,7 +179,7 @@ public class EntityView extends LinearLayout {
 				view.setVisibility(VISIBLE);
 			}
 			else { //text to speech
-		        setupTextAndTTSLayout(view, textField, e.getSortField(i));
+		        setupTextAndTTSLayout(view, (String) field, e.getSortField(i));
 	        }
 		}
 		
@@ -283,22 +283,6 @@ public class EntityView extends LinearLayout {
 			raw.removeSpan(span);
 		}
 		
-<<<<<<< HEAD
-		for (String searchText : searchTerms) {
-			if (searchText == "") { continue;}
-	
-			int index = TextUtils.indexOf(normalized, searchText);
-			
-			while (index >= 0) {
-			  raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
-				  + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-			  index=TextUtils.indexOf(raw, searchText, index + searchText.length());
-			}
-		}
-		
-		return raw;
-	}
-=======
 		Vector<int[]> matches = new Vector<int[]>(); 
 	    
 		boolean matched = false;
@@ -359,9 +343,6 @@ public class EntityView extends LinearLayout {
 	    return raw;
     }
     
-    
->>>>>>> master
-	
 	private float[] calculateDetailWeights(int[] hints) {
 		float[] weights = new float[hints.length];
 		int fullSize = 100;

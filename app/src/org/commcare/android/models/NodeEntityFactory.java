@@ -54,7 +54,7 @@ public class NodeEntityFactory {
 		//return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 		
 		int length = detail.getHeaderForms().length;
-		Object[] details = new String[length];
+		Object[] details = new Object[length];
 		String[] sortDetails = new String[length];
 		boolean[] relevancyDetails = new boolean[length];
 		int count = 0;
