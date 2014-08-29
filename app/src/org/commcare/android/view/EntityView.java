@@ -51,12 +51,14 @@ public class EntityView extends LinearLayout {
 	private static final String FORM_AUDIO = "audio";
 	private static final String FORM_IMAGE = "image";
 	private static final String FORM_GRAPH = "graph";
+	
+	private boolean mFuzzySearchEnabled = true;
 
 	/*
 	 * Constructor for row/column contents
 	 */
 	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
-			String[] searchTerms, AudioController controller, long rowId) {
+			String[] searchTerms, AudioController controller, long rowId, boolean mFuzzySearchEnabled) {
 		super(context);
 		this.context = context;
 		this.searchTerms = searchTerms;
@@ -83,6 +85,8 @@ public class EntityView extends LinearLayout {
 	        	addView(views[i], l);
 	        }
 		}
+		
+		this.mFuzzySearchEnabled = mFuzzySearchEnabled;
 	}
 	
 	/*
@@ -285,7 +289,8 @@ public class EntityView extends LinearLayout {
 		
 		Vector<int[]> matches = new Vector<int[]>(); 
 	    
-		boolean matched = false;
+		
+		//Highlight direct substring matches
 	    for (String searchText : searchTerms) {
 	    	if ("".equals(searchText)) { continue;}
 	
@@ -300,11 +305,11 @@ public class EntityView extends LinearLayout {
 		      index=TextUtils.indexOf(raw, searchText, index + searchText.length());
 		      
 		      //we have a non-fuzzy match, so make sure we don't fuck with it
-		      matched = true;
 		    }
 	    }
 
-	    if(backgroundString != null) {
+	    //now insert the spans for any fuzzy matches (if enabled)
+	    if(mFuzzySearchEnabled && backgroundString != null) {
 		    backgroundString = StringUtils.normalize(backgroundString).trim() + " ";
 
 		    for (String searchText : searchTerms) {
