@@ -3,14 +3,19 @@ package org.commcare.dalvik.activities;
 import org.commcare.android.adapters.AppManagerAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -88,6 +93,19 @@ public class AppManagerActivity extends Activity {
 				Toast.makeText(this, "No app was installed!", Toast.LENGTH_LONG).show();
 			}
 			break;
+		case CommCareHomeActivity.UPGRADE_APP:
+    		if(resultCode == RESULT_CANCELED) {
+    			//This might actually be bad, but try to go about your business
+    			//The onResume() will take us to the screen
+    			return;
+    		} else if(resultCode == RESULT_OK) {
+    			//set flag that we should autoupdate on next login
+    			SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
+    			preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true);
+    			//The onResume() will take us to the screen
+    			return;
+    		}
+    		break;
 		case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
     		if (resultCode == RESULT_CANCELED) {
     			AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -151,6 +169,13 @@ public class AppManagerActivity extends Activity {
 	public void updateSelected(View v) {
 		String appId = (String) v.getContentDescription();
 		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
+		CommCareApplication._().initializeAppResources(new CommCareApp(selected));
+    	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+    	SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	String ref = prefs.getString("default_app_server", null);
+    	i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
+    	i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
+    	startActivityForResult(i,CommCareHomeActivity.UPGRADE_APP);
 	}
 
 }
