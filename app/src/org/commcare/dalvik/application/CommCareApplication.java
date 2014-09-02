@@ -68,6 +68,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.odk.collect.android.application.Collect;
@@ -1096,6 +1097,14 @@ public class CommCareApplication extends Application {
 	
 	public String getAndroidFsTemp() {
 		return Environment.getExternalStorageDirectory().toString() + "/Android/data/"+ getPackageName() +"/temp/";
+	}
+	
+	/**	the 
+	 * @return a path to a file location that can be used to store a file temporarily and will be cleaned up as part of
+	 * CommCare's application lifecycle
+	 */
+	public String getTempFilePath() {
+		return getAndroidFsTemp() + PropertyUtils.genUUID();
 	}
 	
 	public ArchiveFileRoot getArchiveFileRoot(){
