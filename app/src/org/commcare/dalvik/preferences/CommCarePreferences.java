@@ -83,6 +83,9 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String AUTO_TRIGGER_UPDATE = "auto-trigger-update";
     
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
+    
+    
+    public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
 
 	private static final int CLEAR_USER_DATA = Menu.FIRST;
 	private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
@@ -172,6 +175,12 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     	
     	//otherwise, see if we're in sense mode
     	return !isInSenseMode();
+    }
+    
+    public static boolean isFuzzySearchEnabled(){
+    	SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+    	
+		return properties.getString(FUZZY_SEARCH, NO).equals(YES);
     }
     
     @Override

@@ -18,6 +18,7 @@ import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.Constants;
@@ -43,6 +44,8 @@ public class EntityListAdapter implements ListAdapter {
 	
 	private int actionPosition = -1;
 	private boolean actionEnabled; 
+	
+	private boolean mFuzzySearchEnabled = true;
 	
 	Context context;
 	
@@ -86,9 +89,12 @@ public class EntityListAdapter implements ListAdapter {
 		if(d.getCustomAction() != null) {
 			actionEnabled = true;
 		}
+		
+		this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
 	}
 
 	private void filterValues(String filterRaw) {
+		
 		String[] searchTerms = filterRaw.split(" ");
 		for(int i = 0 ; i < searchTerms.length ; ++i) {
 			searchTerms[i] = StringUtils.normalize(searchTerms[i]);
@@ -114,16 +120,17 @@ public class EntityListAdapter implements ListAdapter {
 						continue filter;
 					} else {
 						//We possibly now want to test for edit distance for fuzzy matching
-						
-						String sortField = e.getSortField(i);
-						if(sortField != null) {
-							//We always fuzzy match on the sort field and only if it is available
-							//(as a way to restrict possible matching)
-							sortField = StringUtils.normalize(sortField);
-							for(String fieldChunk : sortField.split(" ")) {
-								if(StringUtils.fuzzyMatch(fieldChunk, filter)) {
-									add = true;
-									continue filter;
+						if(mFuzzySearchEnabled) {
+							String sortField = e.getSortField(i);
+							if(sortField != null) {
+								//We always fuzzy match on the sort field and only if it is available
+								//(as a way to restrict possible matching)
+								sortField = StringUtils.normalize(sortField);
+								for(String fieldChunk : sortField.split(" ")) {
+									if(StringUtils.fuzzyMatch(fieldChunk, filter)) {
+										add = true;
+										continue filter;
+									}
 								}
 							}
 						}
@@ -324,7 +331,7 @@ public class EntityListAdapter implements ListAdapter {
 		Entity<TreeReference> e = current.get(position);
 		EntityView emv =(EntityView)convertView;
 		if (emv == null) {
-			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position);
+			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position, this.mFuzzySearchEnabled);
 		} else {
 			emv.setSearchTerms(currentSearchTerms);
 			emv.refreshViewsForNewEntity(e, e.getElement().equals(selected), position);
