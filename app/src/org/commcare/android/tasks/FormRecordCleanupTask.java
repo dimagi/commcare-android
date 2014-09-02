@@ -73,6 +73,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 	}
 	
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
+	 */
 	@Override
 	protected Integer doTaskBackground(Void... params) {
 		SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
@@ -181,6 +185,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 					if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
 						return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
 							
+							/*
+							 * (non-Javadoc)
+							 * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
+							 */
 							@Override
 							public void commit(Case parsed) throws IOException, SessionUnavailableException{
 								String incoming = parsed.getCaseId();
@@ -189,6 +197,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 								}
 							}
 		
+							/*
+							 * (non-Javadoc)
+							 * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
+							 */
 							@Override
 							public ACase retrieve(String entityId) throws SessionUnavailableException{
 								caseIDs[0] = entityId;
@@ -201,6 +213,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 					//Otherwise, this gets more tricky. Ideally we'd want to skip this block for compatibility purposes,
 					//but we can at least try to get a caseID (which is all we want)
 					return new BestEffortBlockParser(parser, null, null, new String[] {"case_id"}) {
+						/*
+						 * (non-Javadoc)
+						 * @see org.commcare.xml.BestEffortBlockParser#commit(java.util.Hashtable)
+						 */
 						@Override
 						public void commit(Hashtable<String, String> values) {
 							if(values.containsKey("case_id")) {
@@ -213,6 +229,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 				else if("meta".equals(name.toLowerCase())) {
 					return new MetaDataXmlParser(parser) {
 						
+						/*
+						 * (non-Javadoc)
+						 * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
+						 */
 						@Override
 						public void commit(String[] meta) throws IOException, SessionUnavailableException{
 							if(meta[0] != null) {

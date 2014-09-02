@@ -46,6 +46,10 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
 	@UiElement(R.id.screen_suite_menu_list)
 	private ListView list;
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,11 +68,19 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
+     */
     @Override
     protected boolean isTopNavEnabled() {
     	return true;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
+     */
     @Override
     public String getActivityTitle() {
 		//return adapter.getMenuTitle();
@@ -84,7 +96,10 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     }
 
 
-    /**
+    /*
+     * (non-Javadoc)
+     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+     * 
      * Stores the path of selected form and finishes.
      */
     @Override

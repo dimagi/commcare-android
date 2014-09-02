@@ -89,11 +89,19 @@ public class CommCareSessionService extends Service  {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Service#onCreate()
+     */
     @Override
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         pool = new CipherPool() {
 
+        	/*
+        	 * (non-Javadoc)
+        	 * @see org.commcare.android.crypt.CipherPool#generateNewCipher()
+        	 */
 			@Override
 			public Cipher generateNewCipher() {
 				synchronized(lock) {
@@ -122,6 +130,10 @@ public class CommCareSessionService extends Service  {
         };
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // We want this service to continue running until it is explicitly
@@ -129,6 +141,10 @@ public class CommCareSessionService extends Service  {
         return START_STICKY;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Service#onDestroy()
+     */
     @Override
     public void onDestroy() {
         // Cancel the persistent notification.
@@ -137,6 +153,10 @@ public class CommCareSessionService extends Service  {
         // TODO: Create a notification which the user can click to restart the session 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Service#onBind(android.content.Intent)
+     */
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -241,6 +261,10 @@ public class CommCareSessionService extends Service  {
 	        maintenanceTimer = new Timer("CommCareService");
 	        maintenanceTimer.schedule(new TimerTask() {
 	
+	        	/*
+	        	 * (non-Javadoc)
+	        	 * @see java.util.TimerTask#run()
+	        	 */
 				@Override
 				public void run() {
 					maintenance();
@@ -366,6 +390,10 @@ public class CommCareSessionService extends Service  {
 			
 			int lastUpdate = 0;
 			
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.tasks.DataSubmissionListener#beginSubmissionProcess(int)
+			 */
 			@Override
 			public void beginSubmissionProcess(int totalItems) {
 				this.totalItems = totalItems;
@@ -404,6 +432,10 @@ public class CommCareSessionService extends Service  {
 
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.tasks.DataSubmissionListener#startSubmission(int, long)
+			 */
 			@Override
 			public void startSubmission(int itemNumber, long length) {
 				currentSize = length;
@@ -413,6 +445,10 @@ public class CommCareSessionService extends Service  {
 				mNM.notify(notificationId, submissionNotification);
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.tasks.DataSubmissionListener#notifyProgress(int, long)
+			 */
 			@Override
 			public void notifyProgress(int itemNumber, long progress) {
 				int progressPercent = (int)Math.floor((progress * 1.0 / currentSize) * 100);
@@ -439,6 +475,10 @@ public class CommCareSessionService extends Service  {
 					lastUpdate = progressPercent;
 				}
 			}
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.tasks.DataSubmissionListener#endSubmissionProcess()
+			 */
 			@Override
 			public void endSubmissionProcess() {
 				mNM.cancel(notificationId);

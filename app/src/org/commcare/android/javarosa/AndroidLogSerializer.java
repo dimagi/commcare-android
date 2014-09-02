@@ -35,6 +35,10 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
 		
 		this.setPurger(new Purger() {
 
+			/*
+			 * (non-Javadoc)
+			 * @see org.javarosa.core.log.StreamLogSerializer.Purger#purge(org.javarosa.core.util.SortedIntSet)
+			 */
 			@Override
 			public void purge(final SortedIntSet IDs) {
 				storage.removeAll(new EntityFilter<LogEntry> () {
@@ -52,6 +56,10 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
 		});
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.log.StreamLogSerializer#serializeLog(org.javarosa.core.log.LogEntry)
+	 */
 	@Override
 	protected void serializeLog(LogEntry entry) throws IOException {
 		String dateString = DateUtils.formatDateTime(entry.getTime(), DateUtils.FORMAT_ISO8601);
@@ -79,6 +87,10 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.javarosa.DeviceReportElement#writeToDeviceReport(org.xmlpull.v1.XmlSerializer)
+	 */
 	@Override
 	public void writeToDeviceReport(XmlSerializer serializer) throws IOException {
 		//TODO: Stop doing what the special case here is for

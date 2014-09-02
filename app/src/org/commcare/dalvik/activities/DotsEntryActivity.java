@@ -71,6 +71,10 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	int zX = -1;
 	int zY = -1;
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,6 +164,10 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
+     */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
     	super.onRestoreInstanceState(savedInstanceState);
@@ -286,6 +294,10 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 	    }
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -298,6 +310,10 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     	}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onPause()
+	 */
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -315,6 +331,10 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 		showView(home, AnimationType.zoomout);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
+	 */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {

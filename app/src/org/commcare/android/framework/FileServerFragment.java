@@ -64,11 +64,19 @@ public class FileServerFragment extends Fragment {
 
 	private FileServerAsyncTask mFileServer;
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
+	 */
 	@Override
 	public void onAttach(Activity activity){
 		super.onAttach(activity);
@@ -80,6 +88,10 @@ public class FileServerFragment extends Fragment {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -140,6 +152,10 @@ public class FileServerFragment extends Fragment {
 
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+		 */
 		@Override
 		protected String doInBackground(Void... params) {
 

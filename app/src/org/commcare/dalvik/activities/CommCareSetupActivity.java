@@ -152,6 +152,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 	
 	private BroadcastReceiver purgeNotificationReceiver = null;
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -212,6 +216,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	
 		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
+			/*
+			 * (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
+			 */
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
@@ -224,6 +232,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 				previousUrlPosition = arg2;
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android.widget.AdapterView)
+			 */
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {}
 			
@@ -285,6 +297,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		// Hide "See More" button when notification is cleared
 		// (by any method: button press, viewing from drawer, or clearing from drawer)
 		purgeNotificationReceiver = new BroadcastReceiver() {
+			/*
+			 * (non-Javadoc)
+			 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+			 */
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				viewNotificationButton.setVisibility(View.GONE);
@@ -325,6 +341,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
         final View activityRootView = findViewById(R.id.screen_first_start_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+        	/*
+        	 * (non-Javadoc)
+        	 * @see android.view.ViewTreeObserver.OnGlobalLayoutListener#onGlobalLayout()
+        	 */
             @Override
             public void onGlobalLayout() {
             	int hideAll = CommCareSetupActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
@@ -351,6 +371,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.framework.CommCareActivity#onDestroy()
+	 */
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -571,6 +595,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 			ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, 
 					inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
+				/*
+				 * (non-Javadoc)
+				 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
+				 */
 				@Override
 				protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
 					boolean startOverInstall;
@@ -625,11 +653,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 				}
 
+				/*
+				 * (non-Javadoc)
+				 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
+				 */
 				@Override
 				protected void deliverUpdate(CommCareSetupActivity receiver, int[]... update) {
 					receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
 				}
 
+				/*
+				 * (non-Javadoc)
+				 * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
+				 */
 				@Override
 				protected void deliverError(CommCareSetupActivity receiver, Exception e) {
 					receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
@@ -644,6 +680,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -653,6 +693,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -748,6 +792,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     	startOverButton.setText(Localization.get("install.button.startover"));
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
@@ -855,6 +903,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		this.uiState = newUiState;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onBackPressed()
+	 */
     @Override
     public void onBackPressed(){
         if(uiState == UiState.advanced || uiState == UiState.ready) {
@@ -919,10 +971,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		fail(NotificationMessageFactory.message(statusfailstate), true);
 	}
     
-    
-    /** implementation of generateProgressDialog() for DialogController --
-     * all other methods handled entirely in CommCareActivity **/
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
+	 * 
+	 * implementation of generateProgressDialog() for DialogController --
+     * all other methods handled entirely in CommCareActivity
+	 */
 	@Override
 	public CustomProgressDialog generateProgressDialog(int taskId) {
 		if (taskId != DIALOG_INSTALL_PROGRESS) {

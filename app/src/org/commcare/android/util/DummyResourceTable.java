@@ -28,11 +28,19 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class DummyResourceTable extends ResourceTable {
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#isEmpty()
+	 */
 	@Override
 	public boolean isEmpty() {
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#getInstallers()
+	 */
 	@Override
 	public InstallerFactory getInstallers() {
 		return new InstallerFactory() {
@@ -101,6 +109,10 @@ public class DummyResourceTable extends ResourceTable {
 						throw new RuntimeException("Basic Installer resources can't rolled back");
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource)
+					 */
 					@Override
 					public boolean uninstall(Resource r)
 							throws UnresolvedResourceException {
@@ -108,18 +120,30 @@ public class DummyResourceTable extends ResourceTable {
 						return true;
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.resources.model.ResourceInstaller#unstage(org.commcare.resources.model.Resource, int)
+					 */
 					@Override
 					public boolean unstage(Resource r, int newStatus) {
 						// TODO Auto-generated method stub
 						return true;
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.resources.model.ResourceInstaller#revert(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
+					 */
 					@Override
 					public boolean revert(Resource r, ResourceTable table) {
 						// TODO Auto-generated method stub
 						return true;
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource)
+					 */
 					@Override
 					public boolean upgrade(Resource r)
 							throws UnresolvedResourceException {
@@ -143,81 +167,149 @@ public class DummyResourceTable extends ResourceTable {
 		};
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#removeResource(org.commcare.resources.model.Resource)
+	 */
 	@Override
 	public void removeResource(Resource resource) {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#addResource(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceInstaller, java.lang.String, int)
+	 */
 	@Override
 	public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) throws StorageFullException {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#addResource(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceInstaller, java.lang.String)
+	 */
 	@Override
 	public void addResource(Resource resource, ResourceInstaller initializer,
 			String parentId) throws StorageFullException {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#addResource(org.commcare.resources.model.Resource, int)
+	 */
 	@Override
 	public void addResource(Resource resource, int status)
 			throws StorageFullException {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#getResourcesForParent(java.lang.String)
+	 */
 	@Override
 	public Vector<Resource> getResourcesForParent(String parent) {
 		return new Vector<Resource>();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#getResourceWithId(java.lang.String)
+	 */
 	@Override
 	public Resource getResourceWithId(String id) {
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#getResourceWithGuid(java.lang.String)
+	 */
 	@Override
 	public Resource getResourceWithGuid(String guid) {
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#isReady()
+	 */
 	@Override
 	public boolean isReady() {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#commit(org.commcare.resources.model.Resource, int, int)
+	 */
 	@Override
 	public void commit(Resource r, int status, int version) throws UnresolvedResourceException {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#commit(org.commcare.resources.model.Resource, int)
+	 */
 	@Override
 	public void commit(Resource r, int status) {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#commit(org.commcare.resources.model.Resource)
+	 */
 	@Override
 	public void commit(Resource r) {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#prepareResources(org.commcare.resources.model.ResourceTable, org.commcare.util.CommCareInstance)
+	 */
 	@Override
 	public void prepareResources(ResourceTable master, CommCareInstance instance)
 			throws UnresolvedResourceException,
 			UnfullfilledRequirementsException {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#upgradeTable(org.commcare.resources.model.ResourceTable)
+	 */
 	@Override
 	public boolean upgradeTable(ResourceTable incoming)
 			throws UnresolvedResourceException {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#toString()
+	 */
 	@Override
 	public String toString() {
 		return "Dummy Table";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#destroy()
+	 */
 	@Override
 	public void destroy() {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#clear()
+	 */
 	@Override
 	public void clear() {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.resources.model.ResourceTable#initializeResources(org.commcare.util.CommCareInstance)
+	 */
 	@Override
 	public void initializeResources(CommCareInstance instance)
 			throws ResourceInitializationException {

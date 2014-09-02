@@ -85,6 +85,10 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 		this.formSubmissionListener = submissionListener;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
+	 */
 	@Override
 	protected void onPostExecute(Boolean result) {
 		super.onPostExecute(result);
@@ -159,6 +163,10 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         return FormUploadUtil.FULL_SUCCESS;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
+	 */
 	@Override
 	protected Boolean doTaskBackground(String... params) {
 		

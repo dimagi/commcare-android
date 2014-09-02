@@ -62,6 +62,10 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 		this.generator = generator;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.xml.CaseXmlParser#removeAttachment(org.commcare.cases.model.Case, java.lang.String)
+	 */
 	@Override
 	protected void removeAttachment(Case caseForBlock, String attachmentName) {
 		if(!processAttachments) { return;}
@@ -83,6 +87,10 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.xml.CaseXmlParser#processAttachment(java.lang.String, java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
+	 */
 	@Override
 	protected String processAttachment(String src, String from, String name, KXmlParser parser) {
 		if(!processAttachments) { return null;}

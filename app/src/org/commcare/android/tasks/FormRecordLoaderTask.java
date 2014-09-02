@@ -71,6 +71,10 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 		this.listener = listener;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+	 */
 	@Override
 	protected Integer doInBackground(FormRecord... params) {
 		int progress = 0;

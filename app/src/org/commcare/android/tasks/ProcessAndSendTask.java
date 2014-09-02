@@ -371,6 +371,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 		this.formSubmissionListener = submissionListener;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
+	 */
 	@Override
 	protected void onPostExecute(Integer result) {
 		super.onPostExecute(result);

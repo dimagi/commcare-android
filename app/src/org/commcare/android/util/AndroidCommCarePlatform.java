@@ -124,6 +124,10 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 		return callDuration;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.util.CommCarePlatform#initialize(org.commcare.resources.model.ResourceTable)
+	 */
 	@Override
 	public void initialize(ResourceTable global) {
 		this.profile = null;

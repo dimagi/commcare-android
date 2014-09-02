@@ -94,6 +94,10 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 		this.formSubmissionListener = submissionListener;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
+	 */
 	@Override
 	protected void onPostExecute(FormRecord[] result) {
 		super.onPostExecute(result);
@@ -239,6 +243,10 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 	    return false;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
+	 */
 	@Override
 	protected FormRecord[] doTaskBackground(String... params) {
 		

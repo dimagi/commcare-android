@@ -81,7 +81,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 	
 	SqlStorage<UserKeyRecord> storage;
 	
-    /** Called when the activity is first created. */
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +117,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         
         final View activityRootView = findViewById(R.id.screen_login_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+        	/*
+        	 * (non-Javadoc)
+        	 * @see android.view.ViewTreeObserver.OnGlobalLayoutListener#onGlobalLayout()
+        	 */
             @Override
             public void onGlobalLayout() {
             	int hideAll = LoginActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
@@ -155,6 +162,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                  prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
                  LoginActivity.this) {
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
+					 */
 					@Override
 					protected void deliverResult( LoginActivity receiver, Integer result) {
 						switch(result) {
@@ -186,6 +197,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
+					 */
 					@Override
 					protected void deliverUpdate( LoginActivity receiver, Integer... update) {
 						if(update[0] == DataPullTask.PROGRESS_STARTED) {
@@ -201,6 +216,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 						}
 					}
 
+					/*
+					 * (non-Javadoc)
+					 * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
+					 */
 					@Override
 					protected void deliverError( LoginActivity receiver, Exception e) {
 						receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
@@ -330,6 +349,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 				}
 				
 			}) {
+	    		/*
+	    		 * (non-Javadoc)
+	    		 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
+	    		 */
 				@Override
 				protected void deliverUpdate(LoginActivity receiver, String... update) {
 					receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
@@ -413,10 +436,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     }
     
     
-	/** Implementation of generateProgressDialog() for DialogController -- other methods
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
+     * 
+     * Implementation of generateProgressDialog() for DialogController -- other methods
 	 * handled entirely in CommCareActivity
-	 */
-    
+     */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
     	CustomProgressDialog dialog;

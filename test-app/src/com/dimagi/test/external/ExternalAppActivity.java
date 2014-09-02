@@ -35,7 +35,10 @@ public class ExternalAppActivity extends Activity {
 	String keyId;
 	
 	public static final int KEY_REQUEST_CODE = 1;
-    /** Called when the activity is first created. */
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

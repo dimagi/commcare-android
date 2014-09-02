@@ -136,6 +136,10 @@ public class CommCareApplication extends Application {
 	
 	private ArchiveFileRoot mArchiveFileRoot;
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Application#onCreate()
+	 */
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -405,6 +409,10 @@ public class CommCareApplication extends Application {
 	
 	public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
 		return new SqlStorage<T>(table, c, new DbHelper(this.getApplicationContext()){
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.database.DbHelper#getHandle()
+			 */
 			@Override
 			public SQLiteDatabase getHandle() {
 				synchronized(globalDbHandleLock) {
@@ -431,6 +439,10 @@ public class CommCareApplication extends Application {
 	
 	public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) throws SessionUnavailableException {
 		return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()){
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.database.DbHelper#getHandle()
+			 */
 			@Override
 			public SQLiteDatabase getHandle() {
 				SQLiteDatabase database = getUserDbHandle();
@@ -444,6 +456,10 @@ public class CommCareApplication extends Application {
 	
 	public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
 		return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()){
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.android.database.DbHelper#getHandle()
+			 */
 			@Override
 			public SQLiteDatabase getHandle() {
 				return handle;
@@ -485,11 +501,19 @@ public class CommCareApplication extends Application {
 		return t;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Application#onLowMemory()
+	 */
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Application#onTerminate()
+	 */
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
@@ -568,6 +592,10 @@ public class CommCareApplication extends Application {
 		
 		this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
 
+			/*
+			 * (non-Javadoc)
+			 * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
+			 */
 			@Override
 			public boolean matches(UserKeyRecord ukr) {
 				if(ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
@@ -938,6 +966,10 @@ public class CommCareApplication extends Application {
     ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
     
     Handler toaster = new Handler(){
+    	/*
+    	 * (non-Javadoc)
+    	 * @see android.os.Handler#handleMessage(android.os.Message)
+    	 */
 	    @Override
 	    public void handleMessage(Message m) {
 	    	NotificationMessage message = m.getData().getParcelable("message");

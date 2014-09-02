@@ -28,6 +28,10 @@ public class IntentCalloutTest extends Activity {
 	
 	public static final int KEY_REQUEST_IMAGE = 1;
 	
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -82,6 +82,10 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		task.execute((String[])null);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.VerificationTaskListener#onFinished(org.javarosa.core.util.SizeBoundVector)
+	 */
 	@Override
 	public void onFinished(SizeBoundVector<MissingMediaException> problems) {
 		dismissProgressDialog();
@@ -121,6 +125,10 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.VerificationTaskListener#updateVerifyProgress(int, int)
+	 */
 	@Override
 	public void updateVerifyProgress(int done, int pending) {
 		updateProgress(Localization.get("verification.progress",new String[] {""+done,""+pending}),
@@ -128,6 +136,10 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onPostResume()
+	 */
 	@Override
     protected void onPostResume() {
     	super.onPostResume();
@@ -157,12 +169,20 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.VerificationTaskListener#success()
+	 */
 	@Override
 	public void success() {
 		CommCareApplication._().getCurrentApp().setResourcesValidated(true);
 		done(true);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.VerificationTaskListener#failUnknown()
+	 */
 	@Override
 	public void failUnknown() {
 		missingMediaPrompt.setText("Validation failed for an unknown reason");
@@ -175,6 +195,10 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		else{return rawString.substring(marker);}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.view.View.OnClickListener#onClick(android.view.View)
+	 */
 	@Override
 	public void onClick(View v) {		
 		switch(v.getId()){
@@ -184,6 +208,10 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -192,6 +220,10 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
     }
 
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
+	 */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -205,10 +237,13 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
     }
     
 	
-	/** Implementation of generateProgressDialog() for DialogController -- other methods
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
+     * 
+     * Implementation of generateProgressDialog() for DialogController -- other methods
 	 * handled entirely in CommCareActivity
-	 */
-    
+     */
 	@Override
 	public CustomProgressDialog generateProgressDialog(int taskId) {
 		if (taskId == DIALOG_VERIFY_PROGRESS) {

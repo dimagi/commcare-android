@@ -251,11 +251,19 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 	protected TransactionParserFactory getTransactionParserFactory() {
 		TransactionParserFactory factory = new TransactionParserFactory() {
 
+			/*
+			 * (non-Javadoc)
+			 * @see org.commcare.data.xml.TransactionParserFactory#getParser(java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
+			 */
 			@Override
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 				if("auth_keys".equals(name)) {
 					return new KeyRecordParser(parser, username, password, keyRecords) {
 
+						/*
+						 * (non-Javadoc)
+						 * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
+						 */
 						@Override
 						public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
 							ManageKeyRecordTask.this.keyRecords = parsed;
@@ -287,6 +295,10 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 	}
 
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.HttpCalloutTask#processSuccesfulRequest()
+	 */
 	@Override
 	protected boolean processSuccesfulRequest() {
 		if(keyRecords == null || keyRecords.size() == 0) {
@@ -327,6 +339,10 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.android.tasks.templates.HttpCalloutTask#doPostCalloutTask(boolean)
+	 */
 	@Override
 	protected HttpCalloutTask.HttpCalloutOutcomes doPostCalloutTask(boolean calloutFailed) {
 		//Now we need to complete our login 
