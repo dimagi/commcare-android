@@ -57,6 +57,23 @@ public class AsyncEntity<T> extends Entity<T>{
 		}
 		return sortData[i];
 	}
+	
+	public String getBackgroundField(int i) {
+		if(sortData[i] == null) {
+			try {
+				Text sortText = fields[i].getSort();
+				if(sortText == null) {
+					sortData[i] = getField(i);
+				} else {
+					sortData[i] = sortText.evaluate(context);
+				}
+			} catch(XPathException xpe) {
+				xpe.printStackTrace();
+				sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+			}
+		}
+		return sortData[i];
+	}
 
 	public int getNumFields() {
 		return fields.length;

@@ -54,15 +54,22 @@ public class NodeEntityFactory {
 		
 		String[] details = new String[detail.getHeaderForms().length];
 		String[] sortDetails = new String[detail.getHeaderForms().length];
+		String[] backgroundDetails = new String[detail.getHeaderForms().length];
 		int count = 0;
 		for(DetailField f : this.getDetail().getFields()) {
 			try {
 				details[count] = f.getTemplate().evaluate(nodeContext);
 				Text sortText = f.getSort();
+				Text backgroundText = f.getBackground();
 				if(sortText == null) {
 					sortDetails[count] = details[count];
 				} else {
 					sortDetails[count] = sortText.evaluate(nodeContext);
+				}
+				if(backgroundText == null) {
+					backgroundDetails[count] = "no";
+				} else {
+					backgroundDetails[count] = backgroundText.evaluate(nodeContext);
 				}
 			} catch(XPathException xpe) {
 				xpe.printStackTrace();
@@ -71,6 +78,6 @@ public class NodeEntityFactory {
 			count++;
 		}
 		
-		return new Entity<TreeReference>(details, sortDetails, data);
+		return new Entity<TreeReference>(details, sortDetails, backgroundDetails, data);
 	}
 }

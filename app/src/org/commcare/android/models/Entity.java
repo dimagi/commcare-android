@@ -14,6 +14,7 @@ public class Entity<T> {
 	T t;
 	String[] data;
 	String[] sortData;
+	String[] backgroundData;
 	
 	protected Entity(T t) {
 		this.t = t;
@@ -23,6 +24,13 @@ public class Entity<T> {
 		this.t = t;
 		this.sortData = sortData;
 		this.data = data;
+	}
+	
+	public Entity(String[] data, String[] sortData, String[] backgroundData, T t) {
+		this.t = t;
+		this.sortData = sortData;
+		this.data = data;
+		this.backgroundData = backgroundData;
 	}
 	
 	public String getField(int i) {
@@ -43,5 +51,9 @@ public class Entity<T> {
 	
 	public String[] getData(){
 		return data;
+	}
+	
+	public String [] getBackgroundData(){
+		return backgroundData;
 	}
 }

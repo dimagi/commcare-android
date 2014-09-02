@@ -3,8 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.util.ArrayList;
-
 import net.nightwhistler.htmlspanner.Stylizer;
 
 import org.commcare.android.models.Entity;
@@ -24,6 +22,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
@@ -60,10 +61,12 @@ public class AdvancedEntityView extends GridLayout {
 	
 	public final int NUMBER_ROWS = 6;															// number of rows per screen (absolute screen size)
 	public final int NUMBER_COLUMNS = 12;														// number of columns each A.E.View is divided into
-	public final double CELL_HEIGHT_DIVISOR_TALL = 6;													// number of rows each A.E.View is divided into
-	public final double CELL_HEIGHT_DIVISOR_WIDE = 4;	
+	public final double CELL_HEIGHT_DIVISOR_TALL = 5;													// number of rows each A.E.View is divided into
+	public final double CELL_HEIGHT_DIVISOR_WIDE = 3;	
 	
 	public double densityRowMultiplier = 1;;
+	
+	public String backgroundColor;
 	
 	public double cellWidth;
 	public double cellHeight;
@@ -81,6 +84,7 @@ public class AdvancedEntityView extends GridLayout {
 		this.controller = controller;
 		this.setColumnCount(NUMBER_COLUMNS);
 		this.setRowCount(NUMBER_ROWS);
+		this.setPadding(15,15,15,15);
 		
 		// get cell dimensions
 		Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
@@ -105,6 +109,7 @@ public class AdvancedEntityView extends GridLayout {
 		
 		screenWidth = size.x-1;
 		screenHeight = size.y-1;
+	
 		
 		// If screen is rotated, use width for cell height measurement
 		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
@@ -189,6 +194,23 @@ public class AdvancedEntityView extends GridLayout {
 		coords = detail.getGridCoordinates();
 		styles = detail.getGridStyles();
 		mRowData = entity.getData();
+		
+		String[] bgData = entity.getBackgroundData();
+		
+		this.setBackgroundDrawable(null);
+		
+		for(int i=0; i<bgData.length; i++){
+			if(!bgData[i].equals("no")){
+				if(bgData[i].equals(("red-border"))){
+					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_dashed_red));
+				}
+				else if(bgData[i].equals(("yellow-border"))){
+					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_dashed_yellow));
+				}
+			}
+		}
+		
+		this.setPadding(15,15,15,15);
 
 		// iterate through every entity to be inserted in this view
 		for(int i=0; i<mRowData.length; i++){
