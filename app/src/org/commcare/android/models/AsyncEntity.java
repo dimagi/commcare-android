@@ -17,19 +17,19 @@ import org.javarosa.xpath.XPathException;
 public class AsyncEntity<T> extends Entity<T>{
 	
 	DetailField[] fields;
-	String[] data;
+	Object[] data;
 	String[] sortData;
 	EvaluationContext context;
 	
 	public AsyncEntity(DetailField[] fields, EvaluationContext ec, T t) {
 		super(t);
 		this.fields = fields;
-		this.data = new String[fields.length];
+		this.data = new Object[fields.length];
 		this.sortData = new String[fields.length];
 		this.context = ec;
 	}
 	
-	public String getField(int i) {
+	public Object getField(int i) {
 		if(data[i] == null) {
 			try {
 				data[i] = fields[i].getTemplate().evaluate(context);
@@ -46,7 +46,7 @@ public class AsyncEntity<T> extends Entity<T>{
 			try {
 				Text sortText = fields[i].getSort();
 				if(sortText == null) {
-					sortData[i] = getField(i);
+					sortData[i] = getFieldString(i);
 				} else {
 					sortData[i] = sortText.evaluate(context);
 				}

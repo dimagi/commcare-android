@@ -100,7 +100,7 @@ public class DbUtil {
 			   
 		   } catch(Exception e) {
 			   
-		   } catch(ExceptionInInitializerError e) {
+		   } catch(Error e) {
 			   
 		   }
 	   }

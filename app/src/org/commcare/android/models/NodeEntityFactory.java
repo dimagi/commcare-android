@@ -17,6 +17,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * @author ctsims
@@ -44,7 +45,7 @@ public class NodeEntityFactory {
 		EvaluationContext nodeContext = new EvaluationContext(ec, data);
 		Hashtable<String, XPathExpression> variables = getDetail().getVariableDeclarations();
 		//These are actually in an ordered hashtable, so we can't just get the keyset, since it's
-		//in a 1.3 hashtable equivilant
+		//in a 1.3 hashtable equivalent
 		for(Enumeration<String> en = variables.keys(); en.hasMoreElements();) {
 			String key = en.nextElement();
 			nodeContext.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(nodeContext)));
@@ -52,25 +53,30 @@ public class NodeEntityFactory {
 		
 		//return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 		
-		String[] details = new String[detail.getHeaderForms().length];
-		String[] sortDetails = new String[detail.getHeaderForms().length];
+		int length = detail.getHeaderForms().length;
+		Object[] details = new Object[length];
+		String[] sortDetails = new String[length];
+		boolean[] relevancyDetails = new boolean[length];
 		int count = 0;
 		for(DetailField f : this.getDetail().getFields()) {
 			try {
 				details[count] = f.getTemplate().evaluate(nodeContext);
 				Text sortText = f.getSort();
 				if(sortText == null) {
-					sortDetails[count] = details[count];
+					sortDetails[count] = null;
 				} else {
 					sortDetails[count] = sortText.evaluate(nodeContext);
 				}
+				relevancyDetails[count] = f.isRelevant(nodeContext);
 			} catch(XPathException xpe) {
 				xpe.printStackTrace();
 				details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
+			} catch (XPathSyntaxException e) {
+				e.printStackTrace();
 			}
 			count++;
 		}
 		
-		return new Entity<TreeReference>(details, sortDetails, data);
+		return new Entity<TreeReference>(details, sortDetails, relevancyDetails, data);
 	}
 }

@@ -3,6 +3,7 @@
  */
 package org.commcare.android.net;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
@@ -343,7 +344,7 @@ public class HttpRequestGenerator {
 		HttpResponse get = get(url.toString());
 		
 		if(get.getStatusLine().getStatusCode() == 404) {
-			throw new IOException("No Data available at URL " + url.toString());
+			throw new FileNotFoundException("No Data available at URL " + url.toString());
 		}
 		
 		//TODO: Double check response code

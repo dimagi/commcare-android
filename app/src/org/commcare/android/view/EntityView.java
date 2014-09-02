@@ -4,10 +4,14 @@
 package org.commcare.android.view;
 
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import org.commcare.android.models.Entity;
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.odk.collect.android.views.media.AudioButton;
@@ -42,21 +46,26 @@ public class EntityView extends LinearLayout {
 	private String[] searchTerms;
 	private Context context;
 	private AudioController controller;
+	private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;	// index => { orientation => GraphView }
 	private long rowId;
 	private static final String FORM_AUDIO = "audio";
 	private static final String FORM_IMAGE = "image";
+	private static final String FORM_GRAPH = "graph";
+	
+	private boolean mFuzzySearchEnabled = true;
 
 	/*
 	 * Constructor for row/column contents
 	 */
 	public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
-			String[] searchTerms, AudioController controller, long rowId) {
+			String[] searchTerms, AudioController controller, long rowId, boolean mFuzzySearchEnabled) {
 		super(context);
 		this.context = context;
 		this.searchTerms = searchTerms;
 		this.tts = tts;
 		this.setWeightSum(1);
 		this.controller = controller;
+		this.renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
 		this.rowId = rowId;
 		views = new View[e.getNumFields()];
 		forms = d.getTemplateForms();
@@ -65,7 +74,7 @@ public class EntityView extends LinearLayout {
 		for (int i = 0; i < views.length; ++i) {
 			if (weights[i] != 0) {
 		        Object uniqueId = new ViewId(rowId, i, false);
-		        views[i] = initView(e.getField(i), forms[i], uniqueId);
+		        views[i] = initView(e.getField(i), forms[i], uniqueId, e.getSortField(i));
 		        views[i].setId(i);
 			}
 		}
@@ -76,6 +85,8 @@ public class EntityView extends LinearLayout {
 	        	addView(views[i], l);
 	        }
 		}
+		
+		this.mFuzzySearchEnabled = mFuzzySearchEnabled;
 	}
 	
 	/*
@@ -93,7 +104,7 @@ public class EntityView extends LinearLayout {
 			if (lengths[i] != 0) {
 		        LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
 		        ViewId uniqueId = new ViewId(rowId, i, false);
-		        views[i] = initView(headerText[i], headerForms[i], uniqueId);      
+		        views[i] = initView(headerText[i], headerForms[i], uniqueId, null);      
 		        views[i].setId(i);
 		        addView(views[i], l);
 			}
@@ -104,28 +115,33 @@ public class EntityView extends LinearLayout {
 	 * Creates up a new view in the view with ID uniqueid, based upon
 	 * the entity's text and form
 	 */
-	private View initView(String text, String form, Object uniqueId) {
+	private View initView(Object data, String form, Object uniqueId, String sortField) {
 		View retVal;
 		if (FORM_IMAGE.equals(form)) {
-			ImageView iv =(ImageView)View.inflate(context, R.layout.entity_item_image, null);
+			ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);
 			retVal = iv;
-        } 
+		} 
 		else if (FORM_AUDIO.equals(form)) {
-    		AudioButton b;
-    		if (text != null & text.length() > 0) {
-    			b = new AudioButton(context, text, uniqueId, controller, true);
-    		}
-    		else {
-    			b = new AudioButton(context, text, uniqueId, controller, false);
-    		}
-    		retVal = b;
-        } 
+			String text = (String) data;
+			AudioButton b;
+			if (text != null & text.length() > 0) {
+				b = new AudioButton(context, text, uniqueId, controller, true);
+			}
+			else {
+				b = new AudioButton(context, text, uniqueId, controller, false);
+			}
+			retVal = b;
+		} 
+		else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
+			View layout = View.inflate(context, R.layout.entity_item_graph, null);
+			retVal = layout;
+		}
         else {
     		View layout = View.inflate(context, R.layout.component_audio_text, null);
-    		setupTextAndTTSLayout(layout, text);
+    		setupTextAndTTSLayout(layout, (String) data, sortField);
     		retVal = layout;
         }
-        return retVal;
+		return retVal;
 	}
 	
 	public void setSearchTerms(String[] terms) {
@@ -135,7 +151,7 @@ public class EntityView extends LinearLayout {
 
 	public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
 		for (int i = 0; i < e.getNumFields() ; ++i) {
-			String textField = e.getField(i);
+			Object field = e.getField(i);
 			View view = views[i];
 			String form = forms[i];
 			
@@ -143,13 +159,31 @@ public class EntityView extends LinearLayout {
 			
 			if (FORM_AUDIO.equals(form)) {
 				ViewId uniqueId = new ViewId(rowId, i, false);
-				setupAudioLayout(view, textField, uniqueId);
+				setupAudioLayout(view, (String) field, uniqueId);
 			}
 			else if(FORM_IMAGE.equals(form)) {
-				setupImageLayout(view, textField);
-	        } 
+				setupImageLayout(view, (String) field);
+			} 
+			else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+				int orientation = getResources().getConfiguration().orientation;
+				GraphView g = new GraphView(context);
+				View rendered = null;
+	 			if (renderedGraphsCache.get(i) != null) {
+	 				rendered = renderedGraphsCache.get(i).get(orientation);
+	 			}
+	 			else {
+	 				renderedGraphsCache.put(i, new Hashtable<Integer, View>());
+	 			}
+	 			if (rendered == null) {
+	 				rendered = g.renderView((GraphData) field);
+	 				renderedGraphsCache.get(i).put(orientation, rendered);
+	 			}
+				((LinearLayout) view).removeAllViews();
+				((LinearLayout) view).addView(rendered, g.getLayoutParams());
+				view.setVisibility(VISIBLE);
+			}
 			else { //text to speech
-		        setupTextAndTTSLayout(view, textField);
+		        setupTextAndTTSLayout(view, (String) field, e.getSortField(i));
 	        }
 		}
 		
@@ -160,10 +194,10 @@ public class EntityView extends LinearLayout {
 		}
 	}
 	 
-    /*
-     * Updates the AudioButton layout that is passed in, based on the  
-     * new id and source
-     */
+	/*
+	 * Updates the AudioButton layout that is passed in, based on the
+	 * new id and source
+	 */
 	private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
 		AudioButton b = (AudioButton)layout;
 		if (source != null && source.length() > 0) {
@@ -177,10 +211,10 @@ public class EntityView extends LinearLayout {
     /*
      * Updates the text layout that is passed in, based on the new text
      */
-	private void setupTextAndTTSLayout(View layout, final String text) {
+	private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
 		TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
 		tv.setVisibility(View.VISIBLE);
-	    tv.setText(highlightSearches(text == null ? "" : text));
+	   tv.setText(highlightSearches(text == null ? "" : text, searchField));
 		ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
 		btn.setFocusable(false);
 
@@ -195,7 +229,7 @@ public class EntityView extends LinearLayout {
 				String textToRead = text;
 				tts.speak(textToRead, TextToSpeech.QUEUE_FLUSH, null);
 			}
-    	});
+		});
 		if (tts == null || text == null || text.equals("")) {
 			btn.setVisibility(View.INVISIBLE);
 			RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
@@ -207,13 +241,13 @@ public class EntityView extends LinearLayout {
 			params.width = LayoutParams.WRAP_CONTENT;
 			btn.setLayoutParams(params);
 		}
-    }
+	}
 	
 	
 	 /*
-     * Updates the ImageView layout that is passed in, based on the  
-     * new id and source
-     */
+	 * Updates the ImageView layout that is passed in, based on the  
+	 * new id and source
+	 */
 	public void setupImageLayout(View layout, final String source) {
 		ImageView iv = (ImageView) layout;
 		Bitmap b;
@@ -242,38 +276,82 @@ public class EntityView extends LinearLayout {
 		}
 	}
     
-    private Spannable highlightSearches(String input) {
+    private Spannable highlightSearches(String displayString, String backgroundString) {
     	
-	    Spannable raw = new SpannableString(input);
-	    String normalized = input.toLowerCase();
+	    Spannable raw = new SpannableString(displayString);
+	    String normalizedDisplayString = StringUtils.normalize(displayString);
 		
-    	if (searchTerms == null) {
-    		return raw;
-    	}
-	    
-	    //Zero out the existing spans
-	    BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
+		if (searchTerms == null) {
+			return raw;
+		}
+		
+		//Zero out the existing spans
+		BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
 		for (BackgroundColorSpan span : spans) {
 			raw.removeSpan(span);
 		}
+		
+		Vector<int[]> matches = new Vector<int[]>(); 
 	    
+		
+		//Highlight direct substring matches
 	    for (String searchText : searchTerms) {
-	    	if (searchText == "") { continue;}
+	    	if ("".equals(searchText)) { continue;}
 	
-		    int index = TextUtils.indexOf(normalized, searchText);
+		    int index = TextUtils.indexOf(normalizedDisplayString, searchText);
 		    
 		    while (index >= 0) {
 		      raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_highlight)), index, index
 		          + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+		      
+		      matches.add(new int[] {index, index + searchText.length() } );
+		      
 		      index=TextUtils.indexOf(raw, searchText, index + searchText.length());
+		      
+		      //we have a non-fuzzy match, so make sure we don't fuck with it
+		    }
+	    }
+
+	    //now insert the spans for any fuzzy matches (if enabled)
+	    if(mFuzzySearchEnabled && backgroundString != null) {
+		    backgroundString = StringUtils.normalize(backgroundString).trim() + " ";
+
+		    for (String searchText : searchTerms) {
+		    	
+		    	if ("".equals(searchText)) { continue;}
+		    	
+		    	
+		    	int curStart = 0;
+		    	int curEnd = backgroundString.indexOf(" ", curStart);
+				while(curEnd != -1) {
+					
+					boolean skip = matches.size() != 0;
+					
+					//See whether the fuzzy match overlaps at all with the concrete matches
+					for(int[] textMatch : matches) {
+						if(curStart < textMatch[0] && curEnd <= textMatch[0]) {
+							skip = false;
+						} else if(curStart >= textMatch[1] &&  curEnd > textMatch[1]) {
+							skip = false;
+						}
+					}
+					
+					if(!skip) {
+						//Walk the string to find words that are fuzzy matched
+					    if(StringUtils.fuzzyMatch(backgroundString.substring(curStart, curEnd), searchText)) {
+						    raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.search_fuzzy_match)), curStart, 
+						    		curEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+					    }
+					}
+				    curStart = curEnd + 1;
+			    	curEnd = backgroundString.indexOf(" ", curStart);
+				}
 		    }
 	    }
 	    
 	    return raw;
     }
     
-    
-	
 	private float[] calculateDetailWeights(int[] hints) {
 		float[] weights = new float[hints.length];
 		int fullSize = 100;

@@ -334,4 +334,18 @@ public class FileUtil {
 				//do nothing for now
 			}
 	    }
+
+		/**
+		 * Ensure that everything between "localpart" and f exists
+		 * and create it if not.
+		 * 
+		 * @param f
+		 */
+		public static void ensureFilePathExists(File f) {
+			File folder = f.getParentFile();
+			if(folder != null) {
+				//Don't worry about return value
+				folder.mkdirs();
+			}
+		}
 }

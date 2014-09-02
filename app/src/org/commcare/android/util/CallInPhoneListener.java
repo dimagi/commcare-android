@@ -199,7 +199,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 									String name = d.getTitle().evaluate(childContext);
 
 									for(int i : phoneIds) {
-										String number = d.getFields()[i].getTemplate().evaluate(childContext);
+										String number = ((Text) d.getFields()[i].getTemplate()).evaluate(childContext);
 										if(number != "") {
 											cachedNumbers.put(number, new String[] {name});
 										}

@@ -35,7 +35,6 @@ public class EntityDetailAdapter implements ListAdapter {
 	AudioController controller;
 	int detailIndex;
 	
-	
 	public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
 			DetailCalloutListener listener, AudioController controller, int detailIndex) {	
 		this.context = context;
@@ -46,7 +45,7 @@ public class EntityDetailAdapter implements ListAdapter {
 		this.controller = controller;
 		valid = new ArrayList<Integer>(); 
 		for(int i = 0 ; i < entity.getNumFields() ; ++i ) {
-			if(!entity.getField(i).equals("")) {
+			if(entity.isValidField(i)) {
 				valid.add(i);
 			}
 		}

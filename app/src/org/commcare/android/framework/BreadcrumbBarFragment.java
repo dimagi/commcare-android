@@ -223,7 +223,7 @@ public class BreadcrumbBarFragment extends Fragment {
 					if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
 						
 						//Haaack. We should replace this with a generalizable "What do you refer to your detail by", but for now this is 90% of cases
-						if("case_id".equals(step[1])) {
+						if(step[1] != null && step[1].contains("case_id")) {
 							ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step[2]);
 							stepTitles[i] = foundCase.getName();
 							newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb_case, currentId, stepBackListener);

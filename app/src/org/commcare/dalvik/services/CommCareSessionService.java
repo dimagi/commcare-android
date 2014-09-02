@@ -37,7 +37,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.text.format.DateFormat;
@@ -246,6 +245,10 @@ public class CommCareSessionService extends Service  {
 		synchronized(lock){
 			if(user != null) {
 				Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
+				
+				//Let anyone who is listening know!
+				Intent i = new Intent("org.commcare.dalvik.api.action.session.login");
+				this.sendBroadcast(i);
 			}
 			
 			this.user = user;
@@ -294,6 +297,10 @@ public class CommCareSessionService extends Service  {
 			
 			if(user != null) {
 				username = user.getUsername();
+				
+				//Let anyone who is listening know!
+				Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
+				this.sendBroadcast(i);
 			}
 			
 			String msg = username != null ? "Logging out user " + username  : "Logging out service login";

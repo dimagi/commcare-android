@@ -155,7 +155,7 @@ public class EntityMapActivity extends MapActivity {
 		for(Entity<TreeReference> e : entities) {
 			for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){
 				if("address".equals(detail.getTemplateForms()[i])) {
-					String val = e.getField(i).trim();
+					String val = e.getFieldString(i).trim();
 					if(val != null && val != "") {
 						GeoPoint gp = null;
 						try {
