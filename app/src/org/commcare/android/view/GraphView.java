@@ -102,7 +102,16 @@ public class GraphView {
      * Set up a single series.
      */
     private void renderSeries(SeriesData s) {
-        XYSeries series = mData.getType().equals(Graph.TYPE_BUBBLE) ? new XYValueSeries("") : new XYSeries("");
+        XYSeries series;
+        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            series = new RangeXYValueSeries("");
+            if (s.getConfiguration("radius-max") != null) {
+                ((RangeXYValueSeries) series).setMaxValue(Double.valueOf(s.getConfiguration("radius-max")));
+            }
+        }
+        else {
+            series = new XYSeries("");
+        }
         mDataset.addSeries(series);
 
         // Bubble charts will throw an index out of bounds exception if given points out of order
@@ -115,7 +124,7 @@ public class GraphView {
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
-                ((XYValueSeries) series).add(b.getX(), b.getY(), b.getRadius());
+                ((RangeXYValueSeries) series).add(b.getX(), b.getY(), b.getRadius());
             }
             else {
                 series.add(p.getX(), p.getY());
@@ -275,6 +284,36 @@ public class GraphView {
                 return -1;
             }
             return 0;
+        }
+    }
+    
+    /*
+     * Subclass of XYValueSeries allowing user to set a maximum radius.
+     * Useful when creating multiple bubble charts (or series on the same chart)
+     * and wanting their bubbles to be on the same scale.
+     */
+    private class RangeXYValueSeries extends XYValueSeries {
+        private Double max = null;
+
+        public RangeXYValueSeries(String title) {
+            super(title);
+        }
+        
+        /*
+         * (non-Javadoc)
+         * @see org.achartengine.model.XYValueSeries#getMaxValue()
+         */
+        @Override
+        public double getMaxValue() {
+            return max == null ? super.getMaxValue() : max;
+        }
+        
+        /*
+         * Set largest desired radius. No guarantees on what happens if the data
+         * actually contains a larger value.
+         */
+        public void setMaxValue(double value) {
+            max = value;
         }
     }
 }
