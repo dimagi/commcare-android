@@ -168,6 +168,4 @@ public class TextImageAudioView extends RelativeLayout {
         }
     }
 
-
 }
->>>>>>> master
