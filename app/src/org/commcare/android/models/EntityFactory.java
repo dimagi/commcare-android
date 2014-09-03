@@ -10,7 +10,7 @@ import org.commcare.android.util.SessionUnavailableException;
  *
  */
 public abstract class EntityFactory<T> {
-	
-	public abstract Entity<T> getEntity(T data) throws SessionUnavailableException;
+    
+    public abstract Entity<T> getEntity(T data) throws SessionUnavailableException;
 
 }

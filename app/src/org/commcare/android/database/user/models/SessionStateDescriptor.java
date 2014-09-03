@@ -22,100 +22,100 @@ import org.javarosa.core.util.MD5;
  */
 @Table("android_cc_session")
 public class SessionStateDescriptor extends Persisted implements EncryptedModel {
-	
-	public static final String META_DESCRIPTOR_HASH = "descriptorhash";
-	
-	public static final String META_FORM_RECORD_ID = "form_record_id";
+    
+    public static final String META_DESCRIPTOR_HASH = "descriptorhash";
+    
+    public static final String META_FORM_RECORD_ID = "form_record_id";
 
-	@Persisting(1)
-	@MetaField(value=META_FORM_RECORD_ID, unique=true)
-	private int formRecordId = -1;
-	
-	@Persisting(2)
-	private String sessionDescriptor = null;
-	
-	@MetaField(value=META_DESCRIPTOR_HASH)
-	public String getHash() {
-		return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
-	}
-	
-	//Wrapper for serialization (STILL SKETCHY)
-	public SessionStateDescriptor() {
-		
-	}
-	
-	public SessionStateDescriptor(AndroidSessionWrapper state) {
-		this.formRecordId = state.getFormRecordId();
-		sessionDescriptor = this.createSessionDescriptor(state.getSession());
-	}
+    @Persisting(1)
+    @MetaField(value=META_FORM_RECORD_ID, unique=true)
+    private int formRecordId = -1;
+    
+    @Persisting(2)
+    private String sessionDescriptor = null;
+    
+    @MetaField(value=META_DESCRIPTOR_HASH)
+    public String getHash() {
+        return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
+    }
+    
+    //Wrapper for serialization (STILL SKETCHY)
+    public SessionStateDescriptor() {
+        
+    }
+    
+    public SessionStateDescriptor(AndroidSessionWrapper state) {
+        this.formRecordId = state.getFormRecordId();
+        sessionDescriptor = this.createSessionDescriptor(state.getSession());
+    }
 
-	public boolean isEncrypted(String data) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isEncrypted(String data) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public boolean isBlobEncrypted() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isBlobEncrypted() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public int getFormRecordId() {
-		return formRecordId;
-	}
-	
-	public SessionStateDescriptor reMapFormRecordId(int idForNewRecord) {
-		SessionStateDescriptor copy = new SessionStateDescriptor();
-		copy.formRecordId = idForNewRecord;
-		copy.sessionDescriptor = sessionDescriptor;
-		return copy;
-	}
-	
-	public void fromBundle(String serializedDescriptor) {
-		this.sessionDescriptor = serializedDescriptor;
-	}
-	
-	public String getSessionDescriptor() {
-		return this.sessionDescriptor;
-	}
-	
-	/**
-	 * Serializes the session into a string which is unique for a
-	 * given path through the application, and which can be deserialzied
-	 * back into a live session.
-	 * 
-	 *  TODO: Currently we rely on this state being semantically unique,
-	 *  but it may change in the future. Rely on the specific format as
-	 *  little as possible.   
-	 * 
-	 * @param session
-	 * @return
-	 */
-	private String createSessionDescriptor(CommCareSession session) {
-		//TODO: Serialize into something more useful. I dunno. JSON/XML/Something
-		String descriptor = "";
-		for(String[] step : session.getFrame().getSteps()) {
-			descriptor += step[0] + " ";
-			if(step[0] == SessionFrame.STATE_COMMAND_ID) {
-				descriptor += step[1] + " ";
-			} else if(step[0] == SessionFrame.STATE_DATUM_VAL || step[0] == SessionFrame.STATE_DATUM_COMPUTED) {
-				descriptor += step[1] + " " + step[2] + " ";
-			}
-		}
-		return descriptor.trim();
-	}
-	
-	public void loadSession(CommCareSession session) {
-		String[] tokenStream = sessionDescriptor.split(" ");
-		
-		int current = 0;
-		while(current < tokenStream.length) {
-			String action = tokenStream[current];
-			if(action.equals(SessionFrame.STATE_COMMAND_ID)) {
-				session.setCommand(tokenStream[++current]);
-			} else if(action.equals(SessionFrame.STATE_DATUM_VAL) || action.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-				session.setDatum(tokenStream[++current], tokenStream[++current]);
-			}
-			current++;
-		}
-	}
+    public int getFormRecordId() {
+        return formRecordId;
+    }
+    
+    public SessionStateDescriptor reMapFormRecordId(int idForNewRecord) {
+        SessionStateDescriptor copy = new SessionStateDescriptor();
+        copy.formRecordId = idForNewRecord;
+        copy.sessionDescriptor = sessionDescriptor;
+        return copy;
+    }
+    
+    public void fromBundle(String serializedDescriptor) {
+        this.sessionDescriptor = serializedDescriptor;
+    }
+    
+    public String getSessionDescriptor() {
+        return this.sessionDescriptor;
+    }
+    
+    /**
+     * Serializes the session into a string which is unique for a
+     * given path through the application, and which can be deserialzied
+     * back into a live session.
+     * 
+     *  TODO: Currently we rely on this state being semantically unique,
+     *  but it may change in the future. Rely on the specific format as
+     *  little as possible.   
+     * 
+     * @param session
+     * @return
+     */
+    private String createSessionDescriptor(CommCareSession session) {
+        //TODO: Serialize into something more useful. I dunno. JSON/XML/Something
+        String descriptor = "";
+        for(String[] step : session.getFrame().getSteps()) {
+            descriptor += step[0] + " ";
+            if(step[0] == SessionFrame.STATE_COMMAND_ID) {
+                descriptor += step[1] + " ";
+            } else if(step[0] == SessionFrame.STATE_DATUM_VAL || step[0] == SessionFrame.STATE_DATUM_COMPUTED) {
+                descriptor += step[1] + " " + step[2] + " ";
+            }
+        }
+        return descriptor.trim();
+    }
+    
+    public void loadSession(CommCareSession session) {
+        String[] tokenStream = sessionDescriptor.split(" ");
+        
+        int current = 0;
+        while(current < tokenStream.length) {
+            String action = tokenStream[current];
+            if(action.equals(SessionFrame.STATE_COMMAND_ID)) {
+                session.setCommand(tokenStream[++current]);
+            } else if(action.equals(SessionFrame.STATE_DATUM_VAL) || action.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+                session.setDatum(tokenStream[++current], tokenStream[++current]);
+            }
+            current++;
+        }
+    }
 }

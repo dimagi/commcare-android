@@ -21,34 +21,34 @@ import android.database.sqlite.SQLiteQuery;
  *
  */
 public class LegacyCommCareDBCursorFactory implements CursorFactory {
-	
-	private Hashtable<String, EncryptedModel> models;
-	
-	/**
-	 * Creates a cursor factory which is incapable of dealing with 
-	 * Encrypted data
-	 */
-	public LegacyCommCareDBCursorFactory() {
-		
-	}
-	
-	public LegacyCommCareDBCursorFactory(Hashtable<String, EncryptedModel> models) {
-		this.models = models;
-	}
+    
+    private Hashtable<String, EncryptedModel> models;
+    
+    /**
+     * Creates a cursor factory which is incapable of dealing with 
+     * Encrypted data
+     */
+    public LegacyCommCareDBCursorFactory() {
+        
+    }
+    
+    public LegacyCommCareDBCursorFactory(Hashtable<String, EncryptedModel> models) {
+        this.models = models;
+    }
 
-	/* (non-Javadoc)
-	 * @see android.database.sqlite.SQLiteDatabase.CursorFactory#newCursor(android.database.sqlite.SQLiteDatabase, android.database.sqlite.SQLiteCursorDriver, java.lang.String, android.database.sqlite.SQLiteQuery)
-	 */
-	public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) throws SessionUnavailableException{
-		if(models == null || !models.containsKey(editTable)) {
-			return new SQLiteCursor(db, masterQuery, editTable, query);
-		} else {
-			EncryptedModel model = models.get(editTable);
-			return new DecryptingCursor(db, masterQuery, editTable, query, model, getCipherPool());
-		}
-	} 
-	
-	protected CipherPool getCipherPool() throws SessionUnavailableException {
-		return null;
-	}
+    /* (non-Javadoc)
+     * @see android.database.sqlite.SQLiteDatabase.CursorFactory#newCursor(android.database.sqlite.SQLiteDatabase, android.database.sqlite.SQLiteCursorDriver, java.lang.String, android.database.sqlite.SQLiteQuery)
+     */
+    public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) throws SessionUnavailableException{
+        if(models == null || !models.containsKey(editTable)) {
+            return new SQLiteCursor(db, masterQuery, editTable, query);
+        } else {
+            EncryptedModel model = models.get(editTable);
+            return new DecryptingCursor(db, masterQuery, editTable, query, model, getCipherPool());
+        }
+    } 
+    
+    protected CipherPool getCipherPool() throws SessionUnavailableException {
+        return null;
+    }
 }

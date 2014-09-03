@@ -14,7 +14,7 @@ public class TapControlledMapView extends MapView implements OnGestureListener {
     private GestureDetector gd;    
     private OnSingleTapListener singleTapListener;
 
-	public TapControlledMapView(Context context, AttributeSet attrs) {
+    public TapControlledMapView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupGestures();
     }
@@ -30,28 +30,28 @@ public class TapControlledMapView extends MapView implements OnGestureListener {
     }
     
     private void setupGestures() {
-    	gd = new GestureDetector(this);  
+        gd = new GestureDetector(this);  
         
         //set the on Double tap listener  
         gd.setOnDoubleTapListener(new OnDoubleTapListener() {
 
-			public boolean onSingleTapConfirmed(MotionEvent e) {
-				if (singleTapListener != null) {
-					return singleTapListener.onSingleTap(e);
-				} else {
-					return false;
-				}
-			}
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                if (singleTapListener != null) {
+                    return singleTapListener.onSingleTap(e);
+                } else {
+                    return false;
+                }
+            }
 
-			public boolean onDoubleTap(MotionEvent e) {
-				TapControlledMapView.this.getController().zoomInFixing((int) e.getX(), (int) e.getY());
-				return false;
-			}
+            public boolean onDoubleTap(MotionEvent e) {
+                TapControlledMapView.this.getController().zoomInFixing((int) e.getX(), (int) e.getY());
+                return false;
+            }
 
-			public boolean onDoubleTapEvent(MotionEvent e) {
-				return false;
-			}
-        	
+            public boolean onDoubleTapEvent(MotionEvent e) {
+                return false;
+            }
+            
         });
     }
     
@@ -59,40 +59,40 @@ public class TapControlledMapView extends MapView implements OnGestureListener {
      * (non-Javadoc)
      * @see com.google.android.maps.MapView#onTouchEvent(android.view.MotionEvent)
      */
-	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
-		if (this.gd.onTouchEvent(ev)) {
-			return true;
-		} else {
-			return super.onTouchEvent(ev);
-		}
-	}
-	
-	public void setOnSingleTapListener(OnSingleTapListener singleTapListener) {
-		this.singleTapListener = singleTapListener;
-	}
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (this.gd.onTouchEvent(ev)) {
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
+    }
+    
+    public void setOnSingleTapListener(OnSingleTapListener singleTapListener) {
+        this.singleTapListener = singleTapListener;
+    }
 
-	public boolean onDown(MotionEvent e) {
-		return false;
-	}
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
 
-	public void onShowPress(MotionEvent e) {}
+    public void onShowPress(MotionEvent e) {}
 
-	public boolean onSingleTapUp(MotionEvent e) {
-		return false;
-	}
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
 
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-			float distanceY) {
-		return false;
-	}
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+            float distanceY) {
+        return false;
+    }
 
-	public void onLongPress(MotionEvent e) {}
+    public void onLongPress(MotionEvent e) {}
 
-	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-			float velocityY) {
-		return false;
-	}
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+            float velocityY) {
+        return false;
+    }
     
 }
 

@@ -13,11 +13,11 @@ import java.io.OutputStream;
  *
  */
 public interface BitCache {
-	public void initializeCache() throws IOException;
-	
-	public OutputStream getCacheStream() throws IOException;
-	
-	public InputStream retrieveCache() throws IOException;
-	
-	public void release();
+    public void initializeCache() throws IOException;
+    
+    public OutputStream getCacheStream() throws IOException;
+    
+    public InputStream retrieveCache() throws IOException;
+    
+    public void release();
 }

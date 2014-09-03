@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import java.util.HashSet;
@@ -42,217 +39,217 @@ import android.widget.Toast;
  */
 public class CallInPhoneListener extends PhoneStateListener {
 
-	private Context context;
-	private AndroidCommCarePlatform platform;
+    private Context context;
+    private AndroidCommCarePlatform platform;
 
-	private Hashtable<String, String[]> cachedNumbers;
+    private Hashtable<String, String[]> cachedNumbers;
 
-	private Toast currentToast;
+    private Toast currentToast;
 
-	private Timer toastTimer;
+    private Timer toastTimer;
 
-	private boolean running = false;
+    private boolean running = false;
 
-	public CallInPhoneListener(Context context, AndroidCommCarePlatform platform) {
-		this.context = context;
-		this.platform = platform;
-		cachedNumbers = new Hashtable<String, String[]>();
-		toastTimer = new Timer("toastTimer");
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
-	 */
-	@Override
-	public void onCallStateChanged(int state, String incomingNumber) {
-		super.onCallStateChanged(state, incomingNumber);
-		if(state == TelephonyManager.CALL_STATE_RINGING) {
-			String caller = getCaller(incomingNumber);
-			if(caller != null) {
-				LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				View layout = inflater.inflate(R.layout.call_toast, null);
-				TextView textView = (TextView)layout.findViewById(R.id.incoming_call_text);
-				textView.setText("Incoming Call From: " + caller);
-
-				currentToast = new Toast(context);
-				currentToast.setDuration(Toast.LENGTH_LONG);
-
-				currentToast.setView(layout);
-				currentToast.setGravity(Gravity.BOTTOM, 0,0);
-				running = true;
-				startToastLoop();
-			}
-		} else {
-			running = false;
-		}
-	}
-
-	public void startToastLoop() {
-
-		synchronized(toastTimer) {
-			toastTimer.schedule(
-					new TimerTask() {
-						int runtimes = 0;
-						public void run() {
-							if(runtimes > 100 || running == false) {
-								this.cancel();
-							} else {
-								runtimes++;
-								currentToast.show();
-							}
-						}
-					}, 0, 200);
-		}
-	}
+    public CallInPhoneListener(Context context, AndroidCommCarePlatform platform) {
+        this.context = context;
+        this.platform = platform;
+        cachedNumbers = new Hashtable<String, String[]>();
+        toastTimer = new Timer("toastTimer");
+    }
 
 
-	public void startCache() {
+    /*
+     * (non-Javadoc)
+     * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
+     */
+    @Override
+    public void onCallStateChanged(int state, String incomingNumber) {
+        super.onCallStateChanged(state, incomingNumber);
+        if(state == TelephonyManager.CALL_STATE_RINGING) {
+            String caller = getCaller(incomingNumber);
+            if(caller != null) {
+                LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View layout = inflater.inflate(R.layout.call_toast, null);
+                TextView textView = (TextView)layout.findViewById(R.id.incoming_call_text);
+                textView.setText("Incoming Call From: " + caller);
 
-		AsyncTask<Void, Void, Void> loader = new AsyncTask<Void, Void, Void>() {
+                currentToast = new Toast(context);
+                currentToast.setDuration(Toast.LENGTH_LONG);
 
-			/*
-			 * (non-Javadoc)
-			 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-			 */
-			@Override
-			protected Void doInBackground(Void... params) {
-				try {
-					synchronized(cachedNumbers) {
-						Hashtable<String,Pair<String, TreeReference>> detailSources = new Hashtable<String,Pair<String, TreeReference>>();
-						Set<Detail> details = new HashSet<Detail>();
+                currentToast.setView(layout);
+                currentToast.setGravity(Gravity.BOTTOM, 0,0);
+                running = true;
+                startToastLoop();
+            }
+        } else {
+            running = false;
+        }
+    }
+
+    public void startToastLoop() {
+
+        synchronized(toastTimer) {
+            toastTimer.schedule(
+                    new TimerTask() {
+                        int runtimes = 0;
+                        public void run() {
+                            if(runtimes > 100 || running == false) {
+                                this.cancel();
+                            } else {
+                                runtimes++;
+                                currentToast.show();
+                            }
+                        }
+                    }, 0, 200);
+        }
+    }
 
 
-						//To fan this out, we first need to find the appropriate long detail screens
-						//then determine what nodeset to use to iterate over it
+    public void startCache() {
 
-						//First, collect the details we need to use.
-						for(Suite s : platform.getInstalledSuites() ){
-							for(Entry e : s.getEntries().values()) {
-								//We won't bother trying to handle the situation where there's more than one
-								//thing to collect, just yet. In the future, we'll fan out the whole thing.
-								if(e.getSessionDataReqs().size() !=1) {
-									continue;
-								}
-								SessionDatum datum = e.getSessionDataReqs().firstElement();
-								String detailId = datum.getLongDetail();
-								if(detailId == null) { continue; }
+        AsyncTask<Void, Void, Void> loader = new AsyncTask<Void, Void, Void>() {
 
-								for(String form : s.getDetail(detailId).getTemplateForms()) {
-									if("phone".equals(form)) {
-										//Found some numbers! 
+            /*
+             * (non-Javadoc)
+             * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+             */
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    synchronized(cachedNumbers) {
+                        Hashtable<String,Pair<String, TreeReference>> detailSources = new Hashtable<String,Pair<String, TreeReference>>();
+                        Set<Detail> details = new HashSet<Detail>();
 
-										//Check to see if we've already got a detail for this 
-										if(detailSources.containsKey(detailId)) {
 
-											//Ok. So in the future we should possibly run all of the details
-											//we can where ID's don't match, but for now, we'll stick with the smallest
-											//set of predicates (most common use case is "Mine" v. "all" cases and such)
-											TreeReference thisRef = datum.getNodeset();
+                        //To fan this out, we first need to find the appropriate long detail screens
+                        //then determine what nodeset to use to iterate over it
 
-											TreeReference existing = detailSources.get(detailId).second;
+                        //First, collect the details we need to use.
+                        for(Suite s : platform.getInstalledSuites() ){
+                            for(Entry e : s.getEntries().values()) {
+                                //We won't bother trying to handle the situation where there's more than one
+                                //thing to collect, just yet. In the future, we'll fan out the whole thing.
+                                if(e.getSessionDataReqs().size() !=1) {
+                                    continue;
+                                }
+                                SessionDatum datum = e.getSessionDataReqs().firstElement();
+                                String detailId = datum.getLongDetail();
+                                if(detailId == null) { continue; }
 
-											if(CommCareUtil.countPreds(thisRef) < CommCareUtil.countPreds(existing)) {
-												detailSources.put(detailId, new Pair(e.getCommandId(), thisRef));
-											}
-										}
+                                for(String form : s.getDetail(detailId).getTemplateForms()) {
+                                    if("phone".equals(form)) {
+                                        //Found some numbers! 
 
-										//Otherwise, grab the reference and save it.
-										else {
-											detailSources.put(detailId, new Pair(e.getCommandId(), datum.getNodeset()));
-											details.add(s.getDetail(detailId));
-										}
-										//We don't need to worry about any other items in this detail, so finish up.
-										break;
-									}
-								}
-							}
-						}
+                                        //Check to see if we've already got a detail for this 
+                                        if(detailSources.containsKey(detailId)) {
 
-						//Ok, so now we have a set of details and the nodesets they use. Let's pull out some numbers
+                                            //Ok. So in the future we should possibly run all of the details
+                                            //we can where ID's don't match, but for now, we'll stick with the smallest
+                                            //set of predicates (most common use case is "Mine" v. "all" cases and such)
+                                            TreeReference thisRef = datum.getNodeset();
 
-						//Go through each detail type one by one
-						for(Detail d : details) {
-							try{
-								//Create an evaluation context (should only really need to handle the high level stuff)
-								EvaluationContext ec = getEC(detailSources.get(d.getId()).first);
+                                            TreeReference existing = detailSources.get(detailId).second;
 
-								TreeReference nodesetSource = detailSources.get(d.getId()).second;
+                                            if(CommCareUtil.countPreds(thisRef) < CommCareUtil.countPreds(existing)) {
+                                                detailSources.put(detailId, new Pair(e.getCommandId(), thisRef));
+                                            }
+                                        }
 
-								Vector<TreeReference> references =ec .expandReference(nodesetSource);
+                                        //Otherwise, grab the reference and save it.
+                                        else {
+                                            detailSources.put(detailId, new Pair(e.getCommandId(), datum.getNodeset()));
+                                            details.add(s.getDetail(detailId));
+                                        }
+                                        //We don't need to worry about any other items in this detail, so finish up.
+                                        break;
+                                    }
+                                }
+                            }
+                        }
 
-								Set<Integer> phoneIds = new HashSet<Integer>();
-								String[] forms = d.getTemplateForms();
-								for(int i = 0 ; i < forms.length ; ++i) {
-									if("phone".equals(forms[i])) {
-										//Get all the numbers we'll want
-										phoneIds.add(i);
-									}
-								}
+                        //Ok, so now we have a set of details and the nodesets they use. Let's pull out some numbers
 
-								for(TreeReference r : references) {
-									EvaluationContext childContext = new EvaluationContext(ec, r);
-									//TODO: Generate a whole Session that could be used to start up form entry
-									//based on this somehow?	
+                        //Go through each detail type one by one
+                        for(Detail d : details) {
+                            try{
+                                //Create an evaluation context (should only really need to handle the high level stuff)
+                                EvaluationContext ec = getEC(detailSources.get(d.getId()).first);
 
-									String name = d.getTitle().evaluate(childContext);
+                                TreeReference nodesetSource = detailSources.get(d.getId()).second;
 
-									for(int i : phoneIds) {
-										String number = ((Text) d.getFields()[i].getTemplate()).evaluate(childContext);
-										if(number != "") {
-											cachedNumbers.put(number, new String[] {name});
-										}
-									}
-								}
-							}
-							catch(Exception e){
-								Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Caching failed with exception: " + e.getMessage());
-							}
-						}
-						System.out.println("Caching Complete");
-						return null;
-					}
-				} catch(SessionUnavailableException sue) {
-					//We got logged out in the middle of 
-					return null;
-				}
-			}
+                                Vector<TreeReference> references =ec .expandReference(nodesetSource);
 
-			private EvaluationContext getEC(String commandId) {
-				CommCareSession session = new CommCareSession(platform);
-				session.setCommand(commandId);
-				return session.getEvaluationContext(new CommCareInstanceInitializer(session));
-			}
-		};
-		loader.execute();
-	}
+                                Set<Integer> phoneIds = new HashSet<Integer>();
+                                String[] forms = d.getTemplateForms();
+                                for(int i = 0 ; i < forms.length ; ++i) {
+                                    if("phone".equals(forms[i])) {
+                                        //Get all the numbers we'll want
+                                        phoneIds.add(i);
+                                    }
+                                }
 
-	public String getCaller(String incomingNumber) {
-		synchronized(cachedNumbers) {
-			for(String number : cachedNumbers.keySet()) {
-				if(PhoneNumberUtils.compare(context, number, incomingNumber)) {
-					return cachedNumbers.get(number)[0];
-				}
-			}
-		}
-		return null;
-	}
+                                for(TreeReference r : references) {
+                                    EvaluationContext childContext = new EvaluationContext(ec, r);
+                                    //TODO: Generate a whole Session that could be used to start up form entry
+                                    //based on this somehow?    
 
-	public Intent getDetailIntent(Context context, String incomingNumber) {
-		//		synchronized(cachedNumbers) {
-		//			for(String number : cachedNumbers.keySet()) {
-		//				if(PhoneNumberUtils.compare(context, number, incomingNumber)) {
-		//					String[] details = cachedNumbers.get(number);
-		//					
-		//					Intent i = new Intent(context, ReferenceDetailActivity.class);
-		//					i.putExtra(CommCareSession.STATE_COMMAND_ID, details[2]);
-		//					i.putExtra(CommCareSession.STATE_CASE_ID, details[1]);
-		//					i.putExtra(ReferenceDetailActivity.IS_DEAD_END, true);
-		//					return i;
-		//				}
-		//			}
-		//		}
-		return null;
-	}
+                                    String name = d.getTitle().evaluate(childContext);
+
+                                    for(int i : phoneIds) {
+                                        String number = ((Text) d.getFields()[i].getTemplate()).evaluate(childContext);
+                                        if(number != "") {
+                                            cachedNumbers.put(number, new String[] {name});
+                                        }
+                                    }
+                                }
+                            }
+                            catch(Exception e){
+                                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Caching failed with exception: " + e.getMessage());
+                            }
+                        }
+                        System.out.println("Caching Complete");
+                        return null;
+                    }
+                } catch(SessionUnavailableException sue) {
+                    //We got logged out in the middle of 
+                    return null;
+                }
+            }
+
+            private EvaluationContext getEC(String commandId) {
+                CommCareSession session = new CommCareSession(platform);
+                session.setCommand(commandId);
+                return session.getEvaluationContext(new CommCareInstanceInitializer(session));
+            }
+        };
+        loader.execute();
+    }
+
+    public String getCaller(String incomingNumber) {
+        synchronized(cachedNumbers) {
+            for(String number : cachedNumbers.keySet()) {
+                if(PhoneNumberUtils.compare(context, number, incomingNumber)) {
+                    return cachedNumbers.get(number)[0];
+                }
+            }
+        }
+        return null;
+    }
+
+    public Intent getDetailIntent(Context context, String incomingNumber) {
+        //        synchronized(cachedNumbers) {
+        //            for(String number : cachedNumbers.keySet()) {
+        //                if(PhoneNumberUtils.compare(context, number, incomingNumber)) {
+        //                    String[] details = cachedNumbers.get(number);
+        //                    
+        //                    Intent i = new Intent(context, ReferenceDetailActivity.class);
+        //                    i.putExtra(CommCareSession.STATE_COMMAND_ID, details[2]);
+        //                    i.putExtra(CommCareSession.STATE_CASE_ID, details[1]);
+        //                    i.putExtra(ReferenceDetailActivity.IS_DEAD_END, true);
+        //                    return i;
+        //                }
+        //            }
+        //        }
+        return null;
+    }
 }

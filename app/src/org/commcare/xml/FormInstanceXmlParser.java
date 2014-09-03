@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.xml;
 
 import java.io.BufferedOutputStream;
@@ -49,57 +46,57 @@ import android.net.Uri;
  */
 public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
-	Context c;
-	IStorageUtilityIndexed<FormRecord> storage;
-	Hashtable<String, String> namespaces;
-	int counter = 0;
-	Cipher encrypter;
-	
-	private String destination;
-	
-	public FormInstanceXmlParser(KXmlParser parser, Context c, Hashtable<String, String> namespaces, String destination) {
-		super(parser, null, null);
-		this.c = c;
-		this.namespaces = namespaces;
-		this.destination = destination;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.commcare.data.xml.TransactionParser#parses(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public boolean parses(String name, String namespace) {
-		if(namespaces.containsKey(namespace)) {
-			return true;
-		}
-		return false;
-	}
+    Context c;
+    IStorageUtilityIndexed<FormRecord> storage;
+    Hashtable<String, String> namespaces;
+    int counter = 0;
+    Cipher encrypter;
+    
+    private String destination;
+    
+    public FormInstanceXmlParser(KXmlParser parser, Context c, Hashtable<String, String> namespaces, String destination) {
+        super(parser, null, null);
+        this.c = c;
+        this.namespaces = namespaces;
+        this.destination = destination;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.data.xml.TransactionParser#parses(java.lang.String, java.lang.String)
+     */
+    @Override
+    public boolean parses(String name, String namespace) {
+        if(namespaces.containsKey(namespace)) {
+            return true;
+        }
+        return false;
+    }
 
 
-	public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
-		String xmlns = parser.getNamespace();
-		//Parse this subdocument into a dom
-		Element element = new Element();
-		element.setName(parser.getName());
-		element.setNamespace(parser.getNamespace());
-		element.parse(this.parser);
-		
-		//Consume the end tag.
-		//this.parser.next();
-		
-		//create an actual document out of it.
-		Document document = new Document();
-		document.addChild(Node.ELEMENT, element);	
-		
-		KXmlSerializer serializer = new KXmlSerializer();
-	
-		SecretKey key = CommCareApplication._().createNewSymetricKey();
-		
-		
-		String filePath = getFileDestination(namespaces.get(xmlns), destination);
-		
-		//Register this instance for inspection
+    public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
+        String xmlns = parser.getNamespace();
+        //Parse this subdocument into a dom
+        Element element = new Element();
+        element.setName(parser.getName());
+        element.setNamespace(parser.getNamespace());
+        element.parse(this.parser);
+        
+        //Consume the end tag.
+        //this.parser.next();
+        
+        //create an actual document out of it.
+        Document document = new Document();
+        document.addChild(Node.ELEMENT, element);    
+        
+        KXmlSerializer serializer = new KXmlSerializer();
+    
+        SecretKey key = CommCareApplication._().createNewSymetricKey();
+        
+        
+        String filePath = getFileDestination(namespaces.get(xmlns), destination);
+        
+        //Register this instance for inspection
         ContentValues values = new ContentValues();
         values.put(InstanceColumns.DISPLAY_NAME, "Historical Form");
         values.put(InstanceColumns.SUBMISSION_URI, "");
@@ -108,61 +105,61 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
         values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, false);
         
-		Uri instanceRecord = c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
+        Uri instanceRecord = c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 
-		
-		FormRecord r = new FormRecord(instanceRecord.toString(), FormRecord.STATUS_UNINDEXED, xmlns, key.getEncoded(),null, new Date(0));
-		IStorageUtilityIndexed<FormRecord> storage =  storage();
-		
-		OutputStream o = new FileOutputStream(filePath);
-		CipherOutputStream cos = null;
-		BufferedOutputStream bos = null;
-		
-		try {
-			if(encrypter == null) {
-				encrypter = Cipher.getInstance(key.getAlgorithm());
-			}
+        
+        FormRecord r = new FormRecord(instanceRecord.toString(), FormRecord.STATUS_UNINDEXED, xmlns, key.getEncoded(),null, new Date(0));
+        IStorageUtilityIndexed<FormRecord> storage =  storage();
+        
+        OutputStream o = new FileOutputStream(filePath);
+        CipherOutputStream cos = null;
+        BufferedOutputStream bos = null;
+        
+        try {
+            if(encrypter == null) {
+                encrypter = Cipher.getInstance(key.getAlgorithm());
+            }
 
-			encrypter.init(Cipher.ENCRYPT_MODE, key);
-			cos = new CipherOutputStream(o, encrypter);
-			bos = new BufferedOutputStream(cos,1024*256);
-			
-		
-			serializer.setOutput(bos, "UTF-8");
-		
-			document.write(serializer);
-		
-			storage.write(r);
-			
-		} catch (StorageFullException e) {
-			throw new IOException(e.getMessage());
-		} 
-		//There's nothing we can do about any of these in code, failfast.
-		catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e.getMessage());
-		} catch (NoSuchPaddingException e) {
-			throw new RuntimeException(e.getMessage());
-		} catch (InvalidKeyException e) {
-			throw new RuntimeException(e.getMessage());
-		} finally {
-			//since bos might not have even been created.
-			if(bos != null) {
-				bos.close();
-			} else {
-				o.close();
-			}
-		}
-		return r;
-	}
-	
-	public IStorageUtilityIndexed<FormRecord> storage() throws SessionUnavailableException{
-		if(storage == null) {
-			storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-		} 
-		return storage;
-	}
-	
-	private String getFileDestination(String formPath, String instancePath) {
+            encrypter.init(Cipher.ENCRYPT_MODE, key);
+            cos = new CipherOutputStream(o, encrypter);
+            bos = new BufferedOutputStream(cos,1024*256);
+            
+        
+            serializer.setOutput(bos, "UTF-8");
+        
+            document.write(serializer);
+        
+            storage.write(r);
+            
+        } catch (StorageFullException e) {
+            throw new IOException(e.getMessage());
+        } 
+        //There's nothing we can do about any of these in code, failfast.
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (NoSuchPaddingException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e.getMessage());
+        } finally {
+            //since bos might not have even been created.
+            if(bos != null) {
+                bos.close();
+            } else {
+                o.close();
+            }
+        }
+        return r;
+    }
+    
+    public IStorageUtilityIndexed<FormRecord> storage() throws SessionUnavailableException{
+        if(storage == null) {
+            storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        } 
+        return storage;
+    }
+    
+    private String getFileDestination(String formPath, String instancePath) {
         // Create new answer folder.
         String time = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime()) + counter;
         String file = formPath.substring(formPath.lastIndexOf('/') + 1, formPath.lastIndexOf('.'));
@@ -173,15 +170,15 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             return new File(path + "/" + file + "_" + time + ".xml").getAbsolutePath();
         }
         throw new RuntimeException("Couldn't create folder needed to save form instance");
-	}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
-	 */
-	@Override
-	public void commit(FormRecord parsed) throws IOException {
-		//This is unused.
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
+     */
+    @Override
+    public void commit(FormRecord parsed) throws IOException {
+        //This is unused.
+    }
 }
 
