@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.geo;
 
 import org.javarosa.core.model.instance.TreeReference;
@@ -29,11 +26,19 @@ public abstract class EntityOverlay extends BalloonItemizedOverlay {
         this.context = context;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.google.android.maps.ItemizedOverlay#createItem(int)
+     */
     @Override
     protected OverlayItem createItem(int i) {
         return overlays[i];
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.google.android.maps.ItemizedOverlay#size()
+     */
     @Override
     public int size() {
         if (full) {

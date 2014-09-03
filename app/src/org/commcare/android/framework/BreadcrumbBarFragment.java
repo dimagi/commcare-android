@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.framework;
 
 import java.util.Vector;
@@ -37,10 +34,13 @@ public class BreadcrumbBarFragment extends Fragment {
     private boolean isTopNavEnabled = false;
     private int localIdPart = -1;
      
-      /**
-       * This method will only be called once when the retained
-       * Fragment is first created.
-       */
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+     * 
+     * This method will only be called once when the retained
+     * Fragment is first created.
+     */
       @Override
       public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +50,10 @@ public class BreadcrumbBarFragment extends Fragment {
       }
      
 
-      /**
+      /*
+       * (non-Javadoc)
+       * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
+       * 
        * Hold a reference to the parent Activity so we can report the
        * task's current progress and results. The Android framework 
        * will pass us a reference to the newly created Activity after 
@@ -82,7 +85,7 @@ public class BreadcrumbBarFragment extends Fragment {
       }
       
         
-        /* (non-Javadoc)
+    /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onResume()
      */
     @Override
@@ -103,6 +106,10 @@ public class BreadcrumbBarFragment extends Fragment {
         public View getTitleView(final Activity activity, String local) {
             RelativeLayout layout = new RelativeLayout(activity);
             HorizontalScrollView scroller = new HorizontalScrollView(activity) {
+                /*
+                 * (non-Javadoc)
+                 * @see android.widget.HorizontalScrollView#onLayout(boolean, int, int, int, int)
+                 */
                 @Override
                 protected void onLayout(boolean changed, int l, int t, int r, int b) {
                     super.onLayout(changed, l, t, r, b);
@@ -172,6 +179,10 @@ public class BreadcrumbBarFragment extends Fragment {
                 
                     OnClickListener stepBackListener = new OnClickListener() {
 
+                        /*
+                         * (non-Javadoc)
+                         * @see android.view.View.OnClickListener#onClick(android.view.View)
+                         */
                         @Override
                         public void onClick(View arg0) {
                             
@@ -232,6 +243,10 @@ public class BreadcrumbBarFragment extends Fragment {
             //Finally add the "top level" breadcrumb that represents the application's home. 
             addElementToTitle(li, layout, topLevel, org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, new OnClickListener() {
 
+                /*
+                 * (non-Javadoc)
+                 * @see android.view.View.OnClickListener#onClick(android.view.View)
+                 */
                 @Override
                 public void onClick(View arg0) {
                     try{

@@ -83,12 +83,19 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String AUTO_TRIGGER_UPDATE = "auto-trigger-update";
     
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
+    
+    
+    public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
     private static final int RECOVERY_MODE = Menu.FIRST + 3;
 
+    /*
+     * (non-Javadoc)
+     * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
+     */
     @Override    
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +117,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         setTitle("CommCare" + " > " + "Application Preferences");
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -125,6 +136,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -174,6 +189,16 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         return !isInSenseMode();
     }
     
+    public static boolean isFuzzySearchEnabled(){
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        
+        return properties.getString(FUZZY_SEARCH, NO).equals(YES);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onResume()
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -182,6 +207,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onPause()
+     */
     @Override
     protected void onPause() {
         super.onPause();

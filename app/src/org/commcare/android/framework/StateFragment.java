@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.framework;
 
 import org.commcare.android.tasks.templates.CommCareTask;
@@ -23,12 +20,15 @@ public class StateFragment extends Fragment {
     CommCareActivity lastActivity;
     
     CommCareTask currentTask;
-      /**
-       * Hold a reference to the parent Activity so we can report the
-       * task's current progress and results. The Android framework 
-       * will pass us a reference to the newly created Activity after 
-       * each configuration change.
-       */
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
+     * 
+     * Hold a reference to the parent Activity so we can report the
+     * task's current progress and results. The Android framework 
+     * will pass us a reference to the newly created Activity after 
+     * each configuration change.
+     */
       @Override
       public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -49,7 +49,10 @@ public class StateFragment extends Fragment {
           this.currentTask = task;
       }
      
-      /**
+      /*
+       * (non-Javadoc)
+       * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+       * 
        * This method will only be called once when the retained
        * Fragment is first created.
        */
@@ -61,7 +64,10 @@ public class StateFragment extends Fragment {
         setRetainInstance(true);
       }
      
-      /**
+      /*
+       * (non-Javadoc)
+       * @see android.support.v4.app.Fragment#onDetach()
+       * 
        * Set the callback to null so we don't accidentally leak the 
        * Activity instance.
        */

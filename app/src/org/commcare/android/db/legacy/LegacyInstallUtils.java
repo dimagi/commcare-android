@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.db.legacy;
 
 import java.io.File;
@@ -129,6 +126,10 @@ public class LegacyInstallUtils {
         //get the legacy storage
         final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c).getReadableDatabase();
         LegacyDbHelper ldbh = new LegacyDbHelper(c) {
+            /*
+             * (non-Javadoc)
+             * @see org.commcare.android.db.legacy.LegacyDbHelper#getHandle()
+             */
             @Override
             public android.database.sqlite.SQLiteDatabase getHandle() {
                 return olddb;
@@ -381,6 +382,10 @@ public class LegacyInstallUtils {
                 Object lock = new Object();
                 byte[] key = oldKey;
     
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.android.crypt.CipherPool#generateNewCipher()
+                 */
                 @Override
                 public Cipher generateNewCipher() {
                     synchronized(lock) {
@@ -419,6 +424,10 @@ public class LegacyInstallUtils {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Legacy DB Opened");
             
             LegacyDbHelper ldbh = new LegacyDbHelper(c, pool.borrow()) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.android.db.legacy.LegacyDbHelper#getHandle()
+                 */
                 @Override
                 public android.database.sqlite.SQLiteDatabase getHandle() {
                     return olddb;
@@ -460,6 +469,10 @@ public class LegacyInstallUtils {
             final SQLiteDatabase currentUserDatabase = ourDb;
             
             DbHelper newDbHelper = new DbHelper(c) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.android.database.DbHelper#getHandle()
+                 */
                 @Override
                 public SQLiteDatabase getHandle() {
                     return currentUserDatabase;

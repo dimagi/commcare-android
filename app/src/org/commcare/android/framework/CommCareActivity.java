@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
@@ -70,6 +67,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     boolean inTaskTransition;
     boolean shouldDismissDialog = true;
     
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
+     */
     @Override
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +143,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         // override when needed
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -287,12 +292,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         return (R)this;
     }
     
-    /**
-     * Override these to control the UI for your task
-     */
-
     /* (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask()
+     * 
+     * Override these to control the UI for your task
      */
     @Override
     public void startBlockingForTask(int id) {        
@@ -321,11 +324,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         unlock();
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startTaskTransition()
+     */
     @Override
     public void startTaskTransition() {
         inTaskTransition = true;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopTaskTransition()
+     */
     @Override
     public void stopTaskTransition() {
         inTaskTransition = false;
@@ -365,6 +376,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         mAlertDialog.setTitle(Localization.get("notification.case.predicate.title"));
         mAlertDialog.setMessage(Localization.get("notification.case.predicate.action", new String[] {mErrorMessage}));
         DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+            /*
+             * (non-Javadoc)
+             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+             */
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -394,6 +409,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         stateHolder.cancelTask();
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onStop()
+     */
     @Override
     public void onStop() {
         super.onStop();
@@ -507,14 +526,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     }
     
     /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#getCurrMedia()
+     * 
      * All methods for implementation of AudioController
      */
-    
     @Override
     public MediaEntity getCurrMedia() {
         return currentEntity;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#refreshCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
+     */
     @Override
     public void refreshCurrentAudioButton(AudioButton clicked) {
         if (currentButton != null && currentButton != clicked) {
@@ -522,6 +547,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#setCurrent(org.odk.collect.android.views.media.MediaEntity, org.odk.collect.android.views.media.AudioButton)
+     */
     @Override
     public void setCurrent(MediaEntity e, AudioButton b) {
         refreshCurrentAudioButton(b);
@@ -529,18 +558,30 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         setCurrentAudioButton(b);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#setCurrent(org.odk.collect.android.views.media.MediaEntity)
+     */
     @Override
     public void setCurrent(MediaEntity e) {
         releaseCurrentMediaEntity();
         currentEntity = e;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#setCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
+     */
     @Override
     public void setCurrentAudioButton(AudioButton b) {
         currentButton = b;
     }
     
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#releaseCurrentMediaEntity()
+     */
     @Override
     public void releaseCurrentMediaEntity() {
         if (currentEntity != null) {
@@ -551,6 +592,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         currentEntity = null;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#playCurrentMediaEntity()
+     */
     @Override
     public void playCurrentMediaEntity() {
         if (currentEntity != null) {
@@ -560,6 +605,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#pauseCurrentMediaEntity()
+     */
     @Override
     public void pauseCurrentMediaEntity() {
         if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
@@ -569,11 +618,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#getMediaEntityId()
+     */
     @Override
     public Object getMediaEntityId() {
         return currentEntity.getId();
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#attemptSetStateToPauseForRenewal()
+     */
     @Override
     public void attemptSetStateToPauseForRenewal() {
         if (stateBeforePause != null && stateBeforePause.equals(MediaState.Playing)) {
@@ -581,6 +638,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#saveEntityStateAndClear()
+     */
     @Override
     public void saveEntityStateAndClear() {
         stateBeforePause = currentEntity.getState();
@@ -588,11 +649,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         refreshCurrentAudioButton(null);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#setMediaEntityState(org.odk.collect.android.views.media.MediaState)
+     */
     @Override
     public void setMediaEntityState(MediaState state) {
         currentEntity.setState(state);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#removeCurrentMediaEntity()
+     */
     @Override
     public void removeCurrentMediaEntity() {
         currentEntity = null;
@@ -601,6 +670,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     /** All methods for implementation of DialogController **/
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.dalvik.dialogs.DialogController#updateProgress(java.lang.String, int)
+     */
     @Override
     public void updateProgress(String updateText, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
@@ -616,6 +689,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.dalvik.dialogs.DialogController#showProgressDialog(int)
+     */
     @Override
     public void showProgressDialog(int taskId) {
         CustomProgressDialog dialog = generateProgressDialog(taskId);
@@ -624,12 +701,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.dalvik.dialogs.DialogController#getCurrentDialog()
+     */
     @Override
     public CustomProgressDialog getCurrentDialog() {
         return (CustomProgressDialog) getSupportFragmentManager().
                 findFragmentByTag(KEY_DIALOG_FRAG);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.dalvik.dialogs.DialogController#dismissProgressDialog()
+     */
     @Override
     public void dismissProgressDialog() {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
@@ -638,6 +723,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.dalvik.dialogs.DialogController#generateProgressDialog(int)
+     */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         //dummy method for compilation, implementation handled in those subclasses that need it

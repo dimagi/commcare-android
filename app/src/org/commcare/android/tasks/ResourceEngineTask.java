@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tasks;
 
 import java.security.cert.CertificateException;
@@ -263,6 +260,10 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         super.onProgressUpdate(values);
     }
         
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
+     */
     @Override
     protected void onPostExecute(ResourceEngineOutcomes result) {
         super.onPostExecute(result);

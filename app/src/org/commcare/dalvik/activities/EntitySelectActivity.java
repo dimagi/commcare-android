@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
@@ -40,6 +37,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -53,6 +51,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -114,9 +113,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     Intent selectedIntent = null;
     
     String filterString = "";
-    
+
     private Detail shortSelect;
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -176,7 +179,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         searchLabel.setText(Localization.get("select.search.label"));
-        
+        searchLabel.setOnClickListener(new OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                // get the focus on the edittext by performing click
+                searchbox.performClick();
+                // then force the keyboard up since performClick() apparently isn't enough on some devices
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                // only will trigger it if no physical keyboard is open
+                inputMethodManager.showSoftInput(searchbox, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
+       
         searchbox = (EditText)findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
@@ -223,11 +237,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //tts = new TextToSpeech(this, this);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
+     */
     @Override
     protected boolean isTopNavEnabled() {
         return true;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
+     */
     @Override
     public String getActivityTitle() {
         //Skipping this until it's a more general pattern
@@ -366,6 +388,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
     
 
+    /*
+     * (non-Javadoc)
+     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+     */
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if(id == EntityListAdapter.SPECIAL_ACTION) {
@@ -487,6 +513,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -517,6 +547,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         return super.onPrepareOptionsMenu(menu);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -597,6 +631,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         alert.show();
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onDestroy()
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -614,6 +652,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.speech.tts.TextToSpeech.OnInitListener#onInit(int)
+     */
     @Override
     public void onInit(int status) {
  
@@ -625,6 +667,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.EntityLoaderListener#deliverResult(java.util.List, java.util.List)
+     */
     @Override
     public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references) {
         loader = null;
@@ -677,6 +723,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.EntityLoaderListener#attach(org.commcare.android.tasks.EntityLoaderTask)
+     */
     @Override
     public void attach(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
@@ -729,6 +779,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.EntityLoaderListener#deliverError(java.lang.Exception)
+     */
     @Override
     public void deliverError(Exception e) {
         displayException(e);

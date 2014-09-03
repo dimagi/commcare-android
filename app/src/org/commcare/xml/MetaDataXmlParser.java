@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.xml;
 
 import java.io.IOException;
@@ -22,11 +19,19 @@ public class MetaDataXmlParser extends TransactionParser<String[]> {
         super(parser, "meta", null);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
+     */
     @Override
     public void commit(String[] data) throws IOException {
         //nothing;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.xml.ElementParser#parse()
+     */
     @Override
     public String[] parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode("meta");

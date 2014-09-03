@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.references;
 
 import java.io.File;
@@ -10,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.commcare.android.util.FileUtil;
 import org.javarosa.core.reference.Reference;
 
 /**
@@ -32,25 +30,11 @@ public class JavaFileReference implements Reference {
 
     public OutputStream getOutputStream() throws IOException {
         File f = file();
-        ensureFilePathExists(f);
+        FileUtil.ensureFilePathExists(f);
         f.createNewFile();
         return new FileOutputStream(f);
     }
     
-    /**
-     * Ensure that everything between "localpart" and f exists
-     * and create it if not.
-     * 
-     * @param f
-     */
-    private void ensureFilePathExists(File f) {
-        File folder = f.getParentFile();
-        if(folder != null) {
-            //Don't worry about return value
-            folder.mkdirs();
-        }
-    }
-
     public InputStream getStream() throws IOException {
         File file = file();
         //CTS: Removed a thing here that created an empty file. Not sure why that was there.

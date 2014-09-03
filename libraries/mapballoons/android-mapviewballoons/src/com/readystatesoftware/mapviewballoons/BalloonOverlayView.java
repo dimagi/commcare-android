@@ -130,6 +130,10 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
             super(context, attrs);
         }
 
+        /*
+         * (non-Javadoc)
+         * @see android.widget.LinearLayout#onMeasure(int, int)
+         */
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             int mode = MeasureSpec.getMode(widthMeasureSpec);

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import java.io.IOException;
@@ -129,6 +126,10 @@ public class EntityMapActivity extends MapActivity {
         Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
         mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
 
+            /*
+             * (non-Javadoc)
+             * @see org.commcare.dalvik.geo.EntityOverlay#selected(org.javarosa.core.model.instance.TreeReference)
+             */
             @Override
             protected void selected(TreeReference ref) {
                 Intent i = new Intent(EntityMapActivity.this.getIntent());

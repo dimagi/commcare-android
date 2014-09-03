@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.resource.installers;
 
 import java.io.DataInputStream;
@@ -66,6 +63,10 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.resource.installers.FileSystemInstaller#initialize(org.commcare.android.util.AndroidCommCarePlatform)
+     */
     @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         return false;
@@ -87,6 +88,10 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(path));
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.resource.installers.FileSystemInstaller#getResourceName(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation)
+     */
     @Override
     public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
         int index = loc.getLocation().lastIndexOf("/");

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.user;
 
 import java.io.File;
@@ -74,6 +71,10 @@ public class UserSandboxUtils {
             
             //If we were able to iterate over the users, the key was fine, so let's use it to open our db
             DbHelper dbh = new DbHelper(c) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.android.database.DbHelper#getHandle()
+                 */
                 @Override
                 public SQLiteDatabase getHandle() {
                     return db;
@@ -205,6 +206,10 @@ public class UserSandboxUtils {
         
         try {
             DbHelper dbh = new DbHelper(context) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.android.database.DbHelper#getHandle()
+                 */
                 @Override
                 public SQLiteDatabase getHandle() {
                     return db;

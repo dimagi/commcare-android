@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.util.externalizable;
 
 import java.security.MessageDigest;
@@ -34,6 +31,10 @@ public class ImprovedPrototypeFactory extends PrototypeFactory {
         }
     }        
 
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.PrototypeFactory#addClass(java.lang.Class)
+     */
     @Override
     public void addClass (Class c) {
         if (!initialized) {
@@ -77,6 +78,10 @@ public class ImprovedPrototypeFactory extends PrototypeFactory {
         return Integer.valueOf((hash[3] << 0) + (hash[2] << 8) + (hash[1] << 16) + (hash[0] << 24));
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.PrototypeFactory#getClass(byte[])
+     */
     @Override
     public Class getClass (byte[] hash) {
         if (!initialized) {

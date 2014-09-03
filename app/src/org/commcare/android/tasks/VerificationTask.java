@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tasks;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -84,6 +81,10 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<M
         this.listener = listener;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+     */
     @Override
     protected void onPostExecute(SizeBoundVector<MissingMediaException> problems) {
         if(problems == null){
@@ -107,6 +108,10 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<M
         this.publishProgress(new int[] {complete, total});
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.resources.model.TableStateListener#resourceStateUpdated(org.commcare.resources.model.ResourceTable)
+     */
     @Override
     public void resourceStateUpdated(ResourceTable table) {
         // TODO Auto-generated method stub

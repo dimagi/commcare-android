@@ -55,6 +55,10 @@ public class TapControlledMapView extends MapView implements OnGestureListener {
         });
     }
     
+    /*
+     * (non-Javadoc)
+     * @see com.google.android.maps.MapView#onTouchEvent(android.view.MotionEvent)
+     */
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (this.gd.onTouchEvent(ev)) {

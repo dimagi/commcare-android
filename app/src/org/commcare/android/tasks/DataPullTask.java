@@ -1,6 +1,3 @@
-    /**
- * 
- */
 package org.commcare.android.tasks;
 
 import java.io.IOException;
@@ -114,6 +111,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
+     */
     @Override
     protected Integer doTaskBackground(Void... params) {
         publishProgress(PROGRESS_STARTED);
@@ -142,6 +143,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         
         CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c, requestor) {
             boolean publishedAuth = false;
+            /*
+             * (non-Javadoc)
+             * @see org.commcare.xml.CommCareTransactionParserFactory#reportProgress(int)
+             */
             @Override
             public void reportProgress(int progress) {
                 if(!publishedAuth) {

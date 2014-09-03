@@ -1,11 +1,10 @@
-/**
- * 
- */
 package org.commcare.android.resource.installers;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,6 +16,8 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidStreamUtil;
+import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -81,26 +82,57 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             OutputStream os;
-            Reference local;
+            Reference localReference;
             
             //Moved this up before the local stuff, in case the local reference fails, we don't want to start dealing with it
-            InputStream input = ref.getStream();
+            InputStream input;
+            try {
+                input = ref.getStream();
+            } catch (FileNotFoundException e) {
+                //This simply means that the reference wasn't actually valid like it thought it was (sometimes you can't tell until you try)
+                //so let it keep iterating through options.
+                return false;
+            }
+            
+            File tempFile;
             
             //Stream to location
             try {
                 Pair<String, String> fileDetails = getResourceName(r,location);
-                local = getEmptyLocalReference((upgrade ? upgradeDestination : localDestination),fileDetails.first, fileDetails.second);
-                localLocation = local.getURI();
-                os = local.getOutputStream();
+                //Final destination
+                localReference = getEmptyLocalReference((upgrade ? upgradeDestination : localDestination),fileDetails.first, fileDetails.second);
+                
+                //Create a temporary place to store these bits
+                tempFile = new File(CommCareApplication._().getTempFilePath());
+                
+                //Make sure the stream is valid
+                os = new FileOutputStream(tempFile);
+                
+                //Get the actual local file we'll be putting the data into
+                localLocation = localReference.getURI();
             } catch(InvalidReferenceException ire) {
                 throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
             } catch(IOException ioe) {
                 throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
             }
             
+            //Write the full file to the temporary location
             AndroidStreamUtil.writeFromInputToOutput(input, os);
             
-            int status = customInstall(r, local, upgrade);
+            //Get a cannonical path
+            String localUri = localReference.getLocalURI();
+            File destination = new File(localUri);
+            
+            //Make sure there's a seat for the new file
+            FileUtil.ensureFilePathExists(destination);
+            
+            //File written, it must be valid now, so move it into our intended location
+            if(!tempFile.renameTo(destination)) {
+                throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " to location " + localUri + " for file system installation", localLocation);
+            }
+            
+            //TODO: Sketch - if this fails, we'll still have the file at that location.
+            int status = customInstall(r, localReference, upgrade);
             
             table.commit(r, status);
             
@@ -247,6 +279,10 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#unstage(org.commcare.resources.model.Resource, int)
+     */
     @Override
     public boolean unstage(Resource r, int newStatus) {
         try {
@@ -284,6 +320,10 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#revert(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
+     */
     @Override
     public boolean revert(Resource r, ResourceTable table) {
         String finalLocation = null;

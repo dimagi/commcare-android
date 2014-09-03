@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.resource.installers;
 
 import java.io.DataInputStream;
@@ -63,6 +60,10 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
     
             SuiteParser parser = new SuiteParser(local.getStream(), instance.getGlobalResourceTable(),null) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
+                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     return instance.getFixtureStorage();
@@ -101,6 +102,10 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
             
             SuiteParser parser = new SuiteParser(local.getStream(), table, r.getRecordGuid()) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
+                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     return instance.getFixtureStorage();
@@ -161,11 +166,19 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         try{
             Reference local = ReferenceManager._().DeriveReference(localLocation);
             Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
+                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     //shouldn't be necessary
                     return null;
                 }
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.xml.SuiteParser#inValidationMode()
+                 */
                 @Override
                 protected boolean inValidationMode(){
                     return true;

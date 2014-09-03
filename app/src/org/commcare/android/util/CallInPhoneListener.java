@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import java.util.HashSet;
@@ -61,6 +58,10 @@ public class CallInPhoneListener extends PhoneStateListener {
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
+     */
     @Override
     public void onCallStateChanged(int state, String incomingNumber) {
         super.onCallStateChanged(state, incomingNumber);
@@ -108,6 +109,10 @@ public class CallInPhoneListener extends PhoneStateListener {
 
         AsyncTask<Void, Void, Void> loader = new AsyncTask<Void, Void, Void>() {
 
+            /*
+             * (non-Javadoc)
+             * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+             */
             @Override
             protected Void doInBackground(Void... params) {
                 try {

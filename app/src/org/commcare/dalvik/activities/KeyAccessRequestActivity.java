@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
@@ -44,6 +41,10 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
         
         grantButton.setOnClickListener(new OnClickListener() {
 
+            /*
+             * (non-Javadoc)
+             * @see android.view.View.OnClickListener#onClick(android.view.View)
+             */
             @Override
             public void onClick(View v) {
                 Intent response = new Intent(getIntent());
@@ -68,6 +69,10 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
         
         denyButton.setOnClickListener(new OnClickListener() {
 
+            /*
+             * (non-Javadoc)
+             * @see android.view.View.OnClickListener#onClick(android.view.View)
+             */
             @Override
             public void onClick(View v) {
                 setResult(Activity.RESULT_CANCELED);

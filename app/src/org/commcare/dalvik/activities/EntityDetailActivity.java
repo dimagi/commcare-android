@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import java.util.Vector;
@@ -54,6 +51,10 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
     Button next;
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {   
         super.onCreate(savedInstanceState);
@@ -112,12 +113,20 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
+     */
     @Override
     protected boolean isTopNavEnabled() {
         return true;
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
+     */
     @Override
     public String getActivityTitle() {
         //Skipping this until it's a more general pattern

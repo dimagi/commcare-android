@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.adapters;
 
 import java.util.ArrayList;
@@ -124,6 +121,10 @@ public class IncompleteFormListAdapter extends BaseAdapter {
         return -1;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.widget.BaseAdapter#notifyDataSetChanged()
+     */
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
@@ -132,6 +133,10 @@ public class IncompleteFormListAdapter extends BaseAdapter {
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see android.widget.BaseAdapter#notifyDataSetInvalidated()
+     */
     @Override
     public void notifyDataSetInvalidated() {
         super.notifyDataSetInvalidated();

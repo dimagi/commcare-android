@@ -211,7 +211,11 @@ public class GraphView {
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
-        mRenderer.setPanEnabled(false, false);
+
+        boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
+        mRenderer.setPanEnabled(panAndZoom);
+        mRenderer.setZoomEnabled(panAndZoom);
+        mRenderer.setZoomButtonsVisible(panAndZoom);
 
         // User-configurable options
         mRenderer.setXTitle(mData.getConfiguration("x-axis-title", ""));

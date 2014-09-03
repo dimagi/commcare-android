@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -21,6 +18,10 @@ public class ConcreteDbHelper extends DbHelper {
         this.handle = handle;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.database.DbHelper#getHandle()
+     */
     @Override
     public SQLiteDatabase getHandle() {
         return handle;

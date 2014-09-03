@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import java.io.File;
@@ -73,6 +70,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         super.onCreate(savedInstanceState);
 
         btnFetchFiles.setOnClickListener(new OnClickListener() {
+            /*
+             * (non-Javadoc)
+             * @see android.view.View.OnClickListener#onClick(android.view.View)
+             */
             @Override
             public void onClick(View v) {
                 //Go fetch us a file path!
@@ -87,6 +88,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         });
 
         btnInstallArchive.setOnClickListener(new OnClickListener() {
+            /*
+             * (non-Javadoc)
+             * @see android.view.View.OnClickListener#onClick(android.view.View)
+             */
             @Override
             public void onClick(View v) {
 
@@ -109,6 +114,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
         UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
 
+            /*
+             * (non-Javadoc)
+             * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
+             */
             @Override
             protected void deliverResult( InstallArchiveActivity receiver, Integer result) {
                 Log.d(TAG, "delivering unzip result");
@@ -121,6 +130,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                 }
             }
 
+            /*
+             * (non-Javadoc)
+             * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
+             */
             @Override
             protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
                 Log.d(TAG, "delivering unzip upate");
@@ -129,6 +142,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                 receiver.txtInteractiveMessages.setText(update[0]);
             }
 
+            /*
+             * (non-Javadoc)
+             * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
+             */
             @Override
             protected void deliverError(InstallArchiveActivity receiver, Exception e) {
                 Log.d(TAG, "unzip deliver error: " + e.getMessage());
@@ -235,10 +252,13 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     }
     
     
-    /** Implementation of generateProgressDialog() for DialogController -- other methods
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
+     * 
+     * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
-    
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == UnzipTask.UNZIP_TASK_ID) {

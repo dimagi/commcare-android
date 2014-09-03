@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.application;
 
 import java.util.ArrayList;
@@ -28,6 +25,10 @@ public class AndroidShortcuts extends Activity {
     String[] commands;
     String[] names;
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);

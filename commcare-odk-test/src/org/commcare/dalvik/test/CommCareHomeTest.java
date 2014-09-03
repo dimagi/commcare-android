@@ -23,6 +23,10 @@ public class CommCareHomeTest extends ActivityInstrumentationTestCase2<CommCareS
 
     private Solo solo;
 
+    /*
+     * (non-Javadoc)
+     * @see android.test.ActivityInstrumentationTestCase2#setUp()
+     */
     @Override
     protected void setUp() throws Exception {
         //setUp() is run before a test case is started. 
@@ -31,6 +35,10 @@ public class CommCareHomeTest extends ActivityInstrumentationTestCase2<CommCareS
         solo = new Solo(getInstrumentation(), getActivity());
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.test.ActivityInstrumentationTestCase2#tearDown()
+     */
     @Override
     public void tearDown() throws Exception {
         //tearDown() is run after a test case has finished. 

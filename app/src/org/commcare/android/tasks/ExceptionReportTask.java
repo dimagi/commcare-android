@@ -50,6 +50,10 @@ import android.os.AsyncTask;
 
 public class ExceptionReportTask extends AsyncTask<Throwable, String, String>  
 {
+    /*
+     * (non-Javadoc)
+     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+     */
     @Override
     protected String doInBackground(Throwable... values) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -104,6 +108,10 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
             //Apparently if you don't have a filename in the multipart wrapper, some receivers
             //don't properly receive this post.
             StringBody body = new StringBody(payload, "text/xml", MIME.DEFAULT_CHARSET) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.apache.http.entity.mime.content.StringBody#getFilename()
+                 */
                 @Override
                 public String getFilename() {
                     return "exceptionreport.xml";

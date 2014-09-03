@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tasks;
 
 import java.io.ByteArrayOutputStream;
@@ -83,6 +80,10 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         this.submissionUrl = submissionUrl;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+     */
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
         try {
@@ -277,21 +278,37 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.DataSubmissionListener#beginSubmissionProcess(int)
+     */
     @Override
     public void beginSubmissionProcess(int totalItems) {
         this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_BEGIN, (long)totalItems});        
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.DataSubmissionListener#startSubmission(int, long)
+     */
     @Override
     public void startSubmission(int itemNumber, long length) {
         this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_START, (long)itemNumber, length});
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.DataSubmissionListener#notifyProgress(int, long)
+     */
     @Override
     public void notifyProgress(int itemNumber, long progress) {
         this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_NOTIFY, (long)itemNumber, progress});
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.DataSubmissionListener#endSubmissionProcess()
+     */
     @Override
     public void endSubmissionProcess() {
         this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_DONE});

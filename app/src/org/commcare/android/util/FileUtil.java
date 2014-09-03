@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import java.io.File;
@@ -332,6 +329,20 @@ public class FileUtil {
                 
             } catch(InvalidReferenceException ire){
                 //do nothing for now
+            }
+        }
+
+        /**
+         * Ensure that everything between "localpart" and f exists
+         * and create it if not.
+         * 
+         * @param f
+         */
+        public static void ensureFilePathExists(File f) {
+            File folder = f.getParentFile();
+            if(folder != null) {
+                //Don't worry about return value
+                folder.mkdirs();
             }
         }
 }

@@ -84,7 +84,12 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     //onCancelled()
 
     
-    //doTaskBackground(<A>) returns <C>
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
+     * 
+     * doTaskBackground(<A>) returns <C>
+     */
     @Override
     protected Test doTaskBackground(Void... params) 
     {    

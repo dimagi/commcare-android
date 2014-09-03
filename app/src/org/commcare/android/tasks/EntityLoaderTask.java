@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tasks;
 
 import java.util.ArrayList;
@@ -104,6 +101,10 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
         
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+     */
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
 

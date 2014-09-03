@@ -24,6 +24,10 @@ public class UnrecoverableErrorActivity extends Activity {
     String title;
     String message;
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

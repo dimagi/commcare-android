@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.xml;
 
 import java.io.IOException;
@@ -55,6 +52,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                         //TODO: store these on the file system instead of in DB?
                         private IStorageUtilityIndexed fixtureStorage;
                         
+                        /*
+                         * (non-Javadoc)
+                         * @see org.commcare.xml.FixtureXmlParser#storage()
+                         */
                         @Override
                         public IStorageUtilityIndexed storage() {
                             if(fixtureStorage == null) {
@@ -104,9 +105,17 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             //" <message nature=""/>"
         } else if(name != null && name.toLowerCase().equals("sync") && namespace != null && "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser, namespace, namespace) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
+                 */
                 @Override
                 public void commit(String parsed) throws IOException {}
 
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.xml.ElementParser#parse()
+                 */
                 @Override
                 public String parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
                     this.checkNode("sync");

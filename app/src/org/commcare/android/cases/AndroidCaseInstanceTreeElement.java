@@ -45,6 +45,10 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement {
     }
     
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.cases.util.StorageBackedTreeRoot#union(java.util.Vector, java.util.Vector)
+     */
     @Override
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
         //This is kind of (ok, so really) awkward looking, but we can't use sets in 

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import java.util.Date;
@@ -37,6 +34,10 @@ public class CallOutActivity extends Activity {
     TelephonyManager tManager;
     CallListener listener;
     
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,6 +137,10 @@ public class CallOutActivity extends Activity {
         long duration;
         boolean finished = false;
 
+        /*
+         * (non-Javadoc)
+         * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
+         */
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             super.onCallStateChanged(state, incomingNumber);
