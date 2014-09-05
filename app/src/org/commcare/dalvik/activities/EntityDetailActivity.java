@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
@@ -112,7 +113,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 			
 		    entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
 		    
-		    mDetailView.setRoot(container);
+		    mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
    			mDetailView.refresh(factory.getDetail(), detailIndex, true);
         } catch(SessionUnavailableException sue) {
         	//TODO: Login and return to try again
