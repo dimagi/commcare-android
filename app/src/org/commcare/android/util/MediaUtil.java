@@ -27,80 +27,80 @@ import android.graphics.BitmapFactory;
  *
  */
 public class MediaUtil {
-	public static final String FORM_VIDEO = "video";
-	public static final String FORM_AUDIO = "audio";
-	public static final String FORM_IMAGE = "image";
+    public static final String FORM_VIDEO = "video";
+    public static final String FORM_AUDIO = "audio";
+    public static final String FORM_IMAGE = "image";
 
-	public static Bitmap getScaledImageFromReference(Context c, String jrReference) {
-		//TODO: Eventually we'll want to be able to deal with dymanic resources here.
+    public static Bitmap getScaledImageFromReference(Context c, String jrReference) {
+        //TODO: Eventually we'll want to be able to deal with dymanic resources here.
         try {
 
         Reference imageRef = ReferenceManager._().DeriveReference(jrReference);
         if(!imageRef.doesBinaryExist()) {
-        	return null;
+            return null;
         }
         
         return BitmapFactory.decodeStream(imageRef.getStream());
 
         } catch(InvalidReferenceException ire) {
-        	Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Invalid reference for an image: " + ire.getReferenceString());
-        	return null;
+            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Invalid reference for an image: " + ire.getReferenceString());
+            return null;
         } catch(OutOfMemoryError oom) {
-        	Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Out of memory loading reference: " + jrReference);
-        	return null;
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Out of memory loading reference: " + jrReference);
+            return null;
         } catch(IOException uie){
-        	Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "IO Exception loading reference: " + jrReference);
-        	return null;
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "IO Exception loading reference: " + jrReference);
+            return null;
         }
-	}
-	
-	
-	/*
-	 * Warning: Use of temp file could cause slowness.
-	 *  
-	 * Not currently used, so commented out because requires
-	 * import of external commons.io jar file, but could 
-	 * potentially be useful down the road.
-	 */
-	
-	/*public static FileInputStream inputStreamToFIS(InputStream in) {
-	    FileInputStream fis = null;
-	    FileOutputStream out = null;
-	    File tempFile = null;
-		try {
-			tempFile = File.createTempFile("stream2file", ".tmp");
-			tempFile.deleteOnExit();
-			//TODO: try using StreamsUtil method for this, currently causes inf loop
-			out = new FileOutputStream(tempFile);
-			IOUtils.copy(in, out);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	    try {
-			fis = new FileInputStream(tempFile);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return fis;	
-	}*/
+    }
+    
+    
+    /*
+     * Warning: Use of temp file could cause slowness.
+     *  
+     * Not currently used, so commented out because requires
+     * import of external commons.io jar file, but could 
+     * potentially be useful down the road.
+     */
+    
+    /*public static FileInputStream inputStreamToFIS(InputStream in) {
+        FileInputStream fis = null;
+        FileOutputStream out = null;
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("stream2file", ".tmp");
+            tempFile.deleteOnExit();
+            //TODO: try using StreamsUtil method for this, currently causes inf loop
+            out = new FileOutputStream(tempFile);
+            IOUtils.copy(in, out);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        try {
+            fis = new FileInputStream(tempFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return fis;    
+    }*/
 
-	
-	/**
-	 * Pass in a string representing either a GeoPont or an address and get back a valid
-	 * GeoURI that can be passed as an intent argument 
-	 * 
-	 * @param rawInput
-	 * @return
-	 */
-	public static String getGeoIntentURI(String rawInput){
-		try{
-			GeoPointData mGeoPointData = new GeoPointData().cast(new UncastData(rawInput));
-			String latitude = Double.toString(mGeoPointData.getValue()[0]);
-			String longitude= Double.toString(mGeoPointData.getValue()[1]);
-			return "geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude;
-			
-		}catch(IllegalArgumentException iae){
-			return "geo:0,0?q=" + rawInput;
-		}
-	}
+    
+    /**
+     * Pass in a string representing either a GeoPont or an address and get back a valid
+     * GeoURI that can be passed as an intent argument 
+     * 
+     * @param rawInput
+     * @return
+     */
+    public static String getGeoIntentURI(String rawInput){
+        try{
+            GeoPointData mGeoPointData = new GeoPointData().cast(new UncastData(rawInput));
+            String latitude = Double.toString(mGeoPointData.getValue()[0]);
+            String longitude= Double.toString(mGeoPointData.getValue()[1]);
+            return "geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude;
+            
+        }catch(IllegalArgumentException iae){
+            return "geo:0,0?q=" + rawInput;
+        }
+    }
 }

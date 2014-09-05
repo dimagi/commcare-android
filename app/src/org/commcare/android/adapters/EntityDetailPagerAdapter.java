@@ -19,43 +19,43 @@ import android.support.v4.app.FragmentStatePagerAdapter;
  * @author jschweers
  */
 public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
-	
-	Detail detail;
-	int detailIndex;
-	boolean hasDetailCalloutListener;
+    
+    Detail detail;
+    int detailIndex;
+    boolean hasDetailCalloutListener;
 
-	public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, boolean hasDetailCalloutListener) {	
-		super(fm);
-		this.detail = detail;
-		this.detailIndex = detailIndex;
-		this.hasDetailCalloutListener = hasDetailCalloutListener;
-	}
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, boolean hasDetailCalloutListener) {    
+        super(fm);
+        this.detail = detail;
+        this.detailIndex = detailIndex;
+        this.hasDetailCalloutListener = hasDetailCalloutListener;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
-	 */
-	@Override
-	public Fragment getItem(int i) {
-		Fragment fragment = new EntityDetailFragment();
-		Bundle args = new Bundle();
-		args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
-		if (detail.isCompound()) {
-			args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
-		}
-		args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
-		args.putBoolean(EntityDetailFragment.HAS_DETAIL_CALLOUT_LISTENER, hasDetailCalloutListener);
-		fragment.setArguments(args);
-		return fragment;
-	}
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
+     */
+    @Override
+    public Fragment getItem(int i) {
+        Fragment fragment = new EntityDetailFragment();
+        Bundle args = new Bundle();
+        args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
+        if (detail.isCompound()) {
+            args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
+        }
+        args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
+        args.putBoolean(EntityDetailFragment.HAS_DETAIL_CALLOUT_LISTENER, hasDetailCalloutListener);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.view.PagerAdapter#getCount()
-	 */
-	@Override
-	public int getCount() {
-		return detail.isCompound() ? detail.getDetails().length : 1;
-	}
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.view.PagerAdapter#getCount()
+     */
+    @Override
+    public int getCount() {
+        return detail.isCompound() ? detail.getDetails().length : 1;
+    }
 
 }
