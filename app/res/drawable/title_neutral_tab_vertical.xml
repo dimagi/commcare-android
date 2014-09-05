@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+<!-- Neutral-colored box with top corners rounded to look like a tab. -->
 
     <!-- "shadow" -->
     <item>

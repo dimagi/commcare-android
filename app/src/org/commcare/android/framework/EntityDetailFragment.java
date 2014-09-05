@@ -23,6 +23,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+/**
+ * Fragment to display Detail content. Not meant for handling nested Detail objects.
+ * @author jschweers
+ *
+ */
 public class EntityDetailFragment extends Fragment {
 	public static final String CHILD_DETAIL_INDEX = "edf_child_detail_index";
 	public static final String DETAIL_ID = "edf_detail_id";
@@ -38,6 +43,10 @@ public class EntityDetailFragment extends Fragment {
 		this.asw = CommCareApplication._().getCurrentSessionWrapper();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Bundle args = getArguments();

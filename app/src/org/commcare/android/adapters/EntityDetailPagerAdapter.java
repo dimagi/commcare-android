@@ -14,6 +14,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+/**
+ * Subclass of FragmentStatePagerAdapter for populating a ViewPager (swipe-based paging widget) with entity detail fields.
+ * @author jschweers
+ */
 public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 	
 	Detail detail;
@@ -27,6 +31,10 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 		this.hasDetailCalloutListener = hasDetailCalloutListener;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
+	 */
 	@Override
 	public Fragment getItem(int i) {
 		Fragment fragment = new EntityDetailFragment();
@@ -41,6 +49,10 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 		return fragment;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.view.PagerAdapter#getCount()
+	 */
 	@Override
 	public int getCount() {
 		return detail.isCompound() ? detail.getDetails().length : 1;

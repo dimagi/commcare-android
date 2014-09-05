@@ -19,6 +19,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+/**
+ * Widget that combines a ViewPager with a set of page titles styled to look like tabs.
+ * User can navigate either by swiping through pages or by tapping the tabs.
+ * @author jschweers
+ *
+ */
 public class TabbedDetailView extends RelativeLayout {
 	private FragmentActivity mContext;
 	
@@ -42,6 +48,9 @@ public class TabbedDetailView extends RelativeLayout {
 		mContext = (FragmentActivity) context;
 	}
 	
+	/*
+	 * Attach this view to a layout.
+	 */
 	public void setRoot(ViewGroup root) {
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.tabbed_detail_view, root, true);
@@ -63,6 +72,9 @@ public class TabbedDetailView extends RelativeLayout {
 		});
 	}
 	
+	/*
+	 * Populate view with content from given Detail.
+	 */
 	public void setDetail(Detail detail) {
         Detail[] details = detail.getDetails();
         if (details.length > 0) {
@@ -121,6 +133,9 @@ public class TabbedDetailView extends RelativeLayout {
         markSelectedTab(0);
 	}
 
+	/*
+	 * Style one tab as "selected".
+	 */
     private void markSelectedTab(int position) {
     	if (mMenu.getChildCount() <= position) {
     		return;

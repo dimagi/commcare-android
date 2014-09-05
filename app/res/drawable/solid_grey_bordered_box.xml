@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+<!-- Same as solid_grey_bordered_box, but with solid gradients for the sake of being displayed on top of non-white backgrounds -->
     
     <!-- "shadow" -->
     <item>
