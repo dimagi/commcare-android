@@ -24,15 +24,8 @@
         android:left="@dimen/title_round_border_width">
         
         <shape android:shape="rectangle"> 
-            <!-- solid android:color="#903867AD"/ -->
+            <solid android:color="@color/selected_tab_vertical" />
             
-            <gradient
-                android:startColor="@color/title_case_grad_start"
-		        android:endColor="@color/title_case_grad_end"
-		        android:gradientRadius="@dimen/tab_gradient_radius"
-		        android:centerX="25%"
-            	android:centerY="50%"
-		        android:type="radial"/>
             <corners 
                android:radius="@dimen/title_round_depth"
                android:bottomRightRadius="0dp"

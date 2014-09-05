@@ -724,7 +724,14 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 			detailView.setRoot((ViewGroup) rightFrame.findViewById(R.id.entity_detail));
 
 			factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));			
-			detailView.setDetail(factory.getDetail());
+			Detail detail = factory.getDetail();
+			detailView.setDetail(detail);
+
+			if (detail.isCompound()) {
+			    // border around right panel doesn't look right when there are tabs
+			    rightFrame.setBackgroundDrawable(null);
+			}
+
 		    rightFrameSetup = true;
 		}
 

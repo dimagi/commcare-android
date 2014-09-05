@@ -57,6 +57,8 @@
    
    <color name="blue_grad_end">#903867AD</color>
    <color name="blue_grad_start">#806884AD</color>
+   <color name="solid_blue_grad_end">#FF3867AD</color>
+   <color name="solid_blue_grad_start">#FF8696AE</color>
   
    <color name="grey_grad_start">#80D3D3D3</color>
    <color name="grey_grad_end">#A0D3D3D3</color>
@@ -67,11 +69,13 @@
    <color name="search_fuzzy_match">#87D13E</color>
    
    <color name="title_border">#444444</color>
-   <color name="title_neutral_grad_end">#FFB3B3B3</color>
+   <color name="title_neutral_grad_end">#FFD3D3D3</color>
    <color name="title_neutral_grad_start">#FFE4E4E4</color>
   
    <color name="title_case_grad_end">#FF3867AD</color>
    <color name="title_case_grad_start">#FF6884AD</color>
+   
+   <color name="selected_tab_vertical">#FFDDECAC</color>
    
    <color name="extra_display_item">#7FA1D4</color>
    <color name="start_extra_display_item">#EBEBEB</color>

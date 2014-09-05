@@ -49,8 +49,6 @@ public class TabbedDetailView extends RelativeLayout {
 		mMenu = (LinearLayout) root.findViewById(R.id.tabbed_detail_menu);
 		mViewPager = (ViewPager) root.findViewById(R.id.tabbed_detail_pager);
 
-        mViewPager.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_top_black));
-
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			
 			@Override

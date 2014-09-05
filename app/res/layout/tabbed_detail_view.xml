@@ -4,16 +4,26 @@
 	<LinearLayout
 	    android:id="@+id/tabbed_detail_menu"
 	    android:orientation="horizontal"
-	    android:layout_marginTop="@+dimen/title_padding"
+	    android:layout_marginTop="@dimen/spacer_small"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:weightSum="10">
 	</LinearLayout>
 	    
-	<android.support.v4.view.ViewPager
-	    android:id="@+id/tabbed_detail_pager"
+	<LinearLayout
+	    android:background="@color/selected_tab_vertical"
 	    android:layout_below="@id/tabbed_detail_menu"
 	    android:layout_width="match_parent"
-	    android:layout_height="match_parent" />
+	    android:layout_height="wrap_content">
 
+		<android.support.v4.view.ViewPager
+		    android:id="@+id/tabbed_detail_pager"
+		    android:layout_marginTop="10dp"
+		    android:layout_marginBottom="10dp"
+		    android:layout_marginRight="10dp"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content" />
+
+	</LinearLayout>
+	
 </merge>
