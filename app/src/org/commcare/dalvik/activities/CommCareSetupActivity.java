@@ -4,6 +4,9 @@
  */
 package org.commcare.dalvik.activities;
 
+import java.util.ArrayList;
+
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -353,6 +356,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //prevent the keyboard from popping up on entry by refocusing on the main layout
         findViewById(R.id.mainLayout).requestFocus();
         
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
+		//If we arrived at CommCareSetupActivity from clicking the regular app icon, and there
+		//are 1 or more available apps, we want to redirect to CCHomeActivity
+		if (!fromManager && readyApps.size() > 0) {
+			Intent i = new Intent(this, CommCareHomeActivity.class);
+			startActivity(i);
+		}
 	}
 	
 	@Override

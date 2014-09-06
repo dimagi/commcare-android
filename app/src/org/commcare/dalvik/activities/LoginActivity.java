@@ -453,8 +453,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     	return dialog;
     }
     
-
-    
     private void populateAvailableAppsSpinner() {
     	Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
     	ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
