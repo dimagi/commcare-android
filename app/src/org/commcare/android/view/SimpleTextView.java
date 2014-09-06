@@ -15,12 +15,12 @@ import android.widget.TextView;
  *
  */
 public class SimpleTextView extends RelativeLayout {
-	
-	private TextView mPrimaryTextView;
+    
+    private TextView mPrimaryTextView;
 
-	public SimpleTextView(Context context, CommCarePlatform platform, Text t) {
-		super(context);
-		
+    public SimpleTextView(Context context, CommCarePlatform platform, Text t) {
+        super(context);
+        
         mPrimaryTextView = new TextView(context);
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         mPrimaryTextView.setText(t.evaluate());
@@ -32,9 +32,9 @@ public class SimpleTextView extends RelativeLayout {
         
         addView(mPrimaryTextView, l);
 
-	}
+    }
 
-	public void setParams(CommCarePlatform platform, Text t) {
-		mPrimaryTextView.setText(t.evaluate());
-	}
+    public void setParams(CommCarePlatform platform, Text t) {
+        mPrimaryTextView.setText(t.evaluate());
+    }
 }

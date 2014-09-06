@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -12,17 +9,21 @@ import android.content.Context;
  *
  */
 public class DirectDbHelper extends DbHelper {
-	
-	private SQLiteDatabase handle;
+    
+    private SQLiteDatabase handle;
 
-	public DirectDbHelper(Context c, SQLiteDatabase database) {
-		super(c);
-		handle = database;
-	}
+    public DirectDbHelper(Context c, SQLiteDatabase database) {
+        super(c);
+        handle = database;
+    }
 
-	@Override
-	public SQLiteDatabase getHandle() {
-		return handle;
-	}
-	
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.database.DbHelper#getHandle()
+     */
+    @Override
+    public SQLiteDatabase getHandle() {
+        return handle;
+    }
+    
 }

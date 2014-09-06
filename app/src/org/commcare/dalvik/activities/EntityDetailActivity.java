@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import java.util.Vector;
@@ -62,6 +59,10 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @UiElement(value=R.id.entity_detail_tabs)
     TabbedDetailView mDetailView;
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {   
         super.onCreate(savedInstanceState);
@@ -122,11 +123,20 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         mDetailView.setDetail(factory.getDetail());
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
+     */
     @Override
     protected boolean isTopNavEnabled() {
         return true;
     }
     
+
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
+     */
     @Override
     public String getActivityTitle() {
         //Skipping this until it's a more general pattern

@@ -9,7 +9,7 @@ package org.commcare.android.tasks;
  */
 public interface FormRecordLoadListener {
 
-	void notifyPriorityLoaded(Integer first, boolean contains);
-	
-	void notifyLoaded();
+    void notifyPriorityLoaded(Integer first, boolean contains);
+    
+    void notifyLoaded();
 }

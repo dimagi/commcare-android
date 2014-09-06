@@ -3,12 +3,8 @@
  */
 package org.commcare.android.view;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.ViewId;
+import java.util.Hashtable;
+import java.util.Vector;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -16,28 +12,25 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
-
+import org.odk.collect.android.views.media.ViewId;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
 
 /**
  * @author ctsims
@@ -53,12 +46,13 @@ public class EntityDetailView extends FrameLayout {
     private Button addressButton;
     private TextView addressText;
     private ImageView imageView;
+    private AspectRatioLayout graphLayout;
+    private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private ImageButton videoButton;
     private AudioButton audioButton;
     private View valuePane;
     private View currentView;
     private AudioController controller;
-    private FileInputStream fis;
     private LinearLayout detailRow;
     private LinearLayout.LayoutParams origValue;
     private LinearLayout.LayoutParams origLabel;
@@ -69,6 +63,7 @@ public class EntityDetailView extends FrameLayout {
     private static final String FORM_PHONE = "phone";
     private static final String FORM_ADDRESS = "address";
     private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
+    private static final String FORM_GRAPH = "graph";
 
     private static final int TEXT = 0;
     private static final int PHONE = 1;
@@ -76,6 +71,8 @@ public class EntityDetailView extends FrameLayout {
     private static final int IMAGE = 3;
     private static final int VIDEO = 4;
     private static final int AUDIO = 5;
+    private static final int GRAPH = 6;
+    
     int current = TEXT;
     
     DetailCalloutListener listener;
@@ -94,7 +91,8 @@ public class EntityDetailView extends FrameLayout {
         videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
         
         ViewId uniqueId = new ViewId(detailNumber, index, true);
-        audioButton = new AudioButton(context, e.getField(index), uniqueId, controller, false);
+        String audioText = e.getFieldString(index);
+        audioButton = new AudioButton(context, audioText, uniqueId, controller, false);
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
         
@@ -105,6 +103,8 @@ public class EntityDetailView extends FrameLayout {
         addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
+        graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
+        renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
         origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 
@@ -122,42 +122,31 @@ public class EntityDetailView extends FrameLayout {
         label.setText(labelText);
         spacer.setText(labelText);
         
-        String textField = e.getField(index);
+        Object field = e.getField(index);
+        String textField = e.getFieldString(index);
         boolean veryLong = false;
         String form = d.getTemplateForms()[index];
         if(FORM_PHONE.equals(form)) {
             callout.setText(textField);
             if(current != PHONE) {
                 callout.setOnClickListener(new OnClickListener() {
-
                     public void onClick(View v) {
                         listener.callRequested(callout.getText().toString());                
                     }
-                    
                 });
-                currentView.setVisibility(View.GONE);
-                callout.setVisibility(View.VISIBLE);
                 this.removeView(currentView);
-                currentView = callout;
-                current = PHONE;
+                updateCurrentView(PHONE, callout);
             }
         } else if(FORM_ADDRESS.equals(form)) {
             final String address = textField;
-            
             addressText.setText(address);
             if(current != ADDRESS) {
                 addressButton.setOnClickListener(new OnClickListener() {
-
                     public void onClick(View v) {
                         listener.addressRequested(MediaUtil.getGeoIntentURI(address));
                     }
-                    
                 });
-                
-                currentView.setVisibility(View.GONE);
-                addressView.setVisibility(View.VISIBLE);
-                currentView = addressView;
-                current = ADDRESS;
+                updateCurrentView(ADDRESS, addressView);
             }
         } else if(FORM_IMAGE.equals(form)) {
             String imageLocation = textField;
@@ -166,13 +155,8 @@ public class EntityDetailView extends FrameLayout {
             if(b == null) {
                 imageView.setImageDrawable(null);
             } else {
-                
-                Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                int screenWidth = display.getWidth();
-
-                
                 //Ok, so. We should figure out whether our image is large or small.
-                if(b.getWidth() > (screenWidth / 2)) {
+                if(b.getWidth() > (getScreenWidth() / 2)) {
                     veryLong = true;
                 }
                 
@@ -182,21 +166,39 @@ public class EntityDetailView extends FrameLayout {
                 imageView.setId(23422634);
             }
             
-            if(current != IMAGE) {
-                currentView.setVisibility(View.GONE);
-                imageView.setVisibility(View.VISIBLE);
-                currentView = imageView;
-                current = IMAGE;
+            updateCurrentView(IMAGE, imageView);
+        } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
+            GraphView g = new GraphView(getContext());
+            View rendered = null;
+            int orientation = getResources().getConfiguration().orientation;
+            if (renderedGraphsCache.get(index) != null) {
+                rendered = renderedGraphsCache.get(index).get(orientation);
+            }
+            else {
+                renderedGraphsCache.put(index, new Hashtable<Integer, View>());
+            }
+            if (rendered == null) {
+                g.setTitle(labelText);
+                rendered = g.renderView((GraphData) field);
+                renderedGraphsCache.get(index).put(orientation, rendered);
+            }
+            graphLayout.removeAllViews();
+            graphLayout.addView(rendered, g.getLayoutParams());
+
+            if (current != GRAPH) {
+                // Hide field label and expand value to take up full screen width
+                LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+                graphValueLayout.weight = 10;
+                valuePane.setLayoutParams(graphValueLayout);
+
+                label.setVisibility(View.GONE);
+                data.setVisibility(View.GONE);
+                updateCurrentView(GRAPH, graphLayout);
             }
         } else if (FORM_AUDIO.equals(form)) {
             ViewId uniqueId = new ViewId(detailNumber, index, true);
             audioButton.modifyButtonForNewView(uniqueId, textField, true);
-            if (current != AUDIO) {
-                currentView.setVisibility(View.GONE);
-                audioButton.setVisibility(View.VISIBLE);
-                currentView = audioButton;
-                current = AUDIO;
-            }
+            updateCurrentView(AUDIO, audioButton);
         } else if(FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
             String videoLocation = textField;
             String localLocation = null;
@@ -227,37 +229,24 @@ public class EntityDetailView extends FrameLayout {
                 videoButton.setEnabled(true);
             }
             
-            if(current != VIDEO) {
-                currentView.setVisibility(View.GONE);
-                videoButton.setVisibility(View.VISIBLE);
-                currentView = videoButton;
-                current = VIDEO;
-            }
+            updateCurrentView(VIDEO, videoButton);
         } else {
             String text = textField;
             data.setText(text);
             if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
                 veryLong = true;
             }
-            if(current != TEXT) {
-                currentView.setVisibility(View.GONE);
-                data.setVisibility(View.VISIBLE);
-                currentView = data;
-                current = TEXT;
-            }
+
+            updateCurrentView(TEXT, data);
         }
         
         if(veryLong) {
-            
             detailRow.setOrientation(LinearLayout.VERTICAL);
             spacer.setVisibility(View.GONE);
             label.setLayoutParams(fill);
             valuePane.setLayoutParams(fill);
-            
         } else {
-            
             if(detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
-                
                 detailRow.setOrientation(LinearLayout.HORIZONTAL);
                 spacer.setVisibility(View.INVISIBLE);
                 label.setLayoutParams(origLabel);
@@ -265,4 +254,33 @@ public class EntityDetailView extends FrameLayout {
             }
         }
     }
+    
+    /*
+     * Appropriately set current & currentView.
+     */
+    private void updateCurrentView(int newCurrent, View newView) {
+        if (newCurrent != current) {
+            currentView.setVisibility(View.GONE);
+            newView.setVisibility(View.VISIBLE);
+            currentView = newView;
+            current = newCurrent;
+        }
+        
+        if (current != GRAPH) {
+            label.setVisibility(View.VISIBLE);
+            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+            graphValueLayout.weight = 10;
+            valuePane.setLayoutParams(origValue);
+            data.setVisibility(View.VISIBLE);
+        }
+    }
+    
+    /*
+     * Get current device screen width
+     */
+    private int getScreenWidth() {
+        Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        return display.getWidth();
+    }
+    
 }

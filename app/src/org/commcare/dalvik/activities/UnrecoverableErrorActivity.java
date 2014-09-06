@@ -17,38 +17,42 @@ import android.os.Bundle;
  *
  */
 public class UnrecoverableErrorActivity extends Activity {
-	
-	public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
-	public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";
-	
-	String title;
-	String message;
-	
-	@Override
+    
+    public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
+    public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";
+    
+    String title;
+    String message;
+    
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
+    @Override
     public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		title = this.getIntent().getStringExtra(EXTRA_ERROR_TITLE);
-		message = this.getIntent().getStringExtra(EXTRA_ERROR_MESSAGE);
-		this.showDialog(0);
-	}
+        super.onCreate(savedInstanceState);
+        title = this.getIntent().getStringExtra(EXTRA_ERROR_TITLE);
+        message = this.getIntent().getStringExtra(EXTRA_ERROR_MESSAGE);
+        this.showDialog(0);
+    }
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateDialog(int)
-	 */
-	@Override
-	protected Dialog onCreateDialog(int id) {
-    	AlertDialog mNoStorageDialog = new AlertDialog.Builder(this).create();
-    	mNoStorageDialog.setTitle(title);
-    	mNoStorageDialog.setMessage(message + "\n\n" + Localization.get("app.handled.error.explanation"));
-		
+    /* (non-Javadoc)
+     * @see android.app.Activity#onCreateDialog(int)
+     */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        AlertDialog mNoStorageDialog = new AlertDialog.Builder(this).create();
+        mNoStorageDialog.setTitle(title);
+        mNoStorageDialog.setMessage(message + "\n\n" + Localization.get("app.handled.error.explanation"));
+        
         DialogInterface.OnClickListener noStorageButton = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
-        	   Intent intent = new Intent(UnrecoverableErrorActivity.this, CommCareHomeActivity.class);
+               Intent intent = new Intent(UnrecoverableErrorActivity.this, CommCareHomeActivity.class);
 
-       		   //Make sure that the new stack starts with a home activity, and clear everything between.
-    		   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-    		   UnrecoverableErrorActivity.this.startActivity(intent);
-    		   UnrecoverableErrorActivity.this.moveTaskToBack(true);
+                  //Make sure that the new stack starts with a home activity, and clear everything between.
+               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+               UnrecoverableErrorActivity.this.startActivity(intent);
+               UnrecoverableErrorActivity.this.moveTaskToBack(true);
 
                System.runFinalizersOnExit(true);
                System.exit(0);
@@ -57,5 +61,5 @@ public class UnrecoverableErrorActivity extends Activity {
         mNoStorageDialog.setCancelable(false);
         mNoStorageDialog.setButton(Localization.get("app.storage.missing.button"), noStorageButton);
         return mNoStorageDialog;
-	}
+    }
 }

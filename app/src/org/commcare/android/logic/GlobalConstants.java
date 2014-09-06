@@ -1,19 +1,19 @@
 package org.commcare.android.logic;
 
 public class GlobalConstants {
-	
-	public static final String FILE_CC_INSTALL = "commcare/install";
-	public static final String FILE_CC_UPGRADE = "commcare/upgrade";
-	public static final String FILE_CC_CACHE = "commcare/cache";
-	public static final String FILE_CC_MEDIA = "commcare/media/";
-	public static final String FILE_CC_LOGS = "commcare/logs/";
-	
-	public static final String FILE_CC_ATTACHMENTS = "attachments/";
-	
-	public static final String FILE_CC_FORMS = "formdata/";
-	
-	public static final String CC_DB_NAME = "commcare";
-	
+    
+    public static final String FILE_CC_INSTALL = "commcare/install";
+    public static final String FILE_CC_UPGRADE = "commcare/upgrade";
+    public static final String FILE_CC_CACHE = "commcare/cache";
+    public static final String FILE_CC_MEDIA = "commcare/media/";
+    public static final String FILE_CC_LOGS = "commcare/logs/";
+    
+    public static final String FILE_CC_ATTACHMENTS = "attachments/";
+    
+    public static final String FILE_CC_FORMS = "formdata/";
+    
+    public static final String CC_DB_NAME = "commcare";
+    
     /**
      * Resource storage path
      */

@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface Persisting {
-	public PersistedType customType() default PersistedType.normal;
-	public boolean nullable() default false;
-	public int value();
+    public PersistedType customType() default PersistedType.normal;
+    public boolean nullable() default false;
+    public int value();
 }

@@ -22,51 +22,51 @@ import org.javarosa.core.reference.Reference;
  */
 public class ArchiveFileReference implements Reference {
 
-	String GUID;
-	String archiveURI;
-	String localroot;
+    String GUID;
+    String archiveURI;
+    String localroot;
 
-	public ArchiveFileReference(String localroot, String GUID, String archiveURI) {
-		this.archiveURI = archiveURI;
-		this.localroot = localroot;
-		this.GUID = GUID;
-	}
+    public ArchiveFileReference(String localroot, String GUID, String archiveURI) {
+        this.archiveURI = archiveURI;
+        this.localroot = localroot;
+        this.GUID = GUID;
+    }
 
-	public boolean doesBinaryExist() throws IOException {
-		return false;
-	}
+    public boolean doesBinaryExist() throws IOException {
+        return false;
+    }
 
-	public OutputStream getOutputStream() throws IOException {
-		throw new IOException("Archive references are read only!");
-	}
+    public OutputStream getOutputStream() throws IOException {
+        throw new IOException("Archive references are read only!");
+    }
 
-	public InputStream getStream() throws IOException {
-		File file = new File(getLocalURI());
-		//CTS: Removed a thing here that created an empty file. Not sure why that was there.
-		if(!file.exists()) {
-			throw new IOException("No file exists at " + file.getAbsolutePath());
-		}
-		return new FileInputStream(file);
+    public InputStream getStream() throws IOException {
+        File file = new File(getLocalURI());
+        //CTS: Removed a thing here that created an empty file. Not sure why that was there.
+        if(!file.exists()) {
+            throw new IOException("No file exists at " + file.getAbsolutePath());
+        }
+        return new FileInputStream(file);
 
-	}
+    }
 
-	public String getURI() {
-		return "jr://archive/" + GUID + "/" + archiveURI;
-	}
+    public String getURI() {
+        return "jr://archive/" + GUID + "/" + archiveURI;
+    }
 
-	public boolean isReadOnly() {
-		return true;
-	}
+    public boolean isReadOnly() {
+        return true;
+    }
 
-	public void remove() throws IOException {
-		throw new IOException("Cannot remove files from the archive");
-	}
+    public void remove() throws IOException {
+        throw new IOException("Cannot remove files from the archive");
+    }
 
-	public String getLocalURI() {
-		return localroot +"/"+ archiveURI;
-	}
+    public String getLocalURI() {
+        return localroot +"/"+ archiveURI;
+    }
 
-	public Reference[] probeAlternativeReferences() {
-		return new Reference [0];
-	}
+    public Reference[] probeAlternativeReferences() {
+        return new Reference [0];
+    }
 }

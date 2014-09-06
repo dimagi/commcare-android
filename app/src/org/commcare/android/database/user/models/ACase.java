@@ -32,25 +32,25 @@ import org.commcare.cases.model.Case;
  *
  */
 public class ACase extends Case implements EncryptedModel {
-	public static final String STORAGE_KEY = "AndroidCase";
-	
-	
-	public ACase() {
-		super();
-	}
-	
-	public ACase(String a, String b) {
-		super(a,b);
-	}
-	public boolean isBlobEncrypted() {
-		return true;
-	}
+    public static final String STORAGE_KEY = "AndroidCase";
+    
+    
+    public ACase() {
+        super();
+    }
+    
+    public ACase(String a, String b) {
+        super(a,b);
+    }
+    public boolean isBlobEncrypted() {
+        return true;
+    }
 
-	public boolean isEncrypted(String data) {
-		if (data.equals("casetype")) {
-			return true;
-		} else if (data.equals("externalid")) {
-			return true;
-		} return false;
-	}
+    public boolean isEncrypted(String data) {
+        if (data.equals("casetype")) {
+            return true;
+        } else if (data.equals("externalid")) {
+            return true;
+        } return false;
+    }
 }

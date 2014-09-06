@@ -45,24 +45,36 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     private WifiP2pInfo info;
     ProgressDialog progressDialog = null;
     
-	final String baseDirectory = "wifidirect";
-	final String targetDirectory = baseDirectory + "/target";
-	final String zipDirectory = baseDirectory + "/zipfolder.zip";
+    final String baseDirectory = "wifidirect";
+    final String targetDirectory = baseDirectory + "/target";
+    final String zipDirectory = baseDirectory + "/zipfolder.zip";
 
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mContentView = inflater.inflate(R.layout.device_detail, container);
         return mContentView;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener#onConnectionInfoAvailable(android.net.wifi.p2p.WifiP2pInfo)
+     */
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo info) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onConnectionInfoAvailable");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onConnectionInfoAvailable");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
@@ -76,7 +88,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      * @param device the device to be displayed 
      */
     public void showDetails(WifiP2pDevice device) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "showing details in ddfragment with device: " +device.deviceAddress );
+        Log.d(CommCareWiFiDirectActivity.TAG, "showing details in ddfragment with device: " +device.deviceAddress );
         this.device = device;
         this.getView().setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
@@ -88,7 +100,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      * Clears the UI fields after a disconnect or direct mode disable operation.
      */
     public void resetViews() {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "resetting views");
+        Log.d(CommCareWiFiDirectActivity.TAG, "resetting views");
         mContentView.findViewById(R.id.btn_connect).setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
         view.setText("");

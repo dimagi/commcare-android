@@ -40,7 +40,7 @@ public class TextImageAudioView extends RelativeLayout {
 
     
     public TextImageAudioView(Context c) {
-    	this(c, null);
+        this(c, null);
     }
 
     public TextImageAudioView(Context c, EvaluationContext ec) {
@@ -56,14 +56,14 @@ public class TextImageAudioView extends RelativeLayout {
     }
     
 
-	public void setDisplay(DisplayUnit display) {
-		setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getAudioURI(), display.getImageURI());
-	}
+    public void setDisplay(DisplayUnit display) {
+        setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getAudioURI(), display.getImageURI());
+    }
     
     //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
     public void setAVT(String displayText, String audioURI, String imageURI) {
-    	this.removeAllViews();
-    	
+        this.removeAllViews();
+        
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         
         mTextView = (TextView)inflater.inflate(R.layout.entity_item_text, null);
@@ -77,12 +77,12 @@ public class TextImageAudioView extends RelativeLayout {
         
         String audioFilename = "";
         if(audioURI != null && !audioURI.equals("")) {
-		    try {
-		        audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
-		    } catch (InvalidReferenceException e) {
-		        Log.e(t, "Invalid reference exception");
-		        e.printStackTrace();
-		    }
+            try {
+                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+            } catch (InvalidReferenceException e) {
+                Log.e(t, "Invalid reference exception");
+                e.printStackTrace();
+            }
         }
 
         File audioFile = new File(audioFilename);
@@ -102,27 +102,27 @@ public class TextImageAudioView extends RelativeLayout {
         
         Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
         if(b != null) {
-	        mImageView = new ImageView(getContext());
-	        mImageView.setPadding(10, 10, 10, 10);
-	        mImageView.setAdjustViewBounds(true);
-	        mImageView.setImageBitmap(b);
-	        mImageView.setId(23422634);
-	        imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            mImageView = new ImageView(getContext());
+            mImageView.setPadding(10, 10, 10, 10);
+            mImageView.setAdjustViewBounds(true);
+            mImageView.setImageBitmap(b);
+            mImageView.setId(23422634);
+            imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             audioParams.addRule(CENTER_VERTICAL);
-	        addView(mImageView, imageParams);
+            addView(mImageView, imageParams);
         }
         
         textParams.addRule(RelativeLayout.CENTER_VERTICAL);
         textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
         if(imageURI != null && !imageURI.equals("") && mImageView != null){
-        	textParams.addRule(RelativeLayout.RIGHT_OF,mImageView.getId());
+            textParams.addRule(RelativeLayout.RIGHT_OF,mImageView.getId());
         }
         else{
-        	textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         }
-        	
+            
         if(mAudioButton != null) {
-        	textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+            textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
         }
         addView(mTextView, textParams);
     }
@@ -154,6 +154,10 @@ public class TextImageAudioView extends RelativeLayout {
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.view.View#onWindowVisibilityChanged(int)
+     */
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
@@ -163,6 +167,5 @@ public class TextImageAudioView extends RelativeLayout {
             }
         }
     }
-
 
 }
