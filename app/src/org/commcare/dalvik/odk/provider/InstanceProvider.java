@@ -64,6 +64,10 @@ public class InstanceProvider extends ContentProvider {
         }
 
 
+        /*
+         * (non-Javadoc)
+         * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
+         */
         @Override
         public void onCreate(SQLiteDatabase db) {            
            db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " (" 
@@ -79,6 +83,10 @@ public class InstanceProvider extends ContentProvider {
         }
 
 
+        /*
+         * (non-Javadoc)
+         * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
+         */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(t, "Upgrading database from version " + oldVersion + " to " + newVersion
@@ -90,24 +98,32 @@ public class InstanceProvider extends ContentProvider {
 
     private DatabaseHelper mDbHelper;
 
+    /*
+     * (non-Javadoc)
+     * @see android.content.ContentProvider#onCreate()
+     */
     @Override
     public boolean onCreate() {
-    	//This is so stupid.
+        //This is so stupid.
         return true;
     }
     
     public void init() {
-		//this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
-    	if(mDbHelper == null) {
+        //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
+        if(mDbHelper == null) {
             mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
-    	}
+        }
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
+     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
-    	init();
+        init();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(INSTANCES_TABLE_NAME);
 
@@ -135,6 +151,10 @@ public class InstanceProvider extends ContentProvider {
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.content.ContentProvider#getType(android.net.Uri)
+     */
     @Override
     public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)) {
@@ -150,6 +170,10 @@ public class InstanceProvider extends ContentProvider {
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
+     */
     @Override
     public Uri insert(Uri uri, ContentValues initialValues) {
         // Validate the requested uri
@@ -227,13 +251,16 @@ public class InstanceProvider extends ContentProvider {
     }
 
 
-    /**
+    /*
+     * (non-Javadoc)
+     * @see android.content.ContentProvider#delete(android.net.Uri, java.lang.String, java.lang.String[])
+     * 
      * This method removes the entry from the content provider, and also removes any associated files.
      * files:  form.xml, [formmd5].formdef, formname-media {directory}
      */
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
-    	init();
+        init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
         
@@ -241,17 +268,17 @@ public class InstanceProvider extends ContentProvider {
             case INSTANCES:                
                 Cursor del = null;
                 try {
-                	del = this.query(uri, null, where, whereArgs, null);
-	                del.moveToPosition(-1);
-	                while (del.moveToNext()) {
-	                    String instanceFile = del.getString(del.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-	                    String instanceDir = (new File(instanceFile)).getParent();
-	                    deleteFileOrDir(instanceDir);
-	                }
+                    del = this.query(uri, null, where, whereArgs, null);
+                    del.moveToPosition(-1);
+                    while (del.moveToNext()) {
+                        String instanceFile = del.getString(del.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                        String instanceDir = (new File(instanceFile)).getParent();
+                        deleteFileOrDir(instanceDir);
+                    }
                 } finally {
-                	if ( del != null ) {
-                		del.close();
-                	}
+                    if ( del != null ) {
+                        del.close();
+                    }
                 }
                 count = db.delete(INSTANCES_TABLE_NAME, where, whereArgs);
                 break;
@@ -261,18 +288,18 @@ public class InstanceProvider extends ContentProvider {
 
                 Cursor c = null;
                 try {
-                	c = this.query(uri, null, where, whereArgs, null);
-	                // This should only ever return 1 record.  I hope.
-	                c.moveToPosition(-1);
-	                while (c.moveToNext()) {
-	                    String instanceFile = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-	                    String instanceDir = (new File(instanceFile)).getParent();
-	                    deleteFileOrDir(instanceDir);           
-	                }
+                    c = this.query(uri, null, where, whereArgs, null);
+                    // This should only ever return 1 record.  I hope.
+                    c.moveToPosition(-1);
+                    while (c.moveToNext()) {
+                        String instanceFile = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                        String instanceDir = (new File(instanceFile)).getParent();
+                        deleteFileOrDir(instanceDir);           
+                    }
                 } finally {
-                	if ( c != null ) {
-                		c.close();
-                	}
+                    if ( c != null ) {
+                        c.close();
+                    }
                 }
                 
                 count =
@@ -291,9 +318,13 @@ public class InstanceProvider extends ContentProvider {
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
+     */
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
-    	init();
+        init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
         String status = null;

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tasks;
 
 import java.security.cert.CertificateException;
@@ -160,16 +157,17 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 				ResourceTable recovery = platform.getRecoveryTable();
 				temporary.setStateListener(this);
 
-				/*this populates the upgrade table with resources based on binary files,
-				 * starting with the profile file. If the new profile is not a newer version,
-				 * statgeUpgradeTable doesn't actually pull in all the new references
-				 */
-				platform.stageUpgradeTable(global, temporary, profileRef, startOverUpgrade);
-	    		Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
-	    		if(!newProfile.isNewer(profile)) {
-	    			Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-	    			return ResourceEngineOutcomes.StatusUpToDate;
-	    		}
+
+                /*this populates the upgrade table with resources based on binary files,
+                 * starting with the profile file. If the new profile is not a newer version,
+                 * statgeUpgradeTable doesn't actually pull in all the new references
+                 */
+                platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
+                Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
+                if(!newProfile.isNewer(profile)) {
+                    Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                    return ResourceEngineOutcomes.StatusUpToDate;
+                }
 
 				phase = PHASE_CHECKING;
 				//Replaces global table with temporary, or w/ recovery if something goes wrong
@@ -286,39 +284,39 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 		super.onPostExecute(result);
 		//remove all references 
 		c = null;
-	}
+	}                
 
-	public void resourceStateUpdated(ResourceTable table) {
-		Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
-		
-		//TODO: Better reflect upgrade status process
-		
-		int score = 0;
+    public void resourceStateUpdated(ResourceTable table) {
+        Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
+        
+        //TODO: Better reflect upgrade status process
+        
+        int score = 0;
 
-		for(Resource r : resources) {
-			switch(r.getStatus()) {
-			case Resource.RESOURCE_STATUS_UPGRADE:
-				//If we spot an upgrade after we've started the upgrade process,
-				//something now needs to be updated
-				if(phase == PHASE_CHECKING) {
-					this.phase = PHASE_DOWNLOAD;
-				}
-				score += 1;
-				break;
-			case Resource.RESOURCE_STATUS_INSTALLED:
-				score += 1;
-				break;
-			default:
-				score += 0;
-				break;
-			}
-		}
-		
-		incrementProgress(score, resources.size());
-	}
+        for(Resource r : resources) {
+            switch(r.getStatus()) {
+            case Resource.RESOURCE_STATUS_UPGRADE:
+                //If we spot an upgrade after we've started the upgrade process,
+                //something now needs to be updated
+                if(phase == PHASE_CHECKING) {
+                    this.phase = PHASE_DOWNLOAD;
+                }
+                score += 1;
+                break;
+            case Resource.RESOURCE_STATUS_INSTALLED:
+                score += 1;
+                break;
+            default:
+                score += 0;
+                break;
+            }
+        }
+        
+        incrementProgress(score, resources.size());
+    }
 
-	public void incrementProgress(int complete, int total) {
-		this.publishProgress(new int[] {complete, total, phase});
-	}
-	
+    public void incrementProgress(int complete, int total) {
+        this.publishProgress(new int[] {complete, total, phase});
+    }
+    
 }

@@ -31,82 +31,82 @@ import android.content.Context;
  *
  */
 public class FileBitCache implements BitCache {
-	Context context;
-	SecretKey key;
-	File temp;
-	
-	protected FileBitCache(Context context) {
-		this.context = context;
-	}
+    Context context;
+    SecretKey key;
+    File temp;
+    
+    protected FileBitCache(Context context) {
+        this.context = context;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.android.util.bitcache.BitCache#initializeCache()
-	 */
-	public void initializeCache() throws IOException {
-		File cacheLocation = context.getCacheDir();
-		
-		//generate temp file
-		temp = File.createTempFile("commcare_pull_" + new Date().getTime(), "xml",cacheLocation);
-		key = CryptUtil.generateSemiRandomKey();
-	}
+    /* (non-Javadoc)
+     * @see org.commcare.android.util.bitcache.BitCache#initializeCache()
+     */
+    public void initializeCache() throws IOException {
+        File cacheLocation = context.getCacheDir();
+        
+        //generate temp file
+        temp = File.createTempFile("commcare_pull_" + new Date().getTime(), "xml",cacheLocation);
+        key = CryptUtil.generateSemiRandomKey();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.android.util.bitcache.BitCache#getCacheStream()
-	 */
-	public OutputStream getCacheStream() throws IOException{
-		//generate write key/cipher
-		try {
-			Cipher encrypter = Cipher.getInstance("AES");
-			
-			encrypter.init(Cipher.ENCRYPT_MODE, key);
-			
-			//stream file 
-			FileOutputStream fos = new FileOutputStream(temp);
-			CipherOutputStream cos = new CipherOutputStream(fos, encrypter);
-			BufferedOutputStream bos = new BufferedOutputStream(cos, 1024);
+    /* (non-Javadoc)
+     * @see org.commcare.android.util.bitcache.BitCache#getCacheStream()
+     */
+    public OutputStream getCacheStream() throws IOException{
+        //generate write key/cipher
+        try {
+            Cipher encrypter = Cipher.getInstance("AES");
+            
+            encrypter.init(Cipher.ENCRYPT_MODE, key);
+            
+            //stream file 
+            FileOutputStream fos = new FileOutputStream(temp);
+            CipherOutputStream cos = new CipherOutputStream(fos, encrypter);
+            BufferedOutputStream bos = new BufferedOutputStream(cos, 1024);
 
-			return bos;
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		} catch (NoSuchPaddingException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-	}
+            return bos;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.android.util.bitcache.BitCache#retrieveCache()
-	 */
-	public InputStream retrieveCache() throws IOException {
-		try{
-			//generate read key/cipher
-			Cipher decrypter = Cipher.getInstance("AES");
-			decrypter.init(Cipher.DECRYPT_MODE, key);
-			
-			//process
-			FileInputStream fis = new FileInputStream(temp);
-			BufferedInputStream bis = new BufferedInputStream(fis, 1024);
-			CipherInputStream cis = new CipherInputStream(bis,decrypter);
-			return cis;
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		} catch (NoSuchPaddingException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public void release() {
-		key = null;
-		context = null;
-		temp.delete();
-	}
+    /* (non-Javadoc)
+     * @see org.commcare.android.util.bitcache.BitCache#retrieveCache()
+     */
+    public InputStream retrieveCache() throws IOException {
+        try{
+            //generate read key/cipher
+            Cipher decrypter = Cipher.getInstance("AES");
+            decrypter.init(Cipher.DECRYPT_MODE, key);
+            
+            //process
+            FileInputStream fis = new FileInputStream(temp);
+            BufferedInputStream bis = new BufferedInputStream(fis, 1024);
+            CipherInputStream cis = new CipherInputStream(bis,decrypter);
+            return cis;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public void release() {
+        key = null;
+        context = null;
+        temp.delete();
+    }
 }

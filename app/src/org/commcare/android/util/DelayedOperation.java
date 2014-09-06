@@ -8,5 +8,5 @@ package org.commcare.android.util;
  *
  */
 public interface DelayedOperation<T> {
-	public T execute();
+    public T execute();
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:customViews="http://schemas.android.com/apk/lib/org.commcare.android.view"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/grey_bordered_box"
@@ -66,6 +67,15 @@
             android:padding="15dp"
             android:scaleType="fitCenter"
             android:visibility="visible" />
+
+        <org.commcare.android.view.AspectRatioLayout
+            android:id="@+id/graph"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" 
+            android:visibility="gone"
+            customViews:ratio_width="2.0"
+            customViews:ratio_height="1.0" />
 
         <LinearLayout
             android:id="@+id/detail_address_view"

@@ -17,5 +17,5 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public enum PersistedType {
-	normal;
+    normal;
 }

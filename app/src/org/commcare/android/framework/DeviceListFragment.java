@@ -53,6 +53,10 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     View mContentView = null;
     private WifiP2pDevice device;
 
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -60,9 +64,13 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onCreateView DeviceListFragment");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onCreateView DeviceListFragment");
         mContentView = inflater.inflate(R.layout.device_list, container);
         return mContentView;
     }
@@ -93,12 +101,15 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         }
     }
 
-    /**
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView, android.view.View, int, long)
+     * 
      * Initiate a connection with the peer.
      */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onListItemClick");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onListItemClick");
         WifiP2pDevice device = (WifiP2pDevice) getListAdapter().getItem(position);
         Log.d(CommCareWiFiDirectActivity.TAG, "device is: " + device.deviceAddress);
         //((DeviceActionListener) getActivity()).showDetails(device);
@@ -135,6 +146,10 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
         }
 
+        /*
+         * (non-Javadoc)
+         * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
+         */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View v = convertView;
@@ -166,7 +181,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * @param device WifiP2pDevice object
      */
     public void updateThisDevice(WifiP2pDevice device) {
-    	 Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
+         Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
         this.device = device;
         TextView view = (TextView) mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);
@@ -174,9 +189,13 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         view.setText(getDeviceStatus(device.status));
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.net.wifi.p2p.WifiP2pManager.PeerListListener#onPeersAvailable(android.net.wifi.p2p.WifiP2pDeviceList)
+     */
     @Override
     public void onPeersAvailable(WifiP2pDeviceList peerList) {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onPeersAvailable");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onPeersAvailable");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
@@ -199,13 +218,17 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * 
      */
     public void onInitiateDiscovery() {
-    	Log.d(CommCareWiFiDirectActivity.TAG, "onInitiateDiscovery");
+        Log.d(CommCareWiFiDirectActivity.TAG, "onInitiateDiscovery");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
         progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel", "finding peers", true,
                 true, new DialogInterface.OnCancelListener() {
 
+	        	/*
+	        	 * (non-Javadoc)
+	        	 * @see android.content.DialogInterface.OnCancelListener#onCancel(android.content.DialogInterface)
+	        	 */
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         

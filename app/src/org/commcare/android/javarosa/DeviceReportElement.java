@@ -12,5 +12,5 @@ import org.xmlpull.v1.XmlSerializer;
  *
  */
 public interface DeviceReportElement {
-	public void writeToDeviceReport(XmlSerializer serializer) throws IOException;
+    public void writeToDeviceReport(XmlSerializer serializer) throws IOException;
 }
