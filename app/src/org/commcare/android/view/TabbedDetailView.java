@@ -7,6 +7,7 @@ import org.commcare.suite.model.Detail;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -31,6 +32,7 @@ public class TabbedDetailView extends RelativeLayout {
     private LinearLayout mMenu;
     private EntityDetailPagerAdapter mEntityDetailPagerAdapter;
     private ViewPager mViewPager;
+    private View mViewPagerWrapper;
     
     public TabbedDetailView(Context context) {
         super(context);
@@ -57,6 +59,7 @@ public class TabbedDetailView extends RelativeLayout {
 
         mMenu = (LinearLayout) root.findViewById(R.id.tabbed_detail_menu);
         mViewPager = (ViewPager) root.findViewById(R.id.tabbed_detail_pager);
+        mViewPagerWrapper = root.findViewById(R.id.tabbed_detail_pager_wrapper);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             
@@ -77,6 +80,12 @@ public class TabbedDetailView extends RelativeLayout {
      */
     public void setDetail(Detail detail) {
         Detail[] details = detail.getDetails();
+
+        LinearLayout.LayoutParams pagerLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        int margin = 0;
+        int menuVisibility = View.GONE;
+        int backgroundColor = Color.TRANSPARENT;
+
         if (details.length > 0) {
             LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, 
@@ -117,11 +126,16 @@ public class TabbedDetailView extends RelativeLayout {
                 mMenu.addView(view, fillLayout);                    
             }
             markSelectedTab(0);
-            mMenu.setVisibility(View.VISIBLE);
+            menuVisibility = View.VISIBLE;
+            backgroundColor = mContext.getResources().getColor(R.color.selected_tab_vertical);
+            margin = (int) getResources().getDimension(R.dimen.spacer);
+            pagerLayout.setMargins(0, margin, margin, margin);
         }
-        else {
-            mMenu.setVisibility(View.GONE);
-        }
+
+        mMenu.setVisibility(menuVisibility);
+        mViewPagerWrapper.setBackgroundColor(backgroundColor);
+        pagerLayout.setMargins(0, margin, margin, margin);
+        mViewPager.setLayoutParams(pagerLayout);
     }
     
     /*

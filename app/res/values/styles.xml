@@ -55,13 +55,11 @@
    <color name="light_grey">#D3D3D3</color>
    <color name="dark_grey">#A3A3A3</color>
    
-   <color name="blue_grad_end">#903867AD</color>
-   <color name="blue_grad_start">#806884AD</color>
-   <color name="solid_blue_grad_end">#FF3867AD</color>
-   <color name="solid_blue_grad_start">#FF8696AE</color>
+   <color name="blue_grad_end">#FF5C89CE</color>
+   <color name="blue_grad_start">#FF8696AE</color>
   
-   <color name="grey_grad_start">#80D3D3D3</color>
-   <color name="grey_grad_end">#A0D3D3D3</color>
+   <color name="grey_grad_start">#FFE2E2E2</color>
+   <color name="grey_grad_end">#FFDEDEDE</color>
    
    
    <color name="border_grey">#20959699</color>
@@ -69,8 +67,8 @@
    <color name="search_fuzzy_match">#87D13E</color>
    
    <color name="title_border">#444444</color>
-   <color name="title_neutral_grad_end">#FFD3D3D3</color>
-   <color name="title_neutral_grad_start">#FFE4E4E4</color>
+   <color name="title_neutral_grad_end">#FFDADADA</color>
+   <color name="title_neutral_grad_start">#FFEBEBEB</color>
   
    <color name="title_case_grad_end">#FF3867AD</color>
    <color name="title_case_grad_start">#FF6884AD</color>

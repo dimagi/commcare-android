@@ -3,7 +3,7 @@
     xmlns:customViews="http://schemas.android.com/apk/lib/org.commcare.android.view"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/solid_grey_bordered_box"
+    android:background="@drawable/grey_bordered_box"
     android:orientation="horizontal" android:weightSum="10">
 
     <TextView
@@ -11,7 +11,7 @@
         style="@style/EntityItemTextView"
         android:layout_width="0dp"
         android:layout_height="fill_parent"
-        android:background="@drawable/solid_blue_tabbed_box"
+        android:background="@drawable/blue_tabbed_box"
         android:gravity="top|left|center_vertical"
         android:text="Text"
         android:textAppearance="@style/EntityItemText"
