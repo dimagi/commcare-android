@@ -38,7 +38,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         super(context, getDbName(appId), null, DB_VERSION_APP);
     }
     
-    private static String getDbName(String appId) {
+    public static String getDbName(String appId) {
         return DB_LOCATOR_PREF_APP + appId;
     }
 

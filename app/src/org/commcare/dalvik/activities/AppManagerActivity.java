@@ -1,15 +1,16 @@
 package org.commcare.dalvik.activities;
 
+
 import org.commcare.android.adapters.AppManagerAdapter;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.app.DatabaseAppOpenHelper;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -134,7 +135,21 @@ public class AppManagerActivity extends Activity {
 	public void uninstallSelected(View v) {
 		String appId = (String) v.getContentDescription();
 		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
+		CommCareApplication._().initializeAppResources(new CommCareApp(selected));
+		CommCareApp app = CommCareApplication._().getCurrentApp();
+		
+		//1) Teardown the sandbox for this app
+		app.teardownSandbox();
+		//2) Delete all the user databases associated with this app
+		SqlStorage<UserKeyRecord> userDatabase = CommCareApplication._().getAppStorage(UserKeyRecord.class);
+		for (UserKeyRecord user : userDatabase) {
+			this.getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid())).delete();
+		}
+		//3) Delete the app database
+		this.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId())).delete();
+		//4) Delete the app record
 		CommCareApplication._().getGlobalStorage(ApplicationRecord.class).remove(selected.getID());
+		
 		refreshView();
 	}
 	
