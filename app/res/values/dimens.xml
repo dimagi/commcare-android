@@ -9,6 +9,8 @@
     <dimen name="title_logo_pad">8dp</dimen>
     <dimen name="tab_gradient_radius">300dp</dimen>
     
+    <dimen name="spacer_small">5dp</dimen>
+    
     <dimen name="login_box_margins">30dp</dimen>
     
     <dimen name="graph_x_margin">20dp</dimen>
