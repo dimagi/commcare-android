@@ -13,6 +13,7 @@ import org.achartengine.model.XYValueSeries;
 import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import org.commcare.android.models.RangeXYValueSeries;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
@@ -306,36 +307,6 @@ public class GraphView implements Serializable {
                 return -1;
             }
             return 0;
-        }
-    }
-    
-    /*
-     * Subclass of XYValueSeries allowing user to set a maximum radius.
-     * Useful when creating multiple bubble charts (or series on the same chart)
-     * and wanting their bubbles to be on the same scale.
-     */
-    private class RangeXYValueSeries extends XYValueSeries {
-        private Double max = null;
-
-        public RangeXYValueSeries(String title) {
-            super(title);
-        }
-        
-        /*
-         * (non-Javadoc)
-         * @see org.achartengine.model.XYValueSeries#getMaxValue()
-         */
-        @Override
-        public double getMaxValue() {
-            return max == null ? super.getMaxValue() : max;
-        }
-        
-        /*
-         * Set largest desired radius. No guarantees on what happens if the data
-         * actually contains a larger value.
-         */
-        public void setMaxValue(double value) {
-            max = value;
         }
     }
 }
