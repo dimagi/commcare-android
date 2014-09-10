@@ -180,9 +180,8 @@ public class EntityDetailView extends FrameLayout {
                 graphViewsCache.put(index, new Hashtable<Integer, View>());
             }
             if (graphView == null) {
-                GraphView g = new GraphView(getContext());
-                g.setTitle(labelText);
-                g.setClickEnabled(true);
+                GraphView g = new GraphView(getContext(), labelText);
+                g.setClickable(true);
                 graphView = g.getView((GraphData) field);
                 graphViewsCache.get(index).put(orientation, graphView);
             }
@@ -191,8 +190,7 @@ public class EntityDetailView extends FrameLayout {
             Intent graphIntent = graphIntentsCache.get(index);
             final Context context = getContext();
             if (graphIntent == null) {
-                GraphView g = new GraphView(context);
-                g.setTitle(labelText);
+                GraphView g = new GraphView(context, labelText);
                 graphIntent = g.getIntent((GraphData) field);
                 graphIntentsCache.put(index, graphIntent);
             }
