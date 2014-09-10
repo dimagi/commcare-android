@@ -1,5 +1,6 @@
 package org.commcare.android.view;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
@@ -9,6 +10,7 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.model.XYValueSeries;
+import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.dalvik.R;
@@ -20,23 +22,27 @@ import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.suite.model.graph.XYPointData;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
 
 /*
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
  * @author jschweers
  */
-public class GraphView {
+public class GraphView implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private static final int TEXT_SIZE = 21;
 
     private Context mContext;
     private GraphData mData;
     private XYMultipleSeriesDataset mDataset;
     private XYMultipleSeriesRenderer mRenderer; 
-
+    
     public GraphView(Context context) {
         mContext = context;
         mDataset = new XYMultipleSeriesDataset();
@@ -71,12 +77,8 @@ public class GraphView {
         }
         mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
     }
-        
-    /*
-     * Get a View object that will display this graph. This should be called after making
-     * any changes to graph's configuration, title, etc.
-     */
-    public View renderView(GraphData data) {
+    
+    private void render(GraphData data) {
         mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
@@ -90,12 +92,34 @@ public class GraphView {
         renderAnnotations();
 
         configure();
-        setMargins();
+        setMargins();        
+    }
+        
+    public Intent getIntent(GraphData data) {
+        render(data);
+        
+        String title = mRenderer.getChartTitle();
+        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
+        }
+        return ChartFactory.getLineChartIntent(mContext, mDataset, mRenderer, title);
+    }
+    
+    /*
+     * Get a View object that will display this graph. This should be called after making
+     * any changes to graph's configuration, title, etc.
+     */
+    public View getView(GraphData data) {
+        render(data);
         
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
         }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
+    }
+    
+    public void setClickEnabled(boolean enabled) {
+        mRenderer.setClickEnabled(enabled);
     }
     
     /*
@@ -136,7 +160,7 @@ public class GraphView {
      * Get layout params for this graph, which assume that graph will fill parent
      * unless dimensions have been provided via setWidth and/or setHeight.
      */
-    public LinearLayout.LayoutParams getLayoutParams() {
+    public static LinearLayout.LayoutParams getLayoutParams() {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);    
     }
     
@@ -221,11 +245,6 @@ public class GraphView {
         mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
 
-        boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
-        mRenderer.setPanEnabled(panAndZoom);
-        mRenderer.setZoomEnabled(panAndZoom);
-        mRenderer.setZoomButtonsVisible(panAndZoom);
-
         // User-configurable options
         mRenderer.setXTitle(mData.getConfiguration("x-axis-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("y-axis-title", ""));
@@ -268,6 +287,11 @@ public class GraphView {
                 mRenderer.setYLabels(Integer.valueOf(yLabelCount));
             }
         }
+
+        boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
+        mRenderer.setPanEnabled(panAndZoom);
+        mRenderer.setZoomEnabled(panAndZoom);
+        mRenderer.setZoomButtonsVisible(panAndZoom);
     }
     
     /**

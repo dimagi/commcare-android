@@ -175,6 +175,9 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
+            android:name="org.achartengine.GraphicalActivity">
+        </activity>
+        <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize" >
