@@ -34,9 +34,7 @@ import android.widget.LinearLayout;
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
  * @author jschweers
  */
-public class GraphView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class GraphView {
     private static final int TEXT_SIZE = 21;
 
     private Context mContext;
