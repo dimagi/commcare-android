@@ -191,7 +191,13 @@ public class EntityDetailView extends FrameLayout {
             final Context context = getContext();
             if (graphIntent == null) {
                 GraphView g = new GraphView(context, labelText);
-                graphIntent = g.getIntent((GraphData) field);
+                GraphData intentData = (GraphData) field;
+                // Full-screen view should allow for zoom
+                if (Boolean.valueOf(intentData.getConfiguration("zoom", "false")).equals(Boolean.FALSE)) {
+                    intentData = intentData.cloneConfiguration();
+                    intentData.setConfiguration("zoom", "true");
+                }
+                graphIntent = g.getIntent(intentData);
                 graphIntentsCache.put(index, graphIntent);
             }
             final Intent finalIntent = graphIntent;
