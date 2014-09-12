@@ -41,15 +41,13 @@
    </style>
    
    <style name="VersionIdText">
-       <item name="android:textSize">10dp</item> 
+       <item name="android:textSize">@dimen/text_size_extra_small</item> 
    </style>
    
    <style name = "WarningTextStyle">
        <item name ="android:textStyle">bold</item>
        <item name ="android:textColor">#FFFFFF</item>
    </style>
-   
-   <dimen name="interactive_font_size">20sp</dimen>
    
    <color name="solid_black">#000</color>
    <color name="light_grey">#D3D3D3</color>

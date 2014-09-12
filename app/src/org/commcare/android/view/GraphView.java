@@ -30,7 +30,7 @@ import android.widget.LinearLayout;
  * @author jschweers
  */
 public class GraphView {
-    private static final int TEXT_SIZE = 21;
+    private static final int TEXT_SIZE = R.dimen.text_size_large;
 
     private Context mContext;
     private GraphData mData;
