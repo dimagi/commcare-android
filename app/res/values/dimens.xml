@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Font sizes -->
+    <!-- Text sizes -->
     <dimen name="text_extra_small">9dp</dimen>
     <dimen name="text_small">14dp</dimen>
     <dimen name="text_medium">18dp</dimen>
