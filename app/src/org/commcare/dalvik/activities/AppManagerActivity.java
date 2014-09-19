@@ -149,6 +149,9 @@ public class AppManagerActivity extends Activity {
 		this.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId())).delete();
 		//4) Delete the app record
 		CommCareApplication._().getGlobalStorage(ApplicationRecord.class).remove(selected.getID());
+		//5) Reset the dbState and appResourceState in CCApplication
+		CommCareApplication._().setAppResourceState(CommCareApplication.STATE_UNINSTALLED);
+		CommCareApplication._().setDatabaseState(CommCareApplication.STATE_UNINSTALLED);
 		
 		refreshView();
 	}

@@ -247,7 +247,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     protected void onResume() {
     	super.onResume();
-
+    	
     	try {
     		//TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
     		if(CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
@@ -262,7 +262,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     	}catch(SessionUnavailableException sue) {
     		//Nothing, we're logging in here anyway
     	}
-
+    	
+        //If we arrived at LoginActivity from clicking the regular app icon, and there
+        //are no longer any available apps, we want to redirect to CCHomeActivity
+        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
+        if (readyApps.size() == 0) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
+        }
     	refreshView();
     }
 

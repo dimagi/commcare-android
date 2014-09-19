@@ -315,6 +315,14 @@ public class CommCareApplication extends Application {
         return resourceState;
     }
     
+    public void setAppResourceState(int resourceState) {
+        this.resourceState = resourceState;
+    }
+    
+    public void setDatabaseState(int dbState) {
+        this.dbState = dbState;
+    }
+    
     public void initializeGlobalResources(CommCareApp app) {
         if(dbState != STATE_UNINSTALLED) {
             resourceState = initializeAppResources(app);
