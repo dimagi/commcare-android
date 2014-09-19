@@ -236,7 +236,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 		
 		if(!Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
 			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
-			//and we can just skip this, unless it's upgradeMode OR we were called from the MultipleAppsManagerActivity
+			//and we can just skip this, unless it's upgradeMode OR we were called from the AppManagerActivity
 			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY 
 					&& !inUpgradeMode && !fromManager) {
 				Intent i = new Intent(getIntent());	
