@@ -10,6 +10,6 @@
     android:layout_height="wrap_content" 
     android:layout_gravity="center_vertical" 
     android:id="@+id/incoming_call_text" 
-    android:textSize="@dimen/text_size_large"
+    android:textSize="@dimen/text_large"
 ></TextView>
 </LinearLayout>

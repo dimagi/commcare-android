@@ -19,7 +19,7 @@
         android:layout_width="wrap_content" 
         android:id="@+id/call_log_name" 
         android:text="Caller Name" 
-        android:textSize="@dimen/text_size_medium"
+        android:textSize="@dimen/text_medium"
     ></TextView>
     
 	<TextView android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_width="wrap_content" android:text="Phone Number" android:id="@+id/call_log_number" android:layout_below="@+id/call_log_name" android:gravity="bottom" android:layout_marginTop="2sp" android:textStyle="bold"></TextView>

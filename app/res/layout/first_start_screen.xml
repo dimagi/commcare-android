@@ -55,7 +55,7 @@
                        android:layout_marginRight="10px"
                        android:gravity="center_horizontal"
                        android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."
-                       android:textSize="@dimen/text_size_small" />
+                       android:textSize="@dimen/text_small" />
 
                 </LinearLayout>
             </ScrollView>

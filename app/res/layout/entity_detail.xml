@@ -19,7 +19,7 @@
         android:text="Select" 
         android:layout_width="fill_parent" 
         android:id="@+id/entity_select_button" 
-        android:textSize="@dimen/text_size_large">
+        android:textSize="@dimen/text_large">
     </Button>
 </FrameLayout>
 
