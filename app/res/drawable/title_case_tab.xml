@@ -4,7 +4,7 @@
     <!-- "shadow" -->
     <item>
         <shape android:shape="rectangle" >
-           <solid android:color="@color/title_border"/>
+           <solid android:color="@color/grey_dark"/>
            
            <corners 
                android:radius="@dimen/title_round_depth"
@@ -22,8 +22,8 @@
             <!-- solid android:color="#903867AD"/ -->
             
             <gradient
-                android:startColor="@color/title_case_grad_start"
-		        android:endColor="@color/title_case_grad_end"
+                android:startColor="@color/blue_grey"
+		        android:endColor="@color/blue"
 		        android:gradientRadius="@dimen/tab_gradient_radius"
 		        android:centerX="25%"
             	android:centerY="50%"
