@@ -19,7 +19,7 @@
     <item android:bottom="1dp" android:right="0dp">
         <shape android:shape="rectangle"> 
             <gradient
-                android:startColor="@color/grey_extra_light"
+                android:startColor="@color/grey_lighter"
 		        android:endColor="@color/white"
 		        android:centerX="0"
             	android:centerY="0"

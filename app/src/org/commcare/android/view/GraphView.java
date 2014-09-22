@@ -181,8 +181,13 @@ public class GraphView {
             currentRenderer.setFillPoints(true);
         }
         
-        String lineColor = s.getConfiguration("line-color", "#ff000000");
-        currentRenderer.setColor(Color.parseColor(lineColor));
+        String lineColor = s.getConfiguration("line-color");
+        if (lineColor == null) {
+            currentRenderer.setColor(Color.BLACK);
+        }
+        else {
+            currentRenderer.setColor(Color.parseColor(lineColor));
+        }
         
         fillOutsideLine(s, currentRenderer, "fill-above", XYSeriesRenderer.FillOutsideLine.Type.ABOVE);
         fillOutsideLine(s, currentRenderer, "fill-below", XYSeriesRenderer.FillOutsideLine.Type.BELOW);

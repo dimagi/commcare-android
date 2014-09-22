@@ -19,8 +19,6 @@
 
     <item android:top="2dp" android:bottom="2dp" android:right="2dp">
         <shape android:shape="rectangle"> 
-            <!-- solid android:color="#903867AD"/ -->
-            
             <gradient
 		        android:startColor="@color/translucent_blue_grey"
 		        android:endColor="@color/translucent_blue"
