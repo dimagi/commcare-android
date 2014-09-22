@@ -41,7 +41,7 @@
    </style>
    
    <style name="VersionIdText">
-       <item name="android:textSize">@dimen/text_extra_small</item> 
+       <item name="android:textSize">@dimen/text_smaller</item> 
    </style>
    
    <style name = "WarningTextStyle">
