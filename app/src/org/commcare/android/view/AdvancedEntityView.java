@@ -51,13 +51,17 @@ public class AdvancedEntityView extends GridLayout {
 	private GridStyle[] styles;
 	String[] mRowData;
 	
-	public final int PADDING_VERTICAL = 1;														// vertical padding between each grid entity
-	public final int PADDING_HORIZONTAL = 10;													// horizontal padding between each grid entry
 	public final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);		// load the screen-size dependent font sizes
 	public final float MEDIUM_FONT = getResources().getDimension(R.dimen.font_size_medium);	
 	public final float LARGE_FONT = getResources().getDimension(R.dimen.font_size_large);
 	public final float XLARGE_FONT = getResources().getDimension(R.dimen.font_size_xlarge);
 	public final float DENSITY = getResources().getDisplayMetrics().density;
+	
+	public final int CELL_PADDING_HORIZONTAL = (int)getResources().getDimension(R.dimen.cell_padding_horizontal);
+	public final int CELL_PADDING_VERTICAL = (int)getResources().getDimension(R.dimen.cell_padding_vertical);
+	public final int ROW_PADDING_HORIZONTAL = (int)getResources().getDimension(R.dimen.row_padding_horizontal);
+	public final int ROW_PADDING_VERTICAL = (int)getResources().getDimension(R.dimen.row_padding_vertical);
+	
 	
 	public final int NUMBER_ROWS = 6;															// number of rows per screen (absolute screen size)
 	public final int NUMBER_COLUMNS = 12;														// number of columns each A.E.View is divided into
@@ -84,7 +88,7 @@ public class AdvancedEntityView extends GridLayout {
 		this.controller = controller;
 		this.setColumnCount(NUMBER_COLUMNS);
 		this.setRowCount(NUMBER_ROWS);
-		this.setPadding(15,15,15,15);
+		this.setPadding(ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL,ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL);
 		
 		// get cell dimensions
 		Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
@@ -100,8 +104,8 @@ public class AdvancedEntityView extends GridLayout {
 		} else if(densityDpi == DisplayMetrics.DENSITY_HIGH){
 			densityRowMultiplier = 1.5;
 		} else if(densityDpi == DisplayMetrics.DENSITY_MEDIUM){
-
-		}
+		    
+		} 
 		
 		//setup all the various dimensions we need
 		Point size = new Point();
@@ -202,15 +206,15 @@ public class AdvancedEntityView extends GridLayout {
 		for(int i=0; i<bgData.length; i++){
 			if(!bgData[i].equals("no")){
 				if(bgData[i].equals(("red-border"))){
-					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_dashed_red));
+					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
 				}
 				else if(bgData[i].equals(("yellow-border"))){
-					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_dashed_yellow));
+					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
 				}
 			}
 		}
 		
-		this.setPadding(15,15,15,15);
+		this.setPadding(ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL,ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL);
 
 		// iterate through every entity to be inserted in this view
 		for(int i=0; i<mRowData.length; i++){
@@ -252,6 +256,8 @@ public class AdvancedEntityView extends GridLayout {
 			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, mRowData[i], uniqueId, CssID);
 
 			mView.setLayoutParams(mGridParams);
+			
+			System.out.println("916 rowData: " + mRowData[i]);
 		
 			this.addView(mView, mGridParams);
 		}
@@ -276,6 +282,7 @@ public class AdvancedEntityView extends GridLayout {
 		int width = mGridParams.width;
 		if(multimediaType.equals(EntityView.FORM_IMAGE)){
 			retVal = new ImageView(context);
+			retVal.setPadding(CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL,CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL);
 			// image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
 			if(rowData != null && !rowData.equals("")){
 				mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
