@@ -44,7 +44,7 @@ public class AdvancedEntityView extends GridLayout {
 	private String[] searchTerms;
 	private GridCoordinate[] coords;
 	private GridStyle[] styles;
-	String[] mRowData;
+	Object[] mRowData;
 	
 	public final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);		// load the screen-size dependent font sizes
 	public final float MEDIUM_FONT = getResources().getDimension(R.dimen.font_size_medium);	
@@ -248,7 +248,7 @@ public class AdvancedEntityView extends GridLayout {
 			String textsize = mStyle.getFontSize();
 			String CssID = mStyle.getCssID();
 			
-			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, mRowData[i], uniqueId, CssID);
+			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID);
 
 			mView.setLayoutParams(mGridParams);
 		

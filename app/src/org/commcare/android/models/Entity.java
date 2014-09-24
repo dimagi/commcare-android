@@ -21,6 +21,14 @@ public class Entity<T> {
         this.t = t;
     }
     
+    public Entity(Object[] data, String[] sortData, String[] backgroundData, boolean[] relevancyData, T t) {
+        this.t = t;
+        this.sortData = sortData;
+        this.backgroundData = backgroundData;
+        this.data = data;
+        this.relevancyData = relevancyData;
+    }
+    
     public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t) {
         this.t = t;
         this.sortData = sortData;
@@ -30,6 +38,7 @@ public class Entity<T> {
 	public Entity(Object[] data, String[] sortData, String[] backgroundData, T t) {
 		this.t = t;
 		this.sortData = sortData;
+		this.backgroundData = backgroundData;
 		this.data = data;
     }
     
@@ -69,7 +78,7 @@ public class Entity<T> {
         return data.length;
     }
 	
-	public String[] getData(){
+	public Object[] getData(){
 		return data;
 	}
 	

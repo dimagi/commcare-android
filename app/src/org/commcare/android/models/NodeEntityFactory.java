@@ -84,6 +84,6 @@ public class NodeEntityFactory {
             count++;
         }
         
-		return new Entity<TreeReference>(details, sortDetails, data);
+		return new Entity<TreeReference>(details, sortDetails, backgroundDetails, relevancyDetails, data);
     }
 }

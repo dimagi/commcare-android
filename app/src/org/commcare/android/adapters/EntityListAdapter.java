@@ -95,9 +95,9 @@ public class EntityListAdapter implements ListAdapter {
         this.tts = tts;
         this.controller = controller;
 		mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
-        if(d.getCustomAction() != null) {
+        if(detail.getCustomAction() != null) {
         }
-        
+        usesGridView = detail.usesGridView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
     }
 
@@ -327,7 +327,7 @@ public class EntityListAdapter implements ListAdapter {
             if(tiav == null) {
                 tiav = new TextImageAudioView(context);
             }
-            tiav.setDisplay(d.getCustomAction().getDisplay());
+            tiav.setDisplay(detail.getCustomAction().getDisplay());
             tiav.setBackgroundResource(R.drawable.list_bottom_tab);
             //We're gonna double pad this because we want to give it some visual distinction
             //and keep the icon more centered
@@ -351,18 +351,16 @@ public class EntityListAdapter implements ListAdapter {
 		} 
 		// if not, just use the normal row
 		else{
-		EntityView emv =(EntityView)convertView;
+		    EntityView emv =(EntityView)convertView;
 			
 		if (emv == null) {
-			emv = new EntityView(context, d, e, tts, currentSearchTerms, controller, position);
+			emv = new EntityView(context, detail, entity, tts, currentSearchTerms, controller, position, mFuzzySearchEnabled);
 		} else {
 			emv.setSearchTerms(currentSearchTerms);
 			emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
 		}
 		return emv;
 		}
-		
-		//AdvancedEntityView emv = new AdvancedEntityView(context, d, e, currentSearchTerms);
 		
     }
 
