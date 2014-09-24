@@ -9,23 +9,25 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
+
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 /**
  * @author ctsims
@@ -48,8 +50,14 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     
     private int detailIndex;
     
+    @UiElement(value=R.id.entity_detail)
+    RelativeLayout container;
+    
     @UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
     Button next;
+    
+    @UiElement(value=R.id.entity_detail_tabs)
+    TabbedDetailView mDetailView;
     
     /*
      * (non-Javadoc)
@@ -106,11 +114,13 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
             
             entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
             
-            
-            refreshView();
+            mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
+               mDetailView.refresh(factory.getDetail(), detailIndex, true);
         } catch(SessionUnavailableException sue) {
             //TODO: Login and return to try again
         }
+        
+        mDetailView.setDetail(factory.getDetail());
     }
     
     /*
@@ -121,7 +131,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     protected boolean isTopNavEnabled() {
         return true;
     }
-
+    
 
     /*
      * (non-Javadoc)
@@ -142,15 +152,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 //        
 //        return title;
     }
-
-
-    /**
-     * Get form list from database and insert into view.
-     */
-    private void refreshView() {
-        adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, this, this, detailIndex);
-        ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
-    }
         
     protected void loadOutgoingIntent(Intent i) {
         i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
@@ -165,7 +166,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         switch(requestCode) {
         case CALL_OUT:
             if(resultCode == RESULT_CANCELED) {
-                refreshView();
+                mDetailView.refresh(factory.getDetail(), detailIndex, true);
                 return;
             } else {
                 long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);

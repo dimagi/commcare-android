@@ -45,9 +45,9 @@ public class EntityView extends LinearLayout {
     private AudioController controller;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
-    private static final String FORM_AUDIO = "audio";
-    private static final String FORM_IMAGE = "image";
-    private static final String FORM_GRAPH = "graph";
+    public static final String FORM_AUDIO = "audio";
+    public static final String FORM_IMAGE = "image";
+    public static final String FORM_GRAPH = "graph";
     
     private boolean mFuzzySearchEnabled = true;
 

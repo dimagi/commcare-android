@@ -58,11 +58,11 @@ public class EntityDetailView extends FrameLayout {
     private LinearLayout.LayoutParams origLabel;
     private LinearLayout.LayoutParams fill;
     
-    private static final String FORM_VIDEO = "video";
-    private static final String FORM_AUDIO = "audio";
+    private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
+    private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
     private static final String FORM_PHONE = "phone";
     private static final String FORM_ADDRESS = "address";
-    private static final String FORM_IMAGE = "image";
+    private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
 
     private static final int TEXT = 0;
@@ -150,7 +150,7 @@ public class EntityDetailView extends FrameLayout {
             }
         } else if(FORM_IMAGE.equals(form)) {
             String imageLocation = textField;
-            Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
+            Bitmap b = MediaUtil.getScaledImageFromReference(imageLocation);
             
             if(b == null) {
                 imageView.setImageDrawable(null);
