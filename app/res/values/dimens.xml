@@ -16,5 +16,5 @@
     
     <dimen name="graph_x_margin">20dp</dimen>
     <dimen name="graph_y_margin">0dp</dimen>
-    <dimen name="graph_text_margin">30dp</dimen>
+    <dimen name="graph_text_margin">50dp</dimen>
 </resources>
