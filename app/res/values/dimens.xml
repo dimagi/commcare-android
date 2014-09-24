@@ -9,6 +9,9 @@
     <dimen name="title_logo_pad">8dp</dimen>
     <dimen name="tab_gradient_radius">300dp</dimen>
     
+    <dimen name="spacer_small">5dp</dimen>
+    <dimen name="spacer">10dp</dimen>
+    
     <dimen name="login_box_margins">30dp</dimen>
     
     <!-- Default screen margins, per the Android Design guidelines. -->
@@ -29,5 +32,9 @@
 	<dimen name="text_small">14dp</dimen>
 	<dimen name="text_medium">18dp</dimen>
 	<dimen name="text_large">21dp</dimen>
+	
+    <dimen name="graph_x_margin">20dp</dimen>
+    <dimen name="graph_y_margin">0dp</dimen>
+    <dimen name="graph_text_margin">50dp</dimen>
     
 </resources>

@@ -38,14 +38,18 @@ import android.widget.ListView;
 
 @ManagedUi(R.layout.screen_suite_menu)
 public class MenuList extends CommCareActivity implements OnItemClickListener {
-	
-	private CommCarePlatform platform;
-	
-	private GenericMenuListAdapter adapter;
-	
-	@UiElement(R.id.screen_suite_menu_list)
-	private ListView list;
-	
+    
+    private CommCarePlatform platform;
+    
+    private GenericMenuListAdapter adapter;
+    
+    @UiElement(R.id.screen_suite_menu_list)
+    private ListView list;
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +58,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         
        if(menuId==null){
-    	   menuId="root";
+           menuId="root";
        }
        
        adapter = new GenericMenuListAdapter(this,platform,menuId);
@@ -64,38 +68,49 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
+     */
     @Override
     protected boolean isTopNavEnabled() {
-    	return true;
+        return true;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
+     */
     @Override
     public String getActivityTitle() {
-		//return adapter.getMenuTitle();
-    	return null;
-	}
-
-
-	/**
-     * Get form list from database and insert into view.
-     */
-    private void refreshView() {
-    	list.setAdapter(adapter);
+        //return adapter.getMenuTitle();
+        return null;
     }
 
 
     /**
+     * Get form list from database and insert into view.
+     */
+    private void refreshView() {
+        list.setAdapter(adapter);
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+     * 
      * Stores the path of selected form and finishes.
      */
     @Override
     public void onItemClick(AdapterView listView, View view, int position, long id) {
-    	String commandId;
-    	Object value = listView.getAdapter().getItem(position);
-    	if(value instanceof Entry) {
-    		commandId = ((Entry)value).getCommandId();
-    	} else {
-    		commandId = ((Menu)value).getId();
-    	}
+        String commandId;
+        Object value = listView.getAdapter().getItem(position);
+        if(value instanceof Entry) {
+            commandId = ((Entry)value).getCommandId();
+        } else {
+            commandId = ((Menu)value).getId();
+        }
 
         // create intent for return and store path
         Intent i = new Intent();

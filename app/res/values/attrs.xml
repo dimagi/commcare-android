@@ -1,0 +1,6 @@
+<resources>
+    <declare-styleable name="AspectRatioLayout">
+        <attr name="ratio_width" format="float" />
+        <attr name="ratio_height" format="float" />
+    </declare-styleable>
+</resources>

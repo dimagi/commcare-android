@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.javarosa;
 
 import java.io.IOException;
@@ -20,82 +17,94 @@ import org.xmlpull.v1.XmlSerializer;
  *
  */
 public class AndroidLogSerializer extends StreamLogSerializer implements DeviceReportElement {
-	SqlStorage<AndroidLogEntry> storage;
-	LogEntry entry;
-	
-	XmlSerializer serializer;
-	
-	public AndroidLogSerializer(LogEntry entry) {
-		this.entry = entry;
-	}
+    SqlStorage<AndroidLogEntry> storage;
+    LogEntry entry;
+    
+    XmlSerializer serializer;
+    
+    public AndroidLogSerializer(LogEntry entry) {
+        this.entry = entry;
+    }
 
-	public AndroidLogSerializer(SqlStorage<AndroidLogEntry> logStorage) throws IOException {
-		super();
-		this.storage = logStorage;
-		
-		this.setPurger(new Purger() {
+    public AndroidLogSerializer(SqlStorage<AndroidLogEntry> logStorage) throws IOException {
+        super();
+        this.storage = logStorage;
+        
+        this.setPurger(new Purger() {
 
-			@Override
-			public void purge(final SortedIntSet IDs) {
-				storage.removeAll(new EntityFilter<LogEntry> () {
-					public int preFilter (int id, Hashtable<String, Object> metaData) {
-						return IDs.contains(id) ? PREFILTER_INCLUDE : PREFILTER_EXCLUDE;
-					}
+            /*
+             * (non-Javadoc)
+             * @see org.javarosa.core.log.StreamLogSerializer.Purger#purge(org.javarosa.core.util.SortedIntSet)
+             */
+            @Override
+            public void purge(final SortedIntSet IDs) {
+                storage.removeAll(new EntityFilter<LogEntry> () {
+                    public int preFilter (int id, Hashtable<String, Object> metaData) {
+                        return IDs.contains(id) ? PREFILTER_INCLUDE : PREFILTER_EXCLUDE;
+                    }
 
-					public boolean matches(LogEntry e) {
-						throw new RuntimeException("can't happen");
-					}
-				});
+                    public boolean matches(LogEntry e) {
+                        throw new RuntimeException("can't happen");
+                    }
+                });
 
-			}
-			
-		});
-	}
-	
-	@Override
-	protected void serializeLog(LogEntry entry) throws IOException {
-		String dateString = DateUtils.formatDateTime(entry.getTime(), DateUtils.FORMAT_ISO8601);
-		
-		serializer.startTag(DeviceReportWriter.XMLNS,"log");
-		try {
-			serializer.attribute(null,"date", dateString);
-			writeText("type", entry.getType());
-			writeText("msg", entry.getMessage());
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			serializer.endTag(DeviceReportWriter.XMLNS,"log");
-		}
-	}
-	
-	private void writeText(String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
-		serializer.startTag(DeviceReportWriter.XMLNS,element);
-		try {
-	        serializer.text(text);
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			serializer.endTag(DeviceReportWriter.XMLNS,element);
-		}
-	}
+            }
+            
+        });
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.log.StreamLogSerializer#serializeLog(org.javarosa.core.log.LogEntry)
+     */
+    @Override
+    protected void serializeLog(LogEntry entry) throws IOException {
+        String dateString = DateUtils.formatDateTime(entry.getTime(), DateUtils.FORMAT_ISO8601);
+        
+        serializer.startTag(DeviceReportWriter.XMLNS,"log");
+        try {
+            serializer.attribute(null,"date", dateString);
+            writeText("type", entry.getType());
+            writeText("msg", entry.getMessage());
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            serializer.endTag(DeviceReportWriter.XMLNS,"log");
+        }
+    }
+    
+    private void writeText(String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
+        serializer.startTag(DeviceReportWriter.XMLNS,element);
+        try {
+            serializer.text(text);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            serializer.endTag(DeviceReportWriter.XMLNS,element);
+        }
+    }
 
-	@Override
-	public void writeToDeviceReport(XmlSerializer serializer) throws IOException {
-		//TODO: Stop doing what the special case here is for
-		this.serializer = serializer;
-		
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.javarosa.DeviceReportElement#writeToDeviceReport(org.xmlpull.v1.XmlSerializer)
+     */
+    @Override
+    public void writeToDeviceReport(XmlSerializer serializer) throws IOException {
+        //TODO: Stop doing what the special case here is for
+        this.serializer = serializer;
+        
         serializer.startTag(DeviceReportWriter.XMLNS, "log_subreport");
         
         try  {
-			if(storage != null) {
-				if(Logger._() != null) {
-					Logger._().serializeLogs(this);
-				}
-			} else {
-				serializeLog(entry);
-			}
+            if(storage != null) {
+                if(Logger._() != null) {
+                    Logger._().serializeLogs(this);
+                }
+            } else {
+                serializeLog(entry);
+            }
         } finally {
-        	serializer.endTag(DeviceReportWriter.XMLNS, "log_subreport");
+            serializer.endTag(DeviceReportWriter.XMLNS, "log_subreport");
         }
-	}
+    }
 }

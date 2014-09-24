@@ -8,6 +8,6 @@ package org.commcare.android.database;
  *
  */
 public interface EncryptedModel {
-	public boolean isEncrypted(String data);
-	public boolean isBlobEncrypted();
+    public boolean isEncrypted(String data);
+    public boolean isBlobEncrypted();
 }

@@ -9,11 +9,11 @@ package org.commcare.android.util;
  */
 public class SessionUnavailableException extends RuntimeException {
 
-	public SessionUnavailableException() {
-		super();
-	}
+    public SessionUnavailableException() {
+        super();
+    }
 
-	public SessionUnavailableException(String message) {
-		super(message);
-	}
+    public SessionUnavailableException(String message) {
+        super(message);
+    }
 }

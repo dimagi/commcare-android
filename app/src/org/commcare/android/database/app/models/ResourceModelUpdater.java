@@ -31,45 +31,45 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class ResourceModelUpdater extends Resource {
-	
-	/**
-	 Blank constructor for deserialization only!
-	*/
-	public ResourceModelUpdater() {
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.Resource#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	@Override
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		this.recordId = ExtUtil.readInt(in);
-		this.version = ExtUtil.readInt(in);
-		this.id = ExtUtil.readString(in);
-		this.guid = ExtUtil.readString(in);
-		this.status = ExtUtil.readInt(in);
-		this.parent = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-		
-		locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class),pf);
-		this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeNumeric(out,recordId);
-		ExtUtil.writeNumeric(out,version);
-		ExtUtil.writeString(out, id);
-		ExtUtil.writeString(out,guid);
-		ExtUtil.writeNumeric(out,status);
-		ExtUtil.writeString(out, ExtUtil.emptyIfNull(parent));
-		
-		ExtUtil.write(out, new ExtWrapList(locations));
-		ExtUtil.write(out, new ExtWrapTagged(initializer));
-		ExtUtil.writeString(out,  ExtUtil.emptyIfNull((String)null));
-	}
+    
+    /**
+     Blank constructor for deserialization only!
+    */
+    public ResourceModelUpdater() {
+        
+    }
+    
+    /* (non-Javadoc)
+     * @see org.commcare.resources.model.Resource#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        this.recordId = ExtUtil.readInt(in);
+        this.version = ExtUtil.readInt(in);
+        this.id = ExtUtil.readString(in);
+        this.guid = ExtUtil.readString(in);
+        this.status = ExtUtil.readInt(in);
+        this.parent = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        
+        locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class),pf);
+        this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeNumeric(out,recordId);
+        ExtUtil.writeNumeric(out,version);
+        ExtUtil.writeString(out, id);
+        ExtUtil.writeString(out,guid);
+        ExtUtil.writeNumeric(out,status);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(parent));
+        
+        ExtUtil.write(out, new ExtWrapList(locations));
+        ExtUtil.write(out, new ExtWrapTagged(initializer));
+        ExtUtil.writeString(out,  ExtUtil.emptyIfNull((String)null));
+    }
 
 }
