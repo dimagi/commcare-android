@@ -8,7 +8,6 @@ import net.nightwhistler.htmlspanner.Stylizer;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
@@ -22,14 +21,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
+import android.text.Spannable;
 import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.Space;
@@ -86,13 +81,10 @@ public class AdvancedEntityView extends GridLayout {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.controller = controller;
+		    
 		this.setColumnCount(NUMBER_COLUMNS);
 		this.setRowCount(NUMBER_ROWS);
 		this.setPadding(ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL,ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL);
-		
-		// get cell dimensions
-		Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-		int rotation = display.getRotation();
 		
 		// get density metrics
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
@@ -113,12 +105,10 @@ public class AdvancedEntityView extends GridLayout {
 		
 		screenWidth = size.x-1;
 		screenHeight = size.y-1;
-	
 		
 		// If screen is rotated, use width for cell height measurement
 		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-			
-			if(((EntitySelectActivity)context).inAwesomeMode()){
+			if(context.getString(R.string.panes).equals("two")){
 				screenWidth = screenWidth/2;
 			}
 			
@@ -203,14 +193,19 @@ public class AdvancedEntityView extends GridLayout {
 		
 		this.setBackgroundDrawable(null);
 		
+		// see if any entities have background data set
+		
 		for(int i=0; i<bgData.length; i++){
 			if(!bgData[i].equals("no")){
 				if(bgData[i].equals(("red-border"))){
 					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
-				}
-				else if(bgData[i].equals(("yellow-border"))){
+				} else if(bgData[i].equals(("yellow-border"))){
 					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
-				}
+				} else if(bgData[i].equals(("red-background"))){
+                    this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
+                } else if(bgData[i].equals(("yellow-background"))){
+                    this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
+                }
 			}
 		}
 		
@@ -256,8 +251,6 @@ public class AdvancedEntityView extends GridLayout {
 			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, mRowData[i], uniqueId, CssID);
 
 			mView.setLayoutParams(mGridParams);
-			
-			System.out.println("916 rowData: " + mRowData[i]);
 		
 			this.addView(mView, mGridParams);
 		}
@@ -297,8 +290,16 @@ public class AdvancedEntityView extends GridLayout {
     		}
 		} else{
 			retVal = new TextView(context);
-			((TextView)retVal).setText(rowData);
-			// handle horizontal alignment
+			
+			if(cssid !=null && !cssid.equals("none")){
+			    Spannable mSpannable = Stylizer.getCustomSpannable(cssid, rowData);
+			    ((TextView)retVal).setText(mSpannable);
+			} else{
+			    Spannable mSpannable = Stylizer.getSpannable(rowData);
+			    ((TextView)retVal).setText(mSpannable);
+			}
+
+			// handle horizontal alignments
 			if(horzAlign.equals("center")){
 				((TextView)retVal).setGravity(Gravity.CENTER_HORIZONTAL);
 			} else if(horzAlign.equals("left")) {
@@ -326,10 +327,6 @@ public class AdvancedEntityView extends GridLayout {
 			} else if(textsize.equals("xlarge")){
 				((TextView)retVal).setTextSize(XLARGE_FONT/DENSITY);
 			} 
-			
-			if(cssid != null && !cssid.equals("none")){
-				((TextView)retVal).setText(Stylizer.getStyleSpannable(cssid,rowData));
-			}
 		}
 		
 		return retVal;
