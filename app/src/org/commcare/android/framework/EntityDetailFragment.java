@@ -49,6 +49,7 @@ public class EntityDetailFragment extends Fragment {
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Note that some of this setup could be moved into onAttach if it would help performance
         Bundle args = getArguments();
 
         Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
