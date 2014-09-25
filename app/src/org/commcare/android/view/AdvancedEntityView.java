@@ -3,10 +3,9 @@
  */
 package org.commcare.android.view;
 
-import net.nightwhistler.htmlspanner.Stylizer;
-
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.CachingAsyncImageLoader;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.GridCoordinate;
@@ -292,10 +291,10 @@ public class AdvancedEntityView extends GridLayout {
 			retVal = new TextView(context);
 			
 			if(cssid !=null && !cssid.equals("none")){
-			    Spannable mSpannable = Stylizer.getCustomSpannable(cssid, rowData);
+			    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
 			    ((TextView)retVal).setText(mSpannable);
 			} else{
-			    Spannable mSpannable = Stylizer.getSpannable(rowData);
+			    Spannable mSpannable = MarkupUtil.getSpannable(rowData);
 			    ((TextView)retVal).setText(mSpannable);
 			}
 
