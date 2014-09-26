@@ -80,10 +80,6 @@ public class GraphView {
         mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
-            XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-            mRenderer.addSeriesRenderer(currentRenderer);
-            
-            configureSeries(s, currentRenderer);
             renderSeries(s);
         }
         
@@ -91,6 +87,23 @@ public class GraphView {
 
         configure();
         setMargins();
+        
+        // Graph will not render correctly unless it has data. 
+        // Add a dummy series to guarantee this.
+        // Do this after adding any real data and after configuring
+        // so that get_AxisMin functions return correct values.
+        SeriesData s = new SeriesData();
+        double minX = mRenderer.getXAxisMin();
+        double minY = mRenderer.getYAxisMin();
+        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            s.addPoint(new BubblePointData(minX, minY, 0.0));
+        }
+        else {
+            s.addPoint(new XYPointData(minX, minY));
+        }
+        s.setConfiguration("line-color", "#00000000");
+        s.setConfiguration("point-style", "none");
+        renderSeries(s);
         
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
@@ -102,6 +115,10 @@ public class GraphView {
      * Set up a single series.
      */
     private void renderSeries(SeriesData s) {
+        XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
+        mRenderer.addSeriesRenderer(currentRenderer);
+        configureSeries(s, currentRenderer);
+            
         XYSeries series;
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             series = new RangeXYValueSeries("");
