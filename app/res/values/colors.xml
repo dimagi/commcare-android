@@ -22,9 +22,9 @@
     <color name="translucent_blue">#903867AD</color>
     <color name="translucent_blue_grey">#806884AD</color>
     
-    <color name="yellow_highlight">#FFE88F</color>
-
-    <color name="green_highlight">#87D13E</color>
+    <color name="yellow">#FFE88F</color>
+    <color name="yellow_green">#DDECAC</color>
+    <color name="green">#87D13E</color>
 
 	<color name="red">#FF0000</color>
 

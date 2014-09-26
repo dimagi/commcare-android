@@ -298,7 +298,7 @@ public class EntityView extends LinearLayout {
             int index = TextUtils.indexOf(normalizedDisplayString, searchText);
             
             while (index >= 0) {
-              raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.yellow_highlight)), index, index
+              raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.yellow)), index, index
                   + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
               
               matches.add(new int[] {index, index + searchText.length() } );
@@ -336,7 +336,7 @@ public class EntityView extends LinearLayout {
                     if(!skip) {
                         //Walk the string to find words that are fuzzy matched
                         if(StringUtils.fuzzyMatch(backgroundString.substring(curStart, curEnd), searchText)) {
-                            raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.green_highlight)), curStart, 
+                            raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.green)), curStart, 
                                     curEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
