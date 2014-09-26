@@ -197,7 +197,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
         noSearchResults = (TextView) findViewById(R.id.no_search_results);
-        noSearchResults.setText(Localization.get("select.search.empty"));
         header = (LinearLayout)findViewById(R.id.entity_select_header);
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
@@ -501,6 +500,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             filterString = s.toString();
             if(adapter != null) {
                 adapter.applyFilter(filterString);
+                noSearchResults.setText(Localization.get("select.search.empty", new String[] {searchbox.getText().toString()}));
                 noSearchResults.setVisibility(adapter.getCount() == 0 ? View.VISIBLE : View.GONE);
             }
         }
