@@ -4,7 +4,7 @@
     <!-- "shadow" -->
     <item>
         <shape android:shape="rectangle" >
-           <solid android:color="@color/light_grey"/>
+           <solid android:color="@color/grey_light"/>
            <corners 
                android:radius="12dp"
                android:bottomRightRadius="12dp" 
@@ -18,7 +18,7 @@
 
     <item android:bottom="2dp" android:right="2dp">
         <shape android:shape="rectangle"> 
-            <solid android:color="@color/dark_grey"/>
+            <solid android:color="@color/grey"/>
             <corners 
                android:radius="12dp"
                android:bottomRightRadius="12dp" 

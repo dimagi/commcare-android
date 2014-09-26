@@ -24,7 +24,7 @@
         android:inputType="textMultiLine"
         android:lines="5"
         android:gravity="top"
-        android:textColor="#000000" />
+        android:textColor="@color/black" />
     
     <Button
         android:id="@+id/ReportButton01"

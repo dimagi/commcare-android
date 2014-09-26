@@ -127,7 +127,7 @@ public class TabbedDetailView extends RelativeLayout {
             }
             markSelectedTab(0);
             menuVisibility = View.VISIBLE;
-            backgroundColor = mContext.getResources().getColor(R.color.selected_tab_vertical);
+            backgroundColor = mContext.getResources().getColor(R.color.yellow_green);
             margin = (int) getResources().getDimension(R.dimen.spacer);
             pagerLayout.setMargins(0, margin, margin, margin);
         }
