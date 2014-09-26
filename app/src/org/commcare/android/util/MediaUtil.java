@@ -27,6 +27,10 @@ import android.graphics.BitmapFactory;
  *
  */
 public class MediaUtil {
+    public static final String FORM_VIDEO = "video";
+    public static final String FORM_AUDIO = "audio";
+    public static final String FORM_IMAGE = "image";
+
     public static Bitmap getScaledImageFromReference(Context c, String jrReference) {
         //TODO: Eventually we'll want to be able to deal with dymanic resources here.
         try {
