@@ -56,7 +56,7 @@ public class NodeEntityFactory {
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
         String[] sortDetails = new String[length];
-		String[] backgroundDetails = new String[detail.getHeaderForms().length];
+		String[] backgroundDetails = new String[length];
 		boolean[] relevancyDetails = new boolean[length];
         int count = 0;
         for(DetailField f : this.getDetail().getFields()) {
@@ -70,7 +70,7 @@ public class NodeEntityFactory {
                     sortDetails[count] = sortText.evaluate(nodeContext);
 				}
 				if(backgroundText == null) {
-					backgroundDetails[count] = "no";
+					backgroundDetails[count] = "";
 				} else {
 					backgroundDetails[count] = backgroundText.evaluate(nodeContext);
                 }

@@ -6,15 +6,24 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
+/***
+ * 
+ * @author wspride
+ *
+ *  Asynchronous class for loading images into views outside of the main thread.
+ *  Allows smooth scrolling in ListViews. 
+ *
+ */
+
 @SuppressLint("NewApi")
 public class DecodeTask extends AsyncTask<String, Void, Bitmap> {
 
 	private static int MaxTextureSize = 2048; /* True for most devices. */
 
-	public ImageView v;
+	private ImageView mImageView;
 
 	public DecodeTask(ImageView iv) {
-		v = iv;
+		mImageView = iv;
 	}
 
 	protected Bitmap doInBackground(String... params) {
@@ -28,6 +37,17 @@ public class DecodeTask extends AsyncTask<String, Void, Bitmap> {
 			return bitmap;
 		}
 
+		
+		/*
+		 * First, we set inJustDecodeBounds to true. This allows us to call decodeFile
+		 * and get the resulting height, width, without allocating the pixels for the image
+		 * After doing this, we continually query decodeFile, check to see if the resulting height or width
+		 * is within our texture bounds and, if not, increase the sample size (reducing exponentially the size
+		 * and number of pixels returned) and decode again until we are within the textureSize (so as to 
+		 * not waste resolution). We then toggle inJustDecodeBounds to false, query the bitmap for real,
+		 * and return the image.
+		 */
+		
 		opt.inJustDecodeBounds = true;
 		BitmapFactory.decodeFile(params[0], opt);
 		while(opt.outHeight > MaxTextureSize || opt.outWidth > MaxTextureSize) {
@@ -36,14 +56,13 @@ public class DecodeTask extends AsyncTask<String, Void, Bitmap> {
 		}
 		opt.inJustDecodeBounds = false;
 
-		bitmap = BitmapFactory.decodeFile(params[0], opt);
-		return bitmap;
+		return BitmapFactory.decodeFile(params[0], opt);
 	}
 
 	@Override
 	protected void onPostExecute(Bitmap result) {
-		if(v != null) {
-			v.setImageBitmap(result);
+		if(mImageView != null) {
+			mImageView.setImageBitmap(result);
 		}
 	}
 

@@ -67,11 +67,7 @@ public class IncompleteFormRecordView extends LinearLayout {
     public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
         if(names.containsKey(record.getFormNamespace())) {
             Text name = names.get(record.getFormNamespace());
-            
             mPrimaryTextView.setText(name.evaluate());
-			mPrimaryTextView.setText(Localizer.processArguments(name.evaluate(), new String[] {""}).trim());
-			
-			mPrimaryTextView.setText(MediaUtil.stripArguments(name.evaluate()));
         } else {
             formExists = false;
             mPrimaryTextView.setText(Localization.get("form.record.gone"));
