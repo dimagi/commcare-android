@@ -500,8 +500,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             filterString = s.toString();
             if(adapter != null) {
                 adapter.applyFilter(filterString);
-                noSearchResults.setText(Localization.get("select.search.empty", new String[] {searchbox.getText().toString()}));
-                noSearchResults.setVisibility(adapter.getCount() == 0 ? View.VISIBLE : View.GONE);
+                String query = searchbox.getText().toString();
+                if (!"".equals(query)) {
+                    noSearchResults.setText(Localization.get("select.search.empty", new String[] {
+                        ""+adapter.getCount(), 
+                        ""+adapter.getFullCount(), 
+                        query
+                    }));
+                    noSearchResults.setVisibility(View.VISIBLE);
+                }
+                else {
+                    noSearchResults.setVisibility(View.GONE);
+                }
             }
         }
     }

@@ -267,17 +267,24 @@ public class EntityListAdapter implements ListAdapter {
      * @see android.widget.Adapter#getCount()
      */
     public int getCount() {
-        return getCount(false);
+        return getCount(false, false);
+    }
+    
+    /*
+     * Returns total number of items, ignoring any filter.
+     */
+    public int getFullCount() {
+        return getCount(false, true);
     }
     
     /*
      * Get number of items, with a parameter to decide whether or not action counts as an item.
      */
-    public int getCount(boolean ignoreAction) {
+    public int getCount(boolean ignoreAction, boolean fullCount) {
         //Always one extra element if the action is defined
-        return current.size() + (actionEnabled && !ignoreAction ? 1 : 0);
+        return (fullCount ? full.size() : current.size()) + (actionEnabled && !ignoreAction ? 1 : 0);
     }
-
+    
     /* (non-Javadoc)
      * @see android.widget.Adapter#getItem(int)
      */
