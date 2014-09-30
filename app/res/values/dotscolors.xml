@@ -13,8 +13,9 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 -->
+
 <resources>
-<color name="dateback">#FFFFFF</color>
+<color name="dateback">@color/white</color>
 <color name="bigday">#0000FF</color>
 <color name="dotsdate">#5050BF</color>
 <color name="red">#ff3636</color>

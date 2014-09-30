@@ -4,7 +4,7 @@
     <!-- "shadow" -->
     <item>
         <shape android:shape="rectangle" >
-           <solid android:color="@color/border_grey"/>
+           <solid android:color="@color/translucent_grey_dark"/>
            
            <corners 
                android:radius="12dp"
@@ -20,8 +20,8 @@
     <item android:top="2dp" android:bottom="2dp" android:right="2dp">
         <shape android:shape="rectangle"> 
             <gradient
-                android:startColor="@color/grey_grad_start"
-		        android:endColor="@color/grey_grad_end"
+                android:startColor="@color/translucent_grey"
+		        android:endColor="@color/translucent_grey_light"
 		        android:gradientRadius="300"
 		        android:centerX="25%"
             	android:centerY="50%"

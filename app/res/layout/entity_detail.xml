@@ -6,12 +6,12 @@
   android:layout_width="wrap_content"
   android:layout_height="wrap_content">
 
-    <org.commcare.android.view.TabbedDetailView
-        android:id="@+id/entity_detail_tabs"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical"
-        android:layout_above="@+id/entity_detail_bottom_pane" />
+   <org.commcare.android.view.TabbedDetailView
+       android:id="@+id/entity_detail_tabs"
+       android:layout_width="fill_parent"
+       android:layout_height="fill_parent"
+       android:orientation="vertical"
+       android:layout_above="@+id/entity_detail_bottom_pane" />
 	
 	<FrameLayout
 	    android:layout_width="fill_parent"
@@ -26,8 +26,9 @@
 	        android:text="Select" 
 	        android:layout_width="fill_parent" 
 	        android:id="@+id/entity_select_button"
-	        android:textSize="@dimen/interactive_font_size"
+	        android:textSize="@dimen/text_large"
 	    ></Button>
+
 	</FrameLayout>
 
 </RelativeLayout>

@@ -30,15 +30,15 @@ import android.widget.LinearLayout;
  * @author jschweers
  */
 public class GraphView {
-    private static final int TEXT_SIZE = 21;
-
     private Context mContext;
+    private int mTextSize;
     private GraphData mData;
     private XYMultipleSeriesDataset mDataset;
     private XYMultipleSeriesRenderer mRenderer; 
 
     public GraphView(Context context) {
         mContext = context;
+        mTextSize = (int) context.getResources().getDimension(R.dimen.text_large);
         mDataset = new XYMultipleSeriesDataset();
         mRenderer = new XYMultipleSeriesRenderer();
     } 
@@ -48,7 +48,7 @@ public class GraphView {
      */
     public void setTitle(String title) {
         mRenderer.setChartTitle(title);
-        mRenderer.setChartTitleTextSize(TEXT_SIZE);
+        mRenderer.setChartTitleTextSize(mTextSize);
     }
     
     /*
@@ -80,10 +80,6 @@ public class GraphView {
         mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
-            XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-            mRenderer.addSeriesRenderer(currentRenderer);
-            
-            configureSeries(s, currentRenderer);
             renderSeries(s);
         }
         
@@ -91,6 +87,23 @@ public class GraphView {
 
         configure();
         setMargins();
+        
+        // Graph will not render correctly unless it has data. 
+        // Add a dummy series to guarantee this.
+        // Do this after adding any real data and after configuring
+        // so that get_AxisMin functions return correct values.
+        SeriesData s = new SeriesData();
+        double minX = mRenderer.getXAxisMin();
+        double minY = mRenderer.getYAxisMin();
+        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            s.addPoint(new BubblePointData(minX, minY, 0.0));
+        }
+        else {
+            s.addPoint(new XYPointData(minX, minY));
+        }
+        s.setConfiguration("line-color", "#00000000");
+        s.setConfiguration("point-style", "none");
+        renderSeries(s);
         
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
@@ -102,6 +115,10 @@ public class GraphView {
      * Set up a single series.
      */
     private void renderSeries(SeriesData s) {
+        XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
+        mRenderer.addSeriesRenderer(currentRenderer);
+        configureSeries(s, currentRenderer);
+            
         XYSeries series;
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             series = new RangeXYValueSeries("");
@@ -157,7 +174,7 @@ public class GraphView {
 
             mDataset.addSeries(series);
             XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-            currentRenderer.setAnnotationsTextSize(TEXT_SIZE);
+            currentRenderer.setAnnotationsTextSize(mTextSize);
             currentRenderer.setAnnotationsColor(mContext.getResources().getColor(R.drawable.black));
             mRenderer.addSeriesRenderer(currentRenderer);
         }
@@ -181,8 +198,13 @@ public class GraphView {
             currentRenderer.setFillPoints(true);
         }
         
-        String lineColor = s.getConfiguration("line-color", "#ff000000");
-        currentRenderer.setColor(Color.parseColor(lineColor));
+        String lineColor = s.getConfiguration("line-color");
+        if (lineColor == null) {
+            currentRenderer.setColor(Color.BLACK);
+        }
+        else {
+            currentRenderer.setColor(Color.parseColor(lineColor));
+        }
         
         fillOutsideLine(s, currentRenderer, "fill-above", XYSeriesRenderer.FillOutsideLine.Type.ABOVE);
         fillOutsideLine(s, currentRenderer, "fill-below", XYSeriesRenderer.FillOutsideLine.Type.BELOW);
@@ -214,8 +236,8 @@ public class GraphView {
         mRenderer.setYLabelsAlign(Paint.Align.RIGHT);
         mRenderer.setYLabelsPadding(10);
         mRenderer.setAxesColor(mContext.getResources().getColor(R.drawable.black));
-        mRenderer.setLabelsTextSize(TEXT_SIZE);
-        mRenderer.setAxisTitleTextSize(TEXT_SIZE);
+        mRenderer.setLabelsTextSize(mTextSize);
+        mRenderer.setAxisTitleTextSize(mTextSize);
         mRenderer.setShowLabels(true);
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowLegend(false);

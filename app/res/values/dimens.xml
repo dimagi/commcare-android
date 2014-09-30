@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Text sizes -->
+    <dimen name="text_smaller">9dp</dimen>
+    <dimen name="text_small">14dp</dimen>
+    <dimen name="text_medium">18dp</dimen>
+    <dimen name="text_large">21dp</dimen>
+
+    <!-- Miscellaneous -->
+
     <dimen name="title_round_bleed">-12dp</dimen>
     <dimen name="title_round_depth">12dp</dimen>
     <dimen name="title_round_border_width">2dp</dimen>
