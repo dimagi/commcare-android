@@ -58,7 +58,7 @@ public class AppDatabaseUpgrader {
         //managed by changing the TwoThree updater to maintain that metadata.
     }
     
-    private boolean upgradeThreeFour(SQLiteDatabase db) {
+    private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
@@ -84,7 +84,7 @@ public class AppDatabaseUpgrader {
         }
     }
 
-    private  boolean upgradeTwoThree(SQLiteDatabase db) {
+    private  boolean upgradeThreeFour(SQLiteDatabase db) {
         
         DbHelper helper = new ConcreteDbHelper(c,db);
         
