@@ -28,7 +28,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.2 - Added recovery table
      * V.3 - Upgraded Resource models to have an optional descriptor field
      */
-    private static final int DB_VERSION_APP = 3;
+    private static final int DB_VERSION_APP = 4;
     
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
     
@@ -67,7 +67,13 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             
             builder = new TableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
+            
+            database.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            database.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            database.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+
             database.setTransactionSuccessful();
+            
         } finally {
             database.endTransaction();
         }
