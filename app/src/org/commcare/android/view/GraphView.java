@@ -30,15 +30,15 @@ import android.widget.LinearLayout;
  * @author jschweers
  */
 public class GraphView {
-    private static final int TEXT_SIZE = 21;
-
     private Context mContext;
+    private int mTextSize;
     private GraphData mData;
     private XYMultipleSeriesDataset mDataset;
     private XYMultipleSeriesRenderer mRenderer; 
 
     public GraphView(Context context) {
         mContext = context;
+        mTextSize = (int) context.getResources().getDimension(R.dimen.text_large);
         mDataset = new XYMultipleSeriesDataset();
         mRenderer = new XYMultipleSeriesRenderer();
     } 
@@ -48,7 +48,7 @@ public class GraphView {
      */
     public void setTitle(String title) {
         mRenderer.setChartTitle(title);
-        mRenderer.setChartTitleTextSize(TEXT_SIZE);
+        mRenderer.setChartTitleTextSize(mTextSize);
     }
     
     /*
@@ -174,7 +174,7 @@ public class GraphView {
 
             mDataset.addSeries(series);
             XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-            currentRenderer.setAnnotationsTextSize(TEXT_SIZE);
+            currentRenderer.setAnnotationsTextSize(mTextSize);
             currentRenderer.setAnnotationsColor(mContext.getResources().getColor(R.drawable.black));
             mRenderer.addSeriesRenderer(currentRenderer);
         }
@@ -236,8 +236,8 @@ public class GraphView {
         mRenderer.setYLabelsAlign(Paint.Align.RIGHT);
         mRenderer.setYLabelsPadding(10);
         mRenderer.setAxesColor(mContext.getResources().getColor(R.drawable.black));
-        mRenderer.setLabelsTextSize(TEXT_SIZE);
-        mRenderer.setAxisTitleTextSize(TEXT_SIZE);
+        mRenderer.setLabelsTextSize(mTextSize);
+        mRenderer.setAxisTitleTextSize(mTextSize);
         mRenderer.setShowLabels(true);
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowLegend(false);
