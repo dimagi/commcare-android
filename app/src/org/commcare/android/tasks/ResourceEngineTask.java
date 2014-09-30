@@ -78,6 +78,8 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
     public static final int PHASE_DOWNLOAD = 1;
     public static final int PHASE_COMMIT = 2;
     
+    public static final long STATUS_UPDATE_WAIT_TIME = 1000; // wait time between dialog updates in milliseconds
+    
     protected UnresolvedResourceException missingResourceException = null;
     protected int badReqCode = -1;
     protected int phase = -1;  
@@ -174,6 +176,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 //this is a standard, clean install
                 if(sanityTest1) return ResourceEngineOutcomes.StatusFailState;
                 global.setStateListener(this);
+                
                 platform.init(profileRef, global, false);
                 
                 app.writeInstalled();
@@ -271,7 +274,16 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         c = null;
     }
 
+    // last time in system millis that we updated the status dialog
+    long lastTime = 0;
+    
     public void resourceStateUpdated(ResourceTable table) {
+        
+        // if last time isn't set or is less than our spacing count, do not perform status update
+        if(System.currentTimeMillis() - lastTime < ResourceEngineTask.STATUS_UPDATE_WAIT_TIME){
+            return;
+        }
+        
         Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
         
         //TODO: Better reflect upgrade status process
@@ -296,7 +308,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 break;
             }
         }
-        
+        lastTime = System.currentTimeMillis();
         incrementProgress(score, resources.size());
     }
 
