@@ -24,12 +24,21 @@
 
 </RelativeLayout>
 
+<TextView
+    android:id="@+id/no_search_results"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/spacer_small"
+    android:textSize="21dp"
+	android:visibility="gone"
+    android:layout_below="@+id/entity_select_filter_dropdown"/>
+
 <ListView
     android:id="@+id/screen_entity_select_list"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_above="@+id/searchfooter"
-    android:layout_below="@+id/entity_select_filter_dropdown"
+    android:layout_below="@+id/no_search_results"
     android:listSelector="@drawable/selector" >
 </ListView>
 

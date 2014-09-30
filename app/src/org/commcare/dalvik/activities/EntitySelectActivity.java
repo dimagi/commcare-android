@@ -86,6 +86,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private static final int MENU_ACTION = Menu.FIRST + 2;
     
     EditText searchbox;
+    TextView searchResultStatus;
     EntityListAdapter adapter;
     Entry prototype;
     LinearLayout header;
@@ -195,6 +196,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchbox = (EditText)findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
+        searchResultStatus = (TextView) findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
@@ -498,6 +500,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             filterString = s.toString();
             if(adapter != null) {
                 adapter.applyFilter(filterString);
+                String query = searchbox.getText().toString();
+                if (!"".equals(query)) {
+                    searchResultStatus.setText(Localization.get("select.search.status", new String[] {
+                        ""+adapter.getCount(), 
+                        ""+adapter.getFullCount(), 
+                        query
+                    }));
+                    searchResultStatus.setVisibility(View.VISIBLE);
+                }
+                else {
+                    searchResultStatus.setVisibility(View.GONE);
+                }
             }
         }
     }
