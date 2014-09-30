@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.Display;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -46,6 +48,7 @@ public class EntityDetailView extends FrameLayout {
     private Button addressButton;
     private TextView addressText;
     private ImageView imageView;
+    private AspectRatioLayout graphLayout;
     private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
     private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
     private ImageButton videoButton;
@@ -194,11 +197,24 @@ public class EntityDetailView extends FrameLayout {
                 graphIntentsCache.put(index, graphIntent);
             }
             final Intent finalIntent = graphIntent;
-            graphView.setOnLongClickListener(new OnLongClickListener() {
+            
+            // Open full-screen graph intent on double tap
+            final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
-                public boolean onLongClick(View view) {
+                public boolean onDown(MotionEvent e) {
+                    return true;
+                }
+        
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
                     context.startActivity(finalIntent);
-                    return false;
+                    return true;
+                }
+            });
+            graphView.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent event) {
+                    return detector.onTouchEvent(event);
                 }
             });
             
