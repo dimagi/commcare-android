@@ -86,6 +86,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private static final int MENU_ACTION = Menu.FIRST + 2;
     
     EditText searchbox;
+    TextView searchResultStatus;
     EntityListAdapter adapter;
     Entry prototype;
     LinearLayout header;
@@ -195,6 +196,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchbox = (EditText)findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
+        searchResultStatus = (TextView) findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
@@ -283,6 +285,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 if(inAwesomeMode) {
                     if (adapter != null) {
                         displayReferenceAwesome(entity, adapter.getPosition(entity));
+        			adapter.setAwesomeMode(true);
                         updateSelectedItem(entity, true);
                     }
                 } else {
@@ -322,8 +325,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             header.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             v.setBackgroundResource(R.drawable.blue_tabbed_box);
-            header.addView(v,params);
-            
+	    	
+	    	// only add headers if we're not using grid mode
+	    	if(!shortSelect.usesGridView()){
+	    	header.addView(v,params);
+	    	}
             
             if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
                 EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
@@ -498,6 +504,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             filterString = s.toString();
             if(adapter != null) {
                 adapter.applyFilter(filterString);
+                String query = searchbox.getText().toString();
+                if (!"".equals(query)) {
+                    searchResultStatus.setText(Localization.get("select.search.status", new String[] {
+                        ""+adapter.getCount(), 
+                        ""+adapter.getFullCount(), 
+                        query
+                    }));
+                    searchResultStatus.setVisibility(View.VISIBLE);
+                }
+                else {
+                    searchResultStatus.setVisibility(View.GONE);
+                }
             }
         }
     }
@@ -687,7 +705,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+    	
         adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this);
+		
         view.setAdapter(adapter);
         
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
@@ -733,6 +753,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void attach(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
         this.loader = task;
+	}
+	
+	public boolean inAwesomeMode(){
+		return inAwesomeMode;
     }
     
     boolean rightFrameSetup = false;

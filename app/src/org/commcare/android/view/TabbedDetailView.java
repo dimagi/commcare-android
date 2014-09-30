@@ -117,7 +117,7 @@ public class TabbedDetailView extends RelativeLayout {
                 else {
                     view = new TextView(mContext);
                     ((TextView) view).setText(title);
-                    ((TextView) view).setTextSize(getResources().getDimension(R.dimen.interactive_font_size));
+                    ((TextView) view).setTextSize(getResources().getDimension(R.dimen.text_large));
                     ((TextView) view).setGravity(Gravity.CENTER);
                 }
                 view.setClickable(true);

@@ -38,9 +38,5 @@
    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
        
    </style>
-   
-   <style name="VersionIdText">
-       <item name="android:textSize">9dp</item> 
-   </style>
     
 </resources>

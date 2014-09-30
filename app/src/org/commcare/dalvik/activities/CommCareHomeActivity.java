@@ -1498,7 +1498,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 createPreferencesMenu();
                 return true;
             case MENU_UPDATE:
-                if(isAirplaneModeOn()){
+                if(!isOnline() && isAirplaneModeOn()){
                     CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
                     return true;
                 }
