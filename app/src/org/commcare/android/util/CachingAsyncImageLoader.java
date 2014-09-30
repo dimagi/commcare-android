@@ -70,7 +70,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 		}
 
 		protected Bitmap doInBackground(String... file) { 
-			return getImageBitmap(file[0], 0);
+			return getImageBitmap(file[0]);
 		}
 
 		protected void onPostExecute(Bitmap result) {
@@ -80,7 +80,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 			}
 		}
 
-		public Bitmap getImageBitmap(String file, int counter){
+		public Bitmap getImageBitmap(String file){
 			Bitmap bitmap = null;
 			bitmap = MediaUtil.getScaledImageFromReference(file, scaleFactor);
 			return bitmap;
@@ -88,6 +88,11 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 
 	}
 
+	/*
+	 * Override these methods to ensure that our overriding behavior is maintained
+	 * through these calls. come from ComponentCallsback2
+	 */
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 	}

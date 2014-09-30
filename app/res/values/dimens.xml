@@ -28,11 +28,6 @@
 	<dimen name="row_padding_vertical">5sp</dimen>
 	<dimen name="row_padding_horizontal">5sp</dimen>
 	
-	<dimen name="text_smaller">9dp</dimen>
-	<dimen name="text_small">14dp</dimen>
-	<dimen name="text_medium">18dp</dimen>
-	<dimen name="text_large">21dp</dimen>
-	
     <dimen name="graph_x_margin">20dp</dimen>
     <dimen name="graph_y_margin">0dp</dimen>
     <dimen name="graph_text_margin">50dp</dimen>
