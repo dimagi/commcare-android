@@ -46,7 +46,6 @@ public class EntityDetailView extends FrameLayout {
     private Button addressButton;
     private TextView addressText;
     private ImageView imageView;
-    private AspectRatioLayout graphLayout;
     private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
     private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
     private ImageButton videoButton;
@@ -59,11 +58,11 @@ public class EntityDetailView extends FrameLayout {
     private LinearLayout.LayoutParams origLabel;
     private LinearLayout.LayoutParams fill;
     
-    private static final String FORM_VIDEO = "video";
-    private static final String FORM_AUDIO = "audio";
+    private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
+    private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
     private static final String FORM_PHONE = "phone";
     private static final String FORM_ADDRESS = "address";
-    private static final String FORM_IMAGE = "image";
+    private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
 
     private static final int TEXT = 0;

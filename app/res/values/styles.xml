@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="NotificationText">
-      <item name="android:textColor">#FFFFFF</item>
+      <item name="android:textColor">@color/white</item>
     </style>
     <style name="NotificationTitle">
-      <item name="android:textColor">#FFFFFF</item>
+      <item name="android:textColor">@color/white</item>
       <item name="android:textStyle">bold</item>
     </style>
     <style name="TopPane">
@@ -46,39 +46,12 @@
    
    <style name = "WarningTextStyle">
        <item name ="android:textStyle">bold</item>
-       <item name ="android:textColor">#FFFFFF</item>
+       <item name ="android:textColor">@color/white</item>
    </style>
    
    <dimen name="interactive_font_size">20sp</dimen>
    
-   <color name="solid_black">#000</color>
-   <color name="light_grey">#D3D3D3</color>
-   <color name="dark_grey">#A3A3A3</color>
-   
-   <color name="blue_grad_end">#903867AD</color>
-   <color name="blue_grad_start">#806884AD</color>
-  
-   <color name="grey_grad_start">#80D3D3D3</color>
-   <color name="grey_grad_end">#A0D3D3D3</color>
-   
-   
-   <color name="border_grey">#20959699</color>
-   <color name="search_highlight">#FFE88F</color>
-   <color name="search_fuzzy_match">#87D13E</color>
-   
-   <color name="title_border">#444444</color>
-   <color name="title_neutral_grad_end">#FFB3B3B3</color>
-   <color name="title_neutral_grad_start">#FFE4E4E4</color>
-  
-   <color name="title_case_grad_end">#FF3867AD</color>
-   <color name="title_case_grad_start">#FF6884AD</color>
-   
-   <color name="extra_display_item">#7FA1D4</color>
-   <color name="start_extra_display_item">#EBEBEB</color>
-   <color name="end_extra_display_item">#FFFFFF</color>
-   
    <dimen name="menu_icon_size">60dp</dimen>
-   
       
    <style name="Animation" />
    
