@@ -48,7 +48,7 @@
         <provider
             android:name=".provider.CaseDataContentProvider"
             android:authorities="org.commcare.dalvik.case" 
-            android:readPermission="org.commcare.dalvik.provider.cases.read" android:enabled="false"/>
+            android:readPermission="org.commcare.dalvik.provider.cases.read" android:enabled="true"/>
 
         <activity android:name=".preferences.CommCarePreferences" >
         </activity>
