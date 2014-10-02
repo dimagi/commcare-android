@@ -308,8 +308,8 @@ public class GraphView {
         }
 
         boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
-        mRenderer.setPanEnabled(panAndZoom);
-        mRenderer.setZoomEnabled(panAndZoom);
+        mRenderer.setPanEnabled(panAndZoom, panAndZoom);
+        mRenderer.setZoomEnabled(panAndZoom, panAndZoom);
         mRenderer.setZoomButtonsVisible(panAndZoom);
     }
     
