@@ -307,7 +307,6 @@ public class EntityDetailView extends FrameLayout {
             LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
             graphValueLayout.weight = 10;
             valuePane.setLayoutParams(origValue);
-            data.setVisibility(View.VISIBLE);
         }
     }
     
