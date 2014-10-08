@@ -1,6 +1,5 @@
 package org.commcare.android.view;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
@@ -9,8 +8,6 @@ import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
-import org.achartengine.model.XYValueSeries;
-import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -26,8 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
 
 /*
@@ -45,7 +42,7 @@ public class GraphView {
         mContext = context;
         mTextSize = (int) context.getResources().getDimension(R.dimen.text_large);
         mDataset = new XYMultipleSeriesDataset();
-        mRenderer = new XYMultipleSeriesRenderer();
+        mRenderer = new XYMultipleSeriesRenderer(2);
 
         mRenderer.setChartTitle(title);
         mRenderer.setChartTitleTextSize(mTextSize);
@@ -61,6 +58,9 @@ public class GraphView {
             topMargin += textAllowance;
         }
         int rightMargin = (int) mContext.getResources().getDimension(R.dimen.graph_x_margin);
+        if (!mRenderer.getYTitle(1).equals("")) {
+            rightMargin += textAllowance;
+        }
         int leftMargin = (int) mContext.getResources().getDimension(R.dimen.graph_x_margin);
         if (!mRenderer.getYTitle().equals("")) {
             leftMargin += textAllowance;
@@ -139,16 +139,22 @@ public class GraphView {
         XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
         mRenderer.addSeriesRenderer(currentRenderer);
         configureSeries(s, currentRenderer);
-            
+
         XYSeries series;
+        int seriesIndex = Boolean.valueOf(s.getConfiguration("secondary-y-axis", "false")).equals(Boolean.TRUE) ? 1 : 0;
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            // TODO: This also ought to respect seriesIndex. However, XYValueSeries doesn't expose the
+            // (String title, int scaleNumber) constructor, so RangeXYValueSeries doesn't have access to it.
+            if (seriesIndex > 0) {
+                throw new IllegalArgumentException("Bubbles series do not support a secondary y axis");
+            }
             series = new RangeXYValueSeries("");
             if (s.getConfiguration("radius-max") != null) {
                 ((RangeXYValueSeries) series).setMaxValue(Double.valueOf(s.getConfiguration("radius-max")));
             }
         }
         else {
-            series = new XYSeries("");
+            series = new XYSeries("", seriesIndex);
         }
         mDataset.addSeries(series);
 
@@ -253,9 +259,12 @@ public class GraphView {
         mRenderer.setLabelsColor(mContext.getResources().getColor(R.drawable.black));
         mRenderer.setXLabelsColor(mContext.getResources().getColor(R.drawable.black));
         mRenderer.setYLabelsColor(0, mContext.getResources().getColor(R.drawable.black));
+        mRenderer.setYLabelsColor(1, mContext.getResources().getColor(R.drawable.black));
         mRenderer.setXLabelsAlign(Paint.Align.CENTER);
         mRenderer.setYLabelsAlign(Paint.Align.RIGHT);
+        mRenderer.setYLabelsAlign(Align.LEFT, 1);
         mRenderer.setYLabelsPadding(10);
+        mRenderer.setYAxisAlign(Align.RIGHT, 1);
         mRenderer.setAxesColor(mContext.getResources().getColor(R.drawable.black));
         mRenderer.setLabelsTextSize(mTextSize);
         mRenderer.setAxisTitleTextSize(mTextSize);
@@ -267,6 +276,7 @@ public class GraphView {
         // User-configurable options
         mRenderer.setXTitle(mData.getConfiguration("x-axis-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("y-axis-title", ""));
+        mRenderer.setYTitle(mData.getConfiguration("secondary-y-axis-title", ""), 1);
 
         if (mData.getConfiguration("x-axis-min") != null) {
             mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-axis-min")));
@@ -274,12 +284,18 @@ public class GraphView {
         if (mData.getConfiguration("y-axis-min") != null) {
             mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-axis-min")));
         }
+        if (mData.getConfiguration("secondary-y-axis-min") != null) {
+            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("secondary-y-axis-min")), 1);
+        }
         
         if (mData.getConfiguration("x-axis-max") != null) {
             mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-axis-max")));
         }
         if (mData.getConfiguration("y-axis-max") != null) {
             mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
+        }
+        if (mData.getConfiguration("secondary-y-axis-max") != null) {
+            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("secondary-y-axis-max")), 1);
         }
         
         String showGrid = mData.getConfiguration("show-grid", "true");
