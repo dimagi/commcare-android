@@ -69,16 +69,23 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             }
             
             String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
-            
-            FormInstance fixture = CommCareUtil.loadFixture(refId, userId);
-            
-            if(fixture == null) {
-                throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
+            try{
+                
+                FormInstance fixture = CommCareUtil.loadFixture(refId, userId);
+                
+                if(fixture == null) {
+                    throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
+                }
+                
+                TreeElement root = fixture.getRoot();
+                root.setParent(instance.getBase());
+                return root;
+                
+            } catch(IllegalStateException ise){
+                throw new RuntimeException("Could not load fixture for src: " + ref);
+                
             }
             
-            TreeElement root = fixture.getRoot();
-            root.setParent(instance.getBase());
-            return root;
         }
         if(instance.getReference().indexOf("session") != -1) {
             User u = app.getSession().getLoggedInUser();
