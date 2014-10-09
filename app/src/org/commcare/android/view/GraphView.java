@@ -145,7 +145,7 @@ public class GraphView {
         configureSeries(s, currentRenderer);
 
         XYSeries series;
-        int seriesIndex = Boolean.valueOf(s.getConfiguration("secondary-y-axis", "false")).equals(Boolean.TRUE) ? 1 : 0;
+        int seriesIndex = Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0;
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             // TODO: This also ought to respect seriesIndex. However, XYValueSeries doesn't expose the
             // (String title, int scaleNumber) constructor, so RangeXYValueSeries doesn't have access to it.
@@ -277,28 +277,28 @@ public class GraphView {
         mRenderer.setShowGrid(true);
 
         // User-configurable options
-        mRenderer.setXTitle(mData.getConfiguration("x-axis-title", ""));
-        mRenderer.setYTitle(mData.getConfiguration("y-axis-title", ""));
-        mRenderer.setYTitle(mData.getConfiguration("secondary-y-axis-title", ""), 1);
+        mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
+        mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
+        mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
 
-        if (mData.getConfiguration("x-axis-min") != null) {
-            mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-axis-min")));
+        if (mData.getConfiguration("x-min") != null) {
+            mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-min")));
         }
-        if (mData.getConfiguration("y-axis-min") != null) {
-            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-axis-min")));
+        if (mData.getConfiguration("y-min") != null) {
+            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-min")));
         }
-        if (mData.getConfiguration("secondary-y-axis-min") != null) {
-            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("secondary-y-axis-min")), 1);
+        if (mData.getConfiguration("secondary-y-min") != null) {
+            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("secondary-y-min")), 1);
         }
         
-        if (mData.getConfiguration("x-axis-max") != null) {
-            mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-axis-max")));
+        if (mData.getConfiguration("x-max") != null) {
+            mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-max")));
         }
-        if (mData.getConfiguration("y-axis-max") != null) {
-            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
+        if (mData.getConfiguration("y-max") != null) {
+            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-max")));
         }
-        if (mData.getConfiguration("secondary-y-axis-max") != null) {
-            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("secondary-y-axis-max")), 1);
+        if (mData.getConfiguration("secondary-y-max") != null) {
+            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("secondary-y-max")), 1);
         }
         
         String showGrid = mData.getConfiguration("show-grid", "true");
