@@ -45,6 +45,7 @@ public class GridEntityView extends GridLayout {
 	private GridCoordinate[] coords;
 	private GridStyle[] styles;
 	Object[] mRowData;
+	boolean mFuzzySearchEnabled = false;
 	
 	public final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);		// load the screen-size dependent font sizes
 	public final float MEDIUM_FONT = getResources().getDimension(R.dimen.font_size_medium);	
@@ -58,12 +59,12 @@ public class GridEntityView extends GridLayout {
 	public final int ROW_PADDING_VERTICAL = (int)getResources().getDimension(R.dimen.row_padding_vertical);
 	
 	
-	public final int NUMBER_ROWS = 6;															// number of rows per screen (absolute screen size)
+	public final int NUMBER_ROWS = 3;															// number of rows per screen (absolute screen size)
 	public final int NUMBER_COLUMNS = 12;														// number of columns each A.E.View is divided into
-	public final double CELL_HEIGHT_DIVISOR_TALL = 5;													// number of rows each A.E.View is divided into
-	public final double CELL_HEIGHT_DIVISOR_WIDE = 3;	
+	public final double CELL_HEIGHT_DIVISOR_TALL = 10;													// number of rows each A.E.View is divided into
+	public final double CELL_HEIGHT_DIVISOR_WIDE = 6;	
 	
-	public double densityRowMultiplier = 1;;
+	public double densityRowMultiplier = 1;
 	
 	public String backgroundColor;
 	
@@ -77,7 +78,31 @@ public class GridEntityView extends GridLayout {
 	private CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
 	private AudioController controller;
 	
-	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, AudioController controller) {
+	/**
+	 * Used to create a entity view tile outside of a managed context (like 
+	 * for an individual entity out of a search context).
+	 * 
+	 * @param context
+	 * @param detail
+	 * @param entity
+	 */
+	public GridEntityView(Context context, Detail detail, Entity entity, AudioController controller) {
+	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), controller, false);
+	}
+	
+	/**
+	 * Constructor for an entity tile in a managed context, like a list of entities being displayed 
+	 * all at once for searching.
+	 * 
+	 * @param context
+	 * @param detail
+	 * @param entity
+	 * @param searchTerms
+	 * @param mLoader
+	 * @param controller
+	 * @param fuzzySearchEnabled
+	 */
+	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, AudioController controller, boolean fuzzySearchEnabled) {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.controller = controller;
@@ -98,6 +123,8 @@ public class GridEntityView extends GridLayout {
 		} else if(densityDpi == DisplayMetrics.DENSITY_MEDIUM){
 		    
 		} 
+		
+		this.mFuzzySearchEnabled = fuzzySearchEnabled;
 		
 		//setup all the various dimensions we need
 		Point size = new Point();
@@ -250,9 +277,9 @@ public class GridEntityView extends GridLayout {
 			String horzAlign = mStyle.getHorzAlign();
 			String vertAlign = mStyle.getVertAlign();
 			String textsize = mStyle.getFontSize();
-			String CssID = mStyle.getCssID();
+			String CssID = mStyle.getCssID();			
 			
-			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID);
+			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i));
 
 			mView.setLayoutParams(mGridParams);
 		
@@ -273,7 +300,7 @@ public class GridEntityView extends GridLayout {
 	 * @param rowData The actual data to display, either an XPath to media or a String to display
 	 * @return
 	 */
-	private View getView(Context context, String multimediaType, GridLayout.LayoutParams mGridParams,  String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid) {
+	private View getView(Context context, String multimediaType, GridLayout.LayoutParams mGridParams,  String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
 		View retVal;
 		if(multimediaType.equals(EntityView.FORM_IMAGE)){
 			retVal = new ImageView(context);
@@ -296,10 +323,12 @@ public class GridEntityView extends GridLayout {
 			if(cssid !=null && !cssid.equals("none")){
 			    // user defined a style we want to use
 			    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
+			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, searchField, mFuzzySearchEnabled);
 			    ((TextView)retVal).setText(mSpannable);
 			} else{
 			    // just process inline markup 
 			    Spannable mSpannable = MarkupUtil.getSpannable(rowData);
+			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, searchField, mFuzzySearchEnabled);
 			    ((TextView)retVal).setText(mSpannable);
 			}
 
@@ -334,4 +363,8 @@ public class GridEntityView extends GridLayout {
 		
 		return retVal;
 	}
+    public void setSearchTerms(String[] currentSearchTerms) {
+        this.searchTerms = currentSearchTerms;
+        
+    }
 }

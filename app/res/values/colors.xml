@@ -27,5 +27,11 @@
     <color name="green">#87D13E</color>
 
 	<color name="red">#FF0000</color>
+	
+	<color name="bright_green_grad_start">#2C9746</color>
+    <color name="bright_green_grad_end">#247A38</color>
+	
+	<color name="dark_green_start">#228038</color>
+	<color name="dark_green_end">#1C662D</color>
 
 </resources>
