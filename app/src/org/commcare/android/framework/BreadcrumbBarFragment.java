@@ -61,7 +61,7 @@ public class BreadcrumbBarFragment extends Fragment {
       }
      
       
-    boolean breadCrumbsEnabled = true;
+    boolean breadCrumbsEnabled = false;
     /*
      * (non-Javadoc)
      * 
