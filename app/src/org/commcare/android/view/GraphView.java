@@ -46,7 +46,7 @@ public class GraphView {
         mContext = context;
         mTextSize = (int) context.getResources().getDimension(R.dimen.text_large);
         mDataset = new XYMultipleSeriesDataset();
-        mRenderer = new XYMultipleSeriesRenderer(2);
+        mRenderer = new XYMultipleSeriesRenderer(2);    // initialize with two scales, to support a secondary y axis
 
         mRenderer.setChartTitle(title);
         mRenderer.setChartTitleTextSize(mTextSize);
@@ -145,12 +145,12 @@ public class GraphView {
         configureSeries(s, currentRenderer);
 
         XYSeries series;
-        int seriesIndex = Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0;
+        int scaleIndex = Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0;
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-            // TODO: This also ought to respect seriesIndex. However, XYValueSeries doesn't expose the
+            // TODO: This also ought to respect scaleIndex. However, XYValueSeries doesn't expose the
             // (String title, int scaleNumber) constructor, so RangeXYValueSeries doesn't have access to it.
-            if (seriesIndex > 0) {
-                throw new IllegalArgumentException("Bubbles series do not support a secondary y axis");
+            if (scaleIndex > 0) {
+                throw new IllegalArgumentException("Bubble series do not support a secondary y axis");
             }
             series = new RangeXYValueSeries("");
             if (s.getConfiguration("radius-max") != null) {
@@ -158,7 +158,7 @@ public class GraphView {
             }
         }
         else {
-            series = new XYSeries("", seriesIndex);
+            series = new XYSeries("", scaleIndex);
         }
         mDataset.addSeries(series);
 
@@ -387,11 +387,11 @@ public class GraphView {
             mRenderer.addXTextLabel(location, text);
         }
         else {
-            int seriesIndex = getSeriesIndex(key);
-            if (mRenderer.getYAxisAlign(seriesIndex) == Align.RIGHT) {
+            int scaleIndex = getScaleIndex(key);
+            if (mRenderer.getYAxisAlign(scaleIndex) == Align.RIGHT) {
                 text = "   " + text;
             }
-            mRenderer.addYTextLabel(location, text, seriesIndex);
+            mRenderer.addYTextLabel(location, text, scaleIndex);
         }
     }
     
@@ -415,7 +415,7 @@ public class GraphView {
      * @param key Something like "x-labels" or "y-secondary-labels"
      * @return Index for passing to AChartEngine functions that accept a scale
      */
-    private int getSeriesIndex(String key) {
+    private int getScaleIndex(String key) {
         return key.contains("secondary") ? 1 : 0;
     }
     
