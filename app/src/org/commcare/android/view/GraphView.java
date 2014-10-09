@@ -2,6 +2,7 @@ package org.commcare.android.view;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.achartengine.ChartFactory;
@@ -18,6 +19,9 @@ import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.suite.model.graph.XYPointData;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
@@ -260,15 +264,14 @@ public class GraphView {
         mRenderer.setXLabelsColor(mContext.getResources().getColor(R.drawable.black));
         mRenderer.setYLabelsColor(0, mContext.getResources().getColor(R.drawable.black));
         mRenderer.setYLabelsColor(1, mContext.getResources().getColor(R.drawable.black));
-        mRenderer.setXLabelsAlign(Paint.Align.CENTER);
-        mRenderer.setYLabelsAlign(Paint.Align.RIGHT);
+        mRenderer.setXLabelsAlign(Align.CENTER);
+        mRenderer.setYLabelsAlign(Align.RIGHT);
         mRenderer.setYLabelsAlign(Align.LEFT, 1);
         mRenderer.setYLabelsPadding(10);
         mRenderer.setYAxisAlign(Align.RIGHT, 1);
         mRenderer.setAxesColor(mContext.getResources().getColor(R.drawable.black));
         mRenderer.setLabelsTextSize(mTextSize);
         mRenderer.setAxisTitleTextSize(mTextSize);
-        mRenderer.setShowLabels(true);
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
@@ -309,24 +312,120 @@ public class GraphView {
             mRenderer.setShowAxes(false);
         }
         
-        Integer xLabelCount = mData.getConfiguration("x-label-count") == null ? null : new Integer(mData.getConfiguration("x-label-count"));
-        Integer yLabelCount = mData.getConfiguration("y-label-count") == null ? null : new Integer(mData.getConfiguration("y-label-count"));
-        if (xLabelCount == 0 && yLabelCount == 0) {
-            mRenderer.setShowLabels(false);
-        }
-        else {
-            if (xLabelCount != null) {
-                mRenderer.setXLabels(Integer.valueOf(xLabelCount));
-            }
-            if (yLabelCount != null) {
-                mRenderer.setYLabels(Integer.valueOf(yLabelCount));
-            }
-        }
+        // Labels
+        boolean hasXLabels = configureLabels("x-labels");
+        boolean hasYLabels = configureLabels("y-labels");
+        boolean hasSecondaryYLabels = configureLabels("secondary-y-labels");
+        boolean showLabels = hasXLabels || hasYLabels || hasSecondaryYLabels;
+        mRenderer.setShowLabels(showLabels);
+        mRenderer.setShowTickMarks(showLabels);
 
         boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
         mRenderer.setPanEnabled(panAndZoom, panAndZoom);
         mRenderer.setZoomEnabled(panAndZoom, panAndZoom);
         mRenderer.setZoomButtonsVisible(panAndZoom);
+    }
+    
+    /**
+     * Customize labels.
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @return True if any labels at all will be displayed.
+     */
+    private boolean configureLabels(String key) {
+        boolean hasLabels = false;
+        
+        // The labels setting might be a JSON array of numbers, 
+        // a JSON object of number => string, or a single number
+        String labelString = mData.getConfiguration(key);
+        if (labelString != null) {
+            try {
+                // Array: label each given value
+                JSONArray labels = new JSONArray(labelString);
+                setLabelCount(key, 0);
+                for (int i = 0; i < labels.length(); i++) {
+                    String value = labels.getString(i);
+                    addTextLabel(key, Double.valueOf(value), value);
+                }
+                hasLabels = labels.length() > 0;
+            }
+            catch (JSONException je) {
+                // Assume try block failed because labelString isn't an array.
+                // Try parsing it as an object.
+                try {
+                    // Object: each keys is a location on the axis, 
+                    // and the value is the text with which to label it
+                    JSONObject labels = new JSONObject(labelString);
+                    setLabelCount(key, 0);
+                    Iterator i = labels.keys();
+                    while (i.hasNext()) {
+                       String location = (String) i.next();
+                       addTextLabel(key, Double.valueOf(location), labels.getString(location));
+                       hasLabels = true;
+                    }
+                }
+                catch (JSONException e) {
+                    // Assume labelString is just a scalar, which
+                    // represents the number of labels the user wants.
+                    Integer count = Integer.valueOf(labelString);
+                    setLabelCount(key, count);
+                    hasLabels = count != 0;
+                }
+            }
+        }
+        
+        return hasLabels;
+    }
+    
+    /**
+     * Helper for configureLabels. Adds a label to the appropriate axis.
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @param location Point on axis to add label
+     * @param text String for label
+     */
+    private void addTextLabel(String key, Double location, String text) {
+        if (isXKey(key)) {
+            mRenderer.addXTextLabel(location, text);
+        }
+        else {
+            int seriesIndex = getSeriesIndex(key);
+            if (mRenderer.getYAxisAlign(seriesIndex) == Align.RIGHT) {
+                text = "   " + text;
+            }
+            mRenderer.addYTextLabel(location, text, seriesIndex);
+        }
+    }
+    
+    /**
+     * Helper for configureLabels. Sets desired number of labels for the appropriate axis.
+     * AChartEngine will then determine how to space the labels.
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @param value Number of labels
+     */
+    private void setLabelCount(String key, int value) {
+        if (isXKey(key)) {
+            mRenderer.setXLabels(value);
+        }
+        else {
+            mRenderer.setYLabels(value);
+        }
+    }
+    
+    /**
+     * Helper for turning key into scale.
+     * @param key Something like "x-labels" or "y-secondary-labels"
+     * @return Index for passing to AChartEngine functions that accept a scale
+     */
+    private int getSeriesIndex(String key) {
+        return key.contains("secondary") ? 1 : 0;
+    }
+    
+    /**
+     * Helper for parsing axis from configuration key.
+     * @param key Something like "x-min" or "y-labels"
+     * @return True iff key is relevant to x axis
+     */
+    private boolean isXKey(String key) {
+        return key.startsWith("x-");
     }
     
     /**
