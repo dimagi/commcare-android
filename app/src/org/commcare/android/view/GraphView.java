@@ -1,16 +1,14 @@
 package org.commcare.android.view;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
-import org.achartengine.model.XYValueSeries;
-import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -21,13 +19,16 @@ import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.suite.model.graph.XYPointData;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
 
 /*
@@ -45,7 +46,7 @@ public class GraphView {
         mContext = context;
         mTextSize = (int) context.getResources().getDimension(R.dimen.text_large);
         mDataset = new XYMultipleSeriesDataset();
-        mRenderer = new XYMultipleSeriesRenderer();
+        mRenderer = new XYMultipleSeriesRenderer(2);    // initialize with two scales, to support a secondary y axis
 
         mRenderer.setChartTitle(title);
         mRenderer.setChartTitleTextSize(mTextSize);
@@ -61,6 +62,9 @@ public class GraphView {
             topMargin += textAllowance;
         }
         int rightMargin = (int) mContext.getResources().getDimension(R.dimen.graph_x_margin);
+        if (!mRenderer.getYTitle(1).equals("")) {
+            rightMargin += textAllowance;
+        }
         int leftMargin = (int) mContext.getResources().getDimension(R.dimen.graph_x_margin);
         if (!mRenderer.getYTitle().equals("")) {
             leftMargin += textAllowance;
@@ -139,16 +143,22 @@ public class GraphView {
         XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
         mRenderer.addSeriesRenderer(currentRenderer);
         configureSeries(s, currentRenderer);
-            
+
         XYSeries series;
+        int scaleIndex = Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0;
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            // TODO: This also ought to respect scaleIndex. However, XYValueSeries doesn't expose the
+            // (String title, int scaleNumber) constructor, so RangeXYValueSeries doesn't have access to it.
+            if (scaleIndex > 0) {
+                throw new IllegalArgumentException("Bubble series do not support a secondary y axis");
+            }
             series = new RangeXYValueSeries("");
             if (s.getConfiguration("radius-max") != null) {
                 ((RangeXYValueSeries) series).setMaxValue(Double.valueOf(s.getConfiguration("radius-max")));
             }
         }
         else {
-            series = new XYSeries("");
+            series = new XYSeries("", scaleIndex);
         }
         mDataset.addSeries(series);
 
@@ -253,33 +263,42 @@ public class GraphView {
         mRenderer.setLabelsColor(mContext.getResources().getColor(R.drawable.black));
         mRenderer.setXLabelsColor(mContext.getResources().getColor(R.drawable.black));
         mRenderer.setYLabelsColor(0, mContext.getResources().getColor(R.drawable.black));
-        mRenderer.setXLabelsAlign(Paint.Align.CENTER);
-        mRenderer.setYLabelsAlign(Paint.Align.RIGHT);
+        mRenderer.setYLabelsColor(1, mContext.getResources().getColor(R.drawable.black));
+        mRenderer.setXLabelsAlign(Align.CENTER);
+        mRenderer.setYLabelsAlign(Align.RIGHT);
+        mRenderer.setYLabelsAlign(Align.LEFT, 1);
         mRenderer.setYLabelsPadding(10);
+        mRenderer.setYAxisAlign(Align.RIGHT, 1);
         mRenderer.setAxesColor(mContext.getResources().getColor(R.drawable.black));
         mRenderer.setLabelsTextSize(mTextSize);
         mRenderer.setAxisTitleTextSize(mTextSize);
-        mRenderer.setShowLabels(true);
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
 
         // User-configurable options
-        mRenderer.setXTitle(mData.getConfiguration("x-axis-title", ""));
-        mRenderer.setYTitle(mData.getConfiguration("y-axis-title", ""));
+        mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
+        mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
+        mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
 
-        if (mData.getConfiguration("x-axis-min") != null) {
-            mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-axis-min")));
+        if (mData.getConfiguration("x-min") != null) {
+            mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-min")));
         }
-        if (mData.getConfiguration("y-axis-min") != null) {
-            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-axis-min")));
+        if (mData.getConfiguration("y-min") != null) {
+            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-min")));
+        }
+        if (mData.getConfiguration("secondary-y-min") != null) {
+            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("secondary-y-min")), 1);
         }
         
-        if (mData.getConfiguration("x-axis-max") != null) {
-            mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-axis-max")));
+        if (mData.getConfiguration("x-max") != null) {
+            mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-max")));
         }
-        if (mData.getConfiguration("y-axis-max") != null) {
-            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
+        if (mData.getConfiguration("y-max") != null) {
+            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-max")));
+        }
+        if (mData.getConfiguration("secondary-y-max") != null) {
+            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("secondary-y-max")), 1);
         }
         
         String showGrid = mData.getConfiguration("show-grid", "true");
@@ -293,24 +312,120 @@ public class GraphView {
             mRenderer.setShowAxes(false);
         }
         
-        Integer xLabelCount = mData.getConfiguration("x-label-count") == null ? null : new Integer(mData.getConfiguration("x-label-count"));
-        Integer yLabelCount = mData.getConfiguration("y-label-count") == null ? null : new Integer(mData.getConfiguration("y-label-count"));
-        if (xLabelCount == 0 && yLabelCount == 0) {
-            mRenderer.setShowLabels(false);
-        }
-        else {
-            if (xLabelCount != null) {
-                mRenderer.setXLabels(Integer.valueOf(xLabelCount));
-            }
-            if (yLabelCount != null) {
-                mRenderer.setYLabels(Integer.valueOf(yLabelCount));
-            }
-        }
+        // Labels
+        boolean hasXLabels = configureLabels("x-labels");
+        boolean hasYLabels = configureLabels("y-labels");
+        boolean hasSecondaryYLabels = configureLabels("secondary-y-labels");
+        boolean showLabels = hasXLabels || hasYLabels || hasSecondaryYLabels;
+        mRenderer.setShowLabels(showLabels);
+        mRenderer.setShowTickMarks(showLabels);
 
         boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
         mRenderer.setPanEnabled(panAndZoom, panAndZoom);
         mRenderer.setZoomEnabled(panAndZoom, panAndZoom);
         mRenderer.setZoomButtonsVisible(panAndZoom);
+    }
+    
+    /**
+     * Customize labels.
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @return True if any labels at all will be displayed.
+     */
+    private boolean configureLabels(String key) {
+        boolean hasLabels = false;
+        
+        // The labels setting might be a JSON array of numbers, 
+        // a JSON object of number => string, or a single number
+        String labelString = mData.getConfiguration(key);
+        if (labelString != null) {
+            try {
+                // Array: label each given value
+                JSONArray labels = new JSONArray(labelString);
+                setLabelCount(key, 0);
+                for (int i = 0; i < labels.length(); i++) {
+                    String value = labels.getString(i);
+                    addTextLabel(key, Double.valueOf(value), value);
+                }
+                hasLabels = labels.length() > 0;
+            }
+            catch (JSONException je) {
+                // Assume try block failed because labelString isn't an array.
+                // Try parsing it as an object.
+                try {
+                    // Object: each keys is a location on the axis, 
+                    // and the value is the text with which to label it
+                    JSONObject labels = new JSONObject(labelString);
+                    setLabelCount(key, 0);
+                    Iterator i = labels.keys();
+                    while (i.hasNext()) {
+                       String location = (String) i.next();
+                       addTextLabel(key, Double.valueOf(location), labels.getString(location));
+                       hasLabels = true;
+                    }
+                }
+                catch (JSONException e) {
+                    // Assume labelString is just a scalar, which
+                    // represents the number of labels the user wants.
+                    Integer count = Integer.valueOf(labelString);
+                    setLabelCount(key, count);
+                    hasLabels = count != 0;
+                }
+            }
+        }
+        
+        return hasLabels;
+    }
+    
+    /**
+     * Helper for configureLabels. Adds a label to the appropriate axis.
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @param location Point on axis to add label
+     * @param text String for label
+     */
+    private void addTextLabel(String key, Double location, String text) {
+        if (isXKey(key)) {
+            mRenderer.addXTextLabel(location, text);
+        }
+        else {
+            int scaleIndex = getScaleIndex(key);
+            if (mRenderer.getYAxisAlign(scaleIndex) == Align.RIGHT) {
+                text = "   " + text;
+            }
+            mRenderer.addYTextLabel(location, text, scaleIndex);
+        }
+    }
+    
+    /**
+     * Helper for configureLabels. Sets desired number of labels for the appropriate axis.
+     * AChartEngine will then determine how to space the labels.
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @param value Number of labels
+     */
+    private void setLabelCount(String key, int value) {
+        if (isXKey(key)) {
+            mRenderer.setXLabels(value);
+        }
+        else {
+            mRenderer.setYLabels(value);
+        }
+    }
+    
+    /**
+     * Helper for turning key into scale.
+     * @param key Something like "x-labels" or "y-secondary-labels"
+     * @return Index for passing to AChartEngine functions that accept a scale
+     */
+    private int getScaleIndex(String key) {
+        return key.contains("secondary") ? 1 : 0;
+    }
+    
+    /**
+     * Helper for parsing axis from configuration key.
+     * @param key Something like "x-min" or "y-labels"
+     * @return True iff key is relevant to x axis
+     */
+    private boolean isXKey(String key) {
+        return key.startsWith("x-");
     }
     
     /**
