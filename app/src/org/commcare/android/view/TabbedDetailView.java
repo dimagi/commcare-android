@@ -4,6 +4,7 @@ import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DisplayUnit;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -94,11 +95,6 @@ public class TabbedDetailView extends RelativeLayout {
             );
 
             for (Detail d : details) {
-                String form = d.getTitleForm();
-                if (form == null) {
-                    form = "";
-                }
-                String title = d.getTitle().evaluate();
                 OnClickListener listener = new OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -108,18 +104,11 @@ public class TabbedDetailView extends RelativeLayout {
                     }
                 };
                 
-                // Create either TextView or ImageView for tab
-                View view;
-                if (form.equals(MediaUtil.FORM_IMAGE)) {
-                    view = new ImageView(mContext);
-                    ((ImageView) view).setImageBitmap(ViewUtil.inflateDisplayImage(mContext, title));
-                }
-                else {
-                    view = new TextView(mContext);
-                    ((TextView) view).setText(title);
-                    ((TextView) view).setTextSize(getResources().getDimension(R.dimen.text_large));
-                    ((TextView) view).setGravity(Gravity.CENTER);
-                }
+                // Create TextImageAudioView for tab
+                TextImageAudioView view = new TextImageAudioView(mContext);
+                DisplayUnit title = d.getTitle();
+                view.setAVT(title.getText().evaluate(), title.getAudioURI(), title.getImageURI());
+                view.setGravity(Gravity.CENTER);
                 view.setClickable(true);
                 view.setOnClickListener(listener);
                    view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
