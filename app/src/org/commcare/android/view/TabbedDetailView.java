@@ -88,10 +88,11 @@ public class TabbedDetailView extends RelativeLayout {
         int backgroundColor = Color.TRANSPARENT;
 
         if (details.length > 0) {
+            mMenu.setWeightSum(details.length);
             LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, 
-                LinearLayout.LayoutParams.WRAP_CONTENT, 
-                10f / details.length
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1
             );
 
             for (Detail d : details) {
@@ -111,7 +112,7 @@ public class TabbedDetailView extends RelativeLayout {
                 view.setGravity(Gravity.CENTER);
                 view.setClickable(true);
                 view.setOnClickListener(listener);
-                   view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
+                view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
                 mMenu.addView(view, fillLayout);                    
             }
             markSelectedTab(0);
