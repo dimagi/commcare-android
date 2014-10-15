@@ -56,10 +56,12 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         String username = CommCareApplication._().getSession().getLoggedInUser().getUsername();
         String version = CommCareApplication._().getCurrentVersionString();
         String domain = prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX,"not found");
+        String postURL = prefs.getString("PostURL", null);;
         
         String message = "Problem reported via CommCareODK. " +
         		"\n User: " + username + 
         		"\n Domain: " + domain + 
+        		"\n PostURL: " + postURL +
                 "\n CCODK version: " + version + 
                 "\n Device Model: " + Build.MODEL +
                 "\n Manufacturer: " + Build.MANUFACTURER +
