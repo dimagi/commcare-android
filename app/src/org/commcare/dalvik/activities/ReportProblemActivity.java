@@ -72,8 +72,8 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("message/rfc822");
         i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"commcarehq-support@dimagi.com"});
-        i.putExtra(Intent.EXTRA_SUBJECT, this.buildMessage(report));
-        i.putExtra(Intent.EXTRA_TEXT   , "Mobile Error Report");
+        i.putExtra(Intent.EXTRA_TEXT, this.buildMessage(report));
+        i.putExtra(Intent.EXTRA_SUBJECT   , "Mobile Error Report");
 
         try {
             startActivity(Intent.createChooser(i, "Send mail..."));
