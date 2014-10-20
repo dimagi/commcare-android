@@ -25,6 +25,8 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.PropertyUtils;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -175,6 +177,7 @@ public class FileUtil {
         }
         
         public static void copyFile(File oldPath, File newPath, Cipher oldRead, Cipher newWrite) throws IOException {
+            
             if(!newPath.createNewFile()) { throw new IOException("Couldn't create new file @ " + newPath.toString()); }
             
             InputStream is = null;
@@ -343,6 +346,22 @@ public class FileUtil {
             if(folder != null) {
                 //Don't worry about return value
                 folder.mkdirs();
+            }
+        }
+        
+        @SuppressLint("NewApi")
+        private static String getExternalDirectoryKitKat(Context c){
+            File[] extMounts = c.getExternalFilesDirs(null);
+            File sdRoot = extMounts[1];
+            String domainedFolder = sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
+            return domainedFolder;
+        }
+        
+        public static String getDumpDirectory(Context c){
+            if (android.os.Build.VERSION.SDK_INT>=19){
+                return getExternalDirectoryKitKat(c);
+            } else{
+                return getExternalMounts().get(0);
             }
         }
 }

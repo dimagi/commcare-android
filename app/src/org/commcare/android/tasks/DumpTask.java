@@ -34,6 +34,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
 import android.widget.TextView;
@@ -167,6 +168,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
      */
+    @SuppressLint("NewApi")
     @Override
     protected Boolean doTaskBackground(String... params) {
         
@@ -207,16 +209,14 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
             return false;
         }
         
-        String baseDir = externalMounts.get(0);
         String folderName = Localization.get("bulk.form.foldername");
         
-        File f = new File( baseDir + "/" + folderName);
+        File dumpDirectory = new File(FileUtil.getDumpDirectory(c)+"/"+folderName);
         
-        if(f.exists() && f.isDirectory()){
-            f.delete();
+        if(dumpDirectory.exists() && dumpDirectory.isDirectory()){
+            dumpDirectory.delete();
         }
         
-        File dumpDirectory = new File(baseDir + "/" + folderName);
         dumpDirectory.mkdirs();
         
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);

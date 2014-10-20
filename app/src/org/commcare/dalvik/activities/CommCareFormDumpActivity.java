@@ -272,21 +272,20 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     }
     
     public File getFolderPath() {
-        ArrayList<String> externalMounts = FileUtil.getExternalMounts();
-        if(externalMounts.size()==0){
-            return null;
-        }
+        
+        String fileRoot = FileUtil.getDumpDirectory(this);
         
         String folderName = getFolderName();
         
-        String baseDir = externalMounts.get(0);
-        File dumpDirectory = new File( baseDir + "/" + folderName);
+        File dumpDirectory = new File( fileRoot + "/" + folderName);
+        
         return dumpDirectory;
     }
     
     public File[] getDumpFiles(){
 
         File dumpDirectory = getFolderPath();
+        
         if(dumpDirectory == null || !dumpDirectory.isDirectory()){
             return new File[] {};
         }

@@ -135,10 +135,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         stateStatusText = (TextView)this.findViewById(R.id.wifi_state_status);
 
         stateHeaderText = (TextView)this.findViewById(R.id.wifi_state_header);
-
-        ArrayList<String> externalMounts = FileUtil.getExternalMounts();
-
-        String baseDir = this.getFilesDir().getAbsolutePath();
+        
+        String baseDir = FileUtil.getDumpDirectory(this);
         baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
         sourceDirectory = baseDirectory + "/source";
         sourceZipDirectory = baseDirectory + "/zipSource.zip";
