@@ -210,8 +210,14 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         }
         
         String folderName = Localization.get("bulk.form.foldername");
+        String directoryPath = FileUtil.getDumpDirectory(c);
         
-        File dumpDirectory = new File(FileUtil.getDumpDirectory(c)+"/"+folderName);
+        if(directoryPath == null){
+            publishProgress(Localization.get("bulk.form.sd.emulated"));
+            return false;
+        }
+        
+        File dumpDirectory = new File(directoryPath+"/"+folderName);
         
         if(dumpDirectory.exists() && dumpDirectory.isDirectory()){
             dumpDirectory.delete();

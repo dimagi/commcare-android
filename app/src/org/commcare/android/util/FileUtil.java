@@ -349,14 +349,25 @@ public class FileUtil {
             }
         }
         
+        
+        /*
+         * if we are on KitKat we need use the new API to find the mounted roots, then append our application
+         * specific path that we're allowed to write to
+         */
         @SuppressLint("NewApi")
         private static String getExternalDirectoryKitKat(Context c){
             File[] extMounts = c.getExternalFilesDirs(null);
+            // first entry is emualted storage. Second if it exists is secondary (real) SD.
+            if(extMounts.length <2){
+                return null;
+            }
             File sdRoot = extMounts[1];
             String domainedFolder = sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
             return domainedFolder;
         }
-        
+        /*
+         * If we're on KitKat use the new OS path
+         */
         public static String getDumpDirectory(Context c){
             if (android.os.Build.VERSION.SDK_INT>=19){
                 return getExternalDirectoryKitKat(c);
