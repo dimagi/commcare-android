@@ -5,12 +5,21 @@
     android:layout_height="wrap_content"
     android:focusable="false"
     android:orientation="vertical" >
+    
+<FrameLayout
+    android:id="@+id/universal_frame_tile"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true">
+
+</FrameLayout>
 
    <org.commcare.android.view.TabbedDetailView
        android:id="@+id/entity_detail_tabs"
        android:layout_width="fill_parent"
-       android:layout_height="fill_parent"
+       android:layout_height="wrap_content"
        android:orientation="vertical"
+       android:layout_below="@+id/universal_frame_tile"
        android:layout_above="@+id/entity_detail_bottom_pane" />
 	
 	<FrameLayout
