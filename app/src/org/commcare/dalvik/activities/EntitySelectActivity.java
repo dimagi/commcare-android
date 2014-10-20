@@ -2,6 +2,8 @@ package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
@@ -336,11 +338,80 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 theloader.attachListener(this);
                 
                 theloader.execute(selectDatum.getNodeset());
+            } else {
+                startTimer();
             }
+            
         } catch(SessionUnavailableException sue) {
             //TODO: login and return
         }
     }
+    
+    
+    private void triggerRebuild() {
+        if(loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            theloader.attachListener(this);
+            
+            theloader.execute(selectDatum.getNodeset());
+        }
+    }
+    
+    private Timer myTimer;
+    private Object timerLock = new Object();
+    boolean cancelled;
+    
+    private void startTimer() {
+        synchronized(timerLock) {
+            if(myTimer == null) {
+                myTimer = new Timer();
+                System.out.println("Starting timer");
+                myTimer.schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+                        System.out.println("Timer Fired!");
+                            runOnUiThread( new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(!cancelled) {
+                                        triggerRebuild();
+                                    }
+                                }
+                            });
+                        }
+                }, 15*1000, 15 * 1000);
+                cancelled = false;
+            }
+        }
+    }
+    
+    private void stopTimer() {
+        
+        synchronized(timerLock) {
+            if(myTimer != null) {
+                System.out.println("Stopping Timer");
+                myTimer.cancel();
+                myTimer = null;
+                cancelled = true;
+            }
+        }
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopTimer();
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopTimer();
+    }
+    
+
+    
 
     protected Intent getDetailIntent(TreeReference contextRef, Intent i) {
         //Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
@@ -721,7 +792,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             updateSelectedItem(true);
         }
         
-        
+        this.startTimer();        
     }
 
     private void updateSelectedItem(boolean forceMove) {
