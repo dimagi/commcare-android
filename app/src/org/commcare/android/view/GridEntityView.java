@@ -63,7 +63,7 @@ public class GridEntityView extends GridLayout {
 	public int NUMBER_ROWS_PER_GRID = 6;															// number of rows per GridView
 	public int NUMBER_COLUMNS_PER_GRID = 12;														// number of columns per GridView
 	public double NUMBER_ROWS_PER_SCREEN_TALL = 5;													// number of rows the screen is divided into in portrait mode
-	public double NUMBER_ROWS_PER_SCREEN_WIDE = 3;	                                                // number of rows the screen is divided into in landscape mode
+	public double NUMBER_CROWS_PER_SCREEN_WIDE = 3;	                                                // number of rows the screen is divided into in landscape mode
 	
 	public double densityRowMultiplier = 1;
 	
@@ -89,7 +89,7 @@ public class GridEntityView extends GridLayout {
 		// calibrate the size of each gridview relative to the screen size based on how many rows will be in each grid
 		// 
 		this.NUMBER_ROWS_PER_SCREEN_TALL = this.NUMBER_ROWS_PER_SCREEN_TALL * (this.NUMBER_ROWS_PER_GRID/DEFAULT_NUMBER_ROWS_PER_GRID);
-		this.NUMBER_ROWS_PER_SCREEN_WIDE = this.NUMBER_ROWS_PER_SCREEN_TALL * LANDSCAPE_TO_PORTRAIT_RATIO;
+		this.NUMBER_CROWS_PER_SCREEN_WIDE = this.NUMBER_ROWS_PER_SCREEN_TALL * LANDSCAPE_TO_PORTRAIT_RATIO;
 		    
 		this.setColumnCount(NUMBER_COLUMNS_PER_GRID);
 		this.setRowCount(NUMBER_ROWS_PER_GRID);
@@ -124,7 +124,7 @@ public class GridEntityView extends GridLayout {
 			}
 			
 			// calibrate row width and height based on screen density and divisor constant
-			rowHeight = screenHeight/(NUMBER_ROWS_PER_SCREEN_WIDE*densityRowMultiplier);
+			rowHeight = screenHeight/(NUMBER_CROWS_PER_SCREEN_WIDE*densityRowMultiplier);
 			rowWidth = screenWidth;
 			
 		} else{
@@ -226,7 +226,7 @@ public class GridEntityView extends GridLayout {
 		
 		// see if any entities have background data set
 		for(int i=0; i<bgData.length; i++){
-			if(bgData[i] != null && !bgData[i].equals("")){
+			if(!bgData[i].equals("")){
 				if(bgData[i].equals(("red-border"))){
 					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
 				} else if(bgData[i].equals(("yellow-border"))){
