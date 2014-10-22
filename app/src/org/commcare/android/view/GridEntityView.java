@@ -58,15 +58,13 @@ public class GridEntityView extends GridLayout {
 	public final int ROW_PADDING_HORIZONTAL = (int)getResources().getDimension(R.dimen.row_padding_horizontal);
 	public final int ROW_PADDING_VERTICAL = (int)getResources().getDimension(R.dimen.row_padding_vertical);
 	
-	public final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
-	public final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
 	
-	public int NUMBER_ROWS_PER_GRID = 6;															// number of rows per GridView
-	public int NUMBER_COLUMNS_PER_GRID = 12;														// number of columns per GridView
-	public double NUMBER_ROWS_PER_SCREEN_TALL = 5;													// number of rows the screen is divided into in portrait mode
-	public double NUMBER_ROWS_PER_SCREEN_WIDE = 3;	                                                // number of rows the screen is divided into in landscape mode
+	public final int NUMBER_ROWS = 6;															// number of rows per screen (absolute screen size)
+	public final int NUMBER_COLUMNS = 12;														// number of columns each A.E.View is divided into
+	public final double CELL_HEIGHT_DIVISOR_TALL = 5;													// number of rows each A.E.View is divided into
+	public final double CELL_HEIGHT_DIVISOR_WIDE = 3;	
 	
-	public double densityRowMultiplier = 1;
+	public double densityRowMultiplier = 1;;
 	
 	public String backgroundColor;
 	
@@ -88,16 +86,9 @@ public class GridEntityView extends GridLayout {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.controller = controller;
-		
-		int maximumRows = this.getMaxRows(detail);
-		this.NUMBER_ROWS_PER_GRID = maximumRows;
-		// calibrate the size of each gridview relative to the screen size based on how many rows will be in each grid
-		// 
-		this.NUMBER_ROWS_PER_SCREEN_TALL = this.NUMBER_ROWS_PER_SCREEN_TALL * (this.NUMBER_ROWS_PER_GRID/DEFAULT_NUMBER_ROWS_PER_GRID);
-		this.NUMBER_ROWS_PER_SCREEN_WIDE = this.NUMBER_ROWS_PER_SCREEN_TALL * LANDSCAPE_TO_PORTRAIT_RATIO;
 		    
-		this.setColumnCount(NUMBER_COLUMNS_PER_GRID);
-		this.setRowCount(NUMBER_ROWS_PER_GRID);
+		this.setColumnCount(NUMBER_COLUMNS);
+		this.setRowCount(NUMBER_ROWS);
 		this.setPadding(ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL,ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL);
 		
 		// get density metrics
@@ -129,17 +120,17 @@ public class GridEntityView extends GridLayout {
 			}
 			
 			// calibrate row width and height based on screen density and divisor constant
-			rowHeight = screenHeight/(NUMBER_ROWS_PER_SCREEN_WIDE*densityRowMultiplier);
+			rowHeight = screenHeight/(CELL_HEIGHT_DIVISOR_WIDE*densityRowMultiplier);
 			rowWidth = screenWidth;
 			
 		} else{
-			rowHeight = screenHeight/(NUMBER_ROWS_PER_SCREEN_TALL*densityRowMultiplier);
+			rowHeight = screenHeight/(CELL_HEIGHT_DIVISOR_TALL*densityRowMultiplier);
 			rowWidth = screenWidth;
 		}
 		
 		mImageLoader = mLoader;
-		cellWidth = rowWidth/NUMBER_COLUMNS_PER_GRID;
-		cellHeight = rowHeight / NUMBER_ROWS_PER_GRID;
+		cellWidth = rowWidth/NUMBER_COLUMNS;
+		cellHeight = rowHeight / NUMBER_ROWS;
 		
 		// now ready to setup all these views
 		setViews(context, detail, entity);
@@ -156,7 +147,7 @@ public class GridEntityView extends GridLayout {
 	 */
 	public void addBuffers(Context context){
 		
-		for(int i=0; i<NUMBER_ROWS_PER_GRID;i++){
+		for(int i=0; i<NUMBER_ROWS;i++){
 			
 			Spec rowSpec = GridLayout.spec(i);
 			Spec colSpec = GridLayout.spec(0);
@@ -170,7 +161,7 @@ public class GridEntityView extends GridLayout {
 			this.addView(mSpace, mGridParams);
 		}
 		
-		for(int i=0; i<NUMBER_COLUMNS_PER_GRID;i++){
+		for(int i=0; i<NUMBER_COLUMNS;i++){
 			
 			Spec rowSpec = GridLayout.spec(0);
 			Spec colSpec = GridLayout.spec(i);
@@ -184,25 +175,6 @@ public class GridEntityView extends GridLayout {
 			this.addView(mSpace, mGridParams);
 		}
 		
-	}
-	
-	// get the maximum height of this grid
-	
-	public int getMaxRows(Detail detail){
-	    
-	    GridCoordinate[] coordinates = detail.getGridCoordinates();
-	    int currentMaxHeight = 0;
-	    
-	    for(int i=0; i< coordinates.length; i++){
-	        int yCoordinate = coordinates[i].getY();
-	        int height = coordinates[i].getHeight();
-	        int maxHeight = yCoordinate + height;
-	        if(maxHeight > currentMaxHeight){
-	            currentMaxHeight = maxHeight;
-	        }
-	    }
-
-	    return currentMaxHeight;
 	}
 
 	/**
@@ -231,7 +203,7 @@ public class GridEntityView extends GridLayout {
 		
 		// see if any entities have background data set
 		for(int i=0; i<bgData.length; i++){
-			if(bgData[i] != null && !bgData[i].equals("")){
+			if(!bgData[i].equals("")){
 				if(bgData[i].equals(("red-border"))){
 					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
 				} else if(bgData[i].equals(("yellow-border"))){
@@ -257,8 +229,8 @@ public class GridEntityView extends GridLayout {
 			// if span exceeds allotted dimensions, skip this row and log 
 			if(currentCoordinate.getX()<0 || currentCoordinate.getY() <0){
 			
-				if(currentCoordinate.getX() + currentCoordinate.getWidth() > NUMBER_COLUMNS_PER_GRID || 
-						currentCoordinate.getY() + currentCoordinate.getHeight() > NUMBER_ROWS_PER_GRID){
+				if(currentCoordinate.getX() + currentCoordinate.getWidth() > NUMBER_COLUMNS || 
+						currentCoordinate.getY() + currentCoordinate.getHeight() > NUMBER_ROWS){
 					Logger.log("e", "Grid entry dimensions exceed allotted sizes");
 					throw new XPathUnhandledException("grid coordinates: " + currentCoordinate.getX() + currentCoordinate.getWidth() + ", " + 
 					        currentCoordinate.getY() + currentCoordinate.getHeight() + " out of bounds");
