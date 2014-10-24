@@ -79,13 +79,15 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
         prototype = entries.elementAt(0);
         
-        Detail shortDetail = session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_SHORT_ID));
-        
         factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
         
         TreeReference ref = CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-        
-        this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, ref);
+        String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_SHORT_ID);
+        if(shortDetailId != null) {
+            Detail shortDetail = session.getDetail(shortDetailId);
+            this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, ref);
+        }
+                
         entity = factory.getEntity(ref);
 
         super.onCreate(savedInstanceState);
