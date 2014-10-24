@@ -279,7 +279,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(this.isFinishing() || startOther) {return;}
         
         if(!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity = session.getEntityFromID(asw.getEvaluationContext(), selectDatum, this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
             
             if(entity != null) {
                 if(inAwesomeMode) {
@@ -366,35 +366,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
         
         return i;
-    }
-    /**
-     * NOT GUARANTEED TO WORK! May return an entity if one exists
-     * 
-     * @param uniqueid
-     * @return
-     */
-    protected TreeReference getEntityFromID(String uniqueid) {
-        //The uniqueid here is the value selected, so we can in theory track down the value we're looking for.
-        
-        //Get root nodeset 
-        TreeReference nodesetRef = selectDatum.getNodeset().clone();
-        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
-        predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(selectDatum.getValue()), new XPathStringLiteral(uniqueid)));
-        nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
-        
-        Vector<TreeReference> elements = asw.getEvaluationContext().expandReference(nodesetRef);
-        if(elements.size() == 1) {
-            return elements.firstElement();
-        } else if(elements.size() > 1) {
-            //Lots of nodes. Can't really choose one yet.
-            return null;
-        } else {
-            return null;
-        }
-    }
-
-
-    
+    }    
 
     /*
      * (non-Javadoc)
@@ -507,8 +479,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 String query = searchbox.getText().toString();
                 if (!"".equals(query)) {
                     searchResultStatus.setText(Localization.get("select.search.status", new String[] {
-                        ""+adapter.getCount(), 
-                        ""+adapter.getFullCount(), 
+                        ""+adapter.getCount(true, false), 
+                        ""+adapter.getCount(true, true), 
                         query
                     }));
                     searchResultStatus.setVisibility(View.VISIBLE);

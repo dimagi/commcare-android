@@ -71,7 +71,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private String[] currentSearchTerms;
     
- public static int SCALE_FACTOR = 4;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
+ public static int SCALE_FACTOR = 1;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
  private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
  private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
  
@@ -99,6 +99,8 @@ public class EntityListAdapter implements ListAdapter {
         }
         usesGridView = detail.usesGridView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
+        
+        actionEnabled = detail.getCustomAction() != null;
     }
 
     private void filterValues(String filterRaw) {
@@ -353,31 +355,32 @@ public class EntityListAdapter implements ListAdapter {
             return tiav;
         }
 
-  Entity<TreeReference> entity = current.get(position);
-  // if we use a <grid>, setup an AdvancedEntityView
-  if(usesGridView){
-   GridEntityView emv =(GridEntityView)convertView;
+        Entity<TreeReference> entity = current.get(position);
+        // if we use a <grid>, setup an AdvancedEntityView
+        if(usesGridView){
+           GridEntityView emv =(GridEntityView)convertView;
+           
+           if(emv == null) {
+            emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller, mFuzzySearchEnabled);
+           } else{
+               emv.setSearchTerms(currentSearchTerms);
+               emv.setViews(context, detail, entity);
+           }
+        return emv;
    
-   if(emv == null) {
-    emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller);
-   } else{
-    emv.setViews(context, detail, entity);
-   }
-   return emv;
-   
-  } 
-  // if not, just use the normal row
-  else{
-      EntityView emv =(EntityView)convertView;
-   
-  if (emv == null) {
-   emv = new EntityView(context, detail, entity, tts, currentSearchTerms, controller, position, mFuzzySearchEnabled);
-  } else {
-   emv.setSearchTerms(currentSearchTerms);
-   emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
-  }
-  return emv;
-  }
+        } 
+        // if not, just use the normal row
+        else{
+            EntityView emv =(EntityView)convertView;
+       
+            if (emv == null) {
+                emv = new EntityView(context, detail, entity, tts, currentSearchTerms, controller, position, mFuzzySearchEnabled);
+            } else {
+                emv.setSearchTerms(currentSearchTerms);
+                emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
+            }
+            return emv;
+        }
   
     }
 

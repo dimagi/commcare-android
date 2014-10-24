@@ -211,7 +211,7 @@ public class EntityView extends LinearLayout {
     private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
         TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
         tv.setVisibility(View.VISIBLE);
-       tv.setText(highlightSearches(text == null ? "" : text, searchField));
+        tv.setText(highlightSearches(this.getContext(), searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled));
         ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
         btn.setFocusable(false);
 
@@ -273,10 +273,9 @@ public class EntityView extends LinearLayout {
         }
     }
     
-    private Spannable highlightSearches(String displayString, String backgroundString) {
+    public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled) {
         
-        Spannable raw = new SpannableString(displayString);
-        String normalizedDisplayString = StringUtils.normalize(displayString);
+        String normalizedDisplayString = StringUtils.normalize(raw.toString());
         
         if (searchTerms == null) {
             return raw;
@@ -298,7 +297,7 @@ public class EntityView extends LinearLayout {
             int index = TextUtils.indexOf(normalizedDisplayString, searchText);
             
             while (index >= 0) {
-              raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.yellow)), index, index
+              raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.yellow)), index, index
                   + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
               
               matches.add(new int[] {index, index + searchText.length() } );
@@ -310,7 +309,7 @@ public class EntityView extends LinearLayout {
         }
 
         //now insert the spans for any fuzzy matches (if enabled)
-        if(mFuzzySearchEnabled && backgroundString != null) {
+        if(fuzzySearchEnabled && backgroundString != null) {
             backgroundString = StringUtils.normalize(backgroundString).trim() + " ";
 
             for (String searchText : searchTerms) {
@@ -336,7 +335,7 @@ public class EntityView extends LinearLayout {
                     if(!skip) {
                         //Walk the string to find words that are fuzzy matched
                         if(StringUtils.fuzzyMatch(backgroundString.substring(curStart, curEnd), searchText)) {
-                            raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.green)), curStart, 
+                            raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.green)), curStart, 
                                     curEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
