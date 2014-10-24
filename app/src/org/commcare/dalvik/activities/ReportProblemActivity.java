@@ -52,6 +52,7 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
     public String buildMessage(String userInput){
         
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String authRef = CommCareApplication._().getCommCarePlatform().getCurrentProfile().getAuthReference();
         
         String username = CommCareApplication._().getSession().getLoggedInUser().getUsername();
         String version = CommCareApplication._().getCurrentVersionString();
@@ -62,6 +63,7 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         		"\n User: " + username + 
         		"\n Domain: " + domain + 
         		"\n PostURL: " + postURL +
+				"\n Profile Ref: " + authRef + 
                 "\n CCODK version: " + version + 
                 "\n Device Model: " + Build.MODEL +
                 "\n Manufacturer: " + Build.MANUFACTURER +
