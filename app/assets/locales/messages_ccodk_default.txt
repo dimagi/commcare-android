@@ -409,7 +409,7 @@ notification.server.error.detail=The server had an error processing your data
 notification.server.error.action=Please try again later. If the problem persists, contact technical support.
 
 problem.report.button=Submit Report
-problem.report.prompt=Please enter the issue you'd like to report below
+problem.report.prompt=Please enter the issue you'd like to report below. Please be sure to state where you encountered the problem, step-by-step instructions for reproducing the error, what exactly happened, and any text or error message that occurred.
 problem.report.menuitem=Report Problem
 
 verification.title=Verifying Multimedia
