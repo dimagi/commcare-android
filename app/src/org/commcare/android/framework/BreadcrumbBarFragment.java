@@ -17,7 +17,6 @@ import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
@@ -25,6 +24,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,7 +83,7 @@ public class BreadcrumbBarFragment extends Fragment {
             attachBreadcrumbBar(activity, actionBar);
         }
         
-        this.tile = findAndLoadCaseTile();
+        this.tile = findAndLoadCaseTile(activity);
 
         if(tile != null) {
             ViewGroup vg = (ViewGroup)activity.findViewById(R.id.universal_frame_tile);
@@ -112,6 +112,9 @@ public class BreadcrumbBarFragment extends Fragment {
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setSubtitle(local);
+        
+        actionBar.setTitle(title);
+        actionBar.setDisplayShowTitleEnabled(true);
                 
   }
 
@@ -138,7 +141,7 @@ public class BreadcrumbBarFragment extends Fragment {
     }
 
 
-    private View findAndLoadCaseTile() {
+    private View findAndLoadCaseTile(Activity activity) {
 
         try {
             AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
@@ -157,7 +160,14 @@ public class BreadcrumbBarFragment extends Fragment {
                 }
             }
             
-            View tile = buildContextTile(stepToFrame, session, asw);
+            View tile = buildContextTile(stepToFrame, asw);
+            //some contexts may provide a tile that isn't really part of the current session's stack
+            if(tile == null && activity instanceof CommCareActivity) {
+                Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
+                if(entityContext != null) {
+                    tile = buildContextTile(entityContext.first, entityContext.second, asw);
+                }
+            }
             return tile;
         }catch(SessionUnavailableException sue) {
             
@@ -421,25 +431,26 @@ public class BreadcrumbBarFragment extends Fragment {
         }
         
         View tile;
-
         
-        private View buildContextTile(String[] stepToFrame,
-                CommCareSession session, AndroidSessionWrapper asw) {
-
+        private View buildContextTile(String[] stepToFrame, AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
             
             //check to make sure we can look up this child
-            SessionDatum d = session.findDatumDefinition(stepToFrame[1]);
-            if(d == null) { return null; }
+            SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame[1]);
+            if(d == null || d.getShortDetail() == null) { return null; }
             
             //Make sure there is a valid reference to the entity we can build 
-            Detail detail = session.getDetail(d.getShortDetail());
+            Detail detail = asw.getSession().getDetail(d.getShortDetail());
             EvaluationContext ec = asw.getEvaluationContext();
             
-            TreeReference ref = session.getEntityFromID(ec, d, stepToFrame[2]);
+            TreeReference ref = asw.getSession().getEntityFromID(ec, d, stepToFrame[2]);
             if(ref == null) { return null; }
             
-            NodeEntityFactory nef = new NodeEntityFactory(detail, ec);
+            return buildContextTile(detail, ref, asw);
+        }
+
+        private View buildContextTile(Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+            NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
             
             Entity entity = nef.getEntity(ref);
             
