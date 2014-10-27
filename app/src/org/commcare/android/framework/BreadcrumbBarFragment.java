@@ -231,8 +231,8 @@ public class BreadcrumbBarFragment extends Fragment {
         
         final ImageButton openButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
         
-        final String longDetail = (String)tile.getTag();
-        if(longDetail == null) {
+        final String inlineDetail = (String)tile.getTag();
+        if(inlineDetail == null) {
             openButton.setVisibility(View.GONE);
         }
         
@@ -249,7 +249,7 @@ public class BreadcrumbBarFragment extends Fragment {
                     AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                     CommCareSession session = asw.getSession();
     
-                    NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(longDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
+                    NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
                     Detail detail = factory.getDetail();
                     mInternalDetailView.setDetail(detail);
     
@@ -587,7 +587,7 @@ public class BreadcrumbBarFragment extends Fragment {
             if(ref == null) { return null; }
             
             View v = buildContextTile(activity, detail, ref, asw);
-            v.setTag(d.getLongDetail());
+            v.setTag(d.getInlineDetail());
             return v;
         }
 
