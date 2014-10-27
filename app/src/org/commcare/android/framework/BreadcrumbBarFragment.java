@@ -93,16 +93,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
         
         this.tile = findAndLoadCaseTile(activity);
-
-        if(tile != null) {
-            ViewGroup vg = (ViewGroup)activity.findViewById(R.id.universal_frame_tile);
-            //Check whether the view group is available. If so, this activity is a frame tile host 
-            if(vg != null) {
-                vg.addView(tile, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-            }
-        }
-
-    }      
+    }     
         
     private void configureSimpleNav(Activity activity, ActionBar actionBar) {
         String title = null;
@@ -322,6 +313,15 @@ public class BreadcrumbBarFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(tile != null) {
+            ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
+            //Check whether the view group is available. If so, this activity is a frame tile host 
+            if(vg != null) {
+                vg.addView(tile, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                //this doesn't really make it over well
+                mInternalDetailView = null;
+            }
+        }
         if(this.getActivity() instanceof CommCareActivity) {
             String title = ((CommCareActivity)this.getActivity()).getActivityTitle();
             
