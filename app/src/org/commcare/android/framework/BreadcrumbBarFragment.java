@@ -317,6 +317,9 @@ public class BreadcrumbBarFragment extends Fragment {
             ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
             //Check whether the view group is available. If so, this activity is a frame tile host 
             if(vg != null) {
+                if(((ViewGroup) tile.getParent()) != null) {
+                    ((ViewGroup) tile.getParent()).removeView(tile);
+                }
                 vg.addView(tile, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
                 //this doesn't really make it over well
                 mInternalDetailView = null;
