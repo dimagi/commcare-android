@@ -6,9 +6,12 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.GridEntityView;
+import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.EntityDetailActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;
@@ -21,17 +24,23 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Pair;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -90,7 +99,6 @@ public class BreadcrumbBarFragment extends Fragment {
             //Check whether the view group is available. If so, this activity is a frame tile host 
             if(vg != null) {
                 vg.addView(tile, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-                vg.setBackgroundResource(R.drawable.border_bottom_black);
             }
         }
 
@@ -139,10 +147,141 @@ public class BreadcrumbBarFragment extends Fragment {
         activity.setTitle("");
         actionBar.setDisplayShowHomeEnabled(false);
     }
+    
+    public static void expand(Activity activity, final View v) {
+        Display display = activity.getWindowManager().getDefaultDisplay();
+        
+        int specHeight = MeasureSpec.makeMeasureSpec(display.getHeight(), MeasureSpec.AT_MOST);
+
+        
+        v.measure(LayoutParams.MATCH_PARENT, specHeight);
+        final int targetHeight = v.getMeasuredHeight();
+
+        v.getLayoutParams().height = 0;
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+        v.setVisibility(View.VISIBLE);
+        Animation a = new Animation()
+        {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+                
+                if(interpolatedTime == 1) {
+                    lp.height = 0;
+                    lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
+                } else {       
+                        lp.height = (int)(targetHeight * interpolatedTime);
+                }
+                
+                v.requestLayout();
+            }
+
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+        };
+
+        // 1dp/ms
+        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
+        v.startAnimation(a);
+    }
+
+    public static void collapse(final View v, final Runnable postExecuteLambda) {
+        final int initialHeight = v.getMeasuredHeight();
+        
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+        lp.height = initialHeight;
+
+        Animation a = new Animation()
+        {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                if(interpolatedTime == 1){
+                    v.setVisibility(View.GONE);
+                    RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+                    lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
+                    lp.height = 0;
+                    postExecuteLambda.run();
+                }else{
+                    v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+                    v.requestLayout();
+                }
+            }
+
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+        };
+
+        // 1dp/ms
+        a.setDuration((int)(initialHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
+        v.startAnimation(a);
+    }
+    
+    private TabbedDetailView mInternalDetailView = null;
+    
+    private View findAndLoadCaseTile(final Activity activity) {
+        final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
+        View tile = this.loadTile(activity);
+        if(tile == null) { return null;}
+        
+        final ImageButton openButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
+        
+        final String longDetail = (String)tile.getTag();
+        if(longDetail == null) {
+            openButton.setVisibility(View.GONE);
+        }
+        
+        ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        
+        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open)).setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if(mInternalDetailView == null ) {
+                    mInternalDetailView = new TabbedDetailView(activity);
+                    mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
+    
+                    AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                    CommCareSession session = asw.getSession();
+    
+                    NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(longDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
+                    Detail detail = factory.getDetail();
+                    mInternalDetailView.setDetail(detail);
+    
+                    mInternalDetailView.refresh(factory.getDetail(), 0, false);
+                }
+                openButton.setVisibility(View.INVISIBLE);
+                expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
+            }
+            
+        });
+        
+        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_close)).setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
+                    @Override
+                    public void run() {
+                        openButton.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+            
+        });
+        
+        
+        
+        return holder;
+    }
 
 
-    private View findAndLoadCaseTile(Activity activity) {
-
+    private View loadTile(Activity activity) {
         try {
             AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
             CommCareSession session = asw.getSession();
@@ -160,12 +299,12 @@ public class BreadcrumbBarFragment extends Fragment {
                 }
             }
             
-            View tile = buildContextTile(stepToFrame, asw);
+            View tile = buildContextTile(activity, stepToFrame, asw);
             //some contexts may provide a tile that isn't really part of the current session's stack
             if(tile == null && activity instanceof CommCareActivity) {
                 Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
                 if(entityContext != null) {
-                    tile = buildContextTile(entityContext.first, entityContext.second, asw);
+                    tile = buildContextTile(activity, entityContext.first, entityContext.second, asw);
                 }
             }
             return tile;
@@ -432,7 +571,7 @@ public class BreadcrumbBarFragment extends Fragment {
         
         View tile;
         
-        private View buildContextTile(String[] stepToFrame, AndroidSessionWrapper asw) {
+        private View buildContextTile(Activity activity, String[] stepToFrame, AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
             
             //check to make sure we can look up this child
@@ -441,16 +580,21 @@ public class BreadcrumbBarFragment extends Fragment {
             
             //Make sure there is a valid reference to the entity we can build 
             Detail detail = asw.getSession().getDetail(d.getShortDetail());
+            
             EvaluationContext ec = asw.getEvaluationContext();
             
             TreeReference ref = asw.getSession().getEntityFromID(ec, d, stepToFrame[2]);
             if(ref == null) { return null; }
             
-            return buildContextTile(detail, ref, asw);
+            View v = buildContextTile(activity, detail, ref, asw);
+            v.setTag(d.getLongDetail());
+            return v;
         }
 
-        private View buildContextTile(Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+        private View buildContextTile(Activity activity, Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
             NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
+            
+            CommCareApplication._().serializeToIntent(activity.getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, ref);
             
             Entity entity = nef.getEntity(ref);
             
