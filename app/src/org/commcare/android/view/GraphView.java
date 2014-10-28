@@ -295,7 +295,7 @@ public class GraphView {
         
         Integer xLabelCount = mData.getConfiguration("x-label-count") == null ? null : new Integer(mData.getConfiguration("x-label-count"));
         Integer yLabelCount = mData.getConfiguration("y-label-count") == null ? null : new Integer(mData.getConfiguration("y-label-count"));
-        if (xLabelCount == 0 && yLabelCount == 0) {
+        if (xLabelCount != null && xLabelCount == 0 && yLabelCount != null && yLabelCount == 0) {
             mRenderer.setShowLabels(false);
         }
         else {
