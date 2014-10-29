@@ -25,11 +25,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  */
 public class NodeEntityFactory {
 
-    private EvaluationContext ec;
+    protected EvaluationContext ec;
     
-    Detail detail;
-    FormInstance instance;
-    User current; 
+    protected Detail detail;
+    protected FormInstance instance;
+    protected User current; 
     
     public Detail getDetail() {
         return detail;

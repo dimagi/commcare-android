@@ -88,10 +88,11 @@ public class EntityListAdapter implements ListAdapter {
         this.context = context;
         this.observers = new ArrayList<DataSetObserver>();
 
-        if(sort.length != 0) {
+        /*if(sort.length != 0) {
             sort(sort);
         }
-        filterValues("");
+        filterValues("");*/
+        
         this.tts = tts;
         this.controller = controller;
   mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
@@ -122,7 +123,7 @@ public class EntityListAdapter implements ListAdapter {
             for(String filter: searchTerms) {
                 add = false;
                 for(int i = 0 ; i < e.getNumFields(); ++i) {
-                    String field = StringUtils.normalize(e.getFieldString(i));
+                    String field = "";//StringUtils.normalize(e.getFieldString(i));
                     if(field.toLowerCase().contains(filter)) {
                         add = true;
                         continue filter;

@@ -3,16 +3,13 @@ package org.commcare.android.tasks;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathMissingInstanceException;
 
 import android.os.AsyncTask;
 import android.util.Pair;
@@ -34,7 +31,7 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
     private long waitingTime; 
 
     public EntityLoaderTask(Detail d, EvaluationContext ec) {
-        this.factory = new NodeEntityFactory(d, ec);
+        this.factory = new AsyncNodeEntityFactory(d, ec);
         this.ec = ec;
     }
     
