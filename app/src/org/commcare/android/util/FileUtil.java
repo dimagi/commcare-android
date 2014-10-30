@@ -362,6 +362,15 @@ public class FileUtil {
             if(extMounts.length <2){
                 return null;
             }
+            
+            /*
+             * First volume returned by getExternalFilesDirs is always "primary" volume,
+             * or emulated. Further entries, if they exist, will be "secondary" or external SD
+             * 
+             * http://www.doubleencore.com/2014/03/android-external-storage/
+             * 
+             */
+            
             File sdRoot = extMounts[1];
             
             // because apparently getExternalFilesDirs entries can be null
