@@ -139,9 +139,11 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         String baseDir = FileUtil.getDumpDirectory(this);
         
         if(baseDir == null){
-            Toast.makeText(CommCareWiFiDirectActivity.this, "Wi-Fi Direct Requires and External SD Card",
+            Toast.makeText(CommCareWiFiDirectActivity.this, "Wi-Fi Direct Requires an External SD Card",
                     Toast.LENGTH_LONG).show();
-            return;
+            this.setResult(RESULT_CANCELED);
+            finish();
+            
         }
         
         baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");

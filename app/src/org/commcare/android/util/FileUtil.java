@@ -358,10 +358,17 @@ public class FileUtil {
         private static String getExternalDirectoryKitKat(Context c){
             File[] extMounts = c.getExternalFilesDirs(null);
             // first entry is emualted storage. Second if it exists is secondary (real) SD.
+            
             if(extMounts.length <2){
                 return null;
             }
             File sdRoot = extMounts[1];
+            
+            // because apparently getExternalFilesDirs entries can be null
+            if(sdRoot == null){
+                return null;
+            }
+            
             String domainedFolder = sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
             return domainedFolder;
         }
