@@ -361,7 +361,14 @@ public class FileUtil {
             if(extMounts.length <2){
                 return null;
             }
+            
             File sdRoot = extMounts[1];
+            
+            // because apparently getExternalFilesDirs can return null members
+            if(sdRoot == null){
+                return null;
+            }
+            
             String domainedFolder = sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
             return domainedFolder;
         }
