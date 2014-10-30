@@ -3,10 +3,8 @@
  */
 package org.commcare.android.util;
 
-import java.util.HashSet;
-import java.util.Vector;
-
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
+import org.commcare.android.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
@@ -43,7 +41,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
             if(stockbase == null) {
                 SqlStorage<Ledger> storage = app.getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
-                stockbase =  new LedgerInstanceTreeElement(instance.getBase(), storage);
+                stockbase =  new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
             } else {
                 //re-use the existing model if it exists.
                 stockbase.rebase(instance.getBase());

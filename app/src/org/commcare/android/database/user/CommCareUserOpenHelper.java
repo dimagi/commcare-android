@@ -30,8 +30,9 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
     /**
      * Version History
      * V.4 - Added Stock table for tracking quantities. Fixed Case ID index
+     * V.5 - Fixed Ledger Stock ID's
      */
-    private static final int USER_DB_VERSION = 4;
+    private static final int USER_DB_VERSION = 5;
     
     private static final String USER_DB_LOCATOR = "database_sandbox_";
     
@@ -90,6 +91,8 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
             database.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
             database.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
+            
+            database.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
             
             database.setVersion(USER_DB_VERSION);
                     

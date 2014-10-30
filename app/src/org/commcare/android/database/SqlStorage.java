@@ -340,6 +340,26 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
     
     
+    /**
+     * Creates a custom iterator for this storage which can either include or exclude the actual data, and
+     * additionally collects a primary ID that will be returned and available during iteration.
+     * 
+     * Useful for situations where the iterator is loading data that will be indexed by the primary id
+     * since it will prevent the need to turn that primary id into the storage key for retrieving each
+     * record.
+     * 
+     * TODO: This is a bit too close to comfort to the other custom iterator. It's possible we should just
+     * have a method to query for all metadata?
+     * 
+     * @param includeData True to return an iterator with all records. False to return only the index.
+     * @param primaryId a metadata index that 
+     */
+    public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
+        String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL, TableBuilder.scrubName(primaryId)} : new String[] {DbUtil.ID_COL,  TableBuilder.scrubName(primaryId)};
+        Cursor c = helper.getHandle().query(table,  projection, null, null, null, null, DbUtil.ID_COL);
+        return new SqlStorageIterator<T>(c, this, TableBuilder.scrubName(primaryId));
+    }
+    
     public Iterator<T> iterator() {
         return iterate();
     }
