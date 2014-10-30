@@ -265,21 +265,21 @@ public class GraphView {
         mRenderer.setShowGrid(true);
 
         // User-configurable options
-        mRenderer.setXTitle(mData.getConfiguration("x-axis-title", ""));
-        mRenderer.setYTitle(mData.getConfiguration("y-axis-title", ""));
+        mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
+        mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
 
-        if (mData.getConfiguration("x-axis-min") != null) {
-            mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-axis-min")));
+        if (mData.getConfiguration("x-min") != null) {
+            mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-min")));
         }
-        if (mData.getConfiguration("y-axis-min") != null) {
-            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-axis-min")));
+        if (mData.getConfiguration("y-min") != null) {
+            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-min")));
         }
         
-        if (mData.getConfiguration("x-axis-max") != null) {
-            mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-axis-max")));
+        if (mData.getConfiguration("x-max") != null) {
+            mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-max")));
         }
-        if (mData.getConfiguration("y-axis-max") != null) {
-            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-axis-max")));
+        if (mData.getConfiguration("y-max") != null) {
+            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-max")));
         }
         
         String showGrid = mData.getConfiguration("show-grid", "true");
