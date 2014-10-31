@@ -193,7 +193,7 @@ public class CallInPhoneListener extends PhoneStateListener {
                                     //TODO: Generate a whole Session that could be used to start up form entry
                                     //based on this somehow?    
 
-                                    String name = d.getTitle().evaluate(childContext);
+                                    String name = d.getTitle().getText().evaluate(childContext);
 
                                     for(int i : phoneIds) {
                                         String number = ((Text) d.getFields()[i].getTemplate()).evaluate(childContext);

@@ -295,6 +295,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     Intent i = getDetailIntent(entity, null);
                     if (adapter != null) {
                         i.putExtra("entity_detail_index", adapter.getPosition(entity));
+                        i.putExtra(EntityDetailActivity.DETAIL_SHORT_ID, selectDatum.getShortDetail());
                     }
                     startActivityForResult(i, CONFIRM_SELECT);
                     return;
@@ -360,6 +361,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(selectDatum.getLongDetail() != null) {
             //If so, add this. otherwise that'll be the queue to just return
             i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
+            i.putExtra(EntityDetailActivity.DETAIL_SHORT_ID, selectDatum.getShortDetail());
         }
    
         i.putExtra(SessionFrame.STATE_DATUM_VAL, value);
