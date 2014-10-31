@@ -4,19 +4,12 @@
   android:layout_height="wrap_content" android:layout_width="fill_parent">
 
 
-<FrameLayout
-    android:id="@+id/universal_frame_tile"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_alignParentTop="true" >
-
-</FrameLayout>
 
 <LinearLayout
     android:id="@+id/entity_select_header"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@id/universal_frame_tile"
+    android:layout_below="@+id/universal_frame_tile"
     android:orientation="horizontal" >
 
 </LinearLayout>
@@ -74,8 +67,12 @@
 </LinearLayout>
 
 
+<FrameLayout
+    android:id="@+id/universal_frame_tile"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true" >
 
-
-
+</FrameLayout>
 
 </RelativeLayout>
