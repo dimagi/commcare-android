@@ -11,6 +11,7 @@
      
     <application
         android:name=".application.CommCareApplication"
+        android:debuggable="false"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
         android:theme="@style/AppBaseTheme" >
