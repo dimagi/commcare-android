@@ -9,6 +9,7 @@ import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
+import org.achartengine.model.XYValueSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -195,7 +196,9 @@ public class GraphView {
         Vector<AnnotationData> annotations = mData.getAnnotations();
         if (!annotations.isEmpty()) {
             // Create a fake series for the annotations
-            XYSeries series = new XYSeries("");
+            // Using an XYSeries will fail for bubble graphs, but using an
+            // XYValueSeries will work for both xy graphs and bubble graphs 
+            XYValueSeries series = new XYValueSeries("");
             for (AnnotationData a : annotations) {
                 series.addAnnotation(a.getAnnotation(), a.getX(), a.getY());
             }
