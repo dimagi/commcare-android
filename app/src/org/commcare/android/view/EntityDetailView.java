@@ -26,6 +26,7 @@ import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -223,7 +224,7 @@ public class EntityDetailView extends FrameLayout {
 
             if (current != GRAPH) {
                 // Hide field label and expand value to take up full screen width
-                LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+                LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
                 graphValueLayout.weight = 10;
                 valuePane.setLayoutParams(graphValueLayout);
 
@@ -304,7 +305,7 @@ public class EntityDetailView extends FrameLayout {
         
         if (current != GRAPH) {
             label.setVisibility(View.VISIBLE);
-            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
             graphValueLayout.weight = 10;
             valuePane.setLayoutParams(origValue);
         }
