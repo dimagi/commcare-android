@@ -78,8 +78,11 @@ public class NodeEntityFactory {
             } catch(XPathException xpe) {
                 xpe.printStackTrace();
                 details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
+                backgroundDetails[count] = "";
             } catch (XPathSyntaxException e) {
                 e.printStackTrace();
+                details[count] = "<invalid xpath: " + e.getMessage() + ">";
+                backgroundDetails[count] = "";
             }
             count++;
         }
