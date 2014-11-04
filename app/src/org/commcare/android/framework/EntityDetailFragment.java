@@ -1,7 +1,5 @@
 package org.commcare.android.framework;
 
-import java.util.List;
-
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -11,11 +9,10 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.EntityDetailActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
-import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.TreeReference;
 import org.odk.collect.android.views.media.AudioController;
 
-import android.content.Context;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -64,10 +61,20 @@ public class EntityDetailFragment extends Fragment {
         );
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
-        CommCareActivity thisActivity = (CommCareActivity) getActivity();
+        Activity thisActivity = getActivity();
+        AudioController audioController  = null;
+        DetailCalloutListener detailCalloutListener = null;
+        if(thisActivity instanceof AudioController) {
+            audioController = (AudioController)thisActivity;
+        } 
+        if(thisActivity instanceof DetailCalloutListener) {
+            detailCalloutListener = (DetailCalloutListener)thisActivity;
+        } 
+
+        
         adapter = new EntityDetailAdapter(
             thisActivity, asw.getSession(), childDetail, entity, 
-            (args.getBoolean(HAS_DETAIL_CALLOUT_LISTENER, false) ? (EntityDetailActivity) thisActivity : null), thisActivity, args.getInt(DETAIL_INDEX)
+            detailCalloutListener, audioController, args.getInt(DETAIL_INDEX)
         );
         ((ListView) rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
         return rootView;

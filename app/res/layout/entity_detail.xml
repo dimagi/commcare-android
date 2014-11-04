@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/entity_detail"
-  android:orientation="vertical"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/entity_detail"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:focusable="false"
+    android:orientation="vertical" >
+    
+<FrameLayout
+    android:id="@+id/universal_frame_tile"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true">
+
+</FrameLayout>
 
    <org.commcare.android.view.TabbedDetailView
        android:id="@+id/entity_detail_tabs"
        android:layout_width="fill_parent"
-       android:layout_height="fill_parent"
+       android:layout_height="wrap_content"
        android:orientation="vertical"
+       android:layout_below="@+id/universal_frame_tile"
        android:layout_above="@+id/entity_detail_bottom_pane" />
 	
 	<FrameLayout
@@ -21,13 +30,16 @@
 	    android:background="@drawable/border_top_black"
 	    android:paddingTop="1dp">
 	
-	    <Button 
-	        android:layout_height="wrap_content" 
-	        android:text="Select" 
-	        android:layout_width="fill_parent" 
+	    <Button
 	        android:id="@+id/entity_select_button"
-	        android:textSize="@dimen/text_large"
-	    ></Button>
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        
+	        android:drawableRight="@drawable/icon_next"
+	        android:text="Select"
+	        android:textSize="@dimen/text_large" >
+
+</Button>
 
 	</FrameLayout>
 

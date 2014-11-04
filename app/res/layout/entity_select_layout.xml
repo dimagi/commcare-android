@@ -3,7 +3,14 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="wrap_content" android:layout_width="fill_parent">
 
-<LinearLayout android:layout_height="wrap_content" android:orientation="horizontal" android:layout_alignParentTop="true" android:layout_width="fill_parent" android:id="@+id/entity_select_header">
+
+
+<LinearLayout
+    android:id="@+id/entity_select_header"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/universal_frame_tile"
+    android:orientation="horizontal" >
 
 </LinearLayout>
 
@@ -28,10 +35,11 @@
     android:id="@+id/no_search_results"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/spacer_small"
-    android:textSize="21dp"
-	android:visibility="gone"
-    android:layout_below="@+id/entity_select_filter_dropdown"/>
+    android:layout_below="@+id/entity_select_filter_dropdown"
+    android:padding="@dimen/spacer_small"
+    android:background="@color/grey_light"
+    android:textSize="16dp"
+    android:visibility="gone" />
 
 <ListView
     android:id="@+id/screen_entity_select_list"
@@ -59,8 +67,12 @@
 </LinearLayout>
 
 
+<FrameLayout
+    android:id="@+id/universal_frame_tile"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true" >
 
-
-
+</FrameLayout>
 
 </RelativeLayout>
