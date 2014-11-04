@@ -24,8 +24,10 @@
     
     <color name="yellow">#FFE88F</color>
     <color name="yellow_green">#DDECAC</color>
+    <color name="yellow_soft">#FFFF99</color>
     <color name="green">#87D13E</color>
 
 	<color name="red">#FF0000</color>
+	<color name="red_soft">#EE5555</color>
 
 </resources>
