@@ -47,6 +47,12 @@ public class UserDatabaseUpgrader {
                 oldVersion = 4;
             }
         }
+        
+        if(oldVersion == 4) {
+            if(upgradeFourFive(db, oldVersion, newVersion)) {
+                oldVersion = 5;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -76,6 +82,17 @@ public class UserDatabaseUpgrader {
         try {
             addStockTable(db);
             updateIndexes(db);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
+    private boolean upgradeFourFive(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.beginTransaction();
+        try {
+            db.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
             db.setTransactionSuccessful();
             return true;
         } finally {

@@ -9,6 +9,7 @@ import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
+import org.achartengine.model.XYValueSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -195,7 +196,9 @@ public class GraphView {
         Vector<AnnotationData> annotations = mData.getAnnotations();
         if (!annotations.isEmpty()) {
             // Create a fake series for the annotations
-            XYSeries series = new XYSeries("");
+            // Using an XYSeries will fail for bubble graphs, but using an
+            // XYValueSeries will work for both xy graphs and bubble graphs 
+            XYValueSeries series = new XYValueSeries("");
             for (AnnotationData a : annotations) {
                 series.addAnnotation(a.getAnnotation(), a.getX(), a.getY());
             }
@@ -215,7 +218,7 @@ public class GraphView {
      * Apply any user-requested look and feel changes to graph.
      */
     private void configureSeries(SeriesData s, XYSeriesRenderer currentRenderer) {
-        // Default to circular points, but allow Xs or no points at all
+        // Default to circular points, but allow other shapes or no points at all
         String pointStyle = s.getConfiguration("point-style", "circle").toLowerCase();
         if (!pointStyle.equals("none")) {
             PointStyle style = null;
@@ -225,8 +228,18 @@ public class GraphView {
             else if (pointStyle.equals("x")) {
                 style = PointStyle.X;
             }
+            else if (pointStyle.equals("square")) {
+                style = PointStyle.SQUARE;
+            }
+            else if (pointStyle.equals("triangle")) {
+                style = PointStyle.TRIANGLE;
+            }
+            else if (pointStyle.equals("diamond")) {
+                style = PointStyle.DIAMOND;
+            }
             currentRenderer.setPointStyle(style);
             currentRenderer.setFillPoints(true);
+            currentRenderer.setPointStrokeWidth(2);
         }
         
         String lineColor = s.getConfiguration("line-color");
@@ -260,16 +273,16 @@ public class GraphView {
         // Default options
         mRenderer.setBackgroundColor(mContext.getResources().getColor(R.drawable.white));
         mRenderer.setMarginsColor(mContext.getResources().getColor(R.drawable.white));
-        mRenderer.setLabelsColor(mContext.getResources().getColor(R.drawable.black));
-        mRenderer.setXLabelsColor(mContext.getResources().getColor(R.drawable.black));
-        mRenderer.setYLabelsColor(0, mContext.getResources().getColor(R.drawable.black));
-        mRenderer.setYLabelsColor(1, mContext.getResources().getColor(R.drawable.black));
+        mRenderer.setLabelsColor(mContext.getResources().getColor(R.color.grey_darker));
+        mRenderer.setXLabelsColor(mContext.getResources().getColor(R.color.grey_darker));
+        mRenderer.setYLabelsColor(0, mContext.getResources().getColor(R.color.grey_darker));
+        mRenderer.setYLabelsColor(1, mContext.getResources().getColor(R.color.grey_darker));
         mRenderer.setXLabelsAlign(Align.CENTER);
         mRenderer.setYLabelsAlign(Align.RIGHT);
         mRenderer.setYLabelsAlign(Align.LEFT, 1);
         mRenderer.setYLabelsPadding(10);
         mRenderer.setYAxisAlign(Align.RIGHT, 1);
-        mRenderer.setAxesColor(mContext.getResources().getColor(R.drawable.black));
+        mRenderer.setAxesColor(mContext.getResources().getColor(R.color.grey_lighter));
         mRenderer.setLabelsTextSize(mTextSize);
         mRenderer.setAxisTitleTextSize(mTextSize);
         mRenderer.setApplyBackgroundColor(true);
