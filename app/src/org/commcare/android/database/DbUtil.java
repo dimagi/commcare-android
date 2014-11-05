@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabaseHook;
+import net.sqlcipher.database.SQLiteException;
+import net.sqlcipher.database.SQLiteOpenHelper;
+
 import org.commcare.util.externalizable.ImprovedPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -106,5 +111,43 @@ public class DbUtil {
        }
        
        return classNames;
+   }
+   
+   /**
+    * Provides a hook for Sqllite databases to be able to try to migrate themselves in place 
+    * from the writabledatabase method. Required due to SqlCipher making it incredibly difficult 
+    * and obnoxious to determine when your databases need an upgrade, so we'll just try to run
+    * one any time the method would have crashed anyway.
+    * 
+    * Will crash if this update doesn't work, so no return is needed
+    * 
+    * @param key
+    * @param helper
+    * @param context
+    * @param dbName
+    * @return
+    */
+   public static void trySqlCipherDbUpdate(String key, Context context, String dbName) {
+       //There's no clear way how to tell whether this call is the invalid db version
+       //because SqlLite didn't actually provide that info (thanks!), but we can 
+       //test manually
+       
+       //Set up the hook to fire the right pragma ops
+       SQLiteDatabaseHook updateHook = new SQLiteDatabaseHook() {
+
+           public void preKey(SQLiteDatabase database) {}
+
+           public void postKey(SQLiteDatabase database) {
+               database.rawExecSQL("PRAGMA cipher_migrate;");
+           }
+       };
+       
+       //go find the db path because the helper hides this (thanks android)
+       File dbPath = context.getDatabasePath(dbName);
+       
+       SQLiteDatabase oldDb = SQLiteDatabase.openOrCreateDatabase(dbPath, key, null, updateHook);
+       
+       //if we didn't get here, we didn't crash (what a great way to be testing our db version, right?)
+       oldDb.close();
    }
 }

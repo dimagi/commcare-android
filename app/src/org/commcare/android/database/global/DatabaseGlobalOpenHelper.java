@@ -4,8 +4,10 @@
 package org.commcare.android.database.global;
 
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -26,9 +28,12 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     private static final int GLOBAL_DB_VERSION = 1;
     
     private static final String GLOBAL_DB_LOCATOR = "database_global";
+    
+    private Context context;
 
     public DatabaseGlobalOpenHelper(Context context) {
         super(context, GLOBAL_DB_LOCATOR, null, GLOBAL_DB_VERSION);
+        this.context = context;
     }
 
     /* (non-Javadoc)
@@ -57,8 +62,18 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
         } finally {
             database.endTransaction();
         }
-
     }
+    
+    public SQLiteDatabase getWritableDatabase(String key) {
+        try{ 
+            return super.getWritableDatabase(key);
+        } catch(SQLiteException sqle) {
+            DbUtil.trySqlCipherDbUpdate(key, context, GLOBAL_DB_LOCATOR);
+            return super.getWritableDatabase(key);
+        }
+    }
+    
+    
 
     /* (non-Javadoc)
      * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)

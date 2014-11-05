@@ -82,7 +82,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
             Cursor explain = helper.getHandle().rawQuery("EXPLAIN QUERY PLAN " + sql, whereClause.second);
             System.out.println("SQL: " + sql);
-            DatabaseUtils.dumpCursor(explain);
+            DatabaseUtils.dumpCursor((net.sqlcipher.Cursor)explain);
             explain.close();
         }
         
@@ -172,7 +172,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         if(DEBUG_MODE) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
             Cursor explain = helper.getHandle().rawQuery("EXPLAIN QUERY PLAN " + sql, whereClause.second);
-            DatabaseUtils.dumpCursor(explain);
+            DatabaseUtils.dumpCursor((net.sqlcipher.Cursor) explain);
             explain.close();
         }
         
