@@ -25,6 +25,8 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.PropertyUtils;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -175,6 +177,7 @@ public class FileUtil {
         }
         
         public static void copyFile(File oldPath, File newPath, Cipher oldRead, Cipher newWrite) throws IOException {
+            
             if(!newPath.createNewFile()) { throw new IOException("Couldn't create new file @ " + newPath.toString()); }
             
             InputStream is = null;
@@ -343,6 +346,49 @@ public class FileUtil {
             if(folder != null) {
                 //Don't worry about return value
                 folder.mkdirs();
+            }
+        }
+        
+        
+        /*
+         * if we are on KitKat we need use the new API to find the mounted roots, then append our application
+         * specific path that we're allowed to write to
+         */
+        @SuppressLint("NewApi")
+        private static String getExternalDirectoryKitKat(Context c){
+            File[] extMounts = c.getExternalFilesDirs(null);
+            // first entry is emualted storage. Second if it exists is secondary (real) SD.
+            
+            if(extMounts.length <2){
+                return null;
+            }
+            
+            /*
+             * First volume returned by getExternalFilesDirs is always "primary" volume,
+             * or emulated. Further entries, if they exist, will be "secondary" or external SD
+             * 
+             * http://www.doubleencore.com/2014/03/android-external-storage/
+             * 
+             */
+            
+            File sdRoot = extMounts[1];
+            
+            // because apparently getExternalFilesDirs entries can be null
+            if(sdRoot == null){
+                return null;
+            }
+            
+            String domainedFolder = sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
+            return domainedFolder;
+        }
+        /*
+         * If we're on KitKat use the new OS path
+         */
+        public static String getDumpDirectory(Context c){
+            if (android.os.Build.VERSION.SDK_INT>=19){
+                return getExternalDirectoryKitKat(c);
+            } else{
+                return getExternalMounts().get(0);
             }
         }
 }
