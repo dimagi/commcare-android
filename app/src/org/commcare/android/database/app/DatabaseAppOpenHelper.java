@@ -6,6 +6,7 @@ package org.commcare.android.database.app;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.resources.model.Resource;
@@ -27,8 +28,10 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * Version History
      * V.2 - Added recovery table
      * V.3 - Upgraded Resource models to have an optional descriptor field
+     * V.4 - Table parent resource indices
+     * V.5 - Added numbers table
      */
-    private static final int DB_VERSION_APP = 4;
+    private static final int DB_VERSION_APP = 5;
     
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
     
@@ -72,6 +75,8 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             database.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
             database.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
 
+            DbUtil.createNumbersTable(database);
+            
             database.setTransactionSuccessful();
             
         } finally {

@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
@@ -51,6 +52,12 @@ public class UserDatabaseUpgrader {
         if(oldVersion == 4) {
             if(upgradeFourFive(db, oldVersion, newVersion)) {
                 oldVersion = 5;
+            }
+        }
+        
+        if(oldVersion == 5) {
+            if(upgradeFiveSix(db, oldVersion, newVersion)) {
+                oldVersion = 6;
             }
         }
     }
@@ -99,7 +106,21 @@ public class UserDatabaseUpgrader {
             db.endTransaction();
         }
     }
+    
+    private boolean upgradeFiveSix(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.beginTransaction();
+        try {
+            db.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
+            
+            DbUtil.createNumbersTable(db);
 
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
     private void updateIndexes(SQLiteDatabase db) {
         db.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
         db.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");

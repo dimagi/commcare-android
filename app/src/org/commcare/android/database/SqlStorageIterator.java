@@ -23,6 +23,14 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     int count;
     String primaryId;
     
+    /**
+     * only for use by subclasses which re-implement this behavior strategically (Note: Should be an interface pullout
+     * not a subclass)
+     */
+    protected SqlStorageIterator() {
+        
+    }
+    
     public SqlStorageIterator(Cursor c, SqlStorage<T> storage) {
         this(c, storage, null);
     }

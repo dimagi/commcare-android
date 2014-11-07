@@ -6,6 +6,7 @@ package org.commcare.android.database.user;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
@@ -31,8 +32,9 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
      * Version History
      * V.4 - Added Stock table for tracking quantities. Fixed Case ID index
      * V.5 - Fixed Ledger Stock ID's
+     * V.6 - Indexed the case open + case type pairing (~every select screen)
      */
-    private static final int USER_DB_VERSION = 5;
+    private static final int USER_DB_VERSION = 6;
     
     private static final String USER_DB_LOCATOR = "database_sandbox_";
     
@@ -92,7 +94,11 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
             database.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
             
+            database.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
+            
             database.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
+            
+            DbUtil.createNumbersTable(database);
             
             database.setVersion(USER_DB_VERSION);
                     

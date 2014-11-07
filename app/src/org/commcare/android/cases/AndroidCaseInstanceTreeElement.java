@@ -66,4 +66,21 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement {
         selectedCases.addAll(selected);
         return selectedCases;
     }
+    
+    @Override
+    protected Vector<Integer> getMatchesForValue(String filterIndex, Object o, IStorageUtilityIndexed<?> storage, Vector<String> previousFetchKeys, Vector<Object> previousFetchValues) {
+        SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
+        String[] names = new String[previousFetchKeys.size() + 1];
+        String[] values = new String[previousFetchValues.size() + 1];
+        int i = 0;
+        for(i = 0 ; i < previousFetchKeys.size(); ++i) {
+            names[i] = previousFetchKeys.elementAt(i);
+            values[i] = (String)previousFetchValues.elementAt(i);
+        }
+        names[i] = filterIndex;
+        values[i] = (String)o;
+        
+        
+        return sqlStorage.getIDsForValues(names, values);
+    }
 }

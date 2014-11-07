@@ -16,6 +16,7 @@ import java.util.Vector;
 import net.sqlcipher.DatabaseUtils;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
+import net.sqlcipher.database.SQLiteStatement;
 
 import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -334,8 +335,46 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @param includeData True to return an iterator with all records. False to return only the index.
      */
     public SqlStorageIterator<T> iterate(boolean includeData) {
+        
+        //If we're just iterating over ID's, we may want to use a different, much 
+        //faster method depending on our stats. This method retrieves the 
+        //index records that _don't_ exist so we can assume the spans that
+        //do.
+        if(includeData == false) {
+            SQLiteDatabase db = helper.getHandle();
+
+            SQLiteStatement min = db.compileStatement("SELECT MIN(" + DbUtil.ID_COL + ") from " + table);
+            
+            SQLiteStatement max = db.compileStatement("SELECT MAX(" + DbUtil.ID_COL + ") from " + table);
+            
+            SQLiteStatement count = db.compileStatement("SELECT COUNT(" + DbUtil.ID_COL + ") from " + table);
+            
+            int minValue = (int)min.simpleQueryForLong();
+            int maxValue = (int)max.simpleQueryForLong();
+            int countValue = (int)count.simpleQueryForLong();
+            
+            min.close();
+            max.close();
+            count.close();
+            
+            double density = countValue / (maxValue - minValue*1.0);
+            
+            //Ok, so basic metrics:
+            //1) Only use a covering iterator if the number of records is > 1k
+            //2) Only use a covering iterator if the number of records is less than 100k (vital, hard limit)
+            //3) Only use a covering iterator if the record density is 50% or more
+            if(countValue > 1000 &&
+               countValue < 100000 &&
+               density >= 0.5) {
+                return getCoveringIndexIterator(minValue, maxValue, countValue);
+            }
+
+        }
+        
+        
+        
         String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} : new String[] {DbUtil.ID_COL};
-        Cursor c = helper.getHandle().query(table,  projection, null, null, null, null, DbUtil.ID_COL);
+        Cursor c = helper.getHandle().query(table,  projection, null, null, null, null, null);
         return new SqlStorageIterator<T>(c, this);
     }
     
@@ -566,5 +605,38 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         } finally {
             toDb.endTransaction();
         }
+    }
+    
+    /**
+     * @return An iterator which can provide a list of all of the indices in this table.
+     */
+    protected SqlStorageIterator<T> getCoveringIndexIterator(int minValue, int maxValue, int countValue) {
+        SQLiteDatabase db = helper.getHandle();
+        
+        //So here's what we're doing: 
+        //Build a select statement that has all of the numbers from 1 to 100k
+        //Filter it to contain our real boundaries
+        //Select all id's from our table's index
+        //Except those ids from the virtual table
+        //
+        //This returns what is essentially a set of spans from min -> max where ID's do _not_
+        //exist in this table.
+        String vals = "select 10000 * tenthousands.i + 1000 * thousands.i + 100*hundreds.i + 10*tens.i + units.i as " + DbUtil.ID_COL +
+        " from integers tenthousands " +
+             ", integers thousands " +
+             ", integers hundreds  " +
+             ", integers tens " +
+             ", integers units " +
+             " WHERE " + DbUtil.ID_COL + " >= CAST(? AS INTEGER) AND " + DbUtil.ID_COL + "  <= CAST(? AS INTEGER)";
+
+
+        String[] args = new String[] {String.valueOf(minValue), String.valueOf(maxValue)}; 
+        
+        String stmt = vals + " EXCEPT SELECT " + DbUtil.ID_COL + " FROM " + table;
+        
+        Cursor c = db.rawQuery(stmt, args);
+        
+        //Return a covering iterator 
+        return new IndexSpanningIterator<T>(c, this, (int)minValue, (int)maxValue, (int)countValue);
     }
 }
