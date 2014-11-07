@@ -4,6 +4,7 @@
 package org.commcare.android.database.app;
 
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.DbUtil;
@@ -36,9 +37,13 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
     
     private Context context;
+    
+    private String mAppId;
 
     public DatabaseAppOpenHelper(Context context, String appId) {
         super(context, getDbName(appId), null, DB_VERSION_APP);
+        this.mAppId = appId;
+        this.context = context;
     }
     
     private static String getDbName(String appId) {
@@ -83,6 +88,16 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             database.endTransaction();
         }
     }
+    
+    public SQLiteDatabase getWritableDatabase(String key) {
+        try{ 
+            return super.getWritableDatabase(key);
+        } catch(SQLiteException sqle) {
+            DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mAppId));
+            return super.getWritableDatabase(key);
+        }
+    }
+
 
     /* (non-Javadoc)
      * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)

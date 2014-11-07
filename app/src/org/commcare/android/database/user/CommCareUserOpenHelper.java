@@ -4,6 +4,7 @@
 package org.commcare.android.database.user;
 
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.DbUtil;
@@ -39,10 +40,13 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
     private static final String USER_DB_LOCATOR = "database_sandbox_";
     
     private Context context;
+    
+    private String mUserId;
 
     public CommCareUserOpenHelper(Context context, String userId) {
         super(context, getDbName(userId), null, USER_DB_VERSION);
         this.context = context;
+        this.mUserId = userId;
     }
     
     public static String getDbName(String sandboxId) {
@@ -105,6 +109,15 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
+        }
+    }
+    
+    public SQLiteDatabase getWritableDatabase(String key) {
+        try{ 
+            return super.getWritableDatabase(key);
+        } catch(SQLiteException sqle) {
+            DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mUserId));
+            return super.getWritableDatabase(key);
         }
     }
 
