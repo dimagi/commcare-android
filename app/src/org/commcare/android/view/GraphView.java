@@ -2,11 +2,13 @@ package org.commcare.android.view;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
+import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.model.XYValueSeries;
@@ -19,6 +21,7 @@ import org.commcare.suite.model.graph.BubblePointData;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
+import org.commcare.suite.model.graph.TimePointData;
 import org.commcare.suite.model.graph.XYPointData;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -97,6 +100,9 @@ public class GraphView {
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
         }
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, title, getTimeFormat());
+        }
         return ChartFactory.getLineChartIntent(mContext, mDataset, mRenderer, title);
     }
     
@@ -111,23 +117,40 @@ public class GraphView {
         // Add a dummy series to guarantee this.
         // Do this after adding any real data and after configuring
         // so that get_AxisMin functions return correct values.
-        SeriesData s = new SeriesData();
-        double minX = mRenderer.getXAxisMin();
-        double minY = mRenderer.getYAxisMin();
-        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-            s.addPoint(new BubblePointData(minX, minY, 0.0));
+        boolean hasPoints = false;
+        Vector<SeriesData> allSeries = data.getSeries();
+        for (int i = 0; i < allSeries.size() && !hasPoints; i++) {
+            hasPoints = hasPoints || allSeries.get(i).getPoints().size() > 0;
         }
-        else {
-            s.addPoint(new XYPointData(minX, minY));
+        if (!hasPoints) {
+            SeriesData s = new SeriesData();
+            double minX = 0;
+            double minY = 0;
+            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+                s.addPoint(new BubblePointData(minX, minY, 0.0));
+            }
+            else if (mData.getType().equals(Graph.TYPE_TIME)) {
+                s.addPoint(new TimePointData(new Date(), minY));
+            }
+            else {
+                s.addPoint(new XYPointData(minX, minY));
+            }
+            s.setConfiguration("line-color", "#00000000");
+            s.setConfiguration("point-style", "none");
+            renderSeries(s);
         }
-        s.setConfiguration("line-color", "#00000000");
-        s.setConfiguration("point-style", "none");
-        renderSeries(s);
         
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
         }
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            return ChartFactory.getTimeChartView(mContext, mDataset, mRenderer, getTimeFormat());
+        }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
+    }
+    
+    private String getTimeFormat() {
+        return "MM-dd";
     }
     
     /*
@@ -158,6 +181,13 @@ public class GraphView {
                 ((RangeXYValueSeries) series).setMaxValue(Double.valueOf(s.getConfiguration("radius-max")));
             }
         }
+        else if (mData.getType().equals(Graph.TYPE_TIME)) {
+            // As above, this should respect scaleIndex, but it doesn't.
+            if (scaleIndex > 0) {
+                throw new IllegalArgumentException("Time series do not support a secondary y axis");
+            }
+            series = new TimeSeries("");
+        }
         else {
             series = new XYSeries("", scaleIndex);
         }
@@ -168,12 +198,25 @@ public class GraphView {
         for (XYPointData d : s.getPoints()) {
             sortedPoints.add(d);
         }
-        Collections.sort(sortedPoints, new PointComparator());
+        if (sortedPoints.size() > 1) {
+            Comparator<XYPointData> comparator;
+            if (mData.getType().equals(Graph.TYPE_TIME)) {
+                comparator = new TimePointComparator();
+            }
+            else {
+                comparator = new XYPointComparator();
+            }
+            Collections.sort(sortedPoints, comparator);
+        }
         
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
                 ((RangeXYValueSeries) series).add(b.getX(), b.getY(), b.getRadius());
+            }
+            else if (mData.getType().equals(Graph.TYPE_TIME)) {
+                TimePointData t = (TimePointData) p;
+                ((TimeSeries) series).add(t.getTime(), t.getY());
             }
             else {
                 series.add(p.getX(), p.getY());
@@ -288,7 +331,7 @@ public class GraphView {
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
-
+        
         // User-configurable options
         mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
@@ -445,7 +488,7 @@ public class GraphView {
      * Comparator to sort PointData objects by x value.
      * @author jschweers
      */
-    private class PointComparator implements Comparator<XYPointData> {
+    private class XYPointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             if (lhs.getX() > rhs.getX()) {
@@ -457,4 +500,18 @@ public class GraphView {
             return 0;
         }
     }
+
+    private class TimePointComparator implements Comparator<XYPointData> {
+        @Override
+        public int compare(XYPointData lhs, XYPointData rhs) {
+            if (((TimePointData)lhs).getTime().getTime() > ((TimePointData)rhs).getTime().getTime()) {
+                return 1;
+            }
+            if (((TimePointData)lhs).getTime().getTime() < ((TimePointData)rhs).getTime().getTime()) {
+                return -1;
+            }
+            return 0;
+        }
+    }
+
 }
