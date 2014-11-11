@@ -31,7 +31,6 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -128,13 +127,13 @@ public class GraphView {
             double minX = 0;
             double minY = 0;
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-                s.addPoint(new BubblePointData(minX, minY, 0.0));
+                s.addPoint(new BubblePointData("0", "0", 0.0));
             }
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
                 s.addPoint(new TimePointData(new Date(), minY));
             }
             else {
-                s.addPoint(new XYPointData(minX, minY));
+                s.addPoint(new XYPointData("0", "0"));
             }
             s.setConfiguration("line-color", "#00000000");
             s.setConfiguration("point-style", "none");
@@ -213,14 +212,14 @@ public class GraphView {
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
-                ((RangeXYValueSeries) series).add(b.getX(), b.getY(), b.getRadius());
+                ((RangeXYValueSeries) series).add(Double.valueOf(b.getX()), Double.valueOf(b.getY()), b.getRadius());
             }
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
                 TimePointData t = (TimePointData) p;
-                ((TimeSeries) series).add(t.getTime(), t.getY());
+                ((TimeSeries) series).add(t.getTime(), Double.valueOf(t.getY()));
             }
             else {
-                series.add(p.getX(), p.getY());
+                series.add(Double.valueOf(p.getX()), Double.valueOf(p.getY()));
             }
         }
     }
@@ -230,7 +229,7 @@ public class GraphView {
      * unless dimensions have been provided via setWidth and/or setHeight.
      */
     public static LinearLayout.LayoutParams getLayoutParams() {
-        return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);    
+        return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
     }
     
     /*
@@ -244,7 +243,7 @@ public class GraphView {
             // XYValueSeries will work for both xy graphs and bubble graphs 
             XYValueSeries series = new XYValueSeries("");
             for (AnnotationData a : annotations) {
-                series.addAnnotation(a.getAnnotation(), a.getX(), a.getY());
+                series.addAnnotation(a.getAnnotation(), Double.valueOf(a.getX()), Double.valueOf(a.getY()));
             }
             
             // Annotations won't display unless the series has some data in it
@@ -513,13 +512,7 @@ public class GraphView {
     private class XYPointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
-            if (lhs.getX() > rhs.getX()) {
-                return 1;
-            }
-            if (lhs.getX() < rhs.getX()) {
-                return -1;
-            }
-            return 0;
+            return Double.valueOf(lhs.getX()).compareTo(Double.valueOf(rhs.getX()));
         }
     }
 
