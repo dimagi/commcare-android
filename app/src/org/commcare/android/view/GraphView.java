@@ -1,5 +1,6 @@
 package org.commcare.android.view;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -338,7 +339,26 @@ public class GraphView {
         mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
 
         if (mData.getConfiguration("x-min") != null) {
-            mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-min")));
+            String value = mData.getConfiguration("x-min");
+            if (mData.getType().equals(Graph.TYPE_TIME)) {
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.YEAR, Integer.valueOf(value.substring(0, 4)));
+                c.set(Calendar.MONTH, Calendar.JANUARY + Integer.valueOf(value.substring(5, 7)) - 1);
+                c.set(Calendar.DATE, Integer.valueOf(value.substring(8, 10)));
+                if (value.length() >= "YYYY-MM-DD HH:MM:SS".length()) {
+                    c.set(Calendar.HOUR_OF_DAY, Integer.valueOf(value.substring(11, 13)));
+                    c.set(Calendar.MINUTE, Integer.valueOf(value.substring(14, 16)));
+                    c.set(Calendar.SECOND, Integer.valueOf(value.substring(17, 19)));
+                    c.set(Calendar.MILLISECOND, Integer.valueOf(value.substring(20, 23)));
+                    if (value.length() >= "YYYY-MM-DD HH:MM:SS.SSS".length()) {
+                        c.set(Calendar.MILLISECOND, Integer.valueOf(value.substring(20, 23)));
+                    }
+                }
+                mRenderer.setXAxisMin(c.getTime().getTime());
+            }
+            else {
+                mRenderer.setXAxisMin(Double.valueOf(value));
+            }
         }
         if (mData.getConfiguration("y-min") != null) {
             mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-min")));
@@ -348,7 +368,26 @@ public class GraphView {
         }
         
         if (mData.getConfiguration("x-max") != null) {
-            mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-max")));
+            String value = mData.getConfiguration("x-max");
+            if (mData.getType().equals(Graph.TYPE_TIME)) {
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.YEAR, Integer.valueOf(value.substring(0, 4)));
+                c.set(Calendar.MONTH, Calendar.JANUARY + Integer.valueOf(value.substring(5, 7)) - 1);
+                c.set(Calendar.DATE, Integer.valueOf(value.substring(8, 10)));
+                if (value.length() >= "YYYY-MM-DD HH:MM:SS".length()) {
+                    c.set(Calendar.HOUR_OF_DAY, Integer.valueOf(value.substring(11, 13)));
+                    c.set(Calendar.MINUTE, Integer.valueOf(value.substring(14, 16)));
+                    c.set(Calendar.SECOND, Integer.valueOf(value.substring(17, 19)));
+                    c.set(Calendar.MILLISECOND, Integer.valueOf(value.substring(20, 23)));
+                    if (value.length() >= "YYYY-MM-DD HH:MM:SS.SSS".length()) {
+                        c.set(Calendar.MILLISECOND, Integer.valueOf(value.substring(20, 23)));
+                    }
+                }
+                mRenderer.setXAxisMax(c.getTime().getTime());
+            }
+            else {
+                mRenderer.setXAxisMax(Double.valueOf(value));
+            }
         }
         if (mData.getConfiguration("y-max") != null) {
             mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-max")));
