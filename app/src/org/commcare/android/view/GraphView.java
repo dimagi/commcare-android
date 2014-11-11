@@ -422,7 +422,7 @@ public class GraphView {
                 setLabelCount(key, 0);
                 for (int i = 0; i < labels.length(); i++) {
                     String value = labels.getString(i);
-                    addTextLabel(key, Double.valueOf(value), value);
+                    addTextLabel(key, parseXValue(value), value);
                 }
                 hasLabels = labels.length() > 0;
             }
@@ -437,7 +437,7 @@ public class GraphView {
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                        String location = (String) i.next();
-                       addTextLabel(key, Double.valueOf(location), labels.getString(location));
+                       addTextLabel(key, parseXValue(location), labels.getString(location));
                        hasLabels = true;
                     }
                 }
