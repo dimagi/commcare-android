@@ -22,7 +22,6 @@ import org.commcare.suite.model.graph.BubblePointData;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
-import org.commcare.suite.model.graph.TimePointData;
 import org.commcare.suite.model.graph.XYPointData;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -124,13 +123,8 @@ public class GraphView {
         }
         if (!hasPoints) {
             SeriesData s = new SeriesData();
-            double minX = 0;
-            double minY = 0;
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-                s.addPoint(new BubblePointData("0", "0", 0.0));
-            }
-            else if (mData.getType().equals(Graph.TYPE_TIME)) {
-                s.addPoint(new TimePointData(new Date(), minY));
+                s.addPoint(new BubblePointData("0", "0", "0"));
             }
             else {
                 s.addPoint(new XYPointData("0", "0"));
@@ -178,7 +172,7 @@ public class GraphView {
             }
             series = new RangeXYValueSeries("");
             if (s.getConfiguration("radius-max") != null) {
-                ((RangeXYValueSeries) series).setMaxValue(Double.valueOf(s.getConfiguration("radius-max")));
+                ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max")));
             }
         }
         else if (mData.getType().equals(Graph.TYPE_TIME)) {
@@ -198,28 +192,18 @@ public class GraphView {
         for (XYPointData d : s.getPoints()) {
             sortedPoints.add(d);
         }
-        if (sortedPoints.size() > 1) {
-            Comparator<XYPointData> comparator;
-            if (mData.getType().equals(Graph.TYPE_TIME)) {
-                comparator = new TimePointComparator();
-            }
-            else {
-                comparator = new XYPointComparator();
-            }
-            Collections.sort(sortedPoints, comparator);
-        }
+        Collections.sort(sortedPoints, new XYPointComparator());
         
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
-                ((RangeXYValueSeries) series).add(Double.valueOf(b.getX()), Double.valueOf(b.getY()), b.getRadius());
+                ((RangeXYValueSeries) series).add(parseXValue(b.getX()), parseYValue(b.getY()), parseRadiusValue(b.getRadius()));
             }
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
-                TimePointData t = (TimePointData) p;
-                ((TimeSeries) series).add(t.getTime(), Double.valueOf(t.getY()));
+                ((TimeSeries) series).add(parseXValue(p.getX()), parseYValue(p.getY()));
             }
             else {
-                series.add(Double.valueOf(p.getX()), Double.valueOf(p.getY()));
+                series.add(parseXValue(p.getX()), parseYValue(p.getY()));
             }
         }
     }
@@ -243,7 +227,7 @@ public class GraphView {
             // XYValueSeries will work for both xy graphs and bubble graphs 
             XYValueSeries series = new XYValueSeries("");
             for (AnnotationData a : annotations) {
-                series.addAnnotation(a.getAnnotation(), Double.valueOf(a.getX()), Double.valueOf(a.getY()));
+                series.addAnnotation(a.getAnnotation(), parseXValue(a.getX()), parseYValue(a.getY()));
             }
             
             // Annotations won't display unless the series has some data in it
@@ -341,20 +325,20 @@ public class GraphView {
             mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min")));
         }
         if (mData.getConfiguration("y-min") != null) {
-            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-min")));
+            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("y-min")));
         }
         if (mData.getConfiguration("secondary-y-min") != null) {
-            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("secondary-y-min")), 1);
+            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("secondary-y-min")), 1);
         }
         
         if (mData.getConfiguration("x-max") != null) {
             mRenderer.setXAxisMax(parseXValue(mData.getConfiguration("x-max")));
         }
         if (mData.getConfiguration("y-max") != null) {
-            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-max")));
+            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("y-max")));
         }
         if (mData.getConfiguration("secondary-y-max") != null) {
-            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("secondary-y-max")), 1);
+            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max")), 1);
         }
         
         String showGrid = mData.getConfiguration("show-grid", "true");
@@ -392,7 +376,6 @@ public class GraphView {
                 c.set(Calendar.HOUR_OF_DAY, Integer.valueOf(value.substring(11, 13)));
                 c.set(Calendar.MINUTE, Integer.valueOf(value.substring(14, 16)));
                 c.set(Calendar.SECOND, Integer.valueOf(value.substring(17, 19)));
-                c.set(Calendar.MILLISECOND, Integer.valueOf(value.substring(20, 23)));
                 if (value.length() >= "YYYY-MM-DD HH:MM:SS.SSS".length()) {
                     c.set(Calendar.MILLISECOND, Integer.valueOf(value.substring(20, 23)));
                 }
@@ -403,6 +386,14 @@ public class GraphView {
         return Double.valueOf(value);
     }
     
+    private Double parseYValue(String value) {
+        return Double.valueOf(value);
+    }
+    
+    private Double parseRadiusValue(String value) {
+        return Double.valueOf(value);
+    }
+
     /**
      * Customize labels.
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
@@ -506,26 +497,13 @@ public class GraphView {
     }
     
     /**
-     * Comparator to sort PointData objects by x value.
+     * Comparator to sort XYPointData objects by x value.
      * @author jschweers
      */
     private class XYPointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
-            return Double.valueOf(lhs.getX()).compareTo(Double.valueOf(rhs.getX()));
-        }
-    }
-
-    private class TimePointComparator implements Comparator<XYPointData> {
-        @Override
-        public int compare(XYPointData lhs, XYPointData rhs) {
-            if (((TimePointData)lhs).getTime().getTime() > ((TimePointData)rhs).getTime().getTime()) {
-                return 1;
-            }
-            if (((TimePointData)lhs).getTime().getTime() < ((TimePointData)rhs).getTime().getTime()) {
-                return -1;
-            }
-            return 0;
+            return parseXValue(lhs.getX()).compareTo(parseXValue(rhs.getX()));
         }
     }
 
