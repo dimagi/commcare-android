@@ -151,7 +151,7 @@ public class GraphView {
     }
     
     private String getTimeFormat() {
-        return "MM-dd";
+        return mData.getConfiguration("x-labels-time-format", "yyyy-MM-dd");
     }
     
     /*
