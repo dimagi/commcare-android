@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -124,6 +125,9 @@ public class GraphView {
             SeriesData s = new SeriesData();
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 s.addPoint(new BubblePointData("0", "0", "0"));
+            }
+            else if (mData.getType().equals(Graph.TYPE_TIME)) {
+                s.addPoint(new XYPointData(Long.valueOf((new Date()).getTime()).toString(), "0"));
             }
             else {
                 s.addPoint(new XYPointData("0", "0"));
