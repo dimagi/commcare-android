@@ -3,7 +3,6 @@ package org.commcare.android.view;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -162,28 +161,17 @@ public class GraphView {
         mRenderer.addSeriesRenderer(currentRenderer);
         configureSeries(s, currentRenderer);
 
-        XYSeries series;
         int scaleIndex = Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0;
+        if (scaleIndex > 0 && !mData.getType().equals(Graph.TYPE_XY)) {
+            // TODO: Bubble and time graphs ought to respect scaleIndex, but XYValueSeries
+            // and TimeSeries don't expose the (String title, int scaleNumber) constructor.
+            throw new IllegalArgumentException("This series does not support a secondary y axis");
+        }
+        XYSeries series = createSeries(scaleIndex);
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-            // TODO: This also ought to respect scaleIndex. However, XYValueSeries doesn't expose the
-            // (String title, int scaleNumber) constructor, so RangeXYValueSeries doesn't have access to it.
-            if (scaleIndex > 0) {
-                throw new IllegalArgumentException("Bubble series do not support a secondary y axis");
-            }
-            series = new RangeXYValueSeries("");
             if (s.getConfiguration("radius-max") != null) {
                 ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max")));
             }
-        }
-        else if (mData.getType().equals(Graph.TYPE_TIME)) {
-            // As above, this should respect scaleIndex, but it doesn't.
-            if (scaleIndex > 0) {
-                throw new IllegalArgumentException("Time series do not support a secondary y axis");
-            }
-            series = new TimeSeries("");
-        }
-        else {
-            series = new XYSeries("", scaleIndex);
         }
         mDataset.addSeries(series);
 
@@ -216,6 +204,20 @@ public class GraphView {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
     }
     
+    private XYSeries createSeries() {
+        return createSeries(0);
+    }
+    
+    private XYSeries createSeries(int scaleIndex) {
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            return new TimeSeries("");
+        }
+        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            return new RangeXYValueSeries("");
+        }
+        return new XYSeries("", scaleIndex);
+    }
+    
     /*
      * Set up any annotations.
      */
@@ -223,9 +225,7 @@ public class GraphView {
         Vector<AnnotationData> annotations = mData.getAnnotations();
         if (!annotations.isEmpty()) {
             // Create a fake series for the annotations
-            // Using an XYSeries will fail for bubble graphs, but using an
-            // XYValueSeries will work for both xy graphs and bubble graphs 
-            XYValueSeries series = new XYValueSeries("");
+            XYSeries series = createSeries();
             for (AnnotationData a : annotations) {
                 series.addAnnotation(a.getAnnotation(), parseXValue(a.getX()), parseYValue(a.getY()));
             }
