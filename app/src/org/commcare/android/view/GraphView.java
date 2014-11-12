@@ -1,8 +1,5 @@
 package org.commcare.android.view;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -14,7 +11,6 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
-import org.achartengine.model.XYValueSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -25,6 +21,7 @@ import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.suite.model.graph.XYPointData;
+import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -127,7 +124,7 @@ public class GraphView {
                 s.addPoint(new BubblePointData("0", "0", "0"));
             }
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
-                s.addPoint(new XYPointData(Long.valueOf((new Date()).getTime()).toString(), "0"));
+                s.addPoint(new XYPointData(DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601), "0"));
             }
             else {
                 s.addPoint(new XYPointData("0", "0"));
@@ -390,19 +387,7 @@ public class GraphView {
      */
     private Double parseXValue(String value) {
         if (mData.getType().equals(Graph.TYPE_TIME)) {
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.YEAR, Integer.valueOf(value.substring(0, 4)));
-            c.set(Calendar.MONTH, Calendar.JANUARY + Integer.valueOf(value.substring(5, 7)) - 1);
-            c.set(Calendar.DATE, Integer.valueOf(value.substring(8, 10)));
-            if (value.length() >= "YYYY-MM-DD HH:MM:SS".length()) {
-                c.set(Calendar.HOUR_OF_DAY, Integer.valueOf(value.substring(11, 13)));
-                c.set(Calendar.MINUTE, Integer.valueOf(value.substring(14, 16)));
-                c.set(Calendar.SECOND, Integer.valueOf(value.substring(17, 19)));
-                if (value.length() >= "YYYY-MM-DD HH:MM:SS.SSS".length()) {
-                    c.set(Calendar.MILLISECOND, Integer.valueOf(value.substring(20, 23)));
-                }
-            }
-            return Double.valueOf(c.getTime().getTime());
+            return Double.valueOf(DateUtils.parseDateTime(value).getTime());
         }
 
         return Double.valueOf(value);
