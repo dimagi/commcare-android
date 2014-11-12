@@ -1,5 +1,7 @@
 package org.commcare.android.view;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -111,10 +113,8 @@ public class GraphView {
     public View getView(GraphData data) {
         render(data);
         
-        // Graph will not render correctly unless it has data. 
-        // Add a dummy series to guarantee this.
-        // Do this after adding any real data and after configuring
-        // so that get_AxisMin functions return correct values.
+        // Graph will not render correctly unless it has data, so
+        // add a dummy series if needed.
         boolean hasPoints = false;
         Vector<SeriesData> allSeries = data.getSeries();
         for (int i = 0; i < allSeries.size() && !hasPoints; i++) {
@@ -142,6 +142,10 @@ public class GraphView {
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
     }
     
+    /**
+     * Fetch date format for displaying time-based x labels.
+     * @return String, a SimpleDateFormat pattern.
+     */
     private String getTimeFormat() {
         return mData.getConfiguration("x-labels-time-format", "yyyy-MM-dd");
     }
@@ -161,13 +165,7 @@ public class GraphView {
         mRenderer.addSeriesRenderer(currentRenderer);
         configureSeries(s, currentRenderer);
 
-        int scaleIndex = Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0;
-        if (scaleIndex > 0 && !mData.getType().equals(Graph.TYPE_XY)) {
-            // TODO: Bubble and time graphs ought to respect scaleIndex, but XYValueSeries
-            // and TimeSeries don't expose the (String title, int scaleNumber) constructor.
-            throw new IllegalArgumentException("This series does not support a secondary y axis");
-        }
-        XYSeries series = createSeries(scaleIndex);
+        XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             if (s.getConfiguration("radius-max") != null) {
                 ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max")));
@@ -180,7 +178,7 @@ public class GraphView {
         for (XYPointData d : s.getPoints()) {
             sortedPoints.add(d);
         }
-        Collections.sort(sortedPoints, new XYPointComparator());
+        Collections.sort(sortedPoints, new PointComparator());
         
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
@@ -204,11 +202,26 @@ public class GraphView {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
     }
     
+    /**
+     * Create series appropriate to the current graph type.
+     * @return An XYSeries-derived object.
+     */
     private XYSeries createSeries() {
         return createSeries(0);
     }
     
+    /**
+     * Create series appropriate to the current graph type.
+     * @param scaleIndex
+     * @return An XYSeries-derived object.
+     */
     private XYSeries createSeries(int scaleIndex) {
+        // TODO: Bubble and time graphs ought to respect scaleIndex, but XYValueSeries
+        // and TimeSeries don't expose the (String title, int scaleNumber) constructor.
+        if (scaleIndex > 0 && !mData.getType().equals(Graph.TYPE_XY)) {
+            throw new IllegalArgumentException("This series does not support a secondary y axis");
+        }
+
         if (mData.getType().equals(Graph.TYPE_TIME)) {
             return new TimeSeries("");
         }
@@ -366,6 +379,11 @@ public class GraphView {
         mRenderer.setZoomButtonsVisible(panAndZoom);
     }
     
+    /**
+     * Parse given string into Double for AChartEngine.
+     * @param value
+     * @return
+     */
     private Double parseXValue(String value) {
         if (mData.getType().equals(Graph.TYPE_TIME)) {
             Calendar c = Calendar.getInstance();
@@ -386,10 +404,20 @@ public class GraphView {
         return Double.valueOf(value);
     }
     
+    /**
+     * Parse given string into Double for AChartEngine.
+     * @param value
+     * @return
+     */
     private Double parseYValue(String value) {
         return Double.valueOf(value);
     }
     
+    /**
+     * Parse given string into Double for AChartEngine.
+     * @param value
+     * @return
+     */
     private Double parseRadiusValue(String value) {
         return Double.valueOf(value);
     }
@@ -497,10 +525,10 @@ public class GraphView {
     }
     
     /**
-     * Comparator to sort XYPointData objects by x value.
+     * Comparator to sort XYPointData-derived objects by x value.
      * @author jschweers
      */
-    private class XYPointComparator implements Comparator<XYPointData> {
+    private class PointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             return parseXValue(lhs.getX()).compareTo(parseXValue(rhs.getX()));
