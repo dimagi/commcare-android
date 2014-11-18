@@ -275,6 +275,10 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
         
         String fileRoot = FileUtil.getDumpDirectory(this);
         
+        if (fileRoot == null){
+            return null;
+        }
+        
         String folderName = getFolderName();
         
         File dumpDirectory = new File( fileRoot + "/" + folderName);
