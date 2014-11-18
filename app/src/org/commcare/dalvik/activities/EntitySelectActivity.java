@@ -30,9 +30,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathStringLiteral;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -666,7 +663,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @see org.commcare.android.tasks.EntityLoaderListener#deliverResult(java.util.List, java.util.List)
      */
     @Override
-    public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references) {
+    public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references, NodeEntityFactory factory) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -680,7 +677,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
     	
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this);
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this, factory);
 		
         view.setAdapter(adapter);
         

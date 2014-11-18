@@ -7,22 +7,33 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import net.sqlcipher.Cursor;
+import net.sqlcipher.database.SQLiteDatabase;
+
+import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
+import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.instance.CaseChildElement;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.cases.model.Case;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 
 /**
  * @author ctsims
  *
  */
-public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement {
+public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
     SqlStorageIterator<ACase> iter;
+    
+    protected Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<Integer, Integer>();
     
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
         super(instanceRoot, storage, reportMode);
@@ -35,13 +46,20 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement {
         }
         objectIdMapping = new Hashtable<Integer, Integer>();
         cases = new Vector<CaseChildElement>();
+        System.out.println("Getting Cases!");
+        long timeInMillis = System.currentTimeMillis();
+
         int mult = 0;
+
         for(IStorageIterator i = ((SqlStorage<ACase>)storage).iterate(false); i.hasMore();) {
             int id = i.nextID();
             cases.addElement(new CaseChildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+            multiplicityIdMapping.put(DataUtil.integer(mult), DataUtil.integer(id));
             mult++;
         }
+        long value = System.currentTimeMillis() - timeInMillis;
+        System.out.println("Case iterate took: " + value + "ms");
     }
     
     
@@ -79,8 +97,62 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement {
         }
         names[i] = filterIndex;
         values[i] = (String)o;
-        
+        mMostRecentBatchFetch = new String[2][];
+        mMostRecentBatchFetch[0] = names;
+        mMostRecentBatchFetch[1] = values;
         
         return sqlStorage.getIDsForValues(names, values);
     }
+    
+    
+    public String getCacheIndex(TreeReference ref) {
+        //NOTE: there's no evaluation here as to whether the ref is suitable
+        //we only follow one pattern for now and it's evaluated below. 
+        
+        getCases();
+        
+        //Testing - Don't bother actually seeing whether this fits
+        int i = ref.getMultiplicity(1);
+        if(i != -1 ) {
+            Integer val = this.multiplicityIdMapping.get(DataUtil.integer(i));
+            if(val == null) { 
+                return null;
+            }
+            else { return val.toString();}
+        }
+        return null;
+    }
+
+
+    @Override
+    public boolean isReferencePatternCachable(TreeReference ref) {
+        //we only support one pattern here, a raw, qualified
+        //reference to an element at the case level with no
+        //predicate support. The ref basically has to be a raw
+        //pointer to one of this instance's children
+        if(!ref.isAbsolute()) {
+            return false;
+        }
+        
+        if(ref.hasPredicates()) { return false; }
+        if(ref.size() != 2) { return false; }
+        
+        if(!"casedb".equalsIgnoreCase(ref.getName(0))) { return false; }
+        if(!"case".equalsIgnoreCase(ref.getName(1))) { return false;}
+        if(ref.getMultiplicity(1) < 0) { return false;}
+         
+        return true;
+    }
+    
+    String[][] mMostRecentBatchFetch = null;
+    
+    /*
+     * ](non-Javadoc)
+     * @see org.javarosa.core.model.utils.CacheHost#guessCachePrimer()
+     */
+    @Override
+    public String[][] getCachePrimeGuess() { 
+        return mMostRecentBatchFetch;
+    }
+
 }

@@ -229,4 +229,11 @@ public class DbUtil {
            db.execSQL("INSERT INTO integers VALUES (" + i + ");");
        }
    }
+
+    public static void explainSql(SQLiteDatabase handle, String sql, String[] args) {
+        Cursor explain = handle.rawQuery("EXPLAIN QUERY PLAN " + sql, args);
+        System.out.println("SQL: " + sql);
+        DatabaseUtils.dumpCursor((net.sqlcipher.Cursor)explain);
+        explain.close();
+    }
 }

@@ -1,7 +1,6 @@
 package org.commcare.xml;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -9,6 +8,7 @@ import javax.crypto.Cipher;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.net.HttpRequestGenerator;
@@ -22,6 +22,7 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 
@@ -39,9 +40,11 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     File folder;
     boolean processAttachments = true;
     HttpRequestGenerator generator;
+    EntityStorageCache mEntityCache;
     
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
         super(parser, storage);
+        mEntityCache = new EntityStorageCache("case");
     }
     
     
@@ -57,6 +60,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     public AndroidCaseXmlParser(KXmlParser parser, int[] tallies, boolean b, SqlStorage<ACase> storage, HttpRequestGenerator generator) {
         super(parser, tallies, b, storage);
         this.generator = generator;
+        mEntityCache = new EntityStorageCache("case");
     }
     
     /*
@@ -82,6 +86,12 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         } catch (InvalidReferenceException e) {
             e.printStackTrace();
         }
+    }
+    
+    @Override
+    public void commit(Case parsed) throws IOException {
+        super.commit(parsed);
+        mEntityCache.invalidateCache(String.valueOf(parsed.getID()));
     }
     
     /*

@@ -2,18 +2,21 @@ package org.commcare.android.adapters;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Locale;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
+import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.CachingAsyncImageLoader;
-import org.commcare.android.view.GridEntityView;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
+import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -22,6 +25,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.views.media.AudioController;
@@ -78,7 +82,7 @@ public class EntityListAdapter implements ListAdapter {
  private boolean inAwesomeMode = false;
  
  public EntityListAdapter(Context context, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
-   int[] sort, TextToSpeech tts, AudioController controller) throws SessionUnavailableException {
+   int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) throws SessionUnavailableException {
   this.detail = detail;
         
         this.full = full;
@@ -88,14 +92,19 @@ public class EntityListAdapter implements ListAdapter {
         this.context = context;
         this.observers = new ArrayList<DataSetObserver>();
 
-        /*if(sort.length != 0) {
-            sort(sort);
+        //TODO: I am a bad person and I should feel bad. This should get encapsulated 
+        //somewhere in the factory as a callback (IE: How to sort/or whether to or  something)
+        
+        if(!(factory instanceof AsyncNodeEntityFactory)) {
+            if(sort.length != 0) {
+                sort(sort);
+            }
+            filterValues("");
         }
-        filterValues("");*/
         
         this.tts = tts;
         this.controller = controller;
-  mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
+        mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
         if(detail.getCustomAction() != null) {
         }
         usesGridView = detail.usesGridView();
@@ -111,8 +120,13 @@ public class EntityListAdapter implements ListAdapter {
             searchTerms[i] = StringUtils.normalize(searchTerms[i]);
         }
         
+        Locale currentLocale = Locale.getDefault();
+        
         current.clear();
         
+        long startTime = System.currentTimeMillis();
+        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+        db.beginTransaction();
         full:
         for(Entity<TreeReference> e : full) {
             if("".equals(filterRaw)) {
@@ -125,35 +139,40 @@ public class EntityListAdapter implements ListAdapter {
             for(String filter: searchTerms) {
                 add = false;
                 for(int i = 0 ; i < e.getNumFields(); ++i) {
-                    String field = "";//StringUtils.normalize(e.getFieldString(i));
-                    if(field.toLowerCase().contains(filter)) {
+                    String field = e.getNormalizedField(i);
+                    if(field != "" && field.toLowerCase(currentLocale).contains(filter)) {
                         add = true;
                         continue filter;
                     } else {
-                        //We possibly now want to test for edit distance for fuzzy matching
-                        if(mFuzzySearchEnabled) {
-                            String sortField = e.getSortField(i);
-                            if(sortField != null) {
-                                //We always fuzzy match on the sort field and only if it is available
-                                //(as a way to restrict possible matching)
-                                sortField = StringUtils.normalize(sortField);
-                                for(String fieldChunk : sortField.split(" ")) {
-                                    if(StringUtils.fuzzyMatch(fieldChunk, filter)) {
-                                        add = true;
-                                        continue filter;
-                                    }
+                        // We possibly now want to test for edit distance for
+                        // fuzzy matching
+                        if (mFuzzySearchEnabled) {
+                            for (String fieldChunk : e.getSortFieldPieces(i)) {
+                                if (StringUtils.fuzzyMatch(fieldChunk, filter)) {
+                                    add = true;
+                                    continue filter;
                                 }
                             }
                         }
                     }
                 }
-                if(!add) { break; }
+                if (!add) {
+                    break;
+                }
             }
             if(add) {
                 current.add(e);
                 continue full;
             }
         }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        
+        long time = System.currentTimeMillis() - startTime;
+        if(time > 1000) { 
+            Logger.log("cache", "Presumably finished caching new entities, time taken: " + time + "ms");
+        }
+        
         this.currentSearchTerms = searchTerms;
         
         if(actionEnabled) {

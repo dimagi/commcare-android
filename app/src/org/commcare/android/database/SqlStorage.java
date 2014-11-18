@@ -40,7 +40,7 @@ import android.util.Pair;
  */
 public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
     
-    private static final boolean DEBUG_MODE = false;  
+    public static final boolean STORAGE_OUTPUT_DEBUG = true;  
     
     String table;
     Class<? extends T> ctype;
@@ -79,12 +79,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
         
-        if(DEBUG_MODE) {
+        if(STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
-            Cursor explain = helper.getHandle().rawQuery("EXPLAIN QUERY PLAN " + sql, whereClause.second);
-            System.out.println("SQL: " + sql);
-            DatabaseUtils.dumpCursor((net.sqlcipher.Cursor)explain);
-            explain.close();
+            DbUtil.explainSql(helper.getHandle(), sql, whereClause.second);
         }
         
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
@@ -170,11 +167,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
         
-        if(DEBUG_MODE) {
+        if(STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
-            Cursor explain = helper.getHandle().rawQuery("EXPLAIN QUERY PLAN " + sql, whereClause.second);
-            DatabaseUtils.dumpCursor((net.sqlcipher.Cursor) explain);
-            explain.close();
+            DbUtil.explainSql(helper.getHandle(), sql, whereClause.second);
         }
         
         String scrubbedName = TableBuilder.scrubName(rawFieldName);

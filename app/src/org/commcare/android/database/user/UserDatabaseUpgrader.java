@@ -6,11 +6,10 @@ package org.commcare.android.database.user;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
-import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
-import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
 
@@ -113,6 +112,9 @@ public class UserDatabaseUpgrader {
             db.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
             
             DbUtil.createNumbersTable(db);
+            db.execSQL(EntityStorageCache.getTableDefinition());
+            EntityStorageCache.createIndexes(db);
+
 
             db.setTransactionSuccessful();
             return true;
