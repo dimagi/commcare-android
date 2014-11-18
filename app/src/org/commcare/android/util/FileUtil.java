@@ -388,7 +388,11 @@ public class FileUtil {
             if (android.os.Build.VERSION.SDK_INT>=19){
                 return getExternalDirectoryKitKat(c);
             } else{
-                return getExternalMounts().get(0);
+                ArrayList<String> mArrayList = getExternalMounts();
+                if (mArrayList.size() > 0){
+                    return getExternalMounts().get(0);
+                }
+                return null;
             }
         }
 }
