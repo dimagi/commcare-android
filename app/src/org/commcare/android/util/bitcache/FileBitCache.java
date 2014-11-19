@@ -89,7 +89,7 @@ public class FileBitCache implements BitCache {
             
             //process
             FileInputStream fis = new FileInputStream(temp);
-            BufferedInputStream bis = new BufferedInputStream(fis, 1024);
+            BufferedInputStream bis = new BufferedInputStream(fis, 4096);
             CipherInputStream cis = new CipherInputStream(bis,decrypter);
             return cis;
         } catch (NoSuchAlgorithmException e) {

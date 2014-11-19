@@ -37,6 +37,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.xml.CommCareTransactionParserFactory;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -61,13 +62,18 @@ import android.database.Cursor;
  * @author ctsims
  *
  */
-public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> {
+public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
+
 
     String server;
     String keyProvider;
     String username;
     String password;
     Context c;
+    
+    int mCurrentProgress = -1;
+    int mTotalItems = -1;
+    long mSyncStartTime;
     
     private boolean wasKeyLoggedIn = false;
     
@@ -89,6 +95,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int PROGRESS_RECOVERY_STARTED= 16;
     public static final int PROGRESS_RECOVERY_FAIL_SAFE = 32;
     public static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
+    public static final int PROGRESS_PROCESSING = 128;
+    
+    /**
+     * Whether to enable loading this data from a local asset for 
+     * debug/testing. 
+     * 
+     * This flag should never be set to true on a prod build or in VC
+     * TODO: It should be an error for "debuggable" to be off and this flag
+     * to be true
+     */
+    private static final boolean DEBUG_LOAD_FROM_LOCAL = false;
+    private InputStream mDebugStream;
 
     
     public DataPullTask(String username, String password, String server, String keyProvider, Context c) {
@@ -122,6 +140,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         SharedPreferences prefs = app.getAppPreferences();
         
         String keyServer = prefs.getString("key_server", null);
+        
+        mTotalItems = -1;
+        mCurrentProgress = -1;
         
         //Whether or not we should be generating the first key
         boolean useExternalKeys  = !(keyServer == null || keyServer.equals(""));
@@ -195,8 +216,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 //Either way, don't re-do this step
                 this.publishProgress(PROGRESS_CLEANED);
 
-                HttpResponse response = requestor.makeCaseFetchRequest(server, useRequestFlags);
-                int responseCode = response.getStatusLine().getStatusCode();
+                int responseCode = -1;
+                HttpResponse response = null;
+                
+                //This isn't awesome, but it's hard to work this in in a cleaner way
+                if(DEBUG_LOAD_FROM_LOCAL) {
+                    mDebugStream = this.c.getAssets().open("payload.xml");
+                    responseCode = 200;
+                } else {
+                    response = requestor.makeCaseFetchRequest(server, useRequestFlags);
+                    responseCode = response.getStatusLine().getStatusCode();
+                }
+                
                 if(responseCode == 401) {
                     //If we logged in, we need to drop those credentials
                     if(loginNeeded) {
@@ -217,15 +248,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     this.publishProgress(PROGRESS_AUTHED,0);
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
                     
-                    int dataSizeGuess = -1;
-                    if(response.containsHeader("Content-Length")) {
-                        String length = response.getFirstHeader("Content-Length").getValue();
-                        try{
-                            dataSizeGuess = Integer.parseInt(length);
-                        } catch(Exception e) {
-                            //Whatever.
-                        }
-                    }
+                    int dataSizeGuess = guessDataSize(response);
                     
                     BitCache cache = BitCacheFactory.getCache(c, dataSizeGuess);
                     
@@ -233,7 +256,13 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     
                     try {
                         OutputStream cacheOut = cache.getCacheStream();
-                        AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), cacheOut);
+                        InputStream input;
+                        if(DEBUG_LOAD_FROM_LOCAL) {
+                            input = this.mDebugStream;
+                        } else {
+                            input = response.getEntity().getContent();;
+                        }
+                        AndroidStreamUtil.writeFromInputToOutput(input, cacheOut);
                     
                         InputStream cacheIn = cache.retrieveCache();
                         String syncToken = readInput(cacheIn, factory);
@@ -353,6 +382,25 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             
     }
         
+    private int guessDataSize(HttpResponse response) {
+        if(DEBUG_LOAD_FROM_LOCAL) {
+            try {
+                return this.mDebugStream.available();
+            } catch (IOException e) {
+                return -1;
+            }
+        }
+        if(response.containsHeader("Content-Length")) {
+            String length = response.getFirstHeader("Content-Length").getValue();
+            try{
+                return Integer.parseInt(length);
+            } catch(Exception e) {
+                //Whatever.
+            }
+        }
+        return -1;
+    }
+
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
     private int recover(HttpRequestGenerator requestor, CommCareTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
@@ -539,7 +587,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
         try {
             db.beginTransaction();
-            parser = new DataModelPullParser(stream, factory);
+            parser = new DataModelPullParser(stream, factory, this);
             parser.parse();
             db.setTransactionSuccessful();
         } finally {
@@ -550,4 +598,42 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         //Return the sync token ID
         return factory.getSyncToken();
     }
+    
+    //BEGIN - OTA Listener methods below - Note that most of the methods
+    //below weren't really implemented
+    
+    @Override
+    public void onUpdate(int numberCompleted) {
+        mCurrentProgress = numberCompleted;
+        int miliSecElapsed = (int)(System.currentTimeMillis() - mSyncStartTime);
+        
+        this.publishProgress(PROGRESS_PROCESSING, mCurrentProgress, mTotalItems, miliSecElapsed);
+    }
+
+    @Override
+    public void setTotalForms(int totalItemCount) {
+        mTotalItems = totalItemCount;
+        mCurrentProgress = 0;
+        mSyncStartTime = System.currentTimeMillis();
+        this.publishProgress(PROGRESS_PROCESSING, mCurrentProgress, mTotalItems, 0);
+    }
+
+    @Override
+    public void statusUpdate(int statusNumber) {}
+
+    @Override
+    public void refreshView() {}
+
+    @Override
+    public void getCredentials() {}
+
+    @Override
+    public void promptRetry(String msg) {}
+
+    @Override
+    public void onSuccess() {}
+
+    @Override
+    public void onFailure(String failMessage) {}
+
 }
