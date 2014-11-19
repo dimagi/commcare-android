@@ -18,6 +18,6 @@ commcare-odk-test/gen/*
 *.orig
 *.swp
 .hg*
-app/.cache
-app/libs/
-app/proguard_cache/
+/app/.cache
+/app/libs/
+/app/proguard_cache/
