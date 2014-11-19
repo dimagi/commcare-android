@@ -154,6 +154,16 @@ public class EntityListAdapter implements ListAdapter {
             thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    //Make sure that we have loaded the necessary cached data
+                    //before we attempt to search over it
+                    while(!mNodeFactory.isEntitySetReady()) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
                     sort();
                 }
             });
