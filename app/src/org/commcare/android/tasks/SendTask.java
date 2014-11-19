@@ -104,6 +104,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
 
         //sanity check
         if(dumpDirectory == null || !(dumpDirectory.isDirectory())){
+
             return false;
         }
         
