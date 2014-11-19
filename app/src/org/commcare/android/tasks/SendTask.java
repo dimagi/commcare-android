@@ -103,7 +103,8 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         publishProgress(Localization.get("bulk.form.send.start"));
 
         //sanity check
-        if(!(dumpDirectory.isDirectory())){
+        if(dumpDirectory == null || !(dumpDirectory.isDirectory())){
+
             return false;
         }
         
