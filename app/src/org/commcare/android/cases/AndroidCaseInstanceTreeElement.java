@@ -7,18 +7,13 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
-
-import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.cases.instance.CaseChildElement;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.cases.model.Case;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
@@ -32,11 +27,13 @@ import org.javarosa.core.util.DataUtil;
  */
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
     SqlStorageIterator<ACase> iter;
+    CaseIndexTable mCaseIndexTable;
     
     protected Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<Integer, Integer>();
     
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
         super(instanceRoot, storage, reportMode);
+        mCaseIndexTable = new CaseIndexTable();
     }
     
     
@@ -87,6 +84,17 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     
     @Override
     protected Vector<Integer> getMatchesForValue(String filterIndex, Object o, IStorageUtilityIndexed<?> storage, Vector<String> previousFetchKeys, Vector<Object> previousFetchValues) {
+        //If the index object starts with "case_in" it's actually a case index query and we need to run
+        //this over the case index table
+        if(filterIndex.startsWith(Case.INDEX_CASE_INDEX_PRE)) {
+            String indexName = filterIndex.substring(Case.INDEX_CASE_INDEX_PRE.length());
+            Vector <Integer> matchingCases = mCaseIndexTable.getCasesMatchingIndex(indexName, (String)o);
+            //Clear the most recent index and wipe it, because there is no way it is going to be useful
+            //after this
+            mMostRecentBatchFetch = new String[2][];
+            return matchingCases;
+        }
+        
         SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
         String[] names = new String[previousFetchKeys.size() + 1];
         String[] values = new String[previousFetchValues.size() + 1];

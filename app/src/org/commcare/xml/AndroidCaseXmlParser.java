@@ -6,8 +6,11 @@ import java.io.IOException;
 
 import javax.crypto.Cipher;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
@@ -22,7 +25,6 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 
@@ -41,10 +43,12 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     boolean processAttachments = true;
     HttpRequestGenerator generator;
     EntityStorageCache mEntityCache;
+    CaseIndexTable mCaseIndexTable;
     
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
         super(parser, storage);
         mEntityCache = new EntityStorageCache("case");
+        mCaseIndexTable = new CaseIndexTable();
     }
     
     
@@ -61,6 +65,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         super(parser, tallies, b, storage);
         this.generator = generator;
         mEntityCache = new EntityStorageCache("case");
+        mCaseIndexTable = new CaseIndexTable();
     }
     
     /*
@@ -90,8 +95,17 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     
     @Override
     public void commit(Case parsed) throws IOException {
-        super.commit(parsed);
-        mEntityCache.invalidateCache(String.valueOf(parsed.getID()));
+        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+        db.beginTransaction();
+        try {
+            super.commit(parsed);
+            mEntityCache.invalidateCache(String.valueOf(parsed.getID()));
+            mCaseIndexTable.clearCaseIndices(parsed);
+            mCaseIndexTable.indexCase(parsed);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
     
     /*

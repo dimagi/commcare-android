@@ -40,7 +40,7 @@ import android.util.Pair;
  */
 public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
     
-    public static final boolean STORAGE_OUTPUT_DEBUG = true;  
+    public static final boolean STORAGE_OUTPUT_DEBUG = false;  
     
     String table;
     Class<? extends T> ctype;
@@ -85,13 +85,17 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
         
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
+        return fillIdWindow(c, DbUtil.ID_COL);
+    }
+    
+    public static Vector<Integer> fillIdWindow(Cursor c, String columnName) {
         if(c.getCount() == 0) {
             c.close();
             return new Vector<Integer>();
         } else {
             c.moveToFirst();
             Vector<Integer> indices = new Vector<Integer>();
-            int index = c.getColumnIndexOrThrow(DbUtil.ID_COL);
+            int index = c.getColumnIndexOrThrow(columnName);
             while(!c.isAfterLast()) {        
                 int id = c.getInt(index);
                 indices.add(Integer.valueOf(id));

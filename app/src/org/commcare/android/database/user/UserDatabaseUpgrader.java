@@ -9,9 +9,12 @@ import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 
@@ -114,6 +117,13 @@ public class UserDatabaseUpgrader {
             DbUtil.createNumbersTable(db);
             db.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(db);
+            
+            db.execSQL(CaseIndexTable.getTableDefinition());
+            CaseIndexTable.createIndexes(db);
+            CaseIndexTable cit = new CaseIndexTable();
+            for(ACase c : CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
+                cit.indexCase(c);
+            }
 
 
             db.setTransactionSuccessful();
