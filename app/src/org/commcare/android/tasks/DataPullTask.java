@@ -57,6 +57,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.net.http.AndroidHttpClient;
 
 /**
  * @author ctsims
@@ -260,7 +261,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         if(DEBUG_LOAD_FROM_LOCAL) {
                             input = this.mDebugStream;
                         } else {
-                            input = response.getEntity().getContent();;
+                            input = AndroidHttpClient.getUngzippedContent(response.getEntity());
                         }
                         AndroidStreamUtil.writeFromInputToOutput(input, cacheOut);
                     
