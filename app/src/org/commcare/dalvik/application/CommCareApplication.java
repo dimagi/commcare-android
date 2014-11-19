@@ -57,6 +57,7 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -141,6 +142,9 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Collect.setStaticApplicationContext(this);
+        //Sets the static strategy for the deserializtion code to be
+        //based on an optimized md5 hasher. Major speed improvements.
+        AndroidClassHasher.registerAndroidClassHashStrategy();
         
         CommCareApplication.app = this;
         
