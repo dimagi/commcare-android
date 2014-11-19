@@ -30,6 +30,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.views.media.AudioController;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.speech.tts.TextToSpeech;
@@ -54,7 +55,7 @@ public class EntityListAdapter implements ListAdapter {
     
     private boolean mFuzzySearchEnabled = true;
     
-    Context context;
+    Activity context;
  Detail detail;
     
     List<DataSetObserver> observers;
@@ -72,8 +73,13 @@ public class EntityListAdapter implements ListAdapter {
     
     int currentSort[] = {};
     boolean reverseSort = false;
+    
+    private NodeEntityFactory mNodeFactory;
 
     private String[] currentSearchTerms;
+    
+    EntitySorter mCurrentSortThread = null;
+    Object mSyncLock = new Object();
     
  public static int SCALE_FACTOR = 1;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
  private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
@@ -81,7 +87,7 @@ public class EntityListAdapter implements ListAdapter {
  
  private boolean inAwesomeMode = false;
  
- public EntityListAdapter(Context context, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
+ public EntityListAdapter(Activity activity, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
    int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) throws SessionUnavailableException {
   this.detail = detail;
         
@@ -89,17 +95,21 @@ public class EntityListAdapter implements ListAdapter {
         current = new ArrayList<Entity<TreeReference>>();
         this.references = references;
         
-        this.context = context;
+        this.context = activity;
         this.observers = new ArrayList<DataSetObserver>();
 
+        mNodeFactory = factory;
+        
         //TODO: I am a bad person and I should feel bad. This should get encapsulated 
         //somewhere in the factory as a callback (IE: How to sort/or whether to or  something)
-        
+        //TODO: Maybe we can actually just replace by checking whether the node is ready?
         if(!(factory instanceof AsyncNodeEntityFactory)) {
             if(sort.length != 0) {
                 sort(sort);
             }
             filterValues("");
+        } else {
+            current = new ArrayList<Entity<TreeReference>>(full);
         }
         
         this.tts = tts;
@@ -114,69 +124,119 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     private void filterValues(String filterRaw) {
+        synchronized(mSyncLock) {
+            if(mCurrentSortThread != null) {
+                mCurrentSortThread.finish();
+            }
+            String[] searchTerms = filterRaw.split(" ");
+            for(int i = 0 ; i < searchTerms.length ; ++i) {
+                searchTerms[i] = StringUtils.normalize(searchTerms[i]);
+            }
+            mCurrentSortThread = new EntitySorter(filterRaw, searchTerms);
+            mCurrentSortThread.startThread();
+        }
+    }
+    
+    private class EntitySorter {
+        private String filterRaw;
+        private String[] searchTerms;
+        List<Entity<TreeReference>> matchList;
+        private boolean cancelled = false;
+        Thread thread;
         
-        String[] searchTerms = filterRaw.split(" ");
-        for(int i = 0 ; i < searchTerms.length ; ++i) {
-            searchTerms[i] = StringUtils.normalize(searchTerms[i]);
+        public EntitySorter(String filterRaw, String[] searchTerms) {
+            this.filterRaw = filterRaw;
+            this.searchTerms = searchTerms;
+            matchList = new ArrayList<Entity<TreeReference>>();
         }
         
-        Locale currentLocale = Locale.getDefault();
+        public void startThread() {
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    sort();
+                }
+            });
+            thread.start();
+        }
         
-        current.clear();
-        
-        long startTime = System.currentTimeMillis();
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
-        db.beginTransaction();
-        full:
-        for(Entity<TreeReference> e : full) {
-            if("".equals(filterRaw)) {
-                current.add(e);
-                continue;
+        public void finish() {
+            this.cancelled = true;
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
+        }
+        
+        private void sort() {            
+            Locale currentLocale = Locale.getDefault();
             
-            boolean add = false;
-            filter:
-            for(String filter: searchTerms) {
-                add = false;
-                for(int i = 0 ; i < e.getNumFields(); ++i) {
-                    String field = e.getNormalizedField(i);
-                    if(field != "" && field.toLowerCase(currentLocale).contains(filter)) {
-                        add = true;
-                        continue filter;
-                    } else {
-                        // We possibly now want to test for edit distance for
-                        // fuzzy matching
-                        if (mFuzzySearchEnabled) {
-                            for (String fieldChunk : e.getSortFieldPieces(i)) {
-                                if (StringUtils.fuzzyMatch(fieldChunk, filter)) {
-                                    add = true;
-                                    continue filter;
+            long startTime = System.currentTimeMillis();
+            SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+            db.beginTransaction();
+            full:
+            for(Entity<TreeReference> e : full) {
+                if(cancelled) { break; }
+                if("".equals(filterRaw)) {
+                    matchList.add(e);
+                    continue;
+                }
+                
+                boolean add = false;
+                filter:
+                for(String filter: searchTerms) {
+                    add = false;
+                    for(int i = 0 ; i < e.getNumFields(); ++i) {
+                        String field = e.getNormalizedField(i);
+                        if(field != "" && field.toLowerCase(currentLocale).contains(filter)) {
+                            add = true;
+                            continue filter;
+                        } else {
+                            // We possibly now want to test for edit distance for
+                            // fuzzy matching
+                            if (mFuzzySearchEnabled) {
+                                for (String fieldChunk : e.getSortFieldPieces(i)) {
+                                    if (StringUtils.fuzzyMatch(fieldChunk, filter)) {
+                                        add = true;
+                                        continue filter;
+                                    }
                                 }
                             }
                         }
                     }
+                    if (!add) {
+                        break;
+                    }
                 }
-                if (!add) {
-                    break;
+                if(add) {
+                    matchList.add(e);
+                    continue full;
                 }
             }
-            if(add) {
-                current.add(e);
-                continue full;
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            if(cancelled) { return; }
+            
+            long time = System.currentTimeMillis() - startTime;
+            if(time > 1000) { 
+                Logger.log("cache", "Presumably finished caching new entities, time taken: " + time + "ms");
             }
-        }
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        
-        long time = System.currentTimeMillis() - startTime;
-        if(time > 1000) { 
-            Logger.log("cache", "Presumably finished caching new entities, time taken: " + time + "ms");
-        }
-        
-        this.currentSearchTerms = searchTerms;
-        
-        if(actionEnabled) {
-            actionPosition = current.size(); 
+            
+            context.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    current = matchList;
+                    if(actionEnabled) {
+                        actionPosition = current.size(); 
+                    }
+                    currentSearchTerms = searchTerms;
+                    update();
+                }
+                
+            });
         }
     }
     
@@ -427,7 +487,6 @@ public class EntityListAdapter implements ListAdapter {
     
     public void applyFilter(String s) {
         filterValues(s);
-        update();
     }
     
     private void update() {

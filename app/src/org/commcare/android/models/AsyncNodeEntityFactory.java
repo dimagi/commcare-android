@@ -42,6 +42,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     
     private Boolean mTemplateIsCachable = null;
     
+    Object mAsyncLock = new Object();
+    Thread mAsyncPrimingThread;
+    
     public Detail getDetail() {
         return detail;
     }
@@ -138,8 +141,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {
             DbUtil.explainSql(db, sqlStatement, args);
         }
-        
-        db.beginTransaction();
        
         //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation. 
         //Should probably split this up SQL LIMIT based looped
@@ -154,8 +155,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
         walker.close();
         
-        db.setTransactionSuccessful();
-        db.endTransaction();
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {
             System.out.println("Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
         }
@@ -166,5 +165,33 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         List<TreeReference> references = super.expandReferenceList(parentRef);
         
         return references;
+    }
+    
+    @Override
+    public void prepareEntities() {
+        synchronized(mAsyncLock) {
+            if(mAsyncPrimingThread == null) {
+                mAsyncPrimingThread = new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        primeCache();
+                    }
+                    
+                });
+                mAsyncPrimingThread.start();
+            }
+        }
+    }
+    
+    @Override
+    public boolean isEntitySetReady() {
+        synchronized(mAsyncLock) {
+            if(mAsyncPrimingThread == null) {
+                return true;
+            } else {
+                return !mAsyncPrimingThread.isAlive();
+            }
+        }
     }
 }

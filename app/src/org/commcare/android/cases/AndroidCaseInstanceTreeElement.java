@@ -83,33 +83,55 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
     
     @Override
-    protected Vector<Integer> getMatchesForValue(String filterIndex, Object o, IStorageUtilityIndexed<?> storage, Vector<String> previousFetchKeys, Vector<Object> previousFetchValues) {
+    protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) {
+        String firstKey = keys.elementAt(0);
+        
         //If the index object starts with "case_in" it's actually a case index query and we need to run
         //this over the case index table
-        if(filterIndex.startsWith(Case.INDEX_CASE_INDEX_PRE)) {
-            String indexName = filterIndex.substring(Case.INDEX_CASE_INDEX_PRE.length());
-            Vector <Integer> matchingCases = mCaseIndexTable.getCasesMatchingIndex(indexName, (String)o);
+        if(firstKey.startsWith(Case.INDEX_CASE_INDEX_PRE)) {
+            String indexName = firstKey.substring(Case.INDEX_CASE_INDEX_PRE.length());
+            Vector <Integer> matchingCases = mCaseIndexTable.getCasesMatchingIndex(indexName, (String)values.elementAt(0));
+            
             //Clear the most recent index and wipe it, because there is no way it is going to be useful
             //after this
             mMostRecentBatchFetch = new String[2][];
+            
+            //remove the match from the inputs
+            keys.removeElementAt(0);
+            values.removeElementAt(0);
             return matchingCases;
         }
         
-        SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
-        String[] names = new String[previousFetchKeys.size() + 1];
-        String[] values = new String[previousFetchValues.size() + 1];
-        int i = 0;
-        for(i = 0 ; i < previousFetchKeys.size(); ++i) {
-            names[i] = previousFetchKeys.elementAt(i);
-            values[i] = (String)previousFetchValues.elementAt(i);
+        //Otherwise see how many of these we can bulk process
+        int numKeys;
+        for(numKeys = 0 ; numKeys < keys.size() ; ++numKeys) {
+            //If the current key is an index fetch, we actually can't do it in bulk,
+            //so we need to stop
+            if(keys.elementAt(numKeys).startsWith(Case.INDEX_CASE_INDEX_PRE)) {
+                break;
+            }
+            //otherwise, it's now in our queue
         }
-        names[i] = filterIndex;
-        values[i] = (String)o;
-        mMostRecentBatchFetch = new String[2][];
-        mMostRecentBatchFetch[0] = names;
-        mMostRecentBatchFetch[1] = values;
         
-        return sqlStorage.getIDsForValues(names, values);
+        SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
+        String[] namesToMatch = new String[numKeys];
+        String[] valuesToMatch = new String[numKeys];
+        for(int i = numKeys -1 ; i >= 0; i--) {
+            namesToMatch[i] = keys.elementAt(i);
+            valuesToMatch[i] = (String)values.elementAt(i);
+        }
+        mMostRecentBatchFetch = new String[2][];
+        mMostRecentBatchFetch[0] = namesToMatch;
+        mMostRecentBatchFetch[1] = valuesToMatch;
+        
+        Vector<Integer> ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch);
+        
+        //Ok, we matched! Remove all of the keys that we matched
+        for(int i = 0 ; i < numKeys ; ++i) {
+            keys.removeElementAt(0);
+            values.removeElementAt(0);
+        }
+        return ids;
     }
     
     

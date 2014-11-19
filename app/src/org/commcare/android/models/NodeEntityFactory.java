@@ -93,4 +93,25 @@ public class NodeEntityFactory {
         List<TreeReference> references = ec.expandReference(treeReference);
         return references;
     }
+    
+    /**
+     * Optional: Allows the factory to make all of the entities that it has
+     * returned "Ready" by performing any lazy evaluation needed for optimum 
+     * usage. This preparation occurs asynchronously, and the returned entity
+     * set should not be manipulated until it has completed.
+     */
+    public void prepareEntities() {
+        //No implementation in normal factory
+    }
+    
+    /**
+     * Called only after a call to prepareEntities, this signals whether
+     * the entities returned are ready for bulk operations.
+     * 
+     * @return True if entities returned from the factory are again ready
+     * for use. False otherwise.
+     */
+    public boolean isEntitySetReady() {
+       return true;
+    }
 }

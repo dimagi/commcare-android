@@ -39,6 +39,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -115,6 +116,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     private Detail shortSelect;
     
+    private DataSetObserver mListStateObserver;
+    
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -122,6 +125,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        this.createDataSetObserver();
         
         EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
         
@@ -231,12 +236,39 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 adapter.setController(this);
                 ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+                
+                //Disconnect the old adapter
+                adapter.unregisterDataSetObserver(oldActivity.mListStateObserver);
+                //connect the new one
+                adapter.registerDataSetObserver(this.mListStateObserver);
             }
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
     }
     
+    private void createDataSetObserver() {
+        mListStateObserver = new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                //update the search results box
+                String query = searchbox.getText().toString();
+                if (!"".equals(query)) {
+                    searchResultStatus.setText(Localization.get("select.search.status", new String[] {
+                        ""+adapter.getCount(true, false), 
+                        ""+adapter.getCount(true, true), 
+                        query
+                    }));
+                    searchResultStatus.setVisibility(View.VISIBLE);
+                }
+                else {
+                    searchResultStatus.setVisibility(View.GONE);
+                }
+            }
+        };
+    }
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
@@ -475,18 +507,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             filterString = s.toString();
             if(adapter != null) {
                 adapter.applyFilter(filterString);
-                String query = searchbox.getText().toString();
-                if (!"".equals(query)) {
-                    searchResultStatus.setText(Localization.get("select.search.status", new String[] {
-                        ""+adapter.getCount(true, false), 
-                        ""+adapter.getCount(true, true), 
-                        query
-                    }));
-                    searchResultStatus.setVisibility(View.VISIBLE);
-                }
-                else {
-                    searchResultStatus.setVisibility(View.GONE);
-                }
             }
         }
     }
@@ -680,10 +700,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this, factory);
 		
         view.setAdapter(adapter);
+        adapter.registerDataSetObserver(this.mListStateObserver);
         
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         
-        if(adapter != null) {
+        if(adapter != null && filterString != null && !"".equals(filterString)) {
             adapter.applyFilter(filterString);
         }
         

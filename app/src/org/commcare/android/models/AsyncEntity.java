@@ -19,6 +19,17 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 
 
 /**
+ * An AsyncEntity is an entity reference which is capable of building its
+ * values (evaluating all Text elements/background data elements) lazily
+ * rather than upfront when the entity is constructed.
+ * 
+ * It is threadsafe.
+ * 
+ * It will attempt to Cache its values persistently by a derived entity key rather
+ * than evaluating them each time when possible. This can be slow to perform across
+ * all entities internally due to the overhead of establishing the db connection, it
+ * is recommended that the entities be primed externally with a bulk query.
+ * 
  * @author ctsims
  *
  */
@@ -37,6 +48,8 @@ public class AsyncEntity extends Entity<TreeReference>{
     String mDetailId;
 
     private EntityStorageCache mEntityStorageCache;
+    
+    private Object mAsyncLock = new Object();
     
     public AsyncEntity(DetailField[] fields, EvaluationContext ec, TreeReference t, Hashtable<String, XPathExpression> variables, EntityStorageCache cache, String cacheIndex, String detailId) {
         super(t);
@@ -60,28 +73,32 @@ public class AsyncEntity extends Entity<TreeReference>{
     }
     
     private void loadVariableContext() {
-        if(!mVariableContextLoaded) {
-            //These are actually in an ordered hashtable, so we can't just get the keyset, since it's
-            //in a 1.3 hashtable equivalent
-            for(Enumeration<String> en = mVariableDeclarations.keys(); en.hasMoreElements();) {
-                String key = en.nextElement();
-                context.setVariable(key, XPathFuncExpr.unpack(mVariableDeclarations.get(key).eval(context)));
+        synchronized(mAsyncLock) {
+            if(!mVariableContextLoaded) {
+                //These are actually in an ordered hashtable, so we can't just get the keyset, since it's
+                //in a 1.3 hashtable equivalent
+                for(Enumeration<String> en = mVariableDeclarations.keys(); en.hasMoreElements();) {
+                    String key = en.nextElement();
+                    context.setVariable(key, XPathFuncExpr.unpack(mVariableDeclarations.get(key).eval(context)));
+                }
+                mVariableContextLoaded = true;
             }
-            mVariableContextLoaded = true;
-        } 
+        }
     }
     
     public Object getField(int i) {
-        loadVariableContext();
-        if(data[i] == null) {
-            try {
-                data[i] = fields[i].getTemplate().evaluate(context);
-            } catch(XPathException xpe) {
-                xpe.printStackTrace();
-                data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+        synchronized(mAsyncLock) {
+            loadVariableContext();
+            if(data[i] == null) {
+                try {
+                    data[i] = fields[i].getTemplate().evaluate(context);
+                } catch(XPathException xpe) {
+                    xpe.printStackTrace();
+                    data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                }
             }
+            return data[i];
         }
-        return data[i];
     }
     
     /**
@@ -97,40 +114,42 @@ public class AsyncEntity extends Entity<TreeReference>{
     }
     
     public String getSortField(int i) {
-        if(sortData[i] == null) {
-            Text sortText = fields[i].getSort();
-            if(sortText == null) {
-                return null;
-            }
-                
-            String cacheKey = EntityStorageCache.getCacheKey(mDetailId,String.valueOf(i)); 
-            
-            if(mCacheIndex != null) {
-                //Check the cache!
-                String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
-                if(value != null) {
-                    this.setSortData(i, value);
-                    return sortData[i];
-                }
-            }
-            
-            
-            loadVariableContext();
-            try {
-                sortText = fields[i].getSort();
+        synchronized(mAsyncLock) {
+            if(sortData[i] == null) {
+                Text sortText = fields[i].getSort();
                 if(sortText == null) {
-                    this.setSortData(i, getFieldString(i));
-                } else {
-                    this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
+                    return null;
+                }
+                    
+                String cacheKey = EntityStorageCache.getCacheKey(mDetailId,String.valueOf(i)); 
+                
+                if(mCacheIndex != null) {
+                    //Check the cache!
+                    String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
+                    if(value != null) {
+                        this.setSortData(i, value);
+                        return sortData[i];
+                    }
                 }
                 
-                mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
-            } catch(XPathException xpe) {
-                xpe.printStackTrace();
-                sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                
+                loadVariableContext();
+                try {
+                    sortText = fields[i].getSort();
+                    if(sortText == null) {
+                        this.setSortData(i, getFieldString(i));
+                    } else {
+                        this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
+                    }
+                    
+                    mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
+                } catch(XPathException xpe) {
+                    xpe.printStackTrace();
+                    sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                }
             }
+            return sortData[i];
         }
-        return sortData[i];
     }
 
     public int getNumFields() {
@@ -171,8 +190,10 @@ public class AsyncEntity extends Entity<TreeReference>{
     }
 
     public void setSortData(int i, String val) {
-        this.sortData[i] = val;
-        this.sortDataPieces[i] = breakUpField(val);
+        synchronized(mAsyncLock) {
+            this.sortData[i] = val;
+            this.sortDataPieces[i] = breakUpField(val);
+        }
     }
     
     public void setSortData(String cacheKey, String val) {

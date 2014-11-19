@@ -123,12 +123,7 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
             }
         }
         
-        //Shameful... This needs to move into another async'd thing that fires off _after_ the 
-        //return
-        if(factory instanceof AsyncNodeEntityFactory) {
-            ((AsyncNodeEntityFactory)factory).primeCache();
-        }
-        
+        factory.prepareEntities();
         return new Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references);
         
         } catch (XPathException xe){
