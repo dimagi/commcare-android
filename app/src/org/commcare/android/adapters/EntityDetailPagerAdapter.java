@@ -1,14 +1,10 @@
 package org.commcare.android.adapters;
 
-import java.util.List;
-
 import org.commcare.android.framework.EntityDetailFragment;
-import org.commcare.android.models.Entity;
-import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.suite.model.Detail;
-import org.odk.collect.android.views.media.AudioController;
+import org.javarosa.core.model.instance.TreeReference;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,12 +19,14 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     Detail detail;
     int detailIndex;
     boolean hasDetailCalloutListener;
+    TreeReference mEntityReference;
 
-    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, boolean hasDetailCalloutListener) {    
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener) {    
         super(fm);
         this.detail = detail;
         this.detailIndex = detailIndex;
         this.hasDetailCalloutListener = hasDetailCalloutListener;
+        this.mEntityReference = reference;
     }
 
     /*
@@ -45,6 +43,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         }
         args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
         args.putBoolean(EntityDetailFragment.HAS_DETAIL_CALLOUT_LISTENER, hasDetailCalloutListener);
+        SerializationUtil.serializeToBundle(args, EntityDetailFragment.CHILD_REFERENCE, mEntityReference);
         fragment.setArguments(args);
         return fragment;
     }

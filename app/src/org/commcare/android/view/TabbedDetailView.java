@@ -1,10 +1,10 @@
 package org.commcare.android.view;
 
 import org.commcare.android.adapters.EntityDetailPagerAdapter;
-import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.core.model.instance.TreeReference;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -16,10 +16,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * Widget that combines a ViewPager with a set of page titles styled to look like tabs.
@@ -131,8 +129,8 @@ public class TabbedDetailView extends RelativeLayout {
     /*
      * Get form list from database and insert into view.
      */
-    public void refresh(Detail detail, int index, boolean hasDetailCalloutListener) {
-        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, hasDetailCalloutListener);
+    public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
+        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference, hasDetailCalloutListener);
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         markSelectedTab(0);
     }

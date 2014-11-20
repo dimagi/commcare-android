@@ -7,6 +7,7 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
@@ -24,7 +25,6 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
-import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -217,7 +217,8 @@ public class BreadcrumbBarFragment extends Fragment {
     
     private View findAndLoadCaseTile(final Activity activity) {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
-        View tile = this.loadTile(activity);
+        final Pair<View, TreeReference> tileData = this.loadTile(activity);
+        View tile = tileData == null ? null : tileData.first;
         if(tile == null) { return null;}
         
         final ImageButton openButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
@@ -244,7 +245,7 @@ public class BreadcrumbBarFragment extends Fragment {
                     Detail detail = factory.getDetail();
                     mInternalDetailView.setDetail(detail);
     
-                    mInternalDetailView.refresh(factory.getDetail(), 0, false);
+                    mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
                 }
                 openButton.setVisibility(View.INVISIBLE);
                 expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
@@ -272,7 +273,7 @@ public class BreadcrumbBarFragment extends Fragment {
     }
 
 
-    private View loadTile(Activity activity) {
+    private Pair<View, TreeReference> loadTile(Activity activity) {
         try {
             AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
             CommCareSession session = asw.getSession();
@@ -290,7 +291,7 @@ public class BreadcrumbBarFragment extends Fragment {
                 }
             }
             
-            View tile = buildContextTile(activity, stepToFrame, asw);
+            Pair<View, TreeReference> tile = buildContextTile(activity, stepToFrame, asw);
             //some contexts may provide a tile that isn't really part of the current session's stack
             if(tile == null && activity instanceof CommCareActivity) {
                 Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
@@ -574,35 +575,33 @@ public class BreadcrumbBarFragment extends Fragment {
         
         View tile;
         
-        private View buildContextTile(Activity activity, String[] stepToFrame, AndroidSessionWrapper asw) {
+        private Pair<View, TreeReference> buildContextTile(Activity activity, String[] stepToFrame, AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
             
             //check to make sure we can look up this child
             SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame[1]);
-            if(d == null || d.getShortDetail() == null) { return null; }
+            if(d == null || d.getPersistentDetail() == null) { return null; }
             
             //Make sure there is a valid reference to the entity we can build 
-            Detail detail = asw.getSession().getDetail(d.getShortDetail());
+            Detail detail = asw.getSession().getDetail(d.getPersistentDetail());
             
             EvaluationContext ec = asw.getEvaluationContext();
             
             TreeReference ref = asw.getSession().getEntityFromID(ec, d, stepToFrame[2]);
             if(ref == null) { return null; }
             
-            View v = buildContextTile(activity, detail, ref, asw);
-            v.setTag(d.getInlineDetail());
-            return v;
+            Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);
+            r.first.setTag(d.getInlineDetail());
+            return r;
         }
 
-        private View buildContextTile(Activity activity, Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+        private Pair<View, TreeReference> buildContextTile(Activity activity, Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
             NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
-            
-            CommCareApplication._().serializeToIntent(activity.getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, ref);
             
             Entity entity = nef.getEntity(ref);
             
-            GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity, null);
-            return tile;
+            View tile = new GridEntityView(this.getActivity(), detail, entity, null);
+            return Pair.create(tile, ref);
         }
 
 
