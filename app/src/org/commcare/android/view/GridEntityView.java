@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
@@ -335,7 +336,12 @@ public class GridEntityView extends GridLayout {
 			retVal.setPadding(CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL,CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL);
 			// image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
 			if(rowData != null && !rowData.equals("")){
-				mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
+			    if(mImageLoader != null){
+			        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
+			    } else{
+			        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
+			        ((ImageView)retVal).setImageBitmap(b);
+			    }
 			}
 		} 
 		else if(multimediaType.equals(EntityView.FORM_AUDIO)){
