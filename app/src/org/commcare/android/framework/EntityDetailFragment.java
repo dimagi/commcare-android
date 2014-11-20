@@ -5,8 +5,8 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.EntityDetailActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
@@ -30,6 +30,7 @@ public class EntityDetailFragment extends Fragment {
     public static final String DETAIL_ID = "edf_detail_id";
     public static final String DETAIL_INDEX = "edf_detail_index";
     public static final String HAS_DETAIL_CALLOUT_LISTENER = "edf_has_detail_callout_listener";
+    public static final String CHILD_REFERENCE = "edf_detail_reference";
     
     private AndroidSessionWrapper asw;
     private NodeEntityFactory factory;
@@ -56,8 +57,8 @@ public class EntityDetailFragment extends Fragment {
         }
 
         factory = new NodeEntityFactory(childDetail, asw.getEvaluationContext());
-        Entity entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(
-            getActivity().getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class)
+        Entity entity = factory.getEntity(SerializationUtil.deserializeFromBundle(
+            args, CHILD_REFERENCE, TreeReference.class)
         );
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);

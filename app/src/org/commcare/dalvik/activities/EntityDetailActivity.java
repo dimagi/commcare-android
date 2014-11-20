@@ -10,13 +10,13 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
@@ -45,13 +45,15 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     public static final String IS_DEAD_END = "eda_ide";
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
-    public static final String DETAIL_SHORT_ID = "eda_short_id";
+    public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
         
     Entry prototype;
     Entity<TreeReference> entity;
     EntityDetailAdapter adapter;
     NodeEntityFactory factory;
     Pair<Detail, TreeReference> mEntityContext;
+    
+    TreeReference mTreeReference;
     
     private int detailIndex;
     
@@ -81,14 +83,14 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         
         factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
         
-        TreeReference ref = CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-        String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_SHORT_ID);
+        mTreeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+        String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);
         if(shortDetailId != null) {
             Detail shortDetail = session.getDetail(shortDetailId);
-            this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, ref);
+            this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, mTreeReference);
         }
                 
-        entity = factory.getEntity(ref);
+        entity = factory.getEntity(mTreeReference);
 
         super.onCreate(savedInstanceState);
         
@@ -128,7 +130,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
             }
             
             mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
-               mDetailView.refresh(factory.getDetail(), detailIndex, true);
+            mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
         } catch(SessionUnavailableException sue) {
             //TODO: Login and return to try again
         }
@@ -183,7 +185,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         switch(requestCode) {
         case CALL_OUT:
             if(resultCode == RESULT_CANCELED) {
-                mDetailView.refresh(factory.getDetail(), detailIndex, true);
+                mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
                 return;
             } else {
                 long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);

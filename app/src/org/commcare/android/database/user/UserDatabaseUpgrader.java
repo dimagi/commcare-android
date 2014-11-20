@@ -6,12 +6,15 @@ package org.commcare.android.database.user;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
-import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.CaseIndexTable;
+import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 
@@ -45,6 +48,18 @@ public class UserDatabaseUpgrader {
         if(oldVersion == 3) {
             if(upgradeThreeFour(db, oldVersion, newVersion)) {
                 oldVersion = 4;
+            }
+        }
+        
+        if(oldVersion == 4) {
+            if(upgradeFourFive(db, oldVersion, newVersion)) {
+                oldVersion = 5;
+            }
+        }
+        
+        if(oldVersion == 5) {
+            if(upgradeFiveSix(db, oldVersion, newVersion)) {
+                oldVersion = 6;
             }
         }
     }
@@ -82,7 +97,42 @@ public class UserDatabaseUpgrader {
             db.endTransaction();
         }
     }
+    
+    private boolean upgradeFourFive(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.beginTransaction();
+        try {
+            db.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
+    private boolean upgradeFiveSix(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.beginTransaction();
+        try {
+            db.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
+            
+            DbUtil.createNumbersTable(db);
+            db.execSQL(EntityStorageCache.getTableDefinition());
+            EntityStorageCache.createIndexes(db);
+            
+            db.execSQL(CaseIndexTable.getTableDefinition());
+            CaseIndexTable.createIndexes(db);
+            CaseIndexTable cit = new CaseIndexTable();
+            for(ACase c : CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
+                cit.indexCase(c);
+            }
 
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
     private void updateIndexes(SQLiteDatabase db) {
         db.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
         db.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");

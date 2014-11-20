@@ -343,7 +343,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
                     receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-                }else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+                } else if(update[0] == DataPullTask.PROGRESS_PROCESSING) {
+                    receiver.updateProgress(Localization.get("sync.process.processing", new String[] {String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+                }  else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
                     receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
                     receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);

@@ -21,10 +21,32 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     SqlStorage<T> storage;
     boolean isClosedByProgress = false;
     int count;
-
+    String primaryId;
+    
+    /**
+     * only for use by subclasses which re-implement this behavior strategically (Note: Should be an interface pullout
+     * not a subclass)
+     */
+    protected SqlStorageIterator() {
+        
+    }
+    
     public SqlStorageIterator(Cursor c, SqlStorage<T> storage) {
+        this(c, storage, null);
+    }
+
+    /**
+     * Creates an iterator into either a full or partial sql storage.
+     * 
+     * @param c The uninitialized cursor for a query.
+     * @param storage The storage being queried
+     * @param primaryId An optional key index for a primary id that is part
+     * of the returned iterator
+     */
+    public SqlStorageIterator(Cursor c, SqlStorage<T> storage, String primaryId) {
         this.c = c;
         this.storage = storage;
+        this.primaryId = primaryId;
         count = c.getCount();
         if(count == 0) {
             c.close();
@@ -112,5 +134,9 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     
     private Cursor getRawCursor() {
         return c;
+    }
+    
+    public String getPrimaryId() {
+        return c.getString(c.getColumnIndexOrThrow(primaryId));
     }
 }

@@ -5,6 +5,7 @@ package org.commcare.android.models;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
@@ -25,11 +26,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  */
 public class NodeEntityFactory {
 
-    private EvaluationContext ec;
+    protected EvaluationContext ec;
     
-    Detail detail;
-    FormInstance instance;
-    User current; 
+    protected Detail detail;
+    protected FormInstance instance;
+    protected User current; 
     
     public Detail getDetail() {
         return detail;
@@ -85,5 +86,32 @@ public class NodeEntityFactory {
         }
         
 		return new Entity<TreeReference>(details, sortDetails, backgroundDetails, relevancyDetails, data);
+    }
+
+
+    public List<TreeReference> expandReferenceList(TreeReference treeReference) {
+        List<TreeReference> references = ec.expandReference(treeReference);
+        return references;
+    }
+    
+    /**
+     * Optional: Allows the factory to make all of the entities that it has
+     * returned "Ready" by performing any lazy evaluation needed for optimum 
+     * usage. This preparation occurs asynchronously, and the returned entity
+     * set should not be manipulated until it has completed.
+     */
+    public void prepareEntities() {
+        //No implementation in normal factory
+    }
+    
+    /**
+     * Called only after a call to prepareEntities, this signals whether
+     * the entities returned are ready for bulk operations.
+     * 
+     * @return True if entities returned from the factory are again ready
+     * for use. False otherwise.
+     */
+    public boolean isEntitySetReady() {
+       return true;
     }
 }
