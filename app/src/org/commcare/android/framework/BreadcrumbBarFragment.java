@@ -6,6 +6,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -235,7 +236,7 @@ public class BreadcrumbBarFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(mInternalDetailView == null ) {
-                    mInternalDetailView = new TabbedDetailView(activity);
+                    mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
                     mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
     
                     AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();

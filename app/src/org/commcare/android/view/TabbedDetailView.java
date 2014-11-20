@@ -33,9 +33,24 @@ public class TabbedDetailView extends RelativeLayout {
     private ViewPager mViewPager;
     private View mViewPagerWrapper;
     
+    private int mAlternateId = -1;
+    
     public TabbedDetailView(Context context) {
+        this(context, -1);
+    }
+    
+    /**
+     * Create a tabbed detail view with a specific root pager ID
+     * (this is necessary in any context where multiple detail views
+     * will be used at once)
+     *  
+     * @param context
+     * @param alternateId
+     */
+    public TabbedDetailView(Context context, int alternateId) {
         super(context);
         mContext = (FragmentActivity) context;
+        this.mAlternateId = alternateId;
     }
 
     public TabbedDetailView(Context context, AttributeSet attrs) {
@@ -54,10 +69,14 @@ public class TabbedDetailView extends RelativeLayout {
      */
     public void setRoot(ViewGroup root) {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        
         inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
         mMenu = (LinearLayout) root.findViewById(R.id.tabbed_detail_menu);
         mViewPager = (ViewPager) root.findViewById(R.id.tabbed_detail_pager);
+        if(mAlternateId != -1) {
+            mViewPager.setId(mAlternateId);
+        }
         mViewPagerWrapper = root.findViewById(R.id.tabbed_detail_pager_wrapper);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
