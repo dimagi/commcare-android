@@ -12,6 +12,7 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TabbedDetailView;
@@ -324,7 +325,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     Intent i = getDetailIntent(entity, null);
                     if (adapter != null) {
                         i.putExtra("entity_detail_index", adapter.getPosition(entity));
-                        i.putExtra(EntityDetailActivity.DETAIL_SHORT_ID, selectDatum.getShortDetail());
+                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getShortDetail());
                     }
                     startActivityForResult(i, CONFIRM_SELECT);
                     return;
@@ -390,11 +391,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(selectDatum.getLongDetail() != null) {
             //If so, add this. otherwise that'll be the queue to just return
             i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
-            i.putExtra(EntityDetailActivity.DETAIL_SHORT_ID, selectDatum.getShortDetail());
+            i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getPersistentDetail());
         }
    
         i.putExtra(SessionFrame.STATE_DATUM_VAL, value);
-        CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
+        SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
         
         return i;
     }    
@@ -455,7 +456,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 
                 //Otherwise, if we're in awesome mode, make sure we retain the original selection
                 if(inAwesomeMode) {
-                    TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                    TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
                     if(r != null) {
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
                         updateSelectedItem(r, true);
@@ -466,7 +467,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
         case MAP_SELECT:
             if(resultCode == RESULT_OK) {
-                TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
                 
                 if(inAwesomeMode) {
                     this.displayReferenceAwesome(r, adapter.getPosition(r));
@@ -719,7 +720,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private void updateSelectedItem(boolean forceMove) {
         TreeReference chosen = null;
         if(selectedIntent != null) {
-            chosen = CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+            chosen = SerializationUtil.deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
         }
         updateSelectedItem(chosen, forceMove);
     }
@@ -801,7 +802,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             rightFrameSetup = true;
         }
 
-           detailView.refresh(factory.getDetail(), detailIndex, false);
+           detailView.refresh(factory.getDetail(), selection, detailIndex, false);
     }
 
     /*
