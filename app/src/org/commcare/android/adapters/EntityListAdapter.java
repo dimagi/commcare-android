@@ -71,7 +71,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private String[] currentSearchTerms;
 
-    public static int SCALE_FACTOR = 4;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
+    public static int SCALE_FACTOR = 1;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
     private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
 
