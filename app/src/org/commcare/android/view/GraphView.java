@@ -2,14 +2,15 @@ package org.commcare.android.view;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
+import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
-import org.achartengine.model.XYValueSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -20,6 +21,7 @@ import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.suite.model.graph.XYPointData;
+import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +29,6 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -97,6 +98,9 @@ public class GraphView {
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
         }
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, title, getTimeFormat());
+        }
         return ChartFactory.getLineChartIntent(mContext, mDataset, mRenderer, title);
     }
     
@@ -107,27 +111,44 @@ public class GraphView {
     public View getView(GraphData data) {
         render(data);
         
-        // Graph will not render correctly unless it has data. 
-        // Add a dummy series to guarantee this.
-        // Do this after adding any real data and after configuring
-        // so that get_AxisMin functions return correct values.
-        SeriesData s = new SeriesData();
-        double minX = mRenderer.getXAxisMin();
-        double minY = mRenderer.getYAxisMin();
-        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-            s.addPoint(new BubblePointData(minX, minY, 0.0));
+        // Graph will not render correctly unless it has data, so
+        // add a dummy series if needed.
+        boolean hasPoints = false;
+        Vector<SeriesData> allSeries = data.getSeries();
+        for (int i = 0; i < allSeries.size() && !hasPoints; i++) {
+            hasPoints = hasPoints || allSeries.get(i).getPoints().size() > 0;
         }
-        else {
-            s.addPoint(new XYPointData(minX, minY));
+        if (!hasPoints) {
+            SeriesData s = new SeriesData();
+            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+                s.addPoint(new BubblePointData("0", "0", "0"));
+            }
+            else if (mData.getType().equals(Graph.TYPE_TIME)) {
+                s.addPoint(new XYPointData(DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601), "0"));
+            }
+            else {
+                s.addPoint(new XYPointData("0", "0"));
+            }
+            s.setConfiguration("line-color", "#00000000");
+            s.setConfiguration("point-style", "none");
+            renderSeries(s);
         }
-        s.setConfiguration("line-color", "#00000000");
-        s.setConfiguration("point-style", "none");
-        renderSeries(s);
         
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
         }
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            return ChartFactory.getTimeChartView(mContext, mDataset, mRenderer, getTimeFormat());
+        }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
+    }
+    
+    /**
+     * Fetch date format for displaying time-based x labels.
+     * @return String, a SimpleDateFormat pattern.
+     */
+    private String getTimeFormat() {
+        return mData.getConfiguration("x-labels-time-format", "yyyy-MM-dd");
     }
     
     /*
@@ -145,21 +166,11 @@ public class GraphView {
         mRenderer.addSeriesRenderer(currentRenderer);
         configureSeries(s, currentRenderer);
 
-        XYSeries series;
-        int scaleIndex = Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0;
+        XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-            // TODO: This also ought to respect scaleIndex. However, XYValueSeries doesn't expose the
-            // (String title, int scaleNumber) constructor, so RangeXYValueSeries doesn't have access to it.
-            if (scaleIndex > 0) {
-                throw new IllegalArgumentException("Bubble series do not support a secondary y axis");
-            }
-            series = new RangeXYValueSeries("");
             if (s.getConfiguration("radius-max") != null) {
-                ((RangeXYValueSeries) series).setMaxValue(Double.valueOf(s.getConfiguration("radius-max")));
+                ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max")));
             }
-        }
-        else {
-            series = new XYSeries("", scaleIndex);
         }
         mDataset.addSeries(series);
 
@@ -173,10 +184,13 @@ public class GraphView {
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
-                ((RangeXYValueSeries) series).add(b.getX(), b.getY(), b.getRadius());
+                ((RangeXYValueSeries) series).add(parseXValue(b.getX()), parseYValue(b.getY()), parseRadiusValue(b.getRadius()));
+            }
+            else if (mData.getType().equals(Graph.TYPE_TIME)) {
+                ((TimeSeries) series).add(parseXValue(p.getX()), parseYValue(p.getY()));
             }
             else {
-                series.add(p.getX(), p.getY());
+                series.add(parseXValue(p.getX()), parseYValue(p.getY()));
             }
         }
     }
@@ -186,7 +200,36 @@ public class GraphView {
      * unless dimensions have been provided via setWidth and/or setHeight.
      */
     public static LinearLayout.LayoutParams getLayoutParams() {
-        return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);    
+        return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
+    }
+    
+    /**
+     * Create series appropriate to the current graph type.
+     * @return An XYSeries-derived object.
+     */
+    private XYSeries createSeries() {
+        return createSeries(0);
+    }
+    
+    /**
+     * Create series appropriate to the current graph type.
+     * @param scaleIndex
+     * @return An XYSeries-derived object.
+     */
+    private XYSeries createSeries(int scaleIndex) {
+        // TODO: Bubble and time graphs ought to respect scaleIndex, but XYValueSeries
+        // and TimeSeries don't expose the (String title, int scaleNumber) constructor.
+        if (scaleIndex > 0 && !mData.getType().equals(Graph.TYPE_XY)) {
+            throw new IllegalArgumentException("This series does not support a secondary y axis");
+        }
+
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            return new TimeSeries("");
+        }
+        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            return new RangeXYValueSeries("");
+        }
+        return new XYSeries("", scaleIndex);
     }
     
     /*
@@ -196,11 +239,9 @@ public class GraphView {
         Vector<AnnotationData> annotations = mData.getAnnotations();
         if (!annotations.isEmpty()) {
             // Create a fake series for the annotations
-            // Using an XYSeries will fail for bubble graphs, but using an
-            // XYValueSeries will work for both xy graphs and bubble graphs 
-            XYValueSeries series = new XYValueSeries("");
+            XYSeries series = createSeries();
             for (AnnotationData a : annotations) {
-                series.addAnnotation(a.getAnnotation(), a.getX(), a.getY());
+                series.addAnnotation(a.getAnnotation(), parseXValue(a.getX()), parseYValue(a.getY()));
             }
             
             // Annotations won't display unless the series has some data in it
@@ -288,30 +329,30 @@ public class GraphView {
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
-
+        
         // User-configurable options
         mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
 
         if (mData.getConfiguration("x-min") != null) {
-            mRenderer.setXAxisMin(Double.valueOf(mData.getConfiguration("x-min")));
+            mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min")));
         }
         if (mData.getConfiguration("y-min") != null) {
-            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("y-min")));
+            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("y-min")));
         }
         if (mData.getConfiguration("secondary-y-min") != null) {
-            mRenderer.setYAxisMin(Double.valueOf(mData.getConfiguration("secondary-y-min")), 1);
+            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("secondary-y-min")), 1);
         }
         
         if (mData.getConfiguration("x-max") != null) {
-            mRenderer.setXAxisMax(Double.valueOf(mData.getConfiguration("x-max")));
+            mRenderer.setXAxisMax(parseXValue(mData.getConfiguration("x-max")));
         }
         if (mData.getConfiguration("y-max") != null) {
-            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("y-max")));
+            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("y-max")));
         }
         if (mData.getConfiguration("secondary-y-max") != null) {
-            mRenderer.setYAxisMax(Double.valueOf(mData.getConfiguration("secondary-y-max")), 1);
+            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max")), 1);
         }
         
         String showGrid = mData.getConfiguration("show-grid", "true");
@@ -340,6 +381,37 @@ public class GraphView {
     }
     
     /**
+     * Parse given string into Double for AChartEngine.
+     * @param value
+     * @return
+     */
+    private Double parseXValue(String value) {
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            return Double.valueOf(DateUtils.parseDateTime(value).getTime());
+        }
+
+        return Double.valueOf(value);
+    }
+    
+    /**
+     * Parse given string into Double for AChartEngine.
+     * @param value
+     * @return
+     */
+    private Double parseYValue(String value) {
+        return Double.valueOf(value);
+    }
+    
+    /**
+     * Parse given string into Double for AChartEngine.
+     * @param value
+     * @return
+     */
+    private Double parseRadiusValue(String value) {
+        return Double.valueOf(value);
+    }
+
+    /**
      * Customize labels.
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
      * @return True if any labels at all will be displayed.
@@ -357,7 +429,7 @@ public class GraphView {
                 setLabelCount(key, 0);
                 for (int i = 0; i < labels.length(); i++) {
                     String value = labels.getString(i);
-                    addTextLabel(key, Double.valueOf(value), value);
+                    addTextLabel(key, parseXValue(value), value);
                 }
                 hasLabels = labels.length() > 0;
             }
@@ -372,7 +444,7 @@ public class GraphView {
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                        String location = (String) i.next();
-                       addTextLabel(key, Double.valueOf(location), labels.getString(location));
+                       addTextLabel(key, parseXValue(location), labels.getString(location));
                        hasLabels = true;
                     }
                 }
@@ -442,19 +514,14 @@ public class GraphView {
     }
     
     /**
-     * Comparator to sort PointData objects by x value.
+     * Comparator to sort XYPointData-derived objects by x value.
      * @author jschweers
      */
     private class PointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
-            if (lhs.getX() > rhs.getX()) {
-                return 1;
-            }
-            if (lhs.getX() < rhs.getX()) {
-                return -1;
-            }
-            return 0;
+            return parseXValue(lhs.getX()).compareTo(parseXValue(rhs.getX()));
         }
     }
+
 }
