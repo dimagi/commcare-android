@@ -110,6 +110,7 @@ public class EntityListAdapter implements ListAdapter {
             filterValues("");
         } else {
             current = new ArrayList<Entity<TreeReference>>(full);
+            actionPosition = current.size();
         }
         
         this.tts = tts;
