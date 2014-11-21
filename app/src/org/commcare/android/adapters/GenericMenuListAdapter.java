@@ -10,6 +10,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -210,6 +211,9 @@ public class GenericMenuListAdapter implements ListAdapter {
             else if(datum.getNodeset() == null) {
                 iconChoice = TextImageAudioView.NAVIGATION_JUMP;
             } 
+        }
+        if(!DeveloperPreferences.isNewNavEnabled()) {
+            iconChoice = TextImageAudioView.NAVIGATION_NONE;
         }
         
         //Final change, remove any numeric context requests. J2ME uses these to 
