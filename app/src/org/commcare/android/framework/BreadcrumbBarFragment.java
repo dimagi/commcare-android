@@ -15,6 +15,7 @@ import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.EntityDetailActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
@@ -84,6 +85,8 @@ public class BreadcrumbBarFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        
+        breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
 
         ActionBar actionBar = activity.getActionBar();
 
