@@ -741,5 +741,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public Pair<Detail, TreeReference> requestEntityContext() {
         return null;
     }
+
+    /**
+     * Whether or not the "Back" action makes sense for this activity.
+     * 
+     * @return True if "Back" is a valid concept for the Activity ande should be shown
+     * in the action bar if available. False otherwise.
+     */
+    public boolean isBackEnabled() {
+        return true;
+    }
     
 }
