@@ -1665,4 +1665,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isBackEnabled()
+     */
+    @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
 }

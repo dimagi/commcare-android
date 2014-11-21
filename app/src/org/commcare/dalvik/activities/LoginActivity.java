@@ -461,4 +461,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         return dialog;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isBackEnabled()
+     */
+    @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
 }

@@ -112,8 +112,14 @@ public class BreadcrumbBarFragment extends Fragment {
         
         
         activity.setTitle(title);
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        boolean showNav = false;
+        if(activity instanceof CommCareActivity) {
+            showNav = ((CommCareActivity)activity).isBackEnabled();
+        }
+        if(showNav) {
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         actionBar.setSubtitle(local);
         
         actionBar.setTitle(title);
