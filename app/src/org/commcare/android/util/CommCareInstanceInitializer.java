@@ -3,10 +3,8 @@
  */
 package org.commcare.android.util;
 
-import java.util.HashSet;
-import java.util.Vector;
-
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
+import org.commcare.android.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
@@ -43,7 +41,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
             if(stockbase == null) {
                 SqlStorage<Ledger> storage = app.getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
-                stockbase =  new LedgerInstanceTreeElement(instance.getBase(), storage);
+                stockbase =  new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
             } else {
                 //re-use the existing model if it exists.
                 stockbase.rebase(instance.getBase());
@@ -69,16 +67,23 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             }
             
             String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
-            
-            FormInstance fixture = CommCareUtil.loadFixture(refId, userId);
-            
-            if(fixture == null) {
-                throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
+            try{
+                
+                FormInstance fixture = CommCareUtil.loadFixture(refId, userId);
+                
+                if(fixture == null) {
+                    throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
+                }
+                
+                TreeElement root = fixture.getRoot();
+                root.setParent(instance.getBase());
+                return root;
+                
+            } catch(IllegalStateException ise){
+                throw new RuntimeException("Could not load fixture for src: " + ref);
+                
             }
             
-            TreeElement root = fixture.getRoot();
-            root.setParent(instance.getBase());
-            return root;
         }
         if(instance.getReference().indexOf("session") != -1) {
             User u = app.getSession().getLoggedInUser();

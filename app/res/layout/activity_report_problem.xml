@@ -13,7 +13,8 @@
         android:layout_centerVertical="true"
         android:text="@string/hello_world"
         android:layout_below="@+id/ImageView01"
-        tools:context=".ReportProblemActivity" />
+        tools:context=".ReportProblemActivity" 
+        android:padding="20dp"/>
     
     <EditText
         android:id="@+id/ReportText01"
