@@ -545,6 +545,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         } finally {
             db.endTransaction();
         }
+        //Ok, update complete! Let the app know that the user data has possibly been updated
+        CommCareApplication._().getSession().notifyUserDataUpdate();
         
         
         //Return the sync token ID
