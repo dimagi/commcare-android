@@ -507,6 +507,11 @@ public class CommCareSessionService extends Service  {
         multimediaIsVerified = toggle;
     }
 
+    /**
+     * Signal to the session service that user data has been updated
+     * and any elements that have been loaded from persistent storage
+     * should refresh themselves.
+     */
     public void notifyUserDataUpdate() {
         if(user == null) {
             //this is a utlity login, nothing to do here
