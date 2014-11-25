@@ -507,4 +507,30 @@ public class CommCareSessionService extends Service  {
         multimediaIsVerified = toggle;
     }
 
+    /**
+     * Signal to the session service that user data has been updated
+     * and any elements that have been loaded from persistent storage
+     * should refresh themselves.
+     */
+    public void notifyUserDataUpdate() {
+        if(user == null) {
+            //this is a utlity login, nothing to do here
+            return;
+        }
+                
+        //Otherwise, the user model that we've logged in as might 
+        //have changed, so we should re-load it 
+        User newUser = CommCareApplication._().getUserStorage(User.class).read(user.getID());
+        
+        //See if the password for this user got changed (this isn't really likely to
+        //work given how the key data works)
+        if(!user.getPassword().equals(newUser.getPassword())) {
+            //TODO: Handle this somehow.
+        } else {
+            newUser.setCachedPwd(user.getCachedPwd());
+        }
+        
+        user = newUser;
+    }
+
 }
