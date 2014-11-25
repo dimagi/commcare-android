@@ -22,7 +22,4 @@ commcare-odk-test/gen/*
 /app/libs/
 /app/proguard_cache/
 *.DS_Store
-app/.settings/
-.metadata/
-commcare-odk-test/.settings/
 .gitignore~
