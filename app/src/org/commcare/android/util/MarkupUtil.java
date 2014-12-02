@@ -1,14 +1,9 @@
 package org.commcare.android.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import net.nightwhistler.htmlspanner.HtmlSpanner;
 
 import org.javarosa.core.services.locale.Localization;
 
-import net.nightwhistler.htmlspanner.HtmlSpanner;
-import android.content.Context;
 import android.text.Spannable;
 
 public class MarkupUtil {
@@ -32,6 +27,11 @@ public class MarkupUtil {
     
     public static Spannable localizeStyleSpannable(String localizationKey){
         Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey));
+        return text;
+    }
+    
+    public static Spannable localizeStyleSpannable(String localizationKey, String[] localizationArgs){
+        Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey, localizationArgs));
         return text;
     }
     
