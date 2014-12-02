@@ -101,6 +101,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     int resourceState;
     int retryCount=0;
     
+    public final boolean doStyle = true;
+    
     
     public String incomingRef;
     public boolean canRetry;
@@ -416,7 +418,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(uiState == UiState.upgrade) {
             refreshView();
             //mainMessage.setText(Localization.get("updates.check"));
-            mainMessage.setText(MarkupUtil.getCustomSpannableKey("yellow-bg",Localization.get("updates.check")));
+            mainMessage.setText(Localization.get("updates.check"));
             startResourceInstall();
         }
     }
@@ -687,7 +689,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
+        menu.add(0, MODE_BASIC, 0, MarkupUtil.localizeStyleSpannable("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
         menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         return true;
