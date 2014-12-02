@@ -11,6 +11,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -267,6 +268,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             
         });
         
+        mScanBarcodeButton.setText("Scan Barcode");
+        
         addressEntryButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 setUiState(UiState.advanced);
@@ -274,7 +277,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
             
         });
-        addressEntryButton.setText(Localization.get("install.button.enter"));
+        addressEntryButton.setText(MarkupUtil.localizeStyleSpannable("install.button.enter"));
         
         startOverButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -412,7 +415,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //NOTE: May need to do so elsewhere as well
         if(uiState == UiState.upgrade) {
             refreshView();
-            mainMessage.setText(Localization.get("updates.check"));
+            //mainMessage.setText(Localization.get("updates.check"));
+            mainMessage.setText(MarkupUtil.getCustomSpannableKey("yellow-bg",Localization.get("updates.check")));
             startResourceInstall();
         }
     }
@@ -760,7 +764,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         buttonView.setVisibility(View.VISIBLE);
         editProfileRef.setText("");    
         this.incomingRef = null;
-        mainMessage.setText(message);
+        //mainMessage.setText(message);
+        mainMessage.setText(MarkupUtil.getCustomSpannable(message));
         addressEntryButton.setVisibility(View.VISIBLE);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.VISIBLE);

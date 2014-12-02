@@ -132,7 +132,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         //We also need to clear any _resource table_ linked localization files which may have
         //been registered from another app, or from a pre-install location.
         CommCareApplication._().intializeDefaultLocalizerData();
-        
+        CommCareApplication._().initializeStylizer();
         super.initialize(global);
     }
 
