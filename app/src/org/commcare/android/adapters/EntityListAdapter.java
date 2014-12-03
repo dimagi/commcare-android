@@ -14,7 +14,7 @@ import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
-import org.commcare.android.view.TextImageAudioView;
+import org.commcare.android.view.MenuListEntryView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -344,10 +344,10 @@ public class EntityListAdapter implements ListAdapter {
      */
     public View getView(int position, View convertView, ViewGroup parent) {
         if(actionEnabled && position == actionPosition) {
-            TextImageAudioView tiav =(TextImageAudioView)convertView;
+            MenuListEntryView tiav =(MenuListEntryView)convertView;
 
             if(tiav == null) {
-                tiav = new TextImageAudioView(context);
+                tiav = new MenuListEntryView(context);
             }
             tiav.setDisplay(detail.getCustomAction().getDisplay());
             tiav.setBackgroundResource(R.drawable.list_bottom_tab);

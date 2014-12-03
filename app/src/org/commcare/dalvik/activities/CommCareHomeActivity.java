@@ -30,7 +30,7 @@ import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
-import org.commcare.android.view.TextImageAudioView;
+import org.commcare.android.view.MenuListEntryView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -184,7 +184,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         startButton.setText(Localization.get("home.start"));
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), MenuList.class);
+                Intent i = new Intent(getApplicationContext(), MenuGrid.class);
                 
                 startActivityForResult(i, GET_COMMAND);
             }
@@ -809,7 +809,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         
-        TextImageAudioView tiav = new TextImageAudioView(this);
+        MenuListEntryView tiav = new MenuListEntryView(this);
         tiav.setAVT(Localization.get("demo.mode.warning"), path, null);
         demoModeWarning.setView(tiav);
         

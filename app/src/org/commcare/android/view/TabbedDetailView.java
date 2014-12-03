@@ -106,7 +106,7 @@ public class TabbedDetailView extends RelativeLayout {
                 };
                 
                 // Create TextImageAudioView for tab
-                TextImageAudioView view = new TextImageAudioView(mContext);
+                MenuListEntryView view = new MenuListEntryView(mContext);
                 DisplayUnit title = d.getTitle();
                 view.setAVT(title.getText().evaluate(), title.getAudioURI(), title.getImageURI());
                 view.setGravity(Gravity.CENTER);

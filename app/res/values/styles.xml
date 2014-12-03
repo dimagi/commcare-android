@@ -50,6 +50,7 @@
    </style>
    
    <dimen name="menu_icon_size">60dp</dimen>
+   <dimen name="menu_grid_icon_size">240dp</dimen>
       
    <style name="Animation" />
    

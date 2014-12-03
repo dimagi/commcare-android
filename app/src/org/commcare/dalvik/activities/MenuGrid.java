@@ -16,6 +16,7 @@
 
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.adapters.MenuGridAdapter;
 import org.commcare.android.adapters.MenuListAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -25,7 +26,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 
 import android.content.Intent;
@@ -33,18 +33,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
+import android.widget.GridView;
 
-
-@ManagedUi(R.layout.screen_suite_menu)
-public class MenuList extends CommCareActivity implements OnItemClickListener {
+@ManagedUi(R.layout.grid_menu_layout)
+public class MenuGrid extends CommCareActivity implements OnItemClickListener {
     
     private CommCarePlatform platform;
     
-    private MenuListAdapter adapter;
+    private MenuGridAdapter adapter;
     
-    @UiElement(R.id.screen_suite_menu_list)
-    private ListView list;
+    @UiElement(R.id.grid_menu_grid)
+    private GridView grid;
     
     /*
      * (non-Javadoc)
@@ -61,10 +60,10 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
            menuId="root";
        }
        
-       adapter = new MenuListAdapter(this,platform,menuId);
+       adapter = new MenuGridAdapter(this,platform,menuId);
        refreshView();
        
-       list.setOnItemClickListener(this);
+       grid.setOnItemClickListener(this);
     }
 
 
@@ -92,7 +91,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        list.setAdapter(adapter);
+        grid.setAdapter(adapter);
     }
 
 

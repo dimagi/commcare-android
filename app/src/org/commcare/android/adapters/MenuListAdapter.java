@@ -9,7 +9,7 @@ import java.util.Vector;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.view.TextImageAudioView;
+import org.commcare.android.view.MenuListEntryView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
@@ -36,7 +36,7 @@ import android.widget.ListAdapter;
  * @author wspride
  *
  */
-public class GenericMenuListAdapter implements ListAdapter {
+public class MenuListAdapter implements ListAdapter {
     
     private AndroidSessionWrapper asw;
     private CommCarePlatform platform;
@@ -45,7 +45,7 @@ public class GenericMenuListAdapter implements ListAdapter {
     
     private String menuTitle = null;
     
-    public GenericMenuListAdapter(Context context, CommCarePlatform platform, String menuID){
+    public MenuListAdapter(Context context, CommCarePlatform platform, String menuID){
         
         this.platform = platform;
         this.context = context;
@@ -193,10 +193,10 @@ public class GenericMenuListAdapter implements ListAdapter {
      */
     public View getView(int i, View v, ViewGroup vg) {
         Object mObject = objectData[i];
-        TextImageAudioView emv = (TextImageAudioView)v;
+        MenuListEntryView emv = (MenuListEntryView)v;
         String mQuestionText = textViewHelper(mObject);
         if(emv == null) {
-            emv = new TextImageAudioView(context);
+            emv = new MenuListEntryView(context);
         }
         
         //Final change, remove any numeric context requests. J2ME uses these to 
