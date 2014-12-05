@@ -10,7 +10,7 @@ import android.content.Context;
  *
  */
 public class BitCacheFactory {
-    public static BitCache getCache(Context context, int estimatedSize) {
+    public static BitCache getCache(Context context, long estimatedSize) {
         if(estimatedSize == -1 || estimatedSize > 1024*1024*4) {
             return getCache(context);
         }
