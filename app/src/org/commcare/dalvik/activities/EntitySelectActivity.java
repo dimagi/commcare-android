@@ -658,6 +658,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
         }
         
+        if(adapter != null) {
+            adapter.signalKilled();
+        }
+        
         if (tts != null) {
             tts.stop();
             tts.shutdown();
