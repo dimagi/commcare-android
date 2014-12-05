@@ -16,7 +16,7 @@
 
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.adapters.MenuListAdapter;
+import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -41,7 +41,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     
     private CommCarePlatform platform;
     
-    private MenuListAdapter adapter;
+    private MenuAdapter adapter;
     
     @UiElement(R.id.screen_suite_menu_list)
     private ListView list;
@@ -61,7 +61,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
            menuId="root";
        }
        
-       adapter = new MenuListAdapter(this,platform,menuId);
+       adapter = new MenuAdapter(this,platform,menuId);
        refreshView();
        
        list.setOnItemClickListener(this);

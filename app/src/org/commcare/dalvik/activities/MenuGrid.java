@@ -18,7 +18,7 @@ package org.commcare.dalvik.activities;
 
 import java.io.IOException;
 
-import org.commcare.android.adapters.MenuGridAdapter;
+import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -45,7 +45,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
     
     private CommCarePlatform platform;
     
-    private MenuGridAdapter adapter;
+    private MenuAdapter adapter;
     
     @UiElement(R.id.grid_menu_grid)
     private GridView grid;
@@ -65,7 +65,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
            menuId="root";
        }
        
-       adapter = new MenuGridAdapter(this,platform,menuId);
+       adapter = new MenuAdapter(this,platform,menuId);
        refreshView();
        
        grid.setOnItemClickListener(this);
