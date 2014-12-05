@@ -62,13 +62,10 @@ public class Entity<T> {
      * Gets the indexed field used for searching and sorting these entities 
      * 
      * @return either the sort or the string field at the provided index, normalized
-     * (IE: lowercase, etc) for sorting and searching.
+     * (IE: lowercase, etc) for searching.
      */
     public String getNormalizedField(int i) {
-        String normalized = this.getSortField(i);
-        if(normalized == null){ 
-            normalized = this.getFieldString(i);
-        }
+        String normalized = this.getFieldString(i);
         return StringUtils.normalize(normalized);
     }
     

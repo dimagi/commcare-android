@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import android.support.v4.util.LruCache;
+import android.util.Pair;
 
 /**
  * @author ctsims
@@ -113,18 +114,18 @@ public class StringUtils {
      * @param b
      * @return true if the two strings meet CommCare's fuzzy match definition, false otherwise.
      */
-    public static boolean fuzzyMatch(String a, String b) {
+    public static Pair<Boolean, Integer> fuzzyMatch(String a, String b) {
         //tweakable parameter: Minimum length before edit distance
         //starts being used (this is probably not necessary, and
         //basically only makes sure that "at" doesn't match "or" or similar
-        if(b.length() > 3) {
+       if(b.length() > 3) {
             int sizeDiff = Math.abs(a.length() - b.length());
             int distance = StringUtils.LevenshteinDistance(a, b);
             //tweakable parameter: edit distance past string length disparity
             if(distance <= 2) {
-                return true;
+                return Pair.create(true, distance);
             }
         }
-        return false;
+        return Pair.create(false, -1);
     }
 }

@@ -6,8 +6,11 @@ package org.commcare.android.models;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -49,6 +52,17 @@ public class AsyncEntity extends Entity<TreeReference>{
 
     private EntityStorageCache mEntityStorageCache;
     
+    /*
+     * the Object's lock. NOTE: _DO NOT LOCK ANY CODE WHICH READS/WRITES THE CACHE
+     * UNTIL YOU HAVE A LOCK FOR THE DB!
+     * 
+     * The lock is for the integrity of this object, not the larger environment, 
+     * and any DB access has its own implict lock between threads, so it's easy
+     * to accidentally deadlock if you don't already have the db lock
+     * 
+     * Basically you should never be calling mEntityStorageCache from inside of
+     * a lock that 
+     */
     private Object mAsyncLock = new Object();
     
     public AsyncEntity(DetailField[] fields, EvaluationContext ec, TreeReference t, Hashtable<String, XPathExpression> variables, EntityStorageCache cache, String cacheIndex, String detailId) {
@@ -114,41 +128,56 @@ public class AsyncEntity extends Entity<TreeReference>{
     }
     
     public String getSortField(int i) {
-        synchronized(mAsyncLock) {
-            if(sortData[i] == null) {
-                Text sortText = fields[i].getSort();
-                if(sortText == null) {
-                    return null;
-                }
-                    
-                String cacheKey = EntityStorageCache.getCacheKey(mDetailId,String.valueOf(i)); 
-                
-                if(mCacheIndex != null) {
-                    //Check the cache!
-                    String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
-                    if(value != null) {
-                        this.setSortData(i, value);
-                        return sortData[i];
-                    }
-                }
-                
-                
-                loadVariableContext();
-                try {
-                    sortText = fields[i].getSort();
+        //Get a db handle so we can get an outer lock
+        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+        
+        //get the db lock
+        db.beginTransaction();
+        try {
+            //get our second lock.
+            synchronized(mAsyncLock) {
+                if(sortData[i] == null) {
+                    Text sortText = fields[i].getSort();
                     if(sortText == null) {
-                        this.setSortData(i, getFieldString(i));
-                    } else {
-                        this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
+                        db.setTransactionSuccessful();
+                        return null;
+                    }
+                        
+                    String cacheKey = EntityStorageCache.getCacheKey(mDetailId,String.valueOf(i)); 
+                    
+                    if(mCacheIndex != null) {
+                        //Check the cache!
+                        String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
+                        if(value != null) {
+                            this.setSortData(i, value);
+                            db.setTransactionSuccessful();
+                            return sortData[i];
+                        }
                     }
                     
-                    mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
-                } catch(XPathException xpe) {
-                    xpe.printStackTrace();
-                    sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                    
+                    loadVariableContext();
+                    try {
+                        sortText = fields[i].getSort();
+                        if(sortText == null) {
+                            this.setSortData(i, getFieldString(i));
+                        } else {
+                            this.setSortData(i, StringUtils.normalize(sortText.evaluate(context)));
+                        }
+                        
+                        mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
+                    } catch(XPathException xpe) {
+                        xpe.printStackTrace();
+                        sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                    }
                 }
+                db.setTransactionSuccessful();
+                return sortData[i];
             }
-            return sortData[i];
+        
+        } finally {
+            //free the db lock.
+            db.endTransaction();
         }
     }
 
