@@ -856,7 +856,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
         }
         else if(needed == SessionFrame.STATE_COMMAND_ID) {
-             Intent i = new Intent(getApplicationContext(), MenuList.class);
+             Intent i = new Intent(getApplicationContext(), MenuGrid.class);
          
              i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
              startActivityForResult(i, GET_COMMAND);

@@ -66,7 +66,7 @@ public class MenuListEntryView extends RelativeLayout {
         
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         
-        mTextView = (TextView)inflater.inflate(R.layout.entity_item_grid, null);
+        mTextView = (TextView)inflater.inflate(R.layout.menu_list_item, null);
         
         mTextView.setText(displayText);
         

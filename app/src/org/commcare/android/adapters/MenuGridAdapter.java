@@ -45,7 +45,7 @@ public class MenuGridAdapter implements ListAdapter {
     
     private String menuTitle = null;
     
-    public MenuGridAdapter(Context context, CommCarePlatform platform, String menuID){
+    public MenuGridAdapter(Context context, CommCarePlatform platform, String menuID){ 
         
         this.platform = platform;
         this.context = context;
