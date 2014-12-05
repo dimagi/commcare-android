@@ -2,6 +2,7 @@ package org.commcare.android.view;
 
 import java.io.File;
 
+import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -35,6 +36,7 @@ public class MenuListEntryView extends RelativeLayout {
     private TextView mMissingImage;
     private final int iconDimension;
     private final int fontSize = 20;
+    private CachingAsyncImageLoader mImageLoader;
     
     private EvaluationContext ec;
 
@@ -50,9 +52,8 @@ public class MenuListEntryView extends RelativeLayout {
         mImageView = null;
         mMissingImage = null;
         this.ec = ec;
-        
         this.iconDimension = (int) getResources().getDimension(R.dimen.menu_icon_size);
-
+        mImageLoader = new CachingAsyncImageLoader(c, 4);
     }
     
 
@@ -103,6 +104,7 @@ public class MenuListEntryView extends RelativeLayout {
         Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
         if(b != null) {
             mImageView = new ImageView(getContext());
+            
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
             mImageView.setImageBitmap(b);

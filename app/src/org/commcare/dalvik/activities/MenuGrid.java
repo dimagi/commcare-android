@@ -16,8 +16,9 @@
 
 package org.commcare.dalvik.activities;
 
+import java.io.IOException;
+
 import org.commcare.android.adapters.MenuGridAdapter;
-import org.commcare.android.adapters.MenuListAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -27,16 +28,20 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 
 @ManagedUi(R.layout.grid_menu_layout)
-public class MenuGrid extends CommCareActivity implements OnItemClickListener {
+public class MenuGrid extends CommCareActivity implements OnItemClickListener, OnItemLongClickListener {
     
     private CommCarePlatform platform;
     
@@ -64,6 +69,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener {
        refreshView();
        
        grid.setOnItemClickListener(this);
+       grid.setOnItemLongClickListener(this);
     }
 
 
@@ -117,6 +123,35 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener {
         setResult(RESULT_OK, i);
 
         finish();
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view,
+            int position, long id) {
+        Object value = parent.getAdapter().getItem(position);
+        String audioURI = adapter.getAudioURI(value);
+        String audioFilename = "";
+        
+        MediaPlayer mp = new MediaPlayer();
+        
+        if(audioURI != null && !audioURI.equals("")) {
+            try {
+                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+                
+                mp.setDataSource(audioFilename);
+                mp.prepare();
+                mp.start();
+                
+            } catch (InvalidReferenceException e) {
+                e.printStackTrace();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return false;
     }
 
 }

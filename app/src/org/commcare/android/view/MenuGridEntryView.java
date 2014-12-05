@@ -60,6 +60,7 @@ public class MenuGridEntryView extends RelativeLayout {
         mTextView = (TextView)inflater.inflate(R.layout.menu_grid_item, null);
 
         mTextView.setText(displayText);
+        mTextView.setHeight((int)(2.5*mTextView.getLineHeight())); // because 2 lines isn't enough to show 2 lines
 
         // Layout configurations for our elements in the relative layout
         RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -68,12 +69,12 @@ public class MenuGridEntryView extends RelativeLayout {
         Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
 
         if(b == null){
-            b = BitmapFactory.decodeResource(this.getResources(), R.drawable.info_bubble);
+            b = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.info_bubble);
         }
 
 
         mImageView = new ImageView(getContext());
-        mImageView.setPadding(15, 15, 15, 5);
+        mImageView.setPadding(15, 15, 15, 0);
         mImageView.setAdjustViewBounds(true);
         mImageView.setImageBitmap(b);
         mImageView.setId(23422634);
