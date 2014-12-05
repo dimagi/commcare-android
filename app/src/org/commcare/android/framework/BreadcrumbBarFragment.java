@@ -112,7 +112,7 @@ public class BreadcrumbBarFragment extends Fragment {
         
         
         activity.setTitle(title);
-        boolean showNav = false;
+        boolean showNav = true;
         if(activity instanceof CommCareActivity) {
             showNav = ((CommCareActivity)activity).isBackEnabled();
         }
