@@ -43,6 +43,7 @@ import android.widget.Toast;
 
 public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
+    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
@@ -68,5 +69,10 @@ public class DeveloperPreferences extends PreferenceActivity {
     public static boolean isSuperuserEnabled(){
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+    
+    public static boolean isGridMenuEnabled(){
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(GRID_MENUS_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 }
