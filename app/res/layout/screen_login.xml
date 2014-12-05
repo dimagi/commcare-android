@@ -39,8 +39,9 @@
                 android:id="@+id/screen_login_top_banner"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:scaleType="fitStart"
-                android:src="@drawable/ccbanner" android:adjustViewBounds="true"/>
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ccbanner" />
 
         </FrameLayout>
 
