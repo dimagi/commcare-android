@@ -28,6 +28,7 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.TextImageAudioView;
@@ -181,7 +182,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
         // enter data button. expects a result.
         startButton = (Button) findViewById(R.id.home_start);
-        startButton.setText(Localization.get("home.start"));
+        startButton.setText(MarkupUtil.localizeStyleSpannable("home.start"));
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MenuList.class);
@@ -192,7 +193,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
      // enter data button. expects a result.
         viewIncomplete = (Button) findViewById(R.id.home_forms_incomplete);
-        viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+        viewIncomplete.setText(MarkupUtil.localizeStyleSpannable("home.forms.incomplete"));
         viewIncomplete.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(true);
@@ -200,7 +201,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         });
         
         logoutButton = (Button) findViewById(R.id.home_logout);
-        logoutButton.setText(Localization.get("home.logout"));
+        logoutButton.setText(MarkupUtil.localizeStyleSpannable("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().logout();
@@ -210,10 +211,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         
         TextView formGroupLabel = (TextView) findViewById(R.id.home_formrecords_label);
-        formGroupLabel.setText(Localization.get("home.forms"));
+        formGroupLabel.setText(MarkupUtil.localizeStyleSpannable("home.forms"));
         
         viewOldForms = (Button) findViewById(R.id.home_forms_old);
-        viewOldForms.setText(Localization.get("home.forms.saved"));
+        viewOldForms.setText(MarkupUtil.localizeStyleSpannable("home.forms.saved"));
         viewOldForms.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(false);
@@ -221,7 +222,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         });
         
         syncButton  = (Button) findViewById(R.id.home_sync);
-        syncButton.setText(Localization.get("home.sync"));
+        syncButton.setText(MarkupUtil.localizeStyleSpannable("home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!isOnline()) {
@@ -1294,7 +1295,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
         
-        syncMessage.setText(message);
+        syncMessage.setText(MarkupUtil.localizeStyleSpannable(message));
 
 
         //Need to transplant the padding due to background affecting it
@@ -1337,8 +1338,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         
         //since these might have changed
-        startButton.setText(Localization.get(homeMessageKey));
-        logoutButton.setText(Localization.get(logoutMessageKey));
+        startButton.setText(MarkupUtil.localizeStyleSpannable(homeMessageKey));
+        logoutButton.setText(MarkupUtil.localizeStyleSpannable(logoutMessageKey));
         
         
         CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
@@ -1350,15 +1351,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
         }
         if(syncDetails.second[0] > 0) {
-            syncButton.setText(Localization.get("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
+            syncButton.setText(MarkupUtil.localizeStyleSpannable("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
         } else {
-            syncButton.setText(Localization.get(syncKey));
+            syncButton.setText(MarkupUtil.localizeStyleSpannable(syncKey));
         }
         
         if(syncDetails.second[1] > 0) {
-            viewIncomplete.setText(Localization.get("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
+            viewIncomplete.setText(MarkupUtil.localizeStyleSpannable("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
         } else {
-            viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+            viewIncomplete.setText(MarkupUtil.localizeStyleSpannable("home.forms.incomplete"));
         }
         
         if(syncDetails.second[0] > unsentFormNumberLimit){

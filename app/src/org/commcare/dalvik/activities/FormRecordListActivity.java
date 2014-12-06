@@ -31,6 +31,7 @@ import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.R;
@@ -147,7 +148,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             barcodeButton.setVisibility(View.GONE);
             
             TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-            searchLabel.setText(Localization.get("select.search.label"));
+            searchLabel.setText(MarkupUtil.localizeStyleSpannable("select.search.label"));
             
             searchbox.addTextChangedListener(this);
             FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);

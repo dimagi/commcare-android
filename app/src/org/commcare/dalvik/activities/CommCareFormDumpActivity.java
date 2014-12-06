@@ -16,6 +16,7 @@ import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -92,7 +93,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                 
                 //if there're no forms to dump, just return
                 if(formsOnSD == 0){
-                    txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.submit"));
+                    txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable("bulk.form.no.unsynced.submit"));
                     TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
                 }
@@ -260,9 +261,9 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     }
     
     public void setDisplayText(){
-        btnDumpForms.setText(Localization.get("bulk.form.dump.2", new String[] {""+formsOnPhone}));
-        btnSubmitForms.setText(Localization.get("bulk.form.submit.2", new String[] {""+formsOnSD}));
-        txtDisplayPrompt.setText(Localization.get("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
+        btnDumpForms.setText(MarkupUtil.localizeStyleSpannable("bulk.form.dump.2", new String[] {""+formsOnPhone}));
+        btnSubmitForms.setText(MarkupUtil.localizeStyleSpannable("bulk.form.submit.2", new String[] {""+formsOnSD}));
+        txtDisplayPrompt.setText(MarkupUtil.localizeStyleSpannable("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
     }
     
     public String getFolderName(){

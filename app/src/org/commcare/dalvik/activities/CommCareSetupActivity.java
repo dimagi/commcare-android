@@ -418,7 +418,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(uiState == UiState.upgrade) {
             refreshView();
             //mainMessage.setText(Localization.get("updates.check"));
-            mainMessage.setText(Localization.get("updates.check"));
+            mainMessage.setText(MarkupUtil.localizeStyleSpannable("updates.check"));
             startResourceInstall();
         }
     }
@@ -775,24 +775,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startOverButton.setVisibility(View.GONE);
         installButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
-        retryButton.setText(Localization.get("install.button.retry"));
-        startOverButton.setText(Localization.get("install.button.startover"));
+        retryButton.setText(MarkupUtil.localizeStyleSpannable("install.button.retry"));
+        startOverButton.setText(MarkupUtil.localizeStyleSpannable("install.button.startover"));
     }
 
     public void setModeToAdvanced(){
         buttonView.setVisibility(View.VISIBLE);
-        mainMessage.setText(Localization.get("install.manual"));
+        mainMessage.setText(MarkupUtil.localizeStyleSpannable("install.manual"));
         advancedView.setVisibility(View.VISIBLE);
         mScanBarcodeButton.setVisibility(View.GONE);
         addressEntryButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
-        startOverButton.setText(Localization.get("install.button.startover"));
+        startOverButton.setText(MarkupUtil.localizeStyleSpannable("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
         installButton.setEnabled(true);
         viewNotificationButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
-        retryButton.setText(Localization.get("install.button.retry"));
-        startOverButton.setText(Localization.get("install.button.startover"));
+        retryButton.setText(MarkupUtil.localizeStyleSpannable("install.button.retry"));
+        startOverButton.setText(MarkupUtil.localizeStyleSpannable("install.button.startover"));
     }
 
     /*
@@ -870,7 +870,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             if(alwaysNotify) {
                 this.displayMessage= Localization.get("notification.for.details.setup.wrapper", new String[] {message.getDetails()});
                 this.canRetry = canRetry;
-                mainMessage.setText(displayMessage);
+                mainMessage.setText(MarkupUtil.localizeStyleSpannable(displayMessage));
             } else {
                 
                 this.displayMessage= message.getDetails();
@@ -882,7 +882,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     fullErrorMessage = fullErrorMessage + message.getAction();
                 }
                 
-                mainMessage.setText(fullErrorMessage);
+                mainMessage.setText(MarkupUtil.localizeStyleSpannable(fullErrorMessage));
             }
         }
         
