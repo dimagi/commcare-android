@@ -2,6 +2,7 @@ package org.commcare.dalvik.activities;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -30,9 +31,9 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_problem);
         Button submitButton = (Button)findViewById(R.id.ReportButton01);
-        submitButton.setText(Localization.get("problem.report.button"));
+        submitButton.setText(MarkupUtil.localizeStyleSpannable("problem.report.button"));
         submitButton.setOnClickListener(this);
-        ((TextView)findViewById(R.id.ReportPrompt01)).setText(Localization.get("problem.report.prompt"));
+        ((TextView)findViewById(R.id.ReportPrompt01)).setText(MarkupUtil.localizeStyleSpannable("problem.report.prompt"));
     }
 
     /*

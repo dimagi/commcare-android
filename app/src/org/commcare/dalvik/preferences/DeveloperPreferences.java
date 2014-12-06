@@ -43,7 +43,7 @@ import android.widget.Toast;
 
 public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
-
+    public final static String MARKUP_ENABLED = "cc-markup-enabled";
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
@@ -68,5 +68,14 @@ public class DeveloperPreferences extends PreferenceActivity {
     public static boolean isSuperuserEnabled(){
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+    
+    public static boolean isMarkupEnabled(){
+        try{
+            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+            return properties.getString(MARKUP_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        } catch(NullPointerException e){
+            return false;
+        }
     }
 }

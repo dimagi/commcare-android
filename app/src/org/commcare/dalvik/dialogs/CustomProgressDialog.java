@@ -26,6 +26,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 
 public class CustomProgressDialog extends DialogFragment {

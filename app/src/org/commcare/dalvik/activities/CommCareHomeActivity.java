@@ -1295,7 +1295,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
         
-        syncMessage.setText(MarkupUtil.localizeStyleSpannable(message));
+        syncMessage.setText(message);
 
 
         //Need to transplant the padding due to background affecting it

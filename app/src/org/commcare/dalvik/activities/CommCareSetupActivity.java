@@ -724,19 +724,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToAutoUpgrade(){
-        retryButton.setText(Localization.get("upgrade.button.retry"));
-        startOverButton.setText(Localization.get("upgrade.button.startover"));
+        retryButton.setText(MarkupUtil.localizeStyleSpannable("upgrade.button.retry"));
+        startOverButton.setText(MarkupUtil.localizeStyleSpannable("upgrade.button.startover"));
         buttonView.setVisibility(View.INVISIBLE);
     }
     
     public void setModeToReady(String incomingRef) {
         buttonView.setVisibility(View.VISIBLE);
-        mainMessage.setText(Localization.get("install.ready"));
+        mainMessage.setText(MarkupUtil.localizeStyleSpannable("install.ready"));
         editProfileRef.setText(incomingRef);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
-        startOverButton.setText(Localization.get("install.button.startover"));
+        startOverButton.setText(MarkupUtil.localizeStyleSpannable("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
         addressEntryButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);

@@ -8,6 +8,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
@@ -124,8 +125,8 @@ public class EntityDetailView extends FrameLayout {
 
     public void setParams(CommCareSession session, Detail d, Entity e, int index, int detailNumber) {
         String labelText = d.getFields()[index].getHeader().evaluate();
-        label.setText(labelText);
-        spacer.setText(labelText);
+        label.setText(MarkupUtil.localizeStyleSpannable(labelText));
+        spacer.setText(MarkupUtil.localizeStyleSpannable(labelText));
         
         Object field = e.getField(index);
         String textField = e.getFieldString(index);
@@ -269,7 +270,7 @@ public class EntityDetailView extends FrameLayout {
             updateCurrentView(VIDEO, videoButton);
         } else {
             String text = textField;
-            data.setText(text);
+            data.setText(MarkupUtil.localizeStyleSpannable(text));
             if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
                 veryLong = true;
             }
