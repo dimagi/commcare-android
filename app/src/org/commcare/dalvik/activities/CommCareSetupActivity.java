@@ -24,6 +24,8 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
+import us.feras.mdv.MarkdownView;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -44,7 +46,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 /**
  * The CommCareStartupActivity is purely responsible for identifying
@@ -115,7 +116,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @UiElement(R.id.edit_profile_location)
     EditText editProfileRef;
     @UiElement(R.id.str_setup_message)
-    TextView mainMessage;
+    MarkdownView mainMessage;
     @UiElement(R.id.url_spinner)
     Spinner urlSpinner;
     @UiElement(R.id.start_install)
@@ -418,7 +419,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(uiState == UiState.upgrade) {
             refreshView();
             //mainMessage.setText(Localization.get("updates.check"));
-            mainMessage.setText(MarkupUtil.localizeStyleSpannable("updates.check"));
+            mainMessage.loadMarkdown("updates.check");
             startResourceInstall();
         }
     }
@@ -731,7 +732,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     public void setModeToReady(String incomingRef) {
         buttonView.setVisibility(View.VISIBLE);
-        mainMessage.setText(MarkupUtil.localizeStyleSpannable("install.ready"));
+        mainMessage.loadMarkdown(Localization.get("install.ready"));
         editProfileRef.setText(incomingRef);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.GONE);
@@ -767,7 +768,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         editProfileRef.setText("");    
         this.incomingRef = null;
         //mainMessage.setText(message);
-        mainMessage.setText(MarkupUtil.getCustomSpannable(message));
+        System.out.println("128 message: " + message);
+        mainMessage.loadMarkdown(message);
         addressEntryButton.setVisibility(View.VISIBLE);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.VISIBLE);
@@ -781,7 +783,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public void setModeToAdvanced(){
         buttonView.setVisibility(View.VISIBLE);
-        mainMessage.setText(MarkupUtil.localizeStyleSpannable("install.manual"));
+        mainMessage.loadMarkdown(Localization.get("install.manual"));
         advancedView.setVisibility(View.VISIBLE);
         mScanBarcodeButton.setVisibility(View.GONE);
         addressEntryButton.setVisibility(View.GONE);
@@ -870,7 +872,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             if(alwaysNotify) {
                 this.displayMessage= Localization.get("notification.for.details.setup.wrapper", new String[] {message.getDetails()});
                 this.canRetry = canRetry;
-                mainMessage.setText(MarkupUtil.localizeStyleSpannable(displayMessage));
+                mainMessage.loadMarkdown(Localization.get(displayMessage));
             } else {
                 
                 this.displayMessage= message.getDetails();
@@ -882,7 +884,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     fullErrorMessage = fullErrorMessage + message.getAction();
                 }
                 
-                mainMessage.setText(MarkupUtil.localizeStyleSpannable(fullErrorMessage));
+                mainMessage.loadMarkdown(Localization.get(fullErrorMessage));
             }
         }
         

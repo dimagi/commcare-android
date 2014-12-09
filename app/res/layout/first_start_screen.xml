@@ -44,10 +44,10 @@
                <LinearLayout
                    android:id="@+id/message_panel"
                    android:layout_width="fill_parent"
-                   android:layout_height="wrap_content"
+                   android:layout_height="match_parent"
                    android:orientation="vertical" >
 
-                   <TextView
+                   <us.feras.mdv.MarkdownView
                        android:id="@+id/str_setup_message"
                        android:layout_width="fill_parent"
                        android:layout_height="wrap_content"
