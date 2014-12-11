@@ -26,96 +26,96 @@ import android.widget.ImageView.ScaleType;
  */
 @SuppressLint("NewApi")
 public class CachingAsyncImageLoader implements ComponentCallbacks2 {
-	private TCLruCache cache;
-	public static final int RETRY_LIMIT=5;		// how many times we should retry loading the image before giving up
-	private int scaleFactor;					// how much to degrade the quality of the image to ensure no heap overflow
-	private final int CACHE_DIVISOR =2 ;
+    private TCLruCache cache;
+    public static final int RETRY_LIMIT=5;        // how many times we should retry loading the image before giving up
+    private int scaleFactor;                    // how much to degrade the quality of the image to ensure no heap overflow
+    private final int CACHE_DIVISOR =2 ;
 
-	public CachingAsyncImageLoader(Context context, int mScaleFactor) {
-		ActivityManager am = (ActivityManager) context.getSystemService(
-				Context.ACTIVITY_SERVICE);
-		int memoryClass = (am.getMemoryClass() * 1024 * 1024)/CACHE_DIVISOR;		//basically, set the heap to be everything we can get
-		cache = new TCLruCache(memoryClass);
-		scaleFactor = mScaleFactor;
-	}
+    public CachingAsyncImageLoader(Context context, int mScaleFactor) {
+        ActivityManager am = (ActivityManager) context.getSystemService(
+                Context.ACTIVITY_SERVICE);
+        int memoryClass = (am.getMemoryClass() * 1024 * 1024)/CACHE_DIVISOR;        //basically, set the heap to be everything we can get
+        cache = new TCLruCache(memoryClass);
+        scaleFactor = mScaleFactor;
+    }
 
-	public void display(String url, ImageView imageview, int defaultresource) {
-		imageview.setImageResource(defaultresource);
-		Bitmap image;
-	    synchronized(cache) {
-	        image = cache.get(url);
-	    }
-		if (image != null) {
-			imageview.setImageBitmap(image);
-		}
-		else {
-			new SetImageTask(imageview).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
-		}
-	}
+    public void display(String url, ImageView imageview, int defaultresource) {
+        imageview.setImageResource(defaultresource);
+        Bitmap image;
+        synchronized(cache) {
+            image = cache.get(url);
+        }
+        if (image != null) {
+            imageview.setImageBitmap(image);
+        }
+        else {
+            new SetImageTask(imageview).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+        }
+    }
 
-	@SuppressLint("NewApi")
-	private class TCLruCache extends LruCache<String, Bitmap> {
+    @SuppressLint("NewApi")
+    private class TCLruCache extends LruCache<String, Bitmap> {
 
-		public TCLruCache(int maxSize) {
-			super(maxSize);
-		}
-	}
+        public TCLruCache(int maxSize) {
+            super(maxSize);
+        }
+    }
 
-	/**
-	 * Simple member class used for asyncronously loading and setting ImageView bitmaps
-	 * @author wspride
-	 *
-	 */
-	private class SetImageTask extends AsyncTask<String, Void, Bitmap> {
-		private ImageView mImageView = null;
+    /**
+     * Simple member class used for asyncronously loading and setting ImageView bitmaps
+     * @author wspride
+     *
+     */
+    private class SetImageTask extends AsyncTask<String, Void, Bitmap> {
+        private ImageView mImageView = null;
 
-		public SetImageTask(ImageView imageView) {
-			mImageView = imageView;
-		}
+        public SetImageTask(ImageView imageView) {
+            mImageView = imageView;
+        }
 
-		protected Bitmap doInBackground(String... file) { 
-			return getImageBitmap(file[0]);
-		}
+        protected Bitmap doInBackground(String... file) { 
+            return getImageBitmap(file[0]);
+        }
 
-		protected void onPostExecute(Bitmap result) {
+        protected void onPostExecute(Bitmap result) {
 
-			if (result != null && mImageView != null) {
-				mImageView.setImageBitmap(result);
-			}
-		}
+            if (result != null && mImageView != null) {
+                mImageView.setImageBitmap(result);
+            }
+        }
 
-		public Bitmap getImageBitmap(String file){
-			Bitmap bitmap = null;
-			bitmap = MediaUtil.getScaledImageFromReference(file, scaleFactor);
+        public Bitmap getImageBitmap(String file){
+            Bitmap bitmap = null;
+            bitmap = MediaUtil.getScaledImageFromReference(file, scaleFactor);
 
             if (bitmap != null) {
                 synchronized(cache) {
-  	                cache.put(file, bitmap);
-  	            }
-  	        }
+                      cache.put(file, bitmap);
+                  }
+              }
 
-			return bitmap;
-		}
+            return bitmap;
+        }
 
-	}
+    }
 
-	/*
-	 * Override these methods to ensure that our overriding behavior is maintained
-	 * through these calls. come from ComponentCallsback2
-	 */
-	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-	}
+    /*
+     * Override these methods to ensure that our overriding behavior is maintained
+     * through these calls. come from ComponentCallsback2
+     */
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+    }
 
-	@Override
-	public void onLowMemory() {
-	}
+    @Override
+    public void onLowMemory() {
+    }
 
-	@Override
-	public void onTrimMemory(int level) {
-		if (level >= TRIM_MEMORY_MODERATE) {
-			cache.evictAll();
-		}
-	}
+    @Override
+    public void onTrimMemory(int level) {
+        if (level >= TRIM_MEMORY_MODERATE) {
+            cache.evictAll();
+        }
+    }
 }
