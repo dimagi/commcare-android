@@ -17,6 +17,7 @@ import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
@@ -125,8 +126,8 @@ public class EntityDetailView extends FrameLayout {
 
     public void setParams(CommCareSession session, Detail d, Entity e, int index, int detailNumber) {
         String labelText = d.getFields()[index].getHeader().evaluate();
-        label.setText(MarkupUtil.localizeStyleSpannable(labelText));
-        spacer.setText(MarkupUtil.localizeStyleSpannable(labelText));
+        label.setText((labelText));
+        spacer.setText((labelText));
         
         Object field = e.getField(index);
         String textField = e.getFieldString(index);
@@ -270,7 +271,7 @@ public class EntityDetailView extends FrameLayout {
             updateCurrentView(VIDEO, videoButton);
         } else {
             String text = textField;
-            data.setText(MarkupUtil.localizeStyleSpannable(text));
+            data.setText((text));
             if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
                 veryLong = true;
             }

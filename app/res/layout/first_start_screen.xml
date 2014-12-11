@@ -47,7 +47,7 @@
                    android:layout_height="match_parent"
                    android:orientation="vertical" >
 
-                   <us.feras.mdv.MarkdownView
+                   <TextView
                        android:id="@+id/str_setup_message"
                        android:layout_width="fill_parent"
                        android:layout_height="wrap_content"
