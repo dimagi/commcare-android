@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.LruCache;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 /**
  * Class used for managing the LoadImageTasks that load images into a list. 
  * Ensures that proper caching occurs and attempts to limit overflows
@@ -40,12 +41,15 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 
 	public void display(String url, ImageView imageview, int defaultresource) {
 		imageview.setImageResource(defaultresource);
-		Bitmap image = cache.get(url);
+		Bitmap image;
+	    synchronized(cache) {
+	        image = cache.get(url);
+	    }
 		if (image != null) {
 			imageview.setImageBitmap(image);
 		}
 		else {
-			new SetImageTask(imageview).execute(url);
+			new SetImageTask(imageview).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
 		}
 	}
 
@@ -83,6 +87,10 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 		public Bitmap getImageBitmap(String file){
 			Bitmap bitmap = null;
 			bitmap = MediaUtil.getScaledImageFromReference(file, scaleFactor);
+  	        synchronized(cache) {
+  	            cache.put(file, bitmap);
+  	        }
+
 			return bitmap;
 		}
 
