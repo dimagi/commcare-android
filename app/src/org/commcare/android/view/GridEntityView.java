@@ -29,6 +29,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.Space;
 import android.widget.TextView;
 
@@ -117,7 +118,7 @@ public class GridEntityView extends GridLayout {
 		this.NUMBER_ROWS_PER_GRID = maximumRows;
 		// calibrate the size of each gridview relative to the screen size based on how many rows will be in each grid
 		// 
-		this.NUMBER_ROWS_PER_SCREEN_TALL = this.NUMBER_ROWS_PER_SCREEN_TALL * (this.NUMBER_ROWS_PER_GRID/DEFAULT_NUMBER_ROWS_PER_GRID);
+		this.NUMBER_ROWS_PER_SCREEN_TALL = this.NUMBER_ROWS_PER_SCREEN_TALL * (this.DEFAULT_NUMBER_ROWS_PER_GRID/(NUMBER_ROWS_PER_GRID * 1.0));
 		this.NUMBER_CROWS_PER_SCREEN_WIDE = this.NUMBER_ROWS_PER_SCREEN_TALL * LANDSCAPE_TO_PORTRAIT_RATIO;
 		    
 		this.setColumnCount(NUMBER_COLUMNS_PER_GRID);
@@ -312,6 +313,9 @@ public class GridEntityView extends GridLayout {
 			String CssID = mStyle.getCssID();			
 			
 			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i));
+			if(!(mView instanceof ImageView)) {
+			    mGridParams.height = LayoutParams.WRAP_CONTENT;
+			}
 
 			mView.setLayoutParams(mGridParams);
 		
@@ -336,6 +340,13 @@ public class GridEntityView extends GridLayout {
 		View retVal;
 		if(multimediaType.equals(EntityView.FORM_IMAGE)){
 			retVal = new ImageView(context);
+	        if(horzAlign.equals("center")) {
+	            ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
+	        } else if(horzAlign.equals("left")) {
+	            ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
+	        } else if(horzAlign.equals("right")) {
+	            ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
+	        }  
 			retVal.setPadding(CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL,CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL);
 			// image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
 			if(rowData != null && !rowData.equals("")){
