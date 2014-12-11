@@ -87,8 +87,11 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 		public Bitmap getImageBitmap(String file){
 			Bitmap bitmap = null;
 			bitmap = MediaUtil.getScaledImageFromReference(file, scaleFactor);
-  	        synchronized(cache) {
-  	            cache.put(file, bitmap);
+
+            if (bitmap != null) {
+                synchronized(cache) {
+  	                cache.put(file, bitmap);
+  	            }
   	        }
 
 			return bitmap;
