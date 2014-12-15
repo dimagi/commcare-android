@@ -69,7 +69,7 @@ public class DeveloperPreferences extends PreferenceActivity {
     }
     
     public static boolean isSuperuserEnabled(){
-        SharedPreferences properties = CommCareApplication._().getCurrent        return properties.getString(ACTION_BAR_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);App().getAppPreferences();
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
     
