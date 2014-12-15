@@ -112,7 +112,7 @@ public class BreadcrumbBarFragment extends Fragment {
         
         
         activity.setTitle(title);
-        boolean showNav = false;
+        boolean showNav = true;
         if(activity instanceof CommCareActivity) {
             showNav = ((CommCareActivity)activity).isBackEnabled();
         }
@@ -383,8 +383,8 @@ public class BreadcrumbBarFragment extends Fragment {
             
         }
         
-        if(bestTitle == null || bestTitle == "") { bestTitle = CommCareActivity.getTopLevelTitleName(activity); }
-        if(bestTitle == null || bestTitle == "") { bestTitle = "CommCare"; }
+        if(bestTitle == null || "".equals(bestTitle)) { bestTitle = CommCareActivity.getTopLevelTitleName(activity); }
+        if(bestTitle == null || "".equals(bestTitle)) { bestTitle = "CommCare"; }
 
         return bestTitle;
 
@@ -597,7 +597,7 @@ public class BreadcrumbBarFragment extends Fragment {
             
             EvaluationContext ec = asw.getEvaluationContext();
             
-            TreeReference ref = asw.getSession().getEntityFromID(ec, d, stepToFrame[2]);
+            TreeReference ref = d.getEntityFromID(ec, stepToFrame[2]);
             if(ref == null) { return null; }
             
             Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);

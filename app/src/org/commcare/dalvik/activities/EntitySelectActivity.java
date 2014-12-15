@@ -309,7 +309,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(this.isFinishing() || startOther) {return;}
         
         if(!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity = session.getEntityFromID(asw.getEvaluationContext(), selectDatum, this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
             
             if(entity != null) {
                 if(inAwesomeMode) {
