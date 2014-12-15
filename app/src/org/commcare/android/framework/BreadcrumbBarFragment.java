@@ -597,7 +597,7 @@ public class BreadcrumbBarFragment extends Fragment {
             
             EvaluationContext ec = asw.getEvaluationContext();
             
-            TreeReference ref = asw.getSession().getEntityFromID(ec, d, stepToFrame[2]);
+            TreeReference ref = d.getEntityFromID(ec, stepToFrame[2]);
             if(ref == null) { return null; }
             
             Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);
