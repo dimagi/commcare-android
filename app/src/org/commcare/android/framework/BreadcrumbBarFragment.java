@@ -383,8 +383,8 @@ public class BreadcrumbBarFragment extends Fragment {
             
         }
         
-        if(bestTitle == null || bestTitle == "") { bestTitle = CommCareActivity.getTopLevelTitleName(activity); }
-        if(bestTitle == null || bestTitle == "") { bestTitle = "CommCare"; }
+        if(bestTitle == null || "".equals(bestTitle)) { bestTitle = CommCareActivity.getTopLevelTitleName(activity); }
+        if(bestTitle == null || "".equals(bestTitle)) { bestTitle = "CommCare"; }
 
         return bestTitle;
 
