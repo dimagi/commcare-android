@@ -42,7 +42,6 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
             args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
         }
         args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
-        args.putBoolean(EntityDetailFragment.HAS_DETAIL_CALLOUT_LISTENER, hasDetailCalloutListener);
         SerializationUtil.serializeToBundle(args, EntityDetailFragment.CHILD_REFERENCE, mEntityReference);
         fragment.setArguments(args);
         return fragment;
