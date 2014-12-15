@@ -991,7 +991,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             message = Localization.get("updates.resources.profile");
         }
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        String checkboxText = "Keep trying if network is interrupted";
+        String checkboxText = Localization.get("updates.keep.trying");;
         CustomProgressDialog lastDialog = getCurrentDialog();
         boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
         dialog.addCheckbox(checkboxText, isChecked);
