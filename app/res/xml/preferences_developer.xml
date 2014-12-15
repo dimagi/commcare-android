@@ -15,4 +15,5 @@ the License.
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
 <ListPreference android:key="cc-superuser-enabled" android:enabled="true" android:title="Developer Mode Enabled" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
+<ListPreference android:key="cc-nav-ui-enabled" android:enabled="true" android:title="Navigation UI" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
 </PreferenceScreen>
