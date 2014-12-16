@@ -109,9 +109,7 @@ public class BreadcrumbBarFragment extends Fragment {
         if(title == null) {
             title = getBestTitle(activity);
         }
-        
-        
-        activity.setTitle(title);
+
         boolean showNav = true;
         if(activity instanceof CommCareActivity) {
             showNav = ((CommCareActivity)activity).isBackEnabled();
@@ -120,10 +118,10 @@ public class BreadcrumbBarFragment extends Fragment {
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setSubtitle(local);
         
         actionBar.setTitle(title);
-        actionBar.setDisplayShowTitleEnabled(true);
                 
   }
 
@@ -131,6 +129,10 @@ public class BreadcrumbBarFragment extends Fragment {
 
     private void attachBreadcrumbBar(Activity activity, ActionBar actionBar) {
         String title = null;
+        
+        //make sure we're in the right mode
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
         
         if(activity instanceof CommCareActivity) {
             title = ((CommCareActivity)activity).getActivityTitle();
