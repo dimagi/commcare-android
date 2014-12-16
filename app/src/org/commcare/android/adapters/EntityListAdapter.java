@@ -110,7 +110,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private void filterValues(String filterRaw) {
 
-        String[] searchTerms = filterRaw.split(" ");
+        String[] searchTerms = filterRaw.split("\\s+");
         for(int i = 0 ; i < searchTerms.length ; ++i) {
             searchTerms[i] = StringUtils.normalize(searchTerms[i]);
         }
