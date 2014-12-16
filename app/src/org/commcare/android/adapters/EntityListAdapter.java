@@ -142,7 +142,7 @@ public class EntityListAdapter implements ListAdapter {
             if(mCurrentSortThread != null) {
                 mCurrentSortThread.finish();
             }
-            String[] searchTerms = filterRaw.split(" ");
+            String[] searchTerms = filterRaw.split("\\s+");
             for(int i = 0 ; i < searchTerms.length ; ++i) {
                 searchTerms[i] = StringUtils.normalize(searchTerms[i]);
             }
