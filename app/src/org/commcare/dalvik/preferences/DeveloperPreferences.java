@@ -73,6 +73,6 @@ public class DeveloperPreferences extends PreferenceActivity {
     
     public static boolean isGridMenuEnabled(){
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(GRID_MENUS_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 }

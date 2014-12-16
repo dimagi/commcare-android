@@ -345,10 +345,10 @@ public class EntityListAdapter implements ListAdapter {
      */
     public View getView(int position, View convertView, ViewGroup parent) {
         if(actionEnabled && position == actionPosition) {
-            MenuGridEntryView tiav =(MenuGridEntryView)convertView;
+            MenuListEntryView tiav =(MenuListEntryView)convertView;
 
             if(tiav == null) {
-                tiav = new MenuGridEntryView(context);
+                tiav = new MenuListEntryView(context);
             }
             tiav.setDisplay(detail.getCustomAction().getDisplay());
             tiav.setBackgroundResource(R.drawable.list_bottom_tab);

@@ -41,15 +41,15 @@ import android.widget.ListAdapter;
 public class MenuAdapter implements ListAdapter {
     
     private AndroidSessionWrapper asw;
-    private CommCarePlatform platform;
-    private Context context;
-    private Object[] objectData;
+    private CommCarePlatform mPlatform;
+    protected Context context;
+    protected Object[] objectData;
     
     private String menuTitle = null;
     
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID){
         
-        this.platform = platform;
+        this.mPlatform = platform;
         this.context = context;
         
         Vector<Object> items = new Vector<Object>();
@@ -196,23 +196,6 @@ public class MenuAdapter implements ListAdapter {
     public View getView(int i, View v, ViewGroup vg) {
         
         Object mObject = objectData[i];
-        
-        if(DeveloperPreferences.isGridMenuEnabled()){
-
-            MenuGridEntryView emv = (MenuGridEntryView)v;
-            String mQuestionText = textViewHelper(mObject);
-            if(emv == null) {
-                emv = new MenuGridEntryView(context);
-            }
-            
-            //Final change, remove any numeric context requests. J2ME uses these to 
-            //help with numeric navigation.
-            if(mQuestionText != null) {
-                mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
-            }
-            emv.setAVT(mQuestionText, getImageURI(mObject));
-            return emv;
-        }
         
         MenuListEntryView emv = (MenuListEntryView)v;
         String mQuestionText = textViewHelper(mObject);

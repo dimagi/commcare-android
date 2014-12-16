@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 University of Washington
+ * Copyright (C) 2014 Dimagi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,6 +18,7 @@ package org.commcare.dalvik.activities;
 
 import java.io.IOException;
 
+import org.commcare.android.adapters.GridMenuAdapter;
 import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -39,6 +40,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
+
+/**
+ * Handles the alternative Grid appearance for Module and Form navigation
+ * 
+ * @author wspride
+ *
+ */
 
 @ManagedUi(R.layout.grid_menu_layout)
 public class MenuGrid extends CommCareActivity implements OnItemClickListener, OnItemLongClickListener {
@@ -65,7 +73,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
            menuId="root";
        }
        
-       adapter = new MenuAdapter(this,platform,menuId);
+       adapter = new GridMenuAdapter(this,platform,menuId);
        refreshView();
        
        grid.setOnItemClickListener(this);
