@@ -16,30 +16,16 @@
 
 package org.commcare.dalvik.preferences;
 
-import org.commcare.android.tasks.LogSubmissionTask;
-import org.commcare.android.util.ChangeLocaleUtil;
-import org.commcare.android.util.CommCareUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.RecoveryActivity;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
 public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
@@ -68,18 +54,22 @@ public class DeveloperPreferences extends PreferenceActivity {
         setTitle("Developer Preferences");
     }
     
+    private static boolean doesPropertyMatch(String key, String defaultValue, String matchingValue) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if(app == null) { return defaultValue.equals(matchingValue); }
+        SharedPreferences properties = app.getAppPreferences();
+        return properties.getString(key, defaultValue).equals(matchingValue);
+    }
+    
     public static boolean isSuperuserEnabled(){
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return doesPropertyMatch(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO, CommCarePreferences.YES);
     }
     
     public static boolean isNewNavEnabled(){
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return doesPropertyMatch(NAV_UI_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
     
     public static boolean isActionBarEnabled(){
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(ACTION_BAR_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 }
