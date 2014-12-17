@@ -9,8 +9,8 @@ import java.util.Vector;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.view.MenuGridEntryView;
-import org.commcare.android.view.MenuListEntryView;
+import org.commcare.android.view.GridMediaView;
+import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Entry;
@@ -197,10 +197,10 @@ public class MenuAdapter implements ListAdapter {
         
         Object mObject = objectData[i];
         
-        MenuListEntryView emv = (MenuListEntryView)v;
+        HorizontalMediaView emv = (HorizontalMediaView)v;
         String mQuestionText = textViewHelper(mObject);
         if(emv == null) {
-            emv = new MenuListEntryView(context);
+            emv = new HorizontalMediaView(context);
         }
         
         //Final change, remove any numeric context requests. J2ME uses these to 

@@ -30,7 +30,7 @@ import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
-import org.commcare.android.view.MenuListEntryView;
+import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -814,7 +814,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         
-        MenuListEntryView tiav = new MenuListEntryView(this);
+        HorizontalMediaView tiav = new HorizontalMediaView(this);
         tiav.setAVT(Localization.get("demo.mode.warning"), path, null);
         demoModeWarning.setView(tiav);
         
