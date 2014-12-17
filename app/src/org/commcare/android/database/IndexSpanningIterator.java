@@ -6,6 +6,7 @@ package org.commcare.android.database;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.database.Cursor;
+import java.lang.UnsupportedOperationException;
 
 /**
  * A index spanning iterator is a special kind of iterator that is used on densely packed tables
@@ -158,7 +159,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
     }
 
     public void remove() {
-        //Unsupported for now
+        throw new UnsupportedOperationException("Remove() is unsupported by IndexSpanningIterator objects");
     }
 
     public int peekID() {

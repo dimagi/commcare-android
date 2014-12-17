@@ -18,6 +18,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 
 
@@ -43,6 +44,8 @@ public class AsyncEntity extends Entity<TreeReference>{
     DetailField[] fields;
     Object[] data;
     private String[] sortData;
+    private boolean[] relevancyData;
+    private String[] backgroundData;
     private String[][] sortDataPieces;
     EvaluationContext context;
     Hashtable<String, XPathExpression> mVariableDeclarations;
@@ -71,6 +74,8 @@ public class AsyncEntity extends Entity<TreeReference>{
         this.data = new Object[fields.length];
         this.sortData = new String[fields.length];
         this.sortDataPieces = new String[fields.length][];
+        this.relevancyData = new boolean[fields.length];
+        this.backgroundData = new String[fields.length];
         this.context = ec;
         this.mVariableDeclarations = variables;
         this.mEntityStorageCache = cache;
@@ -100,6 +105,7 @@ public class AsyncEntity extends Entity<TreeReference>{
         }
     }
     
+    @Override
     public Object getField(int i) {
         synchronized(mAsyncLock) {
             loadVariableContext();
@@ -115,18 +121,18 @@ public class AsyncEntity extends Entity<TreeReference>{
         }
     }
     
-    /**
-     * Gets the indexed field used for searching and sorting these entities 
-     * 
-     * @return either the sort or the string field at the provided index, normalized
-     * (IE: lowercase, etc) for sorting and searching.
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.models.Entity#getNormalizedField(int)
      */
+    @Override
     public String getNormalizedField(int i) {
         String normalized = this.getSortField(i);
         if(normalized == null) { return ""; }
         return normalized;
     }
     
+    @Override
     public String getSortField(int i) {
         //Get a db handle so we can get an outer lock
         SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
@@ -181,23 +187,34 @@ public class AsyncEntity extends Entity<TreeReference>{
         }
     }
 
+    @Override
     public int getNumFields() {
         return fields.length;
     }
     
-    /**
-     * @param i index of field
-     * @return True iff the given field is relevant and has a non-blank value.
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.models.Entity#isValidField(int)
      */
+    @Override
     public boolean isValidField(int i) {
-        //FIX THIS
-        return true;
+        //NOTE: This totally jacks the asynchronicity. It's only used in
+        //detail fields for now, so not super important, but worth bearing
+        //in mind
+        synchronized(mAsyncLock) {
+            loadVariableContext();
+            if(getField(i).equals("")) { return false;}
+            
+            try {
+                this.relevancyData[i] = this.fields[i].isRelevant(this.context);
+            } catch (XPathSyntaxException e) {
+                throw new RuntimeException("Invalid relevant condition for field : " + fields[i].getHeader().toString());
+            }
+            return this.relevancyData[i];
+        }
     }
     
-    public TreeReference getElement() {
-        return t;
-    }
-    
+    @Override
     public Object[] getData(){
         for(int i = 0; i < this.getNumFields() ; ++i){
             this.getField(i);
@@ -205,12 +222,23 @@ public class AsyncEntity extends Entity<TreeReference>{
         return data;
     }
     
+    @Override
     public String [] getBackgroundData(){
-        String[] backgroundData = new String[this.getNumFields()];
-        for(int i = 0; i < this.getNumFields() ; ++i){ 
-            backgroundData[i] = "";
+        //Only called at display time, so shouldn't slow us down too much
+        synchronized(mAsyncLock) {
+            loadVariableContext();
+            for(int i =0 ; i < this.getNumFields(); ++i ){
+                if(backgroundData[i] == null) {
+                    try {
+                        backgroundData[i] = fields[i].getBackground().evaluate(context);
+                    } catch(XPathException xpe) {
+                        xpe.printStackTrace();
+                        throw new RuntimeException("Invalid background output for field : " + fields[i].getHeader().toString());
+                    }
+                }
+            }
+            return backgroundData;
         }
-        return backgroundData;
     }
     
     public String[] getSortFieldPieces(int i) {
@@ -237,7 +265,7 @@ public class AsyncEntity extends Entity<TreeReference>{
         else {
             //We always fuzzy match on the sort field and only if it is available
             //(as a way to restrict possible matching)
-            return input.split(" ");
+            return input.split("\\s+");
         }
     }
 }

@@ -38,7 +38,7 @@
     android:layout_below="@+id/entity_select_filter_dropdown"
     android:padding="@dimen/spacer_small"
     android:background="@color/grey_light"
-    android:textSize="16dp"
+    android:textSize="@dimen/font_size_medium"
     android:visibility="gone" />
 
 <ListView

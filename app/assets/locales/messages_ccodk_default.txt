@@ -11,6 +11,7 @@ updates.downloaded=Updates downloaded. Committing new resources....
 updates.success=CommCare is up to date
 updates.title=CommCare App Update
 updates.checking=Checking for updates...
+updates.keep.trying=Keep trying if connection is interrupted
 
 verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
@@ -93,7 +94,7 @@ sync.progress.submitting=Sending Unsent Data to Server
 sync.progress.purge=Cleaning local data
 sync.progress.authing=Contacting server for sync...
 sync.progress.downloading=Server contacted, downloading data.
-sync.process.downloading.progress=Download in Process: ${0}%
+sync.process.downloading.progress=Download Progress: ${0}%
 sync.process.processing=Processing server data: ${0}/${1}
 
 sync.recover.needed=Phone and server have inconsistent data! Starting recovery...

@@ -16,7 +16,7 @@ import org.commcare.android.util.StringUtils;
  */
 public class Entity<T> {
     
-    T t;
+    protected T t;
     Object[] data;
     String[] sortData;
     boolean[] relevancyData;
@@ -96,7 +96,7 @@ public class Entity<T> {
             //We always fuzzy match on the sort field and only if it is available
             //(as a way to restrict possible matching)
             sortField = StringUtils.normalize(sortField);
-            return sortField.split(" ");
+            return sortField.split("\\s+");
         }
 	}
 }

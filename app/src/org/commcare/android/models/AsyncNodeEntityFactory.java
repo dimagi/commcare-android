@@ -45,11 +45,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     Object mAsyncLock = new Object();
     Thread mAsyncPrimingThread;
     
-    public Detail getDetail() {
-        return detail;
-    }
-
-    
     public AsyncNodeEntityFactory(Detail d, EvaluationContext ec) {
         super(d, ec);
         
@@ -57,6 +52,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         mEntityCache = new EntityStorageCache("case");
     }
 
+    @Override
     public Entity<TreeReference> getEntity(TreeReference data) throws SessionUnavailableException {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         
@@ -168,7 +164,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
     
     @Override
-    public void prepareEntities() {
+    public void prepareEntitiesInternal() {
         synchronized(mAsyncLock) {
             if(mAsyncPrimingThread == null) {
                 mAsyncPrimingThread = new Thread(new Runnable() {
@@ -185,7 +181,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
     
     @Override
-    public boolean isEntitySetReady() {
+    public boolean isEntitySetReadyInternal() {
         synchronized(mAsyncLock) {
             if(mAsyncPrimingThread == null) {
                 return true;

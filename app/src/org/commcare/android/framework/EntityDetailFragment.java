@@ -29,7 +29,6 @@ public class EntityDetailFragment extends Fragment {
     public static final String CHILD_DETAIL_INDEX = "edf_child_detail_index";
     public static final String DETAIL_ID = "edf_detail_id";
     public static final String DETAIL_INDEX = "edf_detail_index";
-    public static final String HAS_DETAIL_CALLOUT_LISTENER = "edf_has_detail_callout_listener";
     public static final String CHILD_REFERENCE = "edf_detail_reference";
     
     private AndroidSessionWrapper asw;

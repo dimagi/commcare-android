@@ -43,8 +43,8 @@ import android.widget.Toast;
 
 public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
-    public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
+    public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
@@ -69,30 +69,17 @@ public class DeveloperPreferences extends PreferenceActivity {
     }
     
     public static boolean isSuperuserEnabled(){
-        try {
-            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return properties.getString(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
-        } catch(Exception e) {
-            return false;
-        }
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+    
+    public static boolean isNewNavEnabled(){
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
     
     public static boolean isActionBarEnabled(){
-        try {
-            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return properties.getString(ACTION_BAR_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
-        } catch(Exception e) {
-            return false;
-        }
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(ACTION_BAR_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
-        
-    public static boolean isNewNavEnabled(){
-        try {
-            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
-        } catch(Exception e) {
-            return false;
-        }
-    }
-
 }
