@@ -60,6 +60,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
+import android.util.Log;
 
 /**
  * @author ctsims
@@ -268,7 +269,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         } else {
                             input = AndroidHttpClient.getUngzippedContent(response.getEntity());
                         }
-                        System.out.println("Starting network read, expected content size: " + dataSizeGuess + "b");
+                        Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
                         AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(input), cacheOut, new StreamReadObserver() {
                             long lastOutput = 0;
                             
@@ -281,7 +282,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                                 
                                 //We always wanna notify when we get our first bytes
                                 if(lastOutput == 0) {
-                                    System.out.println("First"  + bytesRead + " bytes recieved from network: ");
+                                    Log.i("commcare-network", "First"  + bytesRead + " bytes recieved from network: ");
                                     notify = true;
                                 }
                                 //After, if we don't know how much data to expect, we can't do

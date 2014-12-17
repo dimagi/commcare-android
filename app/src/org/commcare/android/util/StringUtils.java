@@ -109,17 +109,17 @@ public class StringUtils {
      * intended to be the same string. Fuzzy matching is only performed on strings that are
      * longer than a certain size.
      * 
-     * 
      * @param a 
      * @param b
-     * @return true if the two strings meet CommCare's fuzzy match definition, false otherwise.
+     * @return A pair with two values. First value represents a match: true if the two strings 
+     * meet CommCare's fuzzy match definition, false otherwise. Second value is the actual string
+     * distance that was matched, in order to be able to rank or otherwise interpret results.
      */
     public static Pair<Boolean, Integer> fuzzyMatch(String a, String b) {
         //tweakable parameter: Minimum length before edit distance
         //starts being used (this is probably not necessary, and
         //basically only makes sure that "at" doesn't match "or" or similar
        if(b.length() > 3) {
-            int sizeDiff = Math.abs(a.length() - b.length());
             int distance = StringUtils.LevenshteinDistance(a, b);
             //tweakable parameter: edit distance past string length disparity
             if(distance <= 2) {

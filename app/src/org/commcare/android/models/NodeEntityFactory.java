@@ -32,6 +32,9 @@ public class NodeEntityFactory {
     protected FormInstance instance;
     protected User current; 
     
+    private boolean mEntitySetInitialized = false;
+    private Object mPreparationLock = new Object();
+    
     public Detail getDetail() {
         return detail;
     }
@@ -98,13 +101,34 @@ public class NodeEntityFactory {
     }
     
     /**
+     * Performs the underlying work to prepare the entity set 
+     * (see prepareEntities()). Separated out to enforce timing
+     * related to preparing and utilizing results 
+     */
+    protected void prepareEntitiesInternal() {
+        //No implementation in normal factory
+    }
+    
+    /**
      * Optional: Allows the factory to make all of the entities that it has
      * returned "Ready" by performing any lazy evaluation needed for optimum 
      * usage. This preparation occurs asynchronously, and the returned entity
      * set should not be manipulated until it has completed.
      */
-    public void prepareEntities() {
-        //No implementation in normal factory
+    public final void prepareEntities() {
+        synchronized(mPreparationLock) {
+            prepareEntitiesInternal();
+            mEntitySetInitialized = true;
+        }
+    }
+    
+    /**
+     * Performs the underlying work to check on the entitySet preparation 
+     * (see isEntitySetReady()). Separated out to enforce timing
+     * related to preparing and utilizing results 
+     */
+    protected boolean isEntitySetReadyInternal() {
+        return true;
     }
     
     /**
@@ -114,7 +138,12 @@ public class NodeEntityFactory {
      * @return True if entities returned from the factory are again ready
      * for use. False otherwise.
      */
-    public boolean isEntitySetReady() {
-       return true;
+    public final  boolean isEntitySetReady() {
+        synchronized(mPreparationLock) {
+            if(!mEntitySetInitialized) {
+                throw new RuntimeException("A Node Entity Factory was not prepared before usage. prepareEntities() must be called before a call to isEntitySetReady()");
+            }
+            return isEntitySetReadyInternal();
+        }
     }
 }
