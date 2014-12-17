@@ -229,11 +229,15 @@ public class AsyncEntity extends Entity<TreeReference>{
             loadVariableContext();
             for(int i =0 ; i < this.getNumFields(); ++i ){
                 if(backgroundData[i] == null) {
-                    try {
-                        backgroundData[i] = fields[i].getBackground().evaluate(context);
-                    } catch(XPathException xpe) {
-                        xpe.printStackTrace();
-                        throw new RuntimeException("Invalid background output for field : " + fields[i].getHeader().toString());
+                    Text bg = fields[i].getBackground();
+                    if(bg == null) { backgroundData[i] = "";} 
+                    else {
+                        try {
+                            backgroundData[i] = bg.evaluate(context);
+                        } catch(XPathException xpe) {
+                            xpe.printStackTrace();
+                            throw new RuntimeException("Invalid background output for field : " + fields[i].getHeader().toString());
+                        }
                     }
                 }
             }
