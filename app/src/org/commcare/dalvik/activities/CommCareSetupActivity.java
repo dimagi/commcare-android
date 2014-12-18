@@ -129,6 +129,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     Button retryButton;
     @UiElement(R.id.screen_first_start_banner)
     View banner;
+    @UiElement(R.id.login_button)
+    Button loginButton;
     
     String [] urlVals;
     int previousUrlPosition=0;
@@ -289,6 +291,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
 
         });
+        
+        loginButton.setText(Localization.get("install.bad.login"));
+        loginButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+                i.putExtra(KEY_REQUIRE_REFRESH, true);
+                startActivity(i);
+                finish();
+            }
+
+        });
 
         // Hide "See More" button when notification is cleared
         // (by any method: button press, viewing from drawer, or clearing from drawer)
@@ -326,6 +339,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 if(resourceState == CommCareApplication.STATE_READY) {
                     if(!inUpgradeMode || uiState != UiState.error) {
                         fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
+                        setModeToExistingApplication();
                     }
                 } else if(resourceState == CommCareApplication.STATE_UNINSTALLED || 
                         (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode)) {
@@ -619,6 +633,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     } else if (result == ResourceEngineOutcomes.StatusFailState){
                         startOverInstall = true;
                         receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+                        setModeToExistingApplication();
                     } else if (result == ResourceEngineOutcomes.StatusNoLocalStorage) {
                         startOverInstall = true;
                         receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
@@ -735,9 +750,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         addressEntryButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
         viewNotificationButton.setVisibility(View.GONE);
+        loginButton.setVisibility(View.GONE);
     }
     
     public void setModeToError(boolean canRetry){
+        loginButton.setVisibility(View.GONE);
         buttonView.setVisibility(View.VISIBLE);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.GONE);
@@ -752,11 +769,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
     
+    public void setModeToExistingApplication(){
+        buttonView.setVisibility(View.GONE);
+        advancedView.setVisibility(View.GONE);
+        mScanBarcodeButton.setVisibility(View.GONE);
+        installButton.setVisibility(View.GONE);
+        startOverButton.setVisibility(View.GONE);
+        addressEntryButton.setVisibility(View.GONE);
+        retryButton.setVisibility(View.GONE);
+        loginButton.setVisibility(View.VISIBLE);
+    }
+    
     public void setModeToBasic(){
         this.setModeToBasic(Localization.get("install.barcode"));
     }
     
     public void setModeToBasic(String message){
+        loginButton.setVisibility(View.GONE);
         buttonView.setVisibility(View.VISIBLE);
         editProfileRef.setText("");    
         this.incomingRef = null;
@@ -786,6 +815,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         retryButton.setVisibility(View.GONE);
         retryButton.setText(Localization.get("install.button.retry"));
         startOverButton.setText(Localization.get("install.button.startover"));
+        loginButton.setVisibility(View.GONE);
     }
 
     /*
