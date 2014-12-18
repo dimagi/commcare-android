@@ -104,10 +104,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 listener.keysLoginComplete(receiver);
                 return;
             }
-        } else if(result == HttpCalloutOutcomes.NetworkFailure) {
-            if(calloutNeeded && !calloutRequired){
-                result = HttpCalloutOutcomes.NetworkFailureBadPassword;
-            }
         }
 
         //For any other result make sure we're logged out. 

@@ -41,8 +41,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Void, String, org.
         AuthFailed,
         UnkownError,
         BadCertificate,
-        Success,
-        NetworkFailureBadPassword
+        Success
     }
     
     Context c;

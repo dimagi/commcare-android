@@ -45,9 +45,6 @@ public class NotificationMessageFactory {
         /** No network connectivity **/
         Remote_NoNetwork ("notification.restore.nonetwork"),
         
-        /** No network connectivity, password possibly wrong **/
-        Remote_NoNetwork_BadPass ("notification.restore.nonetwork.badpass"),
-        
         /** Generic 500 error **/
         Remote_ServerError ("notification.server.error"),
         
