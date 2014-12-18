@@ -148,7 +148,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             barcodeButton.setVisibility(View.GONE);
             
             TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-            searchLabel.setText(MarkupUtil.localizeStyleSpannable("select.search.label"));
+            searchLabel.setText(MarkupUtil.localizeStyleSpannable(this,     "select.search.label"));
             
             searchbox.addTextChangedListener(this);
             FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);

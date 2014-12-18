@@ -95,7 +95,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                                     Localization.get("connection.task.internet.fail") 
                                     : Localization.get("connection.task.remote.ping.fail");
                             
-                            receiver.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(displayMessage));
+                            receiver.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(ConnectionDiagnosticActivity.this, displayMessage));
                             receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
                             
                             receiver.settingsButton.setVisibility(View.VISIBLE);
@@ -195,7 +195,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                 else 
                 {
                     Logger.log(ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
-                    ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable("connection.task.unset.posturl"));
+                    ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(ConnectionDiagnosticActivity.this, "connection.task.unset.posturl"));
                     ConnectionDiagnosticActivity.this.txtInteractiveMessages.setVisibility(View.VISIBLE);
                 }
             }

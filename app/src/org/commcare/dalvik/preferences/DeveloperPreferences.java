@@ -43,7 +43,9 @@ import android.widget.Toast;
 
 public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
-    public final static String MARKUP_ENABLED = "cc-markup-enabled";
+    public final static String CSS_ENABLED = "cc-css-enabled";
+    public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
+    
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
@@ -70,11 +72,22 @@ public class DeveloperPreferences extends PreferenceActivity {
         return properties.getString(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
     
-    public static boolean isMarkupEnabled(){
+    public static boolean isCssEnabled(){
         try{
             SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return properties.getString(MARKUP_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+            return properties.getString(CSS_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
         } catch(NullPointerException e){
+            // currentApp() is not initialized
+            return false;
+        }
+    }
+    
+    public static boolean isMarkdownEnabled(){
+        try{
+            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+            return properties.getString(MARKDOWN_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        } catch(NullPointerException e){
+            // currentApp() is not initialized
             return false;
         }
     }

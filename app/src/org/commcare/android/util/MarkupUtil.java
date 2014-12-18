@@ -1,18 +1,92 @@
 package org.commcare.android.util;
 
+import in.uncod.android.bypass.Bypass;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.services.locale.Localization;
 
+import android.content.Context;
 import android.text.Html;
 import android.text.Spannable;
 
 public class MarkupUtil {
     static HtmlSpanner htmlspanner = new HtmlSpanner();
-
+    
+    /*
+     * Developer Preference helper classes
+     */
+    
+    public static Spannable localizeStyleSpannable(Context c, String localizationKey){
+        
+        if(DeveloperPreferences.isCssEnabled()){
+            return htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey));
+        }
+        
+        if(DeveloperPreferences.isMarkdownEnabled()){
+            return (Spannable) localizeMarkdownSpannable(c, localizationKey);
+        }
+        
+        return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey)));
+    }
+    
+    public static Spannable localizeStyleSpannable(Context c, String localizationKey, String[] localizationArgs){
+        if(DeveloperPreferences.isCssEnabled()){
+            return htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey, localizationArgs));
+        }
+        
+        if(DeveloperPreferences.isMarkdownEnabled()){
+            return (Spannable) localizeMarkdownSpannable(c, localizationKey, localizationArgs);
+        }
+        
+        return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArgs)));
+    }
+    
+    /*
+     * Markdown styling utils from Bypass
+     * https://github.com/Uncodin/bypass
+     */
+    
+    public static CharSequence localizeMarkdownSpannable(Context c, String localizationKey){
+        Bypass bypass = new Bypass(c);
+        CharSequence mSequence = bypass.markdownToSpannable(Localization.get(localizationKey));
+        return mSequence;
+    }
+   
+    public static CharSequence localizeMarkdownSpannable(Context c, String localizationKey, String[] localizationArgs){
+        Bypass bypass = new Bypass(c);
+        CharSequence mSequence = bypass.markdownToSpannable(Localization.get(localizationKey, localizationArgs));
+        return mSequence;
+    }
+    
+    /*
+     * CSS styling utils from NightWhistler's HtmlSpanner 
+     * https://github.com/NightWhistler/HtmlSpanner
+     */
+    
+    public static Spannable localizeCssSpannable(String localizationKey){
+        if(!DeveloperPreferences.isCssEnabled()){
+            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey)));
+        }
+        Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey));
+        return text;
+    }
+    
+    public static Spannable localizeCssSpannable(String localizationKey, String[] localizationArgs){
+        if(!DeveloperPreferences.isCssEnabled()){
+            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArgs)));
+        }
+        Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey, localizationArgs));
+        return text;
+    }
+    
+    
+    /*
+     * CSS style classes used by GridEntityView which has its own pattern (probably silly)
+     */
+    
     public static Spannable getSpannable(String message){
-        if(!DeveloperPreferences.isMarkupEnabled()){
+        if(!DeveloperPreferences.isCssEnabled()){
             return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
         }
         Spannable text = htmlspanner.fromHtml(message);
@@ -20,7 +94,7 @@ public class MarkupUtil {
     }
     
     public static Spannable getCustomSpannable(String style, String message){
-        if(!DeveloperPreferences.isMarkupEnabled()){
+        if(!DeveloperPreferences.isCssEnabled()){
             return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
         }
         String mStyles = "<style> " + style + " </style>";
@@ -28,52 +102,12 @@ public class MarkupUtil {
         return text;
     }
     
-    public static Spannable getCustomSpannable(String message){
-        if(!DeveloperPreferences.isMarkupEnabled()){
-            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
-        }
-        
-        Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + message);
-        return text;
-    }
-    
-    public static Spannable localizeStyleSpannable(String localizationKey){
-        if(!DeveloperPreferences.isMarkupEnabled()){
-            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey)));
-        }
-        Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey));
-        return text;
-    }
-    
-    public static Spannable localizeStyleSpannable(String localizationKey, String[] localizationArgs){
-        if(!DeveloperPreferences.isMarkupEnabled()){
-            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArgs)));
-        }
-        Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey, localizationArgs));
-        return text;
-    }
-    
-    public static Spannable getCustomSpannableKey(String key, String message){
-        if(!DeveloperPreferences.isMarkupEnabled()){
-            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
-        }
-        String mStyles = formatKeyVal(key, getStyle(key));
-        String mBody = "<body id=" + key + ">" + message + "</body>";
-        Spannable text = htmlspanner.fromHtml(mStyles + mBody);
-        return text;
-    }
-    
-    
+    /*
+     * Util methods to help this class
+     */
     
     public static String getStyle(String key){
        return Stylizer.getStyle(key);
-    }
-    
-    public static Spannable localizeAndStyle(String localizationKey, String styleKey){
-        if(!DeveloperPreferences.isMarkupEnabled()){
-            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey)));
-        }
-        return getCustomSpannableKey(styleKey, Localization.get(localizationKey));
     }
     
     public static String formatKeyVal(String key, String val){

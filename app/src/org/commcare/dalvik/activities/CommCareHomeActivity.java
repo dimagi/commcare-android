@@ -182,7 +182,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
         // enter data button. expects a result.
         startButton = (Button) findViewById(R.id.home_start);
-        startButton.setText(MarkupUtil.localizeStyleSpannable("home.start"));
+        startButton.setText(MarkupUtil.localizeStyleSpannable(this, "home.start"));
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), MenuList.class);
@@ -193,7 +193,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
      // enter data button. expects a result.
         viewIncomplete = (Button) findViewById(R.id.home_forms_incomplete);
-        viewIncomplete.setText(MarkupUtil.localizeStyleSpannable("home.forms.incomplete"));
+        viewIncomplete.setText(MarkupUtil.localizeStyleSpannable(this, "home.forms.incomplete"));
         viewIncomplete.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(true);
@@ -201,7 +201,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         });
         
         logoutButton = (Button) findViewById(R.id.home_logout);
-        logoutButton.setText(MarkupUtil.localizeStyleSpannable("home.logout"));
+        logoutButton.setText(MarkupUtil.localizeStyleSpannable(this, "home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().logout();
@@ -211,10 +211,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         
         TextView formGroupLabel = (TextView) findViewById(R.id.home_formrecords_label);
-        formGroupLabel.setText(MarkupUtil.localizeStyleSpannable("home.forms"));
+        formGroupLabel.setText(MarkupUtil.localizeStyleSpannable(this, "home.forms"));
         
         viewOldForms = (Button) findViewById(R.id.home_forms_old);
-        viewOldForms.setText(MarkupUtil.localizeStyleSpannable("home.forms.saved"));
+        viewOldForms.setText(MarkupUtil.localizeStyleSpannable(this, "home.forms.saved"));
         viewOldForms.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(false);
@@ -222,7 +222,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         });
         
         syncButton  = (Button) findViewById(R.id.home_sync);
-        syncButton.setText(MarkupUtil.localizeStyleSpannable("home.sync"));
+        syncButton.setText(MarkupUtil.localizeStyleSpannable(this, "home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!isOnline()) {
@@ -1338,8 +1338,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         
         //since these might have changed
-        startButton.setText(MarkupUtil.localizeStyleSpannable(homeMessageKey));
-        logoutButton.setText(MarkupUtil.localizeStyleSpannable(logoutMessageKey));
+        startButton.setText(MarkupUtil.localizeStyleSpannable(this, homeMessageKey));
+        logoutButton.setText(MarkupUtil.localizeStyleSpannable(this, logoutMessageKey));
         
         
         CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
@@ -1351,15 +1351,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
         }
         if(syncDetails.second[0] > 0) {
-            syncButton.setText(MarkupUtil.localizeStyleSpannable("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
+            syncButton.setText(MarkupUtil.localizeStyleSpannable(this, "home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
         } else {
-            syncButton.setText(MarkupUtil.localizeStyleSpannable(syncKey));
+            syncButton.setText(MarkupUtil.localizeStyleSpannable(this, syncKey));
         }
         
         if(syncDetails.second[1] > 0) {
-            viewIncomplete.setText(MarkupUtil.localizeStyleSpannable("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
+            viewIncomplete.setText(MarkupUtil.localizeStyleSpannable(this, "home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
         } else {
-            viewIncomplete.setText(MarkupUtil.localizeStyleSpannable("home.forms.incomplete"));
+            viewIncomplete.setText(MarkupUtil.localizeStyleSpannable(this, "home.forms.incomplete"));
         }
         
         if(syncDetails.second[0] > unsentFormNumberLimit){

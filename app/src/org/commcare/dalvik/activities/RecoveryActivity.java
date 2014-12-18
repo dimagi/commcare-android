@@ -166,7 +166,7 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
     }
 
     protected void displayMessage(String text) {
-        txtUserMessage.setText(MarkupUtil.localizeStyleSpannable(text));
+        txtUserMessage.setText(MarkupUtil.localizeStyleSpannable(this, text));
     }
 
     /* (non-Javadoc)

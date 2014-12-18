@@ -68,10 +68,10 @@ public class IncompleteFormRecordView extends LinearLayout {
     public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
         if(names.containsKey(record.getFormNamespace())) {
             Text name = names.get(record.getFormNamespace());
-            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(name.evaluate()));
+            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), name.evaluate()));
         } else {
             formExists = false;
-            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable("form.record.gone"));
+            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.gone"));
         }
         
         if(dataTitle != null) {
@@ -85,7 +85,7 @@ public class IncompleteFormRecordView extends LinearLayout {
             mRightTextView.setText("Never");
         }
         if(record.getStatus() == FormRecord.STATUS_UNSENT) {
-            mUpperRight.setText(MarkupUtil.localizeStyleSpannable("form.record.unsent"));
+            mUpperRight.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.unsent"));
             mUpperRight.setTextAppearance(getContext(), R.style.WarningTextStyle);
             mUpperRight.setCompoundDrawablesWithIntrinsicBounds(null, null, rightHandSync, null);
         } else {
