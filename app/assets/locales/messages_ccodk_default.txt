@@ -18,7 +18,7 @@ verify.progress = Verifying resources. ${0} resources verified of ${1} total
 
 modules.m0=pregenancy
 
-install.barcode=* this one <br> * that one <br> * the other one
+install.barcode=1. this one  \\n2. that one  \\n3. the other one
 install.manual=Please enter the URL
 install.ready=Welcome to CommCare! Press the button below to install your app. If you are attempting to install from a server, make sure you have an active internet connection.
 install.button.enter=<body id=red-bg>Enter URL</body>

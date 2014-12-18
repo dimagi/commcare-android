@@ -3,6 +3,7 @@ package org.commcare.android.util;
 import in.uncod.android.bypass.Bypass;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.services.locale.Localization;
 
@@ -20,7 +21,7 @@ public class MarkupUtil {
     public static Spannable localizeStyleSpannable(Context c, String localizationKey){
         
         if(DeveloperPreferences.isCssEnabled()){
-            return htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey));
+            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey));
         }
         
         if(DeveloperPreferences.isMarkdownEnabled()){
@@ -32,7 +33,7 @@ public class MarkupUtil {
     
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String[] localizationArgs){
         if(DeveloperPreferences.isCssEnabled()){
-            return htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey, localizationArgs));
+            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArgs));
         }
         
         if(DeveloperPreferences.isMarkdownEnabled()){
@@ -68,7 +69,7 @@ public class MarkupUtil {
         if(!DeveloperPreferences.isCssEnabled()){
             return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey)));
         }
-        Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey));
+        Spannable text = htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey));
         return text;
     }
     
@@ -76,7 +77,7 @@ public class MarkupUtil {
         if(!DeveloperPreferences.isCssEnabled()){
             return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArgs)));
         }
-        Spannable text = htmlspanner.fromHtml(Stylizer.getStyleString() + Localization.get(localizationKey, localizationArgs));
+        Spannable text = htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArgs));
         return text;
     }
     
@@ -107,7 +108,11 @@ public class MarkupUtil {
      */
     
     public static String getStyle(String key){
-       return Stylizer.getStyle(key);
+       return CommCareApplication._().getCurrentApp().getStylizer().getStyle(key);
+    }
+    
+    public static String getStyleString(){
+        return CommCareApplication._().getCurrentApp().getStylizer().getStyleString();
     }
     
     public static String formatKeyVal(String key, String val){

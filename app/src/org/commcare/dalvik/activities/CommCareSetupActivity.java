@@ -735,8 +735,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void setModeToReady(String incomingRef) {
         buttonView.setVisibility(View.VISIBLE);
         
-        Bypass bypass = new Bypass(this);
-        CharSequence string = bypass.markdownToSpannable(Localization.get("install.ready"));
+        CharSequence string = MarkupUtil.localizeMarkdownSpannable(this, "install.ready");
         
         mainMessage.setText(string);
         mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
@@ -775,9 +774,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         buttonView.setVisibility(View.VISIBLE);
         editProfileRef.setText("");    
         this.incomingRef = null;
-        
-        Bypass bypass = new Bypass(this);
-        CharSequence string = bypass.markdownToSpannable(message);
+
+        CharSequence string = MarkupUtil.localizeStyleSpannable(this, "install.barcode");
         mainMessage.setText(string);
         mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
         

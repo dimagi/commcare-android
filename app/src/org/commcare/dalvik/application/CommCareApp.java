@@ -14,6 +14,7 @@ import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.Stylizer;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -50,14 +51,22 @@ public class CommCareApp {
     private Object appDbHandleLock = new Object();
     private SQLiteDatabase appDatabase; 
     
+    private Stylizer mStylizer;
+    
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
         
         //Now, we need to identify the state of the application resources
         int[] version = CommCareApplication._().getCommCareVersion();
+        
+        initializeStylizer();
 
         //TODO: Badly coupled
         platform = new AndroidCommCarePlatform(version[0], version[1], CommCareApplication._(), this);
+    }
+    
+    public Stylizer getStylizer(){
+        return mStylizer;
     }
     
     public String storageRoot() {
@@ -111,6 +120,10 @@ public class CommCareApp {
     
     public void setupSandbox() {
         setupSandbox(true);
+    }
+    
+    public void initializeStylizer() {
+        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
     }
     
     /**

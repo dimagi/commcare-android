@@ -9,10 +9,10 @@ import java.util.HashMap;
 import android.content.Context;
 
 public class Stylizer {
-    private static HashMap<String, String> globalStyleTable;
-    private static String globalStyleString;
+    private HashMap<String, String> globalStyleTable;
+    private String globalStyleString;
     
-    public static void init(Context c) {
+    public Stylizer(Context c) {
         
         globalStyleString = "";
         
@@ -47,11 +47,11 @@ public class Stylizer {
         }
     }
     
-    public static String getStyle(String key){
+    public String getStyle(String key){
         return globalStyleTable.get(key);
     }
     
-    public static String getStyleString(){
+    public String getStyleString(){
         return globalStyleString;
     }
 }

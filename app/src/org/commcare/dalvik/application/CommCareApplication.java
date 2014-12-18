@@ -49,7 +49,6 @@ import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.util.Stylizer;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
@@ -187,7 +186,6 @@ public class CommCareApplication extends Application {
 //        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
         
         intializeDefaultLocalizerData();
-        initializeStylizer();
         
         //The fallback in case the db isn't installed 
         resourceState = STATE_UNINSTALLED;
@@ -338,9 +336,6 @@ public class CommCareApplication extends Application {
         
         //For now. Possibly handle this better in the future
         Localization.setLocale("default");
-    }
-    public void initializeStylizer() {
-        Stylizer.init(this);
     }
     
     private void setRoots() {
