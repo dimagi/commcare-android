@@ -72,6 +72,15 @@ public class DeveloperPreferences extends PreferenceActivity {
         return properties.getString(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
     
+    public static boolean isGridMenuEnabled(){
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
+
+    public static boolean isNewNavEnabled(){
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    
 }

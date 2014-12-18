@@ -204,20 +204,20 @@ public class MenuAdapter implements ListAdapter {
             emv = new HorizontalMediaView(context);
         }
         
-        int iconChoice = TextImageAudioView.NAVIGATION_NEXT;
+        int iconChoice = HorizontalMediaView.NAVIGATION_NEXT;
         
         //figure out some icons
         if(mObject instanceof Entry) {
             SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
             if(datum == null) {
-                iconChoice = TextImageAudioView.NAVIGATION_JUMP;
+                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
             }
             else if(datum.getNodeset() == null) {
-                iconChoice = TextImageAudioView.NAVIGATION_JUMP;
+                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
             } 
         }
         if(!DeveloperPreferences.isNewNavEnabled()) {
-            iconChoice = TextImageAudioView.NAVIGATION_NONE;
+            iconChoice = HorizontalMediaView.NAVIGATION_NONE;
         }
         
         //Final change, remove any numeric context requests. J2ME uses these to 
@@ -248,7 +248,7 @@ public class MenuAdapter implements ListAdapter {
     }
     
     /*
-     * Helper to build the TextView for the TextImageAudioView constructor
+     * Helper to build the TextView for the HorizontalMediaView constructor
      */
     public String textViewHelper(Object e){
         String displayText;
