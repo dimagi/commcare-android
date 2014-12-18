@@ -313,8 +313,8 @@ notification.restore.nonetwork.title=Couldn't Reach Server. Please check your ne
 notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
 
 notification.restore.nonetwork.badpass.title=Couldn't Reach Server. Please check your network connection
-notification.restore.nonetwork.badpass.detail=Couldn't reach the server due to bad network connectivity. Check your password for local login. See details for more.
-notification.restore.nonetwork.badpass.action=CommCare could not reach the server due to a bad connection. However, local login might still be possible; please try re-entering your password. 
+notification.restore.nonetwork.badpass.detail=Couldn't reach the server due to bad network connectivity. However, this user might be able to login offline but the password is incorrect.
+notification.restore.nonetwork.badpass.action=Try re-entering your password. If this doesn't work, you will need a stronger network connection to restore this user.
 
 notification.bad.certificate.title=Couldn't securely connect to the server. 
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 

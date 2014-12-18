@@ -57,6 +57,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     
     ManageKeyRecordListener<R> listener;
     
+    boolean userRecordExists = false;
+    
     boolean calloutNeeded = false;
     boolean calloutRequired = false;
     
@@ -105,7 +107,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 return;
             }
         } else if(result == HttpCalloutOutcomes.NetworkFailure) {
-            if(calloutNeeded && !calloutRequired){
+            
+            if(calloutNeeded && userRecordExists){
                 result = HttpCalloutOutcomes.NetworkFailureBadPassword;
             }
         }
@@ -142,10 +145,14 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         //Now, see whether we have a valid record for this username/password combo
         
         boolean hasRecord = false;
+        userRecordExists = false;
         UserKeyRecord valid = null;
         
         Date now = new Date();
         for(UserKeyRecord ukr : app.getStorage(UserKeyRecord.class).getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            
+            userRecordExists = true;
+            
             if(!ukr.isPasswordValid(password)) {
                 //This record is for a different password
                 continue;
