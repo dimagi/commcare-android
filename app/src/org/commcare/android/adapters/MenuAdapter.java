@@ -15,6 +15,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -203,12 +204,28 @@ public class MenuAdapter implements ListAdapter {
             emv = new HorizontalMediaView(context);
         }
         
+        int iconChoice = TextImageAudioView.NAVIGATION_NEXT;
+        
+        //figure out some icons
+        if(mObject instanceof Entry) {
+            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
+            if(datum == null) {
+                iconChoice = TextImageAudioView.NAVIGATION_JUMP;
+            }
+            else if(datum.getNodeset() == null) {
+                iconChoice = TextImageAudioView.NAVIGATION_JUMP;
+            } 
+        }
+        if(!DeveloperPreferences.isNewNavEnabled()) {
+            iconChoice = TextImageAudioView.NAVIGATION_NONE;
+        }
+        
         //Final change, remove any numeric context requests. J2ME uses these to 
         //help with numeric navigation.
         if(mQuestionText != null) {
             mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
         }
-        emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject));
+        emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), iconChoice);
         return emv;
     }
     

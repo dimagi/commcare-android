@@ -334,6 +334,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                         Logger.log(AndroidLogger.TYPE_USER, "bad network");
                         r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
                         break;
+                    case NetworkFailureBadPassword:
+                        Logger.log(AndroidLogger.TYPE_USER, "bad network");
+                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork_BadPass, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                        break;
                     case BadCertificate:
                         Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
                         r.raiseMessage(NotificationMessageFactory.message(StockMessages.BadSSLCertificate, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);

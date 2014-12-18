@@ -105,6 +105,7 @@ public class EntityListAdapter implements ListAdapter {
         }
         usesGridView = detail.usesGridView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
+        actionEnabled = detail.getCustomAction() != null;
     }
 
     private void filterValues(String filterRaw) {
