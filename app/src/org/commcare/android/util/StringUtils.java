@@ -4,9 +4,10 @@
 package org.commcare.android.util;
 
 import java.text.Normalizer;
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.support.v4.util.LruCache;
 import android.util.Pair;
 
@@ -30,6 +31,7 @@ public class StringUtils {
      * @return a canonical version of the passed in string that is lower cased and has removed diacritical marks
      * like accents. 
      */
+    @SuppressLint("NewApi")
     public synchronized static String normalize(String input) {
         if(normalizationCache == null) {
             normalizationCache = new LruCache<String, String>(cacheSize);
@@ -39,7 +41,16 @@ public class StringUtils {
         String normalized = normalizationCache.get(input);
         if(normalized != null) { return normalizationCache.get(input);}
         
-        normalized = diacritics.matcher(Normalizer.normalize(input, Normalizer.Form.NFD)).replaceAll("").toLowerCase();
+        //If we're above gingerbread we'll normalize this in NFD form 
+        //which helps a lot. Otherwise we won't be able to clear up some of those
+        //issues, but we can at least still eliminate diacritics.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            input = Normalizer.normalize(input, Normalizer.Form.NFD);
+        } else{
+            //TODO: I doubt it's worth it, but in theory we could run
+            //some other normalization for the minority of pre-API9
+            //devices.
+        }
         
         normalizationCache.put(input, normalized);
         
