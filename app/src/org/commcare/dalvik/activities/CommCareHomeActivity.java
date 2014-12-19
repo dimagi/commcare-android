@@ -40,6 +40,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
@@ -837,7 +838,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         final CommCareSession session = CommCareApplication._().getCurrentSession();
         String needed = session.getNeededData();
-        String[] lastPopped = session.getPoppedStep();
+        StackFrameStep lastPopped = session.getPoppedStep();
         
         if(needed == null) {
             EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
@@ -868,8 +869,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
             
             i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
-            if(lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped[0])) {
-                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped[2]);
+            if(lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
+                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
             }
             
             startActivityForResult(i, GET_CASE);
