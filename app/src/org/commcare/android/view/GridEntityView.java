@@ -3,6 +3,7 @@
  */
 package org.commcare.android.view;
 
+import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.android.util.MarkupUtil;
@@ -48,6 +49,7 @@ public class GridEntityView extends GridLayout {
 	private GridStyle[] styles;
 	Object[] mRowData;
 	boolean mFuzzySearchEnabled = false;
+	boolean mIsAsynchronous = false;
 	
 	public final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);		// load the screen-size dependent font sizes
 	public final float MEDIUM_FONT = getResources().getDimension(R.dimen.font_size_medium);	
@@ -110,6 +112,7 @@ public class GridEntityView extends GridLayout {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.controller = controller;
+		this.mIsAsynchronous = entity instanceof AsyncEntity;		
 		
 		int maximumRows = this.getMaxRows(detail);
 		this.NUMBER_ROWS_PER_GRID = maximumRows;
@@ -365,15 +368,21 @@ public class GridEntityView extends GridLayout {
 		} else{
 			retVal = new TextView(context);
 			
+			//the html spanner currently does weird stuff like converts "a  a" into "a a"
+			//so we've gotta mirror that for the search text. Booooo. I dunno if there's any
+			//other other side effects (newlines? nbsp?)
+			
+			String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
+			
 			if(cssid !=null && !cssid.equals("none")){
 			    // user defined a style we want to use
 			    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
-			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, searchField, mFuzzySearchEnabled);
+			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
 			    ((TextView)retVal).setText(mSpannable);
 			} else{
 			    // just process inline markup 
 			    Spannable mSpannable = MarkupUtil.getSpannable(rowData);
-			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, searchField, mFuzzySearchEnabled);
+			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
 			    ((TextView)retVal).setText(mSpannable);
 			}
 
