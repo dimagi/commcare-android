@@ -3,10 +3,25 @@ package org.commcare.android.framework;
 import java.util.Vector;
 
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.AndroidUtil;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.GridEntityView;
+import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.EntityDetailActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.SessionDatum;
+import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -15,12 +30,19 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Pair;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -49,61 +71,339 @@ public class BreadcrumbBarFragment extends Fragment {
         setRetainInstance(true);
       }
      
+      
+    boolean breadCrumbsEnabled = true;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
+     * 
+     * Hold a reference to the parent Activity so we can report the task's
+     * current progress and results. The Android framework will pass us a
+     * reference to the newly created Activity after each configuration change.
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        
+        breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
 
-      /*
-       * (non-Javadoc)
-       * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
-       * 
-       * Hold a reference to the parent Activity so we can report the
-       * task's current progress and results. The Android framework 
-       * will pass us a reference to the newly created Activity after 
-       * each configuration change.
-       */
-      @Override
-      public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            
-            String activityTitle = null;
-            
-            if(activity instanceof CommCareActivity) {
-                activityTitle = ((CommCareActivity)activity).getActivityTitle();
-                isTopNavEnabled = ((CommCareActivity)activity).isTopNavEnabled();
+        ActionBar actionBar = activity.getActionBar();
+
+        if(!breadCrumbsEnabled) {
+            configureSimpleNav(activity, actionBar);
+        } else {
+            attachBreadcrumbBar(activity, actionBar);
+        }
+        
+        this.tile = findAndLoadCaseTile(activity);
+    }     
+        
+    private void configureSimpleNav(Activity activity, ActionBar actionBar) {
+        String title = null;
+        String local = null;
+        if(activity instanceof CommCareActivity) {
+            local = ((CommCareActivity)activity).getActivityTitle();
+        }
+
+        if(title == null) {
+            title = getBestTitle(activity);
+        }
+
+        boolean showNav = true;
+        if(activity instanceof CommCareActivity) {
+            showNav = ((CommCareActivity)activity).isBackEnabled();
+        }
+        if(showNav) {
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setSubtitle(local);
+        
+        actionBar.setTitle(title);
+                
+  }
+
+
+
+    private void attachBreadcrumbBar(Activity activity, ActionBar actionBar) {
+        String title = null;
+        
+        //make sure we're in the right mode
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+        
+        if(activity instanceof CommCareActivity) {
+            title = ((CommCareActivity)activity).getActivityTitle();
+            isTopNavEnabled = ((CommCareActivity)activity).isTopNavEnabled();
+        }
+        
+        //We need to get the amount that each item should "bleed" over to the left, and move the whole widget that
+        //many pixels. This replicates the "overlap" space that each piece of the bar has on the next piece for
+        //the left-most element.
+        int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_bleed));
+        LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+        p.leftMargin = buffer;
+
+        actionBar.setCustomView(getTitleView(activity, title), p);
+        activity.setTitle("");
+        actionBar.setDisplayShowHomeEnabled(false);
+    }
+    
+    public static void expand(Activity activity, final View v) {
+        Display display = activity.getWindowManager().getDefaultDisplay();
+        
+        int specHeight = MeasureSpec.makeMeasureSpec(display.getHeight(), MeasureSpec.AT_MOST);
+
+        
+        v.measure(LayoutParams.MATCH_PARENT, specHeight);
+        final int targetHeight = v.getMeasuredHeight();
+
+        v.getLayoutParams().height = 0;
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+        v.setVisibility(View.VISIBLE);
+        Animation a = new Animation()
+        {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+                
+                if(interpolatedTime == 1) {
+                    lp.height = 0;
+                    lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
+                } else {       
+                        lp.height = (int)(targetHeight * interpolatedTime);
+                }
+                
+                v.requestLayout();
+            }
+
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+        };
+
+        // 1dp/ms
+        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
+        v.startAnimation(a);
+    }
+
+    public static void collapse(final View v, final Runnable postExecuteLambda) {
+        final int initialHeight = v.getMeasuredHeight();
+        
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+        lp.height = initialHeight;
+
+        Animation a = new Animation()
+        {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                if(interpolatedTime == 1){
+                    v.setVisibility(View.GONE);
+                    RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+                    lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
+                    lp.height = 0;
+                    postExecuteLambda.run();
+                }else{
+                    v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+                    v.requestLayout();
+                }
+            }
+
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+        };
+
+        // 1dp/ms
+        a.setDuration((int)(initialHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
+        v.startAnimation(a);
+    }
+    
+    private TabbedDetailView mInternalDetailView = null;
+    
+    private View findAndLoadCaseTile(final Activity activity) {
+        final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
+        final Pair<View, TreeReference> tileData = this.loadTile(activity);
+        View tile = tileData == null ? null : tileData.first;
+        if(tile == null) { return null;}
+        
+        final ImageButton openButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
+        
+        final String inlineDetail = (String)tile.getTag();
+        if(inlineDetail == null) {
+            openButton.setVisibility(View.GONE);
+        }
+        
+        ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        
+        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open)).setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if(mInternalDetailView == null ) {
+                    mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
+                    mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
+    
+                    AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                    CommCareSession session = asw.getSession();
+    
+                    NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
+                    Detail detail = factory.getDetail();
+                    mInternalDetailView.setDetail(detail);
+    
+                    mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
+                }
+                openButton.setVisibility(View.INVISIBLE);
+                expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
             }
             
-            ActionBar actionBar = activity.getActionBar();
-            
-            //We need to get the amount that each item should "bleed" over to the left, and move the whole widget that
-            //many pixels. This replicates the "overlap" space that each piece of the bar has on the next piece for
-            //the left-most element.
-            int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_bleed));
-            LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-            p.leftMargin = buffer;
-            
-            actionBar.setCustomView(getTitleView(activity, activityTitle), p);
-            activity.setTitle("");
-            actionBar.setDisplayShowHomeEnabled(false);
-      }
-      
+        });
         
+        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_close)).setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
+                    @Override
+                    public void run() {
+                        openButton.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+            
+        });
+        
+        
+        
+        return holder;
+    }
+
+
+    private Pair<View, TreeReference> loadTile(Activity activity) {
+        try {
+            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            CommCareSession session = asw.getSession();
+    
+            String[] stepToFrame = null;
+            Vector<String[]> v = session.getFrame().getSteps();
+            
+            //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
+            //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
+            for(int i = v.size() -1 ; i >= 0; i--){
+                String[] step = v.elementAt(i);
+    
+                if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
+                    stepToFrame = step;
+                }
+            }
+            
+            Pair<View, TreeReference> tile = buildContextTile(activity, stepToFrame, asw);
+            //some contexts may provide a tile that isn't really part of the current session's stack
+            if(tile == null && activity instanceof CommCareActivity) {
+                Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
+                if(entityContext != null) {
+                    tile = buildContextTile(activity, entityContext.first, entityContext.second, asw);
+                }
+            }
+            return tile;
+        }catch(SessionUnavailableException sue) {
+            
+        }
+        return null;
+
+    }
+
+
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onResume()
      */
     @Override
     public void onResume() {
         super.onResume();
+        if(tile != null) {
+            ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
+            //Check whether the view group is available. If so, this activity is a frame tile host 
+            if(vg != null) {
+                if(((ViewGroup) tile.getParent()) != null) {
+                    ((ViewGroup) tile.getParent()).removeView(tile);
+                }
+                vg.addView(tile, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                //this doesn't really make it over well
+                mInternalDetailView = null;
+            }
+        }
         if(this.getActivity() instanceof CommCareActivity) {
             String title = ((CommCareActivity)this.getActivity()).getActivityTitle();
             
-            //This part can change more dynamically
-            if(localIdPart != -1 && title != null) {
-                TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
-                text.setText(title);
+            if(title != null) {
+            
+                if(!breadCrumbsEnabled) {
+                    ActionBar actionBar = this.getActivity().getActionBar();
+                    actionBar.setSubtitle(title);
+                } else {
+                    //This part can change more dynamically
+                    if(localIdPart != -1 ) {
+                        TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
+                        if(text != null) {
+                            text.setText(title);
+                        }
+                    }
+                }
             }
         }
     }
+    
+    public String getBestTitle(Activity activity) {
+        String bestTitle = null;
+
+        try {
+            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            CommCareSession session = asw.getSession();
+    
+            String[] stepTitles = session.getHeaderTitles();
+            
+            Vector<String[]> v = session.getFrame().getSteps();
+            
+            //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
+            //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
+            for(int i = v.size() -1 ; i >= 0; i--){
+                if(bestTitle != null) { break;}
+                String[] step = v.elementAt(i);
+    
+                if(!SessionFrame.STATE_DATUM_VAL.equals(step[0]) && bestTitle == null) {
+                    bestTitle = stepTitles[i];
+                    
+                }
+            }
+        } catch(SessionUnavailableException sue) {
+            
+        }
+        
+        if(bestTitle == null || "".equals(bestTitle)) { bestTitle = CommCareActivity.getTopLevelTitleName(activity); }
+        if(bestTitle == null || "".equals(bestTitle)) { bestTitle = "CommCare"; }
+
+        return bestTitle;
+
+    }
 
 
+    /**
+     * Get the breadcrumb bar view
+     * 
+     * Sunsetting this soon.
+     * 
+     * @param activity
+     * @param local
+     * @return
+     */
         public View getTitleView(final Activity activity, String local) {
+            
             RelativeLayout layout = new RelativeLayout(activity);
             HorizontalScrollView scroller = new HorizontalScrollView(activity) {
                 /*
@@ -133,6 +433,7 @@ public class BreadcrumbBarFragment extends Fragment {
             LayoutInflater li = activity.getLayoutInflater();
             
             int currentId = -1;
+            View tile = null;
             
             //We don't actually want this one to look the same
             int newId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + layout.getChildCount() + 1;            
@@ -156,15 +457,17 @@ public class BreadcrumbBarFragment extends Fragment {
             }
             
             fullTopBar.addView(scroller, topBarParams);
-
             
             if(newId != -1) { currentId = newId;}
             
             String[] stepTitles = new String[0];
             try {
-                stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
+                AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                CommCareSession session = asw.getSession();
+
+                stepTitles = session.getHeaderTitles();
                 
-                Vector<String[]> v = CommCareApplication._().getCurrentSession().getFrame().getSteps();
+                Vector<String[]> v = session.getFrame().getSteps();
                 
                 //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
                 //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
@@ -231,7 +534,6 @@ public class BreadcrumbBarFragment extends Fragment {
                     } catch(Exception e) {
                         //TODO: Your error handling is bad and you should feel bad
                     }
-                     
                     newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, stepBackListener);
                     if(newId != -1) { currentId = newId;}
                 }
@@ -283,6 +585,38 @@ public class BreadcrumbBarFragment extends Fragment {
             return fullTopBar;
         }
         
+        View tile;
+        
+        private Pair<View, TreeReference> buildContextTile(Activity activity, String[] stepToFrame, AndroidSessionWrapper asw) {
+            if(stepToFrame == null) { return null; }
+            
+            //check to make sure we can look up this child
+            SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame[1]);
+            if(d == null || d.getPersistentDetail() == null) { return null; }
+            
+            //Make sure there is a valid reference to the entity we can build 
+            Detail detail = asw.getSession().getDetail(d.getPersistentDetail());
+            
+            EvaluationContext ec = asw.getEvaluationContext();
+            
+            TreeReference ref = d.getEntityFromID(ec, stepToFrame[2]);
+            if(ref == null) { return null; }
+            
+            Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);
+            r.first.setTag(d.getInlineDetail());
+            return r;
+        }
+
+        private Pair<View, TreeReference> buildContextTile(Activity activity, Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+            NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
+            
+            Entity entity = nef.getEntity(ref);
+            
+            View tile = new GridEntityView(this.getActivity(), detail, entity, null);
+            return Pair.create(tile, ref);
+        }
+
+
         private int addElementToTitle(LayoutInflater inflater, RelativeLayout title, String element, int type, int peer, OnClickListener action) {
             int newViewId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + title.getChildCount() + 1;
             if(element != null) {

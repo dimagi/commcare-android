@@ -4,10 +4,14 @@
 package org.commcare.android.database.user;
 
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.CaseIndexTable;
+import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -31,16 +35,22 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
      * Version History
      * V.4 - Added Stock table for tracking quantities. Fixed Case ID index
      * V.5 - Fixed Ledger Stock ID's
+     * V.6 - Indexed the case open + case type pairing (~every select screen)
+     * Added Case Index table and join
+     * Added Entity Cache Table
      */
-    private static final int USER_DB_VERSION = 5;
+    private static final int USER_DB_VERSION = 6;
     
     private static final String USER_DB_LOCATOR = "database_sandbox_";
     
     private Context context;
+    
+    private String mUserId;
 
     public CommCareUserOpenHelper(Context context, String userId) {
         super(context, getDbName(userId), null, USER_DB_VERSION);
         this.context = context;
+        this.mUserId = userId;
     }
     
     public static String getDbName(String sandboxId) {
@@ -92,13 +102,32 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
             database.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
             
+            database.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
+            
             database.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
+            
+            DbUtil.createNumbersTable(database);
+            
+            database.execSQL(EntityStorageCache.getTableDefinition());
+            EntityStorageCache.createIndexes(database);
+            
+            database.execSQL(CaseIndexTable.getTableDefinition());
+            CaseIndexTable.createIndexes(database);
             
             database.setVersion(USER_DB_VERSION);
                     
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
+        }
+    }
+    
+    public SQLiteDatabase getWritableDatabase(String key) {
+        try{ 
+            return super.getWritableDatabase(key);
+        } catch(SQLiteException sqle) {
+            DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mUserId));
+            return super.getWritableDatabase(key);
         }
     }
 

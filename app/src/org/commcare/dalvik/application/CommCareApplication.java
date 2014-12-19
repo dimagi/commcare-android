@@ -57,6 +57,8 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.externalizable.AndroidClassHasher;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -141,6 +143,9 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Collect.setStaticApplicationContext(this);
+        //Sets the static strategy for the deserializtion code to be
+        //based on an optimized md5 hasher. Major speed improvements.
+        AndroidClassHasher.registerAndroidClassHashStrategy();
         
         CommCareApplication.app = this;
         
@@ -462,40 +467,6 @@ public class CommCareApplication extends Application {
                 return handle;
             }
         });
-    }
-    
-        
-    public void serializeToIntent(Intent i, String name, Externalizable data) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            data.writeExternal(new DataOutputStream(baos));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        i.putExtra(name, baos.toByteArray());
-    }
-    
-    public <T extends Externalizable> T deserializeFromIntent(Intent i, String name, Class<T> type) {
-        if(!i.hasExtra(name)) { return null;}
-        T t;
-        try {
-            t = type.newInstance();
-            t.readExternal(new DataInputStream(new ByteArrayInputStream(i.getByteArrayExtra(name))), DbUtil.getPrototypeFactory(this));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (DeserializationException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException(e1);
-        } catch (InstantiationException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException(e1);
-        }
-        return t;
     }
 
     /*
