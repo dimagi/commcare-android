@@ -16,7 +16,6 @@ package org.odk.collect.android.widgets;
 
 import java.text.DecimalFormat;
 
-import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.locale.Localization;
@@ -24,7 +23,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.activities.GeoPointActivity;
 import org.odk.collect.android.activities.GeoPointMapActivity;
-import org.commcare.android.util.StringUtils;
 
 import android.app.Activity;
 import android.content.Context;

@@ -5,8 +5,7 @@ package org.commcare.android.database.app;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.ConcreteDbHelper;
-import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.resources.model.Resource;
@@ -40,11 +39,20 @@ public class AppDatabaseUpgrader {
             if(upgradeThreeFour(db)) {
                 oldVersion = 4;
             }
-        }
+        } 
+        
+        if(oldVersion == 4) {
+            if(upgradeFourFive(db)) {
+                oldVersion = 5;
+            }
+        } 
+
         //NOTE: If metadata changes are made to the Resource model, they need to be
         //managed by changing the TwoThree updater to maintain that metadata.
     }
     
+
+
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
@@ -72,14 +80,22 @@ public class AppDatabaseUpgrader {
     }
 
     private  boolean upgradeThreeFour(SQLiteDatabase db) {
-        
-        DbHelper helper = new ConcreteDbHelper(c,db);
-        
         db.beginTransaction();
         try {
             db.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
             db.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
             db.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
+    private boolean upgradeFourFive(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            DbUtil.createNumbersTable(db);
             db.setTransactionSuccessful();
             return true;
         } finally {

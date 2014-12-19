@@ -5,6 +5,7 @@ package org.commcare.android.models;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
@@ -25,11 +26,14 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  */
 public class NodeEntityFactory {
 
-    private EvaluationContext ec;
+    protected EvaluationContext ec;
     
-    Detail detail;
-    FormInstance instance;
-    User current; 
+    protected Detail detail;
+    protected FormInstance instance;
+    protected User current; 
+    
+    private boolean mEntitySetInitialized = false;
+    private Object mPreparationLock = new Object();
     
     public Detail getDetail() {
         return detail;
@@ -88,5 +92,58 @@ public class NodeEntityFactory {
         }
         
 		return new Entity<TreeReference>(details, sortDetails, backgroundDetails, relevancyDetails, data);
+    }
+
+
+    public List<TreeReference> expandReferenceList(TreeReference treeReference) {
+        List<TreeReference> references = ec.expandReference(treeReference);
+        return references;
+    }
+    
+    /**
+     * Performs the underlying work to prepare the entity set 
+     * (see prepareEntities()). Separated out to enforce timing
+     * related to preparing and utilizing results 
+     */
+    protected void prepareEntitiesInternal() {
+        //No implementation in normal factory
+    }
+    
+    /**
+     * Optional: Allows the factory to make all of the entities that it has
+     * returned "Ready" by performing any lazy evaluation needed for optimum 
+     * usage. This preparation occurs asynchronously, and the returned entity
+     * set should not be manipulated until it has completed.
+     */
+    public final void prepareEntities() {
+        synchronized(mPreparationLock) {
+            prepareEntitiesInternal();
+            mEntitySetInitialized = true;
+        }
+    }
+    
+    /**
+     * Performs the underlying work to check on the entitySet preparation 
+     * (see isEntitySetReady()). Separated out to enforce timing
+     * related to preparing and utilizing results 
+     */
+    protected boolean isEntitySetReadyInternal() {
+        return true;
+    }
+    
+    /**
+     * Called only after a call to prepareEntities, this signals whether
+     * the entities returned are ready for bulk operations.
+     * 
+     * @return True if entities returned from the factory are again ready
+     * for use. False otherwise.
+     */
+    public final  boolean isEntitySetReady() {
+        synchronized(mPreparationLock) {
+            if(!mEntitySetInitialized) {
+                throw new RuntimeException("A Node Entity Factory was not prepared before usage. prepareEntities() must be called before a call to isEntitySetReady()");
+            }
+            return isEntitySetReadyInternal();
+        }
     }
 }

@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -55,7 +56,6 @@ import org.odk.collect.android.tasks.SaveToDiskTask;
 import org.odk.collect.android.utilities.Base64Wrapper;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.GeoUtils;
-import org.commcare.android.util.StringUtils;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.views.ResizingImageView;
 import org.odk.collect.android.widgets.DateTimeWidget;
@@ -1388,8 +1388,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 setTitle(getHeaderString());
                 ((TextView) startView.findViewById(R.id.description)).setText(Localization.get("odk_enter_data_description", mFormController.getFormTitle()));
                 
-                ((CheckBox) startView.findViewById(R.id.screen_form_entry_start_cbx_dismiss)).setText(StringUtils.getStringRobust(this, 
-                        R.string.form_entry_start_hide));
+                ((CheckBox) startView.findViewById(R.id.screen_form_entry_start_cbx_dismiss)).setText(Localization.get("odk_form_entry_start_hide"));
                 
 
                 Drawable image = null;
@@ -1502,7 +1501,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         public void onClick(View v) {
                             // Form is marked as 'saved' here.
                             if (saveAs.getText().length() < 1) {
-                                Toast.makeText(FormEntryActivity.this, StringUtils.getStringRobust(FormEntryActivity.this, R.string.save_as_error),
+                                Toast.makeText(FormEntryActivity.this, Localization.get("odk_save_as_error"),
                                     Toast.LENGTH_SHORT).show();
                             } else {
                                 saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs

@@ -2,7 +2,6 @@ package org.odk.collect.android.widgets;
 
 import java.io.File;
 
-import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.R.color;
 import org.javarosa.core.model.FormIndex;
@@ -424,7 +423,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(StringUtils.getStringRobust(this.getContext(), R.string.ok), errorListener);
+            mAlertDialog.setButton(Localization.get("odk_ok"), errorListener);
             mAlertDialog.show();
         } else {
         

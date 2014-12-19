@@ -204,6 +204,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                             receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
                             receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
+                        } else if(update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
+                            receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[] {String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+                        } else if(update[0] == DataPullTask.PROGRESS_PROCESSING) {
+                            receiver.updateProgress(Localization.get("sync.process.processing", new String[] {String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
                             receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
@@ -463,4 +467,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         return dialog;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isBackEnabled()
+     */
+    @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
 }

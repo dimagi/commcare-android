@@ -3,6 +3,7 @@ package org.commcare.android.tasks;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
@@ -30,7 +31,11 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
     private long waitingTime; 
 
     public EntityLoaderTask(Detail d, EvaluationContext ec) {
-        this.factory = new NodeEntityFactory(d, ec);
+        if(d.useAsyncStrategy()) {
+            this.factory = new AsyncNodeEntityFactory(d, ec);
+        } else {
+            this.factory = new NodeEntityFactory(d, ec);
+        }
         this.ec = ec;
     }
     
@@ -73,7 +78,7 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
                     }
                     
                     //pass those params
-                    listener.deliverResult(result.first, result.second);
+                    listener.deliverResult(result.first, result.second, factory);
                     
                     return;
                 }
@@ -105,7 +110,7 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
 
         try{
-        List<TreeReference> references = ec.expandReference(nodeset[0]);
+        List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
         
         List<Entity<TreeReference>> full = new ArrayList<Entity<TreeReference>>(); 
         for(TreeReference ref : references) {
@@ -118,6 +123,7 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
             }
         }
         
+        factory.prepareEntities();
         return new Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references);
         
         } catch (XPathException xe){

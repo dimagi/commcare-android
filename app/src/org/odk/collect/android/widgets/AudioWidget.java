@@ -16,8 +16,6 @@ package org.odk.collect.android.widgets;
 
 import java.io.File;
 
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.services.locale.Localization;

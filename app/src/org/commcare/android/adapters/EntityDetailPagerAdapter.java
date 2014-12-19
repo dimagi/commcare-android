@@ -1,7 +1,9 @@
 package org.commcare.android.adapters;
 
 import org.commcare.android.framework.EntityDetailFragment;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.suite.model.Detail;
+import org.javarosa.core.model.instance.TreeReference;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,12 +19,14 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     Detail detail;
     int detailIndex;
     boolean hasDetailCalloutListener;
+    TreeReference mEntityReference;
 
-    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, boolean hasDetailCalloutListener) {    
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener) {    
         super(fm);
         this.detail = detail;
         this.detailIndex = detailIndex;
         this.hasDetailCalloutListener = hasDetailCalloutListener;
+        this.mEntityReference = reference;
     }
 
     /*
@@ -38,7 +42,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
             args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
         }
         args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
-        args.putBoolean(EntityDetailFragment.HAS_DETAIL_CALLOUT_LISTENER, hasDetailCalloutListener);
+        SerializationUtil.serializeToBundle(args, EntityDetailFragment.CHILD_REFERENCE, mEntityReference);
         fragment.setArguments(args);
         return fragment;
     }
