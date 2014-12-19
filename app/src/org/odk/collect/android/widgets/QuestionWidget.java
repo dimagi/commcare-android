@@ -2,17 +2,18 @@ package org.odk.collect.android.widgets;
 
 import java.io.File;
 
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.R.color;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.preferences.PreferencesActivity;
 import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.utilities.StringUtils;
 import org.odk.collect.android.views.ShrinkingTextView;
 import org.odk.collect.android.views.media.MediaLayout;
 
@@ -571,7 +572,7 @@ public abstract class QuestionWidget extends LinearLayout {
     
     public void checkFileSize(File file){
         if(FileUtils.isFileOversized(file)){
-            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file)+""));
+            this.notifyWarning(Localization.get("odk_attachment_oversized", FileUtils.getFileSize(file)+""));
         }
     }
     

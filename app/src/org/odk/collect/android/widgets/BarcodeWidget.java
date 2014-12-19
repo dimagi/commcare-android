@@ -14,12 +14,11 @@
 
 package org.odk.collect.android.widgets;
 
-import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.utilities.StringUtils;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -56,7 +55,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
         
         // set button formatting
         mGetBarcodeButton = new Button(getContext());
-        mGetBarcodeButton.setText(StringUtils.getStringRobust(getContext(), R.string.get_barcode));
+        mGetBarcodeButton.setText(Localization.get("odk_get_barcode"));
         mGetBarcodeButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mGetBarcodeButton.setPadding(20, 20, 20, 20);
         mGetBarcodeButton.setEnabled(!prompt.isReadOnly());
@@ -77,7 +76,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
                         FormEntryActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        StringUtils.getStringRobust(getContext(), R.string.barcode_scanner_error), Toast.LENGTH_SHORT)
+                        Localization.get("odk_barcode_scanner_error"), Toast.LENGTH_SHORT)
                             .show();
                     mWaitingForData = false;
                 }
@@ -91,7 +90,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            mGetBarcodeButton.setText(StringUtils.getStringRobust(getContext(), R.string.replace_barcode));
+            mGetBarcodeButton.setText(Localization.get("odk_replace_barcode"));
             mStringAnswer.setText(s);
         }
         // finish complex layout
@@ -107,7 +106,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);
-        mGetBarcodeButton.setText(StringUtils.getStringRobust(getContext(), R.string.get_barcode));
+        mGetBarcodeButton.setText(Localization.get("odk_get_barcode"));
     }
 
 

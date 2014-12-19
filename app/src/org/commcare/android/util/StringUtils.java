@@ -6,6 +6,10 @@ package org.commcare.android.util;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
+
+import android.content.Context;
 import android.support.v4.util.LruCache;
 
 /**
@@ -126,4 +130,18 @@ public class StringUtils {
         }
         return false;
     }
+    
+    public static String getStringRobust(Context c, int resId) {
+        return getStringRobust(c, resId, "");
+    }
+
+    public static String getStringRobust(Context c, int resId, String args) {
+        String resourceName = c.getResources().getResourceEntryName(resId);
+        try {
+            return Localization.get("odk_" + resourceName, new String[] {args});
+        } catch(NoLocalizedTextException e) {
+            return c.getString(resId, args);
+        }
+    }
+
 }

@@ -14,13 +14,12 @@
 
 package org.odk.collect.android.widgets;
 
-import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.IntentCallout;
-import org.odk.collect.android.utilities.StringUtils;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -102,7 +101,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            launchIntentButton.setText(StringUtils.getStringRobust(getContext(), R.string.intent_callout_button_update));
+            launchIntentButton.setText(Localization.get("odk_intent_callout_button_update"));
             mStringAnswer.setText(s);
         }
         // finish complex layout
@@ -114,7 +113,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         if(ic.getButtonLabel() != null){
             launchIntentButton.setText(ic.getButtonLabel());
         } else{
-            launchIntentButton.setText(StringUtils.getStringRobust(getContext(), R.string.intent_callout_button));
+            launchIntentButton.setText(Localization.get("odk_intent_callout_button"));
         }
     }
 
