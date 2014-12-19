@@ -46,6 +46,13 @@ public class ApkUtils {
             //Log.i("CLASS", cl);
             tree.addString(cl);
         }
+        
+        
+        classes = getClasses("org.odk.collect", c);
+        for(String cl : classes) {
+            //Log.i("CLASS", cl);
+            tree.addString(cl);
+        }
         } catch(Exception e) {
             throw new RuntimeException(e);
         }

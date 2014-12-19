@@ -17,6 +17,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.GeoUtils;
@@ -129,12 +130,12 @@ public class PollSensorAction extends Action implements LocationListener {
     
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
-        target = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
+        target = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
-        ExtUtil.write(out, target);
+        ExtUtil.write(out, new ExtWrapNullable(target));
     }
     
     /**
