@@ -16,13 +16,11 @@
 
 package org.commcare.dalvik.preferences;
 
-import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -33,7 +31,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;

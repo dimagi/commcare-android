@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/mainlayout"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<com.google.android.maps.MapView
+		android:id="@+id/mapview"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:clickable="true"
+		android:apiKey="017Xo9E6R7WmcCITvo-lU2V0ERblKPqCcguwxSQ" />
+		<!-- android:apiKey="0wsgFhRvVBLVpgaFzmwaYuqfU898z_2YtlKSlkg"/> debug -->
+	<LinearLayout
+		android:id="@+id/location_buttons"
+		android:orientation="vertical"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_horizontal"
+		android:padding="5dip"
+		android:background="#BF000000">
+		<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
+			android:paddingTop="2dip"
+			android:paddingBottom="2dip">
+			<Button
+				android:id="@+id/show_location"
+				android:text="@string/go_to_location"
+				android:layout_width="wrap_content"
+				android:layout_height="fill_parent"
+				android:layout_weight="1"
+				android:visibility="gone" />
+			<Button
+				android:id="@+id/accept_location"
+				android:text="@string/accept_location"
+				android:layout_width="wrap_content"
+				android:layout_height="fill_parent"
+				android:layout_weight="1" />
+			<Button
+				android:id="@+id/cancel_location"
+				android:text="@string/cancel"
+				android:layout_width="wrap_content"
+				android:layout_height="fill_parent"
+				android:layout_weight="1" />
+		</LinearLayout>
+		<TextView
+			android:id="@+id/location_status"
+			android:text="@string/please_wait_long"
+			android:textColor="#FFFFFF"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+	</LinearLayout>
+</RelativeLayout>

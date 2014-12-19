@@ -1,110 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+
     <style name="NotificationText">
-      <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/white</item>
     </style>
+
     <style name="NotificationTitle">
-      <item name="android:textColor">@color/white</item>
-      <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
     </style>
+
     <style name="TopPane">
         <item name="android:layout_marginBottom">8dp</item>
     </style>
-    
+
     <style name="MiddlePane">
         <item name="android:layout_marginBottom">15dp</item>
     </style>
-    
+
     <style name="MainSidePaneLeft">
         <item name="android:paddingRight">10dp</item>
         <item name="android:paddingLeft">15dp</item>
     </style>
-    
+
     <style name="MainSidePaneRight">
         <item name="android:paddingLeft">10dp</item>
     </style>
-    
+
     <style name="MainPane">
         <item name="android:paddingRight">15dp</item>
     </style>
+
     <dimen name="entity_padding">15dp</dimen>
-    
+
     <style name="EntityItemTextView">
         <item name="android:paddingLeft">@dimen/entity_padding</item>
         <item name="android:paddingTop">@dimen/entity_padding</item>
         <item name="android:paddingBottom">@dimen/entity_padding</item>
         <item name="android:paddingRight">@dimen/entity_padding</item>
     </style>
-    
-   <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
-       
-   </style>
-   
-   <style name="VersionIdText">
-       <item name="android:textSize">@dimen/text_smaller</item> 
-   </style>
-   
-   <style name = "WarningTextStyle">
-       <item name ="android:textStyle">bold</item>
-       <item name ="android:textColor">@color/white</item>
-   </style>
-   
-   <dimen name="menu_icon_size">60dp</dimen>
-      
-   <style name="Animation" />
-   
-   <style name="Animation.ScreenAnimations">
-    <item name="android:activityOpenEnterAnimation">@anim/push_left_in</item>
-    <item name="android:activityOpenExitAnimation">@anim/push_left_out</item>
-    <item name="android:activityCloseEnterAnimation">@anim/push_right_in</item>
-    <item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
-   </style>
-   
-   <style name="ButtonBottom">
-       <item name="android:layout_marginLeft">10dp</item>
-       <item name="android:layout_marginRight">10dp</item>
-       <item name="android:layout_marginBottom">10dp</item>
-   </style>
-   
-   
-   
-      
-   <style name="TextInteractiveFreeFloating">
-       <item name="android:background">@drawable/info_bubble</item>
-       <item name="android:paddingTop">5dp</item>
-       <item name="android:paddingBottom">5dp</item>
-       <item name="android:layout_marginLeft">2dp</item>
-       <item name="android:paddingLeft">5dp</item>
-       <item name="android:paddingRight">5dp</item>
-       <item name="android:layout_marginRight">2dp</item>
-       <item name="android:gravity">center</item>
-   </style>
-   
-   
-   <style name="TextInteractive">
-       <item name="android:background">@drawable/bubble</item>
-       <item name="android:paddingTop">2dp</item>
-       <item name="android:paddingBottom">2dp</item>
-       <item name="android:layout_marginLeft">2dp</item>
-       <item name="android:paddingLeft">5dp</item>
-       <item name="android:paddingRight">5dp</item>
-       <item name="android:layout_marginRight">2dp</item>
-       <item name="android:gravity">center</item>
-   </style>
-   
-   <style name="TextInteractiveProblem">
-       <item name="android:background">@drawable/bubble_danger</item>
-       <item name="android:paddingTop">2dp</item>
-       <item name="android:paddingBottom">2dp</item>
-       <item name="android:layout_marginLeft">2dp</item>
-       <item name="android:paddingLeft">5dp</item>
-       <item name="android:paddingRight">5dp</item>
-       <item name="android:layout_marginRight">2dp</item>
-       <item name="android:gravity">center</item>
-       <item name ="android:textStyle">bold</item>
-       <item name ="android:textColor">@color/red</item>
-   </style>
-   
-   <style name="DialogBaseTheme" parent="android:Theme.Dialog"/>
-   
+
+    <style name="EntityItemText" parent="@android:style/TextAppearance.Large"></style>
+
+    <style name="VersionIdText">
+        <item name="android:textSize">@dimen/text_smaller</item>
+    </style>
+
+    <style name="WarningTextStyle">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <dimen name="menu_icon_size">60dp</dimen>
+
+    <style name="Animation" />
+
+    <style name="Animation.ScreenAnimations">
+        <item name="android:activityOpenEnterAnimation">@anim/push_left_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/push_left_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/push_right_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/push_right_out</item>
+    </style>
+
+    <style name="ButtonBottom">
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+    <style name="TextInteractiveFreeFloating">
+        <item name="android:background">@drawable/info_bubble</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextInteractive">
+        <item name="android:background">@drawable/bubble</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextInteractiveProblem">
+        <item name="android:background">@drawable/bubble_danger</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/red</item>
+    </style>
+
+    <style name="DialogBaseTheme" parent="android:Theme.Dialog" />
+
+    <!-- Start Collect styles -->
+
+    <dimen name="select_padding">15dp</dimen>
+    <dimen name="nav_border_depth">2dp</dimen>
+    <dimen name="badge_circum_outer">22dp</dimen>
+    <dimen name="badge_circum_border">20dp</dimen>
+    <dimen name="badge_offset">-17dp</dimen>
+<!--              badge_circum_outer + badge_offset  + border_depth -->
+    <dimen name="badge_overlap">7dp</dimen>
+    <dimen name="badge_offset_side">10dp</dimen>
+
+
+    <style name="FloatingLabel" parent="@android:style/TextAppearance">
+        <item name="android:background">@drawable/label_floating_good</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
 </resources>

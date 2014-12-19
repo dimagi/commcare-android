@@ -8,7 +8,6 @@ import java.util.Date;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.DirectDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;

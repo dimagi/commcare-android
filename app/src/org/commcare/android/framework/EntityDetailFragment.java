@@ -1,21 +1,15 @@
 package org.commcare.android.framework;
 
-import java.util.List;
-
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.EntityDetailActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
-import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.TreeReference;
-import org.odk.collect.android.views.media.AudioController;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;

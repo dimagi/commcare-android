@@ -3,27 +3,14 @@
  */
 package org.commcare.android.database.app;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Vector;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
-import org.commcare.android.database.app.models.ResourceModelUpdater;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInstaller;
-import org.commcare.resources.model.ResourceLocation;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapList;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import android.content.Context;
 

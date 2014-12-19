@@ -15,7 +15,6 @@ import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageManager;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 

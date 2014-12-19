@@ -27,8 +27,6 @@ import org.javarosa.core.services.locale.Localization;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Menu;

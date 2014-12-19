@@ -6,10 +6,8 @@ package org.commcare.android.database.user;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
-import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
 

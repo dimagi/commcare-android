@@ -1,12 +1,8 @@
 package org.commcare.android.view;
 
-import org.commcare.dalvik.R;
-
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 /**
  * A layout that will enforce a given aspect ratio. Layout should define the attributes ratio_width and ratio_height.

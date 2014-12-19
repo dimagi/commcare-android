@@ -2,18 +2,16 @@ package org.commcare.android.adapters;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.CachingAsyncImageLoader;
-import org.commcare.android.view.GridEntityView;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
+import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TextImageAudioView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;

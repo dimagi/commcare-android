@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -38,7 +37,6 @@ import org.javarosa.core.services.storage.StorageFullException;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.TextView;
 
 /**
  * @author ctsims

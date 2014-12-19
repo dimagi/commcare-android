@@ -4,7 +4,6 @@
 package org.commcare.android.util;
 
 import java.text.Normalizer;
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import android.support.v4.util.LruCache;

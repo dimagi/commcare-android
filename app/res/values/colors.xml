@@ -2,32 +2,62 @@
 <resources>
 
     <color name="transparent">#00000000</color>
-
     <color name="black">#000000</color>
     <color name="grey_darker">#444444</color>
     <color name="grey_dark">#999999</color>
     <color name="grey">#A3A3A3</color>
     <color name="grey_light">#D3D3D3</color>
     <color name="grey_lighter">#EBEBEB</color>
-    <color name="white">#FFFFFF</color>	
-
+    <color name="white">#FFFFFF</color>
     <color name="translucent_grey_dark">#20959699</color>
     <color name="translucent_grey">#80D3D3D3</color>
     <color name="translucent_grey_light">#A0D3D3D3</color>
-    
     <color name="blue">#3867AD</color>
     <color name="blue_grey">#6884AD</color>
     <color name="blue_light">#7FA1D4</color>
-
     <color name="translucent_blue">#903867AD</color>
     <color name="translucent_blue_grey">#806884AD</color>
-    
     <color name="yellow">#FFE88F</color>
     <color name="yellow_green">#DDECAC</color>
     <color name="yellow_soft">#FFFF99</color>
     <color name="green">#87D13E</color>
+    <color name="red">#FF0000</color>
+    <color name="red_soft">#EE5555</color>
+    
+    <!-- ODK.Collect colors start here -->
 
-	<color name="red">#FF0000</color>
-	<color name="red_soft">#EE5555</color>
+    <drawable name="red">#7f00</drawable>
+    <drawable name="white">#ffffffff</drawable>
+    <drawable name="black">#ff000000</drawable>
+    <drawable name="blue">#770000ff</drawable>
+    <drawable name="green">#7700ff00</drawable>
+    <drawable name="yellow">#77ffff00</drawable>
+    <drawable name="grey">#ffaaaaaa</drawable>
+    <drawable name="screen_background_black">#ff000000</drawable>
+    <drawable name="translucent_background">#e0000000</drawable>
+    <drawable name="transparent_background">#00000000</drawable>
+
+    <color name="solid_red">#f00</color>
+    <color name="solid_blue">#0000ff</color>
+    <color name="solid_green">#f0f0</color>
+    <color name="solid_yellow">#ffffff00</color>
+    <color name="border_grey">#20959699</color>
+    <color name="blue_grad_end">#903867AD</color>
+    <color name="blue_grad_start">#806884AD</color>
+    <color name="light_blue">#CCFFFF</color>
+    <color name="dark_blue">#000080</color>
+    <color name="light_red">#F5A6A6</color>
+    <color name="dark_red">#20959699</color>
+    <color name="dark_grey">#A3A3A3</color>
+    <color name="bright_blue_grad_start">#ff266cc9</color>
+    <color name="bright_blue_grad_end">#ff1e559e</color>
+    <color name="grey_grad_start">#A0A6A8</color>
+    <color name="grey_grad_end">#868A8C</color>
+    <color name="bright_green_grad_start">#2C9746</color>
+    <color name="bright_green_grad_end">#247A38</color>
+    <color name="pale_blue">#E2ECF0</color>
+    <color name="very_light_blue">#AAE3ECFF</color>
+    <color name="solid_dark_red">#BF3D3D</color>
+    <color name="solid_dark_orange">#F57E20</color>
 
 </resources>
