@@ -71,7 +71,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private String[] currentSearchTerms;
 
-    public static int SCALE_FACTOR = 4;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
+    public static int SCALE_FACTOR = 1;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
     private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
 
@@ -104,12 +104,13 @@ public class EntityListAdapter implements ListAdapter {
         }
         usesGridView = detail.usesGridView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
+        
         actionEnabled = detail.getCustomAction() != null;
     }
 
     private void filterValues(String filterRaw) {
 
-        String[] searchTerms = filterRaw.split(" ");
+        String[] searchTerms = filterRaw.split("\\s+");
         for(int i = 0 ; i < searchTerms.length ; ++i) {
             searchTerms[i] = StringUtils.normalize(searchTerms[i]);
         }
@@ -365,8 +366,9 @@ public class EntityListAdapter implements ListAdapter {
             GridEntityView emv =(GridEntityView)convertView;
 
             if(emv == null) {
-                emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller);
+                emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller, mFuzzySearchEnabled);
             } else{
+               emv.setSearchTerms(currentSearchTerms);
                 emv.setViews(context, detail, entity);
             }
             return emv;
