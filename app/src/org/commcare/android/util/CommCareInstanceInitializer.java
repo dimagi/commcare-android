@@ -25,7 +25,7 @@ import org.javarosa.core.model.instance.TreeElement;
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     CommCareSession session;
-    CaseInstanceTreeElement casebase;
+    AndroidCaseInstanceTreeElement casebase;
     LedgerInstanceTreeElement stockbase;
     
     public CommCareInstanceInitializer(){ 
@@ -55,6 +55,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 //re-use the existing model if it exists.
                 casebase.rebase(instance.getBase());
             }
+            instance.setCacheHost(casebase);
             return casebase;
         }else if(instance.getReference().indexOf("fixture") != -1) {
             

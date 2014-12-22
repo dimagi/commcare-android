@@ -17,9 +17,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;

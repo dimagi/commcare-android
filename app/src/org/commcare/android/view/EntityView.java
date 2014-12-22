@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
@@ -50,6 +51,7 @@ public class EntityView extends LinearLayout {
     public static final String FORM_GRAPH = "graph";
     
     private boolean mFuzzySearchEnabled = true;
+    private boolean mIsAsynchronous = false;
 
     /*
      * Constructor for row/column contents
@@ -58,6 +60,8 @@ public class EntityView extends LinearLayout {
             String[] searchTerms, AudioController controller, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
         this.context = context;
+        //this is bad :(
+        mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
         this.tts = tts;
         this.setWeightSum(1);
@@ -211,7 +215,7 @@ public class EntityView extends LinearLayout {
     private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
         TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
         tv.setVisibility(View.VISIBLE);
-       tv.setText(highlightSearches(text == null ? "" : text, searchField));
+        tv.setText(highlightSearches(this.getContext(), searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
         ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
         btn.setFocusable(false);
 
@@ -273,14 +277,41 @@ public class EntityView extends LinearLayout {
         }
     }
     
-    private Spannable highlightSearches(String displayString, String backgroundString) {
-        
-        Spannable raw = new SpannableString(displayString);
-        String normalizedDisplayString = StringUtils.normalize(displayString);
-        
+    //TODO: This method now really does two different things and should possibly be different
+    //methods.
+    /**
+     * Based on the search terms provided, highlight the aspects of the spannable provided which
+     * match. A background string can be provided which provides the exact data that is being
+     * matched. 
+     * 
+     * @param context
+     * @param searchTerms
+     * @param raw
+     * @param backgroundString
+     * @param fuzzySearchEnabled
+     * @param strictMode
+     * @return
+     */
+    public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
         if (searchTerms == null) {
             return raw;
         }
+        
+        //TOOD: Only do this if we're in strict mode
+        if(strictMode) {
+            if(backgroundString == null) {
+                return raw; 
+            }
+            
+            //make sure that we have the same consistency for our background match
+            backgroundString = StringUtils.normalize(backgroundString).trim();
+        } else {
+            //Otherwise we basically want to treat the "Search" string and the display string 
+            //the same way.
+            backgroundString = StringUtils.normalize(raw.toString());
+        }
+        
+        String normalizedDisplayString = StringUtils.normalize(raw.toString());
         
         //Zero out the existing spans
         BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
@@ -294,24 +325,41 @@ public class EntityView extends LinearLayout {
         //Highlight direct substring matches
         for (String searchText : searchTerms) {
             if ("".equals(searchText)) { continue;}
+            
+            //TODO: Assuming here that our background string exists and
+            //isn't null due to the background string check above
+            
+            //check to see where we should start displaying this chunk
+            int offset = TextUtils.indexOf(normalizedDisplayString, backgroundString);
+            if(offset == -1) { 
+                //We can't safely highlight any of this, due to this field not actually 
+                //containing the same string we're searching by.
+                continue;
+            }
     
-            int index = TextUtils.indexOf(normalizedDisplayString, searchText);
+            int index = backgroundString.indexOf(searchText);
+            //int index = TextUtils.indexOf(normalizedDisplayString, searchText);
             
             while (index >= 0) {
-              raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.yellow)), index, index
+                
+              //grab the display offset for actually displaying things
+              int displayIndex = index + offset;
+                
+              raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.yellow)), displayIndex, displayIndex
                   + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
               
               matches.add(new int[] {index, index + searchText.length() } );
               
-              index=TextUtils.indexOf(raw, searchText, index + searchText.length());
+              //index=TextUtils.indexOf(raw, searchText, index + searchText.length());
+              index = backgroundString.indexOf(searchText, index + searchText.length());  
               
               //we have a non-fuzzy match, so make sure we don't fuck with it
             }
         }
 
         //now insert the spans for any fuzzy matches (if enabled)
-        if(mFuzzySearchEnabled && backgroundString != null) {
-            backgroundString = StringUtils.normalize(backgroundString).trim() + " ";
+        if(fuzzySearchEnabled && backgroundString != null) {
+            backgroundString += " ";
 
             for (String searchText : searchTerms) {
                 
@@ -320,6 +368,7 @@ public class EntityView extends LinearLayout {
                 
                 int curStart = 0;
                 int curEnd = backgroundString.indexOf(" ", curStart);
+                 
                 while(curEnd != -1) {
                     
                     boolean skip = matches.size() != 0;
@@ -330,14 +379,27 @@ public class EntityView extends LinearLayout {
                             skip = false;
                         } else if(curStart >= textMatch[1] &&  curEnd > textMatch[1]) {
                             skip = false;
+                        } else {
+                            //We're definitely inside of this span, so 
+                            //don't do any fuzzy matching!
+                            skip = true;
+                            break;
                         }
                     }
                     
                     if(!skip) {
                         //Walk the string to find words that are fuzzy matched
-                        if(StringUtils.fuzzyMatch(backgroundString.substring(curStart, curEnd), searchText)) {
-                            raw.setSpan(new BackgroundColorSpan(this.getContext().getResources().getColor(R.color.green)), curStart, 
-                                    curEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        String currentSpan = backgroundString.substring(curStart, curEnd);
+                        
+                        //First, figure out where we should be matching (if we don't
+                        //have anywhere to match, that means there's nothing to display
+                        //anyway)
+                        int indexInDisplay = normalizedDisplayString.indexOf(currentSpan);
+                        int length = (curEnd - curStart);
+                        
+                        if(indexInDisplay != -1 && StringUtils.fuzzyMatch(currentSpan, searchText).first) {
+                            raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.green)), indexInDisplay, 
+                                    indexInDisplay + length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
                     curStart = curEnd + 1;

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white" >
+    
+    <RelativeLayout
+    android:id="@+id/com_tile_holder_top"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/border_bottom_black" >
+
+    <FrameLayout
+        android:id="@+id/com_tile_holder_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/com_tile_holder_actions">
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@id/com_tile_holder_actions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/com_tile_holder_frame"
+        android:orientation="vertical"
+        android:weightSum="1" >
+
+        <FrameLayout 
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:visibility="invisible">
+	        <ImageButton
+	            android:id="@+id/imageButton2"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@android:drawable/arrow_up_float" />
+        </FrameLayout>
+
+        <FrameLayout 
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="0.5">
+
+        <ImageButton
+            android:id="@+id/com_tile_holder_btn_open"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:src="@android:drawable/arrow_down_float" />
+
+        </FrameLayout>
+    
+    </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/com_tile_holder_detail_master"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_below="@id/com_tile_holder_top" 
+        android:visibility="gone"
+        android:layout_alignParentBottom="true">
+        
+        <FrameLayout
+            android:id="@+id/com_tile_holder_detail_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/com_tile_holder_btn_close" />
+
+        <ImageButton
+            android:id="@id/com_tile_holder_btn_close"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:src="@android:drawable/arrow_up_float"  />
+    </RelativeLayout>
+
+</RelativeLayout>

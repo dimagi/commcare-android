@@ -41,4 +41,11 @@
     <dimen name="graph_y_margin">0dp</dimen>
     <dimen name="graph_text_margin">35dp</dimen>
     
+    <!-- Start collect dimens -->
+    
+    <!--  Text sizes -->
+
+    <dimen name="text_larger">28dp</dimen>
+    <dimen name="text_largest">40dp</dimen>
+    
 </resources>

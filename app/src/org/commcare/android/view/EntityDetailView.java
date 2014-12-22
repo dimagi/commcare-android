@@ -4,6 +4,7 @@
 package org.commcare.android.view;
 
 import java.util.Hashtable;
+
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -21,6 +22,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;

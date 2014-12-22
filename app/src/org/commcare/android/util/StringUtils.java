@@ -4,10 +4,12 @@
 package org.commcare.android.util;
 
 import java.text.Normalizer;
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.support.v4.util.LruCache;
+import android.util.Pair;
 
 /**
  * @author ctsims
@@ -29,6 +31,7 @@ public class StringUtils {
      * @return a canonical version of the passed in string that is lower cased and has removed diacritical marks
      * like accents. 
      */
+    @SuppressLint("NewApi")
     public synchronized static String normalize(String input) {
         if(normalizationCache == null) {
             normalizationCache = new LruCache<String, String>(cacheSize);
@@ -38,7 +41,16 @@ public class StringUtils {
         String normalized = normalizationCache.get(input);
         if(normalized != null) { return normalizationCache.get(input);}
         
-        normalized = diacritics.matcher(Normalizer.normalize(input, Normalizer.Form.NFD)).replaceAll("").toLowerCase();
+        //If we're above gingerbread we'll normalize this in NFD form 
+        //which helps a lot. Otherwise we won't be able to clear up some of those
+        //issues, but we can at least still eliminate diacritics.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            input = Normalizer.normalize(input, Normalizer.Form.NFD);
+        } else{
+            //TODO: I doubt it's worth it, but in theory we could run
+            //some other normalization for the minority of pre-API9
+            //devices.
+        }
         
         normalizationCache.put(input, normalized);
         
@@ -108,23 +120,23 @@ public class StringUtils {
      * intended to be the same string. Fuzzy matching is only performed on strings that are
      * longer than a certain size.
      * 
-     * 
      * @param a 
      * @param b
-     * @return true if the two strings meet CommCare's fuzzy match definition, false otherwise.
+     * @return A pair with two values. First value represents a match: true if the two strings 
+     * meet CommCare's fuzzy match definition, false otherwise. Second value is the actual string
+     * distance that was matched, in order to be able to rank or otherwise interpret results.
      */
-    public static boolean fuzzyMatch(String a, String b) {
+    public static Pair<Boolean, Integer> fuzzyMatch(String a, String b) {
         //tweakable parameter: Minimum length before edit distance
         //starts being used (this is probably not necessary, and
         //basically only makes sure that "at" doesn't match "or" or similar
-        if(b.length() > 3) {
-            int sizeDiff = Math.abs(a.length() - b.length());
+       if(b.length() > 3) {
             int distance = StringUtils.LevenshteinDistance(a, b);
             //tweakable parameter: edit distance past string length disparity
             if(distance <= 2) {
-                return true;
+                return Pair.create(true, distance);
             }
         }
-        return false;
+        return Pair.create(false, -1);
     }
 }

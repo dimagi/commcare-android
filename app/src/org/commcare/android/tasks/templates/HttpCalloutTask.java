@@ -10,15 +10,12 @@ import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.util.InvalidStructureException;
@@ -27,7 +24,6 @@ import org.javarosa.core.services.Logger;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 /**
  * @author ctsims
@@ -41,7 +37,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Void, String, org.
         AuthFailed,
         UnkownError,
         BadCertificate,
-        Success
+        Success,
+        NetworkFailureBadPassword
     }
     
     Context c;

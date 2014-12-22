@@ -9,12 +9,10 @@ import java.util.Hashtable;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.locale.Localizer;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

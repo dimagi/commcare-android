@@ -25,7 +25,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 
 import android.content.Intent;

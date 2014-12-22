@@ -17,4 +17,7 @@ the License.
 <ListPreference android:key="cc-superuser-enabled" android:enabled="true" android:title="Developer Mode Enabled" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
 <ListPreference android:key="cc-css-enabled" android:enabled="true" android:title="CSS Enabled" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
 <ListPreference android:key="cc-markdown-enabled" android:enabled="true" android:title="Markdown Enabled" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
+<ListPreference android:key="cc-action-nav-enabled" android:enabled="true" android:title="Action Bar Enabled" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
+<ListPreference android:key="cc-nav-ui-enabled" android:enabled="true" android:title="Navigation UI" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
+
 </PreferenceScreen>

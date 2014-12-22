@@ -1,0 +1,171 @@
+/*
+ * Copyright (C) 2009 University of Washington
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package org.odk.collect.android.widgets;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import org.javarosa.core.model.data.DateData;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.joda.time.DateTime;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.Build;
+import android.view.Gravity;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.DatePicker;
+
+/**
+ * Displays a DatePicker widget. DateWidget handles leap years and does not allow dates that do not
+ * exist.
+ * 
+ * @author Carl Hartung (carlhartung@gmail.com)
+ * @author Yaw Anokwa (yanokwa@gmail.com)
+ */
+public class DateWidget extends QuestionWidget {
+
+    private DatePicker mDatePicker;
+    private DatePicker.OnDateChangedListener mDateListener;
+
+
+    @SuppressLint("NewApi")
+    public DateWidget(Context context, FormEntryPrompt prompt) {
+        super(context, prompt);
+        mDatePicker = new DatePicker(getContext());
+        mDatePicker.setFocusable(!prompt.isReadOnly());
+        mDatePicker.setEnabled(!prompt.isReadOnly());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mDatePicker.setCalendarViewShown(false);
+        }
+        
+        mDateListener = new DatePicker.OnDateChangedListener() {
+        	/*
+        	 * (non-Javadoc)
+        	 * @see android.widget.DatePicker.OnDateChangedListener#onDateChanged(android.widget.DatePicker, int, int, int)
+        	 */
+            @Override
+            public void onDateChanged(DatePicker view, int year, int month, int day) {
+                if (mPrompt.isReadOnly()) {
+                    setAnswer();
+                } else {
+                    // TODO support dates <1900 >2100
+                    // handle leap years and number of days in month
+                    // http://code.google.com/p/android/issues/detail?id=2081
+                    Calendar c = Calendar.getInstance();
+                    c.set(year, month, 1);
+                    int max = c.getActualMaximum(Calendar.DAY_OF_MONTH);                        
+                    if (day > max) {
+                        //If the day has fallen out of spec, set it to the correct max
+                        mDatePicker.updateDate(year, month, max);
+                    } else {
+                        if(!(mDatePicker.getDayOfMonth() == day && mDatePicker.getMonth() == month && mDatePicker.getYear() == year)) {
+                            //CTS: No reason to change the day if it's already correct
+                            mDatePicker.updateDate(year, month, day);
+                            
+                        } else{
+                            return;
+                        }
+                    }
+                }
+                
+                //TODO: Not here, the change isn't processed yet.
+                widgetEntryChanged();
+                
+            }
+        };
+
+        // If there's an answer, use it.
+        setAnswer();
+
+        setGravity(Gravity.LEFT);
+        addView(mDatePicker);
+    }
+
+    private void setAnswer() {
+        if (getCurrentAnswer() != null) {
+            DateTime ldt =
+                new DateTime(((Date) ((DateData) getCurrentAnswer()).getValue()).getTime());
+            mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
+                mDateListener);
+        } else {
+            // create date widget with current time as of right now
+            clearAnswer();
+        }
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
+     * Resets date to today.
+     */
+    @Override
+    public void clearAnswer() {
+        DateTime ldt = new DateTime();
+        mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
+            mDateListener);
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
+     */
+    @Override
+    public IAnswerData getAnswer() {
+        mDatePicker.clearFocus();
+        DateTime ldt = new DateTime(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
+                    mDatePicker.getDayOfMonth(), 0, 0);
+       // DateTime utc = ldt.withZone(DateTimeZone.forID("UTC"));
+        return new DateData(ldt.toDate());
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
+     */
+    @Override
+    public void setFocus(Context context) {
+        // Hide the soft keyboard if it's showing.
+        InputMethodManager inputManager =
+            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
+     */
+    @Override
+    public void setOnLongClickListener(OnLongClickListener l) {
+        mDatePicker.setOnLongClickListener(l);
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
+     */
+    @Override
+    public void cancelLongPress() {
+        super.cancelLongPress();
+        mDatePicker.cancelLongPress();
+    }
+
+}

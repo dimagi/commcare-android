@@ -7,7 +7,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
@@ -58,6 +57,8 @@ public class CallInPhoneListener extends PhoneStateListener {
     }
 
 
+    static final boolean disabled = true;
+    
     /*
      * (non-Javadoc)
      * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
@@ -106,7 +107,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 
 
     public void startCache() {
-
+        if(disabled) {return;}
         AsyncTask<Void, Void, Void> loader = new AsyncTask<Void, Void, Void>() {
 
             /*

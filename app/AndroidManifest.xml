@@ -8,10 +8,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
-     
+
     <application
         android:name=".application.CommCareApplication"
-        android:debuggable="true"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
         android:theme="@style/AppBaseTheme" >
@@ -20,6 +19,7 @@
             android:label="@string/application_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -44,11 +44,11 @@
         <provider
             android:name=".odk.provider.InstanceProvider"
             android:authorities="org.commcare.android.provider.odk.instances" />
-        
         <provider
             android:name=".provider.CaseDataContentProvider"
-            android:authorities="org.commcare.dalvik.case" 
-            android:readPermission="org.commcare.dalvik.provider.cases.read" android:enabled="true"/>
+            android:authorities="org.commcare.dalvik.case"
+            android:enabled="true"
+            android:readPermission="org.commcare.dalvik.provider.cases.read" />
 
         <activity android:name=".preferences.CommCarePreferences" >
         </activity>
@@ -104,21 +104,27 @@
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.ccpr" />
             </intent-filter>
-			<intent-filter android:icon="@drawable/icon">
-                <action android:name="android.intent.action.VIEW"/>
+            <intent-filter android:icon="@drawable/icon" >
+                <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="file" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\.ccz"/>
+
+                <data
+                    android:host="*"
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.ccz"
+                    android:scheme="file" />
             </intent-filter>
-             <intent-filter
-                 android:icon="@drawable/icon" >
-                <action android:name="android.intent.action.VIEW"/>
+            <intent-filter android:icon="@drawable/icon" >
+                <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:scheme="file" />
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.ccz" />
             </intent-filter>
-
         </activity>
         <!-- Enable Shortcuts for Command Actions -->
         <activity
@@ -174,8 +180,7 @@
             android:name=".activities.PhoneLogActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity
-            android:name="org.achartengine.GraphicalActivity">
+        <activity android:name="org.achartengine.GraphicalActivity" >
         </activity>
         <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"
@@ -262,13 +267,141 @@
 
         <activity android:name=".activities.MultimediaInflaterActivity" >
         </activity>
-        <activity android:name=".activities.CommCareFormDumpActivity" ></activity>
-        <activity android:name=".activities.ConnectionDiagnosticActivity"></activity>
+        <activity android:name=".activities.CommCareFormDumpActivity" >
+        </activity>
+        <activity android:name=".activities.ConnectionDiagnosticActivity" >
+        </activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity" >
         </activity>
         <activity android:name=".activities.RecoveryActivity" >
         </activity>
-        <activity android:name=".preferences.DeveloperPreferences"></activity>
+        <activity android:name=".preferences.DeveloperPreferences" >
+        </activity>
+
+        <!-- Start Collect Manifest -->
+
+        <provider
+            android:name="org.odk.collect.android.provider.FormsProvider"
+            android:authorities="org.odk.collect.android.provider.odk.forms" />
+        <provider
+            android:name="org.odk.collect.android.provider.InstanceProvider"
+            android:authorities="org.odk.collect.android.provider.odk.instances" />
+
+        <activity
+            android:name=".activities.MainMenuActivity"
+            android:configChanges="orientation"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".activities.DrawActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.FormEntryActivity"
+            android:configChanges="orientation"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="vnd.android.cursor.item/vnd.odk.form" />
+                <data android:mimeType="vnd.android.cursor.item/vnd.odk.instance" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.AccountList"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.AccountInfo"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.InstanceChooserList"
+            android:label="@string/app_name" />
+
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <action android:name="android.intent.action.EDIT" />
+
+            <category android:name="android.intent.category.DEFAULT" />
+
+            <data android:mimeType="vnd.android.cursor.dir/vnd.odk.instance" />
+        </intent-filter>
+
+        <activity
+            android:name=".activities.InstanceChooserTabs"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.FormChooserList"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+                <action android:name="android.intent.action.PICK" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="vnd.android.cursor.dir/vnd.odk.form" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.FormManagerList"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.FormDownloadList"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.DataManagerList"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.FileManagerTabs"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.InstanceUploaderList"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.InstanceUploaderActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".preferences.PreferencesActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.FormHierarchyActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.GeoPointActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.GeoPointMapActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.SplashScreenActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- Enable Shortcuts for Command Actions -->
+        <activity
+            android:name=".activities.AndroidShortcuts"
+            android:label="ODK Form"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <uses-library
+            android:name="com.google.android.maps"
+            android:required="false" />
     </application>
 
     <uses-feature
@@ -305,16 +438,42 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- Start COllect Permissions -->
+
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.INTERNET" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="8"
         android:targetSdkVersion="14" >
     </uses-sdk>
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    
-    <permission android:name="org.commcare.dalvik.provider.cases.read" android:label="@string/permission_case_provider_label" android:description="@string/permission_case_provider_description" android:protectionLevel="dangerous"></permission>
-    
+
+    <permission
+        android:name="org.commcare.dalvik.provider.cases.read"
+        android:description="@string/permission_case_provider_description"
+        android:label="@string/permission_case_provider_label"
+        android:protectionLevel="dangerous" >
+    </permission>
 
 </manifest>

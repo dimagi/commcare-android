@@ -6,17 +6,10 @@ package org.commcare.android.references;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.apache.http.HttpResponse;
-import org.commcare.android.database.user.models.User;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.net.HttpRequestGenerator;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.Logger;
 
 /**
  * @author ctsims

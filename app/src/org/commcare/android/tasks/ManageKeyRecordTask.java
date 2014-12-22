@@ -16,7 +16,6 @@ import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.templates.HttpCalloutTask;
-import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -56,6 +55,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     ArrayList<UserKeyRecord> keyRecords;
     
     ManageKeyRecordListener<R> listener;
+    
+    boolean userRecordExists = false;
     
     boolean calloutNeeded = false;
     boolean calloutRequired = false;
@@ -104,6 +105,11 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 listener.keysLoginComplete(receiver);
                 return;
             }
+        } else if(result == HttpCalloutOutcomes.NetworkFailure) {
+            
+            if(calloutNeeded && userRecordExists){
+                result = HttpCalloutOutcomes.NetworkFailureBadPassword;
+            }
         }
 
         //For any other result make sure we're logged out. 
@@ -138,10 +144,14 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         //Now, see whether we have a valid record for this username/password combo
         
         boolean hasRecord = false;
+        userRecordExists = false;
         UserKeyRecord valid = null;
         
         Date now = new Date();
         for(UserKeyRecord ukr : app.getStorage(UserKeyRecord.class).getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            
+            userRecordExists = true;
+            
             if(!ukr.isPasswordValid(password)) {
                 //This record is for a different password
                 continue;

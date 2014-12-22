@@ -22,7 +22,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 
@@ -89,7 +88,7 @@ public class FileBitCache implements BitCache {
             
             //process
             FileInputStream fis = new FileInputStream(temp);
-            BufferedInputStream bis = new BufferedInputStream(fis, 1024);
+            BufferedInputStream bis = new BufferedInputStream(fis, 4096);
             CipherInputStream cis = new CipherInputStream(bis,decrypter);
             return cis;
         } catch (NoSuchAlgorithmException e) {

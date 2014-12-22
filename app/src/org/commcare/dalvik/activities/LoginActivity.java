@@ -27,8 +27,6 @@ import org.javarosa.core.services.locale.Localization;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Menu;
@@ -206,6 +204,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                             receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
                             receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
+                        } else if(update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
+                            receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[] {String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+                        } else if(update[0] == DataPullTask.PROGRESS_PROCESSING) {
+                            receiver.updateProgress(Localization.get("sync.process.processing", new String[] {String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
                             receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
@@ -334,6 +336,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                         Logger.log(AndroidLogger.TYPE_USER, "bad network");
                         r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
                         break;
+                    case NetworkFailureBadPassword:
+                        Logger.log(AndroidLogger.TYPE_USER, "bad network");
+                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork_BadPass, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                        break;
                     case BadCertificate:
                         Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
                         r.raiseMessage(NotificationMessageFactory.message(StockMessages.BadSSLCertificate, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
@@ -461,4 +467,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         return dialog;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isBackEnabled()
+     */
+    @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
 }

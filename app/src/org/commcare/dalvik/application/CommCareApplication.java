@@ -1,11 +1,6 @@
 package org.commcare.dalvik.application;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,7 +14,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -57,6 +51,7 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareSession;
+import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -66,8 +61,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.Externalizable;
 import org.odk.collect.android.application.Collect;
 
 import android.annotation.SuppressLint;
@@ -141,6 +134,9 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Collect.setStaticApplicationContext(this);
+        //Sets the static strategy for the deserializtion code to be
+        //based on an optimized md5 hasher. Major speed improvements.
+        AndroidClassHasher.registerAndroidClassHashStrategy();
         
         CommCareApplication.app = this;
         
@@ -462,40 +458,6 @@ public class CommCareApplication extends Application {
                 return handle;
             }
         });
-    }
-    
-        
-    public void serializeToIntent(Intent i, String name, Externalizable data) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            data.writeExternal(new DataOutputStream(baos));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        i.putExtra(name, baos.toByteArray());
-    }
-    
-    public <T extends Externalizable> T deserializeFromIntent(Intent i, String name, Class<T> type) {
-        if(!i.hasExtra(name)) { return null;}
-        T t;
-        try {
-            t = type.newInstance();
-            t.readExternal(new DataInputStream(new ByteArrayInputStream(i.getByteArrayExtra(name))), DbUtil.getPrototypeFactory(this));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (DeserializationException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException(e1);
-        } catch (InstantiationException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException(e1);
-        }
-        return t;
     }
 
     /*

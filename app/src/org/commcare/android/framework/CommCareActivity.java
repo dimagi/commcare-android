@@ -1,41 +1,36 @@
 package org.commcare.android.framework;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
+import org.commcare.suite.model.Detail;
 import org.commcare.util.SessionFrame;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.MediaState;
 import org.odk.collect.android.views.media.MediaEntity;
+import org.odk.collect.android.views.media.MediaState;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -151,14 +146,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                try { 
-                    CommCareApplication._().getCurrentSession().clearAllState();
-                } catch(SessionUnavailableException sue) {
-                    // probably won't go anywhere with this
-                }
-                // app icon in action bar clicked; go home
-                Intent intent = new Intent(this, CommCareHomeActivity.class);
-                startActivity(intent);
+                this.onBackPressed();
+                
+//                try { 
+//                    CommCareApplication._().getCurrentSession().clearAllState();
+//                } catch(SessionUnavailableException sue) {
+//                    // probably won't go anywhere with this
+//                }
+//                // app icon in action bar clicked; go home
+//                Intent intent = new Intent(this, CommCareHomeActivity.class);
+//                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -731,6 +728,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public CustomProgressDialog generateProgressDialog(int taskId) {
         //dummy method for compilation, implementation handled in those subclasses that need it
         return null;
+    }
+    public Pair<Detail, TreeReference> requestEntityContext() {
+        return null;
+    }
+
+    /**
+     * Whether or not the "Back" action makes sense for this activity.
+     * 
+     * @return True if "Back" is a valid concept for the Activity ande should be shown
+     * in the action bar if available. False otherwise.
+     */
+    public boolean isBackEnabled() {
+        return true;
     }
     
 }

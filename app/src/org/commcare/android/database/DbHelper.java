@@ -10,13 +10,8 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.util.Base64;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
