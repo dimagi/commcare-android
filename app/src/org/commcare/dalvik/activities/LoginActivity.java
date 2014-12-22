@@ -136,7 +136,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     versionDisplay.setVisibility(View.VISIBLE);
                     
                     // Override default CommCare banner if requested
-                    String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER, "");
+                    String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_LOGIN, "");
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {

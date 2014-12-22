@@ -1342,7 +1342,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         
         // Override default CommCare banner if requested
-        String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER, "");
+        String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_HOME, "");
         if (!"".equals(customBannerURI)) {
             Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
             if (bitmap != null) {
