@@ -45,11 +45,12 @@ public class StringUtils {
         //which helps a lot. Otherwise we won't be able to clear up some of those
         //issues, but we can at least still eliminate diacritics.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            input = Normalizer.normalize(input, Normalizer.Form.NFD);
+            normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
         } else{
             //TODO: I doubt it's worth it, but in theory we could run
             //some other normalization for the minority of pre-API9
             //devices.
+            normalized = input;
         }
         
         normalizationCache.put(input, normalized);
