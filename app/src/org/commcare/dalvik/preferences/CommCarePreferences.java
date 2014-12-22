@@ -88,6 +88,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     
     
     public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
+    
+    public final static String BRAND_BANNER = "brand-banner";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;

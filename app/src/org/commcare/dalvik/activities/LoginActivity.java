@@ -18,6 +18,7 @@ import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -27,6 +28,7 @@ import org.javarosa.core.services.locale.Localization;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Menu;
@@ -36,6 +38,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,10 +87,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         
         //Only on the initial creation
-        if(savedInstanceState ==null) {
-            String lastUser = CommCareApplication._().getCurrentApp().getAppPreferences().getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        if(savedInstanceState == null) {
+            String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
             if(lastUser != null) {
                 username.setText(lastUser);
                 password.requestFocus();
@@ -130,6 +134,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     banner.setVisibility(View.GONE);
                 }  else {
                     versionDisplay.setVisibility(View.VISIBLE);
+                    
+                    // Override default CommCare banner if requested
+                    String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER, "");
+                    if (!"".equals(customBannerURI)) {
+                        Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
+                        if (bitmap != null) {
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.screen_login_top_banner);
+                            bannerView.setImageBitmap(bitmap);
+                        }
+                    }
                     banner.setVisibility(View.VISIBLE);
                 }
              }
