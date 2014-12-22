@@ -21,5 +21,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/zxingcore-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/joda-time-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/sqlcipher.jar"/>
+	<classpathentry kind="lib" path="/bypass/bin/bypass.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

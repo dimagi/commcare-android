@@ -3,12 +3,12 @@ package org.odk.collect.android.widgets;
 
 import java.util.Vector;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import android.app.AlertDialog;
@@ -68,11 +68,11 @@ public class SpinnerMultiWidget extends QuestionWidget {
             answer_items[i] = prompt.getSelectChoiceText(mItems.get(i));
         }
 
-        selectionText.setText(Localization.get("odk_selected"));
+        selectionText.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_selected"));
         selectionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         selectionText.setVisibility(View.GONE);
 
-        button.setText(Localization.get("odk_select_answer"));
+        button.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_select_answer"));
         button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         button.setPadding(0, 0, 0, 7);
 
@@ -91,7 +91,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
 
                                     if (first) {
                                         first = false;
-                                        selectionText.setText(Localization.get("odk_selected")
+                                        selectionText.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_selected")
                                                 + answer_items[i].toString());
                                         selectionText.setVisibility(View.VISIBLE);
                                     } else {
@@ -156,7 +156,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
                 if (found) {
                     if (first) {
                         first = false;
-                        selectionText.setText(Localization.get("odk_selected")
+                        selectionText.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_selected")
                                 + answer_items[i].toString());
                         selectionText.setVisibility(View.VISIBLE);
                     } else {

@@ -14,9 +14,9 @@
 
 package org.odk.collect.android.widgets;
 
+import org.commcare.android.util.MarkupUtil;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.IntentCallout;
@@ -101,7 +101,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            launchIntentButton.setText(Localization.get("odk_intent_callout_button_update"));
+            launchIntentButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_intent_callout_button_update"));
             mStringAnswer.setText(s);
         }
         // finish complex layout
@@ -113,7 +113,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         if(ic.getButtonLabel() != null){
             launchIntentButton.setText(ic.getButtonLabel());
         } else{
-            launchIntentButton.setText(Localization.get("odk_intent_callout_button"));
+            launchIntentButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_intent_callout_button"));
         }
     }
 

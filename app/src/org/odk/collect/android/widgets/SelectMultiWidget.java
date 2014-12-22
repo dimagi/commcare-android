@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import java.util.Vector;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
@@ -90,7 +91,7 @@ public class SelectMultiWidget extends QuestionWidget {
                 });
 
                 c.setId(buttonIdBase + i);
-                c.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                c.setText(MarkupUtil.styleSpannable(getContext(),prompt.getSelectChoiceText(mItems.get(i))));
                 c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
                 c.setFocusable(!prompt.isReadOnly());
                 c.setEnabled(!prompt.isReadOnly());

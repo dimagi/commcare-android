@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import java.util.Vector;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
@@ -90,7 +91,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
                 RadioButton r = new RadioButton(getContext());
                 r.setOnCheckedChangeListener(this);
-                r.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                r.setText(MarkupUtil.styleSpannable(getContext(),prompt.getSelectChoiceText(mItems.get(i))));
                 r.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
                 r.setId(i + buttonIdBase);
                 r.setEnabled(!prompt.isReadOnly());

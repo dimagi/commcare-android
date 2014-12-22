@@ -14,9 +14,9 @@
 
 package org.odk.collect.android.widgets;
 
+import org.commcare.android.util.MarkupUtil;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 
@@ -55,7 +55,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
         
         // set button formatting
         mGetBarcodeButton = new Button(getContext());
-        mGetBarcodeButton.setText(Localization.get("odk_get_barcode"));
+        mGetBarcodeButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_get_barcode"));
         mGetBarcodeButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mGetBarcodeButton.setPadding(20, 20, 20, 20);
         mGetBarcodeButton.setEnabled(!prompt.isReadOnly());
@@ -76,7 +76,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
                         FormEntryActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        Localization.get("odk_barcode_scanner_error"), Toast.LENGTH_SHORT)
+                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_barcode_scanner_error"), Toast.LENGTH_SHORT)
                             .show();
                     mWaitingForData = false;
                 }
@@ -90,7 +90,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            mGetBarcodeButton.setText(Localization.get("odk_replace_barcode"));
+            mGetBarcodeButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_replace_barcode"));
             mStringAnswer.setText(s);
         }
         // finish complex layout
@@ -106,7 +106,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);
-        mGetBarcodeButton.setText(Localization.get("odk_get_barcode"));
+        mGetBarcodeButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_get_barcode"));
     }
 
 

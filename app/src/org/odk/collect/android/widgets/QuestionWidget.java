@@ -2,6 +2,7 @@ package org.odk.collect.android.widgets;
 
 import java.io.File;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.R.color;
 import org.javarosa.core.model.FormIndex;
@@ -339,7 +340,7 @@ public abstract class QuestionWidget extends LinearLayout {
 
         // Add the text view. Textview always exists, regardless of whether there's text.
         mQuestionText = new TextView(getContext());
-        mQuestionText.setText(p.getLongText());
+        mQuestionText.setText(MarkupUtil.styleSpannable(getContext(), p.getLongText()));
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         mQuestionText.setTypeface(null, Typeface.BOLD);
         mQuestionText.setPadding(0, 0, 0, 7);
@@ -423,7 +424,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(Localization.get("odk_ok"), errorListener);
+            mAlertDialog.setButton(MarkupUtil.localizeStyleSpannable(getContext(), "odk_ok"), errorListener);
             mAlertDialog.show();
         } else {
         

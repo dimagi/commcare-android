@@ -16,9 +16,9 @@ package org.odk.collect.android.widgets;
 
 import java.io.File;
 
+import org.commcare.android.util.MarkupUtil;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.utilities.FileUtils;
@@ -74,7 +74,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         
         // setup capture button
         mCaptureButton = new Button(getContext());
-        mCaptureButton.setText(Localization.get("odk_capture_audio"));
+        mCaptureButton.setText(MarkupUtil.localizeMarkdownSpannable(getContext(), "odk_capture_audio"));
         mCaptureButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mCaptureButton.setPadding(20, 20, 20, 20);
         mCaptureButton.setEnabled(!prompt.isReadOnly());
@@ -97,7 +97,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                         .startActivityForResult(i, FormEntryActivity.AUDIO_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        Localization.get("odk_activity_not_found", "audio capture"),
+                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "audio capture"),
                         Toast.LENGTH_SHORT);
                 }
 
@@ -106,7 +106,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup capture button
         mChooseButton = new Button(getContext());
-        mChooseButton.setText(Localization.get("odk_choose_sound"));
+        mChooseButton.setText(MarkupUtil.localizeStyleSpannable(getContext(),"odk_choose_sound"));
         mChooseButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mChooseButton.setPadding(20, 20, 20, 20);
         mChooseButton.setEnabled(!prompt.isReadOnly());
@@ -128,7 +128,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                         .startActivityForResult(i, FormEntryActivity.AUDIO_CHOOSER);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        Localization.get("odk_activity_not_found", "choose audio"),
+                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "choose audio"),
                         Toast.LENGTH_SHORT);
                 }
 
@@ -137,7 +137,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup play button
         mPlayButton = new Button(getContext());
-        mPlayButton.setText(Localization.get("odk_play_audio"));
+        mPlayButton.setText(MarkupUtil.localizeStyleSpannable(getContext(),"odk_play_audio"));
         mPlayButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mPlayButton.setPadding(20, 20, 20, 20);
         mPlayButton.setLayoutParams(params);
@@ -157,7 +157,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                 ((Activity) getContext()).startActivity(i);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        Localization.get("odk_activity_not_found", "play audio"),
+                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "play audio"),
                         Toast.LENGTH_SHORT);
                 }
 

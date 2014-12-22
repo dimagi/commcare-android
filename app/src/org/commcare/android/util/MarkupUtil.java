@@ -18,6 +18,18 @@ public class MarkupUtil {
      * Developer Preference helper classes
      */
     
+    public static Spannable styleSpannable(Context c, String message){
+        if(DeveloperPreferences.isCssEnabled()){
+            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
+        }
+        
+        if(DeveloperPreferences.isMarkdownEnabled()){
+            return (Spannable) localizeMarkdownSpannable(c, message);
+        }
+        
+        return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
+    }
+    
     public static Spannable localizeStyleSpannable(Context c, String localizationKey){
         
         if(DeveloperPreferences.isCssEnabled()){
@@ -30,6 +42,21 @@ public class MarkupUtil {
         
         return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey)));
     }
+    
+    public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg){
+        
+        if(DeveloperPreferences.isCssEnabled()){
+            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArg));
+        }
+        
+        if(DeveloperPreferences.isMarkdownEnabled()){
+            return (Spannable) localizeMarkdownSpannable(c, localizationKey, new String[] {localizationArg});
+        }
+        
+        return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArg)));
+    }
+        
+        
     
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String[] localizationArgs){
         if(DeveloperPreferences.isCssEnabled()){

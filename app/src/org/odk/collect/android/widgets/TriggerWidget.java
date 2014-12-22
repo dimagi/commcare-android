@@ -14,10 +14,10 @@
 
 package org.odk.collect.android.widgets;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import android.content.Context;
@@ -64,7 +64,7 @@ public class TriggerWidget extends QuestionWidget {
         this.setOrientation(LinearLayout.VERTICAL);
 
         mTriggerButton = new CheckBox(getContext());
-        mTriggerButton.setText(Localization.get("odk_trigger"));
+        mTriggerButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_trigger"));
         mTriggerButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         // mActionButton.setPadding(20, 20, 20, 20);
         mTriggerButton.setEnabled(!prompt.isReadOnly());

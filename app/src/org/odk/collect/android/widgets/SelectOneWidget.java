@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import java.util.Vector;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
@@ -66,7 +67,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         if (prompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 final RadioButton rb = new RadioButton(getContext());
-                rb.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                rb.setText(MarkupUtil.styleSpannable(getContext(),prompt.getSelectChoiceText(mItems.get(i))));
                 rb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
                 rb.setId(i + buttonIdBase);
                 rb.setEnabled(!prompt.isReadOnly());

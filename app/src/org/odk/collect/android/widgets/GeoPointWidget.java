@@ -16,9 +16,9 @@ package org.odk.collect.android.widgets;
 
 import java.text.DecimalFormat;
 
+import org.commcare.android.util.MarkupUtil;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.activities.GeoPointActivity;
@@ -68,14 +68,14 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
         
         mGetLocationButton = new Button(getContext());
         mGetLocationButton.setPadding(20, 20, 20, 20);
-        mGetLocationButton.setText(Localization.get("odk_get_location"));
+        mGetLocationButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_get_location"));
         mGetLocationButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mGetLocationButton.setEnabled(!prompt.isReadOnly());
         mGetLocationButton.setLayoutParams(params);
 
         // setup play button
         mViewButton = new Button(getContext());
-        mViewButton.setText(Localization.get("odk_show_location"));
+        mViewButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_show_location"));
         mViewButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mViewButton.setPadding(20, 20, 20, 20);
         mViewButton.setLayoutParams(params);
@@ -111,7 +111,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null && !s.equals("")) {
-            mGetLocationButton.setText(Localization.get("odk_replace_location"));
+            mGetLocationButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_replace_location"));
             setBinaryData(s);
             mViewButton.setEnabled(true);
         } else {
@@ -170,7 +170,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     public void clearAnswer() {
         mStringAnswer.setText(null);
         mAnswerDisplay.setText(null);
-        mGetLocationButton.setText(Localization.get("odk_get_location"));
+        mGetLocationButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_get_location"));
 
     }
 
@@ -259,12 +259,12 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
         mStringAnswer.setText(s);
 
         String[] sa = s.split(" ");
-        mAnswerDisplay.setText(Localization.get("odk_latitude") + ": "
+        mAnswerDisplay.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_latitude") + ": "
                 + formatGps(Double.parseDouble(sa[0]), "lat") + "\n"
-                + Localization.get("odk_longitude") + ": "
+                + MarkupUtil.localizeStyleSpannable(getContext(), "odk_longitude") + ": "
                 + formatGps(Double.parseDouble(sa[1]), "lon") + "\n"
-                + Localization.get("odk_altitude") + ": " + truncateDouble(sa[2]) + "m\n"
-                + Localization.get("odk_accuracy") + ": " + truncateDouble(sa[3]) + "m");
+                + MarkupUtil.localizeStyleSpannable(getContext(), "odk_altitude") + ": " + truncateDouble(sa[2]) + "m\n"
+                + MarkupUtil.localizeStyleSpannable(getContext(), "odk_accuracy") + ": " + truncateDouble(sa[3]) + "m");
         mWaitingForData = false;
     }
 
