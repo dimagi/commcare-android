@@ -39,7 +39,7 @@ public class StringUtils {
             diacritics = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         }
         String normalized = normalizationCache.get(input);
-        if(normalized != null) { return normalizationCache.get(input);}
+        if(normalized != null) { return normalized; }
         
         //If we're above gingerbread we'll normalize this in NFD form 
         //which helps a lot. Otherwise we won't be able to clear up some of those
