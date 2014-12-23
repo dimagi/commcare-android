@@ -172,7 +172,7 @@ public class LineChart extends XYChart {
           int i = 0;
           while (i < length) {
             if (fillPoints.get(i + 1) < 0) {
-              int originalI = i;
+              int currentIndex = i;
               // If there's a subsequent point, and its y is on the screen,
               // add an intermediate point at the intersection of the line
               // segment and the y boundary
@@ -181,7 +181,7 @@ public class LineChart extends XYChart {
                 fillPoints.add(i + 1, 0f);
                 i += 2;
                 length += 2;
-                originalI += 2;
+                currentIndex += 2;
               }
             
               // If there's a subsequent point, and its y is on the screen,
@@ -193,7 +193,7 @@ public class LineChart extends XYChart {
                 i += 2;
                 length += 2;
               }
-              fillPoints.set(originalI + 1, 0f);
+              fillPoints.set(currentIndex + 1, 0f);
             }
             i += 2;
           }
