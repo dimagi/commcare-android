@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@color/white" >
     
-    <RelativeLayout
+    <FrameLayout
     android:id="@+id/com_tile_holder_top"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,20 +13,15 @@
     <FrameLayout
         android:id="@+id/com_tile_holder_frame"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/com_tile_holder_actions">
+        android:layout_height="wrap_content">
 
     </FrameLayout>
 
     <LinearLayout
-        android:id="@id/com_tile_holder_actions"
+        android:id="@+id/com_tile_holder_actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignBottom="@+id/com_tile_holder_frame"
+        android:layout_gravity="bottom|right"
         android:orientation="vertical"
         android:weightSum="1" >
 
@@ -57,7 +52,7 @@
         </FrameLayout>
     
     </LinearLayout>
-    </RelativeLayout>
+    </FrameLayout>
 
     <RelativeLayout
         android:id="@+id/com_tile_holder_detail_master"
