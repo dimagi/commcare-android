@@ -71,7 +71,7 @@ public class LineChart extends XYChart {
    * 
    * @param canvas the canvas to paint to
    * @param paint the paint to be used for drawing
-   * @param points the array of points to be used for drawing the series
+   * @param points the array of points to be used for drawing the series: [x1, y1, x2, y2, ... ]
    * @param seriesRenderer the series renderer
    * @param yAxisValue the minimum value of the y axis
    * @param seriesIndex the index of the series currently being drawn
@@ -168,52 +168,27 @@ public class LineChart extends XYChart {
         }
         int length = fillPoints.size();
         if (length > 0) {
-          fillPoints.set(0, fillPoints.get(0) + 1);     // start coloring a pixel below the first line point
-          // ...and color all the same points as are on the line
-          // If any y-values are above the screen, set them to zero
-          // ...this doesn't seem right. why are fills different than lines?
-          // doesn't calculateDrawPoints fix this for lines?
+          fillPoints.set(0, fillPoints.get(0) + 1);
           int i = 0;
-          int screenWidth = canvas.getWidth();
           while (i < length) {
             if (fillPoints.get(i + 1) < 0) {
               int originalI = i;
-              // If there's a previous point, and its y is on the screen...
+              // If there's a subsequent point, and its y is on the screen,
+              // add an intermediate point at the intersection of the line
+              // segment and the y boundary
               if (i >= 2 && fillPoints.get(i - 1) >= 0) {
-                // ...add a preceding point
-                float p1x = fillPoints.get(i - 2);
-                float p1y = fillPoints.get(i - 1);
-                float p2x = fillPoints.get(i);
-                float p2y = fillPoints.get(i + 1);
-                float m = (p2y - p1y) / (p2x - p1x);
-                float calcX = (-p1y + m * p1x) / m;
-                if (calcX < 0) {
-                  calcX = 0;
-                } else if (calcX > screenWidth) {
-                  calcX = screenWidth;
-                }
-                fillPoints.add(i, calcX);
+                fillPoints.add(i, getXIntermediary(fillPoints.subList(i - 2, i + 2), canvas.getWidth()));
                 fillPoints.add(i + 1, 0f);
                 i += 2;
                 length += 2;
                 originalI += 2;
               }
             
-              // If there's a subsequent point, and its y is on the screen
+              // If there's a subsequent point, and its y is on the screen,
+              // add an intermediate point at the intersection of the line
+              // segment and the y boundary
               if (i + 2 < fillPoints.size() && fillPoints.get(i + 3) >= 0) {
-                // ...add a subsequent point
-                float p1x = fillPoints.get(i);
-                float p1y = fillPoints.get(i + 1);
-                float p2x = fillPoints.get(i + 2);
-                float p2y = fillPoints.get(i + 3);
-                float m = (p2y - p1y) / (p2x - p1x);
-                float calcX = (-p1y + m * p1x) / m;
-                if (calcX < 0) {
-                  calcX = 0;
-                } else if (calcX > screenWidth) {
-                  calcX = screenWidth;
-                }
-                fillPoints.add(i + 2, calcX);
+                fillPoints.add(i + 2, getXIntermediary(fillPoints.subList(i, i + 4), canvas.getWidth()));
                 fillPoints.add(i + 3, 0f);
                 i += 2;
                 length += 2;
@@ -223,9 +198,11 @@ public class LineChart extends XYChart {
             i += 2;
           }
 
-          fillPoints.add(fillPoints.get(length - 2));   // add a point (rightmost x, y-axis)
+          // Add two points to finish off the fill shape:
+          // (minX, yReference) and (maxX, yReference)
+          fillPoints.add(fillPoints.get(length - 2));
           fillPoints.add(referencePoint);
-          fillPoints.add(fillPoints.get(0));            // add a point (leftmost x, y-axis again)
+          fillPoints.add(fillPoints.get(0));
           fillPoints.add(fillPoints.get(length + 1));
 
           paint.setStyle(Style.FILL);
@@ -237,6 +214,20 @@ public class LineChart extends XYChart {
     paint.setStyle(Style.STROKE);
     drawPath(canvas, points, paint, false);
     paint.setStrokeWidth(lineWidth);
+  }
+  
+  /**
+   * Given two points, determine x value of a point between them that lies on y = 0
+   * @param pointPair List representing points as [x1, y1, x2, y2]
+   * @param maxX X value for right edge of bounding box
+   * @return
+   */
+  private float getXIntermediary(List<Float> pointPair, int maxX) {
+    float m = (pointPair.get(3) - pointPair.get(1)) / (pointPair.get(2) - pointPair.get(0));
+    float calcX = (-pointPair.get(1) + m * pointPair.get(0)) / m;
+    calcX = Math.max(0, calcX);
+    calcX = Math.min(calcX, maxX);
+    return calcX;
   }
 
   @Override
