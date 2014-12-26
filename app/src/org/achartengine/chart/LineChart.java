@@ -178,15 +178,11 @@ public class LineChart extends XYChart {
           int i = 0;
           while (i < length) {
             if (yOutOfBounds(fillPoints.get(i + 1), fill.getType(), canvas)) {
-            //if (fillPoints.get(i + 1) < 0) {
-System.out.println("[jls] something is out of bounds");
               int currentIndex = i;
               // If there's a previous point, and its y is on the screen,
               // add an intermediate point at the intersection of the line
               // segment and the y boundary
-              //if (i >= 2 && fillPoints.get(i - 1) >= 0) {
               if (i >= 2 && !yOutOfBounds(fillPoints.get(i - 1), fill.getType(), canvas)) {
-System.out.println("[jls] adding previous intermediary");
                 fillPoints.add(i, getXIntermediary(fillPoints.subList(i - 2, i + 2), canvas.getWidth()));
                 //fillPoints.add(i + 1, 0f);
                 fillPoints.add(i + 1, boundary);
@@ -198,17 +194,12 @@ System.out.println("[jls] adding previous intermediary");
               // If there's a subsequent point, and its y is on the screen,
               // add an intermediate point at the intersection of the line
               // segment and the y boundary
-              //if (i + 2 < fillPoints.size() && fillPoints.get(i + 3) >= 0) {
               if (i + 2 < fillPoints.size() && !yOutOfBounds(fillPoints.get(i + 3), fill.getType(), canvas)) {
-System.out.println("[jls] adding subsequent intermediary");
                 fillPoints.add(i + 2, getXIntermediary(fillPoints.subList(i, i + 4), canvas.getWidth()));
-                //fillPoints.add(i + 3, 0f);
                 fillPoints.add(i + 3, boundary);
                 i += 2;
                 length += 2;
               }
-System.out.println("[jls] adjusting current point");
-              //fillPoints.set(currentIndex + 1, 0f);
               fillPoints.set(currentIndex + 1, boundary);
             }
             i += 2;
