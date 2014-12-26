@@ -183,20 +183,13 @@ public class LineChart extends XYChart {
           // the top of the canvas (probably actually a bug in AbstractChart::calculateDrawPoints
           // but easier to fix here).
           while (i < length) {
-            if (
-              fillPoints.get(i + 1) < 0
-              || fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i + 1) > canvas.getHeight()
-            ) {
+            if (yOutOfBounds(fill.getType(), fillPoints.get(i + 1), canvas.getHeight())) {
               int currentIndex = i;
               // If there's a previous point, and its y is on the screen,
               // add an intermediate point at the intersection of the line
               // segment and the y boundary
-              if (
-                i >= 2 && !(
-                  fillPoints.get(i - 1) < 0
-                  || fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i - 1) > canvas.getHeight()
-              )) {
-                float newY = fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i - 1) < canvas.getHeight() / 2 ? 0 : boundary;
+              if (i >= 2 && !yOutOfBounds(fill.getType(), fillPoints.get(i - 1), canvas.getHeight())) {
+                float newY = yOutOfBoundsPrime(fill.getType(), fillPoints.get(currentIndex + 1), canvas.getHeight()) ? 0f: boundary;
                 fillPoints.add(i, getXIntermediary(fillPoints.subList(i - 2, i + 2), canvas.getWidth()));
                 fillPoints.add(i + 1, newY);
                 i += 2;
@@ -207,11 +200,8 @@ public class LineChart extends XYChart {
               // If there's a subsequent point, and its y is on the screen,
               // add an intermediate point at the intersection of the line
               // segment and the y boundary
-              if (i + 2 < fillPoints.size() && !(
-                fillPoints.get(i + 3) < 0
-                || fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i + 3) > canvas.getHeight()
-              )) {
-                float newY = fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i + 3) < canvas.getHeight() / 2 ? 0 : boundary;
+              if (i + 2 < fillPoints.size() && !yOutOfBounds(fill.getType(), fillPoints.get(i + 3), canvas.getHeight())) {
+                float newY = yOutOfBoundsPrime(fill.getType(), fillPoints.get(currentIndex + 1), canvas.getHeight()) ? 0f : boundary;
                 fillPoints.add(i + 2, getXIntermediary(fillPoints.subList(i, i + 4), canvas.getWidth()));
                 fillPoints.add(i + 3, newY);
                 i += 2;
@@ -252,6 +242,24 @@ public class LineChart extends XYChart {
     calcX = Math.max(0, calcX);
     calcX = Math.min(calcX, maxX);
     return calcX;
+  }
+  
+  private boolean yOutOfBounds(FillOutsideLine.Type type, float y, int height) {
+      return yOutOfBoundsStandard(type, y, height) || yOutOfBoundsPrime(type, y, height);
+  }
+  
+  private boolean yOutOfBoundsStandard(FillOutsideLine.Type type, float y, int height) {
+      if (type == FillOutsideLine.Type.ABOVE) {
+          return y > height;
+      }
+      if (type == FillOutsideLine.Type.BELOW) {
+          return y < 0;
+      }
+      return false;
+  }
+
+  private boolean yOutOfBoundsPrime(FillOutsideLine.Type type, float y, int height) {
+    return type == FillOutsideLine.Type.ABOVE && y < 0;
   }
   
   @Override
