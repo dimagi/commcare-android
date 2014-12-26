@@ -183,9 +183,10 @@ public class LineChart extends XYChart {
               // add an intermediate point at the intersection of the line
               // segment and the y boundary
               if (i >= 2 && !yOutOfBounds(fillPoints.get(i - 1), fill.getType(), canvas)) {
+                  float newY = fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i - 1) < canvas.getHeight() / 2 ? 0 : boundary;
+System.out.println("[jls] adding previous intermediary point at " + newY + " because type = " + fill.getType() + " and point is at y = " + fillPoints.get(i - 1));
                 fillPoints.add(i, getXIntermediary(fillPoints.subList(i - 2, i + 2), canvas.getWidth()));
-                //fillPoints.add(i + 1, 0f);
-                fillPoints.add(i + 1, boundary);
+                fillPoints.add(i + 1, newY);
                 i += 2;
                 length += 2;
                 currentIndex += 2;
@@ -195,12 +196,15 @@ public class LineChart extends XYChart {
               // add an intermediate point at the intersection of the line
               // segment and the y boundary
               if (i + 2 < fillPoints.size() && !yOutOfBounds(fillPoints.get(i + 3), fill.getType(), canvas)) {
+                  float newY = fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i + 3) < canvas.getHeight() / 2 ? 0 : boundary;
+System.out.println("[jls] adding subsequent intermediary point at " + newY + " because type = " + fill.getType() + " and point is at y = " + fillPoints.get(i + 3));
                 fillPoints.add(i + 2, getXIntermediary(fillPoints.subList(i, i + 4), canvas.getWidth()));
-                fillPoints.add(i + 3, boundary);
+                fillPoints.add(i + 3, newY);
                 i += 2;
                 length += 2;
               }
-              fillPoints.set(currentIndex + 1, boundary);
+//System.out.println("[jls] adjusting current point");
+              fillPoints.set(currentIndex + 1, fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(currentIndex + 1) < 0 ? referencePoint : boundary);
             }
             i += 2;
           }
@@ -251,7 +255,7 @@ public class LineChart extends XYChart {
         //return y > yAxisValue;  
       }
       if (type == FillOutsideLine.Type.ABOVE) {
-        return y > canvas.getHeight();
+        return y > canvas.getHeight() || y < 0;
       }
       if (type == FillOutsideLine.Type.BELOW) {
         return y < 0;
