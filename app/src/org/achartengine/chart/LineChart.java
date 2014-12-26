@@ -184,7 +184,6 @@ public class LineChart extends XYChart {
               // segment and the y boundary
               if (i >= 2 && !yOutOfBounds(fillPoints.get(i - 1), fill.getType(), canvas)) {
                   float newY = fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i - 1) < canvas.getHeight() / 2 ? 0 : boundary;
-System.out.println("[jls] adding previous intermediary point at " + newY + " because type = " + fill.getType() + " and point is at y = " + fillPoints.get(i - 1));
                 fillPoints.add(i, getXIntermediary(fillPoints.subList(i - 2, i + 2), canvas.getWidth()));
                 fillPoints.add(i + 1, newY);
                 i += 2;
@@ -197,13 +196,11 @@ System.out.println("[jls] adding previous intermediary point at " + newY + " bec
               // segment and the y boundary
               if (i + 2 < fillPoints.size() && !yOutOfBounds(fillPoints.get(i + 3), fill.getType(), canvas)) {
                   float newY = fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(i + 3) < canvas.getHeight() / 2 ? 0 : boundary;
-System.out.println("[jls] adding subsequent intermediary point at " + newY + " because type = " + fill.getType() + " and point is at y = " + fillPoints.get(i + 3));
                 fillPoints.add(i + 2, getXIntermediary(fillPoints.subList(i, i + 4), canvas.getWidth()));
                 fillPoints.add(i + 3, newY);
                 i += 2;
                 length += 2;
               }
-//System.out.println("[jls] adjusting current point");
               fillPoints.set(currentIndex + 1, fill.getType() == FillOutsideLine.Type.ABOVE && fillPoints.get(currentIndex + 1) < 0 ? referencePoint : boundary);
             }
             i += 2;
