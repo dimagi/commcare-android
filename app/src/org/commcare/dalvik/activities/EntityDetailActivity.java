@@ -10,10 +10,12 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
@@ -23,6 +25,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -42,11 +45,15 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     public static final String IS_DEAD_END = "eda_ide";
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
+    public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
         
     Entry prototype;
     Entity<TreeReference> entity;
     EntityDetailAdapter adapter;
     NodeEntityFactory factory;
+    Pair<Detail, TreeReference> mEntityContext;
+    
+    TreeReference mTreeReference;
     
     private int detailIndex;
     
@@ -64,9 +71,28 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {   
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {        
         Intent i = getIntent();
+        
+        asw = CommCareApplication._().getCurrentSessionWrapper();
+        session = asw.getSession();            
+        String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
+        
+        Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
+        prototype = entries.elementAt(0);
+        
+        factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
+        
+        mTreeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+        String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);
+        if(shortDetailId != null) {
+            Detail shortDetail = session.getDetail(shortDetailId);
+            this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, mTreeReference);
+        }
+                
+        entity = factory.getEntity(mTreeReference);
+
+        super.onCreate(savedInstanceState);
         
         /* Caution: The detailIndex field comes from EntitySelectActivity, which is the 
          * source of this intent. In some instances, the detailIndex may not have been assigned,
@@ -103,24 +129,17 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
                 next.setText("Done");
             }
             
-            asw = CommCareApplication._().getCurrentSessionWrapper();
-            session = asw.getSession();            
-            String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
-            
-            Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
-            prototype = entries.elementAt(0);
-    
-            factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
-            
-            entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
-            
             mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
-               mDetailView.refresh(factory.getDetail(), detailIndex, true);
+            mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
         } catch(SessionUnavailableException sue) {
             //TODO: Login and return to try again
         }
         
         mDetailView.setDetail(factory.getDetail());
+    }
+    
+    public Pair<Detail, TreeReference> requestEntityContext() {
+        return mEntityContext;
     }
     
     /*
@@ -166,7 +185,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         switch(requestCode) {
         case CALL_OUT:
             if(resultCode == RESULT_CANCELED) {
-                mDetailView.refresh(factory.getDetail(), detailIndex, true);
+                mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
                 return;
             } else {
                 long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);

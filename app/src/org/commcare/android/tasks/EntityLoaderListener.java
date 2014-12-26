@@ -3,10 +3,7 @@ package org.commcare.android.tasks;
 import java.util.List;
 
 import org.commcare.android.models.Entity;
-<<<<<<< HEAD
-=======
 import org.commcare.android.models.NodeEntityFactory;
->>>>>>> master
 import org.javarosa.core.model.instance.TreeReference;
 
 public interface EntityLoaderListener {
