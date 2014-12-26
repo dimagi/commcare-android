@@ -177,6 +177,11 @@ public class LineChart extends XYChart {
           fillPoints.set(0, fillPoints.get(0) + 1);
           int i = 0;
           // Handle fills that go out of bounds. TODO: Handle BOUNDS_*
+          // Makes sure fill are drown correctly when an ABOVE fill crosses the bottom
+          // of the canvas or a BELOW fill crosses the top. Messy because it also 
+          // works around a bug that draws ABOVE fills incorrectly when they cross
+          // the top of the canvas (probably actually a bug in AbstractChart::calculateDrawPoints
+          // but easier to fix here).
           while (i < length) {
             if (
               fillPoints.get(i + 1) < 0
