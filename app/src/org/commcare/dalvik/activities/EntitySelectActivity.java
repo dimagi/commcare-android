@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -13,8 +12,10 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
+import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -30,9 +31,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathStringLiteral;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -42,6 +40,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -86,6 +85,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private static final int MENU_ACTION = Menu.FIRST + 2;
     
     EditText searchbox;
+    TextView searchResultStatus;
     EntityListAdapter adapter;
     Entry prototype;
     LinearLayout header;
@@ -109,12 +109,15 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     private boolean inAwesomeMode = false;
     FrameLayout rightFrame;
+    TabbedDetailView detailView;
     
     Intent selectedIntent = null;
     
     String filterString = "";
-
+    
     private Detail shortSelect;
+    
+    private DataSetObserver mListStateObserver;
     
     /*
      * (non-Javadoc)
@@ -123,6 +126,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        this.createDataSetObserver();
         
         EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
         
@@ -190,10 +195,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 inputMethodManager.showSoftInput(searchbox, InputMethodManager.SHOW_IMPLICIT);
             }
         });
-       
+        
         searchbox = (EditText)findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
+        searchResultStatus = (TextView) findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
@@ -231,12 +237,39 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 adapter.setController(this);
                 ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+                
+                //Disconnect the old adapter
+                adapter.unregisterDataSetObserver(oldActivity.mListStateObserver);
+                //connect the new one
+                adapter.registerDataSetObserver(this.mListStateObserver);
             }
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
     }
     
+    private void createDataSetObserver() {
+        mListStateObserver = new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                //update the search results box
+                String query = searchbox.getText().toString();
+                if (!"".equals(query)) {
+                    searchResultStatus.setText(Localization.get("select.search.status", new String[] {
+                        ""+adapter.getCount(true, false), 
+                        ""+adapter.getCount(true, true), 
+                        query
+                    }));
+                    searchResultStatus.setVisibility(View.VISIBLE);
+                }
+                else {
+                    searchResultStatus.setVisibility(View.GONE);
+                }
+            }
+        };
+    }
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
@@ -276,21 +309,23 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(this.isFinishing() || startOther) {return;}
         
         if(!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity = getEntityFromID(this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
             
             if(entity != null) {
                 if(inAwesomeMode) {
                     if (adapter != null) {
                         displayReferenceAwesome(entity, adapter.getPosition(entity));
+                    adapter.setAwesomeMode(true);
                         updateSelectedItem(entity, true);
                     }
                 } else {
                     //Once we've done the initial dispatch, we don't want to end up triggering it later.
                     this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
                     
-                    Intent i = getDetailIntent(entity);
+                    Intent i = getDetailIntent(entity, null);
                     if (adapter != null) {
                         i.putExtra("entity_detail_index", adapter.getPosition(entity));
+                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getShortDetail());
                     }
                     startActivityForResult(i, CONFIRM_SELECT);
                     return;
@@ -321,8 +356,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             header.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             v.setBackgroundResource(R.drawable.blue_tabbed_box);
-            header.addView(v,params);
             
+            // only add headers if we're not using grid mode
+            if(!shortSelect.usesGridView()){
+            header.addView(v,params);
+            }
             
             if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
                 EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
@@ -335,9 +373,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
     }
 
-    protected Intent getDetailIntent(TreeReference contextRef) {
+    protected Intent getDetailIntent(TreeReference contextRef, Intent i) {
         //Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
         //we return
+        if (i == null) {
+            i = new Intent(getApplicationContext(), EntityDetailActivity.class);
+        }
         
         TreeReference valueRef = XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
         AbstractTreeElement element = asw.getEvaluationContext().resolveReference(valueRef.contextualize(contextRef));
@@ -345,48 +386,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(element != null && element.getValue() != null) {
             value = element.getValue().uncast().getString();
         }
-   
-        Intent i = new Intent(getApplicationContext(), EntityDetailActivity.class);
         
         //See if we even have a long datum
         if(selectDatum.getLongDetail() != null) {
             //If so, add this. otherwise that'll be the queue to just return
             i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
+            i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getPersistentDetail());
         }
    
         i.putExtra(SessionFrame.STATE_DATUM_VAL, value);
-        CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
+        SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
         
         return i;
-    }
-    /**
-     * NOT GUARANTEED TO WORK! May return an entity if one exists
-     * 
-     * @param uniqueid
-     * @return
-     */
-    protected TreeReference getEntityFromID(String uniqueid) {
-        //The uniqueid here is the value selected, so we can in theory track down the value we're looking for.
-        
-        //Get root nodeset 
-        TreeReference nodesetRef = selectDatum.getNodeset().clone();
-        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
-        predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(selectDatum.getValue()), new XPathStringLiteral(uniqueid)));
-        nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
-        
-        Vector<TreeReference> elements = asw.getEvaluationContext().expandReference(nodesetRef);
-        if(elements.size() == 1) {
-            return elements.firstElement();
-        } else if(elements.size() > 1) {
-            //Lots of nodes. Can't really choose one yet.
-            return null;
-        } else {
-            return null;
-        }
-    }
-
-
-    
+    }    
 
     /*
      * (non-Javadoc)
@@ -404,7 +416,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             displayReferenceAwesome(selection, position);
             updateSelectedItem(selection, false);
         } else {
-            Intent i = getDetailIntent(selection);
+            Intent i = getDetailIntent(selection, null);
             i.putExtra("entity_detail_index", position);
             if (mNoDetailMode) {
                 returnWithResult(i);
@@ -444,7 +456,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 
                 //Otherwise, if we're in awesome mode, make sure we retain the original selection
                 if(inAwesomeMode) {
-                    TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                    TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
                     if(r != null) {
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
                         updateSelectedItem(r, true);
@@ -455,12 +467,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
         case MAP_SELECT:
             if(resultCode == RESULT_OK) {
-                TreeReference r = CommCareApplication._().deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
                 
                 if(inAwesomeMode) {
                     this.displayReferenceAwesome(r, adapter.getPosition(r));
                 } else {
-                    Intent i = this.getDetailIntent(r);
+                    Intent i = this.getDetailIntent(r, null);
                     if(mNoDetailMode) {
                         returnWithResult(i);
                     } else  {
@@ -646,6 +658,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
         }
         
+        if(adapter != null) {
+            adapter.signalKilled();
+        }
+        
         if (tts != null) {
             tts.stop();
             tts.shutdown();
@@ -672,7 +688,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @see org.commcare.android.tasks.EntityLoaderListener#deliverResult(java.util.List, java.util.List)
      */
     @Override
-    public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references) {
+    public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references, NodeEntityFactory factory) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -685,12 +701,15 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this);
+        
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this, factory);
+        
         view.setAdapter(adapter);
+        adapter.registerDataSetObserver(this.mListStateObserver);
         
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
         
-        if(adapter != null) {
+        if(adapter != null && filterString != null && !"".equals(filterString)) {
             adapter.applyFilter(filterString);
         }
         
@@ -705,7 +724,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private void updateSelectedItem(boolean forceMove) {
         TreeReference chosen = null;
         if(selectedIntent != null) {
-            chosen = CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+            chosen = SerializationUtil.deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
         }
         updateSelectedItem(chosen, forceMove);
     }
@@ -733,11 +752,15 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         this.loader = task;
     }
     
+    public boolean inAwesomeMode(){
+        return inAwesomeMode;
+    }
+    
     boolean rightFrameSetup = false;
     NodeEntityFactory factory;
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
-        selectedIntent = getDetailIntent(selection);
+        selectedIntent = getDetailIntent(selection, getIntent());
         //this should be 100% "fragment" able
         if(!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
@@ -755,7 +778,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
                     finish();
                     return;
-
                 }
                 
             });
@@ -763,20 +785,28 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             if(getIntent().getBooleanExtra(EntityDetailActivity.IS_DEAD_END, false)) {
                 next.setText("Done");
             }
-            
+
             String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
             
             Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
             prototype = entries.elementAt(0);
+            
+            detailView = new TabbedDetailView(this);
+            detailView.setRoot((ViewGroup) rightFrame.findViewById(R.id.entity_detail_tabs));
 
             factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
+            Detail detail = factory.getDetail();
+            detailView.setDetail(detail);
+
+            if (detail.isCompound()) {
+                // border around right panel doesn't look right when there are tabs
+                rightFrame.setBackgroundDrawable(null);
+            }
+
             rightFrameSetup = true;
         }
-        
-        Entity entity = factory.getEntity(CommCareApplication._().deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class));
-        
-        EntityDetailAdapter adapter = new EntityDetailAdapter(this, session, factory.getDetail(), entity, null, this, detailIndex);
-        ((ListView)this.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
+
+           detailView.refresh(factory.getDetail(), selection, detailIndex, false);
     }
 
     /*

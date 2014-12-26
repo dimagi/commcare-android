@@ -1,14 +1,17 @@
 package org.commcare.xml;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.crypto.Cipher;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.CaseIndexTable;
+import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.net.HttpRequestGenerator;
@@ -39,11 +42,14 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     File folder;
     boolean processAttachments = true;
     HttpRequestGenerator generator;
+    EntityStorageCache mEntityCache;
+    CaseIndexTable mCaseIndexTable;
     
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
         super(parser, storage);
+        mEntityCache = new EntityStorageCache("case");
+        mCaseIndexTable = new CaseIndexTable();
     }
-    
     
     //TODO: Sync the following two constructors!
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage, Cipher attachmentCipher, Cipher userCipher, File folder) {
@@ -57,6 +63,8 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     public AndroidCaseXmlParser(KXmlParser parser, int[] tallies, boolean b, SqlStorage<ACase> storage, HttpRequestGenerator generator) {
         super(parser, tallies, b, storage);
         this.generator = generator;
+        mEntityCache = new EntityStorageCache("case");
+        mCaseIndexTable = new CaseIndexTable();
     }
     
     /*
@@ -81,6 +89,21 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
             e.printStackTrace();
         } catch (InvalidReferenceException e) {
             e.printStackTrace();
+        }
+    }
+    
+    @Override
+    public void commit(Case parsed) throws IOException {
+        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+        db.beginTransaction();
+        try {
+            super.commit(parsed);
+            mEntityCache.invalidateCache(String.valueOf(parsed.getID()));
+            mCaseIndexTable.clearCaseIndices(parsed);
+            mCaseIndexTable.indexCase(parsed);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
     

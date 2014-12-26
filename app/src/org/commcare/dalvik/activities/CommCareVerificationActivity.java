@@ -188,7 +188,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         done(true);
     }
 
-
     /*
      * (non-Javadoc)
      * @see org.commcare.android.tasks.VerificationTaskListener#failUnknown()
@@ -204,7 +203,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         if(marker<0){return rawString;}
         else{return rawString.substring(marker);}
     }
-
 
     
     /*
@@ -234,7 +232,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
    	@Override
 	public CustomProgressDialog generateProgressDialog(int taskId) {
 		if (taskId == DIALOG_VERIFY_PROGRESS) {
@@ -260,6 +258,5 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 		}
 		
 	}
-
     
 }

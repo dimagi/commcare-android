@@ -1,4 +1,3 @@
-
 /**
  * 
  */
@@ -316,7 +315,7 @@ public class AndroidSessionWrapper {
         
         
         //Ok, so get our Text.
-        Text t = session.getDetail(datum.getLongDetail()).getTitle();
+        Text t = session.getDetail(datum.getLongDetail()).getTitle().getText();
         boolean isPrettyPrint = true;
         
         //CTS: this is... not awesome.

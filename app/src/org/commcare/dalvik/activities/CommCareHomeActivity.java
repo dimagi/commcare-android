@@ -343,7 +343,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
                     receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-                }else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+                } else if(update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
+                    receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[] {String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+                } else if(update[0] == DataPullTask.PROGRESS_PROCESSING) {
+                    receiver.updateProgress(Localization.get("sync.process.processing", new String[] {String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+                }  else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
                     receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
                     receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
@@ -1120,106 +1124,106 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void dispatchHomeScreen() {
-    	try {
-	        
-	        //First make sure nothing catastrophic has happened
-	        if (CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
-	           CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
-	        	if(!CommCareApplication._().isStorageAvailable()) {
-	        		createNoStorageDialog();
-	        	} else {
-	        		//see if we're logged in. If so, prompt for recovery.
-	        		try {
-	        			CommCareApplication._().getSession();
-	        			showDialog(DIALOG_CORRUPTED);
-	        		}catch(SessionUnavailableException sue) {
-			        	//otherwise, log in first
-	        			returnToLogin();
-	        		}
-	        	}
-	        }  
-	        //Now we need to catch any resource or database upgrade flags and make sure that the application
-	        //is ready to go.
-	        else if (CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
-	        		CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY ||
-	        		CommCareApplication._().getInstalledAppRecords().getNumRecords() == 0) {
-	        	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-	        	this.startActivityForResult(i, INIT_APP);
-	        } 
-	        
-	        else if (!CommCareApplication._().getSession().isLoggedIn()) {
-	        	loginDecisionProcess();
-	        } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
-	        	wasExternal = true;
-	        	String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
-	        	SessionStateDescriptor ssd = new SessionStateDescriptor();
-	        	ssd.fromBundle(sessionRequest);
-	        	CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-	        	this.startNextFetch();
-	        	return;
-	        } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-	        	//We were launched in shortcut mode. Get the command and load us up.
-	        	CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
-	        	startNextFetch();
-	        	//Only launch shortcuts once per intent
-	        	this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
-	        } 
-	        
-	        else if (CommCareApplication._().isUpdatePending()) {
-	        	//We've got an update pending that we need to check on.
-	        	
-    	    	Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
-	        	
-	        	//Create the update intent
-            	Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-            	SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            	String ref = prefs.getString("default_app_server", null);
-            	
-            	i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-            	i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
-            	i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
-            	
-            	startActivityForResult(i,UPGRADE_APP);
-            	return;
-	        } else if (CommCareApplication._().isSyncPending(false)) {
-	        	long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
-	        	String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
-	        	Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
-	        	refreshView();
-	        	this.syncData(false);
-	        }
-	        //Normal Home Screen login time! 
-	        else refreshView();
-    	} catch (SessionUnavailableException sue) {
-    		loginDecisionProcess();
-    	}       
+        try {
+            
+            //First make sure nothing catastrophic has happened
+            if (CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
+               CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
+                if(!CommCareApplication._().isStorageAvailable()) {
+                    createNoStorageDialog();
+                } else {
+                    //see if we're logged in. If so, prompt for recovery.
+                    try {
+                        CommCareApplication._().getSession();
+                        showDialog(DIALOG_CORRUPTED);
+                    }catch(SessionUnavailableException sue) {
+                        //otherwise, log in first
+                        returnToLogin();
+                    }
+                }
+            }
+            
+            //Now we need to catch any resource or database upgrade flags and make sure that the application
+            //is ready to go.
+            else if (CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
+                    CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY ||
+                    CommCareApplication._().getInstalledAppRecords().getNumRecords() == 0) {
+                    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                    this.startActivityForResult(i, INIT_APP);
+            } else if (!CommCareApplication._().getSession().isLoggedIn()) {
+                loginDecisionProcess();
+            } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
+                wasExternal = true;
+                String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
+                SessionStateDescriptor ssd = new SessionStateDescriptor();
+                ssd.fromBundle(sessionRequest);
+                CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+                this.startNextFetch();
+                return;
+            } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
+                
+                //We were launched in shortcut mode. Get the command and load us up.
+                CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
+                startNextFetch();
+                //Only launch shortcuts once per intent
+                this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
+            } 
+            
+            else if (CommCareApplication._().isUpdatePending()) {
+                //We've got an update pending that we need to check on.
+                
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
+                
+                //Create the update intent
+                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+                String ref = prefs.getString("default_app_server", null);
+                
+                i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
+                i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
+                i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
+                
+                startActivityForResult(i,UPGRADE_APP);
+                return;
+            } else if (CommCareApplication._().isSyncPending(false)) {
+                long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
+                String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
+                Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
+                refreshView();
+                this.syncData(false);
+            }
+            //Normal Home Screen login time! 
+            else {
+                refreshView();
+            }
+        } catch(SessionUnavailableException sue) {
+            loginDecisionProcess();
+        }
     }
     
     private void loginDecisionProcess() {
-    	boolean currentAppValidated = (CommCareApplication._().getCurrentApp() == null) ?
-        		false : CommCareApplication._().getCurrentApp().areResourcesValidated();
-        //1) If there are no apps installed, or only one app installed and it doesn't 
+        boolean currentAppValidated = (CommCareApplication._().getCurrentApp() == null) ?
+                false : CommCareApplication._().getCurrentApp().areResourcesValidated();
+        //1) If there are no apps installed or, only one app installed and it doesn't 
         //have resources validated, redirect to MM verification (bc assuming not using multiple apps)
-        if (CommCareApplication._().getInstalledAppRecords().getNumRecords() <= 1 
-        		&& !currentAppValidated) {
-        	Intent i = new Intent(this, CommCareVerificationActivity.class);
-        	this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+        if (CommCareApplication._().getInstalledAppRecords().getNumRecords() <= 1 && !currentAppValidated) {
+            Intent i = new Intent(this, CommCareVerificationActivity.class);
+            this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+        }
         //2) If there are multiple apps installed and none are verified,
         //display an error message and then close the app
-        } else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() > 1 
-        		&& CommCareApplication._().getReadyAppRecords().size() == 0) {
-        	CommCareApplication._().triggerHandledAppExit(this, 
-        			Localization.get("multiple.apps.unverified.message"), 
-        			Localization.get("multiple.apps.unverified.title"));
-        } else {
-        	returnToLogin();
-        }
+        else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() > 1 
+                && CommCareApplication._().getReadyAppRecords().size() == 0) {
+            CommCareApplication._().triggerHandledAppExit(this, 
+                    Localization.get("multiple.apps.unverified.message"), 
+                    Localization.get("multiple.apps.unverified.title"));
+        } else returnToLogin();
     }
     
     private void returnToLogin() {
         returnToLogin(Localization.get("app.workflow.login.lost"));
     }
-        
+    
     private void returnToLogin(String message) {
         //Not yet.
         if(message != null) {
@@ -1316,7 +1320,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble_danger));
         }
         else{
-            syncMessage.setTextColor(getResources().getColor(R.color.solid_black));
+            syncMessage.setTextColor(getResources().getColor(R.color.black));
             syncMessage.setTypeface(null, Typeface.NORMAL);
             syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble));
         }
@@ -1509,7 +1513,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 createPreferencesMenu();
                 return true;
             case MENU_UPDATE:
-                if(isAirplaneModeOn()){
+                if(!isOnline() && isAirplaneModeOn()){
                     CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
                     return true;
                 }
@@ -1676,4 +1680,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isBackEnabled()
+     */
+    @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
 }

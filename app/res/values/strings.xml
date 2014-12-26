@@ -25,7 +25,7 @@
          installed! This app will not be visible to users on the log-in screen until multimedia is validated.</string>
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>16</item>
+        <item>19</item>
     </integer-array>
     <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Logged Into Commcare</string>

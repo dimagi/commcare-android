@@ -138,7 +138,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
 		return xmlns;
 	}    
 
-
     public boolean isEncrypted(String data) {
         return false;
     }

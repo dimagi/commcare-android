@@ -3,7 +3,7 @@ package org.commcare.android.logic;
 public class GlobalConstants {
     
     public static final String FILE_CC_INSTALL = "commcare/install";
-    public static final String FILE_CC_UPGRADE = "commcare/upgrade";
+    public static final String FILE_CC_UPGRADE = "commcare/upgrade/sandbox/";
     public static final String FILE_CC_CACHE = "commcare/cache";
     public static final String FILE_CC_MEDIA = "commcare/media/";
     public static final String FILE_CC_LOGS = "commcare/logs/";
@@ -31,7 +31,7 @@ public class GlobalConstants {
     
     public static final String INSTALL_REF = "jr://file/commcare/install";
     
-    public static final String UPGRADE_REF = "jr://file/commcare/upgrade";
+    public static final String UPGRADE_REF = "jr://file/commcare/upgrade/sandbox";
     
     public static final String ATTACHMENT_REF = "jr://file/attachments/";
     

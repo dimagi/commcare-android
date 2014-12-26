@@ -107,4 +107,3 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 }
-

@@ -83,6 +83,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
                 } catch(ActivityNotFoundException e) {
                     Toast.makeText(InstallArchiveActivity.this, Localization.get("archive.install.no.browser"), Toast.LENGTH_LONG).show();
+                    txtDisplayPrompt.setText(Localization.get("archive.install.no.browser"));
                 }
             }
         });

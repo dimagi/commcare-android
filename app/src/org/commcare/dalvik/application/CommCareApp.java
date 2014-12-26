@@ -170,7 +170,6 @@ public class CommCareApp {
          * See if we got left in the middle of an update 
          */
 
-
         if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
             //If so, repair the global table. (Always takes priority over maintaining
             //the update)

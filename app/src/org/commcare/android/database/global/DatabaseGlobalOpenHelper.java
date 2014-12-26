@@ -4,8 +4,10 @@
 package org.commcare.android.database.global;
 
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -23,12 +25,18 @@ import android.content.Context;
  */
 public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     
-    private static final int GLOBAL_DB_VERSION = 1;
+    /**
+     * V.2 - all sqlstorage objects now need numbers tables
+     */
+    private static final int GLOBAL_DB_VERSION = 2;
     
     private static final String GLOBAL_DB_LOCATOR = "database_global";
+    
+    private Context mContext;
 
     public DatabaseGlobalOpenHelper(Context context) {
         super(context, GLOBAL_DB_LOCATOR, null, GLOBAL_DB_VERSION);
+        this.mContext = context;
     }
 
     /* (non-Javadoc)
@@ -51,20 +59,33 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
             builder.addData(new AndroidLogEntry());
             database.execSQL(builder.getTableCreateString());
             
+            DbUtil.createNumbersTable(database);
+            
             database.setVersion(GLOBAL_DB_VERSION);
                     
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
         }
-
     }
+    
+    public SQLiteDatabase getWritableDatabase(String key) {
+        try{ 
+            return super.getWritableDatabase(key);
+        } catch(SQLiteException sqle) {
+            DbUtil.trySqlCipherDbUpdate(key, mContext, GLOBAL_DB_LOCATOR);
+            return super.getWritableDatabase(key);
+        }
+    }
+    
+    
 
     /* (non-Javadoc)
      * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        new GlobalDatabaseUpgrader(mContext).upgrade(db, oldVersion, newVersion);
     }
 
 }

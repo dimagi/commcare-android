@@ -14,7 +14,12 @@ test-app/bin/*
 test-app/gen/*
 */bin/*
 commcare-odk-test/gen/*
-
+*.rej
 *.orig
 *.swp
 .hg*
+/app/.cache
+/app/libs/
+/app/proguard_cache/
+.DS_Store
+.gitignore~

@@ -10,6 +10,7 @@ import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.geo.EntityOverlay;
@@ -133,7 +134,7 @@ public class EntityMapActivity extends MapActivity {
             @Override
             protected void selected(TreeReference ref) {
                 Intent i = new Intent(EntityMapActivity.this.getIntent());
-                CommCareApplication._().serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
+                SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
                 
                 setResult(RESULT_OK, i);
 

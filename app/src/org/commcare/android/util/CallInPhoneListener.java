@@ -58,6 +58,8 @@ public class CallInPhoneListener extends PhoneStateListener {
     }
 
 
+    static final boolean disabled = true;
+    
     /*
      * (non-Javadoc)
      * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
@@ -106,7 +108,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 
 
     public void startCache() {
-
+        if(disabled) {return;}
         AsyncTask<Void, Void, Void> loader = new AsyncTask<Void, Void, Void>() {
 
             /*
@@ -193,7 +195,7 @@ public class CallInPhoneListener extends PhoneStateListener {
                                     //TODO: Generate a whole Session that could be used to start up form entry
                                     //based on this somehow?    
 
-                                    String name = d.getTitle().evaluate(childContext);
+                                    String name = d.getTitle().getText().evaluate(childContext);
 
                                     for(int i : phoneIds) {
                                         String number = ((Text) d.getFields()[i].getTemplate()).evaluate(childContext);

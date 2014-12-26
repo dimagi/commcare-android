@@ -42,6 +42,7 @@ import org.javarosa.core.services.Logger;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 /**
@@ -146,6 +147,7 @@ public class HttpRequestGenerator {
         String uri = serverUri.toString();
         System.out.println("Fetching from: " + uri);
         HttpGet request = new HttpGet(uri);
+        AndroidHttpClient.modifyRequestToAcceptGzipResponse( request );
         addHeaders(request, syncToken);
         return execute(client, request);
     }

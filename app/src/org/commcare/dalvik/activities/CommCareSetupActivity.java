@@ -2,7 +2,6 @@ package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -20,6 +19,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.android.database.SqlStorage;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
@@ -132,123 +132,136 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     Button retryButton;
     @UiElement(R.id.screen_first_start_banner)
     View banner;
+    @UiElement(R.id.login_button)
+    Button loginButton;
     
     String [] urlVals;
     int previousUrlPosition=0;
-	 
-	boolean partialMode = false;
-	boolean fromManager;
-		
-	CommCareApp ccApp;
-	
-	//Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
-	boolean isAuto = false;
-	
-	/* used to keep track of whether or not the previous resource table was in a 
-	 * 'fresh' (empty or installed) state before the last install ran
-	 */
-	boolean resourceTableWasFresh;
-	static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
-	
-	private BroadcastReceiver purgeNotificationReceiver = null;
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
-		this.fromManager = this.getIntent().getBooleanExtra
-				(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+     
+    boolean partialMode = false;
+    boolean fromManager;
+    
+    CommCareApp ccApp;
+    
+    //Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
+    boolean isAuto = false;
+    
+    /* used to keep track of whether or not the previous resource table was in a 
+     * 'fresh' (empty or installed) state before the last install ran
+     */
+    boolean resourceTableWasFresh;
+    static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
+    
+    private BroadcastReceiver purgeNotificationReceiver = null;
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
+        this.fromManager = this.getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
-    	//Retrieve instance state
-		if(savedInstanceState == null) {
-			if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
-				
-				//We got called from an outside application, it's gonna be a wild ride!
-				incomingRef = this.getIntent().getData().toString();
-				
-				if(incomingRef.contains(".ccz")){
-					// make sure this is in the file system
-					boolean isFile = incomingRef.contains("file://");
-					if(isFile){
-						// remove file:// prepend
-						incomingRef = incomingRef.substring(incomingRef.indexOf("//")+2);
-						Intent i = new Intent(this, InstallArchiveActivity.class);
-						i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
-						startActivityForResult(i, ARCHIVE_INSTALL);
-					}
-					else{
-						// currently down allow other locations like http://
-						fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true, false);
-					}
-				}
-				else{
-					this.uiState=uiState.ready;
-					//Now just start up normally.
-				}
-			} else{
-				
-				incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
-				
-			}
-			inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
-			isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
-		} else {
-			String uiStateEncoded = savedInstanceState.getString("advanced");
-			this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
-	        incomingRef = savedInstanceState.getString("profileref");
-	        inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
-	        isAuto = savedInstanceState.getBoolean(KEY_AUTO);
-	        //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
-	        startAllowed = savedInstanceState.getBoolean("startAllowed");
-	    }
-		
-		// if we are in upgrade mode we want the UiState to reflect that, unless we are showing an error
-		if(inUpgradeMode && this.uiState != UiState.error){
-			this.uiState = UiState.upgrade;
-		}
-		
-		editProfileRef.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-		urlSpinner.setAdapter(new WrappingSpinnerAdapter(urlSpinner.getAdapter(), getResources().getStringArray(R.array.url_list_selected_display)));
-		urlVals = getResources().getStringArray(R.array.url_vals);
-    	
-		urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+        //Retrieve instance state
+        if(savedInstanceState == null) {
+            if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
+                
+                //We got called from an outside application, it's gonna be a wild ride!
+                incomingRef = this.getIntent().getData().toString();
+                
+                if(incomingRef.contains(".ccz")){
+                    // make sure this is in the file system
+                    boolean isFile = incomingRef.contains("file://");
+                    if(isFile){
+                        // remove file:// prepend
+                        incomingRef = incomingRef.substring(incomingRef.indexOf("//")+2);
+                        Intent i = new Intent(this, InstallArchiveActivity.class);
+                        i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
+                        startActivityForResult(i, ARCHIVE_INSTALL);
+                    }
+                    else{
+                        // currently down allow other locations like http://
+                        fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true, false);
+                    }
+                }
+                else{
+                    this.uiState=uiState.ready;
+                    //Now just start up normally.
+                }
+            } else{
+                
+                incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
+                
+            }
+            inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
+            isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
+        } else {
+            String uiStateEncoded = savedInstanceState.getString("advanced");
+            this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
+            incomingRef = savedInstanceState.getString("profileref");
+            inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
+            isAuto = savedInstanceState.getBoolean(KEY_AUTO);
+            //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
+            startAllowed = savedInstanceState.getBoolean("startAllowed");
+        }
+        
+        // if we are in upgrade mode we want the UiState to reflect that, unless we are showing an error
+        if(inUpgradeMode && this.uiState != UiState.error){
+            this.uiState = UiState.upgrade;
+        }
+        
+        editProfileRef.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        urlSpinner.setAdapter(new WrappingSpinnerAdapter(urlSpinner.getAdapter(), getResources().getStringArray(R.array.url_list_selected_display)));
+        urlVals = getResources().getStringArray(R.array.url_vals);
+        
+        urlSpinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				if((previousUrlPosition == 0 || previousUrlPosition == 1) && arg2 == 2){
-					editProfileRef.setText(R.string.default_app_server);
-				}
-				else if(previousUrlPosition == 2 && (arg2 == 0 || arg2 == 1)){
-					editProfileRef.setText("");
-				}
-				previousUrlPosition = arg2;
-			}
+            /*
+             * (non-Javadoc)
+             * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
+             */
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1,
+                    int arg2, long arg3) {
+                if((previousUrlPosition == 0 || previousUrlPosition == 1) && arg2 == 2){
+                    editProfileRef.setText(R.string.default_app_server);
+                }
+                else if(previousUrlPosition == 2 && (arg2 == 0 || arg2 == 1)){
+                    editProfileRef.setText("");
+                }
+                previousUrlPosition = arg2;
+            }
 
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {}
-			
-		});
-		//First, identify the binary state
-		dbState = CommCareApplication._().getDatabaseState();
-		resourceState = CommCareApplication._().getAppResourceState();
-		
-		if(!Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
-			//Otherwise we're starting up being called from inside the app. Check to see if everything is set
-			//and we can just skip this, unless it's upgradeMode OR we were called from the AppManagerActivity
-			if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY 
-					&& !inUpgradeMode && !fromManager) {
-				Intent i = new Intent(getIntent());	
-		        setResult(RESULT_OK, i);
-		        finish();
-		        return;
-			}
-		}
-		    	
-		mScanBarcodeButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-                try {	     
+            /*
+             * (non-Javadoc)
+             * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android.widget.AdapterView)
+             */
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {}
+            
+        });
+        //First, identify the binary state
+        dbState = CommCareApplication._().getDatabaseState();
+        resourceState = CommCareApplication._().getAppResourceState();
+        
+        if(!Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
+            //Otherwise we're starting up being called from inside the app. Check to see if everything is set
+            //and we can just skip this unless it's upgradeMode OR we were called from the AppManagerActivity
+            if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY
+                    && !inUpgradeMode && !fromManager) {
+                Intent i = new Intent(getIntent());    
+                setResult(RESULT_OK, i);
+                finish();
+                return;
+            }
+        }
+                
+        mScanBarcodeButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                try {    
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                     //Barcode only
                     i.putExtra("SCAN_FORMATS","QR_CODE");
@@ -257,172 +270,195 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Toast.makeText(CommCareSetupActivity.this,"No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
                     mScanBarcodeButton.setVisibility(View.GONE);
                 }
-			}
-			
-		});
-		
-		addressEntryButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				setUiState(UiState.advanced);
-				refreshView();
-			}
-			
-		});
-		addressEntryButton.setText(Localization.get("install.button.enter"));
-		
-		startOverButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				if(inUpgradeMode) {
-					startResourceInstall(true);
-				} else {
-					retryCount = 0;
-					partialMode = false;
-					setUiState(UiState.basic);
-					refreshView();
-				}
-			}
 
-		});
+            }
+            
+        });
+        
+        addressEntryButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                setUiState(UiState.advanced);
+                refreshView();
+            }
+            
+        });
+        addressEntryButton.setText(Localization.get("install.button.enter"));
+        
+        startOverButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                if(inUpgradeMode) {
+                    startResourceInstall(true);
+                } else {
+                    retryCount = 0;
+                    partialMode = false;
+                    setUiState(UiState.basic);
+                    refreshView();
+                }
+            }
 
-		// Hide "See More" button when notification is cleared
-		// (by any method: button press, viewing from drawer, or clearing from drawer)
-		purgeNotificationReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				viewNotificationButton.setVisibility(View.GONE);
-			}
-		};
-		registerReceiver(purgeNotificationReceiver, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
+        });
+        
+        loginButton.setText(Localization.get("install.bad.login"));
+        loginButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+                i.putExtra(KEY_REQUIRE_REFRESH, true);
+                startActivity(i);
+                finish();
+            }
 
-		// "See More" launches standard notification-viewing activity
-		viewNotificationButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				Intent i = new Intent(CommCareSetupActivity.this, MessageActivity.class);
-				CommCareSetupActivity.this.startActivity(i);
-			}
-		});
+        });
 
-		retryButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				viewNotificationButton.setVisibility(View.GONE);
-				partialMode = true;
-				startResourceInstall(false);
-			}
-		});
+        // Hide "See More" button when notification is cleared
+        // (by any method: button press, viewing from drawer, or clearing from drawer)
+        purgeNotificationReceiver = new BroadcastReceiver() {
+            /*
+             * (non-Javadoc)
+             * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+             */
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                viewNotificationButton.setVisibility(View.GONE);
+            }
+        };
+        registerReceiver(purgeNotificationReceiver, new IntentFilter(CommCareApplication.ACTION_PURGE_NOTIFICATIONS));
 
-		installButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				//Now check on the resources
-				if(!fromManager && resourceState == CommCareApplication.STATE_READY) {
-					if(!inUpgradeMode || uiState != UiState.error) {
-						fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
-					}
-				} else if(resourceState == CommCareApplication.STATE_UNINSTALLED || 
-						(resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode) ||
-						(resourceState == CommCareApplication.STATE_READY && fromManager)) {
-					startResourceInstall();
-				}
-			}
-		});
+        // "See More" launches standard notification-viewing activity
+        viewNotificationButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(CommCareSetupActivity.this, MessageActivity.class);
+                CommCareSetupActivity.this.startActivity(i);
+            }
+        });
+        
+        retryButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                viewNotificationButton.setVisibility(View.GONE);
+                partialMode = true;
+                startResourceInstall(false);
+            }
+        });
+        
+        installButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {    
+                //Now check on the resources
+                if(!fromManager && resourceState == CommCareApplication.STATE_READY) {
+                    if(!inUpgradeMode || uiState != UiState.error) {
+                        fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
+                        setModeToExistingApplication();
+                    }
+                } else if(resourceState == CommCareApplication.STATE_UNINSTALLED || 
+                        (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode) ||
+                        (resourceState == CommCareApplication.STATE_READY && fromManager)) {
+                    startResourceInstall();
+                }
+            }
+        });
+        
+        
+        final View activityRootView = findViewById(R.id.screen_first_start_main);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            /*
+             * (non-Javadoc)
+             * @see android.view.ViewTreeObserver.OnGlobalLayoutListener#onGlobalLayout()
+             */
+            @Override
+            public void onGlobalLayout() {
+                int hideAll = CommCareSetupActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
+                int hideBanner = CommCareSetupActivity.this.getResources().getInteger(R.integer.login_screen_hide_banner_cuttoff);
+                int height = activityRootView.getHeight();
+                
+                if(height < hideAll) {
+                    banner.setVisibility(View.GONE);
+                } else if(height < hideBanner) {
+                    banner.setVisibility(View.GONE);
+                }  else {
+                    banner.setVisibility(View.VISIBLE);
+                }
+             }
+        });
 
-		final View activityRootView = findViewById(R.id.screen_first_start_main);
-		activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-			/*
-			 * (non-Javadoc)
-			 * @see android.view.ViewTreeObserver.OnGlobalLayoutListener#onGlobalLayout()
-			 */
-			@Override
-			public void onGlobalLayout() {
-				int hideAll = CommCareSetupActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
-				int hideBanner = CommCareSetupActivity.this.getResources().getInteger(R.integer.login_screen_hide_banner_cuttoff);
-				int height = activityRootView.getHeight();
+        // reclaim ccApp for resuming installation
+        if(oldActivity != null) {
+            this.ccApp = oldActivity.ccApp;
+        }
+        refreshView();
+        //prevent the keyboard from popping up on entry by refocusing on the main layout
+        findViewById(R.id.mainLayout).requestFocus();
+        
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
+        //If we arrived at CommCareSetupActivity from clicking the regular app icon, and there
+        //are 1 or more available apps, we want to redirect to CCHomeActivity
+        if (!fromManager && readyApps.size() > 0) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
+        }
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onDestroy()
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (purgeNotificationReceiver != null) {
+            unregisterReceiver(purgeNotificationReceiver);
+        }
+    }
+    
+    public void refreshView(){
 
-				if(height < hideAll) {
-					banner.setVisibility(View.GONE);
-				} else if(height < hideBanner) {
-					banner.setVisibility(View.GONE);
-				}  else {
-					banner.setVisibility(View.VISIBLE);
-				}
-			}
-		});
-
-		// reclaim ccApp for resuming installation
-		if(oldActivity != null) {
-			this.ccApp = oldActivity.ccApp;
-		}
-		refreshView();
-		//prevent the keyboard from popping up on entry by refocusing on the main layout
-		findViewById(R.id.mainLayout).requestFocus();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
-		//If we arrived at CommCareSetupActivity from clicking the regular app icon, and there
-		//are 1 or more available apps, we want to redirect to CCHomeActivity
-		if (!fromManager && readyApps.size() > 0) {
-			Intent i = new Intent(this, CommCareHomeActivity.class);
-			startActivity(i);
-		}
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (purgeNotificationReceiver != null) {
-			unregisterReceiver(purgeNotificationReceiver);
-		}
-	}
-	
-	public void refreshView(){
-
-		switch(uiState){
-			case basic:
-				this.setModeToBasic();
-				break;
-			case advanced:
-				this.setModeToAdvanced();
-				break;
-			case error:
-				this.setModeToError(true);
-				break;
-			case upgrade:
-				this.setModeToAutoUpgrade();
-				break;
-			case ready:
-				this.setModeToReady(incomingRef);
-				break;
-		}
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onStart()
-	 */
-	@Override
-	protected void onStart() {
-		super.onStart();
-		//Moved here to properly attach fragments and such.
-		//NOTE: May need to do so elsewhere as well
-		if(uiState == UiState.upgrade) {
-			refreshView();
-			mainMessage.setText(Localization.get("updates.check"));
-			startResourceInstall();
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.commcare.android.framework.CommCareActivity#getWakeLockingLevel()
-	 */
-	@Override
-	protected int getWakeLockingLevel() {
-		return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
-	}
-	
-	
+        switch(uiState){
+            case basic:
+                this.setModeToBasic();
+                break;
+            case advanced:
+                this.setModeToAdvanced();
+                break;
+            case error:
+                this.setModeToError(true);
+                break;
+            case upgrade:
+                this.setModeToAutoUpgrade();
+                break;
+            case ready:
+                this.setModeToReady(incomingRef);
+                break;
+        }
+        
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onStart()
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //Moved here to properly attach fragments and such.
+        //NOTE: May need to do so elsewhere as well
+        if(uiState == UiState.upgrade) {
+            refreshView();
+            mainMessage.setText(Localization.get("updates.check"));
+            startResourceInstall();
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#getWakeLockingLevel()
+     */
+    @Override
+    protected int getWakeLockingLevel() {
+        return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
+    }
+    
+    
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
@@ -436,7 +472,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
     }
-
     
     /* (non-Javadoc)
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
@@ -587,8 +622,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
             
             ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, 
-                    inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, 
-                    shouldSleep, fromManager) {
+                    inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep, fromManager) {
 
                 /*
                  * (non-Javadoc)
@@ -618,12 +652,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     } else if (result == ResourceEngineOutcomes.StatusFailState){
                         startOverInstall = true;
                         receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+                        setModeToExistingApplication();
                     } else if (result == ResourceEngineOutcomes.StatusNoLocalStorage) {
                         startOverInstall = true;
                         receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
                     } else if(result == ResourceEngineOutcomes.StatusBadCertificate){
                         startOverInstall = false;
                         receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
+                    } else if(result == ResourceEngineOutcomes.StatusDuplicateApp) { 
+                        receiver.failWithNotification(ResourceEngineOutcomes.StatusDuplicateApp);
+                        startOverInstall = true;
                     } else {
                         startOverInstall = true;
                         receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
@@ -734,9 +772,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         addressEntryButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
         viewNotificationButton.setVisibility(View.GONE);
+        loginButton.setVisibility(View.GONE);
     }
     
     public void setModeToError(boolean canRetry){
+        loginButton.setVisibility(View.GONE);
         buttonView.setVisibility(View.VISIBLE);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.GONE);
@@ -751,11 +791,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
     
+    public void setModeToExistingApplication(){
+        buttonView.setVisibility(View.GONE);
+        advancedView.setVisibility(View.GONE);
+        mScanBarcodeButton.setVisibility(View.GONE);
+        installButton.setVisibility(View.GONE);
+        startOverButton.setVisibility(View.GONE);
+        addressEntryButton.setVisibility(View.GONE);
+        retryButton.setVisibility(View.GONE);
+        loginButton.setVisibility(View.VISIBLE);
+    }
+    
     public void setModeToBasic(){
         this.setModeToBasic(Localization.get("install.barcode"));
     }
     
     public void setModeToBasic(String message){
+        loginButton.setVisibility(View.GONE);
         buttonView.setVisibility(View.VISIBLE);
         editProfileRef.setText("");    
         this.incomingRef = null;
@@ -785,6 +837,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         retryButton.setVisibility(View.GONE);
         retryButton.setText(Localization.get("install.button.retry"));
         startOverButton.setText(Localization.get("install.button.startover"));
+        loginButton.setVisibility(View.GONE);
     }
 
     /*
@@ -809,7 +862,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         refreshView();
         return true;
     }
-	
+    
     public void done(boolean requireRefresh) {
         //TODO: We might have gotten here due to being called from the outside, in which
         //case we should manually start up the home activity
@@ -833,140 +886,140 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     public void fail(NotificationMessage message) {
-    	fail(message, false);
+        fail(message, false);
     }
-
+    
     public void fail(NotificationMessage message, boolean alwaysNotify) {    
-    	fail(message, alwaysNotify, true);
+        fail(message, alwaysNotify, true);
     }
-
+    
     public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
 
-    	Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
-
-    	setUiState(UiState.error);
-
-    	retryCount++;
-
-    	if(retryCount > RETRY_LIMIT){
-    		canRetry = false;
-    	}
-
-    	if(isAuto || alwaysNotify) {
-    		CommCareApplication._().reportNotificationMessage(message);
-    		viewNotificationButton.setVisibility(View.VISIBLE);
-    	}
-    	if(isAuto) {
-    		done(false);
-    	} else {
-    		if(alwaysNotify) {
-    			this.displayMessage= Localization.get("notification.for.details.setup.wrapper", new String[] {message.getDetails()});
-    			this.canRetry = canRetry;
-    			mainMessage.setText(displayMessage);
-    		} else {
-
-    			this.displayMessage= message.getDetails();
-    			this.canRetry = canRetry;
-
-    			String fullErrorMessage = message.getDetails();
-
-    			if(alwaysNotify){
-    				fullErrorMessage = fullErrorMessage + message.getAction();
-    			}
-
-    			mainMessage.setText(fullErrorMessage);
-    		}
-    	}
-
-    	refreshView();
+        Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
+        
+        setUiState(UiState.error);
+        
+        retryCount++;
+        
+        if(retryCount > RETRY_LIMIT){
+            canRetry = false;
+        }
+        
+        if(isAuto || alwaysNotify) {
+            CommCareApplication._().reportNotificationMessage(message);
+            viewNotificationButton.setVisibility(View.VISIBLE);
+        }
+        if(isAuto) {
+            done(false);
+        } else {
+            if(alwaysNotify) {
+                this.displayMessage= Localization.get("notification.for.details.setup.wrapper", new String[] {message.getDetails()});
+                this.canRetry = canRetry;
+                mainMessage.setText(displayMessage);
+            } else {
+                
+                this.displayMessage= message.getDetails();
+                this.canRetry = canRetry;
+                
+                String fullErrorMessage = message.getDetails();
+                
+                if(alwaysNotify){
+                    fullErrorMessage = fullErrorMessage + message.getAction();
+                }
+                
+                mainMessage.setText(fullErrorMessage);
+            }
+        }
+        
+        refreshView();
     }
-
+    
     /**
      * Sets the state of the Ui and handles one-off changes that might need
      * to happen between certain states.
      * @param newUiState
      */
     public void setUiState(UiState newUiState){
-    	//We might want to do some one-off configuration
-    	//stuff if we're undergoing certain transitions
-
-    	//Ready -> Advanced: Set up the URL Spinner appropriately.
-    	if(this.uiState == UiState.ready && newUiState == UiState.advanced){
-    		previousUrlPosition = -1;
-    		urlSpinner.setSelection(2);
-    	}
-    	this.uiState = newUiState;
+        //We might want to do some one-off configuration
+        //stuff if we're undergoing certain transitions
+        
+        //Ready -> Advanced: Set up the URL Spinner appropriately.
+        if(this.uiState == UiState.ready && newUiState == UiState.advanced){
+            previousUrlPosition = -1;
+            urlSpinner.setSelection(2);
+        }
+        this.uiState = newUiState;
     }
-
+    
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onBackPressed()
      */
     @Override
     public void onBackPressed(){
-    	if(uiState == UiState.advanced || uiState == UiState.ready) {
-    		setUiState(UiState.basic);
-    		setModeToBasic();
-    	} else {
-    		super.onBackPressed();
-    	}
+        if(uiState == UiState.advanced || uiState == UiState.ready) {
+            setUiState(UiState.basic);
+            setModeToBasic();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     // All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
     // Everything here should call one of: fail() or done() 
-
+    
     /** All methods for implementation of ResourceEngineListener **/
-
+    
     public void reportSuccess(boolean appChanged) {
-    	//If things worked, go ahead and clear out any warnings to the contrary
-    	CommCareApplication._().clearNotifications("install_update");
-
-    	if(!appChanged) {
-    		Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
-    	}
-    	done(appChanged);
+        //If things worked, go ahead and clear out any warnings to the contrary
+        CommCareApplication._().clearNotifications("install_update");
+        
+        if(!appChanged) {
+            Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
+        }
+        done(appChanged);
     }
 
     public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
-    	fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+        fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
     }
 
     public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
-    	String versionMismatch = Localization.get("install.version.mismatch", new String[] {vRequired,vAvailable});
-
-    	String error = "";
-    	if(majorIsProblem){
-    		error=Localization.get("install.major.mismatch");
-    	}
-    	else{
-    		error=Localization.get("install.minor.mismatch");
-    	}
-
-    	fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusBadReqs, new String[] {null, versionMismatch, error}), true);
+        String versionMismatch = Localization.get("install.version.mismatch", new String[] {vRequired,vAvailable});
+        
+        String error = "";
+        if(majorIsProblem){
+            error=Localization.get("install.major.mismatch");
+        }
+        else{
+            error=Localization.get("install.minor.mismatch");
+        }
+        
+        fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusBadReqs, new String[] {null, versionMismatch, error}), true);
     }
 
     public void failUnknown(ResourceEngineOutcomes unknown) {
-    	fail(NotificationMessageFactory.message(unknown));
+        fail(NotificationMessageFactory.message(unknown));
     }
-
+    
     public void updateProgress(int done, int total, int phase) {
-    	if(inUpgradeMode) {       
-    		if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
-    			updateProgress(Localization.get("updates.found", new String[] {""+done,""+total}), DIALOG_INSTALL_PROGRESS);
-    		} else if (phase == ResourceEngineTask.PHASE_COMMIT) {
-    			updateProgress(Localization.get("updates.downloaded"), DIALOG_INSTALL_PROGRESS);
-    		}
-    	}
-    	else {
-    		updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);
-    	}
+        if(inUpgradeMode) {       
+            if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
+                updateProgress(Localization.get("updates.found", new String[] {""+done,""+total}), DIALOG_INSTALL_PROGRESS);
+            } else if (phase == ResourceEngineTask.PHASE_COMMIT) {
+                updateProgress(Localization.get("updates.downloaded"), DIALOG_INSTALL_PROGRESS);
+            }
+        }
+        else {
+            updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);
+        }
     }
 
     public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
-    	fail(NotificationMessageFactory.message(statusfailstate), true);
+        fail(NotificationMessageFactory.message(statusfailstate), true);
     }
-
-
+    
+    
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
@@ -976,25 +1029,25 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-    	if (taskId != DIALOG_INSTALL_PROGRESS) {
-    		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
-    				+ "any valid possibilities in CommCareSetupActivity");        
-    		return null;
-    	}
-    	String title, message;
-    	if (uiState == UiState.upgrade) {
-    		title = Localization.get("updates.title");
-    		message = Localization.get("updates.checking");
-    	} else {
-    		title = Localization.get("updates.resources.initialization");
-    		message = Localization.get("updates.resources.profile");
-    	}
-    	CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-    	String checkboxText = "Keep trying if network is interrupted";
-    	CustomProgressDialog lastDialog = getCurrentDialog();
-    	boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
-    	dialog.addCheckbox(checkboxText, isChecked);
-    	return dialog;
+        if (taskId != DIALOG_INSTALL_PROGRESS) {
+            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+                    + "any valid possibilities in CommCareSetupActivity");        
+            return null;
+        }
+        String title, message;
+        if (uiState == UiState.upgrade) {
+            title = Localization.get("updates.title");
+            message = Localization.get("updates.checking");
+        } else {
+            title = Localization.get("updates.resources.initialization");
+            message = Localization.get("updates.resources.profile");
+        }
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        String checkboxText = Localization.get("updates.keep.trying");;
+        CustomProgressDialog lastDialog = getCurrentDialog();
+        boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
+        dialog.addCheckbox(checkboxText, isChecked);
+        return dialog;
     }
 
 }

@@ -267,14 +267,14 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
         }
 
-
         //Construct parser for this form's internal data.
         DataModelPullParser parser = new DataModelPullParser(is, factory);
         parser.parse();
         
         
         //TODO: We should be committing all changes to form record models via the ASW objects, not manually.
-        FormRecord parsed = new FormRecord(r.getInstanceURI().toString(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
+        FormRecord parsed = new FormRecord(r.getInstanceURI().toString(), newStatus, r.getFormNamespace(), 
+                r.getAesKey(), uuid[0], modified[0], CommCareApplication._().getCurrentApp().getUniqueId());
         parsed.setID(r.getID());
         
         //TODO: The platform adds a lot of unfortunate coupling here. Should split out the need to parse completely 
@@ -304,6 +304,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     }
     
     
+
 
     public static void wipeRecord(Context c,SessionStateDescriptor existing) {
         int ssid = existing.getID();

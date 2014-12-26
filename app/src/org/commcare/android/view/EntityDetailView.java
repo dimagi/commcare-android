@@ -4,7 +4,6 @@
 package org.commcare.android.view;
 
 import java.util.Hashtable;
-import java.util.Vector;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -21,9 +20,13 @@ import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.Display;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -47,7 +50,8 @@ public class EntityDetailView extends FrameLayout {
     private TextView addressText;
     private ImageView imageView;
     private AspectRatioLayout graphLayout;
-    private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
+    private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
+    private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
     private ImageButton videoButton;
     private AudioButton audioButton;
     private View valuePane;
@@ -58,11 +62,11 @@ public class EntityDetailView extends FrameLayout {
     private LinearLayout.LayoutParams origLabel;
     private LinearLayout.LayoutParams fill;
     
-    private static final String FORM_VIDEO = "video";
-    private static final String FORM_AUDIO = "audio";
+    private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
+    private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
     private static final String FORM_PHONE = "phone";
     private static final String FORM_ADDRESS = "address";
-    private static final String FORM_IMAGE = "image";
+    private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
 
     private static final int TEXT = 0;
@@ -104,7 +108,8 @@ public class EntityDetailView extends FrameLayout {
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
-        renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
+        graphViewsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
+        graphIntentsCache = new Hashtable<Integer, Intent>();
         origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
         origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 
@@ -150,7 +155,7 @@ public class EntityDetailView extends FrameLayout {
             }
         } else if(FORM_IMAGE.equals(form)) {
             String imageLocation = textField;
-            Bitmap b = MediaUtil.getScaledImageFromReference(this.getContext(),imageLocation);
+            Bitmap b = MediaUtil.getScaledImageFromReference(imageLocation);
             
             if(b == null) {
                 imageView.setImageDrawable(null);
@@ -168,26 +173,58 @@ public class EntityDetailView extends FrameLayout {
             
             updateCurrentView(IMAGE, imageView);
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
-            GraphView g = new GraphView(getContext());
-            View rendered = null;
+            // Fetch graph view from cache, or create it
+            View graphView = null;
             int orientation = getResources().getConfiguration().orientation;
-            if (renderedGraphsCache.get(index) != null) {
-                rendered = renderedGraphsCache.get(index).get(orientation);
+            if (graphViewsCache.get(index) != null) {
+                graphView = graphViewsCache.get(index).get(orientation);
             }
             else {
-                renderedGraphsCache.put(index, new Hashtable<Integer, View>());
+                graphViewsCache.put(index, new Hashtable<Integer, View>());
             }
-            if (rendered == null) {
-                g.setTitle(labelText);
-                rendered = g.renderView((GraphData) field);
-                renderedGraphsCache.get(index).put(orientation, rendered);
+            if (graphView == null) {
+                GraphView g = new GraphView(getContext(), labelText);
+                g.setClickable(true);
+                graphView = g.getView((GraphData) field);
+                graphViewsCache.get(index).put(orientation, graphView);
             }
+            
+            // Fetch full-screen graph intent from cache, or create it
+            Intent graphIntent = graphIntentsCache.get(index);
+            final Context context = getContext();
+            if (graphIntent == null) {
+                GraphView g = new GraphView(context, labelText);
+                graphIntent = g.getIntent((GraphData) field);
+                graphIntentsCache.put(index, graphIntent);
+            }
+            final Intent finalIntent = graphIntent;
+            
+            // Open full-screen graph intent on double tap
+            final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDown(MotionEvent e) {
+                    return true;
+                }
+        
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    context.startActivity(finalIntent);
+                    return true;
+                }
+            });
+            graphView.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent event) {
+                    return detector.onTouchEvent(event);
+                }
+            });
+            
             graphLayout.removeAllViews();
-            graphLayout.addView(rendered, g.getLayoutParams());
+            graphLayout.addView(graphView, GraphView.getLayoutParams());
 
             if (current != GRAPH) {
                 // Hide field label and expand value to take up full screen width
-                LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+                LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
                 graphValueLayout.weight = 10;
                 valuePane.setLayoutParams(graphValueLayout);
 
@@ -268,10 +305,9 @@ public class EntityDetailView extends FrameLayout {
         
         if (current != GRAPH) {
             label.setVisibility(View.VISIBLE);
-            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams(origValue);
+            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
             graphValueLayout.weight = 10;
             valuePane.setLayoutParams(origValue);
-            data.setVisibility(View.VISIBLE);
         }
     }
     

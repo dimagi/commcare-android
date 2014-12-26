@@ -55,7 +55,7 @@
                        android:layout_marginRight="10px"
                        android:gravity="center_horizontal"
                        android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."
-                       android:textSize="14dp" />
+                       android:textSize="@dimen/text_small" />
 
                 </LinearLayout>
             </ScrollView>
@@ -146,5 +146,13 @@
             android:layout_height="wrap_content"
             android:text="Start Over" />
     </LinearLayout>
+    
+        
+    <Button
+        	android:id="@+id/login_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="Login to Existing App" />
 
 </RelativeLayout>

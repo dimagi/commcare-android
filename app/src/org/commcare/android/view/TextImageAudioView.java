@@ -36,6 +36,11 @@ public class TextImageAudioView extends RelativeLayout {
     private final int iconDimension;
     private final int fontSize = 20;
     
+    public static final int NAVIGATION_NONE = 0;
+    public static final int NAVIGATION_NEXT = 1;
+    public static final int NAVIGATION_JUMP = 2;
+    
+    
     private EvaluationContext ec;
 
     
@@ -60,8 +65,12 @@ public class TextImageAudioView extends RelativeLayout {
         setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getAudioURI(), display.getImageURI());
     }
     
-    //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
     public void setAVT(String displayText, String audioURI, String imageURI) {
+        this.setAVT(displayText, audioURI, imageURI, NAVIGATION_NONE);
+    }
+    
+    //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
+    public void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
         this.removeAllViews();
         
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -75,6 +84,8 @@ public class TextImageAudioView extends RelativeLayout {
         RelativeLayout.LayoutParams audioParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(iconDimension,iconDimension);
         
+        RelativeLayout.LayoutParams iconParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        
         String audioFilename = "";
         if(audioURI != null && !audioURI.equals("")) {
             try {
@@ -83,6 +94,23 @@ public class TextImageAudioView extends RelativeLayout {
                 Log.e(t, "Invalid reference exception");
                 e.printStackTrace();
             }
+        }
+        
+        
+        if(navStyle != NAVIGATION_NONE) {
+            ImageView iconRight = new ImageView(this.getContext());
+            if(navStyle == NAVIGATION_NEXT) {
+                iconRight.setImageResource(R.drawable.icon_next);
+            } else {
+                iconRight.setImageResource(R.drawable.icon_done);
+            }
+            iconRight.setId(2345345);
+            iconParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            iconParams.addRule(CENTER_VERTICAL);
+            
+            iconParams.rightMargin = 5;
+            //iconRight.setPadding(20, iconRight.getPaddingTop(), iconRight.getPaddingRight(), iconRight.getPaddingBottom());
+            this.addView(iconRight, iconParams);
         }
 
         File audioFile = new File(audioFilename);
@@ -95,7 +123,11 @@ public class TextImageAudioView extends RelativeLayout {
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
             mAudioButton.setFocusableInTouchMode(false);
-            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            if(navStyle != NAVIGATION_NONE) {
+                audioParams.addRule(RelativeLayout.LEFT_OF, 2345345);
+            } else {
+                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            }
             audioParams.addRule(CENTER_VERTICAL);
             addView(mAudioButton, audioParams);
         }
@@ -121,7 +153,9 @@ public class TextImageAudioView extends RelativeLayout {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         }
             
-        if(mAudioButton != null) {
+        if(navStyle != NAVIGATION_NONE) { 
+            textParams.addRule(RelativeLayout.LEFT_OF, 2345345);
+        } else if(mAudioButton != null) {
             textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
         }
         addView(mTextView, textParams);

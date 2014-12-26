@@ -16,7 +16,10 @@ import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.SessionFrame;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -36,6 +39,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -49,169 +53,180 @@ import android.widget.Toast;
  *
  */
 public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
-	AudioController, DialogController {
-	
-	protected final static int DIALOG_PROGRESS = 32;
-	protected final static String DIALOG_TEXT = "cca_dialog_text";
-	public final static String KEY_DIALOG_FRAG = "dialog_fragment";
-
-	StateFragment stateHolder;
-	private boolean firstRun = true;
-	
-	//Fields for implementation of AudioController
-	private MediaEntity currentEntity;
-	private AudioButton currentButton;
-	private MediaState stateBeforePause;
-	
-	//fields for implementing task transitions for CommCareTaskConnector
-	boolean inTaskTransition;
-	boolean shouldDismissDialog = true;
-	
-	@Override
-	@TargetApi(14)
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	    FragmentManager fm = this.getSupportFragmentManager();
-	    
-	    stateHolder = (StateFragment) fm.findFragmentByTag("state");
-	    
-	    // If the state holder is null, create a new one for this activity
-	    if (stateHolder == null) {
-	    	stateHolder = new StateFragment();
-	    	fm.beginTransaction().add(stateHolder, "state").commit();
-	    } else {
-	    	if(stateHolder.getPreviousState() != null){
-	    		firstRun = stateHolder.getPreviousState().isFirstRun();
-	    		loadPreviousAudio(stateHolder.getPreviousState());
-	    	} else{
-	    		firstRun = true;
-	    	}
-	    }
-		
-		if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
-			this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
-			loadFields(true);
-		}
-	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-	    	getActionBar().setDisplayShowCustomEnabled(true);
-
-		    //Add breadcrumb bar
-		    
-		    BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
-		    
-		    // If the state holder is null, create a new one for this activity
-		    if (bar == null) {
-		    	bar = new BreadcrumbBarFragment();
-		    	fm.beginTransaction().add(bar, "breadcrumbs").commit();
-		    }
-	    }
-	}
-	
-	private void loadPreviousAudio(AudioController oldController) {
-		MediaEntity oldEntity = oldController.getCurrMedia();
-		if (oldEntity != null) {
-			this.currentEntity = oldEntity;
-			oldController.removeCurrentMediaEntity();
-		}
-	}
-	
-	private void playPreviousAudio() {
-		if (currentEntity == null) return;
-		switch (currentEntity.getState()) {
-		case PausedForRenewal:
-			playCurrentMediaEntity();
-			break;
-		case Paused:
-			break;
-		case Playing:
-		case Ready:
-			System.out.println("WARNING: state in loadPreviousAudio is invalid");
-		}
-	}
-	
-	/*
-	 * Method to override in classes that need some functions called only once at the start 
-	 * of the life cycle. Called by the CommCareActivity onResume() method; so, after the onCreate()
-	 * method of all classes, but before the onResume() of the overriding activity. State maintained in
-	 * stateFragment Fragment and firstRun boolean. 
-	 */
-	public void fireOnceOnStart(){
-		// override when needed
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-	        case android.R.id.home:
-	        	try { 
-	        		CommCareApplication._().getCurrentSession().clearAllState();
-	        	} catch(SessionUnavailableException sue) {
-	        		// probably won't go anywhere with this
-	        	}
-	            // app icon in action bar clicked; go home
-	            Intent intent = new Intent(this, CommCareHomeActivity.class);
-	            startActivity(intent);
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
-	}
-	
-	protected void loadFields(boolean restoreOld) {
-		CommCareActivity oldActivity = stateHolder.getPreviousState();
-		Class c = this.getClass();
-		for(Field f : c.getDeclaredFields()) {
-			if(f.isAnnotationPresent(UiElement.class)) {
-				UiElement element = f.getAnnotation(UiElement.class);
-				try{
-					f.setAccessible(true);
-					
-					try {
-						View v = this.findViewById(element.value());
-						f.set(this, v);
-						
-						if(oldActivity != null && restoreOld) {
-							View oldView = (View)f.get(oldActivity);
-							if(oldView != null) {
-								if(v instanceof TextView) {
-									((TextView)v).setText(((TextView)oldView).getText());
-								}
-								v.setVisibility(oldView.getVisibility());
-								v.setEnabled(oldView.isEnabled());
-								continue;
-							}
-						}
-						
-						if(element.locale() != "") {
-							if(v instanceof TextView) {
-								((TextView)v).setText(Localization.get(element.locale()));
-							} else {
-								throw new RuntimeException("Can't set the text for a " + v.getClass().getName() + " View!");
-							}
-						}
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-						throw new RuntimeException("Bad Object type for field " + f.getName());
-					} catch (IllegalAccessException e) {
-						throw new RuntimeException("Couldn't access the activity field for some reason");
-					}
-				} finally {
-					f.setAccessible(false);
-				}
-			}
-		}
-	}
-	
-	protected CommCareActivity getDestroyedActivityState() {
-		return stateHolder.getPreviousState();
-	}
-	
-	protected boolean isTopNavEnabled() {
-		return false;
-	}
-	
-	boolean visible = false;
+    AudioController, DialogController {
     
+    protected final static int DIALOG_PROGRESS = 32;
+    protected final static String DIALOG_TEXT = "cca_dialog_text";
+    public final static String KEY_DIALOG_FRAG = "dialog_fragment";
+
+    StateFragment stateHolder;
+    private boolean firstRun = true;
+    
+    //Fields for implementation of AudioController
+    private MediaEntity currentEntity;
+    private AudioButton currentButton;
+    private MediaState stateBeforePause;
+    
+    //fields for implementing task transitions for CommCareTaskConnector
+    boolean inTaskTransition;
+    boolean shouldDismissDialog = true;
+    
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
+     */
+    @Override
+    @TargetApi(14)
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        FragmentManager fm = this.getSupportFragmentManager();
+        
+        stateHolder = (StateFragment) fm.findFragmentByTag("state");
+        
+        // If the state holder is null, create a new one for this activity
+        if (stateHolder == null) {
+            stateHolder = new StateFragment();
+            fm.beginTransaction().add(stateHolder, "state").commit();
+        } else {
+            if(stateHolder.getPreviousState() != null){
+                firstRun = stateHolder.getPreviousState().isFirstRun();
+                loadPreviousAudio(stateHolder.getPreviousState());
+            } else{
+                firstRun = true;
+            }
+        }
+        
+        if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
+            this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
+            loadFields(true);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            getActionBar().setDisplayShowCustomEnabled(true);
+
+            //Add breadcrumb bar
+            
+            BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+            
+            // If the state holder is null, create a new one for this activity
+            if (bar == null) {
+                bar = new BreadcrumbBarFragment();
+                fm.beginTransaction().add(bar, "breadcrumbs").commit();
+            }
+        }
+    }
+    
+    private void loadPreviousAudio(AudioController oldController) {
+        MediaEntity oldEntity = oldController.getCurrMedia();
+        if (oldEntity != null) {
+            this.currentEntity = oldEntity;
+            oldController.removeCurrentMediaEntity();
+        }
+    }
+    
+    private void playPreviousAudio() {
+        if (currentEntity == null) return;
+        switch (currentEntity.getState()) {
+        case PausedForRenewal:
+            playCurrentMediaEntity();
+            break;
+        case Paused:
+            break;
+        case Playing:
+        case Ready:
+            System.out.println("WARNING: state in loadPreviousAudio is invalid");
+        }
+    }
+    
+    /*
+     * Method to override in classes that need some functions called only once at the start 
+     * of the life cycle. Called by the CommCareActivity onResume() method; so, after the onCreate()
+     * method of all classes, but before the onResume() of the overriding activity. State maintained in
+     * stateFragment Fragment and firstRun boolean. 
+     */
+    public void fireOnceOnStart(){
+        // override when needed
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                
+//                try { 
+//                    CommCareApplication._().getCurrentSession().clearAllState();
+//                } catch(SessionUnavailableException sue) {
+//                    // probably won't go anywhere with this
+//                }
+//                // app icon in action bar clicked; go home
+//                Intent intent = new Intent(this, CommCareHomeActivity.class);
+//                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    protected void loadFields(boolean restoreOld) {
+        CommCareActivity oldActivity = stateHolder.getPreviousState();
+        Class c = this.getClass();
+        for(Field f : c.getDeclaredFields()) {
+            if(f.isAnnotationPresent(UiElement.class)) {
+                UiElement element = f.getAnnotation(UiElement.class);
+                try{
+                    f.setAccessible(true);
+                    
+                    try {
+                        View v = this.findViewById(element.value());
+                        f.set(this, v);
+                        
+                        if(oldActivity != null && restoreOld) {
+                            View oldView = (View)f.get(oldActivity);
+                            if(oldView != null) {
+                                if(v instanceof TextView) {
+                                    ((TextView)v).setText(((TextView)oldView).getText());
+                                }
+                                v.setVisibility(oldView.getVisibility());
+                                v.setEnabled(oldView.isEnabled());
+                                continue;
+                            }
+                        }
+                        
+                        if(element.locale() != "") {
+                            if(v instanceof TextView) {
+                                ((TextView)v).setText(Localization.get(element.locale()));
+                            } else {
+                                throw new RuntimeException("Can't set the text for a " + v.getClass().getName() + " View!");
+                            }
+                        }
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException("Bad Object type for field " + f.getName());
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Couldn't access the activity field for some reason");
+                    }
+                } finally {
+                    f.setAccessible(false);
+                }
+            }
+        }
+    }
+    
+    protected CommCareActivity getDestroyedActivityState() {
+        return stateHolder.getPreviousState();
+    }
+    
+    protected boolean isTopNavEnabled() {
+        return false;
+    }
+    
+    boolean visible = false;
+    
+
     /* (non-Javadoc)
      * @see android.app.Activity#onResume()
      */
@@ -722,6 +737,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public CustomProgressDialog generateProgressDialog(int taskId) {
         //dummy method for compilation, implementation handled in those subclasses that need it
         return null;
+    }
+    public Pair<Detail, TreeReference> requestEntityContext() {
+        return null;
+    }
+
+    /**
+     * Whether or not the "Back" action makes sense for this activity.
+     * 
+     * @return True if "Back" is a valid concept for the Activity ande should be shown
+     * in the action bar if available. False otherwise.
+     */
+    public boolean isBackEnabled() {
+        return true;
     }
     
 }

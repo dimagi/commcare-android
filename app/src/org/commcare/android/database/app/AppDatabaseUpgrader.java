@@ -1,30 +1,17 @@
-
 /**
  * 
  */
 package org.commcare.android.database.app;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Vector;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
-import org.commcare.android.database.app.models.ResourceModelUpdater;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInstaller;
-import org.commcare.resources.model.ResourceLocation;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapList;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import android.content.Context;
 
@@ -50,10 +37,37 @@ public class AppDatabaseUpgrader {
                 oldVersion = 3;
             }
         }
+        if(oldVersion == 3) {
+            if(upgradeThreeFour(db)) {
+                oldVersion = 4;
+            }
+        } 
+        
+        if(oldVersion == 4) {
+            if(upgradeFourFive(db)) {
+                oldVersion = 5;
+            }
+        } 
+
         //NOTE: If metadata changes are made to the Resource model, they need to be
         //managed by changing the TwoThree updater to maintain that metadata.
     }
     
+
+
+    private boolean upgradeTwoThree(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            builder.addData(new Resource());
+            db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
@@ -67,16 +81,23 @@ public class AppDatabaseUpgrader {
         }
     }
 
-    private  boolean upgradeTwoThree(SQLiteDatabase db) {
-        
-        DbHelper helper = new ConcreteDbHelper(c,db);
-        
+    private  boolean upgradeThreeFour(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            //Get form record storage
-            updateModels(new SqlStorage<Resource>("GLOBAL_RESOURCE_TABLE", ResourceModelUpdater.class,helper));
-            updateModels(new SqlStorage<Resource>("UPGRADE_RESOURCE_TABLE", ResourceModelUpdater.class,helper));
-            updateModels(new SqlStorage<Resource>("RECOVERY_RESOURCE_TABLE", ResourceModelUpdater.class,helper));
+            db.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
+    private boolean upgradeFourFive(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            DbUtil.createNumbersTable(db);
             db.setTransactionSuccessful();
             return true;
         } finally {
