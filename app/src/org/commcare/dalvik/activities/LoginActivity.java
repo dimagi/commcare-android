@@ -509,6 +509,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 idsToRecords.put(uniqueId, r);
             }
         }
+        System.out.println("num non-archived apps found: " + appUniqueIds.size());
         if (appUniqueIds.size() > 1) {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -516,6 +517,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             spinner.setOnItemSelectedListener(this);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             spinner.setSelection(prefs.getInt(KEY_LAST_POSITION, 0));
+            spinner.setVisibility(View.VISIBLE);
         } else spinner.setVisibility(View.GONE);
     }
     
