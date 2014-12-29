@@ -193,6 +193,7 @@ public class AppManagerActivity extends Activity {
     	String ref = prefs.getString("default_app_server", null);
     	i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
     	i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
+        i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
     	startActivityForResult(i,CommCareHomeActivity.UPGRADE_APP);
 	}
 
