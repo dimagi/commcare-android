@@ -28,6 +28,7 @@
         <item name="android:paddingRight">15dp</item>
     </style>
     <dimen name="entity_padding">15dp</dimen>
+    <dimen name="grid_entity_padding">3dp</dimen>
     
     <style name="EntityItemTextView">
         <item name="android:paddingLeft">@dimen/entity_padding</item>
@@ -36,7 +37,18 @@
         <item name="android:paddingRight">@dimen/entity_padding</item>
     </style>
     
+    <style name="GridEntityItemTextView">
+        <item name="android:paddingLeft">@dimen/grid_entity_padding</item>
+        <item name="android:paddingTop">@dimen/grid_entity_padding</item>
+        <item name="android:paddingBottom">@dimen/grid_entity_padding</item>
+        <item name="android:paddingRight">@dimen/grid_entity_padding</item>
+    </style>
+    
    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
+       
+   </style>
+       
+   <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium">
        
    </style>
    
@@ -50,6 +62,7 @@
    </style>
    
    <dimen name="menu_icon_size">60dp</dimen>
+   <dimen name="menu_grid_icon_size">120dp</dimen>
       
    <style name="Animation" />
    
@@ -65,10 +78,7 @@
        <item name="android:layout_marginRight">10dp</item>
        <item name="android:layout_marginBottom">10dp</item>
    </style>
-   
-   
-   
-      
+
    <style name="TextInteractiveFreeFloating">
        <item name="android:background">@drawable/info_bubble</item>
        <item name="android:paddingTop">5dp</item>

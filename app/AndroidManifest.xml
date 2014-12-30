@@ -32,8 +32,8 @@
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity android:name=".activities.MenuList" >
-        </activity>
+        <activity android:name=".activities.MenuList" />
+        <activity android:name=".activities.MenuGrid" />
         <activity android:name=".activities.ReferenceDetailActivity" >
         </activity>
 

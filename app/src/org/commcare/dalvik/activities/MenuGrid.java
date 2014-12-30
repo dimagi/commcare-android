@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 University of Washington
+ * Copyright (C) 2014 Dimagi
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +16,9 @@
 
 package org.commcare.dalvik.activities;
 
+import java.io.IOException;
+
+import org.commcare.android.adapters.GridMenuAdapter;
 import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -25,26 +28,35 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.GridView;
 
+/**
+ * Handles the alternative Grid appearance for Module and Form navigation
+ * 
+ * @author wspride
+ *
+ */
 
-@ManagedUi(R.layout.screen_suite_menu)
-public class MenuList extends CommCareActivity implements OnItemClickListener {
+@ManagedUi(R.layout.grid_menu_layout)
+public class MenuGrid extends CommCareActivity implements OnItemClickListener, OnItemLongClickListener {
     
     private CommCarePlatform platform;
     
     private MenuAdapter adapter;
     
-    @UiElement(R.id.screen_suite_menu_list)
-    private ListView list;
+    @UiElement(R.id.grid_menu_grid)
+    private GridView grid;
     
     /*
      * (non-Javadoc)
@@ -61,10 +73,11 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
            menuId="root";
        }
        
-       adapter = new MenuAdapter(this,platform,menuId);
+       adapter = new GridMenuAdapter(this,platform,menuId);
        refreshView();
        
-       list.setOnItemClickListener(this);
+       grid.setOnItemClickListener(this);
+       grid.setOnItemLongClickListener(this);
     }
 
 
@@ -92,7 +105,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        list.setAdapter(adapter);
+        grid.setAdapter(adapter);
     }
 
 
@@ -118,6 +131,35 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
         setResult(RESULT_OK, i);
 
         finish();
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view,
+            int position, long id) {
+        Object value = parent.getAdapter().getItem(position);
+        String audioURI = adapter.getAudioURI(value);
+        String audioFilename = "";
+        
+        MediaPlayer mp = new MediaPlayer();
+        
+        if(audioURI != null && !audioURI.equals("")) {
+            try {
+                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+                
+                mp.setDataSource(audioFilename);
+                mp.prepare();
+                mp.start();
+                
+            } catch (InvalidReferenceException e) {
+                e.printStackTrace();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return false;
     }
 
 }
