@@ -44,7 +44,7 @@ import android.widget.Toast;
 public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
-	public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
+    public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
