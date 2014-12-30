@@ -312,6 +312,10 @@ notification.restore.remote.error.action=Try to sync again immediately, and then
 notification.restore.nonetwork.title=Couldn't Reach Server. Please check your network connection
 notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
 
+notification.restore.nonetwork.badpass.title=Couldn't Reach Server. Please check your network connection
+notification.restore.nonetwork.badpass.detail=Couldn't reach the server due to bad network connectivity. Check your password for local login. See details for more.
+notification.restore.nonetwork.badpass.action=CommCare could not reach the server due to a bad connection. However, local login might still be possible; please try re-entering your password. 
+
 notification.bad.certificate.title=Couldn't securely connect to the server. 
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
 notification.bad.certificate.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
