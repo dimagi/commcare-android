@@ -31,6 +31,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.TextImageAudioView;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -64,6 +65,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -81,6 +83,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -1126,7 +1129,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     private void dispatchHomeScreen() {
         try {
-            
             //First make sure nothing catastrophic has happened
             if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
                CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
@@ -1318,7 +1320,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void refreshView() throws SessionUnavailableException{
-        
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
@@ -1340,6 +1341,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             homeMessageKey="home.start.demo";
             logoutMessageKey = "home.logout.demo";
         }
+        
+        // Override default CommCare banner if requested
+        String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_HOME, "");
+        if (!"".equals(customBannerURI)) {
+            Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
+            if (bitmap != null) {
+                ImageView bannerView = (ImageView) findViewById(R.id.main_top_banner);
+                bannerView.setImageBitmap(bitmap);
+            }
+        }
+        
         
         //since these might have changed
         startButton.setText(Localization.get(homeMessageKey));
