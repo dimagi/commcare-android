@@ -31,7 +31,8 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
-import org.commcare.android.view.TextImageAudioView;
+import org.commcare.android.view.HorizontalMediaView;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -39,8 +40,10 @@ import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
@@ -64,6 +67,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -81,6 +85,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -185,8 +190,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         startButton.setText(MarkupUtil.localizeStyleSpannable(this, "home.start"));
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), MenuList.class);
-                
+                Intent i;
+                if(DeveloperPreferences.isGridMenuEnabled()){
+                    i = new Intent(getApplicationContext(), MenuGrid.class);
+                } else{
+                    i = new Intent(getApplicationContext(), MenuList.class);
+                }
                 startActivityForResult(i, GET_COMMAND);
             }
         });
@@ -814,7 +823,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         
-        TextImageAudioView tiav = new TextImageAudioView(this);
+        HorizontalMediaView tiav = new HorizontalMediaView(this);
         tiav.setAVT(Localization.get("demo.mode.warning"), path, null);
         demoModeWarning.setView(tiav);
         
@@ -838,7 +847,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         final CommCareSession session = CommCareApplication._().getCurrentSession();
         String needed = session.getNeededData();
-        String[] lastPopped = session.getPoppedStep();
+        StackFrameStep lastPopped = session.getPoppedStep();
         
         if(needed == null) {
             EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
@@ -861,16 +870,23 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
         }
         else if(needed == SessionFrame.STATE_COMMAND_ID) {
-             Intent i = new Intent(getApplicationContext(), MenuList.class);
-         
+             Intent i;
+             
+             if(DeveloperPreferences.isGridMenuEnabled()){
+                 i = new Intent(getApplicationContext(), MenuGrid.class);
+             }
+             else{
+                 i = new Intent(getApplicationContext(), MenuList.class);
+             }
+
              i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
              startActivityForResult(i, GET_COMMAND);
          }  else if(needed == SessionFrame.STATE_DATUM_VAL) {
             Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
             
             i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
-            if(lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped[0])) {
-                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped[2]);
+            if(lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
+                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
             }
             
             startActivityForResult(i, GET_CASE);
@@ -1126,7 +1142,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     private void dispatchHomeScreen() {
         try {
-            
             //First make sure nothing catastrophic has happened
             if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
                CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
@@ -1318,7 +1333,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void refreshView() throws SessionUnavailableException{
-        
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
@@ -1340,6 +1354,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             homeMessageKey="home.start.demo";
             logoutMessageKey = "home.logout.demo";
         }
+        
+        // Override default CommCare banner if requested
+        String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_HOME, "");
+        if (!"".equals(customBannerURI)) {
+            Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
+            if (bitmap != null) {
+                ImageView bannerView = (ImageView) findViewById(R.id.main_top_banner);
+                bannerView.setImageBitmap(bitmap);
+            }
+        }
+        
         
         //since these might have changed
         startButton.setText(MarkupUtil.localizeStyleSpannable(this, homeMessageKey));

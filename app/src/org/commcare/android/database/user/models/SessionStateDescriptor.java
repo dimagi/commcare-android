@@ -9,6 +9,7 @@ import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.util.MD5;
@@ -93,12 +94,12 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
     private String createSessionDescriptor(CommCareSession session) {
         //TODO: Serialize into something more useful. I dunno. JSON/XML/Something
         String descriptor = "";
-        for(String[] step : session.getFrame().getSteps()) {
-            descriptor += step[0] + " ";
-            if(step[0] == SessionFrame.STATE_COMMAND_ID) {
-                descriptor += step[1] + " ";
-            } else if(step[0] == SessionFrame.STATE_DATUM_VAL || step[0] == SessionFrame.STATE_DATUM_COMPUTED) {
-                descriptor += step[1] + " " + step[2] + " ";
+        for(StackFrameStep step : session.getFrame().getSteps()) {
+            descriptor += step.getType() + " ";
+            if(step.getType() == SessionFrame.STATE_COMMAND_ID) {
+                descriptor += step.getId() + " ";
+            } else if(step.getType() == SessionFrame.STATE_DATUM_VAL || step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
+                descriptor += step.getId() + " " + step.getValue() + " ";
             }
         }
         return descriptor.trim();
