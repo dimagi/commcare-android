@@ -123,7 +123,7 @@ public class CommCareApp {
     }
     
     public void initializeStylizer() {
-        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
+        //mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
     }
     
     /**

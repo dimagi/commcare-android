@@ -1,5 +1,9 @@
 package org.commcare.dalvik.activities;
 
+import in.uncod.android.bypass.Bypass;
+
+import java.io.StringReader;
+
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -746,9 +750,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void setModeToReady(String incomingRef) {
         buttonView.setVisibility(View.VISIBLE);
         
-        CharSequence string = MarkupUtil.localizeMarkdownSpannable(this, "install.ready");
-        
-        mainMessage.setText(string);
+        mainMessage.setText(MarkupUtil.localizeStyleSpannable(this, "install.ready"));
         mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
         
         editProfileRef.setText(incomingRef);
@@ -797,11 +799,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void setModeToBasic(String message){
         loginButton.setVisibility(View.GONE);
         buttonView.setVisibility(View.VISIBLE);
-        editProfileRef.setText("");    
+        editProfileRef.setText("");
         this.incomingRef = null;
 
-        CharSequence string = MarkupUtil.localizeStyleSpannable(this, "install.barcode");
-        mainMessage.setText(string);
+        mainMessage.setText(MarkupUtil.localizeStyleSpannable(this, "install.barcode"));
         mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
         
         addressEntryButton.setVisibility(View.VISIBLE);

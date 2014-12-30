@@ -46,8 +46,7 @@ public class CallRecordAdapter implements ListAdapter {
                             enabled.add(c.getPosition());
                         }
                     }
-                }
-                
+                }                
                 c.moveToNext();
             }
         }

@@ -10,6 +10,7 @@ import org.javarosa.core.services.locale.Localization;
 import android.content.Context;
 import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableString;
 
 public class MarkupUtil {
     static HtmlSpanner htmlspanner = new HtmlSpanner();
@@ -32,6 +33,9 @@ public class MarkupUtil {
     
     public static Spannable localizeStyleSpannable(Context c, String localizationKey){
         
+        System.out.println("1229 localizing key: " + localizationKey);
+        System.out.println("1229 localization: " + Localization.get(localizationKey));
+        
         if(DeveloperPreferences.isCssEnabled()){
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey));
         }
@@ -40,7 +44,7 @@ public class MarkupUtil {
             return (Spannable) localizeMarkdownSpannable(c, localizationKey);
         }
         
-        return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey)));
+        return new SpannableString(Localization.get(localizationKey));
     }
     
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg){
@@ -53,7 +57,7 @@ public class MarkupUtil {
             return (Spannable) localizeMarkdownSpannable(c, localizationKey, new String[] {localizationArg});
         }
         
-        return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArg)));
+        return new SpannableString(Localization.get(localizationKey, localizationArg));
     }
         
         
@@ -76,16 +80,29 @@ public class MarkupUtil {
      */
     
     public static CharSequence localizeMarkdownSpannable(Context c, String localizationKey){
+        
+        System.out.println("1229 localizting: " + localizationKey);
+        
         Bypass bypass = new Bypass(c);
-        CharSequence mSequence = bypass.markdownToSpannable(Localization.get(localizationKey));
+        CharSequence mSequence = bypass.markdownToSpannable(convertNewlines(Localization.get(localizationKey)));
         return mSequence;
     }
    
     public static CharSequence localizeMarkdownSpannable(Context c, String localizationKey, String[] localizationArgs){
         Bypass bypass = new Bypass(c);
-        CharSequence mSequence = bypass.markdownToSpannable(Localization.get(localizationKey, localizationArgs));
+        CharSequence mSequence = bypass.markdownToSpannable(convertNewlines(Localization.get(localizationKey, localizationArgs)));
         return mSequence;
     }
+    
+    /*
+     * Convert to newline
+     */
+    
+    public static String convertNewlines(String input){
+        return input.replace("%n", System.getProperty("line.separator"));
+    }
+    
+    
     
     /*
      * CSS styling utils from NightWhistler's HtmlSpanner 
@@ -139,7 +156,8 @@ public class MarkupUtil {
     }
     
     public static String getStyleString(){
-        return CommCareApplication._().getCurrentApp().getStylizer().getStyleString();
+        return "<style/>";
+        //return CommCareApplication._().getCurrentApp().getStylizer().getStyleString();
     }
     
     public static String formatKeyVal(String key, String val){
