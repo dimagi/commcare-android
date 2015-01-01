@@ -10,11 +10,13 @@ import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.storage.Persistable;
 
 import android.content.Context;
 
@@ -60,6 +62,12 @@ public class UserDatabaseUpgrader {
         if(oldVersion == 5) {
             if(upgradeFiveSix(db, oldVersion, newVersion)) {
                 oldVersion = 6;
+            }
+        }
+        
+        if(oldVersion == 6) {
+            if(upgradeSixSeven(db, oldVersion, newVersion)) {
+                oldVersion = 7;
             }
         }
     }
@@ -121,11 +129,24 @@ public class UserDatabaseUpgrader {
             db.execSQL(CaseIndexTable.getTableDefinition());
             CaseIndexTable.createIndexes(db);
             CaseIndexTable cit = new CaseIndexTable();
-            for(ACase c : CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
+            //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
+            //below 6
+            for(ACase c : CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACasePreV6Model.class)) {
                 cit.indexCase(c);
             }
 
 
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
+    private boolean upgradeSixSeven(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.beginTransaction();
+        try {
+            updateModels(CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACasePreV6Model.class));
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -163,5 +184,18 @@ public class UserDatabaseUpgrader {
             }                
         }
     }
-
+    
+    /**
+     * Reads and rewrites all of the records in a table, generally to adapt an old serialization format to a new
+     * format
+     *  
+     * @param db
+     * @param storage
+     * @return
+     */
+    private <T extends Persistable> void updateModels(SqlStorage<T> storage) {
+        for(T t : storage) {
+            storage.write(t);
+        }
+    }
 }
