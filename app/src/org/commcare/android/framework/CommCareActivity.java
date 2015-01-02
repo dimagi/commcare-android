@@ -676,21 +676,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 
     /*
      * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setOnCompletionListener(java.lang.Object)
-     */
-    @Override
-    public void setOnCompletionListener(Object listener) {
-        if (!(listener instanceof MediaPlayer.OnCompletionListener)) {
-            throw new RuntimeException("Invalid listener passed to setOnCompletionListener");
-        }
-        if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
-            MediaPlayer mp = currentEntity.getPlayer();
-            mp.setOnCompletionListener((MediaPlayer.OnCompletionListener) listener);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
      * @see org.odk.collect.android.views.media.AudioController#getDuration()
      */
     @Override
