@@ -99,6 +99,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public static final int WIFI_DIRECT_ACTIVITY=1024;
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     public static final int PREFERENCES_ACTIVITY=4096;
+    public static final int RESTART_APP=8192;
     
     public static final int USE_OLD_DIALOG = 1;
     public static final int DIALOG_CORRUPTED = 4;
