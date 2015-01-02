@@ -75,7 +75,7 @@ public class ACasePreV6Model extends ACase {
         ExtUtil.write(out, new ExtWrapMapPoly(data));
     }
     
-    public class CaseIndexUpdater extends CaseIndex {
+    public static class CaseIndexUpdater extends CaseIndex {
         
         /*
          * serialization only!

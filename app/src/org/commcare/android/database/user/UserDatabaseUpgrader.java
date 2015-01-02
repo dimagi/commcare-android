@@ -129,9 +129,12 @@ public class UserDatabaseUpgrader {
             db.execSQL(CaseIndexTable.getTableDefinition());
             CaseIndexTable.createIndexes(db);
             CaseIndexTable cit = new CaseIndexTable();
+            
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
-            for(ACase c : CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACasePreV6Model.class)) {
+            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteDbHelper(c, db));
+
+            for(ACase c : caseStorage) {
                 cit.indexCase(c);
             }
 
@@ -144,13 +147,17 @@ public class UserDatabaseUpgrader {
     }
     
     private boolean upgradeSixSeven(SQLiteDatabase db, int oldVersion, int newVersion) {
+        long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
-            updateModels(CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACasePreV6Model.class));
+            
+            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteDbHelper(c, db));
+            updateModels(caseStorage);
             db.setTransactionSuccessful();
             return true;
         } finally {
             db.endTransaction();
+            System.out.println("Case model update complete in " + (System.currentTimeMillis() - start) + "ms");
         }
     }
     
