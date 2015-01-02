@@ -18,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -31,6 +32,7 @@ import android.widget.Toast;
 public class AppManagerActivity extends Activity {
 	
 	public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
+	AlertDialog dialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -121,14 +123,19 @@ public class AppManagerActivity extends Activity {
 							}
     						
     					});
-    			AlertDialog dialog = builder.create();
+    			dialog = builder.create();
     			dialog.show();
     		}
     		else if (resultCode == RESULT_OK) {
     			Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
     		}
+    		rebootCommCare();
     		break;
-		}
+		case CommCareHomeActivity.RESTART_APP:
+		    if (dialog != null) {
+		        dialog.dismiss();
+		    }
+		} 
 	}
 	
 	/** Uninstalls the selected app **/
@@ -137,6 +144,10 @@ public class AppManagerActivity extends Activity {
 		ApplicationRecord selected = CommCareApplication._().getRecordById(appId);
 		CommCareApplication._().initializeAppResources(new CommCareApp(selected));
 		CommCareApp app = CommCareApplication._().getCurrentApp();
+		
+		String title = "Uninstalling your app";
+		String message = "Please wait while CommCare uninstalls your app and reboots to save changes";
+		showAlertDialog(title, message);
 		
 		//1) Teardown the sandbox for this app
 		app.teardownSandbox();
@@ -153,7 +164,7 @@ public class AppManagerActivity extends Activity {
 		CommCareApplication._().setAppResourceState(CommCareApplication.STATE_UNINSTALLED);
 		CommCareApplication._().setDatabaseState(CommCareApplication.STATE_UNINSTALLED);
 		
-		refreshView();
+		rebootCommCare();
 	}
 	
 	/** If the app is not archived, sets it to archived (i.e. still installed but 
@@ -195,6 +206,22 @@ public class AppManagerActivity extends Activity {
     	i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
     	startActivityForResult(i,CommCareHomeActivity.UPGRADE_APP);
+	}
+	
+	public void rebootCommCare() {
+        Intent i = getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        this.startActivityForResult(i, CommCareHomeActivity.RESTART_APP);
+	}
+	
+	public void showAlertDialog(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        dialog = builder.create();
+        dialog.show();
+        //SystemClock.sleep(2000);
 	}
 
 }
