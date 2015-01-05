@@ -682,7 +682,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public Integer getDuration() {
         if (currentEntity != null) {
             MediaPlayer mp = currentEntity.getPlayer();
-            return mp.getDuration() / 1000;
+            return mp.getDuration();
         }
         return null;
     }
@@ -695,7 +695,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public Integer getProgress() {
         if (currentEntity != null) {
             MediaPlayer mp = currentEntity.getPlayer();
-            return mp.getCurrentPosition() / 1000;
+            return mp.getCurrentPosition();
         }
         return null;
     }
