@@ -8,7 +8,9 @@ import java.util.Vector;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.view.TextImageAudioView;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.view.GridMediaView;
+import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Entry;
@@ -37,18 +39,18 @@ import android.widget.ListAdapter;
  * @author wspride
  *
  */
-public class GenericMenuListAdapter implements ListAdapter {
+public class MenuAdapter implements ListAdapter {
     
     private AndroidSessionWrapper asw;
-    private CommCarePlatform platform;
-    private Context context;
-    private Object[] objectData;
+    private CommCarePlatform mPlatform;
+    protected Context context;
+    protected Object[] objectData;
     
     private String menuTitle = null;
     
-    public GenericMenuListAdapter(Context context, CommCarePlatform platform, String menuID){
+    public MenuAdapter(Context context, CommCarePlatform platform, String menuID){
         
-        this.platform = platform;
+        this.mPlatform = platform;
         this.context = context;
         
         Vector<Object> items = new Vector<Object>();
@@ -193,27 +195,29 @@ public class GenericMenuListAdapter implements ListAdapter {
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
     public View getView(int i, View v, ViewGroup vg) {
+        
         Object mObject = objectData[i];
-        TextImageAudioView emv = (TextImageAudioView)v;
+        
+        HorizontalMediaView emv = (HorizontalMediaView)v;
         String mQuestionText = textViewHelper(mObject);
         if(emv == null) {
-            emv = new TextImageAudioView(context);
+            emv = new HorizontalMediaView(context);
         }
         
-        int iconChoice = TextImageAudioView.NAVIGATION_NEXT;
+        int iconChoice = HorizontalMediaView.NAVIGATION_NEXT;
         
         //figure out some icons
         if(mObject instanceof Entry) {
             SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
             if(datum == null) {
-                iconChoice = TextImageAudioView.NAVIGATION_JUMP;
+                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
             }
             else if(datum.getNodeset() == null) {
-                iconChoice = TextImageAudioView.NAVIGATION_JUMP;
+                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
             } 
         }
         if(!DeveloperPreferences.isNewNavEnabled()) {
-            iconChoice = TextImageAudioView.NAVIGATION_NONE;
+            iconChoice = HorizontalMediaView.NAVIGATION_NONE;
         }
         
         //Final change, remove any numeric context requests. J2ME uses these to 
@@ -244,7 +248,7 @@ public class GenericMenuListAdapter implements ListAdapter {
     }
     
     /*
-     * Helper to build the TextView for the TextImageAudioView constructor
+     * Helper to build the TextView for the HorizontalMediaView constructor
      */
     public String textViewHelper(Object e){
         String displayText;
