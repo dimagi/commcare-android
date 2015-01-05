@@ -24,3 +24,4 @@ commcare-odk-test/gen/*
 /app/proguard_cache/
 .DS_Store
 .gitignore~
+*achartengine*.jar
