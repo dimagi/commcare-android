@@ -250,7 +250,7 @@ public class GraphView {
             mDataset.addSeries(series);
             XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
             currentRenderer.setAnnotationsTextSize(mTextSize);
-            currentRenderer.setAnnotationsColor(mContext.getResources().getColor(R.drawable.black));
+            currentRenderer.setAnnotationsColor(mContext.getResources().getColor(R.color.black));
             mRenderer.addSeriesRenderer(currentRenderer);
         }
     }
@@ -312,8 +312,8 @@ public class GraphView {
      */
     private void configure() {
         // Default options
-        mRenderer.setBackgroundColor(mContext.getResources().getColor(R.drawable.white));
-        mRenderer.setMarginsColor(mContext.getResources().getColor(R.drawable.white));
+        mRenderer.setBackgroundColor(mContext.getResources().getColor(R.color.white));
+        mRenderer.setMarginsColor(mContext.getResources().getColor(R.color.white));
         mRenderer.setLabelsColor(mContext.getResources().getColor(R.color.grey_darker));
         mRenderer.setXLabelsColor(mContext.getResources().getColor(R.color.grey_darker));
         mRenderer.setYLabelsColor(0, mContext.getResources().getColor(R.color.grey_darker));

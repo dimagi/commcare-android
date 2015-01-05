@@ -26,6 +26,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
@@ -261,16 +262,16 @@ public class AndroidSessionWrapper {
         }
         
         Hashtable<String, Entry> entries = platform.getMenuMap();
-        for(String[] step : session.getFrame().getSteps()) {
+        for(StackFrameStep step : session.getFrame().getSteps()) {
             String val = null; 
-            if(step[0] == SessionFrame.STATE_COMMAND_ID) {
+            if(step.getType() == SessionFrame.STATE_COMMAND_ID) {
                 //Menu or form. 
-                if(menus.containsKey(step[1])) {
-                    val = menus.get(step[1]);
-                } else if(entries.containsKey(step[1])) {
-                    val = entries.get(step[1]).getText().evaluate();
+                if(menus.containsKey(step.getId())) {
+                    val = menus.get(step.getId());
+                } else if(entries.containsKey(step.getId())) {
+                    val = entries.get(step.getId()).getText().evaluate();
                 }
-            } else if(step[0] == SessionFrame.STATE_DATUM_VAL || step[0] == SessionFrame.STATE_DATUM_COMPUTED) {
+            } else if(step.getType() == SessionFrame.STATE_DATUM_VAL || step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
                 //nothing much to be done here...
             }
             if(val != null) {
@@ -297,7 +298,7 @@ public class AndroidSessionWrapper {
         EvaluationContext ec = getEvaluationContext();
         
         //Get the value that was chosen for this item
-        String value = session.getPoppedStep()[2];
+        String value = session.getPoppedStep().getValue();
         
         SessionDatum datum = session.getNeededDatum();
         
