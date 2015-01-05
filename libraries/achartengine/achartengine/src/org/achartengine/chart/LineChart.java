@@ -71,7 +71,7 @@ public class LineChart extends XYChart {
    * 
    * @param canvas the canvas to paint to
    * @param paint the paint to be used for drawing
-   * @param points the array of points to be used for drawing the series
+   * @param points the array of points to be used for drawing the series: [x1, y1, x2, y2, ... ]
    * @param seriesRenderer the series renderer
    * @param yAxisValue the minimum value of the y axis
    * @param seriesIndex the index of the series currently being drawn
@@ -99,21 +99,27 @@ public class LineChart extends XYChart {
         }
 
         final float referencePoint;
+        final float boundary;
         switch (fill.getType()) {
         case BOUNDS_ALL:
           referencePoint = yAxisValue;
+          boundary = yAxisValue;
           break;
         case BOUNDS_BELOW:
           referencePoint = yAxisValue;
+          boundary = yAxisValue;
           break;
         case BOUNDS_ABOVE:
           referencePoint = yAxisValue;
+          boundary = yAxisValue;
           break;
         case BELOW:
           referencePoint = canvas.getHeight();
+          boundary = 0;
           break;
         case ABOVE:
           referencePoint = 0;
+          boundary = canvas.getHeight();
           break;
         default:
           throw new RuntimeException(
@@ -169,15 +175,51 @@ public class LineChart extends XYChart {
         int length = fillPoints.size();
         if (length > 0) {
           fillPoints.set(0, fillPoints.get(0) + 1);
+          int i = 0;
+          // Handle fills that go out of bounds. TODO: Handle BOUNDS_*
+          // Makes sure fill are drown correctly when an ABOVE fill crosses the bottom
+          // of the canvas or a BELOW fill crosses the top. Messy because it also 
+          // works around a bug that draws ABOVE fills incorrectly when they cross
+          // the top of the canvas (probably actually a bug in AbstractChart::calculateDrawPoints
+          // but easier to fix here).
+          while (i < length) {
+            if (yNeedsAdjustment(fill.getType(), fillPoints.get(i + 1), canvas.getHeight())) {
+              int currentIndex = i;
+              float newY = yAboveCanvasAboveFill(fill.getType(), fillPoints.get(currentIndex + 1), canvas.getHeight()) ? 0f: boundary;
+
+              // If there's a previous point, and its y is on the screen,
+              // add an intermediate point at the intersection of the line
+              // segment and the y boundary
+              if (i >= 2 && !yNeedsAdjustment(fill.getType(), fillPoints.get(i - 1), canvas.getHeight())) {
+                fillPoints.add(i, getXIntermediary(fillPoints.subList(i - 2, i + 2), canvas.getWidth()));
+                fillPoints.add(i + 1, newY);
+                i += 2;
+                length += 2;
+                currentIndex += 2;
+              }
+            
+              // If there's a subsequent point, and its y is on the screen,
+              // add an intermediate point at the intersection of the line
+              // segment and the y boundary
+              if (i + 2 < fillPoints.size() && !yNeedsAdjustment(fill.getType(), fillPoints.get(i + 3), canvas.getHeight())) {
+                fillPoints.add(i + 2, getXIntermediary(fillPoints.subList(i, i + 4), canvas.getWidth()));
+                fillPoints.add(i + 3, newY);
+                i += 2;
+                length += 2;
+              }
+
+              // Adjust the current point to sit on the canvas boundary
+              fillPoints.set(currentIndex + 1, newY);
+            }
+            i += 2;
+          }
+
+          // Add two points to finish off the fill shape:
+          // (minX, yReference) and (maxX, yReference)
           fillPoints.add(fillPoints.get(length - 2));
           fillPoints.add(referencePoint);
           fillPoints.add(fillPoints.get(0));
           fillPoints.add(fillPoints.get(length + 1));
-          for (int i = 0; i < length + 4; i += 2) {
-            if (fillPoints.get(i + 1) < 0) {
-              fillPoints.set(i + 1, 0f);
-            }
-          }
 
           paint.setStyle(Style.FILL);
           drawPath(canvas, fillPoints, paint, true);
@@ -189,7 +231,39 @@ public class LineChart extends XYChart {
     drawPath(canvas, points, paint, false);
     paint.setStrokeWidth(lineWidth);
   }
+  
+  /**
+   * Given two points, determine x value of a point between them that lies on y = 0
+   * @param pointPair List representing points as [x1, y1, x2, y2]
+   * @param maxX X value for right edge of bounding box
+   * @return
+   */
+  private float getXIntermediary(List<Float> pointPair, int maxX) {
+    float m = (pointPair.get(3) - pointPair.get(1)) / (pointPair.get(2) - pointPair.get(0));
+    float calcX = (-pointPair.get(1) + m * pointPair.get(0)) / m;
+    calcX = Math.max(0, calcX);
+    calcX = Math.min(calcX, maxX);
+    return calcX;
+  }
+  
+  private boolean yNeedsAdjustment(FillOutsideLine.Type type, float y, int height) {
+      return yOutOfBounds(type, y, height) || yAboveCanvasAboveFill(type, y, height);
+  }
+  
+  private boolean yOutOfBounds(FillOutsideLine.Type type, float y, int height) {
+      if (type == FillOutsideLine.Type.ABOVE) {
+          return y > height;
+      }
+      if (type == FillOutsideLine.Type.BELOW) {
+          return y < 0;
+      }
+      return false;
+  }
 
+  private boolean yAboveCanvasAboveFill(FillOutsideLine.Type type, float y, int height) {
+    return type == FillOutsideLine.Type.ABOVE && y < 0;
+  }
+  
   @Override
   protected ClickableArea[] clickableAreasForPoints(List<Float> points, List<Double> values,
       float yAxisValue, int seriesIndex, int startIndex) {
@@ -226,10 +300,7 @@ public class LineChart extends XYChart {
    */
   public void drawLegendShape(Canvas canvas, SimpleSeriesRenderer renderer, float x, float y,
       int seriesIndex, Paint paint) {
-    float oldWidth = paint.getStrokeWidth();
-    paint.setStrokeWidth(((XYSeriesRenderer) renderer).getLineWidth());
     canvas.drawLine(x, y, x + SHAPE_WIDTH, y, paint);
-    paint.setStrokeWidth(oldWidth);
     if (isRenderPoints(renderer)) {
       pointsChart.drawLegendShape(canvas, renderer, x + 5, y, seriesIndex, paint);
     }
