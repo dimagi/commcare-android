@@ -76,6 +76,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -187,7 +188,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
         // enter data button. expects a result.
         startButton = (Button) findViewById(R.id.home_start);
-        startButton.setText(MarkupUtil.localizeStyleSpannable(this, "home.start"));
+        Spannable startSpan = MarkupUtil.localizeStyleSpannable(this, "home.start");
+        startButton.setText(startSpan);
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i;

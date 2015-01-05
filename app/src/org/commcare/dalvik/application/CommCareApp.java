@@ -51,15 +51,13 @@ public class CommCareApp {
     private Object appDbHandleLock = new Object();
     private SQLiteDatabase appDatabase; 
     
-    private Stylizer mStylizer;
+    public static Stylizer mStylizer;
     
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
         
         //Now, we need to identify the state of the application resources
         int[] version = CommCareApplication._().getCommCareVersion();
-        
-        initializeStylizer();
 
         //TODO: Badly coupled
         platform = new AndroidCommCarePlatform(version[0], version[1], CommCareApplication._(), this);
@@ -123,7 +121,7 @@ public class CommCareApp {
     }
     
     public void initializeStylizer() {
-        //mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
+        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
     }
     
     /**
@@ -198,8 +196,11 @@ public class CommCareApp {
             }catch(UnregisteredLocaleException urle) {
                 Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
             }
+            
             return true;
         }
+        
+       
         return false;
     }
     

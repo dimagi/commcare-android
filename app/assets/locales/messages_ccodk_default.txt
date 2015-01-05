@@ -35,7 +35,7 @@ upgrade.button.startover=Restart Upgrade
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application...
 
-menu.basic=<body id=red-bg>Basic Install</body>
+menu.basic=Basic Install
 menu.advanced=Advanced Install
 menu.archive=Offline Install
 

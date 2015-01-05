@@ -76,10 +76,6 @@ public class DeveloperPreferences extends PreferenceActivity {
         return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
     
-    public static boolean isActionBarEnabled(){
-        return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
-    }
-    
     public static boolean isCssEnabled(){
         try{
             SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -99,4 +95,10 @@ public class DeveloperPreferences extends PreferenceActivity {
             return false;
         }
     }
+    
+    public static boolean isGridMenuEnabled(){
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
 }
