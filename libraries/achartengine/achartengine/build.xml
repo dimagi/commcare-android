@@ -97,6 +97,8 @@
 	
 	<target name="test" depends="test-failed" />
 	
+	<target name="nodeps" />
+	
     <target name="test-unit" depends="clean, compile-tests" description="Run the unit tests.">
         <junit haltonfailure="off" haltonerror="off" failureproperty="test.failure"
         	   errorproperty="test.failure" fork="yes">
