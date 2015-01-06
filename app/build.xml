@@ -76,20 +76,6 @@
     	<replace file="${custom.dir.resource}/values/external_strings.xml" token="MAPS_KEY" value="${maps.api.key}"/>
     </target>
 	
-	<target name="odk-setup">
-		<mkdir dir="${odk.libs}"/>
-		
-		<!-- Copy over original odk libs -->
-		<copy todir="${odk.libs}" overwrite="true">
-			<fileset dir="${odk.libs.orig}" includes="*.jar"/>
-		</copy>
-		
-    	<!-- copy CCODK versions (to ensure compatibility) -->
-		<copy todir="${odk.libs}" overwrite="true">
-			<fileset dir="libs"/>
-		</copy>
-	</target>
-	
 	<target name="build-from-source" if="build.source">
     	<mkdir dir="${jar.libs.dir}"/>
 		<!-- todo: that -->
@@ -143,7 +129,7 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 	
-	<target name="prepare" depends="cc-setup, odk-setup"/>
+	<target name="prepare" depends="cc-setup"/>
 	
 	<target name="cc-release" depends="prepare, release">
 	</target>
