@@ -19,7 +19,6 @@ commcare-odk-test/gen/*
 *.swp
 .hg*
 /app/.cache
-/app/libs/
 /app/proguard_cache/
 .DS_Store
 .gitignore~
