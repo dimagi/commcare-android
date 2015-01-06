@@ -49,12 +49,6 @@
             unless="sdk.dir"
     />
 
-	<target name="-pre-build">
-		<!-- we actually need to wipe out all of our libs now, since they're in ODK's library -->
-        <delete dir="${jar.libs.dir}"/>
-		<mkdir dir="${jar.libs.dir}"/>
-	</target>
-
     <target name="cc-setup" depends="build-from-source, addversionnumber">
     	<!-- update resources -->
 		<tstamp>
@@ -72,7 +66,6 @@
     </target>
 	
 	<target name="build-from-source" if="build.source">
-    	<mkdir dir="${jar.libs.dir}"/>
 		<!-- todo: that -->
 		<copy todir="${jar.libs.dir}">
 			<fileset dir="${javarosa.libs}" includes="*.jar"/>
