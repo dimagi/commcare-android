@@ -31,13 +31,10 @@
     <color name="dark_green_end">#1C662D</color>
     
     <!-- ODK.Collect colors start here -->
-
-    <drawable name="red">#7f00</drawable>
     <drawable name="white">#ffffffff</drawable>
     <drawable name="black">#ff000000</drawable>
     <drawable name="blue">#770000ff</drawable>
     <drawable name="green">#7700ff00</drawable>
-    <drawable name="yellow">#77ffff00</drawable>
     <drawable name="grey">#ffaaaaaa</drawable>
     <drawable name="screen_background_black">#ff000000</drawable>
     <drawable name="translucent_background">#e0000000</drawable>
@@ -59,8 +56,6 @@
     <color name="bright_blue_grad_end">#ff1e559e</color>
     <color name="grey_grad_start">#A0A6A8</color>
     <color name="grey_grad_end">#868A8C</color>
-    <color name="bright_green_grad_start">#2C9746</color>
-    <color name="bright_green_grad_end">#247A38</color>
     <color name="pale_blue">#E2ECF0</color>
     <color name="very_light_blue">#AAE3ECFF</color>
     <color name="solid_dark_red">#BF3D3D</color>
