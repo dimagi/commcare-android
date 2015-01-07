@@ -31,6 +31,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
+import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -45,8 +46,11 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -69,7 +73,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, OnGestureListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -118,6 +122,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private Detail shortSelect;
     
     private DataSetObserver mListStateObserver;
+    private GestureDetector mGestureDetector = null;
     
     /*
      * (non-Javadoc)
@@ -176,6 +181,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     }
                 }
             }
+            mGestureDetector = new GestureDetector(this, this); 
         } else {
             setContentView(R.layout.entity_select_layout);
         }
@@ -246,6 +252,15 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent mv) {
+        boolean handled = mGestureDetector == null ? false : mGestureDetector.onTouchEvent(mv);
+        if (!handled) {
+            return super.dispatchTouchEvent(mv);
+        }
+        return handled;
     }
     
     private void createDataSetObserver() {
@@ -759,6 +774,14 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     boolean rightFrameSetup = false;
     NodeEntityFactory factory;
     
+    private void select() {
+        // create intent for return and store path
+        Intent i = new Intent(EntitySelectActivity.this.getIntent());
+        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+        setResult(RESULT_OK, i);
+        finish();
+    }
+    
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection, getIntent());
         //this should be 100% "fragment" able
@@ -768,18 +791,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             Button next = (Button)findViewById(R.id.entity_select_button);
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
-
                 public void onClick(View v) {
-                    // create intent for return and store path
-                    Intent i = new Intent(EntitySelectActivity.this.getIntent());
-                    
-                    i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-                    setResult(RESULT_OK, i);
-
-                    finish();
+                    select();
                     return;
                 }
-                
             });
             
             if(getIntent().getBooleanExtra(EntityDetailActivity.IS_DEAD_END, false)) {
@@ -818,5 +833,47 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         displayException(e);
     }
 
+    @Override
+    public boolean onDown(MotionEvent arg0) {
+        return false;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if (FormEntryActivity.isHorizontalSwipe(this, e1, e2)) {
+            if (velocityX <= 0) {
+                if (selectedIntent != null) {
+                    select();
+                }
+//        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+            }
+            else {
+                finish();
+            }
+            return true;
+        }
+                
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent arg0) {
+        // ignore
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent arg0) {
+        // ignore
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent arg0) {
+        return false;
+    }
 
 }

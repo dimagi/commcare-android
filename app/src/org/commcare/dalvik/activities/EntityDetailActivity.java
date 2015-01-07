@@ -20,12 +20,16 @@ import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
+import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -37,7 +41,7 @@ import android.widget.RelativeLayout;
  *
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
+public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener, OnGestureListener {
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;
@@ -56,6 +60,8 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     TreeReference mTreeReference;
     
     private int detailIndex;
+    
+    private GestureDetector mGestureDetector;
     
     @UiElement(value=R.id.entity_detail)
     RelativeLayout container;
@@ -114,15 +120,9 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      
         try {
             next.setOnClickListener(new OnClickListener() {
-    
                 public void onClick(View v) {
-                    Intent i = new Intent(EntityDetailActivity.this.getIntent());
-                    loadOutgoingIntent(i);
-                    setResult(RESULT_OK, i);
-    
-                    finish();
+                    select();
                 }
-                
             });
             
             if(getIntent().getBooleanExtra(IS_DEAD_END, false)) {
@@ -136,6 +136,8 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         }
         
         mDetailView.setDetail(factory.getDetail());
+        
+        mGestureDetector = new GestureDetector(this, this); 
     }
     
     public Pair<Detail, TreeReference> requestEntityContext() {
@@ -221,6 +223,62 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(videoRef), "video/*");
         startActivity(intent);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent mv) {
+        boolean handled = mGestureDetector.onTouchEvent(mv);
+        if (!handled) {
+            return super.dispatchTouchEvent(mv);
+        }
+        return handled;
+    }
+    
+    @Override
+    public boolean onDown(MotionEvent arg0) {
+        return false;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if (FormEntryActivity.isHorizontalSwipe(this, e1, e2)) {
+            if (velocityX <= 0) {
+                select();
+            }
+            else {
+                finish();
+            }
+            return true;
+        }
+                
+        return false;
+    }
+    
+    private void select() {
+        Intent i = new Intent(EntityDetailActivity.this.getIntent());
+        loadOutgoingIntent(i);
+        setResult(RESULT_OK, i);
+        finish();
+    }
+
+    @Override
+    public void onLongPress(MotionEvent arg0) {
+        // ignore
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent arg0) {
+        // ignore
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent arg0) {
+        return false;
     }
 
 }
