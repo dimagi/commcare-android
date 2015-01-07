@@ -48,6 +48,7 @@ public class AppManagerActivity extends Activity {
 	
 	public void onResume() {
 		super.onResume();
+		System.out.println("ONRESUME called in AppManagerActivity");
 		ListView lv = (ListView) findViewById(R.id.apps_list_view);
 		lv.setAdapter(new AppManagerAdapter(this, 
 				android.R.layout.simple_list_item_1, appRecordArray()));
@@ -110,6 +111,7 @@ public class AppManagerActivity extends Activity {
     		}
     		break;
 		case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
+		    System.out.println("IN onActivityResult for MISSING_MEDIA_ACTIVITY");
     		if (resultCode == RESULT_CANCELED) {
     			AlertDialog.Builder builder = new AlertDialog.Builder(this);
     			builder.setTitle("Media Not Verified");
@@ -129,7 +131,6 @@ public class AppManagerActivity extends Activity {
     		else if (resultCode == RESULT_OK) {
     			Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
     		}
-    		rebootCommCare();
     		break;
 		case CommCareHomeActivity.RESTART_APP:
 		    if (dialog != null) {
