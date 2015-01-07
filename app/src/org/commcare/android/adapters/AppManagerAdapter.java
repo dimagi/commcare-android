@@ -19,8 +19,21 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
 		super(context, resource, objects);
 		this.context = (AppManagerActivity) context;
 	}
-
+	
 	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+        View v = convertView; 
+        if (v == null) {
+            v = View.inflate(context, R.layout.app_title_view, null);
+        }
+        ApplicationRecord toDisplay = context.getAppAtIndex(position);
+        TextView appName = (TextView) v.findViewById(R.id.app_name);
+        appName.setText(toDisplay.getDisplayName());
+        v.setContentDescription(toDisplay.getUniqueId());
+        return v;
+	}
+
+	/*@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		System.out.println("getView called");
 		View v = convertView;
@@ -58,6 +71,6 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
 			System.out.println("AppManagerAdapter setting button to 'Archive'");
 		}
 		return v;
-	}
+	}*/
 
 }

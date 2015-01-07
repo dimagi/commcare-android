@@ -20,6 +20,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -29,7 +31,7 @@ import android.widget.Toast;
  *
  */
 
-public class AppManagerActivity extends Activity {
+public class AppManagerActivity extends Activity implements OnItemClickListener {
 	
 	public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
 	AlertDialog dialog;
@@ -38,20 +40,18 @@ public class AppManagerActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.app_manager);
-		refreshView();
+		((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
 	}
 	
 	private void refreshView() {
 		ListView lv = (ListView) findViewById(R.id.apps_list_view);
-		lv.setAdapter(new AppManagerAdapter(this, R.layout.custom_list_item_view, appRecordArray()));		
+		lv.setAdapter(new AppManagerAdapter(this, android.R.layout.simple_list_item_1, appRecordArray()));		
 	}
 	
 	public void onResume() {
 		super.onResume();
 		System.out.println("ONRESUME called in AppManagerActivity");
-		ListView lv = (ListView) findViewById(R.id.apps_list_view);
-		lv.setAdapter(new AppManagerAdapter(this, 
-				android.R.layout.simple_list_item_1, appRecordArray()));
+		refreshView();
 	}
 	
 	private ApplicationRecord[] appRecordArray() {
@@ -224,5 +224,12 @@ public class AppManagerActivity extends Activity {
         dialog.show();
         //SystemClock.sleep(2000);
 	}
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position,
+            long id) {
+        // TODO Auto-generated method stub
+        
+    }
 
 }
