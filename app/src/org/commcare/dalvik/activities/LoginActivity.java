@@ -99,8 +99,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         
         //Only on the initial creation
-        if(savedInstanceState ==null) {
-            String lastUser = CommCareApplication._().getCurrentApp().getAppPreferences().getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        if(savedInstanceState == null) {
+            String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
             if(lastUser != null) {
                 username.setText(lastUser);
                 password.requestFocus();
@@ -143,6 +143,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     banner.setVisibility(View.GONE);
                 }  else {
                     versionDisplay.setVisibility(View.VISIBLE);
+                    // Override default CommCare banner if requested
+                    String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_LOGIN, "");
+                    if (!"".equals(customBannerURI)) {
+                        Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
+                        if (bitmap != null) {
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.screen_login_top_banner);
+                            bannerView.setImageBitmap(bitmap);
+                        }
+                    }
                     banner.setVisibility(View.VISIBLE);
                 }
              }

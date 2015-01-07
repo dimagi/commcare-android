@@ -1,4 +1,4 @@
-package org.commcare.android.framework;
+org.commcare.android.framework;
 
 import java.util.Vector;
 
@@ -18,6 +18,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -290,15 +291,15 @@ public class BreadcrumbBarFragment extends Fragment {
             AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
             CommCareSession session = asw.getSession();
     
-            String[] stepToFrame = null;
-            Vector<String[]> v = session.getFrame().getSteps();
+            StackFrameStep stepToFrame = null;
+            Vector<StackFrameStep> v = session.getFrame().getSteps();
             
             //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
             //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
             for(int i = v.size() -1 ; i >= 0; i--){
-                String[] step = v.elementAt(i);
+                StackFrameStep step = v.elementAt(i);
     
-                if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
+                if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                     stepToFrame = step;
                 }
             }
@@ -368,17 +369,16 @@ public class BreadcrumbBarFragment extends Fragment {
     
             String[] stepTitles = session.getHeaderTitles();
             
-            Vector<String[]> v = session.getFrame().getSteps();
+            Vector<StackFrameStep> v = session.getFrame().getSteps();
             
             //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
             //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
             for(int i = v.size() -1 ; i >= 0; i--){
                 if(bestTitle != null) { break;}
-                String[] step = v.elementAt(i);
+                StackFrameStep step = v.elementAt(i);
     
-                if(!SessionFrame.STATE_DATUM_VAL.equals(step[0]) && bestTitle == null) {
+                if(!SessionFrame.STATE_DATUM_VAL.equals(step.getType()) && bestTitle == null) {
                     bestTitle = stepTitles[i];
-                    
                 }
             }
         } catch(SessionUnavailableException sue) {
@@ -467,12 +467,12 @@ public class BreadcrumbBarFragment extends Fragment {
 
                 stepTitles = session.getHeaderTitles();
                 
-                Vector<String[]> v = session.getFrame().getSteps();
+                Vector<StackFrameStep> v = session.getFrame().getSteps();
                 
                 //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
                 //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
                 for(int i = v.size() -1 ; i >= 0; i--){
-                    String[] step = v.elementAt(i);
+                    StackFrameStep step = v.elementAt(i);
                     
                     //Keep track of how many "steps" (or choices made by the user/platform) have happened.
                     final int currentStep = i;
@@ -520,11 +520,11 @@ public class BreadcrumbBarFragment extends Fragment {
                     try {
                         
                         //It the current step was selecting a nodeset value... 
-                    if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
+                    if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                         
                         //Haaack. We should replace this with a generalizable "What do you refer to your detail by", but for now this is 90% of cases
-                        if(step[1] != null && step[1].contains("case_id")) {
-                            ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step[2]);
+                        if(step.getId() != null && step.getId().contains("case_id")) {
+                            ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
                             stepTitles[i] = foundCase.getName();
                             newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb_case, currentId, stepBackListener);
                             if(newId != -1) { currentId = newId;}
@@ -587,11 +587,11 @@ public class BreadcrumbBarFragment extends Fragment {
         
         View tile;
         
-        private Pair<View, TreeReference> buildContextTile(Activity activity, String[] stepToFrame, AndroidSessionWrapper asw) {
+        private Pair<View, TreeReference> buildContextTile(Activity activity, StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
             
             //check to make sure we can look up this child
-            SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame[1]);
+            SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame.getId());
             if(d == null || d.getPersistentDetail() == null) { return null; }
             
             //Make sure there is a valid reference to the entity we can build 
@@ -599,7 +599,7 @@ public class BreadcrumbBarFragment extends Fragment {
             
             EvaluationContext ec = asw.getEvaluationContext();
             
-            TreeReference ref = d.getEntityFromID(ec, stepToFrame[2]);
+            TreeReference ref = d.getEntityFromID(ec, stepToFrame.getValue());
             if(ref == null) { return null; }
             
             Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);
