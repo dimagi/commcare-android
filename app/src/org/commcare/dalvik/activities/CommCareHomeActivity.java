@@ -1144,13 +1144,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
             }
             
-            //Now we need to catch any resource or database upgrade flags and make sure that the application
-            //is ready to go.
-            else if (CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
-                    CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY ||
-                    CommCareApplication._().getInstalledAppRecords().getNumRecords() == 0) {
-                    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-                    this.startActivityForResult(i, INIT_APP);
+            // If there are no apps installed at all, go to init app activity
+            else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() == 0) {
+                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                this.startActivityForResult(i, INIT_APP);
             } else if (!CommCareApplication._().getSession().isLoggedIn()) {
                 loginDecisionProcess();
             } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
@@ -1205,20 +1202,23 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private void loginDecisionProcess() {
         boolean currentAppValidated = (CommCareApplication._().getCurrentApp() == null) ?
                 false : CommCareApplication._().getCurrentApp().areResourcesValidated();
-        //1) If there are no apps installed or, only one app installed and it doesn't 
-        //have resources validated, redirect to MM verification (bc assuming not using multiple apps)
-        if (CommCareApplication._().getInstalledAppRecords().getNumRecords() <= 1 && !currentAppValidated) {
+        // 1) If there is only one app installed and it doesn't have resources validated, 
+        // redirect to MM verification (bc assuming not using multiple apps)
+        if (CommCareApplication._().getInstalledAppRecords().getNumRecords() == 1 && 
+                CommCareApplication._().getReadyAppRecords().size() == 0) {
             Intent i = new Intent(this, CommCareVerificationActivity.class);
             this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
         }
-        //2) If there are multiple apps installed and none are verified,
-        //display an error message and then close the app
+        // 2) If there are multiple apps installed and none are verified,
+        // display an error message and then close the app
         else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() > 1 
                 && CommCareApplication._().getReadyAppRecords().size() == 0) {
             CommCareApplication._().triggerHandledAppExit(this, 
                     Localization.get("multiple.apps.unverified.message"), 
                     Localization.get("multiple.apps.unverified.title"));
-        } else returnToLogin();
+        }
+        //3) Otherwise, we're good to go with showing the login screen
+        else returnToLogin();
     }
     
     private void returnToLogin() {
