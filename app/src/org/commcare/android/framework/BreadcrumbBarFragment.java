@@ -1,4 +1,4 @@
-org.commcare.android.framework;
+package org.commcare.android.framework;
 
 import java.util.Vector;
 
