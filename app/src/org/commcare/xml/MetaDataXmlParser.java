@@ -2,7 +2,6 @@ package org.commcare.xml;
 
 import java.io.IOException;
 
-import org.commcare.android.util.Base64;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;

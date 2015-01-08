@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import net.sqlcipher.DatabaseUtils;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
 import net.sqlcipher.database.SQLiteStatement;

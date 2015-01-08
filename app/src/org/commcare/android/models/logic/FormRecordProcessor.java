@@ -28,7 +28,6 @@ import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;

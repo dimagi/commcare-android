@@ -5,7 +5,6 @@ package org.commcare.dalvik.activities;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.dalvik.R;

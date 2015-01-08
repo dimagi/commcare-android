@@ -5,11 +5,11 @@ package org.commcare.android.view;
 
 import java.util.Calendar;
 
-import org.commcare.dalvik.R;
 import org.commcare.android.util.DotsData;
 import org.commcare.android.util.DotsData.DotsDay;
 import org.commcare.android.util.DotsData.MedStatus;
 import org.commcare.android.util.DotsEditListener;
+import org.commcare.dalvik.R;
 
 import android.content.Context;
 import android.graphics.Rect;

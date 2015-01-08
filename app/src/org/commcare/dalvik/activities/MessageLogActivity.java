@@ -1,8 +1,8 @@
 package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.MessageRecordAdapter;
-import org.commcare.dalvik.R;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
 
 import android.app.ListActivity;
 import android.content.Intent;

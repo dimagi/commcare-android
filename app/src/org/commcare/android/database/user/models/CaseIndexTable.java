@@ -6,9 +6,7 @@ package org.commcare.android.database.user.models;
 import java.util.Vector;
 
 import net.sqlcipher.Cursor;
-import net.sqlcipher.DatabaseUtils;
 import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteQueryBuilder;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;

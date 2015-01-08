@@ -1,7 +1,5 @@
 package org.commcare.android.db.legacy;
 
-import java.io.IOException;
-
 import javax.crypto.Cipher;
 
 import org.commcare.android.crypt.CipherPool;

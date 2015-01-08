@@ -49,18 +49,7 @@
             unless="sdk.dir"
     />
 
-	<target name="-pre-build">
-		<!-- we actually need to wipe out all of our libs now, since they're in ODK's library -->
-        <delete dir="${jar.libs.dir}"/>
-		<mkdir dir="${jar.libs.dir}"/>
-	</target>
-
     <target name="cc-setup" depends="build-from-source, addversionnumber">
-    	<mkdir dir="${jar.libs.dir}"/>
-    	<!-- copy libraries -->
-		<copy todir="${jar.libs.dir}">
-			<fileset dir="lib"/>
-		</copy>	
     	<!-- update resources -->
 		<tstamp>
 		  <format property="TODAY_TIMESTAMP"
@@ -76,22 +65,7 @@
     	<replace file="${custom.dir.resource}/values/external_strings.xml" token="MAPS_KEY" value="${maps.api.key}"/>
     </target>
 	
-	<target name="odk-setup">
-		<mkdir dir="${odk.libs}"/>
-		
-		<!-- Copy over original odk libs -->
-		<copy todir="${odk.libs}" overwrite="true">
-			<fileset dir="${odk.libs.orig}" includes="*.jar"/>
-		</copy>
-		
-    	<!-- copy CCODK versions (to ensure compatibility) -->
-		<copy todir="${odk.libs}" overwrite="true">
-			<fileset dir="libs"/>
-		</copy>
-	</target>
-	
 	<target name="build-from-source" if="build.source">
-    	<mkdir dir="${jar.libs.dir}"/>
 		<!-- todo: that -->
 		<copy todir="${jar.libs.dir}">
 			<fileset dir="${javarosa.libs}" includes="*.jar"/>
@@ -143,7 +117,7 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 	
-	<target name="prepare" depends="cc-setup, odk-setup"/>
+	<target name="prepare" depends="cc-setup"/>
 	
 	<target name="cc-release" depends="prepare, release">
 	</target>

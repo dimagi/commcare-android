@@ -3,9 +3,6 @@
  */
 package org.commcare.android.models;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.commcare.android.util.StringUtils;
 
 

@@ -30,7 +30,7 @@ import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
-import org.commcare.android.view.TextImageAudioView;
+import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
@@ -39,6 +39,7 @@ import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -188,8 +189,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         startButton.setText(Localization.get("home.start"));
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), MenuList.class);
-                
+                Intent i;
+                if(DeveloperPreferences.isGridMenuEnabled()){
+                    i = new Intent(getApplicationContext(), MenuGrid.class);
+                } else{
+                    i = new Intent(getApplicationContext(), MenuList.class);
+                }
                 startActivityForResult(i, GET_COMMAND);
             }
         });
@@ -817,7 +822,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         
-        TextImageAudioView tiav = new TextImageAudioView(this);
+        HorizontalMediaView tiav = new HorizontalMediaView(this);
         tiav.setAVT(Localization.get("demo.mode.warning"), path, null);
         demoModeWarning.setView(tiav);
         
@@ -864,8 +869,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
         }
         else if(needed == SessionFrame.STATE_COMMAND_ID) {
-             Intent i = new Intent(getApplicationContext(), MenuList.class);
-         
+             Intent i;
+             
+             if(DeveloperPreferences.isGridMenuEnabled()){
+                 i = new Intent(getApplicationContext(), MenuGrid.class);
+             }
+             else{
+                 i = new Intent(getApplicationContext(), MenuList.class);
+             }
+
              i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
              startActivityForResult(i, GET_COMMAND);
          }  else if(needed == SessionFrame.STATE_DATUM_VAL) {
