@@ -21,7 +21,7 @@
 	    android:shape="oval">
 	
 		   <solid 
-		       android:color="#2C9746"/>
+		       android:color="@color/solid_green"/>
 	
 		   <!--Note that the following don't really matter, since the 
 		   drawable fills its container when it's set as a background -->

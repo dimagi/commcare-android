@@ -92,6 +92,18 @@ public interface AudioController {
      */
     public void saveEntityStateAndClear();
     
+    /*
+     * Return the length of the media, in milliseconds. May return
+     * null if the media isn't in a state where duration is relevant.
+     */
+    public Integer getDuration();
     
+    /*
+     * Return the number of milliseconds the media has been playing.
+     * May return null if the media is in a state where progress 
+     * isn't relevant.
+     */
+    public Integer getProgress();
+
     
 }

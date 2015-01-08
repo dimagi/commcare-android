@@ -29,7 +29,7 @@ the License.-->
             android:id="@+id/status_text"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="#DDDDDD"
+            android:background="@color/light_grey_grad_start"
             android:padding="5dp"
             android:paddingTop="0dp"
             android:text="@string/form_scan_starting"

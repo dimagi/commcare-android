@@ -28,7 +28,8 @@
         android:text="Username"
         android:gravity="left"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#ffffff" />
+        android:textColor="@color/white" />
+
             
     <EditText
         android:id="@+id/username_edit"
