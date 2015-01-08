@@ -18,8 +18,10 @@ commcare-odk-test/gen/*
 *.orig
 *.swp
 .hg*
+.svn*
 /app/.cache
 /app/libs/
 /app/proguard_cache/
 .DS_Store
 .gitignore~
+*achartengine*.jar
