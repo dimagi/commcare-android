@@ -401,6 +401,27 @@ public class CommCareApplication extends Application {
 		}
 		return ready;
 	}
+	
+    public ApplicationRecord[] appRecordArray() {
+        SqlStorage<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
+        ApplicationRecord[] appArray = new ApplicationRecord[appList.getNumRecords()];
+        int index = 0;
+        for (ApplicationRecord r : appList) {
+            appArray[index++] = r;
+        }
+        return appArray;
+    }
+    
+    public ApplicationRecord getAppAtIndex(int index) {
+        ApplicationRecord[] currentApps = appRecordArray();
+        if (index < 0 || index >= currentApps.length) {
+            System.out.println("WARNING: attempting to get ApplicationRecord from ManagerActivity at invalid index");
+            return null;
+        } else {
+            System.out.println("returning ApplicationRecord at index " + index);
+            return currentApps[index];
+        }
+    }
 
     public int initializeAppResources(CommCareApp app) {
         try {

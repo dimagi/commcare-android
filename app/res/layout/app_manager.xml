@@ -16,29 +16,15 @@
         android:scaleType="fitStart"
         android:src="@drawable/ccbanner" />
     
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_above="@+id/install_app_button"
-        android:layout_below="@id/screen_bulk_image1" >
-        
-        <RelativeLayout
-        	android:layout_width="wrap_content"
-        	android:layout_height="fill_parent" >
+    <ListView
+    	android:id="@+id/apps_list_view"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+ 		android:layout_above="@+id/install_app_button"
+        android:layout_below="@id/screen_bulk_image1" 
+    	android:listSelector="@drawable/selector" >
+	</ListView>
     
-    		<ListView
-        		android:id="@+id/apps_list_view"
-       			android:layout_width="wrap_content"
-       			android:layout_height="fill_parent"
-       			android:layout_centerInParent="true"
-        		android:dividerHeight="5sp" />
-    
-    	</RelativeLayout>
-        
-    </LinearLayout>
-    
-     
     <Button
          android:id="@id/install_app_button"
          android:layout_width="fill_parent"

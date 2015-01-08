@@ -2,45 +2,45 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="vertical" >
     
     <TextView 
         android:id="@+id/app_name"
-        android:textSize="14sp"
+        android:textSize="30sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
          
     <Button
          android:id="@+id/uninstall_button"
          android:text="@string/uninstall_app"
-         android:textSize="14sp"
+         android:textSize="30sp"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         android:onClick="uninstallSelected" />
+         android:onClick="uninstall" />
                 
     <Button
          android:id="@+id/archive_button"
          android:text="@string/archive_app"
-         android:textSize="14sp"            
+         android:textSize="30sp"            
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         android:onClick="toggleArchiveSelected" />
+         android:onClick="toggleArchived" />
     
     <Button
         android:id="@+id/update_button"
         android:text="@string/update_app"
-        android:textSize="14sp"
+        android:textSize="30sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="updateSelected" />
+        android:onClick="update" />
      
     <Button
         android:id="@+id/verify_button"
         android:text="@string/verify_resources"
-        android:textSize="14sp"            
+        android:textSize="30sp"            
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true" 
-        android:onClick="verifyResourcesForSelected" />
+        android:onClick="verifyResources" />
 
 </LinearLayout>

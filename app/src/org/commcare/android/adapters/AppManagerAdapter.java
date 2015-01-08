@@ -3,6 +3,7 @@ package org.commcare.android.adapters;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.AppManagerActivity;
+import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 import android.view.View;
@@ -26,7 +27,7 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
         if (v == null) {
             v = View.inflate(context, R.layout.app_title_view, null);
         }
-        ApplicationRecord toDisplay = context.getAppAtIndex(position);
+        ApplicationRecord toDisplay = CommCareApplication._().getAppAtIndex(position);
         TextView appName = (TextView) v.findViewById(R.id.app_name);
         appName.setText(toDisplay.getDisplayName());
         v.setContentDescription(toDisplay.getUniqueId());
