@@ -23,6 +23,8 @@
     <string name="resources_warning">Warning: Multimedia resources for this app have not been validated</string>
     <string name="skipped_verification_warning">You did not validate multimedia resources for the app that was just
          installed! This app will not be visible to users on the log-in screen until multimedia is validated.</string>
+    <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will 
+        not be visible to users on the log-in screen until multimedia is validated.</string>
     <integer-array name="commcare_version">
         <item>2</item>
         <item>19</item>

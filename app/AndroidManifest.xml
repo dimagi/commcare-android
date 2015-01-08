@@ -157,6 +157,10 @@
         </activity-alias>
 
         <activity
+            android:name=".activities.SingleAppManagerActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
             android:name=".activities.EntitySelectActivity"
             android:windowSoftInputMode="stateUnchanged|adjustResize" >
         </activity>

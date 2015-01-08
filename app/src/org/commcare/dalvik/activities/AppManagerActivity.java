@@ -6,6 +6,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -64,6 +66,27 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
 				Toast.makeText(this, "No app was installed!", Toast.LENGTH_LONG).show();
 			}
 			break;
+		case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
+            if (resultCode == RESULT_CANCELED) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Media Not Verified");
+                builder.setMessage(R.string.skipped_verification_warning)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                    int which) {
+                                dialog.dismiss();
+                            }
+                            
+                        });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+            else if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
+            }
+            break;
 		}
 	}
 
@@ -71,7 +94,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     public void onItemClick(AdapterView<?> parent, View view, int position,
             long id) {
         Intent i = new Intent(getApplicationContext(), SingleAppManagerActivity.class);
-        i.putExtra("postition", position);
+        i.putExtra("position", position);
         startActivity(i);
     }
     

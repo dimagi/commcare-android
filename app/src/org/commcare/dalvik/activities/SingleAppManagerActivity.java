@@ -29,11 +29,11 @@ public class SingleAppManagerActivity extends CommCareActivity {
     private AlertDialog dialog;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {  
+    public void onCreate(Bundle savedInstanceState) { 
+        super.onCreate(savedInstanceState);
         Intent i = getIntent();
         int position = i.getIntExtra("position", -1);
         appRecord = CommCareApplication._().getAppAtIndex(position);
-        String t = appRecord.getUniqueId();
         String appName = appRecord.getDisplayName();
         boolean resourcesValidated = appRecord.resourcesValidated();
         boolean isArchived = appRecord.isArchived();
@@ -45,14 +45,10 @@ public class SingleAppManagerActivity extends CommCareActivity {
         tv.setText(appName);
         
         //Validate button only clickable if resources are not yet validated
-        Button archiveButton = (Button) findViewById(R.id.archive_button);
-        Button validateButton = (Button) findViewById(R.id.verify_button);
-        if (resourcesValidated) {
-            validateButton.setEnabled(false);
-        } else {
-            validateButton.setEnabled(true);
-        }
+        refreshValidateButton();
+        
         //Change text for archive button depending on archive status
+        Button archiveButton = (Button) findViewById(R.id.archive_button);
         if (isArchived) {
             System.out.println("Setting button to 'Unarchive'");
             archiveButton.setText("Unarchive");
@@ -62,28 +58,34 @@ public class SingleAppManagerActivity extends CommCareActivity {
         }
     }
     
+    private void refreshValidateButton() {        
+        boolean resourcesValidated = appRecord.resourcesValidated();
+        Button validateButton = (Button) findViewById(R.id.verify_button);
+        if (resourcesValidated) {
+            validateButton.setEnabled(false);
+        } else {
+            validateButton.setEnabled(true);
+        }
+    }
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
         case CommCareHomeActivity.UPGRADE_APP:
             if(resultCode == RESULT_CANCELED) {
-                //This might actually be bad, but try to go about your business
-                //The onResume() will take us to the screen
-                return;
+                Toast.makeText(this, "Your update did not complete", Toast.LENGTH_LONG).show();
             } else if(resultCode == RESULT_OK) {
-                //set flag that we should autoupdate on next login
+                //Set flag that we should autoupdate on next login
                 SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
                 preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true);
-                //The onResume() will take us to the screen
-                return;
             }
             break;
         case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
-            System.out.println("IN onActivityResult for MISSING_MEDIA_ACTIVITY");
+            refreshValidateButton();
             if (resultCode == RESULT_CANCELED) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Media Not Verified");
-                builder.setMessage(R.string.skipped_verification_warning)
+                builder.setMessage(R.string.skipped_verification_warning_2)
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
                             @Override
