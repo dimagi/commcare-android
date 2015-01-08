@@ -25,6 +25,7 @@
          installed! This app will not be visible to users on the log-in screen until multimedia is validated.</string>
     <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will 
         not be visible to users on the log-in screen until multimedia is validated.</string>
+    <string name="manager_instructions">Select an app to view its management options, or install a new app.</string>
     <integer-array name="commcare_version">
         <item>2</item>
         <item>19</item>

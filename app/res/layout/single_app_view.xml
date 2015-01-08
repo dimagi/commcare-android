@@ -2,45 +2,62 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:gravity="center" >
     
     <TextView 
         android:id="@+id/app_name"
-        android:textSize="30sp"
+        android:textSize="50sp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:paddingBottom="100sp"
+        android:paddingTop="5sp"
+        android:textColor="#616161"
+        android:gravity="center" />
          
     <Button
          android:id="@+id/uninstall_button"
          android:text="@string/uninstall_app"
-         android:textSize="30sp"
-         android:layout_width="wrap_content"
+         android:textSize="40sp"
+         android:layout_width="fill_parent"
          android:layout_height="wrap_content"
-         android:onClick="uninstall" />
+         android:onClick="uninstall"
+         android:textColor="#1565C0"
+         android:paddingBottom="5sp"
+         android:paddingTop="5sp" />
                 
     <Button
          android:id="@+id/archive_button"
          android:text="@string/archive_app"
-         android:textSize="30sp"            
-         android:layout_width="wrap_content"
+         android:textSize="40sp"            
+         android:layout_width="fill_parent"
          android:layout_height="wrap_content"
-         android:onClick="toggleArchived" />
+         android:onClick="toggleArchived"
+         android:textColor="#616161"
+         android:paddingBottom="5sp"
+         android:paddingTop="5sp" />
     
     <Button
         android:id="@+id/update_button"
         android:text="@string/update_app"
-        android:textSize="30sp"
-        android:layout_width="wrap_content"
+        android:textSize="40sp"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="update" />
+        android:onClick="update"
+        android:textColor="#1565C0"
+        android:paddingBottom="5sp"
+        android:paddingTop="5sp" />
      
     <Button
         android:id="@+id/verify_button"
         android:text="@string/verify_resources"
-        android:textSize="30sp"            
-        android:layout_width="wrap_content"
+        android:textSize="40sp"            
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:clickable="true" 
-        android:onClick="verifyResources" />
+        android:onClick="verifyResources"
+        android:textColor="#616161"
+      	android:paddingBottom="5sp"
+        android:paddingTop="5sp" />
 
 </LinearLayout>

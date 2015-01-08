@@ -35,7 +35,6 @@ public class SingleAppManagerActivity extends CommCareActivity {
         int position = i.getIntExtra("position", -1);
         appRecord = CommCareApplication._().getAppAtIndex(position);
         String appName = appRecord.getDisplayName();
-        boolean resourcesValidated = appRecord.resourcesValidated();
         boolean isArchived = appRecord.isArchived();
         
         setContentView(R.layout.single_app_view);
