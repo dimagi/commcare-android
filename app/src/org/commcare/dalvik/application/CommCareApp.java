@@ -196,9 +196,9 @@ public class CommCareApp {
         return appPreferences.getBoolean("isValidated",false) || appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES);
     }
     
-    public void setResourcesValidated(boolean isValidated){
+    public void setResourcesValidated(){
         SharedPreferences.Editor editor = getAppPreferences().edit();
-        editor.putBoolean("isValidated", isValidated);
+        editor.putBoolean("isValidated", true);
         editor.commit();
 		record.setResourcesStatus(true);
 		CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);

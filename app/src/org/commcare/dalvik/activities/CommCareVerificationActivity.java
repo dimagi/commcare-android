@@ -4,6 +4,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
@@ -184,7 +185,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
      */
     @Override
     public void success() {
-        CommCareApplication._().getCurrentApp().setResourcesValidated(true);
+        CommCareApplication._().getCurrentApp().setResourcesValidated();
         done(true);
     }
 
