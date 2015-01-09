@@ -1,8 +1,5 @@
 package org.commcare.dalvik.dialogs;
 
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-
-import android.view.View;
 
 /**
  * @author amstone326

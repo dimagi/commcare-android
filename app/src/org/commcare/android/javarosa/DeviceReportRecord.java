@@ -1,7 +1,5 @@
 package org.commcare.android.javarosa;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,9 +23,6 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A small DB record for keeping track of serialized device reports which we are planning

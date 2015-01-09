@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <FrameLayout
+        android:id="@+id/form_entry_header_pane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" >
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/form_entry_pane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:layout_above="@+id/form_entry_labels"
+        android:layout_below="@id/form_entry_header_pane">
+    </FrameLayout>
+    
+    <FrameLayout
+        android:id="@+id/form_entry_labels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:layout_above="@+id/nav_pane">
+
+        <LinearLayout
+            android:id="@+id/form_entry_label_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+        </LinearLayout>
+
+    </FrameLayout>
+    
+
+    <ImageView
+        android:id="@+id/nav_badge_border_drawer"
+        android:layout_width="@dimen/badge_circum_outer"
+        android:layout_height="@dimen/badge_overlap"
+        android:layout_alignLeft="@+id/nav_badge"
+        android:layout_alignTop="@id/nav_badge"
+        android:scaleType="matrix"
+        android:src="@drawable/badge_border"
+        android:visibility="invisible" >
+
+    </ImageView>
+    
+    
+    <RelativeLayout
+        android:id="@id/nav_pane"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/screen_form_entry_bottom_anchor"
+        android:background="@drawable/top_border_black"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp" >
+
+        <ImageButton
+            android:id="@+id/nav_btn_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/selector_button_press"
+            android:padding="2dp"
+            android:src="@drawable/icon_exit" />
+
+        <ProgressBar
+            android:id="@+id/nav_prog_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/nav_btn_prev"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/nav_btn_next"
+            android:layout_toRightOf="@id/nav_btn_prev"
+            android:indeterminate="false"
+            android:indeterminateOnly="false"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/progressbar" />
+
+        <ImageButton
+            android:id="@id/nav_btn_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/selector_button_press"
+            android:padding="2dp"
+            android:src="@drawable/icon_next" />
+
+    </RelativeLayout>
+    
+    <TextView
+        android:id="@id/nav_badge"
+        android:layout_width="@dimen/badge_circum_outer"
+        android:layout_height="@dimen/badge_circum_outer"
+        android:layout_above="@id/nav_pane"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/nav_badge"
+        android:layout_marginBottom="@dimen/badge_offset"
+        android:layout_marginRight="@dimen/badge_offset_side"
+        android:background="@drawable/badge_background"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="6"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:visibility="invisible" />
+    
+    <View 
+        android:id="@id/screen_form_entry_bottom_anchor"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

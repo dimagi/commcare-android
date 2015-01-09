@@ -38,8 +38,10 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
      * V.6 - Indexed the case open + case type pairing (~every select screen)
      * Added Case Index table and join
      * Added Entity Cache Table
+     * V.7 - Case index models now maintain relationship types. Migration object
+     * used to update DB
      */
-    private static final int USER_DB_VERSION = 6;
+    private static final int USER_DB_VERSION = 7;
     
     private static final String USER_DB_LOCATOR = "database_sandbox_";
     

@@ -2,13 +2,9 @@ package org.commcare.android.database.user;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-
-import javax.crypto.Cipher;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;

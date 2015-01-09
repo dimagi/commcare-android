@@ -4,6 +4,7 @@
 package org.commcare.android.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.View;
