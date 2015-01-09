@@ -1124,11 +1124,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onResume() {
         super.onResume();
+        System.out.println("ONRESUME called in CCHomeActivity");
         platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
         dispatchHomeScreen();
     }
     
     private void dispatchHomeScreen() {
+        System.out.println("dispatchHomeScreen called");
         try {
             //First make sure nothing catastrophic has happened
             if (CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
@@ -1147,8 +1149,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
             }
             
-            // If there are no apps installed at all, go to init app activity
-            else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() == 0) {
+            // Otherwise if there are no installed (and unarchived) apps, go to init app activity
+            else if (CommCareApplication._().getVisibleAppRecords().size() == 0) {
                 Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
                 this.startActivityForResult(i, INIT_APP);
             } else if (!CommCareApplication._().getSession().isLoggedIn()) {
@@ -1203,18 +1205,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void loginDecisionProcess() {
-        boolean currentAppValidated = (CommCareApplication._().getCurrentApp() == null) ?
-                false : CommCareApplication._().getCurrentApp().areResourcesValidated();
-        // 1) If there is only one app installed and it doesn't have resources validated, 
+        System.out.println("loginDecisionProcess called");
+        // 1) If there is exactly one visible app and its missing its MM, 
         // redirect to MM verification (bc assuming not using multiple apps)
-        if (CommCareApplication._().getInstalledAppRecords().getNumRecords() == 1 && 
+        if (CommCareApplication._().getVisibleAppRecords().size() == 1 && 
                 CommCareApplication._().getReadyAppRecords().size() == 0) {
+            System.out.println("LAUNCHING VerificationActivity from loginDecisionProcess");
             Intent i = new Intent(this, CommCareVerificationActivity.class);
             this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
         }
+
         // 2) If there are multiple apps installed and none are verified,
         // display an error message and then close the app
-        else if (CommCareApplication._().getInstalledAppRecords().getNumRecords() > 1 
+        else if (CommCareApplication._().getVisibleAppRecords().size() > 1 
                 && CommCareApplication._().getReadyAppRecords().size() == 0) {
             CommCareApplication._().triggerHandledAppExit(this, 
                     Localization.get("multiple.apps.unverified.message"), 
@@ -1225,6 +1228,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void returnToLogin() {
+        System.out.println("returnToLogin called");
         returnToLogin(Localization.get("app.workflow.login.lost"));
     }
     

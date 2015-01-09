@@ -516,13 +516,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
         ArrayList<String> appUniqueIds = new ArrayList<String>();
         for (ApplicationRecord r : readyApps) {
-            if (!r.isArchived()) {
-                String uniqueId = r.getUniqueId();
-                appUniqueIds.add(uniqueId);
-                idsToRecords.put(uniqueId, r);
-            }
+            String uniqueId = r.getUniqueId();
+            appUniqueIds.add(uniqueId);
+            idsToRecords.put(uniqueId, r);
         }
-        System.out.println("num non-archived apps found: " + appUniqueIds.size());
         if (appUniqueIds.size() > 1) {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

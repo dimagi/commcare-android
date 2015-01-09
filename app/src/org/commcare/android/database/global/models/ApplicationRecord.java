@@ -84,12 +84,10 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public void setArchiveStatus(boolean b) {
-		System.out.println("setting archive status for AppRecord " + uniqueId + " to " + b);
 		this.isArchived = b;
 	}
 	
 	public boolean isArchived() {
-		System.out.println("isArchived returning " + this.isArchived + " for AppRecord " + uniqueId);
 		return this.isArchived;
 	}
 	
@@ -104,6 +102,7 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public boolean resourcesValidated() {
+	    System.out.println("resourcesValidated returning " + this.resourcesValidated + " for AppRecord " + uniqueId);
 		return this.resourcesValidated;
 	}
 	

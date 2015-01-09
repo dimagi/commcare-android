@@ -286,7 +286,7 @@ notification.sync.connections.detail=No active data connections
 notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to wifi or turning mobile data on.
 
 multiple.apps.unverified.title=Missing Multimedia for all Apps
-multiple.apps.unverified.message=All of your installed apps are missing their associated multimedia resources. Please notify your supervisor that he/she can fix this via the CommCare App Manager page.
+multiple.apps.unverified.message=All of your available apps are missing their associated multimedia resources. Please notify your supervisor so that he/she can fix this via the CommCare App Manager page.
 
 #Add new localization strings here
 

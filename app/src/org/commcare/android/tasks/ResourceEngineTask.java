@@ -94,14 +94,13 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
     //This boolean is set from CommCareSetupActivity -- If we are in keep trying mode for installation,
     //we want to sleep in between attempts to launch this task
     boolean shouldSleep;
-    boolean installFromManager;
     
     protected String vAvailable;
     protected String vRequired;
     protected boolean majorIsProblem;
     
     public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app, 
-            boolean startOverUpgrade, int taskId, boolean shouldSleep, boolean fromManager) 
+            boolean startOverUpgrade, int taskId, boolean shouldSleep) 
                     throws SessionUnavailableException{
         this.partialMode = partialMode;
         this.c = c;
@@ -110,7 +109,6 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         this.startOverUpgrade = startOverUpgrade;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;
-        this.installFromManager = fromManager;
     }
     
     /* (non-Javadoc)
@@ -181,7 +179,6 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 
             } else { 
                 //this is a standard, clean install
-                if(!installFromManager && sanityTest1) return ResourceEngineOutcomes.StatusFailState;
                 global.setStateListener(this);
                 platform.init(profileRef, global, false);
                 

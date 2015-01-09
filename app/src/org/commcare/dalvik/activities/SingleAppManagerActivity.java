@@ -57,6 +57,12 @@ public class SingleAppManagerActivity extends CommCareActivity {
         }
     }
     
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshValidateButton();
+    }
+    
     private void refreshValidateButton() {        
         boolean resourcesValidated = appRecord.resourcesValidated();
         Button validateButton = (Button) findViewById(R.id.verify_button);
@@ -102,6 +108,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
             }
             break;
         case CommCareHomeActivity.RESTART_APP:
+            System.out.println("RETURNING TO SingleAppManagerActivity from app reboot");
             if (dialog != null) {
                 dialog.dismiss();
             }
@@ -128,9 +135,8 @@ public class SingleAppManagerActivity extends CommCareActivity {
         this.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId())).delete();
         //4) Delete the app record
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).remove(appRecord.getID());
-        //5) Reset the dbState and appResourceState in CCApplication
+        //5) Reset the appResourceState in CCApplication
         CommCareApplication._().setAppResourceState(CommCareApplication.STATE_UNINSTALLED);
-        CommCareApplication._().setDatabaseState(CommCareApplication.STATE_UNINSTALLED);
         
         rebootCommCare();
     }
@@ -148,6 +154,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
             System.out.println("AppManagerAdapter setting button to 'Archive'");
             b.setText("Archive");
         }
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
     }
     
     /** Opens the MM verification activity for the selected app **/

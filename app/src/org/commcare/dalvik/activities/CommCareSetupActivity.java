@@ -161,7 +161,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+        System.out.println("ONCREATE in CCSetupActivity");
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
         this.fromManager = this.getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
@@ -249,9 +249,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         
         if(!Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
             //Otherwise we're starting up being called from inside the app. Check to see if everything is set
-            //and we can just skip this unless it's upgradeMode OR we were called from the AppManagerActivity
+            //and we can just skip this unless: a) it's upgradeMode, b) we were called from the AppManagerActivity
+            //or c) we're here because all installed apps are archived
             if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY
-                    && !inUpgradeMode && !fromManager) {
+                    && !inUpgradeMode && !fromManager && CommCareApplication._().visibleAppsPresent()) {
                 Intent i = new Intent(getIntent());    
                 setResult(RESULT_OK, i);
                 finish();
@@ -340,16 +341,20 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         });
         
         installButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {    
+            public void onClick(View v) { 
+                System.out.println("ONCLICK for installButton, fromManager = " + fromManager);
                 //Now check on the resources
-                if(!fromManager && resourceState == CommCareApplication.STATE_READY) {
+                if(!fromManager && resourceState == CommCareApplication.STATE_READY
+                        && CommCareApplication._().visibleAppsPresent()) {
+                    System.out.println("inside first if statement");
                     if(!inUpgradeMode || uiState != UiState.error) {
+                        System.out.println("Setting mode to existing application in ONCLICK");
                         fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
                         setModeToExistingApplication();
                     }
-                } else if(resourceState == CommCareApplication.STATE_UNINSTALLED || 
+                } else if(fromManager || resourceState == CommCareApplication.STATE_UNINSTALLED || 
                         (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode) ||
-                        (resourceState == CommCareApplication.STATE_READY && fromManager)) {
+                        (resourceState == CommCareApplication.STATE_READY && !CommCareApplication._().visibleAppsPresent())) {
                     startResourceInstall();
                 }
             }
@@ -391,10 +396,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onResume() {
         super.onResume();
-        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
+        System.out.println("ONRESUME called in CCSetupActivity");
         //If we arrived at CommCareSetupActivity from clicking the regular app icon, and there
         //are 1 or more available apps, we want to redirect to CCHomeActivity
-        if (!fromManager && readyApps.size() > 0) {
+        if (!fromManager && CommCareApplication._().visibleAppsPresent()) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
         }
@@ -622,7 +627,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
             
             ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, 
-                    inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep, fromManager) {
+                    inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                 /*
                  * (non-Javadoc)
@@ -866,7 +871,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void done(boolean requireRefresh) {
         //TODO: We might have gotten here due to being called from the outside, in which
         //case we should manually start up the home activity
-        
+        System.out.println("DONE CALLED in setupactivity");
         if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);

@@ -291,6 +291,7 @@ public class CommCareApplication extends Application {
     }
     
     public CommCareApp getCurrentApp() {
+        System.out.println("current app has display name: " + this.currentApp.getAppRecord().getDisplayName());
         return this.currentApp;
     }
     
@@ -322,14 +323,10 @@ public class CommCareApplication extends Application {
         this.resourceState = resourceState;
     }
     
-    public void setDatabaseState(int dbState) {
-        this.dbState = dbState;
-    }
-    
     public void initializeGlobalResources(CommCareApp app) {
         if(dbState != STATE_UNINSTALLED) {
             resourceState = initializeAppResources(app);
-        }
+        } 
     }
     
     public String getPhoneId() {
@@ -391,15 +388,34 @@ public class CommCareApplication extends Application {
 		return null;
 	}
 	
-	/**Return all ApplicationRecords that are installed AND have MM resources validated **/
+	/** Return all ApplicationRecords that are installed and NOT archived **/
+	public ArrayList<ApplicationRecord> getVisibleAppRecords() {
+	    ArrayList<ApplicationRecord> visible = new ArrayList<ApplicationRecord>();
+        for (ApplicationRecord r : getInstalledAppRecords()) {
+            if (!r.isArchived()) {
+                visible.add(r);
+            }
+        }
+        System.out.println("NUM VISIBLE APPS FOUND: " + visible.size());
+        return visible;
+	}
+	
+	/**Return all ApplicationRecords that are installed AND are not archived
+	 * AND have MM verified **/
 	public ArrayList<ApplicationRecord> getReadyAppRecords() {
 		ArrayList<ApplicationRecord> ready = new ArrayList<ApplicationRecord>();
-		for (ApplicationRecord r : getInstalledAppRecords()) {
+		for (ApplicationRecord r : getVisibleAppRecords()) {
 			if (r.resourcesValidated()) {
 				ready.add(r);
 			}
 		}
+        System.out.println("NUM READY APPS FOUND: " + ready.size());
 		return ready;
+	}
+	
+	public boolean visibleAppsPresent() {
+	    boolean b = getVisibleAppRecords().size() > 0;
+	    return b;
 	}
 	
     public ApplicationRecord[] appRecordArray() {
@@ -418,13 +434,13 @@ public class CommCareApplication extends Application {
             System.out.println("WARNING: attempting to get ApplicationRecord from ManagerActivity at invalid index");
             return null;
         } else {
-            System.out.println("returning ApplicationRecord at index " + index);
             return currentApps[index];
         }
     }
 
     public int initializeAppResources(CommCareApp app) {
         try {
+            System.out.println("SETTING CURRENT APP TO: " + app.getAppRecord().getDisplayName());
             currentApp = app;
             if(currentApp.initializeApplication()) {
                 return STATE_READY;
