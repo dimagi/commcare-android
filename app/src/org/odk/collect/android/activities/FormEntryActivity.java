@@ -65,6 +65,7 @@ import org.odk.collect.android.widgets.TimeWidget;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -1699,6 +1700,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     //NOTE: This needs to be the same as the
                     //exit condition below, in case either changes
                     mBeenSwiped = false;
+                    FormEntryActivity.this.triggerUserQuitInput();
                     return;
                 }
                 
@@ -1717,6 +1719,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //NOTE: this needs to match the exist condition above
             //when there is no start screen
             mBeenSwiped = false;
+            FormEntryActivity.this.triggerUserQuitInput();
         }
     }
 
@@ -2841,18 +2844,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return false;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
+    /**
+     * Decide if two given MotionEvents represent a swipe.
+     * @param activity
+     * @param e1 First MotionEvent
+     * @param e2 Second MotionEvent
+     * @return True iff the movement is a definitive horizontal swipe.
      */
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        // Looks for user swipes. If the user has swiped, move to the appropriate screen.
-        
+    public static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
         DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        
+        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+
         //screen width and height in inches.
         double sw = dm.xdpi * dm.widthPixels;
         double sh = dm.ydpi * dm.heightPixels;
@@ -2878,16 +2880,24 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         int xPixelLimit = (int) (dm.xdpi * .25);
         //int yPixelLimit = (int) (dm.ydpi * .25);
 
-        if ((xMov > xPixelLimit && angleOfMotion < 30)) {
+        return xMov > xPixelLimit && angleOfMotion < 30;
+    }
+
+    /*
+     * Looks for user swipes. If the user has swiped, move to the appropriate screen.
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.OnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
+     */
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if (isHorizontalSwipe(this, e1, e2)) {
+            mBeenSwiped = true;
             if (velocityX > 0) {
-                mBeenSwiped = true;
                 showPreviousView();
-                return true;
             } else {
-                mBeenSwiped = true;
                 showNextView();
-                return true;
             }
+            return true;
         }
 
         return false;
