@@ -291,7 +291,9 @@ public class CommCareApplication extends Application {
     }
     
     public CommCareApp getCurrentApp() {
-        System.out.println("current app has display name: " + this.currentApp.getAppRecord().getDisplayName());
+        if (currentApp != null) {
+            System.out.println("current app has display name: " + this.currentApp.getAppRecord().getDisplayName());
+        }
         return this.currentApp;
     }
     

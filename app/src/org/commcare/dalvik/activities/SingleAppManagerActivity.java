@@ -31,9 +31,14 @@ public class SingleAppManagerActivity extends CommCareActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) { 
         super.onCreate(savedInstanceState);
-        Intent i = getIntent();
-        int position = i.getIntExtra("position", -1);
+        int position = getIntent().getIntExtra("position", -1);
         appRecord = CommCareApplication._().getAppAtIndex(position);
+        // Implies that this appRecord has been uninstalled since last we launched SingleAppManagerActivity,
+        // so redirect to AppManagerActivity
+        if (appRecord == null) {
+            Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
+            startActivity(i);
+        }
         String appName = appRecord.getDisplayName();
         boolean isArchived = appRecord.isArchived();
         
@@ -112,17 +117,15 @@ public class SingleAppManagerActivity extends CommCareActivity {
             if (dialog != null) {
                 dialog.dismiss();
             }
+            Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
+            startActivity(i);
         }
     }
     
     /** Uninstalls the selected app **/
-    public void uninstall(View v) {
+    public void uninstall() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         CommCareApp app = CommCareApplication._().getCurrentApp();
-        
-        /*String title = "Uninstalling your app";
-        String message = "Please wait while CommCare uninstalls your app and reboots to save changes";
-        showAlertDialog(title, message);*/
         
         //1) Teardown the sandbox for this app
         app.teardownSandbox();
@@ -139,7 +142,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
         CommCareApplication._().setAppResourceState(CommCareApplication.STATE_UNINSTALLED);
         
         rebootCommCare();
-    }
+   }
     
     /** If the app is not archived, sets it to archived (i.e. still installed but 
      * not visible to users); If it is archived, sets it to unarchived **/
@@ -180,17 +183,37 @@ public class SingleAppManagerActivity extends CommCareActivity {
     public void rebootCommCare() {
         Intent i = getBaseContext().getPackageManager()
                 .getLaunchIntentForPackage( getBaseContext().getPackageName() );
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_NEW_TASK);
         this.startActivityForResult(i, CommCareHomeActivity.RESTART_APP);
     }
-    
-    public void showAlertDialog(String title, String message) {
+        
+    public void rebootAlertDialog(View v) {
+        String title = "Uninstalling your app";
+        String message = "CommCare will uninstall your app and then reboot to save changes.";
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
-        builder.setMessage(message);
+        builder.setMessage(message)
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog,
+                        int which) {
+                    dialog.dismiss();
+                    uninstall();
+                }
+                    
+            })
+            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            
         dialog = builder.create();
         dialog.show();
-        SystemClock.sleep(2000);
     }
 
 }
