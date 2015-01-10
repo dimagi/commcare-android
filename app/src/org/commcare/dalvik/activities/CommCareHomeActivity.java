@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
@@ -34,6 +35,7 @@ import org.commcare.android.view.TextImageAudioView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
@@ -1211,6 +1213,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (CommCareApplication._().getVisibleAppRecords().size() == 1 && 
                 CommCareApplication._().getReadyAppRecords().size() == 0) {
             System.out.println("LAUNCHING VerificationActivity from loginDecisionProcess");
+            ApplicationRecord r = CommCareApplication._().getVisibleAppRecords().get(0);
+            CommCareApplication._().initializeAppResources(new CommCareApp(r));
             Intent i = new Intent(this, CommCareVerificationActivity.class);
             this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
         }
