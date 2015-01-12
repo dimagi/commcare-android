@@ -5,7 +5,12 @@ package org.commcare.android.database.global;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbUtil;
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecordV1;
+import org.javarosa.core.services.storage.Persistable;
 
 import android.content.Context;
 
@@ -26,6 +31,11 @@ public class GlobalDatabaseUpgrader {
                 oldVersion = 2;
             }
         }
+        if (oldVersion == 2) {
+            if(upgradeTwoThree(db, oldVersion, newVersion)) {
+                oldVersion = 3;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -38,4 +48,28 @@ public class GlobalDatabaseUpgrader {
             db.endTransaction();
         }
     }
+    
+    private boolean upgradeTwoThree(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.beginTransaction();
+        try {
+            SqlStorage<Persistable> storage = new SqlStorage<Persistable>(ApplicationRecord.STORAGE_KEY, ApplicationRecordV1.class, new ConcreteDbHelper(c, db));
+            for (int i = 0; i < storage.getNumRecords(); i++) {
+                ApplicationRecordV1 oldRecord = (ApplicationRecordV1)storage.read(0);
+                ApplicationRecord newRecord = new ApplicationRecord(oldRecord.getApplicationId(), oldRecord.getStatus());
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                //set default values for the new fields
+                newRecord.setResourcesStatus(true);
+                newRecord.setArchiveStatus(false);
+                newRecord.setUniqueId(null);
+                newRecord.setDisplayName(null);
+                storage.write(newRecord);
+            }
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
+    
 }

@@ -17,21 +17,22 @@ import org.commcare.android.storage.framework.Table;
  */
 @Table("app_record")
 public class ApplicationRecord extends Persisted {
-	public static final String META_STATUS = "status";
-	
-	public static final int STATUS_UNINITIALIZED = 0;
-	public static final int STATUS_INSTALLED = 1;
-	/**
-	 * The app needs to be upgraded from an old version
-	 */
-	public static final int STATUS_SPECIAL_LEGACY = 2;
-	
-	
-	@Persisting(1)
-	String applicationId;
-	@Persisting(2)
-	@MetaField(META_STATUS)
-	int status;
+    public static final String STORAGE_KEY = "app_record";
+
+    public static final String META_STATUS = "status";
+    
+    public static final int STATUS_UNINITIALIZED = 0;
+    public static final int STATUS_INSTALLED = 1;
+    /**
+     * The app needs to be upgraded from an old version
+     */
+    public static final int STATUS_SPECIAL_LEGACY = 2;
+    
+    @Persisting(1)
+    String applicationId;
+    @Persisting(2)
+    @MetaField(META_STATUS)
+    int status;
 	@Persisting(3)
 	String uniqueId;
 	@Persisting(4)
@@ -41,11 +42,8 @@ public class ApplicationRecord extends Persisted {
 	@Persisting(6)
 	boolean isArchived;
 	
-	/*
-	 * Deserialization only
-	 */
 	public ApplicationRecord() {
-		
+	    
 	}
 	
 	public ApplicationRecord(String applicationId, int status) {
@@ -54,15 +52,23 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public String getApplicationId() {
-		return applicationId;
-	}
+        return applicationId;
+    }
+    
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    
+    public String getUniqueId() {
+        return uniqueId;
+    }
 	
 	public void setUniqueId(String id) {
 		this.uniqueId = id;
-	}
-	
-	public void setDisplayName(String appName) {
-		this.displayName = appName;
 	}
 	
 	public String getDisplayName() {
@@ -71,16 +77,8 @@ public class ApplicationRecord extends Persisted {
 	    return uniqueId;
 	}
 	
-	public String getUniqueId() {
-		return uniqueId;
-	}
-	
-	public int getStatus() {
-		return status;
-	}
-
-	public void setStatus(int status) {
-		this.status = status;
+	public void setDisplayName(String appName) {
+	    this.displayName = appName;
 	}
 	
 	public void setArchiveStatus(boolean b) {
