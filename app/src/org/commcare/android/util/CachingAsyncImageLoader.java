@@ -1,22 +1,14 @@
 package org.commcare.android.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.LruCache;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 /**
  * Class used for managing the LoadImageTasks that load images into a list. 
  * Ensures that proper caching occurs and attempts to limit overflows

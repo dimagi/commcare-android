@@ -4,11 +4,9 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.cases.instance.CaseChildElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.instance.LedgerChildElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;

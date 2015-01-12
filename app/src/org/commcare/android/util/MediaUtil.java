@@ -3,12 +3,7 @@
  */
 package org.commcare.android.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.model.data.GeoPointData;
@@ -18,7 +13,6 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -30,16 +24,16 @@ public class MediaUtil {
     public static final String FORM_VIDEO = "video";
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
-    public static Bitmap getScaledImageFromReference(String jrReference) {
-        return getScaledImageFromReference(jrReference, 1);
-    }
-    
-    /*
-     * returns the file referenced by jrReference scaled by scaleFactor. scaleFactor should be a power of two;
-     * for example, a scale factor of 4 returns an image that is 1/4 the width/height of the original, and 1/16th
-     * the size in pixels
-    */
-    public static Bitmap getScaledImageFromReference(String jrReference, int scaleFactor) {
+	public static Bitmap getScaledImageFromReference(String jrReference) {
+		return getScaledImageFromReference(jrReference, 1);
+	}
+	
+	/*
+	 * returns the file referenced by jrReference scaled by scaleFactor. scaleFactor should be a power of two;
+	 * for example, a scale factor of 4 returns an image that is 1/4 the width/height of the original, and 1/16th
+	 * the size in pixels
+	*/
+	public static Bitmap getScaledImageFromReference(String jrReference, int scaleFactor) {
         //TODO: Eventually we'll want to be able to deal with dymanic resources here.
         try {
 
@@ -115,12 +109,12 @@ public class MediaUtil {
             return "geo:0,0?q=" + rawInput;
         }
     }
-    
-    public static String stripArguments(String input){
-        if(input.contains("{") && input.contains("}")){
-            String replaced = input.substring(input.indexOf("{")-1, input.indexOf("}")+1);
-            return input.replace(replaced, "").trim();
-        }
-        return input;
-    }
+	
+	public static String stripArguments(String input){
+		if(input.contains("{") && input.contains("}")){
+			String replaced = input.substring(input.indexOf("{")-1, input.indexOf("}")+1);
+			return input.replace(replaced, "").trim();
+		}
+		return input;
+	}
 }

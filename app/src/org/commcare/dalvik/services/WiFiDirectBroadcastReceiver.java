@@ -16,10 +16,7 @@
 
 package org.commcare.dalvik.services;
 
-import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.WiFiDirectManagementFragment;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.javarosa.core.services.Logger;
 
@@ -29,10 +26,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.util.Log;
 

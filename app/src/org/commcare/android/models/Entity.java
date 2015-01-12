@@ -3,9 +3,6 @@
  */
 package org.commcare.android.models;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.commcare.android.util.StringUtils;
 
 
@@ -20,7 +17,7 @@ public class Entity<T> {
     Object[] data;
     String[] sortData;
     boolean[] relevancyData;
-    String[] backgroundData;
+	String[] backgroundData;
     
     protected Entity(T t) {
         this.t = t;
@@ -80,23 +77,23 @@ public class Entity<T> {
     public int getNumFields() {
         return data.length;
     }
-    
-    public Object[] getData(){
-        return data;
-    }
-    
-    public String [] getBackgroundData(){
-        return backgroundData;
-    }
-    
-    public String[] getSortFieldPieces(int i) {
+	
+	public Object[] getData(){
+		return data;
+	}
+	
+	public String [] getBackgroundData(){
+		return backgroundData;
+	}
+	
+	public String[] getSortFieldPieces(int i) {
         String sortField = getSortField(i);
-        if(sortField == null ) {return new String[0];}
-        else {
+	    if(sortField == null ) {return new String[0];}
+	    else {
             //We always fuzzy match on the sort field and only if it is available
             //(as a way to restrict possible matching)
             sortField = StringUtils.normalize(sortField);
             return sortField.split("\\s+");
         }
-    }
+	}
 }

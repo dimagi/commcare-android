@@ -11,9 +11,7 @@ import java.net.Socket;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 public abstract class FormTransferTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
