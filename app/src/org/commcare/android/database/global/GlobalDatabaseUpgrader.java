@@ -54,7 +54,7 @@ public class GlobalDatabaseUpgrader {
         try {
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(ApplicationRecord.STORAGE_KEY, ApplicationRecordV1.class, new ConcreteDbHelper(c, db));
             for (int i = 0; i < storage.getNumRecords(); i++) {
-                ApplicationRecordV1 oldRecord = (ApplicationRecordV1)storage.read(0);
+                ApplicationRecordV1 oldRecord = (ApplicationRecordV1)storage.read(i);
                 ApplicationRecord newRecord = new ApplicationRecord(oldRecord.getApplicationId(), oldRecord.getStatus());
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
