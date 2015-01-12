@@ -33,11 +33,9 @@
         <activity
             android:name=".activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
-            android:icon="@drawable/icon" 
             android:launchMode="singleTask" android:taskAffinity="org.commcare.Manage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         
@@ -149,11 +147,31 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".application.ManagerShortcut" >
+             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity-alias
             android:name=".application.ShortcutGenerator"
             android:label="CommCare Action"
             android:targetActivity=".application.AndroidShortcuts" >
+
+            <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+        
+        <activity-alias
+            android:name=".application.ManagerGenerator"
+            android:label="App Manager"
+            android:targetActivity=".application.ManagerShortcut" >
 
             <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
             <intent-filter>
