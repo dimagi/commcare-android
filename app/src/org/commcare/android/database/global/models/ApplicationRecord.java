@@ -72,9 +72,7 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public String getDisplayName() {
-		//return this.displayName;
-		//return "TEST_DISPLAY_NAME";
-	    return uniqueId;
+		return this.displayName;
 	}
 	
 	public void setDisplayName(String appName) {
@@ -91,8 +89,7 @@ public class ApplicationRecord extends Persisted {
 	
 	@Override
 	public String toString() {
-		//TODO: change this to return displayName when it is available
-		return this.uniqueId;
+		return this.displayName;
 	}
 	
 	public void setResourcesStatus(boolean b) {
@@ -102,6 +99,12 @@ public class ApplicationRecord extends Persisted {
 	public boolean resourcesValidated() {
 	    System.out.println("resourcesValidated returning " + this.resourcesValidated + " for AppRecord " + uniqueId);
 		return this.resourcesValidated;
+	}
+	
+	public boolean fromOldProfile() {
+	    //If this app was generated from an old profile file, it will have had both its uniqueId and
+	    //displayName set to the samething in ProfileParser (the resource id)
+	    return this.uniqueId.equals(this.displayName);
 	}
 	
 }

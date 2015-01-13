@@ -26,6 +26,9 @@
     <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will 
         not be visible to users on the log-in screen until multimedia is validated.</string>
     <string name="manager_instructions">Select an app to view its management options, or install a new app.</string>
+    <string name="old_profile_warning">WARNING: This app was installed from an old version of CommCare. For full
+        availability of app manager features (such as correct app name), please uninstall this app and then reinstall 
+        with CommCare version 2.20 or later.</string>
     <integer-array name="commcare_version">
         <item>2</item>
         <item>19</item>

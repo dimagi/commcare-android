@@ -31,6 +31,8 @@ public class SingleAppManagerActivity extends CommCareActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) { 
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.single_app_view);
+
         int position = getIntent().getIntExtra("position", -1);
         appRecord = CommCareApplication._().getAppAtIndex(position);
         // Implies that this appRecord has been uninstalled since last we launched SingleAppManagerActivity,
@@ -38,18 +40,14 @@ public class SingleAppManagerActivity extends CommCareActivity {
         if (appRecord == null) {
             Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
             startActivity(i);
+            finish();
         }
         String appName = appRecord.getDisplayName();
         boolean isArchived = appRecord.isArchived();
-        
-        setContentView(R.layout.single_app_view);
-        
+                
         //Set app name
         TextView tv = (TextView) findViewById(R.id.app_name);
         tv.setText(appName);
-        
-        //Validate button only clickable if resources are not yet validated
-        refreshValidateButton();
         
         //Change text for archive button depending on archive status
         Button archiveButton = (Button) findViewById(R.id.archive_button);
@@ -65,13 +63,22 @@ public class SingleAppManagerActivity extends CommCareActivity {
     @Override
     public void onResume() {
         super.onResume();
-        refreshValidateButton();
+        refresh();
     }
     
-    private void refreshValidateButton() {        
-        boolean resourcesValidated = appRecord.resourcesValidated();
+    private void refresh() {    
+        System.out.println("REFRESH in SingleAppManager");
+        //refresh old profile warning 
+        TextView warning = (TextView) findViewById(R.id.profile_warning);
+        if (appRecord.fromOldProfile()) {
+            warning.setVisibility(View.VISIBLE);
+        } else {
+            warning.setVisibility(View.GONE);
+        }
+        
+        //refresh validate button
         Button validateButton = (Button) findViewById(R.id.verify_button);
-        if (resourcesValidated) {
+        if (appRecord.resourcesValidated()) {
             validateButton.setEnabled(false);
         } else {
             validateButton.setEnabled(true);
@@ -91,7 +98,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
             }
             break;
         case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
-            refreshValidateButton();
+            refresh();
             if (resultCode == RESULT_CANCELED) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Media Not Verified");
