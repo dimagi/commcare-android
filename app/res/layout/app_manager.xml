@@ -32,22 +32,22 @@
     <ListView
     	android:id="@+id/apps_list_view"
     	android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
- 		android:layout_above="@+id/install_app_button"
+    	android:layout_height="wrap_content"
         android:layout_below="@id/manager_instructions" 
     	android:listSelector="@drawable/selector" >
 	</ListView>
     
     <Button
-         android:id="@id/install_app_button"
+         android:id="@+id/install_app_button"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:layout_centerHorizontal="true"
-         android:layout_alignParentBottom="true"
+         android:layout_below="@id/apps_list_view"
+         android:layout_marginTop="5sp"
          android:onClick="installAppClicked"
          android:text="@string/install_app"
          android:textColor="#616161"
-         android:textSize="20sp" />
+         android:textSize="30sp" />
      	
 
 </RelativeLayout>
