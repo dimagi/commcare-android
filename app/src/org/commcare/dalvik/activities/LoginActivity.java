@@ -526,7 +526,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(this);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            spinner.setSelection(prefs.getInt(KEY_LAST_POSITION, 0));
+            int lastPosition = prefs.getInt(KEY_LAST_POSITION,0);
+            //If the last-selected app has been uninstalled since, just pick the 1st available app
+            if (lastPosition >= appNames.size()) {
+                lastPosition = 0;
+            }
+            spinner.setSelection(lastPosition);
             spinner.setVisibility(View.VISIBLE);
         } else spinner.setVisibility(View.GONE);
     }
