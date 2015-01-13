@@ -665,6 +665,32 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public void removeCurrentMediaEntity() {
         currentEntity = null;
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#getDuration()
+     */
+    @Override
+    public Integer getDuration() {
+        if (currentEntity != null) {
+            MediaPlayer mp = currentEntity.getPlayer();
+            return mp.getDuration();
+        }
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.views.media.AudioController#getProgress()
+     */
+    @Override
+    public Integer getProgress() {
+        if (currentEntity != null) {
+            MediaPlayer mp = currentEntity.getPlayer();
+            return mp.getCurrentPosition();
+        }
+        return null;
+    }
     
     /** All methods for implementation of DialogController **/
 

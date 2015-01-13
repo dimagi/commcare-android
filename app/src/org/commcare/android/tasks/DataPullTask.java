@@ -575,6 +575,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
 
     private void purgeCases() {
+        long start = System.currentTimeMillis();
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
         Vector<String> owners = new Vector<String>();
         Vector<String> users = new Vector<String>(); 
@@ -600,11 +601,15 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
         CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
-        storage.removeAll(filter);
+        int removedCases = storage.removeAll(filter).size();
         
         SqlStorage<Ledger> stockStorage = CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
         LedgerPurgeFilter stockFilter = new LedgerPurgeFilter(stockStorage, storage);
-        stockStorage.removeAll(stockFilter);
+        int removedLedgers = stockStorage.removeAll(stockFilter).size();
+        
+        long taken = System.currentTimeMillis() - start;
+        
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
     }
 
     private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{

@@ -68,5 +68,5 @@ the License.
 		android:textSize="@dimen/text_large"
 		android:padding="20dp"
 		android:gravity="center"
-		android:background="@drawable/white" />
+		android:background="@color/white" />
 </RelativeLayout>

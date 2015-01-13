@@ -3,7 +3,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry exported="true" kind="lib" path="lib/android-support-v4.jar"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare.cases"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
@@ -21,6 +20,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/zxingcore-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/joda-time-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/sqlcipher.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/bypass.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

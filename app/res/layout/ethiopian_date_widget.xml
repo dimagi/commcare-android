@@ -18,7 +18,7 @@
             android:background="@drawable/date_button_top"
             android:text="+"
             android:textSize="@dimen/text_largest" 
-            android:textColor="#666"/>
+            android:textColor="@color/darkest_grey"/>
 
         <TextView
             android:id="@+id/daytxt"

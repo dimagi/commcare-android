@@ -312,6 +312,37 @@ public class FormController {
     public int stepToNextEvent(boolean stepOverGroup) {
        return stepToNextEvent(stepOverGroup, true);
     }
+    
+    
+    /**
+     * Get the FormIndex after the given one.
+     * @param index
+     * @param stepOverGroup
+     * @return FormIndex
+     */
+    public FormIndex getNextFormIndex(FormIndex index, boolean stepOverGroup) {
+        return getNextFormIndex(index, stepOverGroup, true);
+    }
+    
+    /**
+     * Get the FormIndex after the given one.
+     * @param index
+     * @param stepOverGroup
+     * @param expandRepeats
+     * @return FormIndex
+     */
+    public FormIndex getNextFormIndex(FormIndex index, boolean stepOverGroup, boolean expandRepeats) {
+        //TODO: this won't actually catch the case where there are nested field lists properly
+        if (mFormEntryController.getModel().getEvent(index) == FormEntryController.EVENT_GROUP && indexIsInFieldList(index) && stepOverGroup) {
+            return getIndexPastGroup(index);
+        } else {
+            index = mFormEntryController.getNextIndex(index, expandRepeats);
+            if(mFormEntryController.getModel().getEvent(index) == FormEntryController.EVENT_PROMPT_NEW_REPEAT && this.mReadOnly) {
+                return getNextFormIndex(index, stepOverGroup, expandRepeats);
+            }
+            return index;
+        }        
+    }
 
     /**
      * Navigates forward in the form.
@@ -319,42 +350,23 @@ public class FormController {
      * @return the next event that should be handled by a view.
      */
     public int stepToNextEvent(boolean stepOverGroup, boolean expandRepeats) {
-    	//TODO: this won't actually catch the case where there are nested field lists properly
-        if (mFormEntryController.getModel().getEvent() == FormEntryController.EVENT_GROUP && indexIsInFieldList() && stepOverGroup) {
-            return stepOverGroup();
-        } else {
-            int event =  mFormEntryController.stepToNextEvent(expandRepeats);
-            
-            //
-            if(event == FormEntryController.EVENT_PROMPT_NEW_REPEAT && this.mReadOnly) {
-                return stepToNextEvent(stepOverGroup, expandRepeats);
-            }
-            return event;
-        }
+        FormIndex nextIndex = getNextFormIndex(mFormEntryController.getModel().getFormIndex(), stepOverGroup, expandRepeats);
+        return jumpToIndex(nextIndex);
     }
 
 
     /**
-     * From the current state of the form controller, whose current form index
-     * must be a group element, move the form to the next index which is outside
-     * of the current group.  
-     * 
-     * @return
+     * From the given FormIndex which must be a group element, 
+     * find the next index which is outside of that group.
+     * @return FormIndex
      */
-    private int stepOverGroup() {
-    	//Get this group's index
-    	FormIndex groupIndex = this.getFormIndex();
-    	
-    	FormIndex walker = groupIndex;
-    	int event = -1;
-    	//Walk until the next index is outside of this one.
-    	while(FormIndex.isSubElement(groupIndex, walker)) {
-    		event = this.stepToNextEvent(false);
-    		walker = this.getFormIndex();
-    	}
-    	
-    	//Walker must represent the last index outside of the group now.
-    	return event;
+    private FormIndex getIndexPastGroup(FormIndex index) {
+        // Walk until the next index is outside of this one.
+        FormIndex walker = index;
+        while(FormIndex.isSubElement(index, walker)) {
+            walker = getNextFormIndex(walker, false);
+        }
+        return walker;
     }
 
 
@@ -473,16 +485,31 @@ public class FormController {
         mFormEntryController.setLanguage(language);
     }
 
+    /**
+     * Expand any unexpanded repeats at the given FormIndex
+     * @param index
+     */
+    public void expandRepeats(FormIndex index) {
+        mFormEntryController.expandRepeats(index);
+    }
 
     /**
+     * getQuestionPrompts for the current index 
+     * @return Array of FormEntryPrompt objects
+     * @throws RuntimeException
+     */
+    public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
+        return getQuestionPrompts(mFormEntryController.getModel().getFormIndex());
+    }
+    
+    /**
      * Returns an array of relevant question prompts that should be displayed as a single screen.
-     * If the current form index is a question, it is returned. Otherwise if the 
-     * current index is a field list (and _only_ when it is a field list) 
+     * If the given form index is a question, it is returned. Otherwise if the 
+     * given index is a field list (and _only_ when it is a field list)
      * 
      * @return
      */
-    public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
-        FormIndex currentIndex = mFormEntryController.getModel().getFormIndex();
+    public FormEntryPrompt[] getQuestionPrompts(FormIndex currentIndex) throws RuntimeException {
         
         IFormElement element = mFormEntryController.getModel().getForm().getChild(currentIndex);
 
@@ -497,10 +524,10 @@ public class FormController {
             //Step over all events in this field list and collect them
             FormIndex walker = currentIndex;
             
-            int event = this.getEvent();
+            int event = this.getEvent(currentIndex);
             while(FormIndex.isSubElement(currentIndex, walker)) {
             	if(event == FormEntryController.EVENT_QUESTION) {
-                    questionList.add(mFormEntryController.getModel().getQuestionPrompt());
+                    questionList.add(mFormEntryController.getModel().getQuestionPrompt(walker));
             	}
             	
             	if(event == FormEntryController.EVENT_PROMPT_NEW_REPEAT) {
@@ -508,20 +535,17 @@ public class FormController {
             	}
             	
             	//this handles relevance for us
-            	event = this.mFormEntryController.stepToNextEvent();
-            	walker = this.getFormIndex();
+                walker = this.mFormEntryController.getNextIndex(walker);
+                event = this.getEvent(walker);
             }
-            
-            //Reset the controller
-            this.mFormEntryController.jumpToIndex(currentIndex);
             
             FormEntryPrompt[] questions = new FormEntryPrompt[questionList.size()];
             //Populate the array with the collected questions
             questionList.toArray(questions);
             return questions;
         } else {
-            // We have a quesion, so just get the one prompt
-            return new FormEntryPrompt[] { mFormEntryController.getModel().getQuestionPrompt()};
+            // We have a question, so just get the one prompt
+            return new FormEntryPrompt[] { mFormEntryController.getModel().getQuestionPrompt(currentIndex)};
         }   
     }
 

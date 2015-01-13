@@ -105,7 +105,7 @@
         android:background="@drawable/badge_background"
         android:gravity="center_vertical|center_horizontal"
         android:text="6"
-        android:textColor="@drawable/white"
+        android:textColor="@color/white"
         android:textStyle="bold"
         android:visibility="invisible" />
     

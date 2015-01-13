@@ -18,6 +18,4 @@ the License.
 <color name="dateback">@color/white</color>
 <color name="bigday">#0000FF</color>
 <color name="dotsdate">#5050BF</color>
-<color name="red">#ff3636</color>
-<color name="yellow">#fff312</color>
 </resources>

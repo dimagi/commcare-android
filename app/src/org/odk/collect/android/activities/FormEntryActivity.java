@@ -805,27 +805,24 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 	private NavigationDetails calculateNavigationStatus() {
 		NavigationDetails details = new NavigationDetails();
 
-        FormIndex currentFormIndex = mFormController.getFormIndex();
-        int event = mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        FormIndex userFormIndex = mFormController.getFormIndex();
+        FormIndex currentFormIndex = FormIndex.createBeginningOfFormIndex();
+        mFormController.expandRepeats(currentFormIndex);
+        int event = mFormController.getEvent(currentFormIndex);
         try {
 
             // keep track of whether there is a question that exists before the
             // current screen
             boolean onCurrentScreen = false;
 
-            // TODO: We can probably evaluate this with a FormIndex walk that
-            // _doesn't_
-            // affect this form's index.
             while (event != FormEntryController.EVENT_END_OF_FORM) {
-                int comparison = mFormController.getFormIndex().compareTo(currentFormIndex);
+                int comparison = currentFormIndex.compareTo(userFormIndex);
 
                 if (comparison == 0) {
                     onCurrentScreen = true;
-                    mFormController.stepToNextEvent(true);
-                    details.currentScreenExit = mFormController.getFormIndex();
-                    mFormController.stepToPreviousEvent();
+                    details.currentScreenExit = mFormController.getNextFormIndex(currentFormIndex, true);
                 }
-                if (onCurrentScreen && mFormController.getFormIndex().equals(details.currentScreenExit)) {
+                if (onCurrentScreen && currentFormIndex.equals(details.currentScreenExit)) {
                     onCurrentScreen = false;
                 }
 
@@ -852,7 +849,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 }
 
                 if (event == FormEntryController.EVENT_QUESTION) {
-                    FormEntryPrompt[] prompts = mFormController.getQuestionPrompts();
+                    FormEntryPrompt[] prompts = mFormController.getQuestionPrompts(currentFormIndex);
 
                     if (!onCurrentScreen && details.currentScreenExit != null) {
                         details.relevantAfterCurrentScreen += prompts.length;
@@ -908,15 +905,15 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         // affects the count
                     }
                 }
-
-                event = mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP, false);
+                currentFormIndex = mFormController.getNextFormIndex(currentFormIndex, FormController.STEP_INTO_GROUP, false);
+                event = mFormController.getEvent(currentFormIndex);
             }
         } catch (XPathTypeMismatchException e) {
             FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
         }
 
         // Set form back to correct state
-        mFormController.jumpToIndex(currentFormIndex);
+        mFormController.jumpToIndex(userFormIndex);
 
         return details;
     }	

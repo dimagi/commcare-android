@@ -19,7 +19,7 @@
 		android:layout_height="wrap_content"
 		android:gravity="center_horizontal"
 		android:padding="5dip"
-		android:background="#BF000000">
+        android:background="@color/translucent_background">
 		<LinearLayout
 			android:orientation="horizontal"
 			android:layout_width="fill_parent"

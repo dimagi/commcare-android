@@ -23,29 +23,20 @@
     <color name="green">#87D13E</color>
     <color name="red">#FF0000</color>
     <color name="red_soft">#EE5555</color>
-    
     <color name="bright_green_grad_start">#2C9746</color>
     <color name="bright_green_grad_end">#247A38</color>
-    
     <color name="dark_green_start">#228038</color>
     <color name="dark_green_end">#1C662D</color>
     
     <!-- ODK.Collect colors start here -->
-
-    <drawable name="red">#7f00</drawable>
-    <drawable name="white">#ffffffff</drawable>
-    <drawable name="black">#ff000000</drawable>
-    <drawable name="blue">#770000ff</drawable>
-    <drawable name="green">#7700ff00</drawable>
-    <drawable name="yellow">#77ffff00</drawable>
-    <drawable name="grey">#ffaaaaaa</drawable>
-    <drawable name="screen_background_black">#ff000000</drawable>
-    <drawable name="translucent_background">#e0000000</drawable>
-    <drawable name="transparent_background">#00000000</drawable>
+    
+    <color name="screen_background_black">#ff000000</color>
+    <color name="translucent_background">#e0000000</color>
+    <color name="transparent_background">#00000000</color>
 
     <color name="solid_red">#f00</color>
     <color name="solid_blue">#0000ff</color>
-    <color name="solid_green">#f0f0</color>
+    <color name="solid_green">#ff2C9746</color>
     <color name="solid_yellow">#ffffff00</color>
     <color name="border_grey">#20959699</color>
     <color name="blue_grad_end">#903867AD</color>
@@ -54,13 +45,18 @@
     <color name="dark_blue">#000080</color>
     <color name="light_red">#F5A6A6</color>
     <color name="dark_red">#20959699</color>
+    <color name="lightest_grey">#eeeeee</color>
     <color name="dark_grey">#A3A3A3</color>
+    <color name="darker_grey">#999999</color>
+    <color name="darkest_grey">#666666</color>
     <color name="bright_blue_grad_start">#ff266cc9</color>
     <color name="bright_blue_grad_end">#ff1e559e</color>
     <color name="grey_grad_start">#A0A6A8</color>
     <color name="grey_grad_end">#868A8C</color>
-    <color name="bright_green_grad_start">#2C9746</color>
-    <color name="bright_green_grad_end">#247A38</color>
+    <color name="light_grey_grad_start">#dddddd</color>
+    <color name="light_grey_grad_end">#bbbbbb</color>
+    <color name="dark_green_grad_start">#77A240</color>
+    <color name="dark_green_grad_end">#495525</color>
     <color name="pale_blue">#E2ECF0</color>
     <color name="very_light_blue">#AAE3ECFF</color>
     <color name="solid_dark_red">#BF3D3D</color>
