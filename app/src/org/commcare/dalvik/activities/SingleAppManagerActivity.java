@@ -11,6 +11,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,7 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class SingleAppManagerActivity extends CommCareActivity {
+public class SingleAppManagerActivity extends Activity {
     
     private ApplicationRecord appRecord;
     private AlertDialog dialog;
