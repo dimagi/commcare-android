@@ -90,7 +90,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final int TASK_KEY_EXCHANGE = 1;
     
     SqlStorage<UserKeyRecord> storage;
-    Map<String,ApplicationRecord> idsToRecords = new HashMap<String,ApplicationRecord>();
+    Map<String,ApplicationRecord> namesToRecords = new HashMap<String,ApplicationRecord>();
     
     /*
      * (non-Javadoc)
@@ -514,14 +514,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private void populateAvailableAppsSpinner() {
         Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
-        ArrayList<String> appUniqueIds = new ArrayList<String>();
+        ArrayList<String> appNames = new ArrayList<String>();
         for (ApplicationRecord r : readyApps) {
-            String uniqueId = r.getUniqueId();
-            appUniqueIds.add(uniqueId);
-            idsToRecords.put(uniqueId, r);
+            String name = r.getDisplayName();
+            appNames.add(name);
+            namesToRecords.put(name, r);
         }
-        if (appUniqueIds.size() > 1) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appUniqueIds);
+        if (appNames.size() > 1) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appNames);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(this);
@@ -537,7 +537,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.edit().putInt(KEY_LAST_POSITION, position).commit();
         String selected = (String) parent.getItemAtPosition(position);
-        ApplicationRecord r = idsToRecords.get(selected);
+        ApplicationRecord r = namesToRecords.get(selected);
         CommCareApplication._().initializeAppResources(new CommCareApp(r));    
         loadFields(false);  //refresh UI for potential new language
     }
