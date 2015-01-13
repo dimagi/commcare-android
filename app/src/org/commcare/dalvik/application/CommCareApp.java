@@ -148,6 +148,13 @@ public class CommCareApp {
         System.out.println("recovery");
         System.out.println(recovery.toString());
         
+        //In case this app came from an old ApplicationRecord, meaning uniqueId and displayName would be null,
+        //reset them here (fields will come from the app's Profile)
+        record.setUniqueId(getUniqueId());
+        record.setDisplayName(getDisplayName());
+        //Similarly, this field may be incorrect if came from oldApplicationRecord
+        record.setResourcesStatus(areResourcesValidated());
+        
 
         /**
          * See if any of our tables got left in a weird state 
@@ -273,7 +280,8 @@ public class CommCareApp {
 	 */
 	public String getUniqueId() {
 		//if this record has already been assigned the unique id, pull it from there
-		if (record.getUniqueId() != null) {
+	    String existingId = record.getUniqueId();
+		if (existingId != null && !existingId.equals("")) {
 			return record.getUniqueId();
 		} else { //otherwise, this is the first time we are getting it, so pull from the profile
 			return getCommCarePlatform().getCurrentProfile().getUniqueId();
@@ -285,7 +293,8 @@ public class CommCareApp {
 	 */
 	public String getDisplayName() {
 		//if this record has already been assigned a name, pull it from there
-		if (record.getDisplayName() != null) {
+	    String existingName = record.getDisplayName();
+		if (existingName != null && !existingName.equals("")) {
 			return record.getDisplayName();
 		} else { //otherwise, this is the first time we are getting it, so pull from the profile
 			return getCommCarePlatform().getCurrentProfile().getDisplayName();
