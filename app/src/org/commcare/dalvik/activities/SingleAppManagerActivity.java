@@ -131,6 +131,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
     
     /** Uninstalls the selected app **/
     public void uninstall() {
+        CommCareApplication._().logout();
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         CommCareApp app = CommCareApplication._().getCurrentApp();
         
