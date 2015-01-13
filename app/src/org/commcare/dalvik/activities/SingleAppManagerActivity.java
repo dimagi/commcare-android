@@ -79,9 +79,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
         //refresh validate button
         Button validateButton = (Button) findViewById(R.id.verify_button);
         if (appRecord.resourcesValidated()) {
-            validateButton.setEnabled(false);
+            validateButton.setVisibility(View.INVISIBLE);
         } else {
-            validateButton.setEnabled(true);
+            validateButton.setVisibility(View.VISIBLE);
         }
     }
     
