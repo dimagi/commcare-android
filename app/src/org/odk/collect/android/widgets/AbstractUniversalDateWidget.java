@@ -48,7 +48,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     
     }
     
-    private static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
+    public static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 
     private TextView txtMonth;
     private TextView txtDay;

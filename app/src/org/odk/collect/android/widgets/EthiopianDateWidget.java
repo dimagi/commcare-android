@@ -16,11 +16,11 @@ import android.content.res.Resources;
  */
 public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     
+    private static final Chronology CHRON_ETH = EthiopicChronology.getInstance();
+
     public EthiopianDateWidget(Context context, FormEntryPrompt prompt) {
     	super(context, prompt);
     }
-    
-    private static Chronology chron_eth = EthiopicChronology.getInstance();
     
     private UniversalDate constructUniversalDate(DateTime dt) {
     	return new UniversalDate(
@@ -34,7 +34,7 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate decrementMonth(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
-    		.withChronology(chron_eth)
+    		.withChronology(CHRON_ETH)
     		.minusMonths(1);
     	return constructUniversalDate(dt);
     }
@@ -42,7 +42,7 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate decrementYear(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
-    		.withChronology(chron_eth)
+    		.withChronology(CHRON_ETH)
     		.minusYears(1);
     	return constructUniversalDate(dt);
     }
@@ -50,7 +50,7 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate fromMillis(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
-    		.withChronology(chron_eth);
+    		.withChronology(CHRON_ETH);
     	return constructUniversalDate(dt);
     }
     
@@ -64,7 +64,7 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate incrementMonth(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
-    		.withChronology(chron_eth)
+    		.withChronology(CHRON_ETH)
     		.plusMonths(1);
     	return constructUniversalDate(dt);
     }
@@ -72,14 +72,14 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate incrementYear(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
-    		.withChronology(chron_eth)
+    		.withChronology(CHRON_ETH)
     		.plusYears(1);
     	return constructUniversalDate(dt);
     }
     
     @Override
     protected long toMillisFromJavaEpoch(int year, int month, int day) {
-    	DateTime dt = new DateTime(chron_eth)
+    	DateTime dt = new DateTime(CHRON_ETH)
     		.withYear(year)
     		.withMonthOfYear(month)
     		.withDayOfMonth(day);
