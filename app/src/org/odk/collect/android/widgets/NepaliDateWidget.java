@@ -123,7 +123,7 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
             throw new RuntimeException("Date out of bounds");
         }
         
-        int daysFromMinDay = 0;
+        int daysFromMinDay = -1;
         
         for (int year = MIN_YEAR; year <= toYear; year++) {
             int[] monthsInYear = NEPALI_YEAR_MONTHS.get(year);
@@ -215,7 +215,7 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
         long millisFromMinDay = millisFromJavaEpoch - MIN_MILLIS_FROM_JAVA_EPOCH;
         long daysFromMinDay = millisFromMinDay / AbstractUniversalDateWidget.MILLIS_IN_DAY;
         
-        int days = 0;
+        int days = -1;
         
         for (int year = MIN_YEAR; year <= MAX_YEAR; year++) {
             int[] monthsInYear = NEPALI_YEAR_MONTHS.get(year);
