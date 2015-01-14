@@ -9,9 +9,7 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.joda.time.Chronology;
 import org.joda.time.DateTime;
-import org.joda.time.chrono.GregorianChronology;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -33,6 +31,24 @@ import android.widget.TextView;
  * @author Alex Little (alex@alexlittle.net)
  */
 public abstract class AbstractUniversalDateWidget extends QuestionWidget {
+    
+    public static class UniversalDate {
+        
+        public final int year;
+        public final int month;
+        public final int day;
+        public final long millisFromJavaEpoch;
+        
+        public UniversalDate(int year, int month, int day, long millisFromJavaEpoch) {
+            this.year = year;
+            this.month = month;
+            this.day = day;
+            this.millisFromJavaEpoch = millisFromJavaEpoch;
+        }
+    
+    }
+    
+    private static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 
     private TextView txtMonth;
     private TextView txtDay;
@@ -266,9 +282,19 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         setAnswer();
     }
     
-    protected abstract Chronology getChronology();
+    protected abstract UniversalDate decrementMonth(long millisFromJavaEpoch);
+    
+    protected abstract UniversalDate decrementYear(long millisFromJavaEpoch);
+    
+    protected abstract UniversalDate fromMillis(long millisFromJavaEpoch);
     
     protected abstract String[] getMonthsArray();
+    
+    protected abstract UniversalDate incrementMonth(long millisFromJavaEpoch);
+    
+    protected abstract UniversalDate incrementYear(long millisFromJavaEpoch);
+    
+    protected abstract long toMillisFromJavaEpoch(int year, int month, int day);
 
     /*
      * (non-Javadoc)
@@ -277,8 +303,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      */
     @Override
     public void clearAnswer() {
-        DateTime dt = new DateTime();
-        updateDateDisplay(dt);
+        Date date = new Date();
+        updateDateDisplay(date.getTime());
         updateGregorianDateHelperDisplay();
     }
 
@@ -289,8 +315,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      */
     @Override
     public IAnswerData getAnswer() {
-        DateTime dt = getDateAsGregorian();
-        return new DateData(dt.toDate());
+        Date date = getDateAsGregorian();
+        return new DateData(date);
     }
 
     /*
@@ -342,8 +368,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      */
     private void incrementDay(){
         // get the current date into gregorian, add one and redisplay
-        DateTime dt = getDateAsGregorian().plusDays(1);
-        updateDateDisplay(dt);
+        updateDateDisplay(getDateAsGregorian().getTime() + MILLIS_IN_DAY);
         updateGregorianDateHelperDisplay();
     }
     
@@ -351,8 +376,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Increase by 1 month
      */
     private void incrementMonth(){
-        DateTime dt = getCurrentDateDisplay().plusMonths(1).withChronology(GregorianChronology.getInstance());
-        updateDateDisplay(dt);
+        UniversalDate dt = incrementMonth(getCurrentMillis());
+        updateDateDisplay(dt.millisFromJavaEpoch);
         updateGregorianDateHelperDisplay();
     }
     
@@ -360,8 +385,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Increase by 1 year
      */
     private void incrementYear(){
-        DateTime dt = getCurrentDateDisplay().plusYears(1).withChronology(GregorianChronology.getInstance());
-        updateDateDisplay(dt);
+        UniversalDate dt = incrementYear(getCurrentMillis());
+        updateDateDisplay(dt.millisFromJavaEpoch);
         updateGregorianDateHelperDisplay();
     }
     
@@ -369,8 +394,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Decrease by 1 day
      */
     private void decrementDay(){
-        DateTime dt = getDateAsGregorian().minusDays(1);
-        updateDateDisplay(dt);
+        updateDateDisplay(getDateAsGregorian().getTime() - MILLIS_IN_DAY);
         updateGregorianDateHelperDisplay();
     }
     
@@ -378,8 +402,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Decrease by 1 month
      */
     private void decrementMonth(){
-        DateTime dt = getCurrentDateDisplay().minusMonths(1).withChronology(GregorianChronology.getInstance());
-        updateDateDisplay(dt);
+        UniversalDate dt = decrementMonth(getCurrentMillis());
+        updateDateDisplay(dt.millisFromJavaEpoch);
         updateGregorianDateHelperDisplay();
     }
     
@@ -387,8 +411,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Decrease by 1 year
      */
     private void decrementYear(){
-        DateTime dt = getCurrentDateDisplay().minusYears(1).withChronology(GregorianChronology.getInstance());
-        updateDateDisplay(dt);
+        UniversalDate dt = decrementYear(getCurrentMillis());
+        updateDateDisplay(dt.millisFromJavaEpoch);
         updateGregorianDateHelperDisplay();
     }
     
@@ -399,15 +423,16 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
         if (mPrompt.getAnswerValue() != null) {
             // setup date object
-            DateTime dtISO = new DateTime(((Date) ((DateData) mPrompt.getAnswerValue()).getValue()).getTime());
+            Date date = ((Date) ((DateData) mPrompt.getAnswerValue()).getValue());
 
             // find out what the same instant is using the other chronology
-            DateTime dtUniv = dtISO.withChronology(getChronology());
+            long millisFromJavaEpoch = date.getTime();
+            UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
            
-            txtDay.setText(Integer.toString(dtUniv.getDayOfMonth()));
-            txtMonth.setText(monthsArray[dtUniv.getMonthOfYear()-1]);
-            monthArrayPointer = dtUniv.getMonthOfYear()-1;
-            txtYear.setText(Integer.toString(dtUniv.getYear()));
+            txtDay.setText(Integer.toString(dateUniv.day));
+            txtMonth.setText(monthsArray[dateUniv.month-1]);
+            monthArrayPointer = dateUniv.month-1;
+            txtYear.setText(Integer.toString(dateUniv.year));
             updateGregorianDateHelperDisplay();
             
         } else {
@@ -420,8 +445,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Get the current widget date in Gregorian chronology
      * @return
      */
-    private DateTime getDateAsGregorian(){
-        DateTime dtGregorian = getCurrentDateDisplay().withChronology(GregorianChronology.getInstance());
+    private Date getDateAsGregorian(){
+        Date dtGregorian = new Date(getCurrentMillis());
         return dtGregorian;
     }
     
@@ -429,23 +454,23 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Get the current widget date in other chronology
      * @return
      */
-    private DateTime getCurrentDateDisplay(){
+    private long getCurrentMillis(){
         int day = Integer.parseInt(txtDay.getText().toString());
         int month = monthArrayPointer + 1;
         int year = Integer.parseInt(txtYear.getText().toString());
-        return new DateTime(year, month, day, 0, 0, 0, 0, getChronology());
+        return toMillisFromJavaEpoch(year, month, day);
     }
     
     /**
      * Update the widget date to display the amended date
      * @param dtGreg
      */
-    private void updateDateDisplay(DateTime dtGreg){
-        DateTime dtUniv = dtGreg.withChronology(getChronology());
-        txtDay.setText(String.format("%02d",dtUniv.getDayOfMonth()));
-        txtMonth.setText(monthsArray[dtUniv.getMonthOfYear()-1]);
-        monthArrayPointer = dtUniv.getMonthOfYear()-1;
-        txtYear.setText(String.format("%04d",dtUniv.getYear()));
+    private void updateDateDisplay(long millisFromJavaEpoch){
+        UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
+        txtDay.setText(String.format("%02d",dateUniv.day));
+        txtMonth.setText(monthsArray[dateUniv.month-1]);
+        monthArrayPointer = dateUniv.month-1;
+        txtYear.setText(String.format("%04d",dateUniv.year));
     }
     
     /**
@@ -453,7 +478,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * @param dtGreg
      */
     private void updateGregorianDateHelperDisplay(){
-        DateTime dtLMDGreg = getCurrentDateDisplay().withChronology(GregorianChronology.getInstance());
+        DateTime dtLMDGreg = new DateTime(getCurrentMillis());
         DateTimeFormatter fmt = DateTimeFormat.forPattern("d MMMM yyyy");
         String str = fmt.print(dtLMDGreg);
         txtGregorian.setText("("+str+")");
