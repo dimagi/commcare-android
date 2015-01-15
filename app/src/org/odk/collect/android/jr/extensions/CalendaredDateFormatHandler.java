@@ -8,6 +8,7 @@ import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.utilities.EthiopianDateHelper;
+import org.odk.collect.android.utilities.NepaliDateHelper;
 
 import android.content.Context;
 
@@ -71,6 +72,8 @@ public class CalendaredDateFormatHandler implements IFunctionHandler {
             String calendar = (String)args[1];
             if("ethiopian".equals(calendar)) {
                 return EthiopianDateHelper.ConvertToEthiopian(context, d);
+            } else if ("nepali".equals(calendar)) {
+                return NepaliDateHelper.ConvertToNepali(context, d);
             } else {
                 throw new XPathUnsupportedException("Unsupported calendar type: " + calendar);
             }
