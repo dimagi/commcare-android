@@ -5,6 +5,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.EthiopicChronology;
+import org.odk.collect.android.utilities.UniversalDate;
 
 import android.content.Context;
 import android.content.res.Resources;

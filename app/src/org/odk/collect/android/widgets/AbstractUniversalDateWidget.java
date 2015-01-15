@@ -1,5 +1,7 @@
 package org.odk.collect.android.widgets;
 
+import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
+
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -12,6 +14,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.odk.collect.android.utilities.UniversalDate;
 
 import android.content.Context;
 import android.os.Handler;
@@ -31,30 +34,6 @@ import android.widget.TextView;
  * @author Alex Little (alex@alexlittle.net), Richard Lu
  */
 public abstract class AbstractUniversalDateWidget extends QuestionWidget {
-    
-    /**
-     * Simple Date class; holds month, year, and day of custom calendar system,
-     * and milliseconds since the Java epoch for standard reference.
-     * 
-     * @author Richard Lu
-     */
-    public static class UniversalDate {
-        
-        public final int year;
-        public final int month;
-        public final int day;
-        public final long millisFromJavaEpoch;
-        
-        public UniversalDate(int year, int month, int day, long millisFromJavaEpoch) {
-            this.year = year;
-            this.month = month;
-            this.day = day;
-            this.millisFromJavaEpoch = millisFromJavaEpoch;
-        }
-    
-    }
-    
-    public static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
     
     private long millisOfDayOffset;
 
