@@ -49,6 +49,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     }
     
     public static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
+    
+    private long millisOfDayOffset;
 
     private TextView txtMonth;
     private TextView txtDay;
@@ -294,7 +296,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     
     protected abstract UniversalDate incrementYear(long millisFromJavaEpoch);
     
-    protected abstract long toMillisFromJavaEpoch(int year, int month, int day);
+    protected abstract long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset);
 
     /*
      * (non-Javadoc)
@@ -304,6 +306,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     @Override
     public void clearAnswer() {
         Date date = new Date();
+        millisOfDayOffset = date.getTime() % MILLIS_IN_DAY;
         updateDateDisplay(date.getTime());
         updateGregorianDateHelperDisplay();
     }
@@ -458,7 +461,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         int day = Integer.parseInt(txtDay.getText().toString());
         int month = monthArrayPointer + 1;
         int year = Integer.parseInt(txtYear.getText().toString());
-        return toMillisFromJavaEpoch(year, month, day);
+        return toMillisFromJavaEpoch(year, month, day, millisOfDayOffset);
     }
     
     /**

@@ -78,11 +78,12 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     }
     
     @Override
-    protected long toMillisFromJavaEpoch(int year, int month, int day) {
+    protected long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
     	DateTime dt = new DateTime(CHRON_ETH)
     		.withYear(year)
     		.withMonthOfYear(month)
-    		.withDayOfMonth(day);
+    		.withDayOfMonth(day)
+    		.withMillisOfDay((int) millisOffset);
     	return dt.getMillis();
     }
 }
