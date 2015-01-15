@@ -18,6 +18,12 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     
     private static final int MIN_YEAR = 2000;
     
+    /*
+     * Nepali calendar system has no discernible cyclic month pattern, so we must manually
+     * enter them here as new calendars are known.
+     * 
+     * TODO: Enter month lengths for years beyond 2090
+     */
     static {
         NEPALI_YEAR_MONTHS.put(2000, new int[] { 0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31 });
         NEPALI_YEAR_MONTHS.put(2001, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
@@ -114,9 +120,20 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
 
     private static final int MAX_YEAR = 2090;
 
+    // milliseconds from Java epoch to minimum known Nepali date, as entered above
+    // (negative)
     private static long MIN_MILLIS_FROM_JAVA_EPOCH =
             -countDaysFromMinDay(2026, 9, 17) * MILLIS_IN_DAY;
-    
+
+    /**
+     * Count the number of days from the minimum entered Nepali date
+     * to the given Nepali date.
+     * 
+     * @param toYear
+     * @param toMonth
+     * @param toDay
+     * @return
+     */
     private static int countDaysFromMinDay(int toYear, int toMonth, int toDay) {
         if (toYear < MIN_YEAR || toYear > MAX_YEAR
                 || toMonth < 1 || toMonth > 12
@@ -150,14 +167,11 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     public NepaliDateWidget(Context context, FormEntryPrompt prompt) {
     	super(context, prompt);
     }
-    
-    @Override
-    protected String[] getMonthsArray() {
-        Resources res = getResources();
-        // load the months - will automatically get correct strings for current phone locale
-        return res.getStringArray(R.array.nepali_months);
-    }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#decrementMonth(long)
+     */
     @Override
     protected UniversalDate decrementMonth(long millisFromJavaEpoch) {
     	UniversalDate origDate = fromMillis(millisFromJavaEpoch);
@@ -186,7 +200,11 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     	        toMillisFromJavaEpoch(year, month, day, millisFromJavaEpoch % MILLIS_IN_DAY)
         );
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#decrementYear(long)
+     */
     @Override
     protected UniversalDate decrementYear(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
@@ -210,7 +228,11 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
                 toMillisFromJavaEpoch(year, month, day, millisFromJavaEpoch % MILLIS_IN_DAY)
         );
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#fromMillis(long)
+     */
     @Override
     protected UniversalDate fromMillis(long millisFromJavaEpoch) {
         long millisFromMinDay = millisFromJavaEpoch - MIN_MILLIS_FROM_JAVA_EPOCH;
@@ -241,7 +263,22 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
         
         throw new RuntimeException("Date out of bounds");
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#getMonthsArray()
+     */
+    @Override
+    protected String[] getMonthsArray() {
+        Resources res = getResources();
+        // load the months - will automatically get correct strings for current phone locale
+        return res.getStringArray(R.array.nepali_months);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#incrementMonth(long)
+     */
     @Override
     protected UniversalDate incrementMonth(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
@@ -270,7 +307,11 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
                 toMillisFromJavaEpoch(year, month, day, millisFromJavaEpoch % MILLIS_IN_DAY)
         );
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#incrementYear(long)
+     */
     @Override
     protected UniversalDate incrementYear(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
@@ -294,7 +335,11 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
                 toMillisFromJavaEpoch(year, month, day, millisFromJavaEpoch % MILLIS_IN_DAY)
         );
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#toMillisFromJavaEpoch(int,int,int,long)
+     */
     @Override
     protected long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
         int daysFromMinDay = countDaysFromMinDay(year, month, day);

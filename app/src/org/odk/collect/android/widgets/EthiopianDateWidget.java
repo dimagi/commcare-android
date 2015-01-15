@@ -31,6 +31,10 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     	);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#decrementMonth(long)
+     */
     @Override
     protected UniversalDate decrementMonth(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
@@ -38,7 +42,11 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     		.minusMonths(1);
     	return constructUniversalDate(dt);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#decrementYear(long)
+     */
     @Override
     protected UniversalDate decrementYear(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
@@ -46,21 +54,33 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     		.minusYears(1);
     	return constructUniversalDate(dt);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#fromMillis(long)
+     */
     @Override
     protected UniversalDate fromMillis(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
     		.withChronology(CHRON_ETH);
     	return constructUniversalDate(dt);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#getMonthsArray()
+     */
     @Override
     protected String[] getMonthsArray() {
         Resources res = getResources();
         // load the months - will automatically get correct strings for current phone locale
         return res.getStringArray(R.array.ethiopian_months);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#incrementMonth(long)
+     */
     @Override
     protected UniversalDate incrementMonth(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
@@ -68,7 +88,11 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     		.plusMonths(1);
     	return constructUniversalDate(dt);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#incrementYear(long)
+     */
     @Override
     protected UniversalDate incrementYear(long millisFromJavaEpoch) {
     	DateTime dt = new DateTime(millisFromJavaEpoch)
@@ -76,7 +100,11 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
     		.plusYears(1);
     	return constructUniversalDate(dt);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.AbstractUniversalDateWidget#toMillisFromJavaEpoch(int,int,int,long)
+     */
     @Override
     protected long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
     	DateTime dt = new DateTime(CHRON_ETH)

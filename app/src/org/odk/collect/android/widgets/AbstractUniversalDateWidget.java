@@ -26,12 +26,18 @@ import android.widget.Button;
 import android.widget.TextView;
 
 /**
- * Universal Date Widget.
+ * Universal Date Widget, extended to work with any calendar system.
  * 
- * @author Alex Little (alex@alexlittle.net)
+ * @author Alex Little (alex@alexlittle.net), Richard Lu
  */
 public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     
+    /**
+     * Simple Date class; holds month, year, and day of custom calendar system,
+     * and milliseconds since the Java epoch for standard reference.
+     * 
+     * @author Richard Lu
+     */
     public static class UniversalDate {
         
         public final int year;
@@ -284,18 +290,63 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         setAnswer();
     }
     
+    /**
+     * Decrement 1 month in custom calendar system from the given millisecond instant.
+     * 
+     * @param millisFromJavaEpoch Instant to decrement month from
+     * @return UniversalDate representing the minus-1-month instant
+     */
     protected abstract UniversalDate decrementMonth(long millisFromJavaEpoch);
-    
+
+    /**
+     * Decrement 1 year in custom calendar system from the given millisecond instant.
+     * 
+     * @param millisFromJavaEpoch Instant to decrement year from
+     * @return UniversalDate representing the minus-1-year instant
+     */
     protected abstract UniversalDate decrementYear(long millisFromJavaEpoch);
-    
+
+    /**
+     * Get date in custom calendar system from the given millisecond instant.
+     * 
+     * @param millisFromJavaEpoch Instant to get date with
+     * @return UniversalDate representing the given instant
+     */
     protected abstract UniversalDate fromMillis(long millisFromJavaEpoch);
-    
+
+    /**
+     * Fetch the array of Strings representing month names in custom calendar system.
+     * 
+     * @return Array of strings, length must match number of months in calendar system.
+     */
     protected abstract String[] getMonthsArray();
-    
+
+    /**
+     * Increment 1 month in custom calendar system from the given millisecond instant.
+     * 
+     * @param millisFromJavaEpoch Instant to increment month from
+     * @return UniversalDate representing the plus-1-month instant
+     */
     protected abstract UniversalDate incrementMonth(long millisFromJavaEpoch);
-    
+
+    /**
+     * Increment 1 year in custom calendar system from the given millisecond instant.
+     * 
+     * @param millisFromJavaEpoch Instant to increment year from
+     * @return UniversalDate representing the plus-1-year instant
+     */
     protected abstract UniversalDate incrementYear(long millisFromJavaEpoch);
-    
+
+    /**
+     * Translate the given date in the custom calendar system to
+     * standard milliseconds from Java epoch.
+     * 
+     * @param year
+     * @param month
+     * @param day
+     * @param millisOffset
+     * @return Milliseconds since Java epoch
+     */
     protected abstract long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset);
 
     /*
@@ -454,7 +505,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     }
     
     /**
-     * Get the current widget date in other chronology
+     * Get the current widget date in milliseconds since Java epoch
      * @return
      */
     private long getCurrentMillis(){
