@@ -91,15 +91,6 @@ public class CustomProgressDialog extends DialogFragment {
         this.progressBarMax = 0;
     }
     
-    /*public void removeProgressBar() {
-        this.usingProgressBar = false;
-        Dialog dialog = getDialog();
-        if (dialog != null) {
-            dialog.findViewById(R.id.progress_bar_horizontal).setVisibility(View.GONE);
-            dialog.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
-        }
-    }*/
-    
     private void setTaskId(int id) {
         this.taskId = id;
     }

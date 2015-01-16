@@ -361,10 +361,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
                     receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
                 }
-
-                /*if(update[0] != DataPullTask.PROGRESS_PROCESSING) {
-                    receiver.removeProgressBar(DataPullTask.DATA_PULL_TASK_ID);
-                }*/
             }
 
             /*

@@ -734,25 +734,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     
     /*
      * (non-Javadoc)
-     * @see org.commcare.dalvik.dialogs.DialogController#removeProgressBar(int)
-     */
-    /*@Override
-    public void removeProgressBar(int taskId) {
-        CustomProgressDialog mProgressDialog = getCurrentDialog();
-        if (mProgressDialog != null) {
-            if (mProgressDialog.getTaskId() == taskId) {
-                mProgressDialog.removeProgressBar();
-            }
-            else {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, 
-                        "Attempting to update a progress dialog whose taskId does not match the"
-                        + "task for which the update message was intended.");
-            }
-        }
-    }*/
-
-    /*
-     * (non-Javadoc)
      * @see org.commcare.dalvik.dialogs.DialogController#showProgressDialog(int)
      */
     @Override
