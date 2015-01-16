@@ -65,6 +65,7 @@ public class GlobalDatabaseUpgrader {
                 newRecord.setDisplayName("");
                 storage.write(newRecord);
             }
+            db.setTransactionSuccessful();
             return true;
         } finally {
             db.endTransaction();
