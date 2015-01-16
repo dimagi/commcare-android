@@ -48,15 +48,15 @@
      </Button>
 
     <ProgressBar
-   		android:id="@+id/progress_bar_horizontal"
-   		style="?android:attr/progressBarStyleHorizontal"
-   		android:layout_width="match_parent"
-   		android:layout_height="wrap_content"
-    	android:layout_below="@id/dialog_cancel_button"
-    	android:layout_marginLeft="@dimen/spacer"
-    	android:layout_marginRight="@dimen/spacer"
-    	android:layout_marginTop="@dimen/spacer"
-    	android:layout_marginBottom="@dimen/spacer"
-   		android:visibility="gone" />
+        android:id="@+id/progress_bar_horizontal"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_cancel_button"
+        android:layout_marginLeft="@dimen/spacer"
+        android:layout_marginRight="@dimen/spacer"
+        android:layout_marginTop="@dimen/spacer"
+        android:layout_marginBottom="@dimen/spacer"
+        android:visibility="gone" />
      
 </RelativeLayout>

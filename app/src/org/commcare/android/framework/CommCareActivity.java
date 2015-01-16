@@ -713,6 +713,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.dalvik.dialogs.DialogController#updateProgressBar(int, int, int)
+     */
     @Override
     public void updateProgressBar(int progress, int max, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
@@ -728,6 +732,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.dalvik.dialogs.DialogController#removeProgressBar(int)
+     */
+    /*@Override
     public void removeProgressBar(int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
         if (mProgressDialog != null) {
@@ -740,7 +749,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                         + "task for which the update message was intended.");
             }
         }
-    }
+    }*/
 
     /*
      * (non-Javadoc)

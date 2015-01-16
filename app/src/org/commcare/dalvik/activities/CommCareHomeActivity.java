@@ -354,12 +354,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
                     receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[] {String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_PROCESSING) {
+                    receiver.updateProgress(Localization.get("sync.process.processing", new String[] {String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
                     receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
                 }  else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
                     receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
                     receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
                 }
+
+                /*if(update[0] != DataPullTask.PROGRESS_PROCESSING) {
+                    receiver.removeProgressBar(DataPullTask.DATA_PULL_TASK_ID);
+                }*/
             }
 
             /*

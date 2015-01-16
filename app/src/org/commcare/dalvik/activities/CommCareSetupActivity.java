@@ -987,7 +987,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             } else if (phase == ResourceEngineTask.PHASE_COMMIT) {
                 updateProgress(Localization.get("updates.downloaded"), DIALOG_INSTALL_PROGRESS);
             }
-            removeProgressBar(DIALOG_INSTALL_PROGRESS);
+            //removeProgressBar(DIALOG_INSTALL_PROGRESS);
         }
         else {
             updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);

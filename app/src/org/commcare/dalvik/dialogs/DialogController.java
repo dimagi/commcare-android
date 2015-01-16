@@ -25,6 +25,9 @@ public interface DialogController {
     /** Update the current dialog's progress bar **/
     void updateProgressBar(int progress, int max, int taskId);
     
+    /** Remove the progress bar **/
+    //void removeProgressBar(int taskId);
+    
     /** Create an instance of CustomProgressDialog specific to the activity
      *  implementing this method -- this method should be implemented lower down
      *  in the activity hierarchy, in one of CommCareActivity's subclasses, 
