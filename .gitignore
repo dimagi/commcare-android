@@ -24,3 +24,5 @@ commcare-odk-test/gen/*
 .DS_Store
 .gitignore~
 *achartengine*.jar
+.idea/*
+app/.settings/*

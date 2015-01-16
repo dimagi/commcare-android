@@ -5,8 +5,8 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/javarosa-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare.cases"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javarosa-core"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare.cases"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
