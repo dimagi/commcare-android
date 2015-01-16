@@ -63,6 +63,7 @@ public class GlobalDatabaseUpgrader {
                 newRecord.setArchiveStatus(false);
                 newRecord.setUniqueId("");
                 newRecord.setDisplayName("");
+                newRecord.setConvertedFromOld(true);
                 storage.write(newRecord);
             }
             db.setTransactionSuccessful();

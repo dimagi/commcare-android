@@ -41,6 +41,8 @@ public class ApplicationRecord extends Persisted {
 	boolean resourcesValidated;
 	@Persisting(6)
 	boolean isArchived;
+	@Persisting(7)
+	boolean convertedFromOld;
 	
 	public ApplicationRecord() {
 	    
@@ -105,6 +107,14 @@ public class ApplicationRecord extends Persisted {
 	    //If this app was generated from an old profile file, it will have had both its uniqueId and
 	    //displayName set to the samething in ProfileParser (the resource id)
 	    return this.uniqueId.equals(this.displayName);
+	}
+	
+	public void setConvertedFromOld(boolean b) {
+	    this.convertedFromOld = b;
+	}
+	
+	public boolean convertedFromOld() {
+	    return this.convertedFromOld;
 	}
 	
 }

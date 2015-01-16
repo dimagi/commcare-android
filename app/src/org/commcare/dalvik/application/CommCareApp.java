@@ -133,6 +133,28 @@ public class CommCareApp {
     
     
     public boolean initializeApplication() {
+        boolean isOk = initializeApplicationHelper();
+        if (isOk) {
+            if (record.convertedFromOld()) {
+                updateAppRecord();
+            }
+        }
+        return isOk;
+    }
+    
+    public void updateAppRecord() {
+        //uniqueId and displayName will be missing, so pull them from the app's profile file
+        record.setUniqueId(getCommCarePlatform().getCurrentProfile().getUniqueId());
+        record.setDisplayName(getCommCarePlatform().getCurrentProfile().getDisplayName());
+        //Similarly, this field may be incorrect
+        record.setResourcesStatus(areResourcesValidated());
+        //set this to false so we don't try to update this app record every time we seat it
+        record.setConvertedFromOld(false);
+        //commit changes
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+    }
+    
+    public boolean initializeApplicationHelper() {
         setupSandbox();
 
         ResourceTable global = platform.getGlobalResourceTable();
@@ -147,13 +169,6 @@ public class CommCareApp {
         
         System.out.println("recovery");
         System.out.println(recovery.toString());
-        
-        //In case this app came from an old ApplicationRecord, meaning uniqueId and displayName would be null,
-        //reset them here (fields will come from the app's Profile)
-        record.setUniqueId(getUniqueId());
-        record.setDisplayName(getDisplayName());
-        //Similarly, this field may be incorrect if came from oldApplicationRecord
-        record.setResourcesStatus(areResourcesValidated());
         
 
         /**
