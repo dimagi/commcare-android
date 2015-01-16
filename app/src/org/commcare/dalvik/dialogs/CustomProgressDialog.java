@@ -194,6 +194,8 @@ public class CustomProgressDialog extends DialogFragment {
             bar.setProgress(progressBarProgress);
             bar.setMax(progressBarMax);
             bar.setVisibility(View.VISIBLE);
+            
+            // If there's a determinate progress bar, hide the spinning indicator
             view.findViewById(R.id.progress_bar).setVisibility(View.GONE);
         }
         
