@@ -345,7 +345,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
              */
             @Override
             protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
-                
                 if(update[0] == DataPullTask.PROGRESS_STARTED) {
                     receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_CLEANED) {
@@ -355,7 +354,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
                     receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[] {String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_PROCESSING) {
-                    receiver.updateProgress(Localization.get("sync.process.processing", new String[] {String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+                    receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
                 }  else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
                     receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
@@ -1690,8 +1689,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     + "any valid possibilities in CommCareHomeActivity");
             return null;
         }
-        return CustomProgressDialog.newInstance(title, message, taskId);
-        
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {
+            dialog.addProgressBar();
+        }
+        return dialog;
     }
     
     /*

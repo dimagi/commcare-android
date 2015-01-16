@@ -11,7 +11,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
@@ -705,6 +704,35 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         if (mProgressDialog != null) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateMessage(updateText);
+            }
+            else {
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, 
+                        "Attempting to update a progress dialog whose taskId does not match the"
+                        + "task for which the update message was intended.");
+            }
+        }
+    }
+
+    @Override
+    public void updateProgressBar(int progress, int max, int taskId) {
+        CustomProgressDialog mProgressDialog = getCurrentDialog();
+        if (mProgressDialog != null) {
+            if (mProgressDialog.getTaskId() == taskId) {
+                mProgressDialog.updateProgressBar(progress, max);
+            }
+            else {
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, 
+                        "Attempting to update a progress dialog whose taskId does not match the"
+                        + "task for which the update message was intended.");
+            }
+        }
+    }
+    
+    public void removeProgressBar(int taskId) {
+        CustomProgressDialog mProgressDialog = getCurrentDialog();
+        if (mProgressDialog != null) {
+            if (mProgressDialog.getTaskId() == taskId) {
+                mProgressDialog.removeProgressBar();
             }
             else {
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, 
