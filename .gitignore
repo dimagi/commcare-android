@@ -12,7 +12,7 @@ libraries/mapballoons/android-mapviewballoons/local.properties
 app/assets/testing*
 test-app/bin/*
 test-app/gen/*
-*/bin/*
+**/bin/**
 commcare-odk-test/gen/*
 *.rej
 *.orig
