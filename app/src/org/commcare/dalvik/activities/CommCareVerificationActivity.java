@@ -133,7 +133,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
     public void updateVerifyProgress(int done, int pending) {
         updateProgress(Localization.get("verification.progress",new String[] {""+done,""+pending}),
             DIALOG_VERIFY_PROGRESS);
-        
+        updateProgressBar(done, pending, DIALOG_VERIFY_PROGRESS);
     }
 
     /*
@@ -247,8 +247,10 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == DIALOG_VERIFY_PROGRESS) {
-            return CustomProgressDialog.newInstance
+            CustomProgressDialog dialog = CustomProgressDialog.newInstance
                     (Localization.get("verification.title"), Localization.get("verification.checking"), taskId);
+            dialog.addProgressBar();
+            return dialog;
         }
         System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
                 + "any valid possibilities in CommCareVerificationActivity");        
