@@ -12,7 +12,7 @@ libraries/mapballoons/android-mapviewballoons/local.properties
 app/assets/testing*
 test-app/bin/*
 test-app/gen/*
-*/bin/*
+**/bin/**
 commcare-odk-test/gen/*
 *.rej
 *.orig
@@ -24,3 +24,5 @@ commcare-odk-test/gen/*
 .DS_Store
 .gitignore~
 *achartengine*.jar
+.idea/*
+app/.settings/*

@@ -1004,6 +1004,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         else {
             updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);
+            updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
         }
     }
 
@@ -1039,6 +1040,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CustomProgressDialog lastDialog = getCurrentDialog();
         boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
         dialog.addCheckbox(checkboxText, isChecked);
+        dialog.addProgressBar();
         return dialog;
     }
 
