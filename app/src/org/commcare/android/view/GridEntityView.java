@@ -372,6 +372,7 @@ public class GridEntityView extends GridLayout {
 			//so we've gotta mirror that for the search text. Booooo. I dunno if there's any
 			//other other side effects (newlines? nbsp?)
 			
+			
 			String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
 			
 			if(cssid !=null && !cssid.equals("none")){

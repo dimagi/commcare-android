@@ -42,7 +42,7 @@ public class MarkupUtil {
         }
 
         if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeMarkdownSpannable(c, localizationKey));
+            return new SpannableString(localizeGenerateMarkdown(c, localizationKey));
         }
 
         return new SpannableString(Localization.get(localizationKey)); 
@@ -55,7 +55,7 @@ public class MarkupUtil {
         }
 
         if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeMarkdownSpannable(c, localizationKey, new String[] {localizationArg}));
+            return new SpannableString(localizeGenerateMarkdown(c, localizationKey, new String[] {localizationArg}));
         }
 
         return new SpannableString(Localization.get(localizationKey, localizationArg));
@@ -69,7 +69,7 @@ public class MarkupUtil {
         }
 
         if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeMarkdownSpannable(c, localizationKey, localizationArgs));
+            return new SpannableString(localizeGenerateMarkdown(c, localizationKey, localizationArgs));
         }
 
         return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArgs)));
@@ -80,20 +80,28 @@ public class MarkupUtil {
      * https://github.com/Uncodin/bypass
      */
 
-    public static CharSequence localizeMarkdownSpannable(Context c, String localizationKey){
-        CharSequence mSequence = generateMarkdown(c, new String(""+Localization.get(localizationKey)));
+    public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey){
+        CharSequence mSequence = generateMarkdown(c, new String(Localization.get(localizationKey)));
         return mSequence;
     }
 
-    public static CharSequence localizeMarkdownSpannable(Context c, String localizationKey, String[] localizationArgs){
+    public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey, String[] localizationArgs){
         CharSequence mSequence = generateMarkdown(c, Localization.get(localizationKey, localizationArgs));
         return mSequence;
     }
 
     public static CharSequence generateMarkdown(Context c, String message){
         Bypass bypass = new Bypass(c);
-        CharSequence mSequence = trimTrailingWhitespace(bypass.markdownToSpannable(convertPoundSigns(convertNewlines(message))));
+        CharSequence mSequence = bypass.markdownToSpannable(convertCharacterEncodings(message));
         return mSequence;
+    }
+    
+    /*
+     * Perform conversions from encodings
+     */
+    
+    public static String convertCharacterEncodings(String input){
+        return convertNewlines(convertPoundSigns(input));
     }
 
     /*
@@ -113,21 +121,6 @@ public class MarkupUtil {
         
         return input.replace("%n", System.getProperty("line.separator"));
     }
-
-    public static CharSequence trimTrailingWhitespace(CharSequence source) {
-
-        if(source == null)
-            return "";
-
-        int i = source.length();
-
-        // loop back to the first non-whitespace character
-        while(--i >= 0 && Character.isWhitespace(source.charAt(i))) {
-        }
-
-        return source.subSequence(0, i+1);
-    }
-
 
     /*
      * CSS style classes used by GridEntityView which has its own pattern (probably silly)
@@ -152,11 +145,12 @@ public class MarkupUtil {
 
 
     public static String getStyleString(){
-        try{
+        
+        if(CommCareApplication._() != null && CommCareApplication._().getCurrentApp() != null){
             return CommCareApplication._().getCurrentApp().getStylizer().getStyleString();
-        } catch(Exception e){
-            e.printStackTrace();
-            return null;
+        } else{
+            // fail silently? 
+            return "";
         }
     }
 

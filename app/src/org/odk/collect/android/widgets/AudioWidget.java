@@ -74,7 +74,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         
         // setup capture button
         mCaptureButton = new Button(getContext());
-        mCaptureButton.setText(MarkupUtil.localizeMarkdownSpannable(getContext(), "odk_capture_audio"));
+        mCaptureButton.setText(MarkupUtil.localizeGenerateMarkdown(getContext(), "odk_capture_audio"));
         mCaptureButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mCaptureButton.setPadding(20, 20, 20, 20);
         mCaptureButton.setEnabled(!prompt.isReadOnly());
