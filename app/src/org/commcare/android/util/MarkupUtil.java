@@ -21,12 +21,15 @@ public class MarkupUtil {
      */
 
     public static Spannable styleSpannable(Context c, String message){
+        
         if(DeveloperPreferences.isCssEnabled()){
+            
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
         }
 
         if(DeveloperPreferences.isMarkdownEnabled()){
-            return (Spannable) generateMarkdown(c, message);
+            
+                return new SpannableString(generateMarkdown(c, message));
         }
 
         return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
@@ -35,14 +38,14 @@ public class MarkupUtil {
     public static Spannable localizeStyleSpannable(Context c, String localizationKey){
 
         if(DeveloperPreferences.isCssEnabled()){
-            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey));
+            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + new String(Localization.get(localizationKey)));
         }
 
         if(DeveloperPreferences.isMarkdownEnabled()){
-            return (Spannable) localizeMarkdownSpannable(c, localizationKey);
+            return new SpannableString(localizeMarkdownSpannable(c, localizationKey));
         }
 
-        return new SpannableString(Localization.get(localizationKey));
+        return new SpannableString(Localization.get(localizationKey)); 
     }
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg){
@@ -52,7 +55,7 @@ public class MarkupUtil {
         }
 
         if(DeveloperPreferences.isMarkdownEnabled()){
-            return (Spannable) localizeMarkdownSpannable(c, localizationKey, new String[] {localizationArg});
+            return new SpannableString(localizeMarkdownSpannable(c, localizationKey, new String[] {localizationArg}));
         }
 
         return new SpannableString(Localization.get(localizationKey, localizationArg));
@@ -66,7 +69,7 @@ public class MarkupUtil {
         }
 
         if(DeveloperPreferences.isMarkdownEnabled()){
-            return (Spannable) localizeMarkdownSpannable(c, localizationKey, localizationArgs);
+            return new SpannableString(localizeMarkdownSpannable(c, localizationKey, localizationArgs));
         }
 
         return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArgs)));
@@ -78,7 +81,7 @@ public class MarkupUtil {
      */
 
     public static CharSequence localizeMarkdownSpannable(Context c, String localizationKey){
-        CharSequence mSequence = generateMarkdown(c, Localization.get(localizationKey));
+        CharSequence mSequence = generateMarkdown(c, new String(""+Localization.get(localizationKey)));
         return mSequence;
     }
 
@@ -89,7 +92,7 @@ public class MarkupUtil {
 
     public static CharSequence generateMarkdown(Context c, String message){
         Bypass bypass = new Bypass(c);
-        CharSequence mSequence = trimTrailingWhitespace(bypass.markdownToSpannable(convertNewlines(message)));
+        CharSequence mSequence = trimTrailingWhitespace(bypass.markdownToSpannable(convertPoundSigns(convertNewlines(message))));
         return mSequence;
     }
 
@@ -98,6 +101,16 @@ public class MarkupUtil {
      */
 
     public static String convertNewlines(String input){
+        
+        return input.replace("%p", "#");
+    }
+    
+    /*
+     * Convert number signs
+     */
+
+    public static String convertPoundSigns(String input){
+        
         return input.replace("%n", System.getProperty("line.separator"));
     }
 
@@ -113,29 +126,6 @@ public class MarkupUtil {
         }
 
         return source.subSequence(0, i+1);
-    }
-
-
-
-    /*
-     * CSS styling utils from NightWhistler's HtmlSpanner 
-     * https://github.com/NightWhistler/HtmlSpanner
-     */
-
-    public static Spannable localizeCssSpannable(String localizationKey){
-        if(!DeveloperPreferences.isCssEnabled()){
-            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey)));
-        }
-        Spannable text = htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey));
-        return text;
-    }
-
-    public static Spannable localizeCssSpannable(String localizationKey, String[] localizationArgs){
-        if(!DeveloperPreferences.isCssEnabled()){
-            return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArgs)));
-        }
-        Spannable text = htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArgs));
-        return text;
     }
 
 
@@ -160,24 +150,10 @@ public class MarkupUtil {
         return text;
     }
 
-    /*
-     * Util methods to help this class
-     */
-
-    public static String getStyle(String key){
-        try{
-            return CommCareApplication._().getCurrentApp().getStylizer().getStyle(key);
-        }catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public static String getStyleString(){
         try{
-            String styleString = CommCareApplication._().getCurrentApp().getStylizer().getStyleString();
             return CommCareApplication._().getCurrentApp().getStylizer().getStyleString();
-
         } catch(Exception e){
             e.printStackTrace();
             return null;
