@@ -15,7 +15,7 @@ public class NepaliDateUtilities {
     
     private static final SparseArray<int[]> NEPALI_YEAR_MONTHS = new SparseArray<int[]>();
     
-    public static final int MIN_YEAR = 2000;
+    public static final int MIN_YEAR = 1970;
     
     /*
      * Nepali calendar system has no discernible cyclic month pattern, so we must manually
@@ -24,6 +24,36 @@ public class NepaliDateUtilities {
      * TODO: Enter month lengths for years beyond 2090
      */
     static {
+        NEPALI_YEAR_MONTHS.put(1970, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1971, new int[] { 0, 31, 31, 32, 31, 32, 30, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1972, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1973, new int[] { 0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31 });
+        NEPALI_YEAR_MONTHS.put(1974, new int[] { 0, 31, 31, 32, 30, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1975, new int[] { 0, 31, 31, 32, 32, 30, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1976, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31 });
+        NEPALI_YEAR_MONTHS.put(1977, new int[] { 0, 31, 32, 31, 32, 31, 31, 29, 30, 29, 30, 29, 31 });
+        NEPALI_YEAR_MONTHS.put(1978, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1979, new int[] { 0, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1980, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31 });
+        NEPALI_YEAR_MONTHS.put(1981, new int[] { 0, 31, 31, 31, 32, 31, 31, 29, 30, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1982, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1983, new int[] { 0, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1984, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31 });
+        NEPALI_YEAR_MONTHS.put(1985, new int[] { 0, 31, 31, 31, 32, 31, 31, 29, 30, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1986, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1987, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1988, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31 });
+        NEPALI_YEAR_MONTHS.put(1989, new int[] { 0, 31, 31, 31, 32, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1990, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1991, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1992, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31 });
+        NEPALI_YEAR_MONTHS.put(1993, new int[] { 0, 31, 31, 31, 32, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1994, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1995, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1996, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31 });
+        NEPALI_YEAR_MONTHS.put(1997, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1998, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
+        NEPALI_YEAR_MONTHS.put(1999, new int[] { 0, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31 });
         NEPALI_YEAR_MONTHS.put(2000, new int[] { 0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31 });
         NEPALI_YEAR_MONTHS.put(2001, new int[] { 0, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30 });
         NEPALI_YEAR_MONTHS.put(2002, new int[] { 0, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30 });
