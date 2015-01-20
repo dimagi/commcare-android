@@ -1,6 +1,9 @@
 package org.odk.collect.android.utilities;
 
 import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
+
+import java.util.Date;
+
 import android.util.SparseArray;
 
 /**
@@ -12,7 +15,7 @@ public class NepaliDateUtilities {
     
     private static final SparseArray<int[]> NEPALI_YEAR_MONTHS = new SparseArray<int[]>();
     
-    private static final int MIN_YEAR = 2000;
+    public static final int MIN_YEAR = 2000;
     
     /*
      * Nepali calendar system has no discernible cyclic month pattern, so we must manually
@@ -114,7 +117,7 @@ public class NepaliDateUtilities {
         NEPALI_YEAR_MONTHS.put(2090, new int[] { 0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30 });
     }
 
-    private static final int MAX_YEAR = 2090;
+    public static final int MAX_YEAR = 2090;
 
     // milliseconds from Java epoch to minimum known Nepali date, as entered above
     // (negative)
@@ -123,12 +126,14 @@ public class NepaliDateUtilities {
 
     /**
      * Count the number of days from the minimum entered Nepali date
-     * to the given Nepali date.
+     * to the given Nepali date. If the given Nepali date is out
+     * of range, an exception is thrown.
      * 
      * @param toYear
      * @param toMonth
      * @param toDay
      * @return
+     * @throws RuntimeException is entered date is out of range
      */
     private static int countDaysFromMinDay(int toYear, int toMonth, int toDay) {
         if (toYear < MIN_YEAR || toYear > MAX_YEAR
@@ -158,6 +163,21 @@ public class NepaliDateUtilities {
         }
         
         throw new RuntimeException("Calculation error!");
+    }
+
+    /**
+     * Convert a Gregorian Date object to a Nepali date string,
+     * formatted as 'd MMMM yyyy'.
+     * 
+     * @param monthNames String array of Nepali month names
+     * @param date Gregorian Date to convert
+     * @return Nepali date string in 'd MMMM yyyy' format
+     */
+    public static String convertToNepaliString(String[] monthNames, Date date) {
+
+        UniversalDate dateUniv = NepaliDateUtilities.fromMillis(date.getTime());
+        
+        return dateUniv.day + " " + monthNames[dateUniv.month - 1] + " " + dateUniv.year;
     }
     
     public static UniversalDate decrementMonth(UniversalDate date) {

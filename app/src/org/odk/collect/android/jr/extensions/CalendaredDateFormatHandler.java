@@ -3,12 +3,13 @@ package org.odk.collect.android.jr.extensions;
 import java.util.Date;
 import java.util.Vector;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.utilities.EthiopianDateHelper;
-import org.odk.collect.android.utilities.NepaliDateHelper;
+import org.odk.collect.android.utilities.NepaliDateUtilities;
 
 import android.content.Context;
 
@@ -73,7 +74,8 @@ public class CalendaredDateFormatHandler implements IFunctionHandler {
             if("ethiopian".equals(calendar)) {
                 return EthiopianDateHelper.ConvertToEthiopian(context, d);
             } else if ("nepali".equals(calendar)) {
-                return NepaliDateHelper.ConvertToNepali(context, d);
+                return NepaliDateUtilities.convertToNepaliString(
+                        context.getResources().getStringArray(R.array.nepali_months), d);
             } else {
                 throw new XPathUnsupportedException("Unsupported calendar type: " + calendar);
             }
