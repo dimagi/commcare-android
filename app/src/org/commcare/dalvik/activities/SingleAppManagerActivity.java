@@ -71,7 +71,7 @@ public class SingleAppManagerActivity extends Activity {
         System.out.println("REFRESH in SingleAppManager");
         //refresh old profile warning 
         TextView warning = (TextView) findViewById(R.id.profile_warning);
-        if (appRecord.fromOldProfile()) {
+        if (appRecord.fromOldProfileFile()) {
             warning.setVisibility(View.VISIBLE);
         } else {
             warning.setVisibility(View.GONE);

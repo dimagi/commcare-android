@@ -43,6 +43,8 @@ public class ApplicationRecord extends Persisted {
 	boolean isArchived;
 	@Persisting(7)
 	boolean convertedFromOld;
+	@Persisting(8)
+	boolean fromOldProfileFile;
 	
 	public ApplicationRecord() {
 	    
@@ -70,6 +72,7 @@ public class ApplicationRecord extends Persisted {
     }
 	
 	public void setUniqueId(String id) {
+	    System.out.println("in ApplicationRecord setting uniqueId to: " + id);
 		this.uniqueId = id;
 	}
 	
@@ -99,22 +102,31 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public boolean resourcesValidated() {
-	    System.out.println("resourcesValidated returning " + this.resourcesValidated + " for AppRecord " + uniqueId);
 		return this.resourcesValidated;
 	}
 	
-	public boolean fromOldProfile() {
-	    //If this app was generated from an old profile file, it will have had both its uniqueId and
-	    //displayName set to the samething in ProfileParser (the resource id)
-	    return this.uniqueId.equals(this.displayName);
+	/* 
+	 * Returns true if this ApplicationRecord represents an app generated from an older version of
+	 * CommCare that does not have profile files with uniqueId and displayName
+	 */
+	public boolean fromOldProfileFile() {
+	    return this.fromOldProfileFile;
 	}
 	
-	public void setConvertedFromOld(boolean b) {
+	/*
+	 * Returns true if this ApplicationRecord was just generated from the
+	 * a different ApplicationRecord format via the db upgrader
+	 */
+	public boolean convertedFromOldFormat() {
+	    return this.convertedFromOld;
+	}
+	
+	public void setConvertedFromOldFormat(boolean b) {
 	    this.convertedFromOld = b;
 	}
 	
-	public boolean convertedFromOld() {
-	    return this.convertedFromOld;
+	public void setFromOldProfileFile(boolean b) {
+	    this.fromOldProfileFile = b;
 	}
 	
 }

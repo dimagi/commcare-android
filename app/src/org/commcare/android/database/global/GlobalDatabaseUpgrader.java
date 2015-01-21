@@ -50,6 +50,7 @@ public class GlobalDatabaseUpgrader {
     }
     
     private boolean upgradeTwoThree(SQLiteDatabase db, int oldVersion, int newVersion) {
+        System.out.println("upgradeTwoThree CALLED");
         db.beginTransaction();
         try {
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>("app_record", ApplicationRecordV1.class, new ConcreteDbHelper(c, db));
@@ -63,7 +64,8 @@ public class GlobalDatabaseUpgrader {
                 newRecord.setArchiveStatus(false);
                 newRecord.setUniqueId("");
                 newRecord.setDisplayName("");
-                newRecord.setConvertedFromOld(true);
+                newRecord.setConvertedFromOldFormat(true);
+                newRecord.setFromOldProfileFile(true);
                 storage.write(newRecord);
             }
             db.setTransactionSuccessful();

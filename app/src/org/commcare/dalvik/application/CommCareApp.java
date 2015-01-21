@@ -21,6 +21,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
@@ -135,7 +136,7 @@ public class CommCareApp {
     public boolean initializeApplication() {
         boolean isOk = initializeApplicationHelper();
         if (isOk) {
-            if (record.convertedFromOld()) {
+            if (record.convertedFromOldFormat()) {
                 updateAppRecord();
             }
         }
@@ -143,13 +144,14 @@ public class CommCareApp {
     }
     
     public void updateAppRecord() {
+        System.out.println("CALLED updateAppRecord");
         //uniqueId and displayName will be missing, so pull them from the app's profile file
-        record.setUniqueId(getCommCarePlatform().getCurrentProfile().getUniqueId());
-        record.setDisplayName(getCommCarePlatform().getCurrentProfile().getDisplayName());
+        record.setUniqueId(getUniqueId());
+        record.setDisplayName(getDisplayName());
         //Similarly, this field may be incorrect
         record.setResourcesStatus(areResourcesValidated());
         //set this to false so we don't try to update this app record every time we seat it
-        record.setConvertedFromOld(false);
+        record.setConvertedFromOldFormat(false);
         //commit changes
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
     }
@@ -279,6 +281,7 @@ public class CommCareApp {
 		record.setUniqueId(getUniqueId());
 		record.setDisplayName(getDisplayName());
 		record.setResourcesStatus(areResourcesValidated());
+        record.setFromOldProfileFile(checkFromOldProfile());
 		try {
 			CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
 		} catch (StorageFullException e) {
@@ -290,15 +293,22 @@ public class CommCareApp {
 		return record.getApplicationId();
 	}
 	
+	public boolean checkFromOldProfile() {
+	    return getCommCarePlatform().getCurrentProfile().fromOld();
+	}
+	
 	/*
 	 * Return the uniqueId assigned to this app from HQ
 	 */
 	public String getUniqueId() {
+	    System.out.println("CALLING getUniqueId()");
 		//if this record has already been assigned the unique id, pull it from there
 	    String existingId = record.getUniqueId();
 		if (existingId != null && !existingId.equals("")) {
-			return record.getUniqueId();
+		    System.out.println("using existing id: " + existingId);
+			return existingId;
 		} else { //otherwise, this is the first time we are getting it, so pull from the profile
+		    System.out.println("PULLING uniqueId from Profile");
 			return getCommCarePlatform().getCurrentProfile().getUniqueId();
 		}
 	}
@@ -307,13 +317,7 @@ public class CommCareApp {
 	 * Return the app name assigned to this app from HQ
 	 */
 	public String getDisplayName() {
-		//if this record has already been assigned a name, pull it from there
-	    String existingName = record.getDisplayName();
-		if (existingName != null && !existingName.equals("")) {
-			return record.getDisplayName();
-		} else { //otherwise, this is the first time we are getting it, so pull from the profile
-			return getCommCarePlatform().getCurrentProfile().getDisplayName();
-		}
+		return Localization.get("app.display.name");
 	}
 	
 	public ApplicationRecord getAppRecord() {
