@@ -48,6 +48,17 @@ public class FixtureContentActivity extends Activity {
         });
 
         la.setAdapter(sca);
+        la.setOnItemClickListener(new OnItemClickListener(){
+
+            public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
+               Cursor cursor =  sca.getCursor();
+               cursor.moveToPosition(position);
+               
+               String caseId = cursor.getString(cursor.getColumnIndex("case_id"));
+               FixtureContentActivity.this.moveToDataAtapter(caseId);
+            }
+            
+        });
     }
     
     protected void moveToDataAtapter(String fixtureId) {
