@@ -42,7 +42,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
         resetButton(URI, visible);
         shortURI = URI;
         shortURI = shortURI.replaceAll("^.*\\/", "");
-        shortURI = shortURI.replaceAll("\\.[^.]+$", "");
 
         //default implementation of controller if none is passed in
         this.controller = new AudioController() {
@@ -337,7 +336,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         if (progress != null && duration != null) {
             message += " " + formatTime(progress) + "/" + formatTime(duration);
         }
-        Logger.log("audio", message);
+        Logger.log("media", message);
     }
     
     private String formatTime(Integer milliseconds) {
