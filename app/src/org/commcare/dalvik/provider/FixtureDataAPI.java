@@ -23,11 +23,8 @@ public class FixtureDataAPI {
     
     static {
         //Load the URI match patterns
-        sURIMatcher.addURI(AUTHORITY, "casedb/case", MetadataColumns.MATCH_CASES);
-        sURIMatcher.addURI(AUTHORITY, "casedb/case/*", MetadataColumns.MATCH_CASE);
-        sURIMatcher.addURI(AUTHORITY, "casedb/data/*", DataColumns.MATCH_DATA);
-        sURIMatcher.addURI(AUTHORITY, "casedb/index/*", IndexColumns.MATCH_INDEX);
-        sURIMatcher.addURI(AUTHORITY, "casedb/attachment/*", AttachmentColumns.MATCH_ATTACHMENTS);
+        sURIMatcher.addURI(AUTHORITY, "fixturedb/match_instance_id/*", MetadataColumns.MATCH_INSTANCE_ID);
+        sURIMatcher.addURI(AUTHORITY, "fixturedb/list_instance_id/", MetadataColumns.LIST_INSTANCE_ID);
     }
     
     /**
@@ -54,82 +51,18 @@ public class FixtureDataAPI {
      *
      */
     public static final class MetadataColumns implements BaseColumns {
+        // This class cannot be instantiated
         private MetadataColumns() {}
         
-        public static final String FIXTURE_ID = "fixture_id";
+        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/fixture_db");
+        
+        public static final int MATCH_ID = 1;
+        public static final int MATCH_INSTANCE_ID = 2;
+        public static final int LIST_INSTANCE_ID = 3;
+        
+        public static final String FIXTURE_ID = "instance_id";
+        public static final String USER_ID = "user_id";
         
     }
     
-    
-    /**
-     * Queries the data columns associated with a case. IE: The dynamic key/value pairs for a specific
-     * case. Can only be queried for a specific case using the string case id in the request URI.
-     * 
-     * Projections and Filtering are unsupported for this type
-     * 
-     * @author ctsims
-     *
-     */
-    public static final class DataColumns implements BaseColumns {
-
-        public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.data";
-        // This class cannot be instantiated
-        private DataColumns() {}
-        
-        public static final String CASE_ID = "case_id";
-        public static final String DATUM_ID = "datum_id";
-        public static final String VALUE = "value";
-        
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/casedb/data");
-
-        public static final int MATCH_DATA = 3;
-    }
-    
-    /**
-     * Queries the indices associated with a case, which are named links between cases.
-     * 
-     * Can only be queried for a specific case using the string case id in the request URI.
-     * 
-     * Projections and Filtering are unsupported for this type
-     * 
-     * This type is unimplemented.
-     * 
-     * @author ctsims
-     *
-     */
-    public static final class IndexColumns implements BaseColumns {
-        public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.index";
-        // This class cannot be instantiated
-        private IndexColumns() {}
-        
-        
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/casedb/index");
-
-        public static final int MATCH_INDEX = 4;
-    }
-    
-    /**
-     * Queries the attachments associated with a case, which are blobs of binary data that
-     * are stored along with cases.
-     * 
-     * Can only be queried for a specific case using the string case id in the request URI.
-     * 
-     * Projections and Filtering are unsupported for this type
-     * 
-     * This type is unimplemented.
-     * 
-     * @author ctsims
-     *
-     */
-
-    public static final class AttachmentColumns implements BaseColumns {
-        public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.attachment";
-        // This class cannot be instantiated
-        private AttachmentColumns() {}
-        
-        
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/casedb/attachment");
-        
-        public static final int MATCH_ATTACHMENTS = 5;
-    }
 }

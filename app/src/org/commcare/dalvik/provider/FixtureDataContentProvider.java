@@ -1,16 +1,16 @@
 package org.commcare.dalvik.provider;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.model.xform.DataModelSerializer;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -35,198 +35,112 @@ import android.net.Uri;
  *
  */
 public class FixtureDataContentProvider extends ContentProvider {
-    
-    //Valid sql selectors
-    HashMap<String, String> caseMetaIndexTable = new HashMap<String, String>();
-    
-    
-    //TODO: Caching - Use a cache table here or use an LRU or other system provided cache?
-    
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#getType(android.net.Uri)
-     */
-    @Override
-    public String getType(Uri uri) {
-        int match = CaseDataAPI.UriMatch(uri);
-        
-        switch(match) {
-        case CaseDataAPI.MetadataColumns.MATCH_CASES:
-            return CaseDataAPI.MetadataColumns.CONTENT_TYPE;
-        case CaseDataAPI.MetadataColumns.MATCH_CASE:
-            return CaseDataAPI.MetadataColumns.CONTENT_TYPE_ITEM;
-        case CaseDataAPI.DataColumns.MATCH_DATA:
-            return CaseDataAPI.DataColumns.CONTENT_TYPE;
-        case CaseDataAPI.IndexColumns.MATCH_INDEX:
-            return CaseDataAPI.IndexColumns.CONTENT_TYPE;
-        case CaseDataAPI.AttachmentColumns.MATCH_ATTACHMENTS:
-            return CaseDataAPI.AttachmentColumns.CONTENT_TYPE;
-        }
-        
-        return null;
-    }
-
 
     /* (non-Javadoc)
      * @see android.content.ContentProvider#onCreate()
      */
     @Override
     public boolean onCreate() {
-        caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.CASE_ID, Case.INDEX_CASE_ID);
-        caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.CASE_TYPE, Case.INDEX_CASE_TYPE);
-        caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.STATUS, Case.INDEX_CASE_STATUS);
+
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
-     */
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        //first, determine whether we're logged in and whether we have a valid data set to even be iterating over.
-        try {
-            CommCareApplication._().getUserDbHandle();
-        } catch(SessionUnavailableException sue) {
-            //This implies that the user isn't logged in. In the future we should probably broadcast an intent
-            //that notifies the other service to trigger a Login event.
+    public Cursor query(Uri uri, String[] projection, String selection,
+            String[] selectionArgs, String sortOrder) {
+
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage;
+
+        try{
+            userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
+        } catch(SessionUnavailableException sue){
             return null;
         }
-        
-        
+
         //Standard dispatcher following Android best practices
-        int match = CaseDataAPI.UriMatch(uri);
-        
+        int match = FixtureDataAPI.UriMatch(uri);
+
         switch(match) {
-        case CaseDataAPI.MetadataColumns.MATCH_CASES:
-        case CaseDataAPI.MetadataColumns.MATCH_CASE:
-            return queryCaseList(uri, projection, selection, selectionArgs, sortOrder);
-        case CaseDataAPI.DataColumns.MATCH_DATA:
-            return queryCaseData(uri.getLastPathSegment(), projection, selection, selectionArgs, sortOrder);
-        case CaseDataAPI.IndexColumns.MATCH_INDEX:
-        case CaseDataAPI.AttachmentColumns.MATCH_ATTACHMENTS:
-            //Unimplemented
-            return null;
+        case FixtureDataAPI.MetadataColumns.LIST_INSTANCE_ID:
+            return getFixtureNames();
+        case FixtureDataAPI.MetadataColumns.MATCH_INSTANCE_ID:
+            return getFixtureForId(uri.getLastPathSegment());
         }
         throw new IllegalArgumentException("URI: " + uri.toString() +" is not a valid content path for CommCare Case Data");
-        
+    }
+
+    @Override
+    public String getType(Uri uri) {
+
+        int match = FixtureDataAPI.UriMatch(uri);
+
+        switch(match) {
+        case FixtureDataAPI.MetadataColumns.MATCH_ID:
+            return FixtureDataAPI.MetadataColumns.FIXTURE_ID;
+        case FixtureDataAPI.MetadataColumns.MATCH_INSTANCE_ID:
+            return FixtureDataAPI.MetadataColumns.USER_ID;
+        }
+
+        return null;
     }
     
-
-
-
-    //this is the complex case. Querying the full case database for metadata.
-    private Cursor queryCaseList(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-
-        //Not cached yet. Long term this should be a priority.
-        SqlStorage<FormInstance> storage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
-        
-        //What we'd really like to do here is raw DB queries, but sadly it looks like we don't actually index 
-        //enough of the right fields for that, so we're going to deserialize the models. We'll consider 
-        //revising this API
-        
-        MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns.FIXTURE_ID});
-        
-        //Allow for some selection processing, basically very simple AND filtering on indexes
-        
-        Vector<String> keys = new Vector<String>();
-        Vector<String> values = new Vector<String>();
-
-        //If we don't have any selection args, skip all of this
-        if(selection != null) {
-            int currentArgVal = 0;
-            String[] selections = selection.toLowerCase().split("\\sand\\s");
-            for(String individualSelection : selections) {
-                String[] parts = individualSelection.split("=");
-                
-                if(parts.length != 2) { throw new RuntimeException("Malformed content provider selection string component: " + individualSelection); }
-                String key = parts[0].trim();
-                if(!caseMetaIndexTable.containsKey(key)) {
-                    throw new RuntimeException("Invalid selection key for case metadata: " + key);
-                }
-                
-                String indexName = caseMetaIndexTable.get(key);
-                
-                //remove any quotation marks and trim
-                String value = parts[1].replace("\"","").replace("'", "").trim();
-                
-
-                //replace all "?"'s with arguments
-                while(value.indexOf("?") != -1) {
-                    if(currentArgVal >= selectionArgs.length) { throw new RuntimeException("Selection string missing required arguments" + selection); }
-                    value = value.substring(0, value.indexOf("?")) + selectionArgs[currentArgVal] + value.substring(value.indexOf("?") + 1);
-                    currentArgVal++;
-                }
-                
-                keys.add(indexName);
-                values.add(value);
-            }
-        
-            //If we're matching a specific case (or trying to), add that as well)
-            if(CaseDataAPI.UriMatch(uri) != CaseDataAPI.MetadataColumns.MATCH_CASES)  {
-                keys.add(ACase.INDEX_CASE_ID);
-                values.add(uri.getLastPathSegment());
-            }
-            
-            //Do the db records fetch (one at a time, so as to not overload our working memory)
-            Vector<Integer> recordIds = storage.getIDsForValues((String[])keys.toArray(new String[0]), (String[])values.toArray(new String[0]));
-            for(int i : recordIds) {
-                FormInstance fi = storage.read(i);
-                retCursor.addRow(new Object[] {c.getID(), c.getCaseId(), c.getName(), c.getTypeId(), c.getDateOpened(), c.getLastModified(), c.getUserId(), c.isClosed() ? "closed" : "open"});
-            }
-            return retCursor;
-            
-        }
-        
-        //Otherwise we either need to iterate over all cases, or just get back the one (these are actually both generalizations of the above
-        //that should get centralized)
-
-        //No Case
-        if(CaseDataAPI.UriMatch(uri) == CaseDataAPI.MetadataColumns.MATCH_CASES)  {
-            for(FormInstance fi: storage) {
-                retCursor.addRow(new Object[] {c.getID(), c.getCaseId(), c.getName(), c.getTypeId(), c.getDateOpened(), c.getLastModified(), c.getUserId(), c.isClosed() ? "closed" : "open"});
-            }
-        } else {
-            //Case defined.
-            try {
-                FormInstance fi = storage.getRecordForValue(ACase.INDEX_CASE_ID, uri.getLastPathSegment());
-                retCursor.addRow(new Object[] {fi.getID(), c.getCaseId(), c.getName(), c.getTypeId(), c.getDateOpened(), c.getLastModified(), c.getUserId(), c.isClosed() ? "closed" : "open"});
-            } catch(NoSuchElementException nsee) {
-                //No cases with a matching index.
-                return retCursor;
-            }
-        }
-        return retCursor;
-    }
-    
-    /**
-     * Query the casedb for the key/value pairs for a specific case.
-     * 
-     * @return
+    /*
+     * Return a cursor over the list of all fixture IDs and names
      */
-    private Cursor queryCaseData(String caseId, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
-        SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
-        
-        //Default projection.
-        MatrixCursor retCursor = new MatrixCursor(new String[] {CaseDataAPI.DataColumns._ID,
-                                                                CaseDataAPI.DataColumns.CASE_ID, 
-                                                                CaseDataAPI.DataColumns.DATUM_ID, 
-                                                                CaseDataAPI.DataColumns.VALUE});
 
-        Case c;
-        try {
-            c = storage.getRecordForValue(ACase.INDEX_CASE_ID, caseId);
-        } catch(NoSuchElementException nsee) {
-            //No cases with a matching index.
-            return retCursor;
+    public Cursor getFixtureNames(){
+
+        MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID});
+
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
+
+        for(IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore(); ) {
+            FormInstance fi = userFixtures.nextRecord();
+            String instanceId = fi.getInstanceId();
+            retCursor.addRow(new Object[] {fi.getID(), instanceId});
         }
-        int i = 0;
-        Hashtable<String, String> properties = c.getProperties();
-        for(String key : properties.keySet()) {
-            retCursor.addRow(new Object[] {i, caseId, key, c.getPropertyString(key)});
-            ++i;
-        }
-        
+
         return retCursor;
+
+    }
+    
+    /*
+     * Return a cursor to the fixture associated with this id
+     */
+    
+    public Cursor getFixtureForId(String instanceId){
+
+        MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID, "content"});
+
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
+
+        for(IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore(); ) {
+
+            try { 
+                FormInstance fi = userFixtures.nextRecord();
+
+                String currentInstanceId = fi.getInstanceId();
+                
+                if(instanceId.equals(currentInstanceId)){
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+                    DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(null));
+
+                    s.serialize((DataInstance)fi, fi.getRoot().getRef());
+
+                    String dump = new String(bos.toByteArray());
+
+                    retCursor.addRow(new Object[]{ fi.getID(), fi.getInstanceId(), dump});   
+                }
+            } 
+            catch(IOException e){
+                e.printStackTrace();
+            }
+
+        }
+
+        return retCursor;
+
     }
 
 
@@ -251,7 +165,7 @@ public class FixtureDataContentProvider extends ContentProvider {
         // Case content provider is read only.
         return 0;
     }
-    
+
 
     /* (non-Javadoc)
      * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)

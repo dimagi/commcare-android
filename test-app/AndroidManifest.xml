@@ -6,6 +6,8 @@
 
     <uses-sdk android:minSdkVersion="7"  android:targetSdkVersion="10"/>
     <uses-permission android:name="org.commcare.dalvik.provider.cases.read"/>
+    <uses-permission android:name="org.commcare.dalvik.provider.fixtures.readFixtures"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -41,7 +43,6 @@
         
         <activity android:name="IntentReceiverTest"></activity>
     </application>
-        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
 
 </manifest>
