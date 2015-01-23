@@ -48,12 +48,12 @@
             android:name=".provider.CaseDataContentProvider"
             android:authorities="org.commcare.dalvik.case"
             android:enabled="true"
-            android:readPermission="org.commcare.dalvik.provider.cases.read" />
+            android:readPermission="org.commcare.dalvik.provider.read.content" />
         <provider
             android:name=".provider.FixtureDataContentProvider"
             android:authorities="org.commcare.dalvik.fixture"
             android:enabled="true"
-            android:readPermission="org.commcare.dalvik.provider.fixtures.readFixtures" />
+            android:readPermission="org.commcare.dalvik.provider.read.content" />
 
         <activity android:name=".preferences.CommCarePreferences" >
         </activity>
@@ -464,15 +464,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <permission
-        android:name="org.commcare.dalvik.provider.cases.read"
-        android:description="@string/permission_case_provider_description"
-        android:label="@string/permission_case_provider_label"
-        android:protectionLevel="dangerous" >
-    </permission>
-    <permission
-        android:name="org.commcare.dalvik.provider.fixtures.readFixtures"
-        android:description="@string/permission_case_provider_description"
-        android:label="@string/permission_case_provider_label"
+        android:name="org.commcare.dalvik.provider.read.content"
+        android:description="@string/permission_content_provider_description"
+        android:label="@string/permission_content_provider_label"
         android:protectionLevel="dangerous" >
     </permission>
 
