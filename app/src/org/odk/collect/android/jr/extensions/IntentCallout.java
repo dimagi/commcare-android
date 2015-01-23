@@ -47,6 +47,8 @@ public class IntentCallout implements Externalizable {
     private String component;
     private String data;
     private String buttonLabel;
+    private boolean isQuick;
+
     
     // Generic Extra from intent callout extensions
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
@@ -60,7 +62,7 @@ public class IntentCallout implements Externalizable {
     }
     
     public IntentCallout(String className, Hashtable<String, TreeReference> refs, Hashtable<String, TreeReference> responses, 
-            String type, String component, String data, String buttonLabel) {
+            String type, String component, String data, String buttonLabel, String appearance) {
         this.className = className;
         this.refs = refs;
         this.responses = responses;
@@ -68,6 +70,14 @@ public class IntentCallout implements Externalizable {
         this.component = component;
         this.data = data;
         this.buttonLabel = buttonLabel;
+        if(appearance != null && appearance.equals("quick")){
+            System.out.println("0123 is quick");
+            isQuick = true;
+        } else{
+            System.out.println("0123 is not quick");
+            isQuick = false;
+        }
+
     }
     
     protected void attachToForm(FormDef form) {
@@ -194,4 +204,9 @@ public class IntentCallout implements Externalizable {
         return buttonLabel;
     }
 
+    public boolean isQuickAppearance(){
+        return isQuick;
+    }
+
+    
 }

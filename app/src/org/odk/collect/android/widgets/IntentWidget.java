@@ -50,6 +50,9 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic) {
         super(context, prompt);
+        
+        System.out.println("0123 intent widget oncreate");
+        
         this.intent = in;
         this.ic = ic;
         
@@ -75,22 +78,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         	 */
             @Override
             public void onClick(View v) {
-                mWaitingForData = true;
-                try {
-                    //Set Data
-                    String data = mStringAnswer.getText().toString();
-                    if(data != null && data != "") {
-                        intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
-                    }
-                    
-                    ((Activity) getContext()).startActivityForResult(intent,
-                        FormEntryActivity.INTENT_CALLOUT);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                        "Couldn't find intent for callout!", Toast.LENGTH_SHORT)
-                            .show();
-                    mWaitingForData = false;
-                }
+                performCallout();
             }
         });
 
@@ -107,6 +95,33 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         // finish complex layout
         addView(launchIntentButton);
         addView(mStringAnswer);
+        
+        if (s == null && ic.isQuickAppearance()){
+            
+            System.out.println("0123 is quick and is performing callout");
+            
+            performCallout();
+        }
+
+    }
+
+    public void performCallout(){
+        mWaitingForData = true;
+        try {
+            //Set Data
+            String data = mStringAnswer.getText().toString();
+            if(data != null && data != "") {
+                intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
+            }
+            
+            ((Activity) getContext()).startActivityForResult(intent,
+                FormEntryActivity.INTENT_CALLOUT);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(),
+                "Couldn't find intent for callout!", Toast.LENGTH_SHORT)
+                    .show();
+            mWaitingForData = false;
+        }
     }
     
     public void setButtonLabel(){
