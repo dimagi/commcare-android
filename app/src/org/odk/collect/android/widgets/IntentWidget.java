@@ -47,11 +47,8 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
     private Intent intent;
     private IntentCallout ic;
 
-
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic) {
         super(context, prompt);
-        
-        System.out.println("0123 intent widget oncreate");
         
         this.intent = in;
         this.ic = ic;
@@ -96,16 +93,17 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         addView(launchIntentButton);
         addView(mStringAnswer);
         
-        if (s == null && ic.isQuickAppearance()){
-            
-            System.out.println("0123 is quick and is performing callout");
-            
+        //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
+        if(s == null && ic.isQuickAppearance() && !ic.getCancelled()){
             performCallout();
+        } else if(ic.getCancelled()){
+            //reset the cancelled flag
+            ic.setCancelled(false);
         }
-
     }
 
     public void performCallout(){
+        
         mWaitingForData = true;
         try {
             //Set Data
