@@ -433,7 +433,6 @@ public class CommCareApplication extends Application {
 
     public int initializeAppResources(CommCareApp app) {
         try {
-            System.out.println("SETTING CURRENT APP TO: " + app.getAppRecord().getDisplayName());
             currentApp = app;
             if(currentApp.initializeApplication()) {
                 return STATE_READY;

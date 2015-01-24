@@ -191,12 +191,11 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                         return ResourceEngineOutcomes.StatusDuplicateApp;
                     }
                 }
-                
-                app.writeInstalled();   
             }
             
             //Initialize them now that they're installed
             CommCareApplication._().initializeGlobalResources(app);
+            app.writeInstalled();
             
             //Alll goood, we need to set our current profile ref to either the one
             //just used, or the auth ref, if one is available.
