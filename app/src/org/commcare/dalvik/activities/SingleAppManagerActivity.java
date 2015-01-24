@@ -5,11 +5,12 @@ import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.services.CommCareSessionService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,7 +18,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -28,6 +28,8 @@ public class SingleAppManagerActivity extends Activity {
     
     private ApplicationRecord appRecord;
     private AlertDialog dialog;
+    public static final int LOGOUT_FOR_UPDATE = 0;
+    public static final int LOGOUT_FOR_VERIFY_MM = 1;
     
     @Override
     public void onCreate(Bundle savedInstanceState) { 
@@ -169,16 +171,46 @@ public class SingleAppManagerActivity extends Activity {
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
     }
     
+    //triggered when verify MM button is clicked
+    public void verifyResourcesClicked(View v) {
+        try {
+            CommCareSessionService s = CommCareApplication._().getSession();
+            if (s.isLoggedIn()) {
+                triggerLogoutWarning(LOGOUT_FOR_VERIFY_MM);
+            } else {
+                verifyResources();
+            }
+        }
+        catch (SessionUnavailableException e) {
+            verifyResources();
+        }
+    }
+    
     /** Opens the MM verification activity for the selected app **/
-    public void verifyResources(View v) {
+    public void verifyResources() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         Intent i = new Intent(this, CommCareVerificationActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
     }
     
+    //Triggered when update button is clicked
+    public void updateClicked(View v) {
+        try {
+            CommCareSessionService s = CommCareApplication._().getSession();
+            if (s.isLoggedIn()) {
+                triggerLogoutWarning(LOGOUT_FOR_UPDATE);
+            } else {
+                update();
+            }
+        }
+        catch (SessionUnavailableException e) {
+            update();
+        }
+    }
+    
     /** Conducts an update for the selected app **/
-    public void update(View v) {
+    public void update() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -198,11 +230,9 @@ public class SingleAppManagerActivity extends Activity {
     }
         
     public void rebootAlertDialog(View v) {
-        String title = "Uninstalling your app";
-        String message = "CommCare will uninstall your app and then reboot to save changes.";
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title);
-        builder.setMessage(message)
+        builder.setTitle("Uninstalling your app");
+        builder.setMessage(R.string.uninstall_reboot_warning)
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
                 @Override
@@ -222,6 +252,40 @@ public class SingleAppManagerActivity extends Activity {
             });
             
         dialog = builder.create();
+        dialog.show();
+    }
+    
+    public void triggerLogoutWarning(final int actionKey) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Logging out your app");
+        builder.setMessage(R.string.logout_warning)
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog,
+                            int which) {
+                        dialog.dismiss();
+                        CommCareApplication._().logout();
+                        switch (actionKey) {
+                        case LOGOUT_FOR_UPDATE:
+                            update();
+                            break;
+                        case LOGOUT_FOR_VERIFY_MM:
+                            verifyResources();
+                            break;
+                        } 
+                    }
+                    
+                })
+            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+                
+            });
+        AlertDialog dialog = builder.create();
         dialog.show();
     }
 

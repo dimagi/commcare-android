@@ -2,8 +2,10 @@ package org.commcare.dalvik.activities;
 
 
 import org.commcare.android.adapters.AppManagerAdapter;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.services.CommCareSessionService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,13 +42,27 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
 	
 	public void onResume() {
 		super.onResume();
-		System.out.println("ONRESUME called in AppManagerActivity");
 		refreshView();
 	}
 	
 	public void installAppClicked(View v) {
-		Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-		i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
+	    try {
+	        CommCareSessionService s = CommCareApplication._().getSession();
+	        if (s.isLoggedIn()) {
+	            triggerLogoutWarning();
+	        } else {
+	            installApp();
+	        }
+	    }
+	    catch (SessionUnavailableException e) {
+	        installApp();
+	    }
+	}
+	
+	public void installApp() {
+	    CommCareApplication._().logout();
+	    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+	    i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
 	    this.startActivityForResult(i, CommCareHomeActivity.INIT_APP);
 	}
 	
@@ -96,6 +112,32 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         Intent i = new Intent(getApplicationContext(), SingleAppManagerActivity.class);
         i.putExtra("position", position);
         startActivity(i);
+    }
+    
+    public void triggerLogoutWarning() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Logging our your app");
+        builder.setMessage(R.string.logout_warning)
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog,
+                            int which) {
+                        dialog.dismiss();
+                        installApp();
+                    }
+                    
+                })
+            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+                
+            });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
     
 }

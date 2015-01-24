@@ -52,7 +52,7 @@
         android:textSize="40sp"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="update"
+        android:onClick="updateClicked"
         android:textColor="#1565C0"
         android:paddingBottom="5sp"
         android:paddingTop="5sp" />
@@ -64,7 +64,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:clickable="true" 
-        android:onClick="verifyResources"
+        android:onClick="verifyResourcesClicked"
         android:textColor="#616161"
       	android:paddingBottom="5sp"
         android:paddingTop="5sp" />
