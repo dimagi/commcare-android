@@ -51,6 +51,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         mCaseIndexTable = new CaseIndexTable();
     }
     
+    
     //TODO: Sync the following two constructors!
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage, Cipher attachmentCipher, Cipher userCipher, File folder) {
         this(parser, storage);

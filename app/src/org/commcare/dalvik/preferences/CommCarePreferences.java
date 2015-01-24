@@ -25,6 +25,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -91,6 +93,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
     private static final int RECOVERY_MODE = Menu.FIRST + 3;
+    private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
 
     /*
      * (non-Javadoc)
@@ -132,10 +135,21 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 android.R.drawable.ic_menu_upload);
         
         menu.add(0, RECOVERY_MODE, 3, "Recovery Mode").setIcon(android.R.drawable.ic_menu_report_image);
+        menu.add(0, SUPERUSER_PREFS, 4, "Developer Options").setIcon(android.R.drawable.ic_menu_edit);
+        
         return true;
     }
 
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+
+    int mDeveloperModeClicks = 0;
+    
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
@@ -149,6 +163,19 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 return true;
             case ABOUT_COMMCARE:
                 AlertDialog dialog = new AlertDialog.Builder(this).setMessage(R.string.aboutdialog).create();
+                dialog.setOnCancelListener(new OnCancelListener() {
+
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        mDeveloperModeClicks ++;
+                        if(mDeveloperModeClicks == 4) {
+                            CommCareApplication._().getCurrentApp().getAppPreferences().
+                            edit().putString(DeveloperPreferences.SUPERUSER_ENABLED, YES).commit();
+                            Toast.makeText(CommCarePreferences.this, "Developer Mode Enabled", Toast.LENGTH_SHORT).show();;
+                        }
+                    }
+                    
+                });
                 dialog.show();
                 return true;
             case FORCE_LOG_SUBMIT:
@@ -157,6 +184,11 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
             case RECOVERY_MODE:
                 Intent i = new Intent(this,RecoveryActivity.class);
                 this.startActivity(i);
+                return true;
+            case SUPERUSER_PREFS:
+                Intent intent = new Intent(this,DeveloperPreferences.class);
+                this.startActivity(intent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

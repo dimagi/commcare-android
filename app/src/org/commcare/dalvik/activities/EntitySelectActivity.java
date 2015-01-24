@@ -315,7 +315,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 if(inAwesomeMode) {
                     if (adapter != null) {
                         displayReferenceAwesome(entity, adapter.getPosition(entity));
-                    adapter.setAwesomeMode(true);
+        			adapter.setAwesomeMode(true);
                         updateSelectedItem(entity, true);
                     }
                 } else {
@@ -356,11 +356,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             header.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             v.setBackgroundResource(R.drawable.blue_tabbed_box);
-            
-            // only add headers if we're not using grid mode
-            if(!shortSelect.usesGridView()){
-            header.addView(v,params);
-            }
+	    	
+	    	// only add headers if we're not using grid mode
+	    	if(!shortSelect.usesGridView()){
+	    	header.addView(v,params);
+	    	}
             
             if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
                 EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
@@ -701,9 +701,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-        
+    	
         adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this, factory);
-        
+		
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         
@@ -750,10 +750,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void attach(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
         this.loader = task;
-    }
-    
-    public boolean inAwesomeMode(){
-        return inAwesomeMode;
+	}
+	
+	public boolean inAwesomeMode(){
+		return inAwesomeMode;
     }
     
     boolean rightFrameSetup = false;

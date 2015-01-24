@@ -1,4 +1,3 @@
-
 /**
  * 
  */
@@ -61,23 +60,23 @@ public class NodeEntityFactory {
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
         String[] sortDetails = new String[length];
-        String[] backgroundDetails = new String[length];
-        boolean[] relevancyDetails = new boolean[length];
+		String[] backgroundDetails = new String[length];
+		boolean[] relevancyDetails = new boolean[length];
         int count = 0;
         for(DetailField f : this.getDetail().getFields()) {
             try {
                 details[count] = f.getTemplate().evaluate(nodeContext);
                 Text sortText = f.getSort();
-                Text backgroundText = f.getBackground();
+				Text backgroundText = f.getBackground();
                 if(sortText == null) {
                     sortDetails[count] = null;
                 } else {
                     sortDetails[count] = sortText.evaluate(nodeContext);
-                }
-                if(backgroundText == null) {
-                    backgroundDetails[count] = "";
-                } else {
-                    backgroundDetails[count] = backgroundText.evaluate(nodeContext);
+				}
+				if(backgroundText == null) {
+					backgroundDetails[count] = "";
+				} else {
+					backgroundDetails[count] = backgroundText.evaluate(nodeContext);
                 }
                 relevancyDetails[count] = f.isRelevant(nodeContext);
             } catch(XPathException xpe) {
@@ -92,7 +91,7 @@ public class NodeEntityFactory {
             count++;
         }
         
-        return new Entity<TreeReference>(details, sortDetails, backgroundDetails, relevancyDetails, data);
+		return new Entity<TreeReference>(details, sortDetails, backgroundDetails, relevancyDetails, data);
     }
 
 
