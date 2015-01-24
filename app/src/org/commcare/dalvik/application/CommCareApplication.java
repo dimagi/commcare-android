@@ -372,14 +372,15 @@ public class CommCareApplication extends Application {
 		return getGlobalStorage(ApplicationRecord.class);
 	} 
 	
-	public ApplicationRecord getRecordById(String uniqueId) {
+	//Currently unused
+	/*public ApplicationRecord getRecordById(String uniqueId) {
 		for (ApplicationRecord r : getInstalledAppRecords()) {
 			if (r.getUniqueId().equals(uniqueId)) {
 				return r;
 			}
 		}
 		return null;
-	}
+	}*/
 	
 	/** Return all ApplicationRecords that are installed and NOT archived **/
 	public ArrayList<ApplicationRecord> getVisibleAppRecords() {
