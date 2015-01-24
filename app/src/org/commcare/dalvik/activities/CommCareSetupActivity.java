@@ -342,19 +342,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         
         installButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) { 
-                System.out.println("ONCLICK for installButton, fromManager = " + fromManager);
-                //Now check on the resources
-                if(!fromManager && resourceState == CommCareApplication.STATE_READY
-                        && CommCareApplication._().visibleAppsPresent()) {
-                    System.out.println("inside first if statement");
-                    if(!inUpgradeMode || uiState != UiState.error) {
-                        System.out.println("Setting mode to existing application in ONCLICK");
+                //If this call was not from the manager and there are already visible apps installed
+                if (!fromManager && CommCareApplication._().visibleAppsPresent()) {
+                    if (!inUpgradeMode || uiState != UiState.error) {
                         fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
                         setModeToExistingApplication();
                     }
-                } else if(fromManager || resourceState == CommCareApplication.STATE_UNINSTALLED || 
-                        (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode) ||
-                        (resourceState == CommCareApplication.STATE_READY && !CommCareApplication._().visibleAppsPresent())) {
+                } else if (fromManager || resourceState == CommCareApplication.STATE_UNINSTALLED || 
+                          (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode) ||
+                          (resourceState == CommCareApplication.STATE_READY && !CommCareApplication._().visibleAppsPresent())) {
                     startResourceInstall();
                 }
             }
