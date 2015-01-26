@@ -19,19 +19,19 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 
 /**
- * The case data content provider defines the interface for external applications
+ * The fixture content provider defines the interface for external applications
  * to gain read only access to the current user's sandbox. External applications require
  * explicit permissions to access the content provider, and only data in the currently
  * logged in user's sandbox is provided.
  * 
- * The CaseDataAPI class is responsible for defining the data models and structures that
+ * The FixtureDataAPI class is responsible for defining the data models and structures that
  * can be queried with the content provider.
  * 
  * Note that this content provider requires a permission to be granted for read access.
  * 
  * No write access is currently supported.
  * 
- * @author ctsims
+ * @author wspride
  *
  */
 public class FixtureDataContentProvider extends ContentProvider {

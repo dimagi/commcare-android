@@ -29,7 +29,7 @@ public class FixtureContentActivity extends Activity {
     
     protected void showFixtureData(String selection, String[] selectionArgs) {
         ListView la = (ListView)this.findViewById(R.id.list_view);
-        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.fixture/fixturedb/list_instance_id/"), null, selection, selectionArgs, null);
+        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.fixture/fixturedb/"), null, selection, selectionArgs, null);
         
         final SimpleCursorAdapter sca = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, c, new String[] {"_id", "instance_id"}, new int[] { android.R.id.text1, android.R.id.text2});
 
@@ -49,7 +49,7 @@ public class FixtureContentActivity extends Activity {
     
     protected void moveToDataAtapter(String fixtureId) {
         
-        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.fixture/fixturedb/match_instance_id/" + fixtureId), null, null, null, null);
+        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.fixture/fixturedb/" + fixtureId), null, null, null, null);
         
         SimpleCursorAdapter sca = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, c, new String[] {"instance_id", "content"}, new int[] {android.R.id.text1, android.R.id.text2});
         ListView la = (ListView)this.findViewById(R.id.list_view);

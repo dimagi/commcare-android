@@ -9,10 +9,9 @@ import android.provider.BaseColumns;
 
 /**
  * This API provides the relevant interface cues for interacting with
- * the Case Data Content Provider, along with the structure of the
- * virtual tables used by the provider.
+ * the Fixture Data Content Provider.
  * 
- * @author ctsims
+ * @author wspride
  *
  */
 public class FixtureDataAPI {
@@ -23,8 +22,8 @@ public class FixtureDataAPI {
     
     static {
         //Load the URI match patterns
-        sURIMatcher.addURI(AUTHORITY, "fixturedb/match_instance_id/*", MetadataColumns.MATCH_INSTANCE_ID);
-        sURIMatcher.addURI(AUTHORITY, "fixturedb/list_instance_id/", MetadataColumns.LIST_INSTANCE_ID);
+        sURIMatcher.addURI(AUTHORITY, "fixturedb/*", MetadataColumns.MATCH_INSTANCE_ID);
+        sURIMatcher.addURI(AUTHORITY, "fixturedb/", MetadataColumns.LIST_INSTANCE_ID);
     }
     
     /**
