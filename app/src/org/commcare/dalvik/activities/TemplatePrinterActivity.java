@@ -16,6 +16,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Window;
 import android.webkit.MimeTypeMap;
 
 public class TemplatePrinterActivity extends Activity implements OnClickListener, PopulateListener {
@@ -79,6 +80,10 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
+        setContentView(R.layout.activity_template_printer);
         
         Bundle data = getIntent().getExtras();
         
