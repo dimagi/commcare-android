@@ -72,15 +72,7 @@ public class IntentCallout implements Externalizable {
         this.component = component;
         this.data = data;
         this.buttonLabel = buttonLabel;
-        if(appearance != null && appearance.equals("quick")){
-            System.out.println("0123 is quick");
-            isQuick = true;
-        } else{
-            System.out.println("0123 is not quick");
-            isQuick = false;
-        }
-        
-        isCancelled = false;
+        isQuick = (appearance != null && appearance.equals("quick"));
 
     }
     
@@ -199,7 +191,6 @@ public class IntentCallout implements Externalizable {
         refs = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
         responses = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
         isQuick = ExtUtil.readBool(in);
-        className = ExtUtil.readString(in);
         component = ExtUtil.readString(in);
         buttonLabel = ExtUtil.readString(in);
     }
@@ -214,7 +205,6 @@ public class IntentCallout implements Externalizable {
         ExtUtil.write(out, new ExtWrapMap(refs));
         ExtUtil.write(out, new ExtWrapMap(responses));
         ExtUtil.write(out, isQuick);
-        ExtUtil.write(out, className);
         ExtUtil.write(out, component);
         ExtUtil.write(out, buttonLabel);
     }
