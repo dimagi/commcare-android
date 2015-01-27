@@ -20,15 +20,12 @@ import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
-import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,7 +38,7 @@ import android.widget.RelativeLayout;
  *
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener, OnGestureListener {
+public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;
@@ -60,8 +57,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     TreeReference mTreeReference;
     
     private int detailIndex;
-    
-    private GestureDetector mGestureDetector;
     
     @UiElement(value=R.id.entity_detail)
     RelativeLayout container;
@@ -136,8 +131,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         }
         
         mDetailView.setDetail(factory.getDetail());
-        
-        mGestureDetector = new GestureDetector(this, this); 
     }
     
     public Pair<Detail, TreeReference> requestEntityContext() {
@@ -225,68 +218,41 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         startActivity(intent);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
+     */
     @Override
-    public boolean dispatchTouchEvent(MotionEvent mv) {
-        boolean handled = mGestureDetector.onTouchEvent(mv);
-        if (!handled) {
-            return super.dispatchTouchEvent(mv);
-        }
-        return handled;
-    }
-    
-    @Override
-    public boolean onDown(MotionEvent arg0) {
-        return false;
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        int childCount = mDetailView.getChildCount();
-        int currentItem = mDetailView.getCurrentItem();
-        if (FormEntryActivity.isHorizontalSwipe(this, e1, e2)) {
-            if (velocityX <= 0) {
-                if (currentItem < childCount - 1) {
-                    return false;
-                }
-                select();
-            }
-            else {
-                if (currentItem >= 1) {
-                    return false;
-                }
-                finish();
-            }
+    protected boolean onForwardSwipe() {
+        // Move along, provided we're on the last tab of tabbed case details
+        if (mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
+            select();
             return true;
         }
-                
         return false;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
+     */
+    @Override
+    protected boolean onBackwardSwipe() {
+        // Move back, provided we're on the first screen of tabbed case details
+        if (mDetailView.getCurrentTab() < 1) {
+            finish();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Move along to form entry.
+     */
     private void select() {
         Intent i = new Intent(EntityDetailActivity.this.getIntent());
         loadOutgoingIntent(i);
         setResult(RESULT_OK, i);
         finish();
     }
-
-    @Override
-    public void onLongPress(MotionEvent arg0) {
-        // ignore
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent arg0) {
-        // ignore
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent arg0) {
-        return false;
-    }
-
 }

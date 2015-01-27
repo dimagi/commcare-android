@@ -25,7 +25,7 @@ import java.util.Set;
 
 import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.android.util.StringUtils;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -64,8 +64,6 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.TimeWidget;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -94,7 +92,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -2844,45 +2841,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return false;
     }
 
-    /**
-     * Decide if two given MotionEvents represent a swipe.
-     * @param activity
-     * @param e1 First MotionEvent
-     * @param e2 Second MotionEvent
-     * @return True iff the movement is a definitive horizontal swipe.
-     */
-    public static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
-        DisplayMetrics dm = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-        //screen width and height in inches.
-        double sw = dm.xdpi * dm.widthPixels;
-        double sh = dm.ydpi * dm.heightPixels;
-        
-        //relative metrics for what constitutes a swipe (to adjust per screen size)
-        double swipeX = 0.25;
-        double swipeY = 0.25;
-        
-        //details of the motion itself
-        float xMov = Math.abs(e1.getX() - e2.getX());
-        float yMov = Math.abs(e1.getY() - e2.getY());
-        
-        double angleOfMotion = ((Math.atan(yMov / xMov) / Math.PI) * 180);
-        
-        //large screen (tablet style 
-        if( sw > 5 || sh > 5) {
-            swipeX = 0.5;
-        }
-        
-
-        // for all screens a swipe is left/right of at least .25" and at an angle of no more than 30
-        //degrees
-        int xPixelLimit = (int) (dm.xdpi * .25);
-        //int yPixelLimit = (int) (dm.ydpi * .25);
-
-        return xMov > xPixelLimit && angleOfMotion < 30;
-    }
-
     /*
      * Looks for user swipes. If the user has swiped, move to the appropriate screen.
      * (non-Javadoc)
@@ -2890,7 +2848,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if (isHorizontalSwipe(this, e1, e2)) {
+        if (CommCareActivity.isHorizontalSwipe(this, e1, e2)) {
             mBeenSwiped = true;
             if (velocityX > 0) {
                 showPreviousView();

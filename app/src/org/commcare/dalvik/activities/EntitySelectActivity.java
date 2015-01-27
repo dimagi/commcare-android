@@ -31,7 +31,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
-import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,11 +45,8 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -73,7 +69,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, OnGestureListener {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -122,7 +118,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private Detail shortSelect;
     
     private DataSetObserver mListStateObserver;
-    private GestureDetector mGestureDetector = null;
     
     /*
      * (non-Javadoc)
@@ -181,7 +176,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     }
                 }
             }
-            mGestureDetector = new GestureDetector(this, this); 
         } else {
             setContentView(R.layout.entity_select_layout);
         }
@@ -254,15 +248,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //tts = new TextToSpeech(this, this);
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent mv) {
-        boolean handled = mGestureDetector == null ? false : mGestureDetector.onTouchEvent(mv);
-        if (!handled) {
-            return super.dispatchTouchEvent(mv);
-        }
-        return handled;
-    }
-    
     private void createDataSetObserver() {
         mListStateObserver = new DataSetObserver() {
             @Override
@@ -832,48 +817,27 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void deliverError(Exception e) {
         displayException(e);
     }
-
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
+     */
     @Override
-    public boolean onDown(MotionEvent arg0) {
-        return false;
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if (FormEntryActivity.isHorizontalSwipe(this, e1, e2)) {
-            if (velocityX <= 0) {
-                if (selectedIntent != null) {
-                    select();
-                }
-//        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-            }
-            else {
-                finish();
-            }
-            return true;
+    protected boolean onForwardSwipe() {
+        // If user has picked an entity, move along to form entry
+        if (selectedIntent != null) {
+            select();
         }
-                
-        return false;
+        return true;
     }
-
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
+     */
     @Override
-    public void onLongPress(MotionEvent arg0) {
-        // ignore
+    protected boolean onBackwardSwipe() {
+        finish();
+        return true;
     }
-
-    @Override
-    public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent arg0) {
-        // ignore
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent arg0) {
-        return false;
-    }
-
 }

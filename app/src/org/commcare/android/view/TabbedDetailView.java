@@ -172,8 +172,16 @@ public class TabbedDetailView extends RelativeLayout {
      * Get the position of the current tab.
      * @return Zero-indexed integer
      */
-    public int getCurrentItem() {
+    public int getCurrentTab() {
         return mViewPager.getCurrentItem();
+    }
+    
+    /**
+     * Get the number of tabs.
+     * @return Integer
+     */
+    public int getTabCount() {
+        return mViewPager.getAdapter().getCount();
     }
     
 }
