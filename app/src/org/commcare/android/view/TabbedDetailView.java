@@ -168,4 +168,12 @@ public class TabbedDetailView extends RelativeLayout {
         mMenu.getChildAt(position).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_case_tab_vertical));
     }
     
+    /**
+     * Get the position of the current tab.
+     * @return Zero-indexed integer
+     */
+    public int getCurrentItem() {
+        return mViewPager.getCurrentItem();
+    }
+    
 }

@@ -241,11 +241,19 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        int childCount = mDetailView.getChildCount();
+        int currentItem = mDetailView.getCurrentItem();
         if (FormEntryActivity.isHorizontalSwipe(this, e1, e2)) {
             if (velocityX <= 0) {
+                if (currentItem < childCount - 1) {
+                    return false;
+                }
                 select();
             }
             else {
+                if (currentItem >= 1) {
+                    return false;
+                }
                 finish();
             }
             return true;
