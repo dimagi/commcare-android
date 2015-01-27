@@ -30,4 +30,9 @@
 	</style>
 	
 	<style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.WindowTitle"/>
+    
+    <style name="Theme.Dialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    
 </resources>

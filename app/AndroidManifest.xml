@@ -390,7 +390,7 @@
         
         <activity
             android:name=".activities.TemplatePrinterActivity"
-            android:theme="@android:style/Theme.Dialog" >
+            android:theme="@style/Theme.Dialog" >
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT" />
                 
