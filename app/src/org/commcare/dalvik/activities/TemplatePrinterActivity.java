@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -19,9 +20,53 @@ import android.webkit.MimeTypeMap;
 
 public class TemplatePrinterActivity extends Activity implements OnClickListener, PopulateListener {
     
+    private static final int REQUEST_TEMPLATE = 0;
+    
     // TODO: stop using this hack
-    private static final String TEMPLATE_FILE_TEMP_PATH = "jr://file/commcare/video/data/print_template.mp4";
+    private static final String TEMPLATE_FILE_HACK_EXT = ".mp4";
+    // TODO: also support ODT
     private static final String TEMPLATE_FILE_PATH = "jr://file/commcare/video/data/print_template.docx";
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == REQUEST_TEMPLATE) {
+
+            if (resultCode == RESULT_OK
+                    && data != null) {
+
+                Uri uri = data.getData();
+                String extension = TemplatePrinterUtils.getExtension(uri.getPath());
+
+                if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension)) {
+
+                    File templateFile = new File(uri.getPath());
+                    
+                    File outputFolder = templateFile.getParentFile();
+                    
+                    new TemplatePrinterTask(
+                            templateFile,
+                            outputFolder,
+                            getIntent().getExtras(),
+                            this
+                    ).execute();
+
+                } else {
+                    showErrorDialog(
+                            getString(
+                                    R.string.file_invalid,
+                                    uri.getPath()
+                            )
+                    );
+                }
+
+            } else {
+                finish();
+            }
+
+        }
+
+    }
 
     @Override
     public void onClick(DialogInterface dialogInterface, int clickId) {
@@ -46,11 +91,11 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
             File templateFile = new File(
                     ReferenceManager._().DeriveReference(TEMPLATE_FILE_PATH).getLocalURI()
             );
-            File templateTempFile = new File(
-                    ReferenceManager._().DeriveReference(TEMPLATE_FILE_TEMP_PATH).getLocalURI()
+            File templateHackFile = new File(
+                    ReferenceManager._().DeriveReference(TEMPLATE_FILE_PATH + TEMPLATE_FILE_HACK_EXT).getLocalURI()
             );
             
-            if (templateFile.exists() || templateTempFile.renameTo(templateFile)) {
+            if (templateFile.exists() || templateHackFile.renameTo(templateFile)) {
     
                 File outputFolder = templateFile.getParentFile();
     
@@ -62,7 +107,9 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
                 ).execute();
     
             } else {
-                showErrorDialog(R.string.no_template);
+
+                startFileBrowser();
+                
             }
         } catch (InvalidReferenceException e) {
             showErrorDialog(e.getMessage());
@@ -135,6 +182,20 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
                 );
 
         startActivity(intent);
+
+    }
+    
+    private void startFileBrowser() {
+
+        Intent chooseTemplateIntent = new Intent()
+                .setAction(Intent.ACTION_GET_CONTENT)
+                .setType("file/*")
+                .addCategory(Intent.CATEGORY_OPENABLE);
+
+        startActivityForResult(
+                chooseTemplateIntent,
+                REQUEST_TEMPLATE
+        );
 
     }
 
