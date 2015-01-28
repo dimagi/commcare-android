@@ -103,8 +103,9 @@ class DPIManager(object):
         # save original image to drawables
         default_dir = os.path.join(self.target_folder, DRAWABLES)
         ensure_dir(default_dir)
-        src_img.save(os.path.join(default_dir, self.spec.filename))
-        print "save to", os.path.join(default_dir, self.spec.filename)
+        default_path = os.path.join(default_dir, self.spec.filename)
+        src_img.save(default_path)
+        print "save to", default_path
 
         src_width, src_height = src_img.size
 
@@ -120,7 +121,19 @@ class DPIManager(object):
                 self.target_folder, '%s-%s' % (DRAWABLES, dpi)
             )
             ensure_dir(dpi_dir)
+            dpi_path = os.path.join(dpi_dir, self.spec.filename)
             src_img.resize((dpi_width, dpi_height), Image.ANTIALIAS).save(
-                os.path.join(dpi_dir, self.spec.filename)
+                dpi_path
             )
-            print "save to", os.path.join(dpi_dir, self.spec.filename)
+            print "save to", dpi_path
+
+        for label, size in self.spec.other_scaling.items():
+            scale_dir = os.path.join(
+                self.target_folder, '%s-%s' % (DRAWABLES, label)
+            )
+            ensure_dir(scale_dir)
+            scale_path = os.path.join(scale_dir, self.spec.filename)
+            src_img.resize((size[0], size[1]), Image.ANTIALIAS).save(
+                scale_path
+            )
+            print "save to", scale_path
