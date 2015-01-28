@@ -122,7 +122,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
 
             DocTypeEnum docType = DocTypeEnum.getFromExtension(inputExtension);
 
-            // Append suffice and file extension to output file name
+            // Append suffix and file extension to output file name
             output = new File(outputFolder, inputName + "-out." + inputExtension);
 
             ZipFile file = new ZipFile(input);
