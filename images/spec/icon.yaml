@@ -1,0 +1,7 @@
+filename: icon.png
+source_dpi: hdpi
+other_scaling:
+  large: [300, 300]
+excluded_dpis:
+  - ldpi
+
