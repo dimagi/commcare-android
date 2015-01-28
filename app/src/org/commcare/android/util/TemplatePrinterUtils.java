@@ -3,6 +3,8 @@ package org.commcare.android.util;
 import android.text.TextUtils;
 
 /**
+ * Various utilities used by TemplatePrinterTask and TemplatePrinterActivity
+ * 
  * @author Richard Lu
  */
 public abstract class TemplatePrinterUtils {

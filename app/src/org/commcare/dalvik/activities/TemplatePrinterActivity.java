@@ -16,16 +16,22 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Window;
 import android.webkit.MimeTypeMap;
 
+/**
+ * Intermediate activity which populates a .DOCX/.ODT template
+ * with data before sending it off to a document viewer app
+ * capable of printing.
+ * 
+ * @author Richard Lu
+ */
 public class TemplatePrinterActivity extends Activity implements OnClickListener, PopulateListener {
     
     private static final int REQUEST_TEMPLATE = 0;
     
-    // TODO: stop using this hack
+    // TODO: Remove the hack video extension and update relative file path
+    // when feature is implemented HQ-side
     private static final String TEMPLATE_FILE_HACK_EXT = ".mp4";
-    // TODO: also support ODT
     private static final String TEMPLATE_FILE_PATH = "jr://file/commcare/video/data/print_template.docx";
     
     @Override
@@ -62,6 +68,7 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
                 }
 
             } else {
+                // No template file selected
                 finish();
             }
 
@@ -94,11 +101,14 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
             File templateFile = new File(
                     ReferenceManager._().DeriveReference(TEMPLATE_FILE_PATH).getLocalURI()
             );
+            // TODO: see TEMPLATE_FILE_HACK_EXT declaration
             File templateHackFile = new File(
                     ReferenceManager._().DeriveReference(TEMPLATE_FILE_PATH + TEMPLATE_FILE_HACK_EXT).getLocalURI()
             );
             
-            if (templateFile.exists() || templateHackFile.renameTo(templateFile)) {
+            if (templateFile.exists()
+                    // TODO: see TEMPLATE_FILE_HACK_EXT declaration
+                    || templateHackFile.renameTo(templateFile)) {
     
                 File outputFolder = templateFile.getParentFile();
     
@@ -111,6 +121,8 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
     
             } else {
 
+                // Manually select template file;
+                // see onActivityResult(int,int,Intent)
                 startFileBrowser();
                 
             }
@@ -149,6 +161,7 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
     private void showErrorDialog(String message) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
+                .setTitle(R.string.error_occured)
                 .setMessage(message)
                 .setCancelable(false)
                 .setPositiveButton(

@@ -242,6 +242,13 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
         return result;
     }
 
+    /**
+     * Validates the input string for well-formed {{ }} and < > pairs.
+     * If malformed, throws a RuntimeException which will be caught by
+     * doInBackground() and passed to the attached PopulateListener.onError()
+     * 
+     * @param input String to validate
+     */
     private static void validateStringOrThrowException(String input) {
 
         boolean isBetweenMustaches = false;
