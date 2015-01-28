@@ -132,19 +132,7 @@ public class CommCareApp {
         }
     }
     
-    
-    public boolean initializeApplication() {
-        boolean isOk = initializeApplicationHelper();
-        if (isOk) {
-            if (record.convertedFromOldFormat()) {
-                updateAppRecord();
-            }
-        }
-        return isOk;
-    }
-    
     public void updateAppRecord() {
-        System.out.println("CALLED updateAppRecord");
         //uniqueId and displayName will be missing, so pull them from the app's profile file
         record.setUniqueId(getUniqueId());
         record.setDisplayName(getDisplayName());
@@ -154,6 +142,16 @@ public class CommCareApp {
         record.setConvertedFromOldFormat(false);
         //commit changes
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+    }
+    
+    public boolean initializeApplication() {
+        boolean isOk = initializeApplicationHelper();
+        if (isOk) {
+            if (record.convertedFromOldFormat()) {
+                updateAppRecord();
+            }
+        }
+        return isOk;
     }
     
     public boolean initializeApplicationHelper() {
@@ -301,16 +299,14 @@ public class CommCareApp {
 	 * Return the uniqueId assigned to this app from HQ
 	 */
 	public String getUniqueId() {
-	    System.out.println("CALLING getUniqueId()");
-		//if this record has already been assigned the unique id, pull it from there
-	    String existingId = record.getUniqueId();
-		if (existingId != null && !existingId.equals("")) {
-		    System.out.println("using existing id: " + existingId);
-			return existingId;
-		} else { //otherwise, this is the first time we are getting it, so pull from the profile
-		    System.out.println("PULLING uniqueId from Profile");
-			return getCommCarePlatform().getCurrentProfile().getUniqueId();
-		}
+		//If this record has already been assigned the unique id, pull it from there
+	    String id = record.getUniqueId();
+		if (id == null || id.equals("")) {
+		    //Otherwise, trying pulling it from the profile file
+			id =  getCommCarePlatform().getCurrentProfile().getUniqueId();
+		} 
+		System.out.println("getUniqueId RETURNING " + id);
+		return id;
 	}
 	
 	/*
