@@ -789,6 +789,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             
             Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
             prototype = entries.elementAt(0);
+            
+            // TODO: best way to check whether form is a case list?
+            if (prototype.getCommandId().endsWith("case-list")) {
+                mDetailComponent.notifyIsCaseList();
+            }
 
             if (mDetailComponent.isCompound()) {
                 // border around right panel doesn't look right when there are tabs

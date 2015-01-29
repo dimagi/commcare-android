@@ -41,6 +41,8 @@ public class EntityDetailComponent {
     
     private Intent selectedIntent;
     
+    private boolean isCaseList;
+    
     public EntityDetailComponent(
             AndroidSessionWrapper asw,
             final Activity activity,
@@ -71,10 +73,13 @@ public class EntityDetailComponent {
         buttonNext.setOnClickListener(new OnClickListener() {
             
             public void onClick(View view) {
-                Intent i = new Intent(activity.getIntent());
-                
-                i.putExtra(SessionFrame.STATE_DATUM_VAL, EntityDetailComponent.this.selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-                activity.setResult(Activity.RESULT_OK, i);
+                // Do not try to return a result if it's a case list
+                if (!isCaseList) {
+                    Intent i = new Intent(activity.getIntent());
+                    
+                    i.putExtra(SessionFrame.STATE_DATUM_VAL, EntityDetailComponent.this.selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+                    activity.setResult(Activity.RESULT_OK, i);
+                }
                 
                 activity.finish();
             }
@@ -104,6 +109,10 @@ public class EntityDetailComponent {
     
     public boolean isCompound() {
         return factory.getDetail().isCompound();
+    }
+    
+    public void notifyIsCaseList() {
+        isCaseList = true;
     }
     
     public void refresh(Intent selectedIntent, TreeReference selection, int detailIndex) {
