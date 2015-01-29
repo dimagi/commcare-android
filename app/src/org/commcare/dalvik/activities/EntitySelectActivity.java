@@ -388,7 +388,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //See if we even have a long datum
         if(selectDatum.getLongDetail() != null) {
             //If so, add this. otherwise that'll be the queue to just return
-            i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
+            i.putExtra(EntityDetailComponent.DETAIL_ID, selectDatum.getLongDetail()); 
             i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getPersistentDetail());
         }
    
