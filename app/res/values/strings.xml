@@ -33,7 +33,7 @@
     <string name="logout_warning">In order to complete this action, CommCare must log out the currently logged-in app. Do you want to proceed?</string>
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>19</item>
+        <item>20</item>
     </integer-array>
     
     <string name="app_version_string">version.id.long</string>

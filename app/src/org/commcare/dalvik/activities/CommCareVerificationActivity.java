@@ -143,7 +143,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
     public void updateVerifyProgress(int done, int pending) {
         updateProgress(Localization.get("verification.progress",new String[] {""+done,""+pending}),
             DIALOG_VERIFY_PROGRESS);
-        
+        updateProgressBar(done, pending, DIALOG_VERIFY_PROGRESS);
     }
 
     /*
@@ -233,31 +233,40 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         }
         return super.onOptionsItemSelected(item);
     }
+  
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
+     * 
+     * Implementation of generateProgressDialog() for DialogController -- other methods
+     * handled entirely in CommCareActivity
+     */
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        if (taskId == DIALOG_VERIFY_PROGRESS) {
+            CustomProgressDialog dialog = CustomProgressDialog.newInstance
+                    (Localization.get("verification.title"), Localization.get("verification.checking"), taskId);
+            dialog.addProgressBar();
+            return dialog;
+        }
+        System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+                + "any valid possibilities in CommCareVerificationActivity");        
+        return null;
+    }
 
-   	@Override
-	public CustomProgressDialog generateProgressDialog(int taskId) {
-		if (taskId == DIALOG_VERIFY_PROGRESS) {
-			return CustomProgressDialog.newInstance
-					(Localization.get("verification.title"), Localization.get("verification.checking"), taskId);
-		}
-		System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
-				+ "any valid possibilities in CommCareVerificationActivity");		
-		return null;
-	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.skip_verification_button:
-			Intent i = new Intent(getIntent());
-	        setResult(RESULT_CANCELED, i);
-	        finish();
-			break;
-		case R.id.screen_multimedia_retry:
-			verifyResourceInstall();
-			break;
-		}
-		
-	}
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+        case R.id.skip_verification_button:
+            Intent i = new Intent(getIntent());
+            setResult(RESULT_CANCELED, i);
+            finish();
+            break;
+        case R.id.screen_multimedia_retry:
+            verifyResourceInstall();
+            break;
+        }
+        
+    }
     
 }

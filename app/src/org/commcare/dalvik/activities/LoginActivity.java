@@ -234,6 +234,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                             receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[] {String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_PROCESSING) {
                             receiver.updateProgress(Localization.get("sync.process.processing", new String[] {String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+                            receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
                             receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
@@ -493,6 +494,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             dialog = CustomProgressDialog.newInstance(Localization.get("sync.progress.title"),
                     Localization.get("sync.progress.starting"), taskId);
             dialog.addCancelButton();
+            dialog.addProgressBar();
             break;
         default:
             System.out.println("WARNING: taskId passed to generateProgressDialog does not match "

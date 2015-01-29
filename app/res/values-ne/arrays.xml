@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array
+        name="nepali_months">
+        <item>बैशाख</item>
+        <item>जेष्ठ</item>
+        <item>आषाढ</item>
+        <item>श्रावण</item>
+        <item>भाद्र</item>
+        <item>आश्विन</item>
+        <item>कार्तिक</item>
+        <item>मार्ग</item>
+        <item>पौष</item>
+        <item>माघ</item>
+        <item>फाल्गुन</item>
+        <item>चैत्र</item>
+    </string-array>
+</resources>

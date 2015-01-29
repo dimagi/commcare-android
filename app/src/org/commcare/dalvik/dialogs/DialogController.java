@@ -21,6 +21,9 @@ public interface DialogController {
     
     /** Update the current dialog's message to the new text **/
     void updateProgress(String updateText, int taskId);
+
+    /** Update the current dialog's progress bar **/
+    void updateProgressBar(int progress, int max, int taskId);
     
     /** Create an instance of CustomProgressDialog specific to the activity
      *  implementing this method -- this method should be implemented lower down
