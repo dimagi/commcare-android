@@ -11,14 +11,13 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
-import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.components.EntityDetailComponent;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -53,7 +52,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -109,7 +107,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     private boolean inAwesomeMode = false;
     FrameLayout rightFrame;
-    TabbedDetailView detailView;
+    private EntityDetailComponent mDetailComponent;
     
     Intent selectedIntent = null;
     
@@ -757,48 +755,28 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
     
     boolean rightFrameSetup = false;
-    NodeEntityFactory factory;
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection, getIntent());
         //this should be 100% "fragment" able
         if(!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
-            View.inflate(this, R.layout.entity_detail, rightFrame);
-            Button next = (Button)findViewById(R.id.entity_select_button);
-            next.setText(Localization.get("select.detail.confirm"));
-            next.setOnClickListener(new OnClickListener() {
-
-                public void onClick(View v) {
-                    // create intent for return and store path
-                    Intent i = new Intent(EntitySelectActivity.this.getIntent());
-                    
-                    i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-                    setResult(RESULT_OK, i);
-
-                    finish();
-                    return;
-                }
-                
-            });
             
-            if(getIntent().getBooleanExtra(EntityDetailActivity.IS_DEAD_END, false)) {
-                next.setText("Done");
-            }
+            mDetailComponent = new EntityDetailComponent(
+                    this,
+                    rightFrame,
+                    selectedIntent,
+                    selection,
+                    detailIndex,
+                    false
+            );
 
             String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
             
             Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
             prototype = entries.elementAt(0);
-            
-            detailView = new TabbedDetailView(this);
-            detailView.setRoot((ViewGroup) rightFrame.findViewById(R.id.entity_detail_tabs));
 
-            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
-            Detail detail = factory.getDetail();
-            detailView.setDetail(detail);
-
-            if (detail.isCompound()) {
+            if (mDetailComponent.isCompound()) {
                 // border around right panel doesn't look right when there are tabs
                 rightFrame.setBackgroundDrawable(null);
             }
@@ -806,7 +784,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             rightFrameSetup = true;
         }
 
-           detailView.refresh(factory.getDetail(), selection, detailIndex, false);
+        mDetailComponent.refresh(selection, detailIndex);
     }
 
     /*
