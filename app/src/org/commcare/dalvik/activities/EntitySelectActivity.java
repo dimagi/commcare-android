@@ -38,7 +38,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -73,6 +72,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
     public static final String EXTRA_IS_MAP = "is_map";
+    public static final String EXTRA_SELECTED_POSITION = "selected_position";
     
     private static final int CONFIRM_SELECT = 0;
     private static final int BARCODE_FETCH = 1;
@@ -117,6 +117,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     private DataSetObserver mListStateObserver;
     
+    private int mSelectedPosition = -1;
+    
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -130,6 +132,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
         
         if(savedInstanceState != null) {
+            mSelectedPosition = savedInstanceState.getInt(EXTRA_SELECTED_POSITION, -1);
             mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
         }
         
@@ -149,31 +152,17 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         mNoDetailMode = selectDatum.getLongDetail() == null;
         
         if(this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
-            //See if we're on a big 'ol screen.
+            //See if we're on a big 'ol screen. We can always display this with the awesome UI.
             
-            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                //If we're in landscape mode, we can display this with the awesome UI.
-                
-                //Inflate and set up the normal view for now.
-                setContentView(R.layout.screen_compound_select);
-                View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
-                inAwesomeMode = true;
-                
-                rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
-                
-                TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
-                message.setText(Localization.get("select.placeholder.message", new String[] {Localization.get("cchq.case")}));
-            } else {
-                setContentView(R.layout.entity_select_layout);
-                //So we're not in landscape mode anymore, but were before. If we had something selected, we 
-                //need to go to the detail screen instead.
-                if(oldActivity != null) {
-                    if(oldActivity.selectedIntent != null) {
-                        startActivityForResult(oldActivity.selectedIntent, CONFIRM_SELECT);
-                        startOther = true;
-                    }
-                }
-            }
+            //Inflate and set up the normal view for now.
+            setContentView(R.layout.screen_compound_select);
+            View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
+            inAwesomeMode = true;
+            
+            rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
+            
+            TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
+            message.setText(Localization.get("select.placeholder.message", new String[] {Localization.get("cchq.case")}));
         } else {
             setContentView(R.layout.entity_select_layout);
         }
@@ -240,6 +229,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 adapter.unregisterDataSetObserver(oldActivity.mListStateObserver);
                 //connect the new one
                 adapter.registerDataSetObserver(this.mListStateObserver);
+                
+                if(inAwesomeMode && mSelectedPosition >= 0) {
+                    TreeReference selection = adapter.getItem(mSelectedPosition);
+                    displayReferenceAwesome(selection, mSelectedPosition);
+                    updateSelectedItem(selection, false);
+                }
             }
         }
         //cts: disabling for non-demo purposes
@@ -333,6 +328,16 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         refreshView();    
     }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // Orientation change, save selected position
+        if (inAwesomeMode && mSelectedPosition >= 0) {
+            outState.putInt(EXTRA_SELECTED_POSITION, mSelectedPosition);
+        }
+        
+        super.onSaveInstanceState(outState);
+    }
 
     /**
      * Get form list from database and insert into view.
@@ -408,6 +413,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             triggerDetailAction();
             return;
         }
+
+        mSelectedPosition = position;
         
         TreeReference selection = adapter.getItem(position);
         if(inAwesomeMode) {
@@ -713,7 +720,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         //In landscape we want to select something now. Either the top item, or the most recently selected one
         if(inAwesomeMode) {
-            updateSelectedItem(true);
+            if (mSelectedPosition >= 0) {
+                TreeReference selection = adapter.getItem(mSelectedPosition);
+                displayReferenceAwesome(selection, mSelectedPosition);
+                updateSelectedItem(selection, false);
+            } else {
+                updateSelectedItem(true);
+            }
         }
         
         
@@ -763,6 +776,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             
             mDetailComponent = new EntityDetailComponent(
+                    asw,
                     this,
                     rightFrame,
                     selectedIntent,
@@ -784,7 +798,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             rightFrameSetup = true;
         }
 
-        mDetailComponent.refresh(selection, detailIndex);
+        mDetailComponent.refresh(selectedIntent, selection, detailIndex);
     }
 
     /*

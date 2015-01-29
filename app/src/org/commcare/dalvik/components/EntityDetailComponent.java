@@ -4,7 +4,6 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
@@ -19,6 +18,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
+/**
+ * 
+ * @author Richard Lu
+ *
+ */
 public class EntityDetailComponent {
 
     public static final String IS_DEAD_END = "eda_ide";
@@ -29,21 +33,24 @@ public class EntityDetailComponent {
     private final TabbedDetailView detailView;
     
     private final CommCareSession session;
-    private final AndroidSessionWrapper asw;
     private final NodeEntityFactory factory;
     
     private TreeReference selection;
     private int detailIndex;
     private final boolean hasDetailCalloutListener;
     
+    private Intent selectedIntent;
+    
     public EntityDetailComponent(
+            AndroidSessionWrapper asw,
             final Activity activity,
             ViewGroup root,
-            final Intent selectedIntent,
+            Intent selectedIntent,
             TreeReference selection,
             int detailIndex,
             boolean hasDetailCalloutListener) {
         
+        this.selectedIntent = selectedIntent;
         this.selection = selection;
         this.detailIndex = detailIndex;
         this.hasDetailCalloutListener = hasDetailCalloutListener;
@@ -66,7 +73,7 @@ public class EntityDetailComponent {
             public void onClick(View view) {
                 Intent i = new Intent(activity.getIntent());
                 
-                i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+                i.putExtra(SessionFrame.STATE_DATUM_VAL, EntityDetailComponent.this.selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
                 activity.setResult(Activity.RESULT_OK, i);
                 
                 activity.finish();
@@ -82,7 +89,6 @@ public class EntityDetailComponent {
         
         detailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
         
-        asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
         
         factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(DETAIL_ID)), asw.getEvaluationContext());
@@ -100,7 +106,8 @@ public class EntityDetailComponent {
         return factory.getDetail().isCompound();
     }
     
-    public void refresh(TreeReference selection, int detailIndex) {
+    public void refresh(Intent selectedIntent, TreeReference selection, int detailIndex) {
+        this.selectedIntent = selectedIntent;
         this.selection = selection;
         this.detailIndex = detailIndex;
         refresh();

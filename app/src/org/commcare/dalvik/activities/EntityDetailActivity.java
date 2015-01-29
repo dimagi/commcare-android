@@ -4,6 +4,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.components.EntityDetailComponent;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.SessionFrame;
@@ -37,8 +38,9 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     public void onCreate(Bundle savedInstanceState) {   
         
         TreeReference treeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-        
+
         mDetailComponent = new EntityDetailComponent(
+                CommCareApplication._().getCurrentSessionWrapper(),
                 this,
                 null,
                 getIntent(),
