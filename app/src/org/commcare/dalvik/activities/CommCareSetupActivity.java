@@ -1,7 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.util.ArrayList;
-
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -19,7 +17,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.android.database.SqlStorage;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
@@ -343,15 +340,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         installButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) { 
                 //If this call was not from the manager and there are already visible apps installed
-                if (!fromManager && CommCareApplication._().visibleAppsPresent()) {
-                    if (!inUpgradeMode || uiState != UiState.error) {
+                if (!fromManager && CommCareApplication._().visibleAppsPresent() && (!inUpgradeMode || uiState != UiState.error)) {
                         fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
                         setModeToExistingApplication();
-                    }
                 } else if (fromManager || resourceState == CommCareApplication.STATE_UNINSTALLED || 
                           (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode) ||
                           (resourceState == CommCareApplication.STATE_READY && !CommCareApplication._().visibleAppsPresent())) {
                     startResourceInstall();
+                } else {
+                    String message = "CommCare has entered into an error state and will restart to restore normal functionality.";
+                    CommCareApplication._().triggerHandledAppExit(getBaseContext(), message);
                 }
             }
         });
