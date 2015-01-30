@@ -106,7 +106,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private EntityLoaderTask loader;
     
     private boolean inAwesomeMode = false;
-    FrameLayout rightFrame;
+    FrameLayout secondFrame;
     private EntityDetailComponent mDetailComponent;
     
     Intent selectedIntent = null;
@@ -156,10 +156,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             
             //Inflate and set up the normal view for now.
             setContentView(R.layout.screen_compound_select);
-            View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
+            View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_first_pane));
             inAwesomeMode = true;
             
-            rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
+            secondFrame = (FrameLayout)findViewById(R.id.screen_compound_select_second_pane);
             
             TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
             message.setText(Localization.get("select.placeholder.message", new String[] {Localization.get("cchq.case")}));
@@ -768,18 +768,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 		return inAwesomeMode;
     }
     
-    boolean rightFrameSetup = false;
+    boolean secondFrameSetup = false;
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection, getIntent());
         //this should be 100% "fragment" able
-        if(!rightFrameSetup) {
+        if(!secondFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             
             mDetailComponent = new EntityDetailComponent(
                     asw,
                     this,
-                    rightFrame,
+                    secondFrame,
                     selectedIntent,
                     selection,
                     detailIndex,
@@ -797,10 +797,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
             if (mDetailComponent.isCompound()) {
                 // border around right panel doesn't look right when there are tabs
-                rightFrame.setBackgroundDrawable(null);
+                secondFrame.setBackgroundDrawable(null);
             }
 
-            rightFrameSetup = true;
+            secondFrameSetup = true;
         }
 
         mDetailComponent.refresh(selectedIntent, selection, detailIndex);
