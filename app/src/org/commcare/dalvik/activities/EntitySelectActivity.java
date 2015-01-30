@@ -230,6 +230,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 //connect the new one
                 adapter.registerDataSetObserver(this.mListStateObserver);
                 
+                // See if we changed orientation and had an item selected before
                 if(inAwesomeMode && mSelectedPosition >= 0) {
                     TreeReference selection = adapter.getItem(mSelectedPosition);
                     displayReferenceAwesome(selection, mSelectedPosition);
@@ -790,8 +791,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
             prototype = entries.elementAt(0);
             
-            // TODO: best way to check whether form is a case list?
-            if (prototype.getCommandId().endsWith("case-list")) {
+            if (isEntryCaseList(prototype)) {
                 mDetailComponent.notifyIsCaseList();
             }
 
