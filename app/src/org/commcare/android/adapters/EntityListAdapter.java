@@ -88,8 +88,6 @@ public class EntityListAdapter implements ListAdapter {
     private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
 
-    private boolean inAwesomeMode = false;
-
     public EntityListAdapter(Activity activity, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
             int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) throws SessionUnavailableException {
         this.detail = detail;
@@ -589,10 +587,6 @@ public class EntityListAdapter implements ListAdapter {
     public void notifyCurrentlyHighlighted(TreeReference chosen) {
         this.selected = chosen;
         update();
-    }
-
-    public void setAwesomeMode(boolean awesome){
-        inAwesomeMode = awesome;
     }
 
     public int getPosition(TreeReference chosen) {

@@ -35,6 +35,7 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.components.EntitySelectComponent;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -885,7 +886,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             
             i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
             if(lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
-                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
+                i.putExtra(EntitySelectComponent.EXTRA_ENTITY_KEY, lastPopped.getValue());
             }
             
             startActivityForResult(i, GET_CASE);
