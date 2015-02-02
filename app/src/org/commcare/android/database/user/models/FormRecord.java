@@ -87,19 +87,19 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * @param status
      */
     public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
-	this.instanceURI = instanceURI;
-	this.status = status;
-	this.xmlns = xmlns;
-	this.aesKey = aesKey;
-	this.uuid = uuid;
-	this.lastModified = lastModified;
-	if(lastModified == null) { lastModified = new Date(); } ;
+        this.instanceURI = instanceURI;
+        this.status = status;
+        this.xmlns = xmlns;
+        this.aesKey = aesKey;
+        this.uuid = uuid;
+        this.lastModified = lastModified;
+        if(lastModified == null) { lastModified = new Date(); } ;
     }
 
     public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, 
 	        String uuid, Date lastModified, String appId) {
-	 this(instanceURI, status, xmlns, aesKey, uuid, lastModified);
-         this.idOfOriginApp = appId;
+        this(instanceURI, status, xmlns, aesKey, uuid, lastModified);
+        this.idOfOriginApp = appId;
     }
 
     public FormRecord updateStatus(String instanceURI, String newStatus) {
@@ -118,7 +118,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public byte[] getAesKey() {
-	return aesKey;
+        return aesKey;
     }
     
     public String getStatus() {
@@ -130,11 +130,11 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
     
     public Date lastModified() {
-	return lastModified;
+        return lastModified;
     }
     
     public String getFormNamespace() {
-	return xmlns;
+        return xmlns;
     }
 
     public boolean isEncrypted(String data) {
