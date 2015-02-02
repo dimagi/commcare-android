@@ -33,29 +33,28 @@ public class ApplicationRecord extends Persisted {
     @Persisting(2)
     @MetaField(META_STATUS)
     int status;
-	@Persisting(3)
-	String uniqueId;
-	@Persisting(4)
-	String displayName;
-	@Persisting(5)
-	boolean resourcesValidated;
-	@Persisting(6)
-	boolean isArchived;
-	@Persisting(7)
-	boolean convertedFromOld;
-	@Persisting(8)
-	boolean fromOldProfileFile;
+    @Persisting(3)
+    String uniqueId;
+    @Persisting(4)
+    String displayName;
+    @Persisting(5)
+    boolean resourcesValidated;
+    @Persisting(6)
+    boolean isArchived;
+    @Persisting(7)boolean convertedFromOld;
+    @Persisting(8)
+    boolean fromOldProfileFile;
+    
+    public ApplicationRecord() {
+        
+    }
 	
-	public ApplicationRecord() {
-	    
-	}
-	
-	public ApplicationRecord(String applicationId, int status) {
-		this.applicationId = applicationId;
-		this.status = status;
-	}
-	
-	public String getApplicationId() {
+    public ApplicationRecord(String applicationId, int status) {
+        this.applicationId = applicationId;
+        this.status = status;
+    }
+    
+    public String getApplicationId() {
         return applicationId;
     }
     
@@ -72,12 +71,11 @@ public class ApplicationRecord extends Persisted {
     }
 	
 	public void setUniqueId(String id) {
-	    System.out.println("in ApplicationRecord setting uniqueId to: " + id);
-		this.uniqueId = id;
+	    this.uniqueId = id;
 	}
 	
 	public String getDisplayName() {
-		return this.displayName;
+	    return this.displayName;
 	}
 	
 	public void setDisplayName(String appName) {
@@ -85,24 +83,24 @@ public class ApplicationRecord extends Persisted {
 	}
 	
 	public void setArchiveStatus(boolean b) {
-		this.isArchived = b;
+	    this.isArchived = b;
 	}
 	
 	public boolean isArchived() {
-		return this.isArchived;
+	    return this.isArchived;
 	}
 	
 	@Override
 	public String toString() {
-		return this.displayName;
+	    return this.displayName;
 	}
 	
 	public void setResourcesStatus(boolean b) {
-		this.resourcesValidated = b;
+	    this.resourcesValidated = b;
 	}
 	
 	public boolean resourcesValidated() {
-		return this.resourcesValidated;
+	    return this.resourcesValidated;
 	}
 	
 	/* 
@@ -125,8 +123,8 @@ public class ApplicationRecord extends Persisted {
 	    this.convertedFromOld = b;
 	}
 	
-	public void setFromOldProfileFile(boolean b) {
+    public void setFromOldProfileFile(boolean b) {
 	    this.fromOldProfileFile = b;
-	}
+    }
 	
 }
