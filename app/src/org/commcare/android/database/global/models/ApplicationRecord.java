@@ -13,14 +13,14 @@ import org.commcare.android.storage.framework.Table;
  * install.
  * 
  * @author ctsims
- * 
+ *
  */
 @Table("app_record")
 public class ApplicationRecord extends Persisted {
     public static final String STORAGE_KEY = "app_record";
 
     public static final String META_STATUS = "status";
-
+    
     public static final int STATUS_UNINITIALIZED = 0;
     public static final int STATUS_INSTALLED = 1;
     /**
@@ -47,18 +47,18 @@ public class ApplicationRecord extends Persisted {
     boolean fromOldProfileFile;
 
     public ApplicationRecord() {
-
+        
     }
 
     public ApplicationRecord(String applicationId, int status) {
         this.applicationId = applicationId;
         this.status = status;
     }
-
+    
     public String getApplicationId() {
         return applicationId;
     }
-
+    
     public int getStatus() {
         return status;
     }
