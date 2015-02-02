@@ -45,11 +45,14 @@ public class ApplicationRecord extends Persisted {
     boolean convertedFromOld;
     @Persisting(8)
     boolean fromOldProfileFile;
-
+    
+    /*
+     * Deserialization only
+     */
     public ApplicationRecord() {
         
     }
-
+    
     public ApplicationRecord(String applicationId, int status) {
         this.applicationId = applicationId;
         this.status = status;
