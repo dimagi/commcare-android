@@ -41,7 +41,8 @@ public class ApplicationRecord extends Persisted {
     boolean resourcesValidated;
     @Persisting(6)
     boolean isArchived;
-    @Persisting(7)boolean convertedFromOld;
+    @Persisting(7)
+    boolean convertedFromOld;
     @Persisting(8)
     boolean fromOldProfileFile;
     
