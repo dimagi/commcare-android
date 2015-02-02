@@ -24,34 +24,34 @@ import android.net.Uri;
 public class FormRecord extends Persisted implements EncryptedModel {
     
     public static final String STORAGE_KEY = "FORMRECORDS";
-
+    
     public static final String META_INSTANCE_URI = "INSTANCE_URI";
     public static final String META_STATUS = "STATUS";
     public static final String META_UUID = "UUID";
     public static final String META_XMLNS = "XMLNS";
     public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
-
+    
     /** This form record is a stub that hasn't actually had data saved for it yet */
     public static final String STATUS_UNSTARTED = "unstarted";
-
+    
     /** This form has been saved, but has not yet been marked as completed and ready for processing */
     public static final String STATUS_INCOMPLETE = "incomplete";
-
+    
     /** User entry on this form has finished, but the form has not been processed yet */
     public static final String STATUS_COMPLETE = "complete";
-
+    
     /** The form has been processed and is ready to be sent to the server **/
     public static final String STATUS_UNSENT = "unsent";
-
+    
     /** This form has been fully processed and is being retained for viewing in the future */
     public static final String STATUS_SAVED = "saved";
-
+    
     /** This form was complete, but something blocked it from processing and it's in a damaged state */
     public static final String STATUS_LIMBO = "limbo";
-
+    
     /** This form has been downloaded, but not processed for metadata */
     public static final String STATUS_UNINDEXED = "unindexed";
-
+    
     @Persisting(1)
     @MetaField(META_XMLNS)
     private String xmlns;
@@ -71,12 +71,12 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private Date lastModified;
     @Persisting(7)
     private String idOfOriginApp;
-
+    
     //Placeholder
     private Hashtable<String, String> metadata = null;
-
+    
     public FormRecord() { }
-
+    
     /**
      * Creates a record of a form entry with the provided data. Note that none
      * of the parameters can be null...
@@ -87,47 +87,46 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * @param status
      */
     public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
-	    this.instanceURI = instanceURI;
-	    this.status = status;
-	    this.xmlns = xmlns;
-	    this.aesKey = aesKey;
-
-	    this.uuid = uuid;
-	    this.lastModified = lastModified;
-	    if(lastModified == null) { lastModified = new Date(); } ;
+	this.instanceURI = instanceURI;
+        this.status = status;
+	this.xmlns = xmlns;
+	this.aesKey = aesKey;
+	this.uuid = uuid;
+	this.lastModified = lastModified;
+	if(lastModified == null) { lastModified = new Date(); } ;
     }
 
     public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, 
-		    String uuid, Date lastModified, String appId) {
-	    this(instanceURI, status, xmlns, aesKey, uuid, lastModified);
-	    this.idOfOriginApp = appId;
+	        String uuid, Date lastModified, String appId) {
+	this(instanceURI, status, xmlns, aesKey, uuid, lastModified);
+        this.idOfOriginApp = appId;
     }
 
     public FormRecord updateStatus(String instanceURI, String newStatus) {
-	    FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified, idOfOriginApp);
-	    fr.recordId = this.recordId;
-	    return fr;
+        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified, idOfOriginApp);
+        fr.recordId = this.recordId;
+        return fr;
     }
 
     public Uri getInstanceURI() {
-	    if("".equals(instanceURI)) { return null; }
-	    return Uri.parse(instanceURI);
+        if("".equals(instanceURI)) { return null; }
+        return Uri.parse(instanceURI);
     }
 
     public String getAppId() {
-	    return idOfOriginApp;
+        return idOfOriginApp;
     }
 
     public byte[] getAesKey() {
-	    return aesKey;
+	return aesKey;
     }
 
     public String getStatus() {
-	    return status;
+        return status;
     }
 
     public String getInstanceID() {
-	    return uuid;
+        return uuid;
     }
 	
     public Date lastModified() {
