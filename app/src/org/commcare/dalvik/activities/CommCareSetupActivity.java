@@ -158,7 +158,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("ONCREATE in CCSetupActivity");
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
         this.fromManager = this.getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
@@ -390,7 +389,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onResume() {
         super.onResume();
-        System.out.println("ONRESUME called in CCSetupActivity");
         // If clicking the regular app icon brought us to CommCareSetupActivity
         // (because that's where we were last time the app was up), but there are now
         // 1 or more available apps, we want to redirect to CCHomeActivity
@@ -866,7 +864,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void done(boolean requireRefresh) {
         //TODO: We might have gotten here due to being called from the outside, in which
         //case we should manually start up the home activity
-        System.out.println("DONE CALLED in setupactivity");
         if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);

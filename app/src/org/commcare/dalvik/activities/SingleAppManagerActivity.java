@@ -55,11 +55,9 @@ public class SingleAppManagerActivity extends Activity {
         //Change text for archive button depending on archive status
         Button archiveButton = (Button) findViewById(R.id.archive_button);
         if (isArchived) {
-            System.out.println("Setting button to 'Unarchive'");
             archiveButton.setText("Unarchive");
         } else {
             archiveButton.setText("Archive");
-            System.out.println("Setting button to 'Archive'");
         }
     }
     
@@ -70,7 +68,6 @@ public class SingleAppManagerActivity extends Activity {
     }
     
     private void refresh() {    
-        System.out.println("REFRESH in SingleAppManager");
         //refresh old profile warning 
         TextView warning = (TextView) findViewById(R.id.profile_warning);
         if (appRecord.fromOldProfileFile()) {
@@ -123,7 +120,6 @@ public class SingleAppManagerActivity extends Activity {
             }
             break;
         case CommCareHomeActivity.RESTART_APP:
-            System.out.println("RETURNING TO SingleAppManagerActivity from app reboot");
             if (dialog != null) {
                 dialog.dismiss();
             }
@@ -158,14 +154,11 @@ public class SingleAppManagerActivity extends Activity {
     /** If the app is not archived, sets it to archived (i.e. still installed but 
      * not visible to users); If it is archived, sets it to unarchived **/
     public void toggleArchived(View v) {
-        System.out.println("toggleArchiveSelected called");
         appRecord.setArchiveStatus(!appRecord.isArchived());
         Button b = (Button) v;
         if (appRecord.isArchived()) {
-            System.out.println("AppManagerActivity setting button to 'Unarchive'");
             b.setText("Unarchive");
         } else {
-            System.out.println("AppManagerAdapter setting button to 'Archive'");
             b.setText("Archive");
         }
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);

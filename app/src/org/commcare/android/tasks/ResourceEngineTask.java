@@ -183,9 +183,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 platform.init(profileRef, global, false);
                 
                 String newAppId = app.getUniqueId();
-                System.out.println("id of new app: " + newAppId);
                 SqlStorage<ApplicationRecord> allApps = CommCareApplication._().getInstalledAppRecords();
-                System.out.println("num apps installed not including this one: " + allApps.getNumRecords());
                 for (ApplicationRecord r : allApps) {
                     if (r.getUniqueId().equals(newAppId)) {
                         return ResourceEngineOutcomes.StatusDuplicateApp;

@@ -1138,13 +1138,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("ONRESUME called in CCHomeActivity");
         platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
         dispatchHomeScreen();
     }
     
     private void dispatchHomeScreen() {
-        System.out.println("dispatchHomeScreen called");
         try {
             //First make sure nothing catastrophic has happened
             if (CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED || 
@@ -1219,12 +1217,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void loginDecisionProcess() {
-        System.out.println("loginDecisionProcess called");
         // 1) If there is exactly one visible app and its missing its MM, 
         // redirect to MM verification (bc assuming not using multiple apps)
         if (CommCareApplication._().getVisibleAppRecords().size() == 1 && 
                 CommCareApplication._().getReadyAppRecords().size() == 0) {
-            System.out.println("LAUNCHING VerificationActivity from loginDecisionProcess");
             ApplicationRecord r = CommCareApplication._().getVisibleAppRecords().get(0);
             CommCareApplication._().initializeAppResources(new CommCareApp(r));
             Intent i = new Intent(this, CommCareVerificationActivity.class);
@@ -1244,7 +1240,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void returnToLogin() {
-        System.out.println("returnToLogin called");
         returnToLogin(Localization.get("app.workflow.login.lost"));
     }
     
