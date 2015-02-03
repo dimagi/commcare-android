@@ -259,6 +259,7 @@ public class CommCareApplication extends Application {
         return listener;
     }
     
+    
     public int versionCode() {
         try {
             PackageManager pm = this.getPackageManager();
@@ -356,10 +357,10 @@ public class CommCareApplication extends Application {
     }
     
     private int initializeAppResources() {
-		//There may now be multiple of these, bc of multiple apps support.
-		//For now, onCreate of CommCareApplication is still picking the first one arbitrarily,
-		//may want to change this        
-    	for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
+        //There may now be multiple of these, bc of multiple apps support.
+        //For now, onCreate of CommCareApplication is still picking the first one arbitrarily,
+        //may want to change this        
+        for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
             if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
                 //We have an app record ready to go
                 return initializeAppResources(new CommCareApp(record));
@@ -370,17 +371,7 @@ public class CommCareApplication extends Application {
     
 	public SqlStorage<ApplicationRecord> getInstalledAppRecords() {
 		return getGlobalStorage(ApplicationRecord.class);
-	} 
-	
-	//Currently unused
-	/*public ApplicationRecord getRecordById(String uniqueId) {
-		for (ApplicationRecord r : getInstalledAppRecords()) {
-			if (r.getUniqueId().equals(uniqueId)) {
-				return r;
-			}
-		}
-		return null;
-	}*/
+	}
 	
 	/** Return all ApplicationRecords that are installed and NOT archived **/
 	public ArrayList<ApplicationRecord> getVisibleAppRecords() {

@@ -261,14 +261,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
      * (non-Javadoc)
      * 
      * @see android.app.Activity#onResume()
-    */
+     */
     @Override
     protected void onResume() {
         super.onResume();
         
         try {
             //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
-            if(CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
+            if (CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
                 Intent i = new Intent();
                 i.putExtra(ALREADY_LOGGED_IN, true);
                 setResult(RESULT_OK, i);
@@ -277,9 +277,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 finish();
                 return;
             }
-        } catch(SessionUnavailableException sue) {
-                populateAvailableAppsSpinner();
-                //Nothing, we're logging in here anyway
+        } catch (SessionUnavailableException sue) {
+            populateAvailableAppsSpinner();
         }
         
         //If we arrived at LoginActivity from clicking the regular app icon, and there

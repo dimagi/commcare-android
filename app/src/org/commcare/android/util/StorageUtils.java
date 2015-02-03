@@ -27,8 +27,8 @@ public class StorageUtils {
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
         //TODO: This could all be one big sql query instead of doing it in code
         //Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(new String[] { FormRecord.META_STATUS }, new Object[] { FormRecord.STATUS_UNSENT });
-        ids.addAll(storage.getIDsForValues(new String[] { FormRecord.META_STATUS }, new Object[] { FormRecord.STATUS_COMPLETE }));
+        Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
+        ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
 
         if (ids.size() == 0) {
             return new FormRecord[0];
@@ -41,13 +41,11 @@ public class StorageUtils {
         for (int id : ids) {
             //Last modified for a unsent and complete forms is the formEnd date that was captured and locked when form
             //entry, so it's a safe cannonical ordering
-            String dateValue = storage.getMetaDataFieldForRecord(id,
-                    FormRecord.META_LAST_MODIFIED);
+            String dateValue = storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
             try {
                 idToDateIndex.put(id, Date.parse(dateValue));
             } catch (IllegalArgumentException iae) {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                        "Invalid date in last modified value: " + dateValue);
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
                 //For some reason this seems to be crashing on some devices... go with the next best ordering for now
                 idToDateIndex.put(id, Long.valueOf(id));
             }
