@@ -273,50 +273,50 @@ public class CommCareApp {
         //Install was botched, clear anything left lying around....
         global.clear();
     }
-
-	public void writeInstalled() {
-	    record.setStatus(ApplicationRecord.STATUS_INSTALLED);
-	    record.setUniqueId(getUniqueId());
-	    record.setDisplayName(getDisplayName());
-	    record.setResourcesStatus(areResourcesValidated());
+    
+    public void writeInstalled() {
+        record.setStatus(ApplicationRecord.STATUS_INSTALLED);
+        record.setUniqueId(getUniqueId());
+        record.setDisplayName(getDisplayName());
+        record.setResourcesStatus(areResourcesValidated());
         record.setFromOldProfileFile(checkFromOldProfile());
         try {
-		    CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
-		} catch (StorageFullException e) {
-		    throw new RuntimeException(e);
-		}
-	}
-	
-	public String getPreferencesFilename() {
-	    return record.getApplicationId();
-	}
-	
-	public boolean checkFromOldProfile() {
-	    return getCommCarePlatform().getCurrentProfile().fromOld();
-	}
-	
-	/*
-	 * Return the uniqueId assigned to this app from HQ
-	 */
-	public String getUniqueId() {
-	    //If this record has already been assigned the unique id, pull it from there
-	    String id = record.getUniqueId();
-	    if (id == null || id.equals("")) {
-	        //Otherwise, trying pulling it from the profile file
-	        id =  getCommCarePlatform().getCurrentProfile().getUniqueId();
-	    } 
-	    return id;
-	}
-	
-	/*
-	 * Return the app name assigned to this app from HQ
-	 */
-	public String getDisplayName() {
-	    return Localization.get("app.display.name");
-	}
-	
-	public ApplicationRecord getAppRecord() {
-	    return this.record;
-	}
-
+            CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+        } catch (StorageFullException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public String getPreferencesFilename() {
+        return record.getApplicationId();
+    }
+    
+    public boolean checkFromOldProfile() {
+        return getCommCarePlatform().getCurrentProfile().fromOld();
+    }
+    
+    /*
+     * Return the uniqueId assigned to this app from HQ
+     */
+    public String getUniqueId() {
+        //If this record has already been assigned the unique id, pull it from there
+        String id = record.getUniqueId();
+        if (id == null || id.equals("")) {
+            //Otherwise, trying pulling it from the profile file
+            id =  getCommCarePlatform().getCurrentProfile().getUniqueId();
+        }
+        return id;
+    }
+    
+    /*
+     * Return the app name assigned to this app from HQ
+     */
+    public String getDisplayName() {
+        return Localization.get("app.display.name");
+    }
+    
+    public ApplicationRecord getAppRecord() {
+        return this.record;
+    }
+    
 }
