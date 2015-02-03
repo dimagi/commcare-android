@@ -3,7 +3,7 @@ from PIL import Image
 import numpy
 from utils import ensure_dir
 
-DRAWABLES = 'drawables'
+DRAWABLE = 'drawable'
 
 
 class ImageTypeException(Exception):
@@ -101,7 +101,7 @@ class DPIManager(object):
         src_img = Image.frombytes("RGBA", src_img.size, premult.tobytes())
 
         # save original image to drawables
-        default_dir = os.path.join(self.target_folder, DRAWABLES)
+        default_dir = os.path.join(self.target_folder, DRAWABLE)
         ensure_dir(default_dir)
         default_path = os.path.join(default_dir, self.spec.filename)
         src_img.save(default_path)
@@ -118,7 +118,7 @@ class DPIManager(object):
                 'to_dims': "%d x %d" % (dpi_width, dpi_height),
             }
             dpi_dir = os.path.join(
-                self.target_folder, '%s-%s' % (DRAWABLES, dpi)
+                self.target_folder, '%s-%s' % (DRAWABLE, dpi)
             )
             ensure_dir(dpi_dir)
             dpi_path = os.path.join(dpi_dir, self.spec.filename)
@@ -129,7 +129,7 @@ class DPIManager(object):
 
         for label, size in self.spec.other_scaling.items():
             scale_dir = os.path.join(
-                self.target_folder, '%s-%s' % (DRAWABLES, label)
+                self.target_folder, '%s-%s' % (DRAWABLE, label)
             )
             ensure_dir(scale_dir)
             scale_path = os.path.join(scale_dir, self.spec.filename)
