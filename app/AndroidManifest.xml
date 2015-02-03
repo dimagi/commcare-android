@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.ACESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
 
-    
     <application
         android:name=".application.CommCareApplication"
         android:icon="@drawable/icon"
