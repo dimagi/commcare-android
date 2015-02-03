@@ -26,23 +26,22 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class CommCareVerificationActivity extends CommCareActivity<CommCareVerificationActivity> implements VerificationTaskListener, OnClickListener {
-	
-	TextView missingMediaPrompt;
-	private static final int MENU_UNZIP = Menu.FIRST;
-	
-	public static final String KEY_REQUIRE_REFRESH = "require_referesh";
-	
-	Button retryButton;
-	Button skipButton;
-	
-	VerificationTask task;
-	
-	public static int RESULT_RETRY = 2;
-	public static int RESULT_IGNORE = 3;
-	
-	public static int DIALOG_VERIFY_PROGRESS = 0;
-	
-	public void onCreate(Bundle savedInstanceState){
+    TextView missingMediaPrompt;
+    private static final int MENU_UNZIP = Menu.FIRST;
+    
+    public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+    
+    Button retryButton;
+    Button skipButton;
+    
+    VerificationTask task;
+    
+    public static int RESULT_RETRY = 2;
+    public static int RESULT_IGNORE = 3;
+    
+    public static int DIALOG_VERIFY_PROGRESS = 0;
+   	
+    public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
         
@@ -54,9 +53,9 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         boolean fromManager = this.getIntent().
         		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (fromManager) {
-        	skipButton = (Button)findViewById(R.id.skip_verification_button);
-        	skipButton.setVisibility(View.VISIBLE);
-        	skipButton.setOnClickListener(this);
+            skipButton = (Button)findViewById(R.id.skip_verification_button);
+            skipButton.setVisibility(View.VISIBLE);
+            skipButton.setOnClickListener(this);
         }
         
         missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
@@ -233,7 +232,8 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         }
         return super.onOptionsItemSelected(item);
     }
-  
+    
+    
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
