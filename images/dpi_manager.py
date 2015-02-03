@@ -48,7 +48,7 @@ class ImageSpec(object):
     def __init__(self, src):
         self.filename = src['filename']
         self.source_dpi = src['source_dpi']
-        self.other_scaling = src.get('other_scaling', [])
+        self.other_scaling = src.get('other_scaling', {})
         self.excluded_dpis = src.get('excluded_dpis', [])
 
         # Determine Image Type by filename
