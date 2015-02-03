@@ -21,6 +21,17 @@ def main(args):
 
     dir_target = DIR_TEST if test else DIR_BUILD
     target_path = os.path.join(os.path.dirname(__file__), dir_target)
+
+    if not test:
+        # confirm
+        confirm = raw_input("""
+            Are you sure you want to build image resources now? This will
+            overwrite any existing resources with similar names as the source
+            images in %s. Type 'yes' to continue.""" % target_path)
+        if not confirm == 'yes':
+            print "Aborting building resources."
+            return
+
     make_drawables(target_path)
 
 
