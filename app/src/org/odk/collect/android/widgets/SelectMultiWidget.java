@@ -16,20 +16,18 @@ package org.odk.collect.android.widgets;
 
 import java.util.Vector;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.R;
-import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.views.media.MediaLayout;
 
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
