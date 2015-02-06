@@ -88,6 +88,9 @@ public class SelectMultiWidget extends QuestionWidget {
 
                 }
                 
+                //Note: This gets fired during setup as well, so this listener should only
+                //be added after everything about the checkbox is set up
+                
                 // when clicked, check for readonly before toggling
                 c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     /*
@@ -106,7 +109,7 @@ public class SelectMultiWidget extends QuestionWidget {
                         widgetEntryChanged();
                     }
                 });
-                
+
                 mCheckboxes.add(c);
 
                 String audioURI = null;
