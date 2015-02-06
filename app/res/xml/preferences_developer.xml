@@ -29,7 +29,7 @@ the License.
 <ListPreference 
     android:key="cc-grid-menus" 
     android:enabled="true" 
-    android:title="Grid Menus Enabld" 
+    android:title="Grid Menus Enabled" 
     android:entryValues="@array/pref_enabled_vals" 
     android:entries="@array/pref_enabled_lables"/>
 <ListPreference 
