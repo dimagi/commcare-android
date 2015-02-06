@@ -141,11 +141,11 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         //Figure out if we share hint text between questions
         String hintText = null;
         if(questionPrompts.length > 1) {
-            hintText = questionPrompts[0].getHelpText();
+            hintText = questionPrompts[0].getHintText();
             for (FormEntryPrompt p : questionPrompts) {
                 //If something doesn't have hint text at all,
                 //bail
-                String curHintText = p.getHelpText();
+                String curHintText = p.getHintText();
                 //Otherwise see if it matches
                 if(curHintText == null || !curHintText.equals(hintText)) {
                     //If not, we can't do this trick
