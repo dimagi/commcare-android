@@ -16,18 +16,20 @@ package org.odk.collect.android.widgets;
 
 import java.util.Vector;
 
-import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.R;
+import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.views.media.MediaLayout;
 
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -70,25 +72,6 @@ public class SelectMultiWidget extends QuestionWidget {
                 // no checkbox group so id by answer + offset
                 final CheckBox c = new CheckBox(getContext());
 
-                // when clicked, check for readonly before toggling
-                c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                	/*
-                	 * (non-Javadoc)
-                	 * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
-                	 */
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (!mCheckboxInit && mPrompt.isReadOnly()) {
-                            if (buttonView.isChecked()) {
-                                buttonView.setChecked(false);
-                            } else {
-                                buttonView.setChecked(true);
-                            }
-                        }
-                        widgetEntryChanged();
-                    }
-                });
-
                 c.setId(buttonIdBase + i);
                 c.setText(prompt.getSelectChoiceText(mItems.get(i)));
                 c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
@@ -106,6 +89,29 @@ public class SelectMultiWidget extends QuestionWidget {
                     }
 
                 }
+                
+                //Note: This gets fired during setup as well, so this listener should only
+                //be added after everything about the checkbox is set up
+                
+                // when clicked, check for readonly before toggling
+                c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    /*
+                     * (non-Javadoc)
+                     * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
+                     */
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (!mCheckboxInit && mPrompt.isReadOnly()) {
+                            if (buttonView.isChecked()) {
+                                buttonView.setChecked(false);
+                            } else {
+                                buttonView.setChecked(true);
+                            }
+                        }
+                        widgetEntryChanged();
+                    }
+                });
+
                 mCheckboxes.add(c);
 
                 String audioURI = null;
