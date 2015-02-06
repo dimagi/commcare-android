@@ -21,9 +21,15 @@ the License.
     android:entryValues="@array/pref_enabled_vals" 
     android:entries="@array/pref_enabled_lables"/>
 <ListPreference 
+    android:key="cc-action-nav-enabled" 
+    android:enabled="true" 
+    android:title="Action Bar Enabled" 
+    android:entryValues="@array/pref_enabled_vals" 
+    android:entries="@array/pref_enabled_lables"/>
+<ListPreference 
     android:key="cc-grid-menus" 
     android:enabled="true" 
-    android:title="Grid Menus Enables" 
+    android:title="Grid Menus Enabld" 
     android:entryValues="@array/pref_enabled_vals" 
     android:entries="@array/pref_enabled_lables"/>
 <ListPreference 
