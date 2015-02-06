@@ -6,6 +6,7 @@ import java.io.File;
 import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.QRCodeEncoder;
 import org.odk.collect.android.views.ResizingImageView;
@@ -119,6 +120,8 @@ public class MediaLayout extends RelativeLayout {
                     Intent i = new Intent("android.intent.action.VIEW");
                     i.setDataAndType(Uri.fromFile(videoFile), "video/*");
                     try {
+                        String uri = Uri.fromFile(videoFile).getPath().replaceAll("^.*\\/", "");
+                        Logger.log("media", "start " + uri);
                         ((Activity) getContext()).startActivity(i);
                     } catch (ActivityNotFoundException e) {
                         Toast.makeText(getContext(),
@@ -297,8 +300,7 @@ public class MediaLayout extends RelativeLayout {
         
         
     }
-
-
+    
     /**
      * This adds a divider at the bottom of this layout. Used to separate fields in lists.
      * 
