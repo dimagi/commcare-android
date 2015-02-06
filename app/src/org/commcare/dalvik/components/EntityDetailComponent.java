@@ -41,7 +41,7 @@ public class EntityDetailComponent {
     
     private Intent selectedIntent;
     
-    private boolean isCaseList;
+    private boolean ignoreResult;
     
     public EntityDetailComponent(
             AndroidSessionWrapper asw,
@@ -73,8 +73,7 @@ public class EntityDetailComponent {
         buttonNext.setOnClickListener(new OnClickListener() {
             
             public void onClick(View view) {
-                // Do not try to return a result if it's a case list
-                if (!isCaseList) {
+                if (!ignoreResult) {
                     Intent i = new Intent(activity.getIntent());
                     
                     i.putExtra(SessionFrame.STATE_DATUM_VAL, EntityDetailComponent.this.selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
@@ -111,8 +110,8 @@ public class EntityDetailComponent {
         return factory.getDetail().isCompound();
     }
     
-    public void notifyIsCaseList() {
-        isCaseList = true;
+    public void notifyNoResult() {
+        ignoreResult = true;
     }
     
     public void refresh(Intent selectedIntent, TreeReference selection, int detailIndex) {

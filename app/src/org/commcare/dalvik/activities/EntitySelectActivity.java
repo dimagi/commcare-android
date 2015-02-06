@@ -792,7 +792,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             prototype = entries.elementAt(0);
             
             if (isEntryCaseList(prototype)) {
-                mDetailComponent.notifyIsCaseList();
+                mDetailComponent.notifyNoResult();
             }
 
             if (mDetailComponent.isCompound()) {
