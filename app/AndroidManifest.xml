@@ -48,12 +48,12 @@
             android:name=".provider.CaseDataContentProvider"
             android:authorities="org.commcare.dalvik.case"
             android:enabled="true"
-            android:readPermission="org.commcare.dalvik.provider.read.content" />
+            android:readPermission="org.commcare.dalvik.provider.cases.read" />
         <provider
             android:name=".provider.FixtureDataContentProvider"
             android:authorities="org.commcare.dalvik.fixture"
             android:enabled="true"
-            android:readPermission="org.commcare.dalvik.provider.read.content" />
+            android:readPermission="org.commcare.dalvik.provider.cases.read" />
 
         <activity android:name=".preferences.CommCarePreferences" >
         </activity>
