@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:weightSum="1" >
+
+    <FrameLayout
+        android:id="@+id/screen_compound_select_first_pane"
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5" >
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/screen_compound_select_second_pane"
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:background="@drawable/background_compound_detail" >
+
+        <TextView
+            android:id="@+id/screen_compound_select_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_margin="60dp"
+            android:background="@drawable/border_dashed_edges"
+            android:gravity="center_vertical|center_horizontal"
+            android:paddingBottom="30dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="30dp"
+            android:text="Please select a case"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </FrameLayout>
+
+</LinearLayout>

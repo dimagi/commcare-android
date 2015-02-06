@@ -11,6 +11,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
@@ -50,6 +51,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";
     public final static String KEY_DIALOG_FRAG = "dialog_fragment";
+    
+    /**
+     * Utility method to determine whether the given entry is a case
+     * list rather than a form.
+     * 
+     * @param entry
+     * @return
+     */
+    public static boolean isEntryCaseList(Entry entry) {
+        return entry.getCommandId().endsWith("case-list");
+    }
 
     StateFragment stateHolder;
     private boolean firstRun = true;
