@@ -65,6 +65,7 @@
                     android:src="@+drawable/backup" />
 
                 <TextView
+                    android:id="@+id/screen_form_entry_backup_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="left"
@@ -87,6 +88,7 @@
                     android:src="@+drawable/advance" />
 
                 <TextView
+                    android:id="@+id/screen_form_entry_advance_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="right"

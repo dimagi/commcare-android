@@ -1376,10 +1376,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 View startView = View.inflate(this, R.layout.form_entry_start, null);
                 setTitle(getHeaderString());
+                
                 ((TextView) startView.findViewById(R.id.description)).setText(Localization.get("odk_enter_data_description", mFormController.getFormTitle()));
                 
                 ((CheckBox) startView.findViewById(R.id.screen_form_entry_start_cbx_dismiss)).setText(Localization.get("odk_form_entry_start_hide"));
                 
+                ((TextView) startView.findViewById(R.id.screen_form_entry_advance_text)).setText(Localization.get("odk_advance"));
+                
+                ((TextView) startView.findViewById(R.id.screen_form_entry_backup_text)).setText(Localization.get("odk_backup"));
 
                 Drawable image = null;
                 String[] projection = {
