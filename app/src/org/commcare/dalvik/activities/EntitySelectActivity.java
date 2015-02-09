@@ -7,7 +7,7 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
-import org.coprintlnmmcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
