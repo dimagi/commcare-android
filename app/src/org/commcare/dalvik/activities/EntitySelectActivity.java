@@ -7,7 +7,7 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.framework.CommCareActivity;
+import org.coprintlnmmcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -862,12 +862,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         synchronized(timerLock) {
             if(myTimer == null) {
                 myTimer = new Timer();
-                System.out.println("Starting timer");
                 myTimer.schedule(new TimerTask() {
 
                     @Override
                     public void run() {
-                        System.out.println("Timer Fired!");
                             runOnUiThread( new Runnable() {
                                 @Override
                                 public void run() {
@@ -886,7 +884,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private void stopTimer() {
         synchronized(timerLock) {
             if(myTimer != null) {
-                System.out.println("Stopping Timer");
                 myTimer.cancel();
                 myTimer = null;
                 cancelled = true;
