@@ -26,6 +26,7 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.TypedValue;
@@ -330,6 +331,8 @@ public abstract class QuestionWidget extends LinearLayout {
      * TextView to fit the rest of the space, then the image if applicable.
      */
     protected void addQuestionText(final FormEntryPrompt p) {
+        String markdownText = p.getMarkdownText();
+        
         String imageURI = p.getImageText();
         String audioURI = p.getAudioText();
         String videoURI = p.getSpecialFormQuestionText("video");
@@ -340,11 +343,21 @@ public abstract class QuestionWidget extends LinearLayout {
 
         // Add the text view. Textview always exists, regardless of whether there's text.
         mQuestionText = new TextView(getContext());
-        mQuestionText.setText(MarkupUtil.styleSpannable(getContext(), p.getLongText()));
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
-        mQuestionText.setTypeface(null, Typeface.BOLD);
-        mQuestionText.setPadding(0, 0, 0, 7);
         mQuestionText.setId(38475483); // assign random id
+        
+        // if we have markdown, use that. 
+        if(markdownText != null){
+            mQuestionText.setText(MarkupUtil.styleSpannable(getContext(), markdownText));
+            mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
+        } else {
+            mQuestionText.setText(p.getLongText());
+            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+            mQuestionText.setTypeface(null, Typeface.BOLD);
+            mQuestionText.setPadding(0, 0, 0, 7);
+        }
+        
+        // Wrap to the size of the parent view
+        mQuestionText.setHorizontallyScrolling(false);
 
         if(p.getLongText()!= null){
             if(p.getLongText().contains("\u260E")){
@@ -356,8 +369,6 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             }
         }
-        // Wrap to the size of the parent view
-        mQuestionText.setHorizontallyScrolling(false);
 
         if (p.getLongText() == null) {
             mQuestionText.setVisibility(GONE);

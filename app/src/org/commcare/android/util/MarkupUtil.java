@@ -29,7 +29,7 @@ public class MarkupUtil {
 
         if(DeveloperPreferences.isMarkdownEnabled()){
             
-                return new SpannableString(generateMarkdown(c, message));
+            return new SpannableString(generateMarkdown(c, message));
         }
 
         return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
@@ -110,7 +110,7 @@ public class MarkupUtil {
 
     public static String convertNewlines(String input){
         
-        return input.replace("%p", "#");
+        return input.replace("%n", System.getProperty("line.separator"));
     }
     
     /*
@@ -119,7 +119,7 @@ public class MarkupUtil {
 
     public static String convertPoundSigns(String input){
         
-        return input.replace("%n", System.getProperty("line.separator"));
+        return input.replace("%p", "#");
     }
 
     /*
