@@ -25,7 +25,6 @@ import java.util.Set;
 
 import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -64,7 +63,6 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.TimeWidget;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -583,10 +581,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (resultCode == RESULT_CANCELED) {
+            
             if(requestCode == HIERARCHY_ACTIVITY_FIRST_START) {
                 //they pressed 'back' on the first heirarchy screen. we should assume they want to
                 //back out of form entry all together
                 finishReturnInstance(false);
+            } else if(requestCode == INTENT_CALLOUT){
+                processIntentResponse(intent, true);
             }
             
             // request was canceled, so do nothing
@@ -712,7 +713,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
     
-    private void processIntentResponse(Intent response) {
+    private void processIntentResponse(Intent response){
+        processIntentResponse(response, false);
+    }
+    
+    private void processIntentResponse(Intent response, boolean cancelled) {
+        
+        // keep track of whether we should auto advance
+        boolean advance = false;
+        boolean quick = false;
+        
         //We need to go grab our intent callout object to process the results here
         
         IntentWidget bestMatch = null;
@@ -734,11 +744,22 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //get the original intent callout
             IntentCallout ic = bestMatch.getIntentCallout();
             
+            quick = ic.isQuickAppearance();
+            
             //And process it 
-            ic.processResponse(response, (ODKView)mCurrentView, mFormController.getInstance(), new File(destination));
+            advance = ic.processResponse(response, (ODKView)mCurrentView, mFormController.getInstance(), new File(destination));
+            
+            ic.setCancelled(cancelled);
+            
         }
         
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+        
+        // auto advance if we got a good result and are in quick mode
+        if(advance && quick){
+            showNextView();
+        }
+        
     }
 
 
