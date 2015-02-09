@@ -32,4 +32,10 @@ the License.
 	android:title="Navigation UI" 
 	android:entryValues="@array/pref_enabled_vals" 
 	android:entries="@array/pref_enabled_lables"/>
+<ListPreference 
+	android:key="cc-list-refresh" 
+	android:enabled="true" 
+	android:title="Entity List Screen Auto-Refresh" 
+	android:entryValues="@array/pref_enabled_vals" 
+	android:entries="@array/pref_enabled_lables"/>
 </PreferenceScreen>

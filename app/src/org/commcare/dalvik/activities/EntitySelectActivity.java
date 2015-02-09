@@ -2,10 +2,12 @@ package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.framework.CommCareActivity;
+import org.coprintlnmmcare.android.framework.CommCareActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -19,6 +21,7 @@ import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -367,11 +370,30 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 theloader.attachListener(this);
                 
                 theloader.execute(selectDatum.getNodeset());
+            } else {
+                startTimer();
             }
+            
         } catch(SessionUnavailableException sue) {
             //TODO: login and return
         }
     }
+    
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopTimer();
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopTimer();
+    }
+    
+
+    
 
     protected Intent getDetailIntent(TreeReference contextRef, Intent i) {
         //Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
@@ -718,7 +740,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             updateSelectedItem(true);
         }
         
-        
+        this.startTimer();        
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -818,5 +840,55 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         displayException(e);
     }
 
+    //Below is helper code for the Refresh Feature. 
+    //this is a dev feature and should get restructured before release in prod.
+    //If the devloper setting is turned off this code should do nothing.
+    
+    private void triggerRebuild() {
+        if(loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            theloader.attachListener(this);
+            
+            theloader.execute(selectDatum.getNodeset());
+        }
+    }
+    
+    private Timer myTimer;
+    private Object timerLock = new Object();
+    boolean cancelled;
+    
+    private void startTimer() {
+        if(!DeveloperPreferences.isListRefreshEnabled()) { return; }
+        synchronized(timerLock) {
+            if(myTimer == null) {
+                myTimer = new Timer();
+                myTimer.schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+                            runOnUiThread( new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(!cancelled) {
+                                        triggerRebuild();
+                                    }
+                                }
+                            });
+                        }
+                }, 15*1000, 15 * 1000);
+                cancelled = false;
+            }
+        }
+    }
+    
+    private void stopTimer() {
+        synchronized(timerLock) {
+            if(myTimer != null) {
+                myTimer.cancel();
+                myTimer = null;
+                cancelled = true;
+            }
+        }
+    }
 
 }
