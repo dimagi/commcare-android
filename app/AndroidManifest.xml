@@ -464,7 +464,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <permission
-        android:name="org.commcare.dalvik.provider.read.content"
+        android:name="org.commcare.dalvik.provider.cases.read"
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
         android:protectionLevel="dangerous" >
