@@ -21,18 +21,14 @@ public class MarkupUtil {
      */
 
     public static Spannable styleSpannable(Context c, String message){
-        
+
         if(DeveloperPreferences.isCssEnabled()){
-            
+
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
         }
 
-        if(DeveloperPreferences.isMarkdownEnabled()){
-            
-            return new SpannableString(generateMarkdown(c, message));
-        }
+        return new SpannableString(generateMarkdown(c, message));
 
-        return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
     }
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey){
@@ -41,11 +37,7 @@ public class MarkupUtil {
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + new String(Localization.get(localizationKey)));
         }
 
-        if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeGenerateMarkdown(c, localizationKey));
-        }
-
-        return new SpannableString(Localization.get(localizationKey)); 
+        return new SpannableString(localizeGenerateMarkdown(c, localizationKey));
     }
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg){
@@ -54,11 +46,7 @@ public class MarkupUtil {
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArg));
         }
 
-        if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeGenerateMarkdown(c, localizationKey, new String[] {localizationArg}));
-        }
-
-        return new SpannableString(Localization.get(localizationKey, localizationArg));
+        return new SpannableString(localizeGenerateMarkdown(c, localizationKey, new String[] {localizationArg}));
     }
 
 
@@ -68,11 +56,7 @@ public class MarkupUtil {
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArgs));
         }
 
-        if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeGenerateMarkdown(c, localizationKey, localizationArgs));
-        }
-
-        return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(Localization.get(localizationKey, localizationArgs)));
+        return new SpannableString(localizeGenerateMarkdown(c, localizationKey, localizationArgs));
     }
 
     /*
@@ -93,13 +77,18 @@ public class MarkupUtil {
     public static CharSequence generateMarkdown(Context c, String message){
         Bypass bypass = new Bypass(c);
         CharSequence mSequence = bypass.markdownToSpannable(convertCharacterEncodings(message));
-        return mSequence;
+
+        System.out.println("2915 msequence: " + mSequence);
+
+        System.out.print("2915 msequence: " + mSequence);
+
+        return MarkupUtil.trimTrailingWhitespace(mSequence);
     }
-    
+
     /*
      * Perform conversions from encodings
      */
-    
+
     public static String convertCharacterEncodings(String input){
         return convertNewlines(convertPoundSigns(input));
     }
@@ -109,17 +98,44 @@ public class MarkupUtil {
      */
 
     public static String convertNewlines(String input){
-        
+
         return input.replace("%n", System.getProperty("line.separator"));
     }
-    
+
     /*
      * Convert number signs
      */
 
     public static String convertPoundSigns(String input){
-        
+
         return input.replace("%p", "#");
+    }
+
+    /** Trims trailing whitespace. Removes any of these characters:
+     * 0009, HORIZONTAL TABULATION
+     * 000A, LINE FEED
+     * 000B, VERTICAL TABULATION
+     * 000C, FORM FEED
+     * 000D, CARRIAGE RETURN
+     * 001C, FILE SEPARATOR
+     * 001D, GROUP SEPARATOR
+     * 001E, RECORD SEPARATOR
+     * 001F, UNIT SEPARATOR
+     * @return "" if source is null, otherwise string with all trailing whitespace removed
+     * soruce: http://stackoverflow.com/questions/9589381/remove-extra-line-breaks-after-html-fromhtml
+     */
+    public static CharSequence trimTrailingWhitespace(CharSequence source) {
+
+        if(source == null)
+            return "";
+
+        int i = source.length();
+
+        // loop back to the first non-whitespace character
+        while(--i >= 0 && Character.isWhitespace(source.charAt(i))) {
+        }
+
+        return source.subSequence(0, i+1);
     }
 
     /*
@@ -145,7 +161,7 @@ public class MarkupUtil {
 
 
     public static String getStyleString(){
-        
+
         if(CommCareApplication._() != null && CommCareApplication._().getCurrentApp() != null){
             return CommCareApplication._().getCurrentApp().getStylizer().getStyleString();
         } else{
