@@ -114,9 +114,9 @@ public abstract class QuestionWidget extends LinearLayout {
         mLayout.setMargins(10, 0, 10, 0);
 
         addQuestionText(p);
+        addHelpPlaceholder(p);
         addHintText(p);
 
-        addHelpPlaceholder(p);
     }
 
 
@@ -126,10 +126,13 @@ public abstract class QuestionWidget extends LinearLayout {
 
 
     private void addHelpPlaceholder(FormEntryPrompt p) {
-
         if (!p.hasHelp()) {
             return;
         }
+        
+        helpPlaceholder = new FrameLayout(this.getContext());
+        helpPlaceholder.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT));
 
         ImageButton trigger = new ImageButton(getContext());
         trigger.setImageResource(android.R.drawable.ic_menu_help);
@@ -377,7 +380,6 @@ public abstract class QuestionWidget extends LinearLayout {
     * @param prompt
     */
     private void fireHelpText(FormEntryPrompt prompt) {
-        
         if (!prompt.hasHelp()) {
             return;
         }                               
@@ -509,8 +511,7 @@ public abstract class QuestionWidget extends LinearLayout {
      * Add a TextView containing the help text.
      */
     private void addHintText(FormEntryPrompt p) {
-
-        String s = p.getHelpText();
+        String s = p.getHintText();
 
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(),this.getMaxHintHeight());
