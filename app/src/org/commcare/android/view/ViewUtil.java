@@ -8,6 +8,7 @@ import java.io.File;
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
 import org.odk.collect.android.utilities.FileUtils;
 
 import android.content.Context;
@@ -31,7 +32,7 @@ public class ViewUtil {
     //a displayunit to a menu in a super easy/straightforward way.
     public static void addDisplayToMenu(Context context, Menu menu, int menuId, DisplayUnit display) {
         Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI());
-        MenuItem item = menu.add(0, menuId, menuId, display.getText().evaluate());
+        MenuItem item = menu.add(0, menuId, menuId, Localizer.clearArguments(display.getText().evaluate()).trim());
         if(b != null) {
             item.setIcon(new BitmapDrawable(context.getResources(),b));
         }
