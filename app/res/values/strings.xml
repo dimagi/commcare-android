@@ -21,6 +21,8 @@
     <string name="verify_resources">Validate Multimedia</string>
     <string name="select_app_prompt">Select an app to install</string>
     <string name="resources_warning">Warning: Multimedia resources for this app have not been validated</string>
+    <string name="skip_button_text">Skip For Now</string>
+    <string name="retry_button_text">Retry</string>
     <string name="skipped_verification_warning">You did not validate multimedia resources for the app that was just
          installed! This app will not be visible to users on the log-in screen until multimedia is validated.</string>
     <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will 
@@ -28,7 +30,7 @@
     <string name="manager_instructions">Select an app to view its management options, or install a new app.</string>
     <string name="old_profile_warning">WARNING: This app was installed from an old version of CommCare. For full
         availability of app manager features (such as correct app name), please uninstall this app and reinstall 
-        with CommCare version 2.20 or later.</string>
+        with the latest version of CommCare.</string>
     <string name="uninstall_reboot_warning">CommCare will uninstall your app and then reboot to save changes.</string>
     <string name="logout_warning">In order to complete this action, CommCare must log out the currently logged-in app. Do you want to proceed?</string>
     <integer-array name="commcare_version">

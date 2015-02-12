@@ -136,7 +136,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     int previousUrlPosition=0;
      
     boolean partialMode = false;
-    boolean fromManager;
+    boolean mfromManager;
     
     CommCareApp ccApp;
     
@@ -159,7 +159,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
-        this.fromManager = this.getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        this.mfromManager = this.getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         //Retrieve instance state
         if(savedInstanceState == null) {
@@ -248,7 +248,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             //and we can just skip this unless: a) it's upgradeMode, b) we were called from the AppManagerActivity
             //or c) we're here because all installed apps are archived
             if(dbState == CommCareApplication.STATE_READY && resourceState == CommCareApplication.STATE_READY
-                    && !inUpgradeMode && !fromManager && CommCareApplication._().visibleAppsPresent()) {
+                    && !inUpgradeMode && !mfromManager && CommCareApplication._().visibleAppsPresent()) {
                 Intent i = new Intent(getIntent());    
                 setResult(RESULT_OK, i);
                 finish();
@@ -339,10 +339,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         installButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) { 
                 //If this call was not from the manager and there are already visible apps installed
-                if (!fromManager && CommCareApplication._().visibleAppsPresent() && (!inUpgradeMode || uiState != UiState.error)) {
+                if (!mfromManager && CommCareApplication._().visibleAppsPresent() && (!inUpgradeMode || uiState != UiState.error)) {
                         fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
                         setModeToExistingApplication();
-                } else if (fromManager || resourceState == CommCareApplication.STATE_UNINSTALLED || 
+                } else if (mfromManager || resourceState == CommCareApplication.STATE_UNINSTALLED || 
                           (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode) ||
                           (resourceState == CommCareApplication.STATE_READY && !CommCareApplication._().visibleAppsPresent())) {
                     startResourceInstall();
@@ -392,7 +392,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // If clicking the regular app icon brought us to CommCareSetupActivity
         // (because that's where we were last time the app was up), but there are now
         // 1 or more available apps, we want to redirect to CCHomeActivity
-        if (!fromManager && CommCareApplication._().visibleAppsPresent()) {
+        if (!mfromManager && CommCareApplication._().visibleAppsPresent()) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
         }

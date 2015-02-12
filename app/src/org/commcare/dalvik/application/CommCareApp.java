@@ -292,7 +292,7 @@ public class CommCareApp {
     }
     
     public boolean checkFromOldProfile() {
-        return getCommCarePlatform().getCurrentProfile().fromOld();
+        return !getCommCarePlatform().getCurrentProfile().preparedForMultipleApps();
     }
     
     /*

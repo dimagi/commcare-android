@@ -20,7 +20,7 @@
 	    android:id="@+id/skip_verification_button"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:text="Skip For Now" 
+	    android:text="@string/skip_button_text"
 	    android:layout_centerHorizontal="true"
 	    android:layout_above="@+id/screen_multimedia_retry"
 	    android:visibility="gone"/>
@@ -30,7 +30,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:text="Retry"
+        android:text="@string/retry_button_text"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"/>
 
