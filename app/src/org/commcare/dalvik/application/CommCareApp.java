@@ -132,6 +132,14 @@ public class CommCareApp {
         }
     }
     
+    /**
+     * If the CommCare app being initialized was first installed on this device with a pre 2.20
+     * build of CommCare, then its ApplicationRecord will have been generated from an older
+     * format with missing fields. This method serves to fill in those missing fields, and is
+     * called after initializeApplication, if and only if the ApplicationRecord has just been
+     * generated from the old format. Once the update for an AppRecord performs once, it will
+     * not need to be performed again.
+     */
     public void updateAppRecord() {
         //uniqueId and displayName will be missing, so pull them from the app's profile file
         record.setUniqueId(getUniqueId());
@@ -145,13 +153,13 @@ public class CommCareApp {
     }
     
     public boolean initializeApplication() {
-        boolean isOk = initializeApplicationHelper();
-        if (isOk) {
+        boolean appReady = initializeApplicationHelper();
+        if (appReady) {
             if (record.convertedFromOldFormat()) {
                 updateAppRecord();
             }
         }
-        return isOk;
+        return appReady;
     }
     
     public boolean initializeApplicationHelper() {
