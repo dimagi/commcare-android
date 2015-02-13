@@ -7,16 +7,17 @@
     
     <TextView 
         android:id="@+id/app_name"
-        android:textSize="50sp"
+        android:textSize="@dimen/text_xl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="5sp"
-        android:textColor="#616161"
+        android:paddingTop="@dimen/spacer"
+        android:paddingBottom="@dimen/spacer_small"
+        android:textColor="@color/grey_medium"
         android:gravity="center" />
     
     <TextView
         android:id="@+id/profile_warning"
-        android:textSize="20sp"
+        android:textSize="@dimen/text_medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/old_profile_warning"
@@ -26,47 +27,47 @@
     <Button
          android:id="@+id/uninstall_button"
          android:text="@string/uninstall_app"
-         android:textSize="40sp"
+         android:textSize="@dimen/text_larger_still"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:onClick="rebootAlertDialog"
-         android:textColor="#1565C0" 
-         android:layout_marginTop="90sp"
-         android:paddingTop="5sp"
-         android:paddingBottom="5sp" />
+         android:textColor="@color/blue" 
+         android:layout_marginTop="@dimen/spacer_large"
+         android:paddingTop="@dimen/spacer_small"
+         android:paddingBottom="@dimen/spacer_small" />
                 
     <Button
          android:id="@+id/archive_button"
          android:text="@string/archive_app"
-         android:textSize="40sp"            
+         android:textSize="@dimen/text_larger_still"           
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:onClick="toggleArchived"
-         android:textColor="#616161"
-         android:paddingBottom="5sp"
-         android:paddingTop="5sp" />
+         android:textColor="@color/grey_medium"
+         android:paddingBottom="@dimen/spacer_small"
+         android:paddingTop="@dimen/spacer_small" />
     
     <Button
         android:id="@+id/update_button"
         android:text="@string/update_app"
-        android:textSize="40sp"
+        android:textSize="@dimen/text_larger_still"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="updateClicked"
-        android:textColor="#1565C0"
-        android:paddingBottom="5sp"
-        android:paddingTop="5sp" />
+        android:textColor="@color/blue"
+        android:paddingBottom="@dimen/spacer_small"
+        android:paddingTop="@dimen/spacer_small" />
      
     <Button
         android:id="@+id/verify_button"
         android:text="@string/verify_resources"
-        android:textSize="40sp"            
+        android:textSize="@dimen/text_larger_still"            
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:clickable="true" 
         android:onClick="verifyResourcesClicked"
-        android:textColor="#616161"
-      	android:paddingBottom="5sp"
-        android:paddingTop="5sp" />
+        android:textColor="@color/grey_medium"
+      	android:paddingBottom="@dimen/spacer_small"
+        android:paddingTop="@dimen/spacer_small" />
 
 </LinearLayout>

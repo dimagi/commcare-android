@@ -7,11 +7,11 @@
     
     <TextView 
         android:id="@+id/app_name"
-        android:textSize="30sp"
-        android:textColor="#1565C0"
+        android:textSize="@dimen/text_larger"
+        android:textColor="@color/blue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" 
-        android:paddingTop="12sp"
-        android:paddingBottom="12sp"/>
+        android:paddingTop="@dimen/title_padding"
+        android:paddingBottom="@dimen/title_padding"/>
 
 </LinearLayout>

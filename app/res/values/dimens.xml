@@ -20,7 +20,8 @@
     
     <dimen name="spacer_small">5dp</dimen>
     <dimen name="spacer">10dp</dimen>
-    
+    <dimen name="spacer_large">50dp</dimen>
+        
     <dimen name="login_box_margins">30dp</dimen>
     
     <!-- Default screen margins, per the Android Design guidelines. -->
@@ -46,6 +47,8 @@
     <!--  Text sizes -->
 
     <dimen name="text_larger">28dp</dimen>
+    <dimen name="text_larger_still">35dp</dimen>
     <dimen name="text_largest">40dp</dimen>
+    <dimen name="text_xl">48dp</dimen>
     
 </resources>
