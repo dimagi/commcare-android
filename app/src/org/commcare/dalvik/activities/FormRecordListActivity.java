@@ -434,7 +434,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                     @Override
                     protected void deliverResult(FormRecordListActivity receiver, Integer status) {
                         switch(status) {
-                        case DataPullTask.DOWNLOAD_SUCCESS:                            
+                        case DataPullTask.RESULT_DOWNLOAD_SUCCESS:                            
                             FormRecordCleanupTask<FormRecordListActivity> task = new FormRecordCleanupTask<FormRecordListActivity>(FormRecordListActivity.this, platform,CLEANUP_ID) {
 
                                 /*
@@ -480,22 +480,22 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                             task.connect(receiver);
                             task.execute();
                             break;
-                        case DataPullTask.UNKNOWN_FAILURE:
+                        case DataPullTask.RESULT_UNKNOWN_FAILURE:
                             Toast.makeText(receiver, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
                             break;
-                        case DataPullTask.AUTH_FAILED:
+                        case DataPullTask.RESULT_AUTH_FAILED:
                             Toast.makeText(receiver, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
                             break;
-                        case DataPullTask.BAD_DATA:
+                        case DataPullTask.RESULT_BAD_DATA:
                             Toast.makeText(receiver, "Bad data from server. Please talk with your supervisor.", Toast.LENGTH_LONG).show();
                             break;                            
-                        case DataPullTask.CONNECTION_TIMEOUT:
+                        case DataPullTask.RESULT_CONNECTION_TIMEOUT:
                             Toast.makeText(receiver, "The server took too long to generate a response. Please try again later, and ask your supervisor if the problem persists.", Toast.LENGTH_LONG).show();
                             break;
-                        case DataPullTask.SERVER_ERROR:
+                        case DataPullTask.RESULT_SERVER_ERROR:
                             Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact technical support if the problem persists.", Toast.LENGTH_LONG).show();
                             break;
-                        case DataPullTask.UNREACHABLE_HOST:
+                        case DataPullTask.RESULT_UNREACHABLE_HOST:
                             Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
                             break;
                         }

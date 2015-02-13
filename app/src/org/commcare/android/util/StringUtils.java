@@ -6,9 +6,12 @@ package org.commcare.android.util;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
+import org.javarosa.core.services.locale.Localization;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.support.v4.util.LruCache;
+import android.text.format.DateUtils;
 import android.util.Pair;
 
 /**
@@ -139,5 +142,21 @@ public class StringUtils {
             }
         }
         return Pair.create(false, -1);
+    }
+    
+    
+    public static String getRelativeTimeSpanString(long delta, long current, long formatting, int flags) {
+        return getRelativeTimeSpanString(delta, current, formatting, flags, "timespan.custom.seconds");
+    }
+    
+    public static String getRelativeTimeSpanString(long delta, long current, long formatting, int flags, String fallback) {
+         String deviceSpan = DateUtils.getRelativeTimeSpanString(delta, current, formatting, flags).toString();
+         
+        //generate the fallback
+        int seconds = (int)((delta - current) / 1000);
+        String customSpan = Localization.get(fallback, new String[] {String.valueOf(seconds)});
+        
+        //let the current translation pick which one to use.
+        return Localization.get("timespan.display.output", new String[] {deviceSpan, customSpan});
     }
 }

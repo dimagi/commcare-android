@@ -195,4 +195,23 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
             connector = null;
         }
     }
+    
+    /**
+     * For tasks that are started in a mode where they can be cancelled
+     * this method provides feedback about whether the task can _currently_
+     * be cancelled. 
+     * 
+     * This is expected to change dynamically based on progress updates,
+     * when this flag will be read.
+     * 
+     * This flag will mean nothing if the dialog is started without a
+     * cancel button being enabled.
+     * 
+     * @return True if the task currently can be cancelled. False if the
+     * task has entered a phase where cancellation should no longer
+     * be considered possible.
+     */
+    public boolean isCurrentlyCancellable() {
+        return true;
+    }
 }

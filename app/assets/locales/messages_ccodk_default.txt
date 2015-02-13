@@ -87,6 +87,7 @@ sync.fail.bad.local=Your information was fetched, but a problem occured with the
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
 sync.fail.server.error=The server had an error processing your data. Please try again later. If the problem persists, contact technical support.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
+sync.fail.cancelled=Sync attempt cancelled
 
 sync.progress.title=Communicating with Server
 sync.progress.starting=Requesting Data...
@@ -97,6 +98,12 @@ sync.progress.authing=Contacting server for sync...
 sync.progress.downloading=Server contacted, downloading data.
 sync.process.downloading.progress=Download Progress: ${0}%
 sync.process.processing=Processing server data: ${0}/${1}
+sync.progress.waiting=The remote server needs some time to generate your sync data. Next Attempt: ${0}
+
+timespan.custom.seconds=${0} Seconds
+
+#Make this ${1} to use custom display formatting
+timespan.display.output=${0}
 
 sync.recover.needed=Phone and server have inconsistent data! Starting recovery...
 sync.recover.started=Recovering local DB State. Please do not turn off the app!

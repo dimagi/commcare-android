@@ -30,6 +30,7 @@ import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
+import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
@@ -313,27 +314,31 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch(result) {
-                case DataPullTask.AUTH_FAILED:
+                case DataPullTask.RESULT_AUTH_FAILED:
                     receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
                     break;
-                case DataPullTask.BAD_DATA:
+                case DataPullTask.RESULT_BAD_DATA:
                     receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
                     break;
-                case DataPullTask.DOWNLOAD_SUCCESS:
+                case DataPullTask.RESULT_DOWNLOAD_SUCCESS:
                     receiver.displayMessage(Localization.get("sync.success.synced"));
                     break;
-                case DataPullTask.SERVER_ERROR:
+                case DataPullTask.RESULT_SERVER_ERROR:
                     receiver.displayMessage(Localization.get("sync.fail.server.error"));
                     break;
-                case DataPullTask.UNREACHABLE_HOST:
+                case DataPullTask.RESULT_UNREACHABLE_HOST:
                     receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
                     break;
-                case DataPullTask.CONNECTION_TIMEOUT:
+                case DataPullTask.RESULT_CONNECTION_TIMEOUT:
                     receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
                     break;
-                case DataPullTask.UNKNOWN_FAILURE:
+                case DataPullTask.RESULT_UNKNOWN_FAILURE:
                     receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
                     break;
+                case DataPullTask.RESULT_CANCELLED:
+                    receiver.displayMessage(Localization.get("sync.fail.cancelled"));
+                    break;
+
                 }
                 //TODO: What if the user info was updated?
 
@@ -360,6 +365,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
                     receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
+                } else if(update[0] == DataPullTask.PROGRESS_SERVER_PROCESSING) {
+                    int secondsUntilSync = update[1];
+                    int secondsSinceStart = update[2];
+                    String betterSeconds = StringUtils.getRelativeTimeSpanString(System.currentTimeMillis() + secondsUntilSync, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0).toString();
+                    receiver.updateProgress(Localization.get("sync.progress.waiting", new String[] {betterSeconds}), DataPullTask.DATA_PULL_TASK_ID);
+                    receiver.updateProgressBar(secondsSinceStart, secondsUntilSync + secondsSinceStart, DataPullTask.DATA_PULL_TASK_ID);
                 }
             }
 
@@ -1691,8 +1702,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             return null;
         }
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {
+        if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID || taskId == DataPullTask.DATA_PULL_TASK_ID) {
             dialog.addProgressBar();
+        }
+        if(taskId == DataPullTask.DATA_PULL_TASK_ID) {
+            dialog.addCancelButton();
         }
         return dialog;
     }

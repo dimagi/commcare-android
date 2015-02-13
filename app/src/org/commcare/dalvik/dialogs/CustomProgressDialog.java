@@ -201,7 +201,7 @@ public class CustomProgressDialog extends DialogFragment {
         
         builder.setView(view);
         Dialog d = builder.create();
-        d.setCanceledOnTouchOutside(isCancelable);
+        d.setCanceledOnTouchOutside(this.isCancelable);
         return d;
     }
     
@@ -240,5 +240,20 @@ public class CustomProgressDialog extends DialogFragment {
             bar.setMax(max);
         }
     }
-
+    
+    /**
+     * For dialogs using the cancel button, certain types of progress may enter a "read only mode" after which the task
+     * can no longer be cancelled. This method allows the dialog to swap that state back and forth.
+     * 
+     * Does nothing if the dialog was not created with addCancelButton
+     * 
+     * @param enabled
+     */
+    public void setCancelButtonEnabled(boolean enabled) {
+        Dialog dialog = getDialog();
+        if (usingCancelButton) {
+            Button b = (Button) dialog.findViewById(R.id.dialog_cancel_button);
+            b.setEnabled(enabled);
+        }
+    }
 }
