@@ -45,20 +45,11 @@ public class SingleAppManagerActivity extends Activity {
             startActivity(i);
             finish();
         }
-        String appName = appRecord.getDisplayName();
-        boolean isArchived = appRecord.isArchived();
-                
         //Set app name
+        String appName = appRecord.getDisplayName();                
         TextView tv = (TextView) findViewById(R.id.app_name);
         tv.setText(appName);
         
-        //Change text for archive button depending on archive status
-        Button archiveButton = (Button) findViewById(R.id.archive_button);
-        if (isArchived) {
-            archiveButton.setText("Unarchive");
-        } else {
-            archiveButton.setText("Archive");
-        }
     }
     
     @Override
@@ -82,6 +73,15 @@ public class SingleAppManagerActivity extends Activity {
             validateButton.setVisibility(View.INVISIBLE);
         } else {
             validateButton.setVisibility(View.VISIBLE);
+        }
+        
+        //Change text for archive button depending on archive status
+        boolean isArchived = appRecord.isArchived();
+        Button archiveButton = (Button) findViewById(R.id.archive_button);
+        if (isArchived) {
+            archiveButton.setText("Unarchive");
+        } else {
+            archiveButton.setText("Archive");
         }
     }
     
@@ -155,13 +155,8 @@ public class SingleAppManagerActivity extends Activity {
      * not visible to users); If it is archived, sets it to unarchived **/
     public void toggleArchived(View v) {
         appRecord.setArchiveStatus(!appRecord.isArchived());
-        Button b = (Button) v;
-        if (appRecord.isArchived()) {
-            b.setText("Unarchive");
-        } else {
-            b.setText("Archive");
-        }
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
+        refresh();
     }
     
     //triggered when verify MM button is clicked
@@ -173,8 +168,7 @@ public class SingleAppManagerActivity extends Activity {
             } else {
                 verifyResources();
             }
-        }
-        catch (SessionUnavailableException e) {
+        } catch (SessionUnavailableException e) {
             verifyResources();
         }
     }
