@@ -63,7 +63,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static String ALREADY_LOGGED_IN = "la_loggedin";
-    public static String KEY_LAST_POSITION = "last_position_selected";
+    public static String KEY_LAST_APP = "id_of_last_selected";
     
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
@@ -516,9 +516,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
         ArrayList<String> appNames = new ArrayList<String>();
+        ArrayList<String> appIds = new ArrayList<String>();
         for (ApplicationRecord r : readyApps) {
             String name = r.getDisplayName();
             appNames.add(name);
+            appIds.add(r.getUniqueId());
             namesToRecords.put(name, r);
         }
         if (appNames.size() > 1) {
@@ -527,12 +529,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(this);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            int lastPosition = prefs.getInt(KEY_LAST_POSITION,0);
-            //If the last-selected app has been uninstalled since, just pick the 1st available app
-            if (lastPosition >= appNames.size()) {
-                lastPosition = 0;
+            String lastApp = prefs.getString(KEY_LAST_APP,"");
+            int position = 0;
+            if (!"".equals(lastApp)) {
+                position = appIds.indexOf(lastApp);
+                //if this last app has since been deleted, set the position to 0
+                if (position == -1) { 
+                    position = 0;
+                }
             }
-            spinner.setSelection(lastPosition);
+            spinner.setSelection(position);
             spinner.setVisibility(View.VISIBLE);
         } else spinner.setVisibility(View.GONE);
     }
@@ -541,9 +547,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putInt(KEY_LAST_POSITION, position).commit();
         String selected = (String) parent.getItemAtPosition(position);
         ApplicationRecord r = namesToRecords.get(selected);
+        prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
         CommCareApplication._().initializeAppResources(new CommCareApp(r));    
         loadFields(false);  //refresh UI for potential new language
     }
