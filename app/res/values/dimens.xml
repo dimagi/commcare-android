@@ -20,7 +20,8 @@
     
     <dimen name="spacer_small">5dp</dimen>
     <dimen name="spacer">10dp</dimen>
-    <dimen name="spacer_large">50dp</dimen>
+    <dimen name="spacer_large">60dp</dimen>
+    <dimen name="spacer_largest">100dp</dimen>
         
     <dimen name="login_box_margins">30dp</dimen>
     

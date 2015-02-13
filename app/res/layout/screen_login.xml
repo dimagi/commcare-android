@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:paddingBottom="100sp"
+        android:paddingBottom="@dimen/spacer_largest"
         android:id="@+id/screen_login_banner_pane">
 
         <ImageView
@@ -57,7 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/app_selection_spinner"
-        android:paddingTop="100sp"
+        android:paddingTop="@dimen/spacer_largest"
         android:orientation="vertical" >
 
         <LinearLayout
