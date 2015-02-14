@@ -105,6 +105,7 @@ public class CommCareApplication extends Application {
     public static final int STATE_UPGRADE = 1;
     public static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
+    public static final int STATE_DELETE_REQUESTED = 8;
     
     public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
     
@@ -374,7 +375,7 @@ public class CommCareApplication extends Application {
     public ArrayList<ApplicationRecord> getVisibleAppRecords() {
         ArrayList<ApplicationRecord> visible = new ArrayList<ApplicationRecord>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (!r.isArchived()) {
+            if (!r.isArchived() && r.getStatus() != ApplicationRecord.STATUS_DELETE_REQUESTED) {
                 visible.add(r);
             }
         }

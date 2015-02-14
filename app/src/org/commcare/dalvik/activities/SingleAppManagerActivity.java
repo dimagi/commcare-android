@@ -134,18 +134,21 @@ public class SingleAppManagerActivity extends Activity {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         CommCareApp app = CommCareApplication._().getCurrentApp();
         
-        //1) Teardown the sandbox for this app
+        //1) Set states to delete requested so we know if we have left the app in a bad state
+        CommCareApplication._().setAppResourceState(CommCareApplication.STATE_DELETE_REQUESTED);
+        appRecord.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
+        //2) Teardown the sandbox for this app
         app.teardownSandbox();
-        //2) Delete all the user databases associated with this app
+        //3) Delete all the user databases associated with this app
         SqlStorage<UserKeyRecord> userDatabase = CommCareApplication._().getAppStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
             this.getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid())).delete();
         }
-        //3) Delete the app database
+        //4) Delete the app database
         this.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId())).delete();
-        //4) Delete the app record
+        //5) Delete the app record
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).remove(appRecord.getID());
-        //5) Reset the appResourceState in CCApplication
+        //6) Reset the appResourceState in CCApplication
         CommCareApplication._().setAppResourceState(CommCareApplication.STATE_UNINSTALLED);
         
         rebootCommCare();

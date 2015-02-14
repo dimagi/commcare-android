@@ -23,6 +23,7 @@ public class ApplicationRecord extends Persisted {
     
     public static final int STATUS_UNINITIALIZED = 0;
     public static final int STATUS_INSTALLED = 1;
+    public static final int STATUS_DELETE_REQUESTED = 2;
     /**
      * The app needs to be upgraded from an old version
      */
