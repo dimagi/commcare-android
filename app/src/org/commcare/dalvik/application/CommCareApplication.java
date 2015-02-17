@@ -3,6 +3,8 @@ package org.commcare.dalvik.application;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -367,8 +369,21 @@ public class CommCareApplication extends Application {
         return STATE_UNINSTALLED;
     }
     
-    public SqlStorage<ApplicationRecord> getInstalledAppRecords() {
-        return getGlobalStorage(ApplicationRecord.class);
+    /** Return all installed ApplicationRecords, in alphabetical order **/
+    public ArrayList<ApplicationRecord> getInstalledAppRecords() {
+        ArrayList<ApplicationRecord> records = new ArrayList<ApplicationRecord>();
+        for (ApplicationRecord r : getGlobalStorage(ApplicationRecord.class)) {
+            records.add(r);
+        }
+        Collections.sort(records, new Comparator<ApplicationRecord>() {
+
+            @Override
+            public int compare(ApplicationRecord lhs, ApplicationRecord rhs) {
+                return lhs.getDisplayName().compareTo(rhs.getDisplayName());
+            }
+            
+        });
+        return records;
     }
 
     /** Return all ApplicationRecords that are installed and NOT archived **/
@@ -402,8 +417,8 @@ public class CommCareApplication extends Application {
     }
 
     public ApplicationRecord[] appRecordArray() {
-        SqlStorage<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
-        ApplicationRecord[] appArray = new ApplicationRecord[appList.getNumRecords()];
+        ArrayList<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
+        ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
         int index = 0;
         for (ApplicationRecord r : appList) {
             appArray[index++] = r;
@@ -412,11 +427,11 @@ public class CommCareApplication extends Application {
     }
     
     public ApplicationRecord getAppAtIndex(int index) {
-        ApplicationRecord[] currentApps = appRecordArray();
-        if (index < 0 || index >= currentApps.length) {
+        ArrayList<ApplicationRecord> currentApps = getInstalledAppRecords();
+        if (index < 0 || index >= currentApps.size()) {
             return null;
         } else {
-            return currentApps[index];
+            return currentApps.get(index);
         }
     }
 
