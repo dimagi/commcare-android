@@ -322,6 +322,10 @@ public class CommCareApp {
      * Return the app name assigned to this app from HQ
      */
     public String getDisplayName() {
+        String nameFromProfile = getCommCarePlatform().getCurrentProfile().getDisplayName();
+        if (nameFromProfile != null) {
+            return nameFromProfile;
+        }
         return Localization.get("app.display.name");
     }
     
