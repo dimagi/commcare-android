@@ -63,8 +63,8 @@ public class GlobalDatabaseUpgrader {
                 newRecord.setArchiveStatus(false);
                 newRecord.setUniqueId("");
                 newRecord.setDisplayName("");
-                newRecord.setConvertedFromOldFormat(true);
-                newRecord.setFromOldProfileFile(true);
+                newRecord.setConvertedByDbUpgrader(true);
+                newRecord.setPreMultipleAppsProfile(true);
                 storage.write(newRecord);
             }
             db.setTransactionSuccessful();

@@ -61,7 +61,7 @@ public class SingleAppManagerActivity extends Activity {
     private void refresh() {    
         //refresh old profile warning 
         TextView warning = (TextView) findViewById(R.id.profile_warning);
-        if (appRecord.fromOldProfileFile()) {
+        if (appRecord.preMultipleAppsProfile()) {
             warning.setVisibility(View.VISIBLE);
         } else {
             warning.setVisibility(View.GONE);

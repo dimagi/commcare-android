@@ -43,9 +43,9 @@ public class ApplicationRecord extends Persisted {
     @Persisting(6)
     boolean isArchived;
     @Persisting(7)
-    boolean convertedFromOld;
+    boolean convertedViaDbUpgrader;
     @Persisting(8)
-    boolean fromOldProfileFile;
+    boolean preMultipleAppsProfile;
     
     /*
      * Deserialization only
@@ -110,27 +110,28 @@ public class ApplicationRecord extends Persisted {
 
     /*
      * Returns true if this ApplicationRecord represents an app generated from
-     * an older version of CommCare that does not have profile files with
-     * uniqueId and displayName
+     * a pre-Multiple Apps version of CommCare that does not have profile files
+     * with uniqueId and displayName
      */
-    public boolean fromOldProfileFile() {
-        return this.fromOldProfileFile;
+    public boolean preMultipleAppsProfile() {
+        return this.preMultipleAppsProfile;
+    }
+    
+    public void setPreMultipleAppsProfile(boolean b) {
+        this.preMultipleAppsProfile = b;
     }
 
     /*
      * Returns true if this ApplicationRecord was just generated from the a
-     * different ApplicationRecord format via the db upgrader
+     * different ApplicationRecord format via the db upgrader, because it was 
+     * initially installed on a phone with a pre-Multiple Apps version of CommCare
      */
-    public boolean convertedFromOldFormat() {
-        return this.convertedFromOld;
+    public boolean convertedByDbUpgrader() {
+        return this.convertedViaDbUpgrader;
     }
 
-    public void setConvertedFromOldFormat(boolean b) {
-        this.convertedFromOld = b;
-    }
-
-    public void setFromOldProfileFile(boolean b) {
-        this.fromOldProfileFile = b;
+    public void setConvertedByDbUpgrader(boolean b) {
+        this.convertedViaDbUpgrader = b;
     }
 
 }
