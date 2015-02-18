@@ -849,6 +849,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry
         if (selectedIntent != null) {
+            if (inAwesomeMode && detailView != null && detailView.getCurrentTab() < detailView.getTabCount() - 1) {
+                return false;
+            }
             select();
         }
         return true;
@@ -860,6 +863,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      */
     @Override
     protected boolean onBackwardSwipe() {
+        if (inAwesomeMode && detailView != null && detailView.getCurrentTab() > 0) {
+            return false;
+        }
         finish();
         return true;
     }
