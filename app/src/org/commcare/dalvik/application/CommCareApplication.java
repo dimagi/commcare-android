@@ -357,6 +357,13 @@ public class CommCareApplication extends Application {
     }
     
     private int initializeAppResources() {
+        //Check if any apps were left in a partially deleted state
+        for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
+            if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
+                record.uninstall(this);
+            }
+        }
+        
         //There may now be multiple of these, bc of multiple apps support.
         //For now, onCreate of CommCareApplication is still picking the first one arbitrarily,
         //may want to change this        
@@ -390,7 +397,7 @@ public class CommCareApplication extends Application {
     public ArrayList<ApplicationRecord> getVisibleAppRecords() {
         ArrayList<ApplicationRecord> visible = new ArrayList<ApplicationRecord>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (!r.isArchived() && r.getStatus() != ApplicationRecord.STATUS_DELETE_REQUESTED) {
+            if (!r.isArchived()) {
                 visible.add(r);
             }
         }
