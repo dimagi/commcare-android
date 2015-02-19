@@ -96,8 +96,7 @@ public class MarkupUtil {
      */
 
     public static String convertNewlines(String input){
-
-        return input.replace(Localization.get("markdown.new.line"), System.getProperty("line.separator"));
+        return input.replace("\\n", System.getProperty("line.separator"));
     }
 
     /*
@@ -106,7 +105,7 @@ public class MarkupUtil {
 
     public static String convertPoundSigns(String input){
 
-        return input.replace(Localization.get("markdown.pound.symbol"), "#");
+        return input.replace("\\#", "#");
     }
 
     /** Trims trailing whitespace. Removes any of these characters:
