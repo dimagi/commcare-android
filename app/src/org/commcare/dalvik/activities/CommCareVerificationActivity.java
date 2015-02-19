@@ -63,6 +63,20 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         fire();
     }
     
+    @Override
+    public void onResume() {
+        super.onResume();
+        //Check whether the current state of the app still indicates that we want to be in
+        //this activity
+        boolean shouldBeHere = (CommCareApplication._().getVisibleAppRecords().size() == 1 && 
+                CommCareApplication._().getReadyAppRecords().size() == 0);
+        //If not, redirect to CommCareHomeActivity
+        if (!shouldBeHere) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            this.startActivity(i);
+        }
+    }
+    
     private void fire() {
         
         CommCareVerificationActivity last = (CommCareVerificationActivity)this.getDestroyedActivityState();
