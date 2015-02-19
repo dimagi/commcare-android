@@ -26,6 +26,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -114,15 +115,9 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      
         try {
             next.setOnClickListener(new OnClickListener() {
-    
                 public void onClick(View v) {
-                    Intent i = new Intent(EntityDetailActivity.this.getIntent());
-                    loadOutgoingIntent(i);
-                    setResult(RESULT_OK, i);
-    
-                    finish();
+                    select();
                 }
-                
             });
             
             if(getIntent().getBooleanExtra(IS_DEAD_END, false)) {
@@ -223,4 +218,41 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         startActivity(intent);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
+     */
+    @Override
+    protected boolean onForwardSwipe() {
+        // Move along, provided we're on the last tab of tabbed case details
+        if (mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
+            select();
+            return true;
+        }
+        return false;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
+     */
+    @Override
+    protected boolean onBackwardSwipe() {
+        // Move back, provided we're on the first screen of tabbed case details
+        if (mDetailView.getCurrentTab() < 1) {
+            finish();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Move along to form entry.
+     */
+    private void select() {
+        Intent i = new Intent(EntityDetailActivity.this.getIntent());
+        loadOutgoingIntent(i);
+        setResult(RESULT_OK, i);
+        finish();
+    }
 }

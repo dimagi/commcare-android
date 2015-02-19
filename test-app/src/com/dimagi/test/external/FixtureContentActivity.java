@@ -24,28 +24,14 @@ public class FixtureContentActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_page);
-        showCaseData(null, null);
+        showFixtureData(null, null);
     }
     
-    
-    
-    protected void showCaseData(String selection, String[] selectionArgs) {
+    protected void showFixtureData(String selection, String[] selectionArgs) {
         ListView la = (ListView)this.findViewById(R.id.list_view);
-        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.fixture"), null, selection, selectionArgs, null);
+        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.fixture/fixturedb/"), null, selection, selectionArgs, null);
         
-        final SimpleCursorAdapter sca = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, c, new String[] {"case_name", "fixture_id"}, new int[] { android.R.id.text1, android.R.id.text2});
-        
-        la.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                Cursor cursor =  sca.getCursor();
-                cursor.moveToPosition(position);
-                   
-                String caseType = cursor.getString(cursor.getColumnIndex("case_type"));
-                FixtureContentActivity.this.showCaseData("case_type = ? AND\nstatus=?", new String[] { caseType,"open" });
-                return true;
-            }
-        });
+        final SimpleCursorAdapter sca = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, c, new String[] {"_id", "instance_id"}, new int[] { android.R.id.text1, android.R.id.text2});
 
         la.setAdapter(sca);
         la.setOnItemClickListener(new OnItemClickListener(){
@@ -54,17 +40,18 @@ public class FixtureContentActivity extends Activity {
                Cursor cursor =  sca.getCursor();
                cursor.moveToPosition(position);
                
-               String caseId = cursor.getString(cursor.getColumnIndex("case_id"));
-               FixtureContentActivity.this.moveToDataAtapter(caseId);
+               String fixtureId = cursor.getString(cursor.getColumnIndex("instance_id"));
+               FixtureContentActivity.this.moveToDataAtapter(fixtureId);
             }
             
         });
     }
     
-    protected void moveToDataAtapter(String caseId) {
-        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.case/casedb/data/" + caseId), null, null, null, null);
+    protected void moveToDataAtapter(String fixtureId) {
         
-        SimpleCursorAdapter sca = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, c, new String[] {"value", "datum_id"}, new int[] { android.R.id.text1, android.R.id.text2});
+        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.fixture/fixturedb/" + fixtureId), null, null, null, null);
+        
+        SimpleCursorAdapter sca = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, c, new String[] {"instance_id", "content"}, new int[] {android.R.id.text1, android.R.id.text2});
         ListView la = (ListView)this.findViewById(R.id.list_view);
 
         la.setAdapter(sca);

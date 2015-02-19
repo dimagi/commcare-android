@@ -40,6 +40,7 @@ import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.FileUtil;
@@ -140,6 +141,7 @@ public class CommCareApplication extends Application {
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
+        AndroidUtil.initializeStaticHandlers();
         
         CommCareApplication.app = this;
         

@@ -59,6 +59,11 @@
             android:authorities="org.commcare.dalvik.case"
             android:enabled="true"
             android:readPermission="org.commcare.dalvik.provider.cases.read" />
+        <provider
+            android:name=".provider.FixtureDataContentProvider"
+            android:authorities="org.commcare.dalvik.fixture"
+            android:enabled="true"
+            android:readPermission="org.commcare.dalvik.provider.cases.read" />
 
         <activity android:name=".preferences.CommCarePreferences" >
         </activity>
@@ -494,8 +499,8 @@
 
     <permission
         android:name="org.commcare.dalvik.provider.cases.read"
-        android:description="@string/permission_case_provider_description"
-        android:label="@string/permission_case_provider_label"
+        android:description="@string/permission_content_provider_description"
+        android:label="@string/permission_content_provider_label"
         android:protectionLevel="dangerous" >
     </permission>
 
