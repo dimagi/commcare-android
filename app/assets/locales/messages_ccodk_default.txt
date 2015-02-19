@@ -445,6 +445,8 @@ archive.install.no.browser=You need a file manager to access the files on this d
 archive.install.prompt=Install your CommCare application from a .zip file
 archive.install.button=Install App
 
+markdown.new.line=%n
+markdown.pound.symbol=%p
 
 odk_accept_location=Record Location
 odk_accuracy=Accuracy
