@@ -23,7 +23,7 @@ public class MarkupUtil {
     public static Spannable styleSpannable(Context c, String message){
 
         if(DeveloperPreferences.isCssEnabled()){
-
+            
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
         }
 
@@ -34,6 +34,7 @@ public class MarkupUtil {
     public static Spannable localizeStyleSpannable(Context c, String localizationKey){
 
         if(DeveloperPreferences.isCssEnabled()){
+            
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + new String(Localization.get(localizationKey)));
         }
 
@@ -75,12 +76,9 @@ public class MarkupUtil {
     }
 
     public static CharSequence generateMarkdown(Context c, String message){
+        
         Bypass bypass = new Bypass(c);
         CharSequence mSequence = bypass.markdownToSpannable(convertCharacterEncodings(message));
-
-        System.out.println("2915 msequence: " + mSequence);
-
-        System.out.print("2915 msequence: " + mSequence);
 
         return MarkupUtil.trimTrailingWhitespace(mSequence);
     }

@@ -92,7 +92,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                 
                 //if there're no forms to dump, just return
                 if(formsOnSD == 0){
-                    txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(CommCareFormDumpActivity.this,"bulk.form.no.unsynced.submit"));
+                    txtInteractiveMessages.setText(localize("bulk.form.no.unsynced.submit"));
                     TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
                 }
@@ -260,9 +260,9 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     }
     
     public void setDisplayText(){
-        btnDumpForms.setText(MarkupUtil.localizeStyleSpannable(this, "bulk.form.dump.2", new String[] {""+formsOnPhone}));
-        btnSubmitForms.setText(MarkupUtil.localizeStyleSpannable(this, "bulk.form.submit.2", new String[] {""+formsOnSD}));
-        txtDisplayPrompt.setText(MarkupUtil.localizeStyleSpannable(this, "bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
+        btnDumpForms.setText(this.localize("bulk.form.dump.2", new String[] {""+formsOnPhone}));
+        btnSubmitForms.setText(this.localize("bulk.form.submit.2", new String[] {""+formsOnSD}));
+        txtDisplayPrompt.setText(this.localize("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
     }
     
     public String getFolderName(){

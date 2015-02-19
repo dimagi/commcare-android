@@ -68,14 +68,14 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
         
         mGetLocationButton = new Button(getContext());
         mGetLocationButton.setPadding(20, 20, 20, 20);
-        mGetLocationButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_get_location"));
+        mGetLocationButton.setText(this.localize("odk_get_location"));
         mGetLocationButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mGetLocationButton.setEnabled(!prompt.isReadOnly());
         mGetLocationButton.setLayoutParams(params);
 
         // setup play button
         mViewButton = new Button(getContext());
-        mViewButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_show_location"));
+        mViewButton.setText(this.localize("odk_show_location"));
         mViewButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mViewButton.setPadding(20, 20, 20, 20);
         mViewButton.setLayoutParams(params);
@@ -111,7 +111,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null && !s.equals("")) {
-            mGetLocationButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_replace_location"));
+            mGetLocationButton.setText(this.localize("odk_replace_location"));
             setBinaryData(s);
             mViewButton.setEnabled(true);
         } else {
@@ -170,7 +170,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     public void clearAnswer() {
         mStringAnswer.setText(null);
         mAnswerDisplay.setText(null);
-        mGetLocationButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_get_location"));
+        mGetLocationButton.setText(this.localize("odk_get_location"));
 
     }
 
@@ -259,12 +259,12 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
         mStringAnswer.setText(s);
 
         String[] sa = s.split(" ");
-        mAnswerDisplay.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_latitude") + ": "
+        mAnswerDisplay.setText(this.localize("odk_latitude") + ": "
                 + formatGps(Double.parseDouble(sa[0]), "lat") + "\n"
-                + MarkupUtil.localizeStyleSpannable(getContext(), "odk_longitude") + ": "
+                + this.localize("odk_longitude") + ": "
                 + formatGps(Double.parseDouble(sa[1]), "lon") + "\n"
-                + MarkupUtil.localizeStyleSpannable(getContext(), "odk_altitude") + ": " + truncateDouble(sa[2]) + "m\n"
-                + MarkupUtil.localizeStyleSpannable(getContext(), "odk_accuracy") + ": " + truncateDouble(sa[3]) + "m");
+                + this.localize("odk_altitude") + ": " + truncateDouble(sa[2]) + "m\n"
+                + this.localize("odk_accuracy") + ": " + truncateDouble(sa[3]) + "m");
         mWaitingForData = false;
     }
 

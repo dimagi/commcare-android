@@ -197,6 +197,8 @@ public class CommCareApp {
                 Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
             }
             
+            initializeStylizer();
+            
             return true;
         }
         

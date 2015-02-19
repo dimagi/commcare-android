@@ -347,8 +347,9 @@ public abstract class QuestionWidget extends LinearLayout {
         
         // if we have markdown, use that. 
         if(markdownText != null){
-            mQuestionText.setText(MarkupUtil.styleSpannable(getContext(), markdownText));
+            mQuestionText.setText(stylize(markdownText));
             mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
+            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         } else {
             mQuestionText.setText(p.getLongText());
             mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
@@ -435,7 +436,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(MarkupUtil.localizeStyleSpannable(getContext(), "odk_ok"), errorListener);
+            mAlertDialog.setButton(this.localize("odk_ok"), errorListener);
             mAlertDialog.show();
         } else {
         
@@ -589,5 +590,26 @@ public abstract class QuestionWidget extends LinearLayout {
     
     public void checkFileSize(String filepath){
         checkFileSize(new File(filepath));
+    }
+    
+    /*
+     * Methods to make localization and styling easier for devs
+     * copied from CommCareActivity
+     */
+    
+    public Spannable stylize(String text){
+        return MarkupUtil.styleSpannable(getContext(), text);
+    }
+    
+    public Spannable localize(String key){
+        return MarkupUtil.localizeStyleSpannable(getContext(), key);
+    }
+    
+    public Spannable localize(String key, String arg){
+        return MarkupUtil.localizeStyleSpannable(getContext(), key, arg);
+    }
+    
+    public Spannable localize(String key, String[] args){
+        return MarkupUtil.localizeStyleSpannable(getContext(), key, args);
     }
 }

@@ -97,7 +97,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                         .startActivityForResult(i, FormEntryActivity.AUDIO_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "audio capture"),
+                        localize("odk_activity_not_found", "audio capture"),
                         Toast.LENGTH_SHORT);
                 }
 
@@ -106,7 +106,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup capture button
         mChooseButton = new Button(getContext());
-        mChooseButton.setText(MarkupUtil.localizeStyleSpannable(getContext(),"odk_choose_sound"));
+        mChooseButton.setText(localize("odk_choose_sound"));
         mChooseButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mChooseButton.setPadding(20, 20, 20, 20);
         mChooseButton.setEnabled(!prompt.isReadOnly());
@@ -128,7 +128,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                         .startActivityForResult(i, FormEntryActivity.AUDIO_CHOOSER);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "choose audio"),
+                        localize("odk_activity_not_found", "choose audio"),
                         Toast.LENGTH_SHORT);
                 }
 
@@ -137,7 +137,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup play button
         mPlayButton = new Button(getContext());
-        mPlayButton.setText(MarkupUtil.localizeStyleSpannable(getContext(),"odk_play_audio"));
+        mPlayButton.setText(localize("odk_play_audio"));
         mPlayButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mPlayButton.setPadding(20, 20, 20, 20);
         mPlayButton.setLayoutParams(params);
@@ -157,7 +157,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                 ((Activity) getContext()).startActivity(i);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "play audio"),
+                        localize("odk_activity_not_found", "play audio"),
                         Toast.LENGTH_SHORT);
                 }
 

@@ -101,7 +101,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            launchIntentButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_intent_callout_button_update"));
+            launchIntentButton.setText(this.localize("odk_intent_callout_button_update"));
             mStringAnswer.setText(s);
         }
         // finish complex layout
@@ -113,7 +113,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         if(ic.getButtonLabel() != null){
             launchIntentButton.setText(ic.getButtonLabel());
         } else{
-            launchIntentButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_intent_callout_button"));
+            launchIntentButton.setText(this.localize("odk_intent_callout_button"));
         }
     }
 

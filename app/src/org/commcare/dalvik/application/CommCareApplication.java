@@ -363,7 +363,6 @@ public class CommCareApplication extends Application {
     private int initializeAppResources(CommCareApp app) {
         try {
             currentApp = app;
-            currentApp.initializeStylizer();
             if(currentApp.initializeApplication()) {
                 return STATE_READY;
             } else {

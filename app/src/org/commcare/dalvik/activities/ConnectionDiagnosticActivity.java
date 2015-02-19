@@ -95,7 +95,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                                     Localization.get("connection.task.internet.fail") 
                                     : Localization.get("connection.task.remote.ping.fail");
                             
-                            receiver.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(ConnectionDiagnosticActivity.this, displayMessage));
+                            receiver.txtInteractiveMessages.setText(localize(displayMessage));
                             receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
                             
                             receiver.settingsButton.setVisibility(View.VISIBLE);

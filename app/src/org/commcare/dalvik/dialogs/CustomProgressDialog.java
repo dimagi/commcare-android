@@ -26,12 +26,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.app.AlertDialog;
-import android.app.Dialog;
-
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.dalvik.R;
 
 public class CustomProgressDialog extends DialogFragment {
     

@@ -6,10 +6,6 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javarosa-core"/>
-	<classpathentry exported="true" kind="lib" path="libs/commons-codec.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/joda-time-2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/osbcp-css-parser-1.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/sqlcipher.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare.cases"/>
 	<classpathentry kind="output" path="bin/classes"/>

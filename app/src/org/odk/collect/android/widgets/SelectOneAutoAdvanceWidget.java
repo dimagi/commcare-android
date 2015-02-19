@@ -91,7 +91,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
                 RadioButton r = new RadioButton(getContext());
                 r.setOnCheckedChangeListener(this);
-                r.setText(MarkupUtil.styleSpannable(getContext(),prompt.getSelectChoiceText(mItems.get(i))));
+                r.setText(stylize(prompt.getSelectChoiceText(mItems.get(i))));
                 r.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
                 r.setId(i + buttonIdBase);
                 r.setEnabled(!prompt.isReadOnly());

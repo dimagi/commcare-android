@@ -91,7 +91,7 @@ public class SelectMultiWidget extends QuestionWidget {
                 });
 
                 c.setId(buttonIdBase + i);
-                c.setText(MarkupUtil.styleSpannable(getContext(),prompt.getSelectChoiceText(mItems.get(i))));
+                c.setText(stylize(prompt.getSelectChoiceText(mItems.get(i))));
                 c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
                 c.setFocusable(!prompt.isReadOnly());
                 c.setEnabled(!prompt.isReadOnly());

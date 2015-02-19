@@ -84,7 +84,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup capture button
         mCaptureButton = new Button(getContext());
-        mCaptureButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_capture_image"));
+        mCaptureButton.setText(this.localize("odk_capture_image"));
         mCaptureButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mCaptureButton.setPadding(20, 20, 20, 20);
         mCaptureButton.setEnabled(!prompt.isReadOnly());
@@ -118,7 +118,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "image capture"),
+                        localize("odk_activity_not_found", "image capture"),
                         Toast.LENGTH_SHORT);
                 }
 
@@ -127,7 +127,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup chooser button
         mChooseButton = new Button(getContext());
-        mChooseButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_choose_image"));
+        mChooseButton.setText(this.localize("odk_choose_image"));
         mChooseButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mChooseButton.setPadding(20, 20, 20, 20);
         mChooseButton.setEnabled(!prompt.isReadOnly());
@@ -151,7 +151,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "choose image"),
+                        localize("odk_activity_not_found", "choose image"),
                         Toast.LENGTH_SHORT);
                 }
 
@@ -232,7 +232,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                                 getContext().startActivity(i);
                             } catch (ActivityNotFoundException e) {
                                 Toast.makeText(getContext(),
-                                    MarkupUtil.localizeStyleSpannable(getContext(), "odk_activity_not_found", "view image"),
+                                    localize("odk_activity_not_found", "view image"),
                                     Toast.LENGTH_SHORT);
                             }
                         }
@@ -278,7 +278,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mErrorTextView.setVisibility(View.GONE);
 
         // reset buttons
-        mCaptureButton.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_capture_image"));
+        mCaptureButton.setText(this.localize("odk_capture_image"));
     }
 
 

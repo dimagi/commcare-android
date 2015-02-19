@@ -68,8 +68,8 @@ public class DeveloperPreferences extends PreferenceActivity {
 	public static boolean isActionBarEnabled(){
         return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
-	
-	    public static boolean isNewNavEnabled(){
+
+    public static boolean isNewNavEnabled(){
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }

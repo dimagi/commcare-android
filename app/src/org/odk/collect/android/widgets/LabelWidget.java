@@ -4,7 +4,6 @@ package org.odk.collect.android.widgets;
 import java.io.File;
 import java.util.Vector;
 
-import org.commcare.android.util.MarkupUtil;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.reference.InvalidReferenceException;

@@ -165,7 +165,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
                 
                 TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
-                message.setText(MarkupUtil.localizeStyleSpannable(this, "select.placeholder.message", new String[] {Localization.get("cchq.case")}));
+                message.setText(this.localize("select.placeholder.message", new String[] {Localization.get("cchq.case")}));
             } else {
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
@@ -184,7 +184,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-        searchLabel.setText(MarkupUtil.localizeStyleSpannable(this, "select.search.label"));
+        searchLabel.setText(this.localize("select.search.label"));
         searchLabel.setOnClickListener(new OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -511,7 +511,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 adapter.applyFilter(filterString);
                 String query = searchbox.getText().toString();
                 if (!"".equals(query)) {
-                    searchResultStatus.setText(MarkupUtil.localizeStyleSpannable(this, "select.search.status", new String[] {
+                    searchResultStatus.setText(this.localize("select.search.status", new String[] {
                         ""+adapter.getCount(), 
                         ""+adapter.getFullCount(), 
                         query
@@ -779,7 +779,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
             Button next = (Button)findViewById(R.id.entity_select_button);
-            next.setText(MarkupUtil.localizeStyleSpannable(this, "select.detail.confirm"));
+            next.setText(this.localize("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
 
                 public void onClick(View v) {

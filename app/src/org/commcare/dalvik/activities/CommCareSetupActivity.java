@@ -284,7 +284,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
             
         });
-        addressEntryButton.setText(MarkupUtil.localizeStyleSpannable(this, "install.button.enter"));
+        addressEntryButton.setText(this.localize("install.button.enter"));
         
         startOverButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -707,7 +707,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MODE_BASIC, 0, MarkupUtil.localizeStyleSpannable(this, "menu.basic")).setIcon(android.R.drawable.ic_menu_help);
+        menu.add(0, MODE_BASIC, 0, this.localize("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
         menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         return true;
@@ -742,22 +742,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToAutoUpgrade(){
-        retryButton.setText(MarkupUtil.localizeStyleSpannable(this, "upgrade.button.retry"));
-        startOverButton.setText(MarkupUtil.localizeStyleSpannable(this, "upgrade.button.startover"));
+        retryButton.setText(this.localize("upgrade.button.retry"));
+        startOverButton.setText(this.localize("upgrade.button.startover"));
         buttonView.setVisibility(View.INVISIBLE);
     }
     
     public void setModeToReady(String incomingRef) {
         buttonView.setVisibility(View.VISIBLE);
         
-        mainMessage.setText(MarkupUtil.localizeStyleSpannable(this, "install.ready"));
+        mainMessage.setText(this.localize("install.ready"));
         mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
         
         editProfileRef.setText(incomingRef);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
-        startOverButton.setText(MarkupUtil.localizeStyleSpannable(this, "install.button.startover"));
+        startOverButton.setText(this.localize("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
         addressEntryButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
@@ -802,7 +802,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         editProfileRef.setText("");
         this.incomingRef = null;
 
-        mainMessage.setText(MarkupUtil.localizeStyleSpannable(this, "install.barcode"));
+        mainMessage.setText(this.localize("install.barcode"));
         mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
         
         addressEntryButton.setVisibility(View.VISIBLE);
@@ -812,8 +812,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startOverButton.setVisibility(View.GONE);
         installButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
-        retryButton.setText(MarkupUtil.localizeStyleSpannable(this, "install.button.retry"));
-        startOverButton.setText(MarkupUtil.localizeStyleSpannable(this, "install.button.startover"));
+        retryButton.setText(this.localize("install.button.retry"));
+        startOverButton.setText(this.localize("install.button.startover"));
     }
 
     public void setModeToAdvanced(){
@@ -823,13 +823,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         mScanBarcodeButton.setVisibility(View.GONE);
         addressEntryButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
-        startOverButton.setText(MarkupUtil.localizeStyleSpannable(this, "install.button.startover"));
+        startOverButton.setText(this.localize("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
         installButton.setEnabled(true);
         viewNotificationButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
-		retryButton.setText(MarkupUtil.localizeStyleSpannable(this, "install.button.retry"));
-        startOverButton.setText(MarkupUtil.localizeStyleSpannable(this, "install.button.startover"));
+		retryButton.setText(this.localize("install.button.retry"));
+        startOverButton.setText(this.localize("install.button.startover"));
         loginButton.setVisibility(View.GONE);
     }
 

@@ -68,11 +68,11 @@ public class SpinnerMultiWidget extends QuestionWidget {
             answer_items[i] = prompt.getSelectChoiceText(mItems.get(i));
         }
 
-        selectionText.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_selected"));
+        selectionText.setText(this.localize("odk_selected"));
         selectionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         selectionText.setVisibility(View.GONE);
 
-        button.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_select_answer"));
+        button.setText(this.localize("odk_select_answer"));
         button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         button.setPadding(0, 0, 0, 7);
 
@@ -91,7 +91,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
 
                                     if (first) {
                                         first = false;
-                                        selectionText.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_selected")
+                                        selectionText.setText(localize("odk_selected")
                                                 + answer_items[i].toString());
                                         selectionText.setVisibility(View.VISIBLE);
                                     } else {
@@ -156,7 +156,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
                 if (found) {
                     if (first) {
                         first = false;
-                        selectionText.setText(MarkupUtil.localizeStyleSpannable(getContext(), "odk_selected")
+                        selectionText.setText(this.localize("odk_selected")
                                 + answer_items[i].toString());
                         selectionText.setVisibility(View.VISIBLE);
                     } else {

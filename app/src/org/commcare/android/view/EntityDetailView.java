@@ -128,8 +128,8 @@ public class EntityDetailView extends FrameLayout {
 
     public void setParams(CommCareSession session, Detail d, Entity e, int index, int detailNumber) {
         String labelText = d.getFields()[index].getHeader().evaluate();
-        label.setText((labelText));
-        spacer.setText((labelText));
+        label.setText(labelText);
+        spacer.setText(labelText);
         
         Object field = e.getField(index);
         String textField = e.getFieldString(index);

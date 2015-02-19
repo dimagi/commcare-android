@@ -1,4 +1,5 @@
-<!-- Copyright (C) 2009 University of Washington
+<!--
+ Copyright (C) 2009 University of Washington
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
@@ -10,30 +11,33 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
-the License.
+the License.
 -->
-<PreferenceScreen
-        xmlns:android="http://schemas.android.com/apk/res/android">
-	
-	<ListPreference android:key="cc-css-enabled" android:enabled="true" android:title="CSS Enabled" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
-<ListPreference android:key="cc-markdown-enabled" android:enabled="true" android:title="Markdown Enabled" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables"/>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-<ListPreference 
-    android:key="cc-superuser-enabled" 
-    android:enabled="true" 
-    android:title="Developer Mode Enabled" 
-    android:entryValues="@array/pref_enabled_vals" 
-    android:entries="@array/pref_enabled_lables"/>
-<ListPreference 
-    android:key="cc-grid-menus" 
-    android:enabled="true" 
-    android:title="Grid Menus Enables" 
-    android:entryValues="@array/pref_enabled_vals" 
-    android:entries="@array/pref_enabled_lables"/>
-<ListPreference 
-	android:key="cc-nav-ui-enabled" 
-	android:enabled="true" 
-	android:title="Navigation UI" 
-	android:entryValues="@array/pref_enabled_vals" 
-	android:entries="@array/pref_enabled_lables"/>
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-css-enabled"
+        android:title="CSS Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-superuser-enabled"
+        android:title="Developer Mode Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-grid-menus"
+        android:title="Grid Menus Enables" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-nav-ui-enabled"
+        android:title="Navigation UI" />
+
 </PreferenceScreen>
