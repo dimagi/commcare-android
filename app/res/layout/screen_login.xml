@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/screen_login_main">
+    android:id="@+id/screen_login_main" >
     
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:paddingBottom="@dimen/spacer_largest"
+        android:paddingBottom="50sp"
         android:id="@+id/screen_login_banner_pane">
 
         <ImageView
@@ -16,7 +16,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:scaleType="fitStart"
-            android:src="@drawable/ccbanner" android:adjustViewBounds="true"/>
+            android:src="@drawable/ccbanner" 
+            android:adjustViewBounds="true"/>
 
     </FrameLayout>
     
@@ -56,8 +57,9 @@
         android:id="@+id/main_pane"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/app_selection_spinner"
-        android:paddingTop="@dimen/spacer_largest"
+        android:layout_above="@id/screen_login_bottom_pane"
+        android:layout_alignParentTop="true"
+        android:paddingTop="55sp"
         android:orientation="vertical" >
 
         <LinearLayout
