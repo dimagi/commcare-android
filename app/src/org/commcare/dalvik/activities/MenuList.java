@@ -119,4 +119,12 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
         finish();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
+     */
+    protected boolean onBackwardSwipe() {
+        finish();
+        return true;
+    }
 }

@@ -162,4 +162,12 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
+     */
+    protected boolean onBackwardSwipe() {
+        finish();
+        return true;
+    }
 }
