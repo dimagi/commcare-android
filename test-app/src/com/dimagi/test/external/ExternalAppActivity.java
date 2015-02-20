@@ -30,6 +30,7 @@ public class ExternalAppActivity extends Activity {
     Button sync;
     Button content;
     Button receiver;
+    Button fixtureButton;
     
     byte[] publicKey;
     String keyId;
@@ -113,6 +114,17 @@ public class ExternalAppActivity extends Activity {
 
             public void onClick(View v) {
                 Intent i = new Intent(ExternalAppActivity.this, CaseContentActivity.class);
+                
+                ExternalAppActivity.this.startActivity(i);
+                }
+            
+        });
+        
+        fixtureButton = (Button)this.findViewById(R.id.button_fixture);
+        fixtureButton.setOnClickListener(new OnClickListener() {
+
+            public void onClick(View v) {
+                Intent i = new Intent(ExternalAppActivity.this, FixtureContentActivity.class);
                 
                 ExternalAppActivity.this.startActivity(i);
                 }
