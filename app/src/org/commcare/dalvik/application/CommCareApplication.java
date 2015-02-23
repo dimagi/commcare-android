@@ -627,6 +627,18 @@ public class CommCareApplication extends Application {
         return Localization.get(getString(R.string.app_version_string), new String[] {pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
     }
     
+    /**
+     * Allows something within the current service binding to update the app to let it
+     * know that the bind may take longer than the current timeout can allow
+     * 
+     * @param timeout
+     */
+    public void setCustomServiceBindTimeout(int timeout) {
+        synchronized(serviceLock) {
+            this.mCurrentServiceBindTimeout = timeout;
+        }
+    }
+    
     //Start Service code. Will be changed in the future
     private CommCareSessionService mBoundService;
 
@@ -645,6 +657,9 @@ public class CommCareApplication extends Application {
                 // cast its IBinder to a concrete class and directly access it.
                 User user = null;
                 synchronized(serviceLock) {
+                    
+                    mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
+                    
                     mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 
                     //Don't let anyone touch this until it's logged in
@@ -889,11 +904,13 @@ public class CommCareApplication extends Application {
     //Milliseconds to wait for bind
     private static final int MAX_BIND_TIMEOUT = 5000;
     
+    private int mCurrentServiceBindTimeout = -1;
+    
     public CommCareSessionService getSession() throws SessionUnavailableException {
         long started = System.currentTimeMillis();
         //If binding is currently in process, just wait for it.
         while(mIsBinding) {
-            if(System.currentTimeMillis() - started > MAX_BIND_TIMEOUT) {
+            if(System.currentTimeMillis() - started > mCurrentServiceBindTimeout) {
                 //Something bad happened
                 doUnbindService();
                 throw new SessionUnavailableException("Timeout binding to session service");
