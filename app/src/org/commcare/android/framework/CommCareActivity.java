@@ -113,9 +113,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             }
         }
         
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mGestureDetector = new GestureDetector(this, this);
-        }
+        mGestureDetector = new GestureDetector(this, this);
     }
     
     private void loadPreviousAudio(AudioController oldController) {
