@@ -904,7 +904,7 @@ public class CommCareApplication extends Application {
     //Milliseconds to wait for bind
     private static final int MAX_BIND_TIMEOUT = 5000;
     
-    private int mCurrentServiceBindTimeout = -1;
+    private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
     
     public CommCareSessionService getSession() throws SessionUnavailableException {
         long started = System.currentTimeMillis();
