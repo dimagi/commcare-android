@@ -7,6 +7,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.storage.framework.MetaField;
@@ -34,6 +36,8 @@ public class UserKeyRecord extends Persisted {
     public static final int TYPE_NEW = 3;
     /** This is a new record that hasn't been evaluated for usage yet **/
     public static final int TYPE_PENDING_DELETE = 4;
+    
+    public static final Pattern HASH_STRING_PATTERN=Pattern.compile("([^\\$]+)\\$([^\\$]+)\\$([^\\$]+)");
     
     @Persisting(1)
     @MetaField(META_USERNAME)
@@ -121,13 +125,22 @@ public class UserKeyRecord extends Persisted {
         return type;
     }
     
+    private static final int DEFAULT_SALT_LENGTH = 6;
+    
     public static String generatePwdHash(String pwd) {
+        return generatePwdHash(pwd, PropertyUtils.genGUID(DEFAULT_SALT_LENGTH).toLowerCase());
+    }
+    
+    public static String extractSalt(String pwdString) {
+        Matcher m = HASH_STRING_PATTERN.matcher(pwdString);
+        if(m.matches()) { return m.group(2);}
+        throw new IllegalArgumentException("Invalid pwd string for salt extraction");
+    }
+    
+    public static String generatePwdHash(String pwd, String salt) {
         String alg = "sha1";
-        
-        int saltLength = 6;
         int hashLength = 41;
-        
-        String salt = PropertyUtils.genGUID(saltLength).toLowerCase();
+
         MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-1");
@@ -149,28 +162,11 @@ public class UserKeyRecord extends Persisted {
     }
 
     public boolean isPasswordValid(String password) {
-        try {
-            String hash = this.getPasswordHash();
-            if(hash.contains("$")) {
-                String alg = "sha1";
-                String salt = hash.split("\\$")[1];
-                String check = hash.split("\\$")[2];
-                MessageDigest md = MessageDigest.getInstance("SHA-1");
-                BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
-                String hashed = number.toString(16);
-                
-                while(hashed.length() < check.length()) {
-                    hashed = "0" + hashed;
-                }
-                
-                if(hash.equals(alg + "$" + salt + "$" + hashed)) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (NoSuchAlgorithmException  nsae) {
-            throw new RuntimeException("SHA-1 support not present!");
+        String hash = this.getPasswordHash();
+        if(HASH_STRING_PATTERN.matcher(hash).matches()) {
+            if(hash.equals(UserKeyRecord.generatePwdHash(password, UserKeyRecord.extractSalt(hash)))) { return true; }
         }
+        return false;
     }
 
     public byte[] unWrapKey(String password) {
