@@ -8,8 +8,6 @@ import java.util.Vector;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.view.GridMediaView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
@@ -57,8 +55,14 @@ public class MenuAdapter implements ListAdapter {
         
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
+        EvaluationContext ec = asw.getEvaluationContext();
         for(Suite s : platform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
+                XPathExpression relevant = m.getRelevantExpr();
+                if(relevant != null && XPathFuncExpr.toBoolean(relevant.eval(ec)).booleanValue() == false) {
+                    continue;
+                }
+                
                 if(m.getId().equals(menuID)) {
                     
                     if(menuTitle == null) {
@@ -74,8 +78,7 @@ public class MenuAdapter implements ListAdapter {
                         try {
                             XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
                             if(mRelevantCondition != null) {                            
-                                EvaluationContext mEC = asw.getEvaluationContext();
-                                Object ret = mRelevantCondition.eval(mEC);
+                                Object ret = mRelevantCondition.eval(ec);
                                 try {
                                     if(!XPathFuncExpr.toBoolean(ret)) {
                                         continue;
@@ -85,7 +88,7 @@ public class MenuAdapter implements ListAdapter {
                                     throw new RuntimeException("relevancy condition for menu item returned non-boolean value : " + ret);
                                     
                                 }
-                            if(!XPathFuncExpr.toBoolean(ret)) { continue;}
+                                if(!XPathFuncExpr.toBoolean(ret)) { continue;}
                             }
                             
                             Entry e = map.get(command);
