@@ -58,20 +58,7 @@ public class MenuAdapter implements ListAdapter {
         asw = CommCareApplication._().getCurrentSessionWrapper();
         EvaluationContext ec = asw.getEvaluationContext();
         for(Suite s : platform.getInstalledSuites()) {
-            for(Menu m : s.getMenus()) {
-                String condition = m.getRelevancyCondition();
-                if(condition != null) {
-                    XPathExpression parsed;
-                    try {
-                        parsed = XPathParseTool.parseXPath(condition);
-                        if (parsed != null && XPathFuncExpr.toBoolean(parsed.eval(ec)).booleanValue() == false) {
-                            continue;
-                        }
-                    } catch (XPathSyntaxException e) {
-                        e.printStackTrace();
-                    }
-                }
-                
+            for(Menu m : s.getMenus(ec)) {
                 if(m.getId().equals(menuID)) {
                     
                     if(menuTitle == null) {
