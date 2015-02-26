@@ -21,6 +21,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -58,9 +59,17 @@ public class MenuAdapter implements ListAdapter {
         EvaluationContext ec = asw.getEvaluationContext();
         for(Suite s : platform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
-                XPathExpression relevant = m.getRelevantExpr();
-                if(relevant != null && XPathFuncExpr.toBoolean(relevant.eval(ec)).booleanValue() == false) {
-                    continue;
+                String condition = m.getRelevancyCondition();
+                if(condition != null) {
+                    XPathExpression parsed;
+                    try {
+                        parsed = XPathParseTool.parseXPath(condition);
+                        if (parsed != null && XPathFuncExpr.toBoolean(parsed.eval(ec)).booleanValue() == false) {
+                            continue;
+                        }
+                    } catch (XPathSyntaxException e) {
+                        e.printStackTrace();
+                    }
                 }
                 
                 if(m.getId().equals(menuID)) {
