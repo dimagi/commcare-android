@@ -85,8 +85,9 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
     boolean upgradeMode = false;
     boolean partialMode = false;
     boolean startOverUpgrade;
-    //This boolean is set from CommCareSetupActivity -- If we are in keep trying mode for installation,
-    //we want to sleep in between attempts to launch this task
+    // This boolean is set from CommCareSetupActivity -- If we are in keep
+    // trying mode for installation, we want to sleep in between attempts to
+    // launch this task
     boolean shouldSleep;
 
     protected String vAvailable;
@@ -128,16 +129,15 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         }
 
         try {
-            //This is replicated in the application in a few places.
+            // This is replicated in the application in a few places.
             ResourceTable global = platform.getGlobalResourceTable();
 
-            //Ok, should figure out what the state of this bad boy is.
+            // Ok, should figure out what the state of this bad boy is.
             Resource profile = global.getResourceWithId("commcare-application-profile");
 
             boolean sanityTest1 = (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
 
             if (upgradeMode) {
-
                 if (!sanityTest1) {
                   return ResourceEngineOutcomes.StatusFailState;
                 }
@@ -151,7 +151,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 ResourceTable recovery = platform.getRecoveryTable();
                 temporary.setStateListener(this);
 
-                /*this populates the upgrade table with resources based on binary files,
+                /* this populates the upgrade table with resources based on binary files,
                  * starting with the profile file. If the new profile is not a newer version,
                  * statgeUpgradeTable doesn't actually pull in all the new references
                  */
@@ -163,18 +163,16 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 }
 
                 phase = PHASE_CHECKING;
-                //Replaces global table with temporary, or w/ recovery if something goes wrong
+                // Replaces global table with temporary, or w/ recovery if something goes wrong
                 platform.upgrade(global, temporary, recovery);
 
-                //And see where we ended up to see whether an upgrade actually occurred
-            } else if(partialMode){
-
+                // And see where we ended up to see whether an upgrade actually occurred
+            } else if (partialMode){
                 global.setStateListener(this);
                 platform.init(profileRef, global, false);
                 app.writeInstalled();
-
             } else {
-                //this is a standard, clean install
+                // this is a standard, clean install
                 if (sanityTest1) {
                   return ResourceEngineOutcomes.StatusFailState;
                 }
@@ -185,11 +183,11 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 app.writeInstalled();
             }
 
-            //Initialize them now that they're installed
+            // Initialize them now that they're installed
             CommCareApplication._().initializeGlobalResources(app);
 
-            //Alll goood, we need to set our current profile ref to either the one
-            //just used, or the auth ref, if one is available.
+            // Alll goood, we need to set our current profile ref to either the one
+            // just used, or the auth ref, if one is available.
 
             String authRef = platform.getCurrentProfile().getAuthReference() == null ? profileRef : platform.getCurrentProfile().getAuthReference();
 
@@ -211,7 +209,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
             badReqCode = e.getRequirementCode();
 
             vAvailable = e.getAvailableVesionString();
-            vRequired= e.getRequiredVersionString();
+            vRequired = e.getRequiredVersionString();
             majorIsProblem = e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION;
 
             tryToClearApp();
@@ -219,16 +217,16 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "App resources are incompatible with this device|" + e.getMessage());
             return ResourceEngineOutcomes.StatusBadReqs;
         } catch (UnresolvedResourceException e) {
-            //couldn't find a resource, which isn't good.
+            // couldn't find a resource, which isn't good.
             e.printStackTrace();
 
             tryToClearApp();
 
             Throwable mExceptionCause = e.getCause();
 
-            if(mExceptionCause instanceof SSLHandshakeException){
+            if (mExceptionCause instanceof SSLHandshakeException){
                 Throwable mSecondExceptionCause = mExceptionCause.getCause();
-                if(mSecondExceptionCause instanceof CertificateException) {
+                if (mSecondExceptionCause instanceof CertificateException) {
                     return ResourceEngineOutcomes.StatusBadCertificate;
                 }
             }
@@ -240,7 +238,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
             } else {
                 return ResourceEngineOutcomes.StatusMissing;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
 
             tryToClearApp();
@@ -280,24 +278,23 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
     long lastTime = 0;
 
     public void resourceStateUpdated(ResourceTable table) {
-
         // if last time isn't set or is less than our spacing count, do not perform status update
-        if(System.currentTimeMillis() - lastTime < ResourceEngineTask.STATUS_UPDATE_WAIT_TIME){
+        if (System.currentTimeMillis() - lastTime < ResourceEngineTask.STATUS_UPDATE_WAIT_TIME){
             return;
         }
 
         Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
 
-        //TODO: Better reflect upgrade status process
+        // TODO: Better reflect upgrade status process
 
         int score = 0;
 
         for (Resource r : resources) {
-            switch(r.getStatus()) {
+            switch (r.getStatus()) {
             case Resource.RESOURCE_STATUS_UPGRADE:
-                //If we spot an upgrade after we've started the upgrade process,
-                //something now needs to be updated
-                if(phase == PHASE_CHECKING) {
+                // If we spot an upgrade after we've started the upgrade process,
+                // something now needs to be updated
+                if (phase == PHASE_CHECKING) {
                     this.phase = PHASE_DOWNLOAD;
                 }
                 score += 1;
