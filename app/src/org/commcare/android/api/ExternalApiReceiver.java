@@ -247,7 +247,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
              */
             @Override
             protected void deliverResult(Object receiver, Integer result) {
-                if(result != DataPullTask.DOWNLOAD_SUCCESS) {
+                if(result != DataPullTask.RESULT_DOWNLOAD_SUCCESS) {
                     Toast.makeText(c, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(c, "CommCare synced!", Toast.LENGTH_LONG).show();

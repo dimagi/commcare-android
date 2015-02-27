@@ -18,6 +18,7 @@ import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -31,6 +32,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -178,29 +180,32 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     @Override
                     protected void deliverResult( LoginActivity receiver, Integer result) {
                         switch(result) {
-                        case DataPullTask.AUTH_FAILED:
+                        case DataPullTask.RESULT_AUTH_FAILED:
                             receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
                             break;
-                        case DataPullTask.BAD_DATA:
+                        case DataPullTask.RESULT_BAD_DATA:
                             receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN));
                             break;
-                        case DataPullTask.DOWNLOAD_SUCCESS:
+                        case DataPullTask.RESULT_DOWNLOAD_SUCCESS:
                             if(!tryLocalLogin(true)) {
                                 receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_CredentialMismatch, new String[3], NOTIFICATION_MESSAGE_LOGIN));
                             } else {
                                 break;
                             }
-                        case DataPullTask.UNREACHABLE_HOST:
+                        case DataPullTask.RESULT_UNREACHABLE_HOST:
                             receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
                             break;
-                        case DataPullTask.CONNECTION_TIMEOUT:
+                        case DataPullTask.RESULT_CONNECTION_TIMEOUT:
                             receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_Timeout, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
                             break;
-                        case DataPullTask.SERVER_ERROR:
+                        case DataPullTask.RESULT_SERVER_ERROR:
                             receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_ServerError, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
                             break;
-                        case DataPullTask.UNKNOWN_FAILURE:
+                        case DataPullTask.RESULT_UNKNOWN_FAILURE:
                             receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                            break;
+                        case DataPullTask.RESULT_CANCELLED:
+                            receiver.raiseFeedback(Localization.get("sync.fail.cancelled"));
                             break;
                         }
 
@@ -227,6 +232,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                             receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
                             receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
+                        } else if(update[0] == DataPullTask.PROGRESS_SERVER_PROCESSING) {
+                            int secondsUntilSync = update[1];
+                            int secondsSinceStart = update[2];
+                            String betterSeconds = StringUtils.getRelativeTimeSpanString(System.currentTimeMillis() + secondsUntilSync, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0).toString();
+                            receiver.updateProgress(Localization.get("sync.progress.waiting", new String[] {betterSeconds}), DataPullTask.DATA_PULL_TASK_ID);
+                            receiver.updateProgressBar(secondsSinceStart, secondsUntilSync + secondsSinceStart, DataPullTask.DATA_PULL_TASK_ID);
                         }
                     }
 
@@ -445,12 +456,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             CommCareApplication._().reportNotificationMessage(message);
             toastText = Localization.get("notification.for.details.wrapper", new String[] {toastText});
         }
-        
+        raiseFeedback(toastText);
+    }
+    
+    private void raiseFeedback(String messsage) {
         //either way
         errorBox.setVisibility(View.VISIBLE);
-        errorBox.setText(toastText);
+        errorBox.setText(messsage);
         
-        Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
+        Toast.makeText(this,messsage, Toast.LENGTH_LONG).show();
     }
     
     

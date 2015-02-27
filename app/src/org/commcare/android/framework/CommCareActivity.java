@@ -713,6 +713,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         if (mProgressDialog != null) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateMessage(updateText);
+                
+                //Try to signal "cancellability"
+                CommCareTask running = stateHolder.currentTask;
+                if(running != null) {
+                    mProgressDialog.setCancelButtonEnabled(running.isCurrentlyCancellable());
+                }
+                
             }
             else {
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, 

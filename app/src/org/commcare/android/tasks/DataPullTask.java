@@ -79,17 +79,30 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     int mTotalItems = -1;
     long mSyncStartTime;
     
+    /** Time (in ms since epoch) when sync should be attempted again **/
+    private long mRetryAt;
+    
+    /** Time (in ms since epoch) when server requested an asynchronous wait **/
+    private long mRetryBegan;
+    
     private boolean wasKeyLoggedIn = false;
+    
+    /**
+     * Whether the task can be cancelled in its current state.
+     */
+    private boolean mIsCurrentlyCancellable = true;
     
     public static final int DATA_PULL_TASK_ID = 10;
     
-    public static final int DOWNLOAD_SUCCESS = 0;
-    public static final int AUTH_FAILED = 1;
-    public static final int BAD_DATA = 2;
-    public static final int UNKNOWN_FAILURE = 4;
-    public static final int UNREACHABLE_HOST = 8;
-    public static final int CONNECTION_TIMEOUT = 16;
-    public static final int SERVER_ERROR = 32;
+    public static final int RESULT_DOWNLOAD_SUCCESS = 0;
+    public static final int RESULT_AUTH_FAILED = 1;
+    public static final int RESULT_BAD_DATA = 2;
+    public static final int RESULT_UNKNOWN_FAILURE = 4;
+    public static final int RESULT_UNREACHABLE_HOST = 8;
+    public static final int RESULT_CONNECTION_TIMEOUT = 16;
+    public static final int RESULT_SERVER_ERROR = 32;
+    public static final int RESULT_DOWNLOAD_PARTIAL = 64;
+    public static final int RESULT_CANCELLED = 128;
     
     public static final int PROGRESS_STARTED = 0;
     public static final int PROGRESS_CLEANED = 1;
@@ -101,6 +114,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
+    public static final int PROGRESS_SERVER_PROCESSING = 512;
+
     
     /**
      * Whether to enable loading this data from a local asset for 
@@ -112,7 +127,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
      */
     private static final boolean DEBUG_LOAD_FROM_LOCAL = false;
     private InputStream mDebugStream;
-
     
     public DataPullTask(String username, String password, String server, String keyProvider, Context c) {
         this.server = server;
@@ -160,7 +174,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             //expected if we aren't initialized.
         }
         
-        int responseError = UNKNOWN_FAILURE;
+        int responseError = RESULT_UNKNOWN_FAILURE;
         
         //This should be per _user_, not per app
         prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
@@ -182,7 +196,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             }
         };
         Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
-        long bytesRead = -1;
 
         UserKeyRecord ukr = null;
             
@@ -195,7 +208,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         if(newKey == null) {
                             this.publishProgress(PROGRESS_DONE);
-                            return UNKNOWN_FAILURE;
+                            return RESULT_UNKNOWN_FAILURE;
                         }
                         String sandboxId = PropertyUtils.genUUID().replace("-", "");
                         ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(newKey.getEncoded(),password), new Date(), new Date(Long.MAX_VALUE), sandboxId);
@@ -205,7 +218,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         if(ukr == null) {
                             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
                             this.publishProgress(PROGRESS_DONE);
-                            return UNKNOWN_FAILURE;
+                            return RESULT_UNKNOWN_FAILURE;
                         }
                     }
                     
@@ -219,196 +232,67 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     purgeCases();
                     useRequestFlags = true;
                 }
-                //Either way, don't re-do this step
-                this.publishProgress(PROGRESS_CLEANED);
+                
+                boolean isMoreData = true;
+                
+                //Make sure this is primed
+                this.mRetryAt = -1;
+                //Ok, so it's time to start trying the sync. This is in a loop in case the server requests that
+                //we need to wait for further data
+                while(isMoreData) {
+                    if(this.isCancelled()) {
+                        return RESULT_CANCELLED;
+                    }
+                    //Check whether we're currently waiting for a retry timer to expire
+                    if(mRetryAt != -1 && !(System.currentTimeMillis() > mRetryAt)) {
+                        //if we are, wait for a short amount of time and then jump back to the beginning of the loop.
+                        //we have to poll this to be able to check for user cancel inputs.
+                        try {
+                            int secondsUntilSync = (int)(mRetryAt - System.currentTimeMillis());
+                            int secondsSinceStart = (int)(System.currentTimeMillis() - this.mRetryBegan);
+                            this.publishProgress(PROGRESS_SERVER_PROCESSING, secondsUntilSync, secondsSinceStart);
 
-                int responseCode = -1;
-                HttpResponse response = null;
-                
-                //This isn't awesome, but it's hard to work this in in a cleaner way
-                if(DEBUG_LOAD_FROM_LOCAL) {
-                    mDebugStream = this.c.getAssets().open("payload.xml");
-                    responseCode = 200;
-                } else {
-                    response = requestor.makeCaseFetchRequest(server, useRequestFlags);
-                    responseCode = response.getStatusLine().getStatusCode();
-                }
-                Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + responseCode);
-                
-                if(responseCode == 401) {
-                    //If we logged in, we need to drop those credentials
-                    if(loginNeeded) {
-                        CommCareApplication._().logout();
-                    }
-                    Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
-                    return AUTH_FAILED;
-                } else if(responseCode >= 200 && responseCode < 300) {
-                    
-                    if(loginNeeded) {                        
-                        //This is necessary (currently) to make sure that data
-                        //is encoded. Probably a better way to do this.
-                        CommCareApplication._().logIn(CryptUtil.unWrapKey(ukr.getEncryptedKey(), password), ukr);
-                        wasKeyLoggedIn = true;
-                    }
-                    
-                    
-                    this.publishProgress(PROGRESS_AUTHED,0);
-                    Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
-                    
-                    final long dataSizeGuess = guessDataSize(response);
-                    
-                    BitCache cache = BitCacheFactory.getCache(c, dataSizeGuess);
-                    
-                    cache.initializeCache();
-                    
-                    try {
-                        OutputStream cacheOut = cache.getCacheStream();
-                        InputStream input;
-                        if(DEBUG_LOAD_FROM_LOCAL) {
-                            input = this.mDebugStream;
-                        } else {
-                            input = AndroidHttpClient.getUngzippedContent(response.getEntity());
+                            Thread.sleep(400);
+                        } catch (InterruptedException e) {
                         }
-                        Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
-                        AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(input), cacheOut, new StreamReadObserver() {
-                            long lastOutput = 0;
-                            
-                            /** The notification threshold. **/
-                            static final int PERCENT_INCREASE_THRESHOLD = 4;
-
-                            @Override
-                            public void notifyCurrentCount(long bytesRead) {
-                                boolean notify = false;
-                                
-                                //We always wanna notify when we get our first bytes
-                                if(lastOutput == 0) {
-                                    Log.i("commcare-network", "First"  + bytesRead + " bytes recieved from network: ");
-                                    notify = true;
-                                }
-                                //After, if we don't know how much data to expect, we can't do
-                                //anything useful
-                                if(dataSizeGuess == -1) {
-                                    //set this so the first notification up there doesn't keep firing
-                                    lastOutput = bytesRead;
-                                    return;
-                                }
-                                
-                                int percentIncrease = (int)(((bytesRead - lastOutput) * 100) / dataSizeGuess);
-                                
-                                //Now see if we're over the reporting threshold
-                                //TODO: Is this actually necessary? In theory this shouldn't 
-                                //matter due to android task polling magic?
-                                notify = percentIncrease > PERCENT_INCREASE_THRESHOLD; 
-                                    
-                                if(notify) {
-                                    lastOutput = bytesRead;
-                                    int totalRead = (int)(((bytesRead) * 100) / dataSizeGuess);
-                                    publishProgress(PROGRESS_DOWNLOADING, totalRead);
-                                }
-                            }
-                            
-                        });
+                        //restart the loop
+                        continue;
+                    }
                     
-                        InputStream cacheIn = cache.retrieveCache();
-                        String syncToken = readInput(cacheIn, factory);
-                        updateUserSyncToken(syncToken);
-                        
+                    //Otherwise, try the pull!
+                    int result = performPullAttempt(requestor, useRequestFlags, loginNeeded, ukr, factory, prefs);
+                    
+                    if(result == RESULT_DOWNLOAD_SUCCESS) {
                         //record when we last synced
                         Editor e = prefs.edit();
                         e.putLong("last-succesful-sync", new Date().getTime());
                         e.commit();
                         
-                        if(loginNeeded) {                        
-                            CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
-                        }
-                        
-                        //Let anyone who is listening know!
-                        Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
-                        this.c.sendBroadcast(i);
-                        
-                        Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
-                        this.publishProgress(PROGRESS_DONE);
-                        return DOWNLOAD_SUCCESS;
-                    } catch (InvalidStructureException e) {
-                        e.printStackTrace();
-                        
-                        //TODO: Dump more details!!!
-                        Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return BAD_DATA;
-                    } catch (XmlPullParserException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return BAD_DATA;
-                    } catch (UnfullfilledRequirementsException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
-                    } catch (StorageFullException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
-                    } finally {
-                        //destroy temp file
-                        cache.release();
+                        return result; 
+                    } else if(result == RESULT_DOWNLOAD_PARTIAL) {
+                        //we'll start polling from here out (the status update will come in the loop)
+                        //TODO: We might need a way to log out if the user cancels/we error out of this state?
+                        this.mIsCurrentlyCancellable = true;
+                        continue;
+                    } else {
+                        return result;
                     }
-                } else if(responseCode == 412) {
-                    //Our local state is bad. We need to do a full restore.
-                    int returnCode = recover(requestor, factory);
-                    
-                    if(returnCode == PROGRESS_DONE) {
-                        //All set! Awesome recovery
-                        this.publishProgress(PROGRESS_DONE);
-                        return DOWNLOAD_SUCCESS;
-                    }
-                    
-                    else if(returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
-                        //Things didn't go super well, but they might next time!
-                        
-                        //wipe our login if one happened
-                        if(loginNeeded) {
-                            CommCareApplication._().logout();
-                        }
-                        this.publishProgress(PROGRESS_DONE);
-                        return UNKNOWN_FAILURE;
-                    } else if(returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
-                        //WELL! That wasn't so good. TODO: Is there anything 
-                        //we can do about this?
-                        
-                        //wipe our login if one happened
-                        if(loginNeeded) {
-                            CommCareApplication._().logout();
-                        }
-                        this.publishProgress(PROGRESS_DONE);
-                        return UNKNOWN_FAILURE;
-                    }
-                    
-                    if(loginNeeded) {
-                        CommCareApplication._().logout();
-                    }
-                } else if(responseCode == 500) {
-                    if(loginNeeded) {
-                        CommCareApplication._().logout();
-                    }
-                    Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
-                    return SERVER_ERROR;
                 }
-                
                 
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-                responseError = CONNECTION_TIMEOUT;
+                responseError = RESULT_CONNECTION_TIMEOUT;
             } catch (ConnectTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-                responseError = CONNECTION_TIMEOUT;
+                responseError = RESULT_CONNECTION_TIMEOUT;
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
             } catch (UnknownHostException e) {
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
-                responseError = UNREACHABLE_HOST;
+                responseError = RESULT_UNREACHABLE_HOST;
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -427,6 +311,213 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             this.publishProgress(PROGRESS_DONE);
             return responseError;
             
+    }
+    
+    private int performPullAttempt(HttpRequestGenerator requestor, boolean useRequestFlags, boolean loginNeeded, UserKeyRecord ukr, CommCareTransactionParserFactory factory, SharedPreferences prefs) throws IOException {
+
+        this.publishProgress(PROGRESS_CLEANED);
+        
+        int responseCode = -1;
+        HttpResponse response = null;
+        long bytesRead = -1;
+        
+        //This isn't awesome, but it's hard to work this in in a cleaner way
+        if(DEBUG_LOAD_FROM_LOCAL) {
+            mDebugStream = this.c.getAssets().open("payload.xml");
+            responseCode = 200;
+        } else {
+            response = requestor.makeCaseFetchRequest(server, useRequestFlags);
+            responseCode = response.getStatusLine().getStatusCode();
+        }
+
+        if(this.isCancelled()) {
+            return RESULT_CANCELLED;
+        }
+        
+        Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + responseCode);
+        
+        if(responseCode == 401) {
+            //If we logged in, we need to drop those credentials
+            if(loginNeeded) {
+                CommCareApplication._().logout();
+            }
+            Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
+            return RESULT_AUTH_FAILED;
+        } else if(responseCode >= 200 && responseCode < 300) {
+            
+            if(loginNeeded) {                        
+                //This is necessary (currently) to make sure that data
+                //is encoded. Probably a better way to do this.
+                CommCareApplication._().logIn(CryptUtil.unWrapKey(ukr.getEncryptedKey(), password), ukr);
+                wasKeyLoggedIn = true;
+            }
+            
+            this.mIsCurrentlyCancellable = false;
+            this.publishProgress(PROGRESS_AUTHED,0);
+            Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
+            
+            final long dataSizeGuess = guessDataSize(response);
+            
+            BitCache cache = BitCacheFactory.getCache(c, dataSizeGuess);
+            
+            cache.initializeCache();
+            
+            try {
+                OutputStream cacheOut = cache.getCacheStream();
+                InputStream input;
+                if(DEBUG_LOAD_FROM_LOCAL) {
+                    input = this.mDebugStream;
+                } else {
+                    input = AndroidHttpClient.getUngzippedContent(response.getEntity());
+                }
+                Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
+                AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(input), cacheOut, new StreamReadObserver() {
+                    long lastOutput = 0;
+                    
+                    /** The notification threshold. **/
+                    static final int PERCENT_INCREASE_THRESHOLD = 4;
+
+                    @Override
+                    public void notifyCurrentCount(long bytesRead) {
+                        boolean notify = false;
+                        
+                        //We always wanna notify when we get our first bytes
+                        if(lastOutput == 0) {
+                            Log.i("commcare-network", "First"  + bytesRead + " bytes recieved from network: ");
+                            notify = true;
+                        }
+                        //After, if we don't know how much data to expect, we can't do
+                        //anything useful
+                        if(dataSizeGuess == -1) {
+                            //set this so the first notification up there doesn't keep firing
+                            lastOutput = bytesRead;
+                            return;
+                        }
+                        
+                        int percentIncrease = (int)(((bytesRead - lastOutput) * 100) / dataSizeGuess);
+                        
+                        //Now see if we're over the reporting threshold
+                        //TODO: Is this actually necessary? In theory this shouldn't 
+                        //matter due to android task polling magic?
+                        notify = percentIncrease > PERCENT_INCREASE_THRESHOLD; 
+                            
+                        if(notify) {
+                            lastOutput = bytesRead;
+                            int totalRead = (int)(((bytesRead) * 100) / dataSizeGuess);
+                            publishProgress(PROGRESS_DOWNLOADING, totalRead);
+                        }
+                    }
+                    
+                });
+            
+                InputStream cacheIn = cache.retrieveCache();
+                String syncToken = readInput(cacheIn, factory);
+                updateUserSyncToken(syncToken);
+                                
+                if(loginNeeded) {                        
+                    CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
+                }
+                
+                //Let anyone who is listening know!
+                Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
+                this.c.sendBroadcast(i);
+                
+                //If the response code was 202, this is actually an _incomplete_ response and there is more coming. 
+                if(responseCode == 202) {
+                    if(!response.containsHeader("Retry-After")) {
+                        //we don't really know when to retry
+                        throw new SocketTimeoutException("Server produced an incomplete response without an indication of when to retry");
+                    }
+                    String headerValue = response.getHeaders("Retry-After")[0].getValue();
+                    mRetryBegan = System.currentTimeMillis();
+                    try {
+                        this.mRetryAt = mRetryBegan + Integer.parseInt(headerValue) * 1000;  
+                    } catch( NumberFormatException nfe) {
+                        //Response can also be a date
+                        try{
+                            this.mRetryAt = Date.parse(headerValue);
+                        } catch (IllegalArgumentException iae) {
+                            //If we didn't get it from one of the previous ones, the header is invalid
+                            Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: " + headerValue);
+                            return RESULT_BAD_DATA;
+                        }
+                    }
+                    Logger.log(AndroidLogger.TYPE_USER, "Server requested retry for incoming sync data. Retrying sync at " + new Date(mRetryAt).toString());
+
+                    //Read message from openRosaResponse?
+                    return RESULT_DOWNLOAD_PARTIAL;
+                }
+                
+                Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
+                this.publishProgress(PROGRESS_DONE);
+                return RESULT_DOWNLOAD_SUCCESS;
+            } catch (InvalidStructureException e) {
+                e.printStackTrace();
+                
+                //TODO: Dump more details!!!
+                Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
+                return RESULT_BAD_DATA;
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
+                return RESULT_BAD_DATA;
+            } catch (UnfullfilledRequirementsException e) {
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
+                return RESULT_UNKNOWN_FAILURE;
+            } catch (StorageFullException e) {
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
+                return RESULT_UNKNOWN_FAILURE;
+            } finally {
+                //destroy temp file
+                cache.release();
+            }
+        } else if(responseCode == 412) {
+            //Our local state is bad. We need to do a full restore.
+            int returnCode = recover(requestor, factory);
+            
+            if(returnCode == PROGRESS_DONE) {
+                //All set! Awesome recovery
+                this.publishProgress(PROGRESS_DONE);
+                return RESULT_DOWNLOAD_SUCCESS;
+            }
+            
+            else if(returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
+                //Things didn't go super well, but they might next time!
+                
+                //wipe our login if one happened
+                if(loginNeeded) {
+                    CommCareApplication._().logout();
+                }
+                this.publishProgress(PROGRESS_DONE);
+                return RESULT_UNKNOWN_FAILURE;
+            } else if(returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
+                //WELL! That wasn't so good. TODO: Is there anything 
+                //we can do about this?
+                
+                //wipe our login if one happened
+                if(loginNeeded) {
+                    CommCareApplication._().logout();
+                }
+                this.publishProgress(PROGRESS_DONE);
+                return RESULT_UNKNOWN_FAILURE;
+            }
+            
+            if(loginNeeded) {
+                CommCareApplication._().logout();
+            }
+        } else if(responseCode == 500) {
+            if(loginNeeded) {
+                CommCareApplication._().logout();
+            }
+            Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
+            return RESULT_SERVER_ERROR;
+        }
+        return RESULT_UNKNOWN_FAILURE;
     }
         
     private long guessDataSize(HttpResponse response) {
@@ -691,4 +782,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     @Override
     public void onFailure(String failMessage) {}
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.tasks.templates.CommCareTask#isCurrentlyCancellable()
+     */
+    public boolean isCurrentlyCancellable() {
+        return mIsCurrentlyCancellable;
+    }
 }
