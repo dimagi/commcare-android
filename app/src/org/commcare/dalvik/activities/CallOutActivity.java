@@ -107,16 +107,17 @@ public class CallOutActivity extends Activity {
     }
     
     private void dispatchAction(String action) {
+        // using createChooser to handle any errors gracefully
         if(Intent.ACTION_CALL.equals(action) ) {
             tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
             
             Intent call = new Intent(Intent.ACTION_CALL);
             call.setData(Uri.parse("tel:" + number));
-            startActivity(call);
+            startActivity(Intent.createChooser(call, "Dialing " + number));
         } else {                    
             Intent sms = new Intent(Intent.ACTION_SENDTO);
             sms.setData(Uri.parse("smsto:" + number));
-            startActivityForResult(sms,SMS_RESULT);
+            startActivityForResult(Intent.createChooser(sms, "Messaging " + number),SMS_RESULT);
         }
     }
     
