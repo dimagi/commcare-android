@@ -289,7 +289,8 @@ notification.sync.connections.action=You don't have any active data connections 
 
 #Add new localization strings here
 
-
+callout.failure.dialer=Dialer app not found
+callout.failure.sms=SMS app not found
 
 
 
