@@ -1,0 +1,7 @@
+Copy files in "inspection" and "codestyles" folders into the corresponding folders in your local AndroidStudio config directory (/home/{username}/.AndroidStudio).
+
+Then select:
+ - "CommCare Inspection Profile" through File -> Settings -> Project Settings / Inpsections
+ - "CommCare Coding Style" through File -> Settings -> Project Settings / Coding Style
+
+Remember to re-copy these files if they ever get updated.
