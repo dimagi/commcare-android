@@ -12,6 +12,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.widget.Toast;
+
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
@@ -107,16 +110,27 @@ public class CallOutActivity extends Activity {
     }
     
     private void dispatchAction(String action) {
+        // using createChooser to handle any errors gracefully
         if(Intent.ACTION_CALL.equals(action) ) {
             tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
             
             Intent call = new Intent(Intent.ACTION_CALL);
             call.setData(Uri.parse("tel:" + number));
-            startActivity(call);
+            if(call.resolveActivity(getPackageManager()) != null){
+                startActivity(call);
+            } else {
+                Toast.makeText(this, Localization.get("callout.failure.dialer"), Toast.LENGTH_SHORT).show();
+                finish();
+            }
         } else {                    
             Intent sms = new Intent(Intent.ACTION_SENDTO);
             sms.setData(Uri.parse("smsto:" + number));
-            startActivityForResult(sms,SMS_RESULT);
+            if(sms.resolveActivity(getPackageManager()) != null){
+                startActivityForResult(sms, SMS_RESULT);
+            } else {
+                Toast.makeText(this, Localization.get("callout.failure.sms"), Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
     
