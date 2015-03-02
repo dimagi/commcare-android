@@ -119,7 +119,8 @@ public class CallOutActivity extends Activity {
             if(call.resolveActivity(getPackageManager()) != null){
                 startActivity(call);
             } else {
-                Toast.makeText(getApplicationContext(), Localization.get("callout.failure.dialer"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, Localization.get("callout.failure.dialer"), Toast.LENGTH_SHORT).show();
+                finish();
             }
         } else {                    
             Intent sms = new Intent(Intent.ACTION_SENDTO);
@@ -127,7 +128,8 @@ public class CallOutActivity extends Activity {
             if(sms.resolveActivity(getPackageManager()) != null){
                 startActivityForResult(sms, SMS_RESULT);
             } else {
-                Toast.makeText(getApplicationContext(), Localization.get("callout.failure.sms"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, Localization.get("callout.failure.sms"), Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
