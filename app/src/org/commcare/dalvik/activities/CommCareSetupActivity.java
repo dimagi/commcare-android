@@ -1,28 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.framework.WrappingSpinnerAdapter;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.notifications.NotificationMessage;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.tasks.ResourceEngineListener;
-import org.commcare.android.tasks.ResourceEngineTask;
-import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnresolvedResourceException;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.PropertyUtils;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -45,6 +22,29 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
+import org.commcare.android.framework.WrappingSpinnerAdapter;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.tasks.ResourceEngineListener;
+import org.commcare.android.tasks.ResourceEngineTask;
+import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnresolvedResourceException;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.PropertyUtils;
 /**
  * The CommCareStartupActivity is purely responsible for identifying
  * the state of the application (uninstalled, installed) and performing
@@ -842,6 +842,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void done(boolean requireRefresh) {
+
         //TODO: We might have gotten here due to being called from the outside, in which
         //case we should manually start up the home activity
         

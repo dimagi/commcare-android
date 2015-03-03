@@ -1,11 +1,36 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Vector;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.text.format.DateUtils;
+import android.util.Base64;
+import android.util.Pair;
+import android.view.ContextThemeWrapper;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import org.acra.ACRA;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -58,35 +83,11 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Typeface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.text.format.DateUtils;
-import android.util.Base64;
-import android.util.Pair;
-import android.view.ContextThemeWrapper;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Vector;
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
     
@@ -175,6 +176,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
+
+        ACRA.getErrorReporter().putCustomData("PostUrl", ReportProblemActivity.getPostURL());
+        ACRA.getErrorReporter().putCustomData("Version", ReportProblemActivity.getVersion());
+        ACRA.getErrorReporter().putCustomData("Domain", ReportProblemActivity.getDomain());
         
         setContentView(R.layout.mainnew);
         configUi();
@@ -233,6 +238,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         syncButton.setText(Localization.get("home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+
+                ((TextView)homeScreen).setText("derp");
+
                 if (!isOnline()) {
                     if (isAirplaneModeOn()) {
                         displayMessage(Localization.get("notification.sync.airplane.action"),true,true);
