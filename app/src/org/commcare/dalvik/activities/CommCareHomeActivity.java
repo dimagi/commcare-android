@@ -30,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.acra.ACRA;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -50,6 +49,7 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
@@ -177,9 +177,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
 
-        ACRA.getErrorReporter().putCustomData("PostUrl", ReportProblemActivity.getPostURL());
-        ACRA.getErrorReporter().putCustomData("Version", ReportProblemActivity.getVersion());
-        ACRA.getErrorReporter().putCustomData("Domain", ReportProblemActivity.getDomain());
+        ACRAUtil.addCustomData("PostUrl", ReportProblemActivity.getPostURL());
+        ACRAUtil.addCustomData("Version", ReportProblemActivity.getVersion());
+        ACRAUtil.addCustomData("Domain", ReportProblemActivity.getDomain());
         
         setContentView(R.layout.mainnew);
         configUi();
@@ -238,9 +238,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         syncButton.setText(Localization.get("home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-
-                ((TextView)homeScreen).setText("derp");
-
                 if (!isOnline()) {
                     if (isAirplaneModeOn()) {
                         displayMessage(Localization.get("notification.sync.airplane.action"),true,true);
