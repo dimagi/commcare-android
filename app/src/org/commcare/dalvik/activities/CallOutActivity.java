@@ -30,7 +30,8 @@ public class CallOutActivity extends Activity {
     private static final int DIALOG_NUMBER_ACTION = 0;
     
     private static final int SMS_RESULT = 0;
-    
+    private static final int CALL_RESULT = 1;
+
     private static String number;
 
     
@@ -117,7 +118,7 @@ public class CallOutActivity extends Activity {
             Intent call = new Intent(Intent.ACTION_CALL);
             call.setData(Uri.parse("tel:" + number));
             if(call.resolveActivity(getPackageManager()) != null){
-                startActivity(call);
+                startActivityForResult(call, CALL_RESULT);
             } else {
                 Toast.makeText(this, Localization.get("callout.failure.dialer"), Toast.LENGTH_SHORT).show();
                 finish();
@@ -136,7 +137,7 @@ public class CallOutActivity extends Activity {
     
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if(requestCode == SMS_RESULT) {
+        if(requestCode == SMS_RESULT || requestCode == CALL_RESULT) {
             //we're done here
             Intent i = new Intent(getIntent());
             
