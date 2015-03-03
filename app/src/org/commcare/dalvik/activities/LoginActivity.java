@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.acra.ACRA;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.framework.CommCareActivity;
@@ -30,6 +29,7 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
@@ -391,7 +391,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     private void done() {
         Intent i = new Intent();
         setResult(RESULT_OK, i);
-        ACRA.getErrorReporter().putCustomData("Username", ReportProblemActivity.getUser());
+        ACRAUtil.addCustomData("Username", ReportProblemActivity.getUser());
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
         finish();
     }
