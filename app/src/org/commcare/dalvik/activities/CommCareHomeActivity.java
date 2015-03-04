@@ -256,6 +256,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
             }
         });
+
+        // CommCare-159047: this method call rebuilds the options menu
+        supportInvalidateOptionsMenu();
     }
 
     private boolean isOnline() {
@@ -450,8 +453,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 break;
             case PREFERENCES_ACTIVITY:
                 configUi();
-                // CommCare-159047: this method call rebuilds the options menu
-                supportInvalidateOptionsMenu();
                 return;
             case MISSING_MEDIA_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){
