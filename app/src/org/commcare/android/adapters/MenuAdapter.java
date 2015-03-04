@@ -56,9 +56,22 @@ public class MenuAdapter implements ListAdapter {
         
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
-        EvaluationContext ec = asw.getEvaluationContext();
+        EvaluationContext ec = null;
         for(Suite s : platform.getInstalledSuites()) {
-            for(Menu m : s.getMenus(ec)) {
+            for(Menu m : s.getMenus()) {
+                try {
+                    XPathExpression relevance = m.getMenuRelevance();
+                    if (m.getMenuRelevance() != null) {
+                        if (ec == null) {
+                            ec = asw.getEvaluationContext();
+                        }
+                        if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
+                            continue;
+                        }
+                    }
+                } catch (XPathSyntaxException e) {
+                    e.printStackTrace();
+                }
                 if(m.getId().equals(menuID)) {
                     
                     if(menuTitle == null) {
@@ -72,8 +85,11 @@ public class MenuAdapter implements ListAdapter {
                     
                     for(String command : m.getCommandIds()) {
                         try {
-                            XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
+                            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
                             if(mRelevantCondition != null) {                            
+                                if (ec == null) {
+                                    ec = asw.getEvaluationContext();
+                                }
                                 Object ret = mRelevantCondition.eval(ec);
                                 try {
                                     if(!XPathFuncExpr.toBoolean(ret)) {
