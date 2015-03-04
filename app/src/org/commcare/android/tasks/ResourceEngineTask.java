@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
@@ -150,6 +151,19 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 ResourceTable temporary = platform.getUpgradeResourceTable();
                 ResourceTable recovery = platform.getRecoveryTable();
                 temporary.setStateListener(this);
+
+                // When profileRef points to HQ, add appropriate dev tags
+                if (DeveloperPreferences.isNewestAppVersionEnabled() && isHQProfile(profileRef)) {
+                    // Does the profileRef url already have query strings?
+                    if (profileRef.indexOf("?") != -1) {
+                        // if so, just add a new one to the end
+                        profileRef = profileRef + "&target=build";
+                    } else {
+                        // otherwise, start off the query string with a ?
+                        profileRef = profileRef + "?target=build";
+                    }
+                }
+
 
                 /* this populates the upgrade table with resources based on binary files,
                  * starting with the profile file. If the new profile is not a newer version,
@@ -313,5 +327,15 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 
     public void incrementProgress(int complete, int total) {
         this.publishProgress(new int[] {complete, total, phase});
+    }
+
+    /**
+     * Does a profile reference point to commcarehq.org?
+     *
+     * @param profileRef String representing any URI
+     * @return boolean that is true if profileRef is prefixed by commcarehq url
+     */
+    private static boolean isHQProfile(String profileRef) {
+        return profileRef.startsWith("https://www.commcarehq.org");
     }
 }
