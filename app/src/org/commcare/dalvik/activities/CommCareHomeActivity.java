@@ -177,9 +177,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
 
-        ACRAUtil.addCustomData("PostUrl", ReportProblemActivity.getPostURL());
-        ACRAUtil.addCustomData("Version", ReportProblemActivity.getVersion());
-        ACRAUtil.addCustomData("Domain", ReportProblemActivity.getDomain());
+        ACRAUtil.addCustomData(ACRAUtil.POST_URL, ReportProblemActivity.getPostURL());
+        ACRAUtil.addCustomData(ACRAUtil.VERSION, ReportProblemActivity.getVersion());
+        ACRAUtil.addCustomData(ACRAUtil.DOMAIN, ReportProblemActivity.getDomain());
         
         setContentView(R.layout.mainnew);
         configUi();

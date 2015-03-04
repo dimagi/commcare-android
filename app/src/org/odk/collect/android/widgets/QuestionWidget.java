@@ -117,7 +117,7 @@ public abstract class QuestionWidget extends LinearLayout {
         addQuestionText(p);
         addHelpPlaceholder(p);
         addHintText(p);
-        ACRAUtil.addCustomData("Last FormEntryPrompt", mPrompt.getLongText());
+        ACRAUtil.addCustomData(ACRAUtil.LAST_QUESTION_PROMPT, mPrompt.getLongText());
     }
 
 

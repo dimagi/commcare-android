@@ -1,40 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
-
-import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.tasks.EntityLoaderListener;
-import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.SerializationUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.view.EntityView;
-import org.commcare.android.view.TabbedDetailView;
-import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.suite.model.Action;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.SessionDatum;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionFrame;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.model.xform.XPathReference;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -64,6 +29,42 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.tasks.EntityLoaderListener;
+import org.commcare.android.tasks.EntityLoaderTask;
+import org.commcare.android.util.ACRAUtil;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.EntityView;
+import org.commcare.android.view.TabbedDetailView;
+import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.suite.model.Action;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.SessionDatum;
+import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.model.xform.XPathReference;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 /**
  * 
@@ -785,6 +786,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         // create intent for return and store path
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+        ACRAUtil.addCustomData(ACRAUtil.CURRENT_CASE, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
         finish();
     }
