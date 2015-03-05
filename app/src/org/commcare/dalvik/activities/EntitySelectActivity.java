@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -792,25 +793,16 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
 
     // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
-    private static final int CALL_OUT = 0;
-
     public void callRequested(String phoneNumber) {
-        Intent intent = new Intent(getApplicationContext(), CallOutActivity.class);
-        intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
-        this.startActivityForResult(intent, CALL_OUT);
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
 
-
     public void addressRequested(String address) {
-        Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
-        startActivity(call);
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
 
     public void playVideo(String videoRef) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse(videoRef), "video/*");
-        startActivity(intent);
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
