@@ -115,12 +115,12 @@ public class MenuAdapter implements ListAdapter {
                             
                             items.add(e);
                         } catch(XPathSyntaxException xpse) {
-                            String xpathExpression = m.getRelevantConditionRaw(m.indexOfCommand(command));
+                            String xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
                             CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[] {xpathExpression, xpse.getMessage()}));
                             objectData = new Object[0];
                             return;
                         } catch(XPathException xpe) {
-                            String xpathExpression = m.getRelevantConditionRaw(m.indexOfCommand(command));
+                            String xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
                             CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[] {xpathExpression, xpe.getMessage()}));
                             objectData = new Object[0];
                             return;
