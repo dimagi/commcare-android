@@ -14,6 +14,7 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
@@ -44,6 +45,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -72,7 +74,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -787,6 +789,28 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
         finish();
+    }
+
+    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
+    private static final int CALL_OUT = 0;
+
+    public void callRequested(String phoneNumber) {
+        Intent intent = new Intent(getApplicationContext(), CallOutActivity.class);
+        intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
+        this.startActivityForResult(intent, CALL_OUT);
+    }
+
+
+    public void addressRequested(String address) {
+        Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
+        startActivity(call);
+    }
+
+    public void playVideo(String videoRef) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.parse(videoRef), "video/*");
+        startActivity(intent);
     }
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
