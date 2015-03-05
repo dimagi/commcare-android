@@ -33,6 +33,9 @@ public class DeveloperPreferences extends PreferenceActivity {
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
+
+    // Does the user want to download the latest app version deployed (built),
+    // not just the latest app version released (starred)?
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
@@ -58,35 +61,42 @@ public class DeveloperPreferences extends PreferenceActivity {
 
     private static boolean doesPropertyMatch(String key, String defaultValue, String matchingValue) {
         CommCareApp app = CommCareApplication._().getCurrentApp();
-        if(app == null) { return defaultValue.equals(matchingValue); }
+        if (app == null) {
+            return defaultValue.equals(matchingValue);
+        }
         SharedPreferences properties = app.getAppPreferences();
         return properties.getString(key, defaultValue).equals(matchingValue);
     }
 
-    public static boolean isSuperuserEnabled(){
+    public static boolean isSuperuserEnabled() {
         return doesPropertyMatch(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
-    public static boolean isActionBarEnabled(){
+    public static boolean isActionBarEnabled() {
         return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
-    public static boolean isGridMenuEnabled(){
+    public static boolean isGridMenuEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-    public static boolean isNewNavEnabled(){
+    public static boolean isNewNavEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-    public static boolean isListRefreshEnabled(){
+    public static boolean isListRefreshEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-    public static boolean isNewestAppVersionEnabled(){
+    /**
+     * @return true if developer option to download the latest app version
+     * deployed (built) is enabled.  Otherwise the latest released (starred)
+     * app version will be downloaed on upgrade.
+     */
+    public static boolean isNewestAppVersionEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
