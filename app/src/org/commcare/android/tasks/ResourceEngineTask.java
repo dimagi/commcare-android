@@ -157,6 +157,8 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                     // Does the profileRef url already have query strings?
                     if (profileRef.indexOf("?") != -1) {
                         // if so, just add a new one to the end
+                        // NOTE: we append to the end, ignoring the fact that
+                        //       the url might already have a 'target' key
                         profileRef = profileRef + "&target=build";
                     } else {
                         // otherwise, start off the query string with a ?
