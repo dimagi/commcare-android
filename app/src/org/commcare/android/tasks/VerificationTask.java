@@ -4,6 +4,7 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareVerificationActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -91,7 +92,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<M
             listener.success();
         }
         else if(listener != null) {
-            if(problems.size() == 0){
+            if(problems.size() == 0 || DeveloperPreferences.isSuperuserEnabled()){
                 listener.success();
             } else if(problems.size() > 0){
                 listener.onFinished(problems);
