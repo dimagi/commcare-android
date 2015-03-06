@@ -10,8 +10,10 @@ import org.commcare.dalvik.activities.CallOutActivity;
  * Created by dancluna on 3/5/15.
  */
 public class DetailCalloutListenerDefaultImpl {
-    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
+    // Implementing DetailCalloutListener, reusing the code from @href{org.commcare.dalvik.activities.EntityDetailActivity}
     // implementing classes can just delegate to this class if they want its default functionality
+    // CommCare-159503: in awesome mode, the app crashed when trying to dial/sms a number
+    //   due to EntitySelectActivity not implementing DetailCalloutListener.
     public static final int CALL_OUT = 0;
 
     public static void callRequested(Activity act, String phoneNumber) {
