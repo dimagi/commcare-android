@@ -1275,10 +1275,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints, boolean failOnRequired) {
         // only try to save if the current event is a question or a field-list group
-        if (mFormController.getEvent() == FormEntryController.EVENT_QUESTION
-                || (mFormController.getEvent() == FormEntryController.EVENT_GROUP && mFormController
-                        .indexIsInFieldList())) {
-            if(mCurrentView instanceof ODKView) {
+        if (mFormController.getEvent() == FormEntryController.EVENT_QUESTION ||
+                (mFormController.getEvent() == FormEntryController.EVENT_GROUP &&
+                 mFormController.indexIsInFieldList())) {
+            if (mCurrentView instanceof ODKView) {
                 HashMap<FormIndex, IAnswerData> answers = ((ODKView) mCurrentView).getAnswers();
                 Set<FormIndex> indexKeys = answers.keySet();
                 for (FormIndex index : indexKeys) {
@@ -2058,9 +2058,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
 
     /**
-     * Saves data and writes it to disk. If exit is set, program will exit after save completes.
-     * Complete indicates whether the user has marked the isntancs as complete. If updatedSaveName
-     * is non-null, the instances content provider is updated with the new name
+     * Saves form data to disk.
+     *
+     * @param exit if set, will exit program after save.
+     * @param complete has the user marked the instances as complete?
+     * @param updatedSaveName set name of the instance's content provider, if non-null
+     *
+     * @return 
      */
     private boolean saveDataToDisk(boolean exit, boolean complete, String updatedSaveName) {
         // save current answer
@@ -2758,7 +2762,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * 
      * @param answer
      * @param index
-     * @param evaluateConstraints
+     * @param evaluateConstraints Should form contraints be checked when saving answer?
      * @return status as determined in FormEntryController
      */
     public int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
