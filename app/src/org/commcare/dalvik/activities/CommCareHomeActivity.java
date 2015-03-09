@@ -175,7 +175,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
-        
         setContentView(R.layout.mainnew);
         configUi();
     }
