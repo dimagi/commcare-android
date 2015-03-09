@@ -1,20 +1,7 @@
 package org.commcare.dalvik.activities;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.text.InputType;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -40,8 +27,21 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.text.InputType;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author ctsims
@@ -49,37 +49,37 @@ import java.security.MessageDigest;
  */
 @ManagedUi(R.layout.screen_login)
 public class LoginActivity extends CommCareActivity<LoginActivity> {
-
+    
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static String ALREADY_LOGGED_IN = "la_loggedin";
-
+    
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
-
+    
     @UiElement(value=R.id.text_username, locale="login.username")
     TextView userLabel;
     @UiElement(value=R.id.text_password, locale="login.password")
     TextView passLabel;
     @UiElement(R.id.screen_login_bad_password)
     TextView errorBox;
-
+    
     @UiElement(R.id.edit_username)
     EditText username;
-
+    
     @UiElement(R.id.edit_password)
     EditText password;
-
+    
     @UiElement(R.id.screen_login_banner_pane)
     View banner;
-
+    
     @UiElement(R.id.str_version)
     TextView versionDisplay;
-
+    
     public static final int TASK_KEY_EXCHANGE = 1;
-
+    
     SqlStorage<UserKeyRecord> storage;
-
+    
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -89,7 +89,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
+        
         //Only on the initial creation
         if(savedInstanceState == null) {
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
@@ -98,7 +98,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                 password.requestFocus();
             }
         }
-
+        
         login.setOnClickListener(new OnClickListener() {
 
             public void onClick(View arg0) {

@@ -1,5 +1,12 @@
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,14 +18,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.net.HttpRequestGenerator;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 
 public class ReportProblemActivity extends Activity implements OnClickListener {
 
@@ -49,47 +48,15 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         sendReportEmail(reportEntry);
         finish();
     }
-
-    public static String getDomain(){
-        try {
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
-        } catch(NullPointerException e){
-            return "Domain not set.";
-        }
-    }
-
-    public static String getPostURL(){
-        try{
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
-        } catch(NullPointerException e){
-            return "PostURL not set.";
-        }
-    }
-
-    public static String getUser(){
-        try{
-            return CommCareApplication._().getSession().getLoggedInUser().getUsername();
-        } catch(SessionUnavailableException e){
-            return "User not logged in.";
-        }
-    }
-
-    public static String getVersion(){
-        try {
-            return CommCareApplication._().getCurrentVersionString();
-        } catch(NullPointerException e){
-            return "Version not set.";
-        }
-    }
-
-    public static String buildMessage(String userInput){
-
-        String domain = ReportProblemActivity.getDomain();
-        String postURL = ReportProblemActivity.getPostURL();
-        String version= ReportProblemActivity.getVersion();
-        String username = ReportProblemActivity.getUser();
+    
+    public String buildMessage(String userInput){
+        
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        
+        String username = CommCareApplication._().getSession().getLoggedInUser().getUsername();
+        String version = CommCareApplication._().getCurrentVersionString();
+        String domain = prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX,"not found");
+        String postURL = prefs.getString("PostURL", null);;
         
         String message = "Problem reported via CommCareODK. " +
         		"\n User: " + username + 

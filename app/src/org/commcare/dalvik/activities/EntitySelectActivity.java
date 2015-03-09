@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -39,6 +40,7 @@ import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
@@ -60,11 +62,36 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.database.DataSetObserver;
+import android.net.Uri;
+import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * 
@@ -73,7 +100,7 @@ import java.util.Vector;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -363,7 +390,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
             // only add headers if we're not using grid mode
             if(!shortSelect.usesGridView()){
-                header.addView(v,params);
+            }
             }
             
             if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
@@ -723,9 +750,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
         }
         
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this, factory);
+
+
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
@@ -773,7 +800,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void attach(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
         this.loader = task;
-    }
+
 
     public boolean inAwesomeMode(){
         return inAwesomeMode;
@@ -785,10 +812,23 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private void select() {
         // create intent for return and store path
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
-        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         ACRAUtil.addCustomData(ACRAUtil.CURRENT_CASE, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
         finish();
+    }
+
+    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
+    public void callRequested(String phoneNumber) {
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
+    }
+
+    public void addressRequested(String address) {
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
+    }
+
+    public void playVideo(String videoRef) {
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
@@ -840,7 +880,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public void deliverError(Exception e) {
         displayException(e);
-    }
+
 
     
     /*
