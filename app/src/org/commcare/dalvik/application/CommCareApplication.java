@@ -1,42 +1,18 @@
 package org.commcare.dalvik.application;
 
-import android.annotation.SuppressLint;
-import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.provider.Settings.Secure;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
-import android.text.format.DateUtils;
-import android.util.Log;
-import android.util.Pair;
-import android.widget.Toast;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.crypto.SecretKey;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
-import org.acra.ACRA;
-import org.acra.ACRAConfiguration;
-import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
@@ -88,55 +64,67 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Vector;
-
-import javax.crypto.SecretKey;
+import android.annotation.SuppressLint;
+import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.provider.Settings.Secure;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
+import android.text.format.DateUtils;
+import android.util.Log;
+import android.util.Pair;
+import android.widget.Toast;
 
 /**
  * @author ctsims
  *
  */
-@ReportsCrashes(
-        formUri = "https://your/cloudant/report",
-        reportType = org.acra.sender.HttpSender.Type.JSON,
-        httpMethod = org.acra.sender.HttpSender.Method.PUT,
-        formUriBasicAuthLogin="your_username",
-        formUriBasicAuthPassword="your_password"
-)
 public class CommCareApplication extends Application {
 
-
+    
     public static final int STATE_UNINSTALLED = 0;
     public static final int STATE_UPGRADE = 1;
     public static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
-
+    
     public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
-
+    
     private int dbState;
     private int resourceState;
-
+    
     private static CommCareApplication app;
-
+    
     private CommCareApp currentApp;
-
+    
     private AndroidSessionWrapper sessionWrapper;
-
+    
     /** Generalize **/
     private Object globalDbHandleLock = new Object();
     private SQLiteDatabase globalDatabase;
-
+    
     //Kind of an odd way to do this
     boolean updatePending = false;
-
+    
     private ArchiveFileRoot mArchiveFileRoot;
 
     /*
@@ -146,37 +134,36 @@ public class CommCareApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
         Collect.setStaticApplicationContext(this);
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
         AndroidUtil.initializeStaticHandlers();
-
+        
         CommCareApplication.app = this;
-
+        
         //TODO: Make this robust
         PreInitLogger pil = new PreInitLogger();
         Logger.registerLogger(pil);
-
+        
         //Workaround because android is written by 7 year olds.
         //(reuses http connection pool improperly, so the second https
         //request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
-
+        
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler()));
-
+        
         PropertyManager.setPropertyManager(new ODKPropertyManager());
-
+        
         SQLiteDatabase.loadLibs(this);
-
+                
         setRoots();
-
+        
         prepareTemporaryStorage();
-
+        
         //Init global storage (Just application records, logs, etc)
         dbState = initGlobalDb();
-
+        
         //This is where we go through and check for updates between major transitions.
         //Soon we should start doing this differently, and actually go to an activity
         //first which tells the user what's going on.
@@ -192,44 +179,27 @@ public class CommCareApplication extends Application {
             Logger.registerLogger(new AndroidLogger(this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
             pil.dumpToNewLogger();
         }
-
+        
 //        PreferenceChangeListener listener = new PreferenceChangeListener(this);
 //        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
-
+        
         intializeDefaultLocalizerData();
-
-        //The fallback in case the db isn't installed
+        
+        //The fallback in case the db isn't installed 
         resourceState = STATE_UNINSTALLED;
-
+        
         //We likely want to do this for all of the storage, this is just a way to deal with fixtures
-        //temporarily.
+        //temporarily. 
         //StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
-
+        
 //        Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
-//
+//        
 //        //Dump any logs we've been keeping track of in memory to storage
 //        pil.dumpToNewLogger();
-
+        
         resourceState = initializeAppResources();
-
-        ACRA.init(this);
-        this.initACRA();
     }
-
-
-    public void initACRA(){
-        try {
-            Properties properties = FileUtil.loadProperties(this);
-            ACRAConfiguration mAcraConfig = ACRA.getConfig();
-            mAcraConfig.setFormUriBasicAuthLogin(properties.getProperty("ACRA_USER"));
-            mAcraConfig.setFormUriBasicAuthPassword(properties.getProperty("ACRA_PASSWORD"));
-            mAcraConfig.setFormUri(properties.getProperty("ACRA_URL"));
-            ACRA.setConfig(mAcraConfig);
-        } catch (IOException e){
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Couldn't load ACRA credentials.");
-        }
-    }
-
+    
     public void triggerHandledAppExit(Context c, String message) {
         triggerHandledAppExit(c, message, Localization.get("app.handled.error.title"));
     }
