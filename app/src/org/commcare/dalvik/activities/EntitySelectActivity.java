@@ -8,12 +8,14 @@ import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
@@ -44,6 +46,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -72,7 +75,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -787,6 +790,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
         finish();
+    }
+
+    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
+    public void callRequested(String phoneNumber) {
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
+    }
+
+    public void addressRequested(String address) {
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
+    }
+
+    public void playVideo(String videoRef) {
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
