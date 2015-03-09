@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
-import org.acra.ACRA;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -176,20 +175,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
-<<<<<<< HEAD
 
-<<<<<<< HEAD
-        ACRAUtil.addCustomData("PostUrl", ReportProblemActivity.getPostURL());
-        ACRAUtil.addCustomData("Version", ReportProblemActivity.getVersion());
-        ACRAUtil.addCustomData("Domain", ReportProblemActivity.getDomain());
-=======
->>>>>>> parent of 07ae275... ACRA bug tracking
-=======
-        ACRA.getErrorReporter().putCustomData("PostUrl", ReportProblemActivity.getPostURL());
-        ACRA.getErrorReporter().putCustomData("Version", ReportProblemActivity.getVersion());
-        ACRA.getErrorReporter().putCustomData("Domain", ReportProblemActivity.getDomain());
->>>>>>> parent of 872106b... refactor, add form entry logging
-        
         setContentView(R.layout.mainnew);
         configUi();
     }
