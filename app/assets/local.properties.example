@@ -1,0 +1,3 @@
+ACRA_USER=commcareodk
+ACRA_PASSWORD=commcareodk
+ACRA_URL=https://[my-domain].cloudant.com/acra-ccodk/_design/acra-storage/_update/report
