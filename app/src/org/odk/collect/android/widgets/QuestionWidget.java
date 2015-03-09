@@ -1,6 +1,22 @@
 package org.odk.collect.android.widgets;
 
-import android.annotation.SuppressLint;
+import java.io.File;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.R.color;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.data.AnswerDataFactory;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.views.ShrinkingTextView;
+import org.odk.collect.android.views.media.MediaLayout;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,23 +39,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.commcare.android.util.ACRAUtil;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ShrinkingTextView;
-import org.odk.collect.android.views.media.MediaLayout;
-
-import java.io.File;
-@SuppressLint("NewApi")
 public abstract class QuestionWidget extends LinearLayout {
 
     @SuppressWarnings("unused")
@@ -117,7 +116,7 @@ public abstract class QuestionWidget extends LinearLayout {
         addQuestionText(p);
         addHelpPlaceholder(p);
         addHintText(p);
-        ACRAUtil.addCustomData("Last FormEntryPrompt", mPrompt.getLongText());
+
     }
 
 
@@ -130,7 +129,7 @@ public abstract class QuestionWidget extends LinearLayout {
         if (!p.hasHelp()) {
             return;
         }
-
+        
         helpPlaceholder = new FrameLayout(this.getContext());
         helpPlaceholder.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT));
@@ -152,7 +151,7 @@ public abstract class QuestionWidget extends LinearLayout {
         triggerLayout.addView(trigger);
 
         MediaLayout helpLayout = createHelpLayout(p);
-        helpLayout.setBackgroundResource(R.color.very_light_blue);
+        helpLayout.setBackgroundResource(color.very_light_blue);
         helpPlaceholder.addView(helpLayout);
 
         this.addView(triggerLayout);
@@ -227,8 +226,8 @@ public abstract class QuestionWidget extends LinearLayout {
     }
 
     /*
-     * Use to signal that there's a portion of this view that wants to be
-     * visible to the user on the screen. This method will place the sub
+     * Use to signal that there's a portion of this view that wants to be 
+     * visible to the user on the screen. This method will place the sub 
      * view on the screen, and will also place as much of this view as possible
      * on the screen. If this view is smaller than the viewable area available, it
      * will be fully visible in addition to the subview.
@@ -252,7 +251,7 @@ public abstract class QuestionWidget extends LinearLayout {
         if(mFrameHeight == -1){
             child.requestRectangleOnScreen(vitalPortion);
             return;
-        }
+        }        
 
         //If the whole view fits, just request that we display the whole thing.
         if(wholeView.height() < mFrameHeight) {
@@ -272,7 +271,7 @@ public abstract class QuestionWidget extends LinearLayout {
         wholeView.inset(0, (wholeView.height() - mFrameHeight) / 2);
         wholeView.offsetTo(wholeView.left, topY);
 
-        //The view is now the size of the frame and anchored back at the top.
+        //The view is now the size of the frame and anchored back at the top. 
 
         //Now let's contextualize where the child view actually is in this frame.
         this.offsetDescendantRectToMyCoords(child, vitalPortion);
@@ -326,7 +325,7 @@ public abstract class QuestionWidget extends LinearLayout {
             s.setSpan(span, start, end, 0);
         }
         textView.setText(s);
-    }
+    }    
 
 
     /**
@@ -383,7 +382,7 @@ public abstract class QuestionWidget extends LinearLayout {
     private void fireHelpText(FormEntryPrompt prompt) {
         if (!prompt.hasHelp()) {
             return;
-        }
+        }                               
 
         // Depending on ODK setting, help may be displayed either as
         // a dialog or inline, underneath the question text
@@ -398,7 +397,7 @@ public abstract class QuestionWidget extends LinearLayout {
             ScrollView scrollView = new ScrollView(this.getContext());
             scrollView.addView(createHelpLayout(prompt));
             mAlertDialog.setView(scrollView);
-
+            
             DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int i) {
@@ -421,7 +420,7 @@ public abstract class QuestionWidget extends LinearLayout {
             }
         }
     }
-
+    
     /**
      * Build MediaLayout for displaying any help associated with given FormEntryPrompt.
      * @param prompt
@@ -433,17 +432,17 @@ public abstract class QuestionWidget extends LinearLayout {
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
-
+        
         MediaLayout helpLayout = new MediaLayout(getContext());
         helpLayout.setAVT(
-            text,
+            text, 
             prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_AUDIO),
             prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_IMAGE),
             prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
             null
         );
         helpLayout.setPadding(15, 15, 15, 15);
-
+        
         return helpLayout;
     }
 
