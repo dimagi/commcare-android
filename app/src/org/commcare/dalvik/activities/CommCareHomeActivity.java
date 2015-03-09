@@ -175,7 +175,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
-
         setContentView(R.layout.mainnew);
         configUi();
     }
@@ -233,9 +232,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         syncButton.setText(Localization.get("home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-
-                ((TextView)homeScreen).setText("derp");
-
                 if (!isOnline()) {
                     if (isAirplaneModeOn()) {
                         displayMessage(Localization.get("notification.sync.airplane.action"),true,true);
