@@ -15,7 +15,7 @@ public class ACRAUtil {
     public static final String USERNAME = "username";
     public static final String LAST_ANSWER_DATA = "last_answer_data";
     public static final String LAST_INDEX = "last_form_index";
-    public static final String LAST_QUESTION_PROMPT = "last_form_prompt";
+    public static final String LAST_QUESTION_PROMPT_ADDED = "last_primpt_added";
 
     public static void addCustomData(String key, String value){
         ErrorReporter mReporter = ACRA.getErrorReporter();
