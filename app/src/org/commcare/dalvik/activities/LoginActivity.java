@@ -1,20 +1,7 @@
 package org.commcare.dalvik.activities;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.text.InputType;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -403,7 +390,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     private void done() {
         Intent i = new Intent();
         setResult(RESULT_OK, i);
-        ACRA.getErrorReporter().putCustomData("Username", ReportProblemActivity.getUser());
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
         finish();
     }
