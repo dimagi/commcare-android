@@ -2764,8 +2764,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     public int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
 
-        ACRAUtil.addCustomData(ACRAUtil.LAST_ANSWER_DATA, (answer == null ? "null" : answer.getDisplayText()));
-        ACRAUtil.addCustomData(ACRAUtil.LAST_INDEX, index.toString());
+        ACRAUtil.addCustomData(ACRAUtil.LAST_ANSWER_DATA_TEXT, (answer == null ? "null" : answer.getDisplayText()));
+        ACRAUtil.addCustomData(ACRAUtil.LAST_ANSWER_DATA_VALUE, (answer == null || answer.getValue() == null ? "null" : answer.getValue().toString()));
+        ACRAUtil.addCustomData(ACRAUtil.LAST_INDEX, (index == null ? "null" : index.toString()));
 
         try {
             if (evaluateConstraints) {

@@ -1,10 +1,34 @@
 package org.commcare.dalvik.activities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.database.DataSetObserver;
+import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
@@ -14,6 +38,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -37,36 +62,11 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.database.DataSetObserver;
-import android.net.Uri;
-import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 /**
  * 
@@ -788,6 +788,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         // create intent for return and store path
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+        ACRAUtil.addCustomData(ACRAUtil.CURRENT_CASE, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
         finish();
     }
