@@ -15,26 +15,12 @@ package org.odk.collect.android.widgets;
  */
 
 
-import java.io.File;
-
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.DrawActivity;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.utilities.UrlUtils;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.MediaStore.Images;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
@@ -47,6 +33,18 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.activities.DrawActivity;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.utilities.UrlUtils;
+
+import java.io.File;
 
 /**
  * Signature widget.
@@ -232,36 +230,19 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
      * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
      */
     @Override
-    public void setBinaryData(Object answer) {
+    public void setBinaryData(Object binaryURI) {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
             deleteMedia();
         }
 
-        String binaryPath = UrlUtils.getPathFromUri((Uri) answer,getContext());
-        File newImage = new File(binaryPath);
+        String binaryPath = UrlUtils.getPathFromUri((Uri) binaryURI,getContext());
+        File f = new File(binaryPath);
+        mBinaryName = f.getName();
+        Log.i(t, "Setting current answer to " + f.getName());
 
-        if (newImage.exists()) {
-            // Add the new image to the Media content provider so that the
-            // viewing is fast in Android 2.0+
-            ContentValues values = new ContentValues(6);
-            values.put(Images.Media.TITLE, newImage.getName());
-            values.put(Images.Media.DISPLAY_NAME, newImage.getName());
-            values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-            values.put(Images.Media.MIME_TYPE, "image/jpeg");
-            values.put(Images.Media.DATA, newImage.getAbsolutePath());
-
-            Uri imageURI = getContext().getContentResolver().insert(
-                    Images.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(t, "Inserting image returned uri = " + imageURI.toString());
-
-            mBinaryName = newImage.getName();
-            Log.i(t, "Setting current answer to " + newImage.getName());
-        } else {
-            Log.e(t, "NO IMAGE EXISTS at: " + newImage.getAbsolutePath());
-        }
-        setWaitingForBinaryData();
+        mWaitingForData = false;
     }
 
     /*
