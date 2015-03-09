@@ -261,6 +261,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
             }
         });
+
+        // CommCare-159047: this method call rebuilds the options menu
+        supportInvalidateOptionsMenu();
     }
 
     private boolean isOnline() {
