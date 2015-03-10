@@ -4,7 +4,6 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareVerificationActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -92,8 +91,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<M
             listener.success();
         }
         else if(listener != null) {
-            // ignores the validation result when superuser mode is enabled, useful for dev/testing
-            if(problems.size() == 0 || DeveloperPreferences.isSuperuserEnabled()){
+            if(problems.size() == 0){
                 listener.success();
             } else if(problems.size() > 0){
                 listener.onFinished(problems);
