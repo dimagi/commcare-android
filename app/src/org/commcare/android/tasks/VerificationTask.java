@@ -92,6 +92,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<M
             listener.success();
         }
         else if(listener != null) {
+            // ignores the validation result when superuser mode is enabled, useful for dev/testing
             if(problems.size() == 0 || DeveloperPreferences.isSuperuserEnabled()){
                 listener.success();
             } else if(problems.size() > 0){
