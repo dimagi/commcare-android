@@ -14,55 +14,6 @@
 
 package org.odk.collect.android.activities;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.Constants;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.form.api.FormEntryController;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.javarosa.model.xform.XFormsModule;
-import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.jr.extensions.IntentCallout;
-import org.odk.collect.android.listeners.AdvanceToNextListener;
-import org.odk.collect.android.listeners.FormLoaderListener;
-import org.odk.collect.android.listeners.FormSavedListener;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.logic.PropertyManager;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.preferences.PreferencesActivity.ProgressBarMode;
-import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
-import org.odk.collect.android.provider.InstanceProviderAPI;
-import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
-import org.odk.collect.android.tasks.FormLoaderTask;
-import org.odk.collect.android.tasks.SaveToDiskTask;
-import org.odk.collect.android.utilities.Base64Wrapper;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.utilities.GeoUtils;
-import org.odk.collect.android.views.ODKView;
-import org.odk.collect.android.views.ResizingImageView;
-import org.odk.collect.android.widgets.DateTimeWidget;
-import org.odk.collect.android.widgets.IntentWidget;
-import org.odk.collect.android.widgets.QuestionWidget;
-import org.odk.collect.android.widgets.TimeWidget;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -124,6 +75,56 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.Constants;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.model.xform.XFormsModule;
+import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathTypeMismatchException;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.jr.extensions.IntentCallout;
+import org.odk.collect.android.listeners.AdvanceToNextListener;
+import org.odk.collect.android.listeners.FormLoaderListener;
+import org.odk.collect.android.listeners.FormSavedListener;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.logic.FormController;
+import org.odk.collect.android.logic.PropertyManager;
+import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.preferences.PreferencesActivity.ProgressBarMode;
+import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
+import org.odk.collect.android.provider.InstanceProviderAPI;
+import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
+import org.odk.collect.android.tasks.FormLoaderTask;
+import org.odk.collect.android.tasks.SaveToDiskTask;
+import org.odk.collect.android.utilities.Base64Wrapper;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.utilities.GeoUtils;
+import org.odk.collect.android.views.ODKView;
+import org.odk.collect.android.views.ResizingImageView;
+import org.odk.collect.android.widgets.DateTimeWidget;
+import org.odk.collect.android.widgets.IntentWidget;
+import org.odk.collect.android.widgets.QuestionWidget;
+import org.odk.collect.android.widgets.TimeWidget;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * FormEntryActivity is responsible for displaying questions, animating transitions between
@@ -945,7 +946,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Update progress bar's max and value, and the various buttons and navigation cues
      * associated with navigation
      * 
-     * @param odkv ODKView to update
+     * @param view ODKView to update
      */
     public void updateNavigationCues(View view) {
         updateFloatingLabels(view);
