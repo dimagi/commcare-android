@@ -46,9 +46,14 @@ public class CaseIndexTable {
     
     //TODO: We should do some synchronization to make it the case that nothing can hold
     //an object for the same cache at once and let us manage the lifecycle
-    SQLiteDatabase db;
+    
     public CaseIndexTable() {
-        db = CommCareApplication._().getUserDbHandle();
+        this(CommCareApplication._().getUserDbHandle());
+    }
+    
+    SQLiteDatabase db;
+    public CaseIndexTable(SQLiteDatabase dbHandle) {
+        this.db = dbHandle;
     }
     
     /**

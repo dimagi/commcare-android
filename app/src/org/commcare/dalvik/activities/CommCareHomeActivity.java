@@ -177,7 +177,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
-        
         setContentView(R.layout.mainnew);
         configUi();
     }
@@ -259,6 +258,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
             }
         });
+
+        // CommCare-159047: this method call rebuilds the options menu
+        supportInvalidateOptionsMenu();
     }
 
     private boolean isOnline() {

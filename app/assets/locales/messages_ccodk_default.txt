@@ -245,7 +245,7 @@ demo.mode.warning.dismiss=I Understand
 
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
-select.detail.confirm=Select
+select.detail.confirm=Continue
 
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
 
@@ -289,7 +289,8 @@ notification.sync.connections.action=You don't have any active data connections 
 
 #Add new localization strings here
 
-
+callout.failure.dialer=Device is not currently configured to make telephone calls
+callout.failure.sms=SMS app not found
 
 
 
@@ -452,14 +453,14 @@ odk_add_another=Add Group
 odk_add_another_repeat=Add another "${0}" group?
 odk_add_repeat=Add a new "${0}" group?
 odk_add_repeat_no=Do Not Add
-odk_add_repeat_no_exits=Do Not Add, I\'m Finished
-odk_advance=forward to\nnext\nprompt
+odk_add_repeat_no_exits=Do Not Add, I'm Finished
+odk_advance=forward to next prompt
 odk_altitude=Altitude
 odk_app_name=ODK Collect
 odk_attachment_oversized=Warning: attached large file of size ${0} kb. This could cause problems with submitting to the server depending on your network conditions.
 odk_audio_file_error=No audio file was specified.
 odk_audio_file_invalid=File: ${0} is not a valid audio file.
-odk_backup=back to\nprevious\nprompt
+odk_backup=back to previous prompt
 odk_barcode_scanner_error=Sorry, Barcode Scanner is not installed!
 odk_cancel=Cancel
 odk_cancel_loading_form=Cancel
@@ -532,7 +533,7 @@ odk_jump_to_end=Go To End
 odk_jump_to_previous=Go Up
 odk_latitude=Latitude
 odk_leave_repeat_yes=Do Not Add
-odk_leave_repeat_yes_exits=Do Not Add. I\'m Finished.
+odk_leave_repeat_yes_exits=Do Not Add. I'm Finished.
 odk_repeat_go_back=Go Back
 odk_leaving_repeat=Add Group
 odk_leaving_repeat_ask=And One More Group?
@@ -662,7 +663,7 @@ odk_intent_callout_button=Get Data
 odk_intent_callout_button_update=Update Data
 odk_finding_location=Finding Location...
 odk_found_location=Location Found!
-odk_form_entry_start_hide=Thanks! Don\'t show this again.
+odk_form_entry_start_hide=Thanks! Don't show this again.
 odk_preference_form_entry_start_hide=Show Intro Help Screen
 odk_preference_form_entry_start_summary=If this is unchecked, the first screen that explains swiping will not be displayed
 odk_preference_help_mode_tray=Display Rich Help Inline

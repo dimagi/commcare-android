@@ -3,7 +3,12 @@
  */
 package org.commcare.android.util;
 
+import java.util.HashSet;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.javarosa.core.util.DataUtil;
+import org.javarosa.core.util.DataUtil.UnionLambda;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
@@ -40,5 +45,30 @@ public class AndroidUtil {
             return View.generateViewId();
         }
     }
-
+    
+    /**
+     * Initialize platform specific methods for common handlers
+     */
+    public static void initializeStaticHandlers() {
+        DataUtil.setUnionLambda(new AndroidUnionLambda());
+    }
+    
+    public static class AndroidUnionLambda extends UnionLambda {
+        public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
+            //This is kind of (ok, so really) awkward looking, but we can't use sets in 
+            //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
+            //j2me (thanks Sun!) so this is what we get.
+            HashSet<T> joined = new HashSet<T>(a);
+            joined.addAll(a);
+            
+            HashSet<T> other = new HashSet<T>();
+            other.addAll(b);
+            
+            joined.retainAll(other);
+            
+            a.clear();
+            a.addAll(joined);
+            return a;
+        }
+    }
 }

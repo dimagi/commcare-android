@@ -6,6 +6,7 @@ import java.io.File;
 import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.QRCodeEncoder;
 import org.odk.collect.android.views.ResizingImageView;
@@ -56,10 +57,6 @@ public class MediaLayout extends RelativeLayout {
         mVideoButton = null;
     }
     
-    protected void onHelpPressed() {
-        
-    }
-    
     public void setAVT(TextView text, String audioURI, String imageURI, final String videoURI, final String bigImageURI) {
         setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null);
     }
@@ -94,24 +91,7 @@ public class MediaLayout extends RelativeLayout {
         }
         
         // Then set up the video button
-        if (videoURI != null && videoURI.equals("help")) {
-            // Magic Help backdoor!
-            mVideoButton = new ImageButton(getContext());
-            mVideoButton.setImageResource(android.R.drawable.ic_menu_help);
-            mVideoButton.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    MediaLayout.this.onHelpPressed();
-                }
-
-            });
-            mVideoButton.setId(234982340);
-        }
-
-        // Then set up the video button
-        else if (videoURI != null) {
-            // An audio file is specified
+        if (videoURI != null) {
             mVideoButton = new ImageButton(getContext());
             mVideoButton.setImageResource(android.R.drawable.ic_media_play);
             mVideoButton.setOnClickListener(new OnClickListener() {
@@ -140,6 +120,8 @@ public class MediaLayout extends RelativeLayout {
                     Intent i = new Intent("android.intent.action.VIEW");
                     i.setDataAndType(Uri.fromFile(videoFile), "video/*");
                     try {
+                        String uri = Uri.fromFile(videoFile).getPath().replaceAll("^.*\\/", "");
+                        Logger.log("media", "start " + uri);
                         ((Activity) getContext()).startActivity(i);
                     } catch (ActivityNotFoundException e) {
                         Toast.makeText(getContext(),
@@ -318,8 +300,7 @@ public class MediaLayout extends RelativeLayout {
         
         
     }
-
-
+    
     /**
      * This adds a divider at the bottom of this layout. Used to separate fields in lists.
      * 

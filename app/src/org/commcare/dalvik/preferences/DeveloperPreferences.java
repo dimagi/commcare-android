@@ -33,6 +33,8 @@ public class DeveloperPreferences extends PreferenceActivity {
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public final static String CSS_ENABLED = "cc-css-enabled";
 	public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
+	public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
+
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
@@ -84,6 +86,10 @@ public class DeveloperPreferences extends PreferenceActivity {
         }
     }
 
+    public static boolean isListRefreshEnabled(){
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
     
     public static boolean isGridMenuEnabled(){
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();

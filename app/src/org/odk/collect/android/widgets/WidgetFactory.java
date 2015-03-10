@@ -68,6 +68,8 @@ public class WidgetFactory {
                     case Constants.DATATYPE_DATE:
                         if(appearance != null && appearance.toLowerCase().equals("ethiopian")){
                             questionWidget = new EthiopianDateWidget(context, fep);
+                        } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
+                        	questionWidget = new NepaliDateWidget(context, fep);
                         } else {
                             questionWidget = new DateWidget(context, fep);
                         }
