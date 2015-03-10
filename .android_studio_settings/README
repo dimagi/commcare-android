@@ -1,5 +1,5 @@
 Create the following soft links into your local Android Studio config directory
- * ln -s inspection/CommCare\ Inpsection\ Profile.xml ~/.AndridStudio/config/inspection
+ * ln -s inspection/CommCare\ Inpsection\ Profile.xml ~/.AndroidStudio/config/inspection
  * ln -s codestyles/CommCare\ Coding\ Style.xml ~/.AndroidStudio/config/codestyles
 
 Then select:
