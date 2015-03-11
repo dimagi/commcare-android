@@ -14,16 +14,6 @@
 
 package org.odk.collect.android.widgets;
 
-import java.text.DecimalFormat;
-
-import org.javarosa.core.model.data.GeoPointData;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.activities.GeoPointActivity;
-import org.odk.collect.android.activities.GeoPointMapActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -36,9 +26,20 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.activities.GeoPointActivity;
+import org.odk.collect.android.activities.GeoPointMapActivity;
+
+import java.text.DecimalFormat;
+
 /**
  * GeoPointWidget is the widget that allows the user to get GPS readings.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
@@ -65,27 +66,27 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
         params.setMargins(7, 5, 7, 5);
-        
+
         mGetLocationButton = new Button(getContext());
         mGetLocationButton.setPadding(20, 20, 20, 20);
-        mGetLocationButton.setText(Localization.get("odk_get_location"));
+        mGetLocationButton.setText(StringUtils.getStringRobust(getContext(), R.string.get_location));
         mGetLocationButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mGetLocationButton.setEnabled(!prompt.isReadOnly());
         mGetLocationButton.setLayoutParams(params);
 
         // setup play button
         mViewButton = new Button(getContext());
-        mViewButton.setText(Localization.get("odk_show_location"));
+        mViewButton.setText(StringUtils.getStringRobust(getContext(), R.string.show_location));
         mViewButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mViewButton.setPadding(20, 20, 20, 20);
         mViewButton.setLayoutParams(params);
-        
+
         // on play, launch the appropriate viewer
         mViewButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
+            /*
+             * (non-Javadoc)
+             * @see android.view.View.OnClickListener#onClick(android.view.View)
+             */
             @Override
             public void onClick(View v) {
 
@@ -111,13 +112,13 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null && !s.equals("")) {
-            mGetLocationButton.setText(Localization.get("odk_replace_location"));
+            mGetLocationButton.setText(StringUtils.getStringRobust(getContext(), R.string.replace_location));
             setBinaryData(s);
             mViewButton.setEnabled(true);
         } else {
             mViewButton.setEnabled(false);
         }
-        
+
         // use maps or not
         if (mAppearance != null && mAppearance.equalsIgnoreCase("maps")) {
             try {
@@ -127,15 +128,15 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
             } catch (ClassNotFoundException e) {
                 mUseMaps = false;
             }
-        } 
+        }
 
-        
+
         // when you press the button
         mGetLocationButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
+            /*
+             * (non-Javadoc)
+             * @see android.view.View.OnClickListener#onClick(android.view.View)
+             */
             @Override
             public void onClick(View v) {
                 Intent i = null;
@@ -145,7 +146,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
                     i = new Intent(getContext(), GeoPointActivity.class);
                 }
                 ((Activity) getContext()).startActivityForResult(i,
-                    FormEntryActivity.LOCATION_CAPTURE);
+                        FormEntryActivity.LOCATION_CAPTURE);
                 mWaitingForData = true;
 
             }
@@ -170,7 +171,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     public void clearAnswer() {
         mStringAnswer.setText(null);
         mAnswerDisplay.setText(null);
-        mGetLocationButton.setText(Localization.get("odk_get_location"));
+        mGetLocationButton.setText(StringUtils.getStringRobust(getContext(), R.string.get_location));
 
     }
 
@@ -244,7 +245,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -259,12 +260,12 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
         mStringAnswer.setText(s);
 
         String[] sa = s.split(" ");
-        mAnswerDisplay.setText(Localization.get("odk_latitude") + ": "
+        mAnswerDisplay.setText(StringUtils.getStringRobust(getContext(), R.string.latitude) + ": "
                 + formatGps(Double.parseDouble(sa[0]), "lat") + "\n"
-                + Localization.get("odk_longitude") + ": "
+                + StringUtils.getStringRobust(getContext(), R.string.longitude) + ": "
                 + formatGps(Double.parseDouble(sa[1]), "lon") + "\n"
-                + Localization.get("odk_altitude") + ": " + truncateDouble(sa[2]) + "m\n"
-                + Localization.get("odk_accuracy") + ": " + truncateDouble(sa[3]) + "m");
+                + StringUtils.getStringRobust(getContext(), R.string.altitude) + ": " + truncateDouble(sa[2]) + "m\n"
+                + StringUtils.getStringRobust(getContext(), R.string.accuracy) + ": " + truncateDouble(sa[3]) + "m");
         mWaitingForData = false;
     }
 

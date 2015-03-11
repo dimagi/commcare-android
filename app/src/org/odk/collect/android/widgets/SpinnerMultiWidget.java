@@ -1,16 +1,6 @@
 
 package org.odk.collect.android.widgets;
 
-import java.util.Vector;
-
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectMultiData;
-import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryPrompt;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,6 +9,16 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.SelectMultiData;
+import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.form.api.FormEntryPrompt;
+
+import java.util.Vector;
 
 /**
  * SpinnerMultiWidget, like SelectMultiWidget handles multiple selection fields using checkboxes,
@@ -68,11 +68,11 @@ public class SpinnerMultiWidget extends QuestionWidget {
             answer_items[i] = prompt.getSelectChoiceText(mItems.get(i));
         }
 
-        selectionText.setText(Localization.get("odk_selected"));
+        selectionText.setText(StringUtils.getStringRobust(context, R.string.selected));
         selectionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         selectionText.setVisibility(View.GONE);
 
-        button.setText(Localization.get("odk_select_answer"));
+        button.setText(StringUtils.getStringRobust(context, R.string.select_answer));
         button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         button.setPadding(0, 0, 0, 7);
 
@@ -91,7 +91,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
 
                                     if (first) {
                                         first = false;
-                                        selectionText.setText(Localization.get("odk_selected")
+                                        selectionText.setText(StringUtils.getStringRobust(context, R.string.selected)
                                                 + answer_items[i].toString());
                                         selectionText.setVisibility(View.VISIBLE);
                                     } else {
@@ -156,7 +156,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
                 if (found) {
                     if (first) {
                         first = false;
-                        selectionText.setText(Localization.get("odk_selected")
+                        selectionText.setText(StringUtils.getStringRobust(context, R.string.selected)
                                 + answer_items[i].toString());
                         selectionText.setVisibility(View.VISIBLE);
                     } else {
