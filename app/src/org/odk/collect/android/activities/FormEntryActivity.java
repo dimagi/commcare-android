@@ -27,6 +27,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -193,6 +194,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Random ID
     private static final int DELETE_REPEAT = 654321;
 
+    public static final String FORM_SAVED_FOR_KEY_SESSION_ENDING = "FormEntryActivity_form_saved_for_key_session_ending";
+
     private String mFormPath;
     public static String mInstancePath;
     private String mInstanceDestination;
@@ -229,6 +232,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public boolean hasSaved = false;
     
     private BroadcastReceiver mNoGPSReceiver;
+    private BroadcastReceiver mKeySessionCloseReceiver;
+
+    // marked true if we are in the process of saving a form because the user
+    // database & key session are expiring. Being set causes savingComplete to
+    // broadcast a form saving intent.
+    private boolean savingFormOnKeySessionExpiration = false;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -244,27 +253,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
 
-        // See if this form needs GPS to be turned on
-        mNoGPSReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                context.removeStickyBroadcast(intent);
-                LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                Set<String> providers = GeoUtils.evaluateProviders(manager);
-                if (providers.isEmpty()) {
-                    DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int i) {
-                            if (i == DialogInterface.BUTTON_POSITIVE) {
-                                Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                startActivity(intent);
-                            }
-                        }
-                    };
-                    GeoUtils.showNoGpsDialog(FormEntryActivity.this, onChangeListener);
-                }
-            }
-        };
-        registerReceiver(mNoGPSReceiver, new IntentFilter(GeoUtils.ACTION_CHECK_GPS_ENABLED));
+        registerFormEntryReceivers();
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
@@ -540,6 +529,49 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 showDialog(PROGRESS_DIALOG);
             }
         }
+    }
+
+    /**
+     * Setup BroadcastReceivers for:
+     *  - form saving on session closing
+     *  - asking user if they want to enable gps
+     */
+    private void registerFormEntryReceivers() {
+        // Listen for broadcast from CommCareSessionService saying the key
+        // session is closing down and we need to save any intermediate results
+        // before they become un-saveable.
+        mKeySessionCloseReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // note that we have started saving the form
+                savingFormOnKeySessionExpiration = true;
+                // start saving form, which will send out an intent on completion
+                saveDataToDisk(EXIT, isInstanceComplete(false), null);
+            }
+        };
+        registerReceiver(mKeySessionCloseReceiver, new IntentFilter(CommCareSessionService.KEY_SESSION_ENDING));
+
+        // See if this form needs GPS to be turned on
+        mNoGPSReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                context.removeStickyBroadcast(intent);
+                LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                Set<String> providers = GeoUtils.evaluateProviders(manager);
+                if (providers.isEmpty()) {
+                    DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int i) {
+                            if (i == DialogInterface.BUTTON_POSITIVE) {
+                                Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(intent);
+                            }
+                        }
+                    };
+                    GeoUtils.showNoGpsDialog(FormEntryActivity.this, onChangeListener);
+                }
+            }
+        };
+        registerReceiver(mNoGPSReceiver, new IntentFilter(GeoUtils.ACTION_CHECK_GPS_ENABLED));
     }
 
     public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
@@ -2606,6 +2638,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (mNoGPSReceiver != null) {
             unregisterReceiver(mNoGPSReceiver);
         }
+        if (mKeySessionCloseReceiver != null) {
+            unregisterReceiver(mKeySessionCloseReceiver);
+        }
 
         super.onDestroy();
 
@@ -2732,6 +2767,25 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @Override
     public void savingComplete(int saveStatus) {
         dismissDialog(SAVING_DIALOG);
+        // Did we just save a form because the key session
+        // (CommCareSessionService) is ending?
+        if (savingFormOnKeySessionExpiration) {
+            // NOTE: this doesn't do anything special when saveStatus is set to
+            // SavetoDiskTask.SAVE_ERROR
+
+            // Send out intent saying that form state has been saved and
+            // CommCareSessionService can continue closing down key pool and
+            // user database.
+            this.sendBroadcast(new Intent(FORM_SAVED_FOR_KEY_SESSION_ENDING));
+
+            savingFormOnKeySessionExpiration = false;
+
+            // Escape early since the user should either be redirected to login
+            // page or the app isn't even being displayed.
+            hasSaved = true;
+            finishReturnInstance();
+        }
+
         switch (saveStatus) {
             case SaveToDiskTask.SAVED:
                 Toast.makeText(this, Localization.get("odk_data_saved_ok"), Toast.LENGTH_SHORT).show();

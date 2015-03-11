@@ -25,6 +25,7 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.odk.collect.android.activities.FormEntryActivity;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -33,7 +34,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
 import android.text.format.DateFormat;
@@ -53,7 +57,8 @@ public class CommCareSessionService extends Service  {
     private static long MAINTENANCE_PERIOD = 1000;
     
     // duration in milliseconds that session remains valid after a user logs in
-    private static long SESSION_LENGTH = 1000*60*60*24;
+    // private static long SESSION_LENGTH = 1000*60*60*24;
+    private static long SESSION_LENGTH = 1000 * 30;
     
     private Timer maintenanceTimer;
     private CipherPool pool;
@@ -74,6 +79,14 @@ public class CommCareSessionService extends Service  {
     // We use it on Notification start, and to cancel it.
     private int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
     private int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
+
+    // Intent filter for when key session expires and the key pool/user db need
+    // to be closed down.
+    public static final String KEY_SESSION_ENDING = "CommCareSessionService_key_session_ending";
+
+    // Receiver that processes when a form has been saved due to the key
+    // session expiring.
+    private BroadcastReceiver formSavedForKeySessionEndingReceiver;
     
     
     /**
@@ -278,19 +291,88 @@ public class CommCareSessionService extends Service  {
     private void maintenance() {
         boolean logout = false;
         long time = new Date().getTime();
-        // If we're either past the session expire time, or the session expires more than its period in the future, 
-        // we need to log the user out
+        // If we're either past the session expire time, or the session expires more than its period in the future,
+        // we need to log the user out. The second case occurs if the system's clock is altered.
         if(time > sessionExpireDate.getTime() || (sessionExpireDate.getTime() - time  > SESSION_LENGTH )) { 
             logout = true;
         }
         
         if(logout) {
-            logout();
+            ;logout();
+            startLogout();
             showLoggedOutNotification();
         }
     }
     
+    /**
+     * Begin closing down the session by notifying any pending forms that they
+     * need to saved and waiting for that to occur before closing down key
+     * pool and user database.
+     */
+    public void startLogout() {
+        // tell everyone that the key session is ending and they need to save
+        // forms and prepare for the user database to close
+        this.sendBroadcast(new Intent(KEY_SESSION_ENDING));
+
+        // listen for the FormEntryActivity to notify that any open form has been saved and closed
+        formSavedForKeySessionEndingReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // finishLogout();
+                logout();
+            }
+        };
+        registerReceiver(formSavedForKeySessionEndingReceiver,
+                new IntentFilter(FormEntryActivity.FORM_SAVED_FOR_KEY_SESSION_ENDING));
+
+        // TODO: launch finishLogout if we haven't heard back from
+        // FormEntryActivity in a set amount of time
+    }
+
+    /**
+     * Conclude closing down the session by closing down key pool and user
+     * database.
+     */
+    public void finishLogout() {
+        synchronized(lock){
+            key = null;
+            String msg = "Logging out service login";
+
+            // Let anyone who is listening know!
+            Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
+            this.sendBroadcast(i);
+
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
+
+            if (user != null) {
+                if (user.getUsername() != null) {
+                    msg = "Logging out user " + user.getUsername();
+                }
+                user = null;
+            }
+
+            if (userDatabase != null) {
+                if (userDatabase.isOpen()) {
+                    userDatabase.close();
+                }
+                userDatabase = null;
+            }
+
+            // timer is null if we aren't actually in the foreground
+            if (maintenanceTimer != null) {
+                maintenanceTimer.cancel();
+            }
+
+            pool.expire();
+            this.stopForeground(true);
+        }
+    }
+
+    /**
+     * Close user database, broadcast session logout, expire the cypher pool
+     */
     public void logout() {
+        // TODO: wait until logout saving finishes before contining
         synchronized(lock){
             key = null;
             
