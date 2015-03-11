@@ -1,22 +1,5 @@
 package org.odk.collect.android.widgets;
 
-import java.io.File;
-
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.R.color;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ShrinkingTextView;
-import org.odk.collect.android.views.media.MediaLayout;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,6 +21,22 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.data.AnswerDataFactory;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.views.ShrinkingTextView;
+import org.odk.collect.android.views.media.MediaLayout;
+
+import java.io.File;
 
 public abstract class QuestionWidget extends LinearLayout {
 
@@ -151,7 +150,7 @@ public abstract class QuestionWidget extends LinearLayout {
         triggerLayout.addView(trigger);
 
         MediaLayout helpLayout = createHelpLayout(p);
-        helpLayout.setBackgroundResource(color.very_light_blue);
+        helpLayout.setBackgroundResource(R.color.very_light_blue);
         helpPlaceholder.addView(helpLayout);
 
         this.addView(triggerLayout);
@@ -409,7 +408,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(Localization.get("odk_ok"), errorListener);
+            mAlertDialog.setButton(StringUtils.getStringRobust(this.getContext(), R.string.ok), errorListener);
             mAlertDialog.show();
         } else {
 
@@ -581,7 +580,7 @@ public abstract class QuestionWidget extends LinearLayout {
 
     public void checkFileSize(File file){
         if(FileUtils.isFileOversized(file)){
-            this.notifyWarning(Localization.get("odk_attachment_oversized", FileUtils.getFileSize(file)+""));
+            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file)+""));
         }
     }
 
