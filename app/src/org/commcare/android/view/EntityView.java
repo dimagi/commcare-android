@@ -1,13 +1,12 @@
 package org.commcare.android.view;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
+import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
@@ -412,9 +411,7 @@ public class EntityView extends LinearLayout {
             }
         } catch (Exception excp){
             removeSpans(raw);
-            StringWriter sw = new StringWriter();
-            excp.printStackTrace(new PrintWriter(sw));
-            Logger.log("search-hl", excp.toString() + " " + sw.toString());
+            Logger.log("search-hl", excp.toString() + " " + ExceptionReportTask.getStackTrace(excp));
         }
 
         return raw;
