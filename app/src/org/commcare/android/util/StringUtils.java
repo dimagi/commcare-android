@@ -3,13 +3,17 @@
  */
 package org.commcare.android.util;
 
-import java.text.Normalizer;
-import java.util.regex.Pattern;
-
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Build;
 import android.support.v4.util.LruCache;
 import android.util.Pair;
+
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
+
+import java.text.Normalizer;
+import java.util.regex.Pattern;
 
 /**
  * @author ctsims
@@ -139,5 +143,18 @@ public class StringUtils {
             }
         }
         return Pair.create(false, -1);
+    }
+
+    public static String getStringRobust(Context c, int resId) {
+        return getStringRobust(c, resId, "");
+    }
+
+    public static String getStringRobust(Context c, int resId, String args) {
+        String resourceName = c.getResources().getResourceEntryName(resId);
+        try {
+            return Localization.get("odk_" + resourceName, new String[]{args});
+        } catch(NoLocalizedTextException e) {
+            return c.getString(resId, args);
+        }
     }
 }
