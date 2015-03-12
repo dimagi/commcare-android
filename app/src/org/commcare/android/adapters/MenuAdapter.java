@@ -11,6 +11,7 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.view.GridMediaView;
 import org.commcare.android.view.HorizontalMediaView;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Entry;
@@ -30,6 +31,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -197,36 +199,41 @@ public class MenuAdapter implements ListAdapter {
     public View getView(int i, View v, ViewGroup vg) {
         
         Object mObject = objectData[i];
-        
-        HorizontalMediaView emv = (HorizontalMediaView)v;
-        String mQuestionText = textViewHelper(mObject);
-        if(emv == null) {
-            emv = new HorizontalMediaView(context);
+
+        View menuListItem = v;
+
+        if(menuListItem == null) {
+            // inflate it and do not attach to parent, or we will get the 'addView not supported' exception
+            menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_list_item_modern, vg, false);
         }
-        
-        int iconChoice = HorizontalMediaView.NAVIGATION_NEXT;
-        
-        //figure out some icons
-        if(mObject instanceof Entry) {
-            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
-            if(datum == null) {
-                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
-            }
-            else if(datum.getNodeset() == null) {
-                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
-            } 
-        }
-        if(!DeveloperPreferences.isNewNavEnabled()) {
-            iconChoice = HorizontalMediaView.NAVIGATION_NONE;
-        }
-        
-        //Final change, remove any numeric context requests. J2ME uses these to 
-        //help with numeric navigation.
-        if(mQuestionText != null) {
-            mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
-        }
-        emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), iconChoice);
-        return emv;
+
+//        HorizontalMediaView emv = (HorizontalMediaView)v;
+//        String mQuestionText = textViewHelper(mObject);
+//        if(emv == null) {
+//            emv = new HorizontalMediaView(context);
+//        }
+//
+//        int iconChoice = HorizontalMediaView.NAVIGATION_NEXT;
+//
+//        //figure out some icons
+//        if(mObject instanceof Entry) {
+//            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
+//            if(datum == null || datum.getNodeset() == null) {
+//                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
+//            }
+//        }
+//        if(!DeveloperPreferences.isNewNavEnabled()) {
+//            iconChoice = HorizontalMediaView.NAVIGATION_NONE;
+//        }
+//
+//        //Final change, remove any numeric context requests. J2ME uses these to
+//        //help with numeric navigation.
+//        if(mQuestionText != null) {
+//            mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
+//        }
+//        emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), iconChoice);
+//        return emv;
+        return menuListItem;
     }
     
     /*
