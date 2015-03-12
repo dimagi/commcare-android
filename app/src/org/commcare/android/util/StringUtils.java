@@ -45,7 +45,7 @@ public class StringUtils {
         String cachedString = normalizationCache.get(input);
         if(cachedString != null) { return cachedString; }
         
-        //Initialized the normalized string (If we can, we'll use the String tools for it
+        //Initialized the normalized string (If we can, we'll use the Normalizer API on it)
         String normalized = input;
         
         //If we're above gingerbread we'll normalize this in NFD form 
