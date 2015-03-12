@@ -42,8 +42,11 @@ public class StringUtils {
 
             diacritics = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         }
-        String normalized = normalizationCache.get(input);
-        if(normalized != null) { return normalized; }
+        String cachedString = normalizationCache.get(input);
+        if(cachedString != null) { return cachedString; }
+        
+        //Initialized the normalized string (If we can, we'll use the String tools for it
+        String normalized = input;
         
         //If we're above gingerbread we'll normalize this in NFD form 
         //which helps a lot. Otherwise we won't be able to clear up some of those
@@ -54,12 +57,13 @@ public class StringUtils {
             //TODO: I doubt it's worth it, but in theory we could run
             //some other normalization for the minority of pre-API9
             //devices.
-            normalized = input;
         }
         
-        normalizationCache.put(input, normalized);
+        String output = diacritics.matcher(normalized).replaceAll("").toLowerCase();
         
-        return normalized;
+        normalizationCache.put(input, output);
+        
+        return output;
     }
     
     /**
