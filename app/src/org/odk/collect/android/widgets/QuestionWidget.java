@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.TypedValue;
@@ -22,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
@@ -337,17 +339,32 @@ public abstract class QuestionWidget extends LinearLayout {
         String audioURI = p.getAudioText();
         String videoURI = p.getSpecialFormQuestionText("video");
         String qrCodeContent = p.getSpecialFormQuestionText("qrcode");
+        String markdownText = p.getMarkdownText();
+
 
         // shown when image is clicked
         String bigImageURI = p.getSpecialFormQuestionText("big-image");
 
         // Add the text view. Textview always exists, regardless of whether there's text.
         mQuestionText = new TextView(getContext());
-        mQuestionText.setText(p.getLongText());
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
-        mQuestionText.setTypeface(null, Typeface.BOLD);
-        mQuestionText.setPadding(0, 0, 0, 7);
+
         mQuestionText.setId(38475483); // assign random id
+
+        // if we have markdown, use that.
+        if(markdownText != null){
+            mQuestionText.setText(stylize(markdownText));
+            mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
+            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        } else {
+            mQuestionText.setText(p.getLongText());
+            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+            mQuestionText.setTypeface(null, Typeface.BOLD);
+            mQuestionText.setPadding(0, 0, 0, 7);
+        }
+
+        // Wrap to the size of the parent view
+        mQuestionText.setHorizontallyScrolling(false);
+
 
         if(p.getLongText()!= null){
             if(p.getLongText().contains("\u260E")){
@@ -408,7 +425,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(StringUtils.getStringRobust(this.getContext(), R.string.ok), errorListener);
+            mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this.getContext(), R.string.ok), errorListener);
             mAlertDialog.show();
         } else {
 
@@ -580,11 +597,20 @@ public abstract class QuestionWidget extends LinearLayout {
 
     public void checkFileSize(File file){
         if(FileUtils.isFileOversized(file)){
-            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file)+""));
+            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file) + ""));
         }
     }
 
     public void checkFileSize(String filepath){
         checkFileSize(new File(filepath));
+    }
+
+    /*
+     * Methods to make localization and styling easier for devs
+     * copied from CommCareActivity
+     */
+
+    public Spannable stylize(String text){
+        return MarkupUtil.styleSpannable(getContext(), text);
     }
 }
