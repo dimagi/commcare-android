@@ -15,6 +15,7 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -185,6 +186,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
          * Check if the button in this view had media assigned to 
          * it in a previously-existing app (before rotation, etc.)
          */
+        if(isInEditMode()) return;
         MediaEntity currEntity = controller.getCurrMedia();
         if (currEntity != null) {
             Object oldId = currEntity.getId();
@@ -382,4 +384,8 @@ public class AudioButton extends ImageButton implements OnClickListener {
         setStateToPaused();
     }
 
+    public AudioButton(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        if(!this.isInEditMode()) throw new UnsupportedOperationException("Only in edit mode");
+    }
 }
