@@ -3,11 +3,9 @@
  */
 package org.commcare.android.adapters;
 
-import android.content.Context;
-import android.database.DataSetObserver;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import java.io.File;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -22,6 +20,8 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
@@ -30,9 +30,17 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.odk.collect.android.views.media.AudioButton;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import android.content.Context;
+import android.database.DataSetObserver;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
 /**
  * Adapter class to handle both Menu and Entry items
@@ -203,6 +211,7 @@ public class MenuAdapter implements ListAdapter {
         
         Object mObject = objectData[i];
 
+        // inflate view
         View menuListItem = v;
 
         if(menuListItem == null) {
@@ -210,32 +219,80 @@ public class MenuAdapter implements ListAdapter {
             menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_list_item_modern, vg, false);
         }
 
-//        HorizontalMediaView emv = (HorizontalMediaView)v;
-//        String mQuestionText = textViewHelper(mObject);
-//        if(emv == null) {
-//            emv = new HorizontalMediaView(context);
-//        }
-//
-//        int iconChoice = HorizontalMediaView.NAVIGATION_NEXT;
-//
-//        //figure out some icons
-//        if(mObject instanceof Entry) {
-//            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
-//            if(datum == null || datum.getNodeset() == null) {
-//                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
+        // set up text
+        String mQuestionText = textViewHelper(mObject);
+
+        //Final change, remove any numeric context requests. J2ME uses these to
+        //help with numeric navigation.
+        if(mQuestionText != null) {
+            mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
+        }
+
+        TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
+        rowText.setText(mQuestionText);
+
+        final String audioURI = getAudioURI(mObject);
+        String audioFilename = "";
+        if(audioURI != null && !audioURI.equals("")) {
+            try {
+                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+            } catch (InvalidReferenceException e) {
+                Log.e("AVTLayout", "Invalid reference exception");
+                e.printStackTrace();
+            }
+        }
+
+        File audioFile = new File(audioFilename);
+
+        // First set up the audio button
+        AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
+        if (audioFilename != "" && audioFile.exists()) {
+            // An audio file is specified
+//            mAudioButton = new AudioButton(getContext(), audioURI, true);
+            // Set not focusable so that list onclick will work
+            mAudioButton.setFocusable(false);
+            mAudioButton.setFocusableInTouchMode(false);
+
+            mAudioButton.resetButton(audioURI, true);
+        } else {
+            mAudioButton.resetButton(audioURI, false);
+            ((LinearLayout)mAudioButton.getParent()).removeView(mAudioButton);
+        }
+
+//            if(navStyle != NAVIGATION_NONE) {
+//                audioParams.addRule(RelativeLayout.LEFT_OF, 2345345);
+//            } else {
+//                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 //            }
-//        }
-//        if(!DeveloperPreferences.isNewNavEnabled()) {
-//            iconChoice = HorizontalMediaView.NAVIGATION_NONE;
-//        }
-//
-//        //Final change, remove any numeric context requests. J2ME uses these to
-//        //help with numeric navigation.
-//        if(mQuestionText != null) {
-//            mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
-//        }
-//        emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), iconChoice);
-//        return emv;
+//            audioParams.addRule(CENTER_VERTICAL);
+//            addView(mAudioButton, audioParams);
+
+        //        HorizontalMediaView emv = (HorizontalMediaView)v;
+        //        String mQuestionText = textViewHelper(mObject);
+        //        if(emv == null) {
+        //            emv = new HorizontalMediaView(context);
+        //        }
+        //
+        //        int iconChoice = HorizontalMediaView.NAVIGATION_NEXT;
+        //
+        //        //figure out some icons
+        //        if(mObject instanceof Entry) {
+        //            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
+        //            if(datum == null || datum.getNodeset() == null) {
+        //                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
+        //            }
+        //        }
+        //        if(!DeveloperPreferences.isNewNavEnabled()) {
+        //            iconChoice = HorizontalMediaView.NAVIGATION_NONE;
+        //        }
+        //
+        //        //Final change, remove any numeric context requests. J2ME uses these to
+        //        //help with numeric navigation.
+        //        if(mQuestionText != null) {
+        //            mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
+        //        }
+        //        emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), iconChoice);
+        //        return emv;
         return menuListItem;
     }
 
