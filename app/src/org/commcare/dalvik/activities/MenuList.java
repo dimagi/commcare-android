@@ -17,6 +17,7 @@
 package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.MenuAdapter;
+import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -33,6 +34,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 @ManagedUi(R.layout.screen_suite_menu)
@@ -53,12 +55,15 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         platform = CommCareApplication._().getCommCarePlatform();
-        
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         
        if(menuId==null){
            menuId="root";
        }
+
+       TextView header = new TextView(this);
+       header.setText(BreadcrumbBarFragment.getBestTitle(this));
+       list.addHeaderView(header);
        
        adapter = new MenuAdapter(this,platform,menuId);
        refreshView();
