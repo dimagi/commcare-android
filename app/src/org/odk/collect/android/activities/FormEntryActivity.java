@@ -157,7 +157,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     // Extra returned from gp activity
     public static final String LOCATION_RESULT = "LOCATION_RESULT";
-    
 
     // Identifies the gp of the form used to launch form entry
     public static final String KEY_FORMPATH = "formpath";
@@ -294,6 +293,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         try {
             Collect.createODKDirs();
         } catch (RuntimeException e) {
+            Logger.exception(e);
             createErrorDialog(e.getMessage(), EXIT);
             return;
         }
@@ -932,6 +932,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 event = mFormController.getEvent(currentFormIndex);
             }
         } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
             FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
         }
 
@@ -1542,8 +1543,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 mFormController.getWidgetFactory(), this, isGroup);
                     Log.i(t, "created view for group");
                 } catch (RuntimeException e) {
+                    Logger.exception(e);
                     createErrorDialog(e.getMessage(), EXIT);
-                    e.printStackTrace();
                     // this is badness to avoid a crash.
                     // really a next view should increment the formcontroller, create the view
                     // if the view is null, then keep the current view and pop an error.
@@ -1677,6 +1678,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 }
             } while (event != FormEntryController.EVENT_END_OF_FORM);
             }catch(XPathTypeMismatchException e){
+                Logger.exception(e);
                 FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
             }
 
@@ -1916,6 +1918,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                             try {
                                 mFormController.newRepeat();
                             } catch (XPathTypeMismatchException e) {
+                                Logger.exception(e);
                                 FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
                                 return;
                             }
@@ -2009,6 +2012,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 switch (i) {
                     case DialogInterface.BUTTON1:
                         if (shouldExit) {
+                            setResult(RESULT_CANCELED);
                             finish();
                         }
                         break;
