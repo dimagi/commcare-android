@@ -1,17 +1,17 @@
 package org.commcare.android.util;
 
-import in.uncod.android.bypass.Bypass;
-import net.nightwhistler.htmlspanner.HtmlSpanner;
-
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.javarosa.core.services.locale.Localization;
-
 import android.content.Context;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+
+import net.nightwhistler.htmlspanner.HtmlSpanner;
+
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.javarosa.core.services.locale.Localization;
+
+import in.uncod.android.bypass.Bypass;
 
 public class MarkupUtil {
     static HtmlSpanner htmlspanner = new HtmlSpanner();
@@ -22,42 +22,55 @@ public class MarkupUtil {
 
     public static Spannable styleSpannable(Context c, String message){
 
+        if(DeveloperPreferences.isMarkdownEnabled()){
+            return new SpannableString(generateMarkdown(c, message));
+        }
+
         if(DeveloperPreferences.isCssEnabled()){
-            
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
         }
 
-        return new SpannableString(generateMarkdown(c, message));
-
+        return new SpannableString(message);
     }
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey){
+        if(DeveloperPreferences.isMarkdownEnabled()){
+            return new SpannableString(localizeGenerateMarkdown(c, localizationKey));
+        }
 
         if(DeveloperPreferences.isCssEnabled()){
-            
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + new String(Localization.get(localizationKey)));
         }
 
-        return new SpannableString(localizeGenerateMarkdown(c, localizationKey));
+        return new SpannableString(Localization.get(localizationKey));
     }
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg){
+
+        if(DeveloperPreferences.isMarkdownEnabled()){
+            return new SpannableString(localizeGenerateMarkdown(c, localizationKey, new String[] {localizationArg}));
+        }
 
         if(DeveloperPreferences.isCssEnabled()){
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArg));
         }
 
-        return new SpannableString(localizeGenerateMarkdown(c, localizationKey, new String[] {localizationArg}));
+        return new SpannableString(Localization.get(localizationKey, localizationArg));
     }
 
 
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String[] localizationArgs){
+
+        if(DeveloperPreferences.isMarkdownEnabled()){
+            return new SpannableString(localizeGenerateMarkdown(c, localizationKey, localizationArgs));
+        }
+
         if(DeveloperPreferences.isCssEnabled()){
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArgs));
         }
 
-        return new SpannableString(localizeGenerateMarkdown(c, localizationKey, localizationArgs));
+        return new SpannableString(Localization.get(localizationKey, localizationArgs));
     }
 
     /*
@@ -76,10 +89,8 @@ public class MarkupUtil {
     }
 
     public static CharSequence generateMarkdown(Context c, String message){
-        
         Bypass bypass = new Bypass(c);
         CharSequence mSequence = bypass.markdownToSpannable(convertCharacterEncodings(message));
-
         return MarkupUtil.trimTrailingWhitespace(mSequence);
     }
 

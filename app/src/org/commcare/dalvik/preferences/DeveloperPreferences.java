@@ -16,16 +16,16 @@
 
 package org.commcare.dalvik.preferences;
 
-import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
-
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
+
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.dalvik.application.CommCareApplication;
 
 public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
@@ -34,6 +34,7 @@ public class DeveloperPreferences extends PreferenceActivity {
     public final static String CSS_ENABLED = "cc-css-enabled";
 	public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
 	public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
+    public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
@@ -80,6 +81,16 @@ public class DeveloperPreferences extends PreferenceActivity {
         try{
             SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
             return properties.getString(CSS_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        } catch(NullPointerException e){
+            // currentApp() is not initialized
+            return false;
+        }
+    }
+
+    public static boolean isMarkdownEnabled(){
+        try{
+            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+            return properties.getString(MARKDOWN_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
         } catch(NullPointerException e){
             // currentApp() is not initialized
             return false;
