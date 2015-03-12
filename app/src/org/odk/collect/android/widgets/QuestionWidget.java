@@ -1,23 +1,5 @@
 package org.odk.collect.android.widgets;
 
-import java.io.File;
-
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.R.color;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ShrinkingTextView;
-import org.odk.collect.android.views.media.MediaLayout;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,7 +9,6 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.TypedValue;
@@ -40,6 +21,22 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.data.AnswerDataFactory;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.views.ShrinkingTextView;
+import org.odk.collect.android.views.media.MediaLayout;
+
+import java.io.File;
 
 public abstract class QuestionWidget extends LinearLayout {
 
@@ -153,7 +150,7 @@ public abstract class QuestionWidget extends LinearLayout {
         triggerLayout.addView(trigger);
 
         MediaLayout helpLayout = createHelpLayout(p);
-        helpLayout.setBackgroundResource(color.very_light_blue);
+        helpLayout.setBackgroundResource(R.color.very_light_blue);
         helpPlaceholder.addView(helpLayout);
 
         this.addView(triggerLayout);
@@ -336,8 +333,6 @@ public abstract class QuestionWidget extends LinearLayout {
      * TextView to fit the rest of the space, then the image if applicable.
      */
     protected void addQuestionText(final FormEntryPrompt p) {
-        String markdownText = p.getMarkdownText();
-        
         String imageURI = p.getImageText();
         String audioURI = p.getAudioText();
         String videoURI = p.getSpecialFormQuestionText("video");
@@ -348,22 +343,11 @@ public abstract class QuestionWidget extends LinearLayout {
 
         // Add the text view. Textview always exists, regardless of whether there's text.
         mQuestionText = new TextView(getContext());
+        mQuestionText.setText(p.getLongText());
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        mQuestionText.setTypeface(null, Typeface.BOLD);
+        mQuestionText.setPadding(0, 0, 0, 7);
         mQuestionText.setId(38475483); // assign random id
-        
-        // if we have markdown, use that. 
-        if(markdownText != null){
-            mQuestionText.setText(stylize(markdownText));
-            mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
-            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
-        } else {
-            mQuestionText.setText(p.getLongText());
-            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
-            mQuestionText.setTypeface(null, Typeface.BOLD);
-            mQuestionText.setPadding(0, 0, 0, 7);
-        }
-        
-        // Wrap to the size of the parent view
-        mQuestionText.setHorizontallyScrolling(false);
 
         if(p.getLongText()!= null){
             if(p.getLongText().contains("\u260E")){
@@ -375,6 +359,8 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             }
         }
+        // Wrap to the size of the parent view
+        mQuestionText.setHorizontallyScrolling(false);
 
         if (p.getLongText() == null) {
             mQuestionText.setVisibility(GONE);
@@ -422,7 +408,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(this.localize("odk_ok"), errorListener);
+            mAlertDialog.setButton(StringUtils.getStringRobust(this.getContext(), R.string.ok), errorListener);
             mAlertDialog.show();
         } else {
 
@@ -594,32 +580,11 @@ public abstract class QuestionWidget extends LinearLayout {
 
     public void checkFileSize(File file){
         if(FileUtils.isFileOversized(file)){
-            this.notifyWarning(Localization.get("odk_attachment_oversized", FileUtils.getFileSize(file)+""));
+            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file)+""));
         }
     }
 
     public void checkFileSize(String filepath){
         checkFileSize(new File(filepath));
-    }
-    
-    /*
-     * Methods to make localization and styling easier for devs
-     * copied from CommCareActivity
-     */
-    
-    public Spannable stylize(String text){
-        return MarkupUtil.styleSpannable(getContext(), text);
-    }
-    
-    public Spannable localize(String key){
-        return MarkupUtil.localizeStyleSpannable(getContext(), key);
-    }
-    
-    public Spannable localize(String key, String arg){
-        return MarkupUtil.localizeStyleSpannable(getContext(), key, arg);
-    }
-    
-    public Spannable localize(String key, String[] args){
-        return MarkupUtil.localizeStyleSpannable(getContext(), key, args);
     }
 }

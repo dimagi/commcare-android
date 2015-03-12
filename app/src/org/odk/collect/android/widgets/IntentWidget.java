@@ -14,13 +14,6 @@
 
 package org.odk.collect.android.widgets;
 
-import org.commcare.android.util.MarkupUtil;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.jr.extensions.IntentCallout;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -34,6 +27,14 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -86,7 +87,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            launchIntentButton.setText(this.localize("odk_intent_callout_button_update"));
+            launchIntentButton.setText(StringUtils.getStringRobust(getContext(), R.string.intent_callout_button_update));
             mStringAnswer.setText(s);
         }
         // finish complex layout
@@ -126,7 +127,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         if(ic.getButtonLabel() != null){
             launchIntentButton.setText(ic.getButtonLabel());
         } else{
-            launchIntentButton.setText(this.localize("odk_intent_callout_button"));
+            launchIntentButton.setText(StringUtils.getStringRobust(getContext(), R.string.intent_callout_button));
         }
     }
 

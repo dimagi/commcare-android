@@ -42,7 +42,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.InputFilter;
-import android.text.Spannable;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.Pair;
@@ -77,7 +76,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -457,7 +456,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if(mHeaderString != null) {
                     setTitle(mHeaderString);
                 } else {
-                    setTitle(this.localize("odk_app_name") + " > " + this.localize("odk_loading_form"));
+                    setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
                 }
                 
                 
@@ -1201,21 +1200,21 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         menu.removeItem(MENU_PREFERENCES);
 
         if(mIncompleteEnabled) {
-            menu.add(0, MENU_SAVE, 0, this.localize("odk_save_all_answers")).setIcon(
-                android.R.drawable.ic_menu_save);
+            menu.add(0, MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers)).setIcon(
+                    android.R.drawable.ic_menu_save);
         }
-        menu.add(0, MENU_HIERARCHY_VIEW, 0, this.localize("odk_view_hierarchy")).setIcon(
-            R.drawable.ic_menu_goto);
+        menu.add(0, MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy)).setIcon(
+                R.drawable.ic_menu_goto);
         
-        menu.add(0, MENU_LANGUAGES, 0, this.localize("odk_change_language"))
+        menu.add(0, MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
                 .setIcon(R.drawable.ic_menu_start_conversation)
                 .setEnabled(
-                    (mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1) ? false
-                            : true);
+                        (mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1) ? false
+                                : true);
         
         
-        menu.add(0, MENU_PREFERENCES, 0, this.localize("odk_general_preferences")).setIcon(
-            android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.general_preferences)).setIcon(
+                android.R.drawable.ic_menu_preferences);
         return true;
     }
 
@@ -1321,11 +1320,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-            menu.add(0, v.getId(), 0, this.localize("odk_clear_answer"));
+            menu.add(0, v.getId(), 0, StringUtils.getStringRobust(this, R.string.clear_answer));
         if (mFormController.indexContainsRepeatableGroup()) {
-            menu.add(0, DELETE_REPEAT, 0, this.localize("odk_delete_repeat"));
+            menu.add(0, DELETE_REPEAT, 0, StringUtils.getStringRobust(this, R.string.delete_repeat));
         }
-        menu.setHeaderTitle(this.localize("odk_edit_prompt"));
+        menu.setHeaderTitle(StringUtils.getStringRobust(this, R.string.edit_prompt));
     }
 
 
@@ -1380,7 +1379,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //Localization?
             return mHeaderString;
         } else {
-            return this.localize("odk_app_name") + " > " + mFormController.getFormTitle();
+            return StringUtils.getStringRobust(this, R.string.app_name) + " > " + mFormController.getFormTitle();
         }
 
     }
@@ -1399,13 +1398,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 View startView = View.inflate(this, R.layout.form_entry_start, null);
                 setTitle(getHeaderString());
-                ((TextView) startView.findViewById(R.id.description)).setText(this.localize("odk_enter_data_description", mFormController.getFormTitle()));
                 
-                ((CheckBox) startView.findViewById(R.id.screen_form_entry_start_cbx_dismiss)).setText(this.localize("odk_form_entry_start_hide"));
-                
-                ((TextView) startView.findViewById(R.id.screen_form_entry_advance_text)).setText(Localization.get("odk_advance"));
-                
-                ((TextView) startView.findViewById(R.id.screen_form_entry_backup_text)).setText(Localization.get("odk_backup"));
+                ((TextView) startView.findViewById(R.id.description)).setText(StringUtils.getStringRobust(this, R.string.enter_data_description, mFormController.getFormTitle()));
+
+                ((CheckBox) startView.findViewById(R.id.screen_form_entry_start_cbx_dismiss)).setText(StringUtils.getStringRobust(this, R.string.form_entry_start_hide));
+
+                ((TextView) startView.findViewById(R.id.screen_form_entry_advance_text)).setText(StringUtils.getStringRobust(this, R.string.advance));
+
+                ((TextView) startView.findViewById(R.id.screen_form_entry_backup_text)).setText(StringUtils.getStringRobust(this, R.string.backup));
 
                 Drawable image = null;
                 String[] projection = {
@@ -1450,15 +1450,15 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 return startView;
             case FormEntryController.EVENT_END_OF_FORM:
                 View endView = View.inflate(this, R.layout.form_entry_end, null);
-                ((TextView) endView.findViewById(R.id.description)).setText(this.localize("odk_save_enter_data_description",
+                ((TextView) endView.findViewById(R.id.description)).setText(StringUtils.getStringRobust(this, R.string.save_enter_data_description,
                          mFormController.getFormTitle()));
 
                 // checkbox for if finished or ready to send
                 final CheckBox instanceComplete = ((CheckBox) endView.findViewById(R.id.mark_finished));
-                instanceComplete.setText(this.localize("odk_mark_finished"));
-                
-                //If incomplete is not enabled, make sure this box is checked.
-                instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
+                instanceComplete.setText(StringUtils.getStringRobust(this, R.string.mark_finished));
+
+                        //If incomplete is not enabled, make sure this box is checked.
+                        instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
                 
                 if(mFormController.isFormReadOnly() || !mIncompleteEnabled) {
                     instanceComplete.setVisibility(View.GONE);
@@ -1494,37 +1494,37 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // Create 'save' button
                 Button button = (Button) endView.findViewById(R.id.save_exit_button);
                 if(mFormController.isFormReadOnly()) {
-                    button.setText(this.localize("odk_exit"));
-                    button.setOnClickListener(new OnClickListener() {
-                        /*
-                         * (non-Javadoc)
-                         * @see android.view.View.OnClickListener#onClick(android.view.View)
-                         */
-                        @Override
-                        public void onClick(View v) {
-                            finishReturnInstance();
-                        }
-                    });
+                    button.setText(StringUtils.getStringRobust(this, R.string.exit));
+                            button.setOnClickListener(new OnClickListener() {
+                                /*
+                                 * (non-Javadoc)
+                                 * @see android.view.View.OnClickListener#onClick(android.view.View)
+                                 */
+                                @Override
+                                public void onClick(View v) {
+                                    finishReturnInstance();
+                                }
+                            });
 
                 } else {
-                    button.setText(this.localize("odk_quit_entry"));
-                    button.setOnClickListener(new OnClickListener() {
-                        /*
-                         * (non-Javadoc)
-                         * @see android.view.View.OnClickListener#onClick(android.view.View)
-                         */
-                        @Override
-                        public void onClick(View v) {
-                            // Form is marked as 'saved' here.
-                            if (saveAs.getText().length() < 1) {
-                                Toast.makeText(FormEntryActivity.this,Localization.get("odk_save_as_error"),
-                                    Toast.LENGTH_SHORT).show();
-                            } else {
-                                saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
-                                        .getText().toString());
-                            }
-                        }
-                    });
+                    button.setText(StringUtils.getStringRobust(this, R.string.quit_entry));
+                            button.setOnClickListener(new OnClickListener() {
+                                /*
+                                 * (non-Javadoc)
+                                 * @see android.view.View.OnClickListener#onClick(android.view.View)
+                                 */
+                                @Override
+                                public void onClick(View v) {
+                                    // Form is marked as 'saved' here.
+                                    if (saveAs.getText().length() < 1) {
+                                        Toast.makeText(FormEntryActivity.this, StringUtils.getStringRobust(FormEntryActivity.this, R.string.save_as_error),
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
+                                                .getText().toString());
+                                    }
+                                }
+                            });
 
                 }
 
@@ -1813,11 +1813,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         switch (saveStatus) {
             case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 if (constraintText == null) {
-                    constraintText = Localization.get("odk_invalid_answer_error");
+                    constraintText = StringUtils.getStringRobust(this, R.string.invalid_answer_error);
                 }
                 break;
             case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:
-                constraintText = Localization.get("odk_required_answer_error");
+                constraintText = StringUtils.getStringRobust(this, R.string.required_answer_error);
                 break;
         }
         
@@ -1942,10 +1942,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         
         
-        back.setText(this.localize("odk_repeat_go_back"));
-        
-        //Load up our icons
-        Drawable exitIcon = getResources().getDrawable(R.drawable.icon_exit);
+        back.setText(StringUtils.getStringRobust(this, R.string.repeat_go_back));
+
+                //Load up our icons
+                Drawable exitIcon = getResources().getDrawable(R.drawable.icon_exit);
         exitIcon.setBounds(0, 0, exitIcon.getIntrinsicWidth(), exitIcon.getIntrinsicHeight());
 
         Drawable doneIcon = getResources().getDrawable(R.drawable.icon_done);
@@ -1953,26 +1953,26 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         
         if (mFormController.getLastRepeatCount() > 0) {
-            mRepeatDialog.setTitle(this.localize("odk_leaving_repeat_ask"));
-            mRepeatDialog.setMessage(this.localize("odk_add_another_repeat",
-                mFormController.getLastGroupText()));
-            newButton.setText(this.localize("odk_add_another"));
+            mRepeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.leaving_repeat_ask));
+                    mRepeatDialog.setMessage(StringUtils.getStringRobust(this, R.string.add_another_repeat,
+                            mFormController.getLastGroupText()));
+            newButton.setText(StringUtils.getStringRobust(this, R.string.add_another));
             if(!nextExitsForm) {
-            	skip.setText(this.localize("odk_leave_repeat_yes"));
+            	skip.setText(StringUtils.getStringRobust(this, R.string.leave_repeat_yes));
             } else {
-            	skip.setText(this.localize("odk_leave_repeat_yes_exits"));
+            	skip.setText(StringUtils.getStringRobust(this, R.string.leave_repeat_yes_exits));
             }
 
         } else {
-            mRepeatDialog.setTitle(this.localize("odk_entering_repeat_ask"));
-            mRepeatDialog.setMessage(this.localize("odk_add_repeat",
-                mFormController.getLastGroupText()));
-            newButton.setText(this.localize("odk_entering_repeat"));
+            mRepeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.entering_repeat_ask));
+                    mRepeatDialog.setMessage(StringUtils.getStringRobust(this, R.string.add_repeat,
+                            mFormController.getLastGroupText()));
+            newButton.setText(StringUtils.getStringRobust(this, R.string.entering_repeat));
             if(!nextExitsForm) {
-            	skip.setText(this.localize("odk_add_repeat_no"));
+            	skip.setText(StringUtils.getStringRobust(this, R.string.add_repeat_no));
             } else {
-            	skip.setText(this.localize("odk_add_repeat_no_exits"));
-            	
+            	skip.setText(StringUtils.getStringRobust(this, R.string.add_repeat_no_exits));
+
             }
         }
         
@@ -1997,8 +1997,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mErrorMessage = errorMsg;
         mAlertDialog = new AlertDialog.Builder(this).create();
         mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        mAlertDialog.setTitle(this.localize("odk_error_occured"));
-        mAlertDialog.setMessage(errorMsg);
+        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.error_occured));
+                mAlertDialog.setMessage(errorMsg);
         DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
             /*
              * (non-Javadoc)
@@ -2016,8 +2016,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         };
         mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(this.localize("odk_ok"), errorListener);
-        mAlertDialog.show();
+        mAlertDialog.setButton(StringUtils.getStringRobust(this, R.string.ok), errorListener);
+                mAlertDialog.show();
     }
 
 
@@ -2032,29 +2032,29 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (repeatcount != -1) {
             name += " (" + (repeatcount + 1) + ")";
         }
-        mAlertDialog.setTitle(this.localize("odk_delete_repeat_ask", name));
-        mAlertDialog.setMessage(this.localize("odk_delete_repeat_confirm", name));
-        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-             */
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON1: // yes
-                        mFormController.deleteRepeat();
-                        showPreviousView();
-                        break;
-                    case DialogInterface.BUTTON2: // no
-                        break;
-                }
-            }
-        };
+        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.delete_repeat_ask, name));
+                mAlertDialog.setMessage(StringUtils.getStringRobust(this, R.string.delete_repeat_confirm, name));
+                        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
+                            /*
+                             * (non-Javadoc)
+                             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+                             */
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                switch (i) {
+                                    case DialogInterface.BUTTON1: // yes
+                                        mFormController.deleteRepeat();
+                                        showPreviousView();
+                                        break;
+                                    case DialogInterface.BUTTON2: // no
+                                        break;
+                                }
+                            }
+                        };
         mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(this.localize("odk_discard_group"), quitListener);
-        mAlertDialog.setButton2(this.localize("odk_delete_repeat_no"), quitListener);
-        mAlertDialog.show();
+        mAlertDialog.setButton(StringUtils.getStringRobust(this, R.string.discard_group), quitListener);
+                mAlertDialog.setButton2(StringUtils.getStringRobust(this, R.string.delete_repeat_no), quitListener);
+                        mAlertDialog.show();
     }
 
 
@@ -2066,7 +2066,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     private boolean saveDataToDisk(boolean exit, boolean complete, String updatedSaveName) {
         // save current answer
         if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete)) {
-            Toast.makeText(this, this.localize("odk_data_saved_error"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -2085,14 +2085,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private void createQuitDialog() {
         final String[] items = mIncompleteEnabled ?  
-                new String[] {Localization.get("odk_keep_changes"), Localization.get("odk_do_not_save")} :
-                new String[] {Localization.get("odk_do_not_save")};
-        
-        mAlertDialog =
-            new AlertDialog.Builder(this)
-                    .setIcon(android.R.drawable.ic_dialog_info)
-                    .setTitle(this.localize("odk_quit_application", mFormController.getFormTitle()))
-                    .setNeutralButton(this.localize("odk_do_not_exit"),
+                new String[] {StringUtils.getStringRobust(this, R.string.keep_changes), StringUtils.getStringRobust(this, R.string.do_not_save)} :
+                new String[] {StringUtils.getStringRobust(this, R.string.do_not_save)};
+
+                        mAlertDialog =
+                                new AlertDialog.Builder(this)
+                                        .setIcon(android.R.drawable.ic_dialog_info)
+                                        .setTitle(StringUtils.getStringRobust(this, R.string.quit_application, mFormController.getFormTitle()))
+                                                .setNeutralButton(StringUtils.getStringRobust(this, R.string.do_not_exit),
                         new DialogInterface.OnClickListener() {
                             /*
                              * (non-Javadoc)
@@ -2279,37 +2279,38 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mAlertDialog = new AlertDialog.Builder(this).create();
         mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
 
-        mAlertDialog.setTitle(this.localize("odk_clear_answer_ask"));
+        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.clear_answer_ask));
 
         String question = qw.getPrompt().getLongText();
+
         if (question.length() > 50) {
             question = question.substring(0, 50) + "...";
         }
 
-        mAlertDialog.setMessage(this.localize("odk_clearanswer_confirm", new String[] {question}));
+        mAlertDialog.setMessage(StringUtils.getStringRobust(this, R.string.clearanswer_confirm, question));
 
         DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-             */
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON1: // yes
-                        clearAnswer(qw);
-                        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                        break;
-                    case DialogInterface.BUTTON2: // no
-                        break;
-                }
-            }
-        };
+                    /*
+                     * (non-Javadoc)
+                     * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+                     */
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        switch (i) {
+                            case DialogInterface.BUTTON1: // yes
+                                clearAnswer(qw);
+                                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+                                break;
+                            case DialogInterface.BUTTON2: // no
+                                break;
+                        }
+                    }
+                };
         mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(this.localize("odk_discard_answer"), quitListener);
-        mAlertDialog.setButton2(this.localize("odk_clear_answer_no"), quitListener);
-        mAlertDialog.show();
+        mAlertDialog.setButton(StringUtils.getStringRobust(this, R.string.discard_answer), quitListener);
+                mAlertDialog.setButton2(StringUtils.getStringRobust(this, R.string.clear_answer_no), quitListener);
+                        mAlertDialog.show();
     }
 
 
@@ -2359,8 +2360,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 refreshCurrentView();
                             }
                         })
-                    .setTitle(this.localize("odk_change_language"))
-                    .setNegativeButton(this.localize("odk_do_not_change"),
+                    .setTitle(StringUtils.getStringRobust(this, R.string.change_language))
+                    .setNegativeButton(StringUtils.getStringRobust(this, R.string.do_not_change),
                         new DialogInterface.OnClickListener() {
                             /*
                              * (non-Javadoc)
@@ -2400,12 +2401,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         }
                     };
                 mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
-                mProgressDialog.setTitle(this.localize("odk_loading_form"));
-                mProgressDialog.setMessage(this.localize("odk_please_wait"));
-                mProgressDialog.setIndeterminate(true);
+                mProgressDialog.setTitle(StringUtils.getStringRobust(this, R.string.loading_form));
+                        mProgressDialog.setMessage(StringUtils.getStringRobust(this, R.string.please_wait));
+                                mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
-                mProgressDialog.setButton(this.localize("odk_cancel_loading_form"),
-                    loadingButtonListener);
+                mProgressDialog.setButton(StringUtils.getStringRobust(this, R.string.cancel_loading_form),
+                        loadingButtonListener);
                 return mProgressDialog;
             case SAVING_DIALOG:
                 mProgressDialog = new ProgressDialog(this);
@@ -2423,13 +2424,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         }
                     };
                 mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
-                mProgressDialog.setTitle(this.localize("odk_saving_form"));
-                mProgressDialog.setMessage(this.localize("odk_please_wait"));
-                mProgressDialog.setIndeterminate(true);
+                mProgressDialog.setTitle(StringUtils.getStringRobust(this, R.string.saving_form));
+                        mProgressDialog.setMessage(StringUtils.getStringRobust(this, R.string.please_wait));
+                                mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
-                mProgressDialog.setButton(this.localize("odk_cancel"), savingButtonListener);
-                mProgressDialog.setButton(this.localize("odk_cancel_saving_form"),
-                    savingButtonListener);
+                mProgressDialog.setButton(StringUtils.getStringRobust(this, R.string.cancel), savingButtonListener);
+                        mProgressDialog.setButton(StringUtils.getStringRobust(this, R.string.cancel_saving_form),
+                                savingButtonListener);
                 return mProgressDialog;
         }
         return null;
@@ -2715,7 +2716,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (errorMsg != null) {
             createErrorDialog(errorMsg, EXIT);
         } else {
-            createErrorDialog(Localization.get("odk_parse_error"), EXIT);
+            createErrorDialog(StringUtils.getStringRobust(this, R.string.parse_error), EXIT);
         }
     }
 
@@ -2731,16 +2732,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         dismissDialog(SAVING_DIALOG);
         switch (saveStatus) {
             case SaveToDiskTask.SAVED:
-                Toast.makeText(this, this.localize("odk_data_saved_ok"), Toast.LENGTH_SHORT).show();
-                hasSaved = true;
+                Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
+                        hasSaved = true;
                 break;
             case SaveToDiskTask.SAVED_AND_EXIT:
-                Toast.makeText(this, this.localize("odk_data_saved_ok"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
                 hasSaved = true;
                 finishReturnInstance();
                 break;
             case SaveToDiskTask.SAVE_ERROR:
-                Toast.makeText(this, this.localize("odk_data_saved_error"), Toast.LENGTH_LONG)
+                Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_error), Toast.LENGTH_LONG)
                         .show();
                 break;
             case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
@@ -2950,26 +2951,5 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         updateFormRelevencies();
         updateNavigationCues(this.mCurrentView);
         
-    }
-    
-    /*
-     * Methods to make localization and styling easier for devs
-     * copied from CommCareActivity
-     */
-    
-    public Spannable stylize(String text){
-        return MarkupUtil.styleSpannable(this, text);
-    }
-    
-    public Spannable localize(String key){
-        return MarkupUtil.localizeStyleSpannable(this, key);
-    }
-    
-    public Spannable localize(String key, String arg){
-        return MarkupUtil.localizeStyleSpannable(this, key, arg);
-    }
-    
-    public Spannable localize(String key, String[] args){
-        return MarkupUtil.localizeStyleSpannable(this, key, args);
     }
 }
