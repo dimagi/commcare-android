@@ -26,3 +26,9 @@ commcare-odk-test/gen/*
 *achartengine*.jar
 .idea/*
 app/.settings/*
+app/app.iml
+libraries/achartengine/achartengine/achartengine.iml
+libraries/achartengine/achartengine/gen/
+libraries/mapballoons/android-mapviewballoons/android-mapviewballoons.iml
+out/
+test-app/test-app.iml

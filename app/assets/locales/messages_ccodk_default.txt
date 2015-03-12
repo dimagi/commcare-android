@@ -245,7 +245,7 @@ demo.mode.warning.dismiss=I Understand
 
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
-select.detail.confirm=Select
+select.detail.confirm=Continue
 
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
 
@@ -289,7 +289,8 @@ notification.sync.connections.action=You don't have any active data connections 
 
 #Add new localization strings here
 
-
+callout.failure.dialer=Device is not currently configured to make telephone calls
+callout.failure.sms=SMS app not found
 
 
 

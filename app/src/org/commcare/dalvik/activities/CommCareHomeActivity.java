@@ -175,7 +175,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
-        
         setContentView(R.layout.mainnew);
         configUi();
     }
@@ -256,6 +255,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
             }
         });
+
+        // CommCare-159047: this method call rebuilds the options menu
+        supportInvalidateOptionsMenu();
     }
 
     private boolean isOnline() {
@@ -1165,7 +1167,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                      Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
                      
                      this.startActivityForResult(i, INIT_APP);
-            } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()){
+            } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()
+                    // if superuser is enabled, we won't need to validate multimedia, just launch the home screen directly
+                    && !DeveloperPreferences.isSuperuserEnabled()){
                 
                 Intent i = new Intent(this, CommCareVerificationActivity.class);
                 this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
