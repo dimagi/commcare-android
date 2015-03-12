@@ -194,6 +194,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Random ID
     private static final int DELETE_REPEAT = 654321;
 
+    // Intent filter broadcasted when the form is saved due to the key session
+    // from CommCareSessionService expiring.
     public static final String FORM_SAVED_FOR_KEY_SESSION_ENDING = "FormEntryActivity_form_saved_for_key_session_ending";
 
     private String mFormPath;
@@ -254,7 +256,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         super.onCreate(savedInstanceState);        
 
         registerFormEntryReceivers();
-        
+
+        // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
             if(fragmentClass != null) {
@@ -286,46 +289,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             return;
         }
 
-        setContentView(R.layout.screen_form_entry);
-        setNavBarVisibility();
-        
-        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-        ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
-        
-        nextButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if(!"done".equals(v.getTag())) {
-					FormEntryActivity.this.showNextView();
-				} else {
-					FormEntryActivity.this.triggerUserFormComplete();
-				}
-			}
-        	
-        });
-        
-        prevButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if(!"quit".equals(v.getTag())) {
-					FormEntryActivity.this.showPreviousView();
-				} else {
-					FormEntryActivity.this.triggerUserQuitInput();
-				}
-			}
-        	
-        });
-
-        mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
-
-        mBeenSwiped = false;
-        mAlertDialog = null;
-        mCurrentView = null;
-        mInAnimation = null;
-        mOutAnimation = null;
-        mGestureDetector = new GestureDetector(this);
+        setupUI();
 
         // Load JavaRosa modules. needed to restore forms.
         new XFormsModule().registerModule();
@@ -546,7 +510,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // note that we have started saving the form
                 savingFormOnKeySessionExpiration = true;
                 // start saving form, which will send out an intent on completion
-                saveDataToDisk(EXIT, isInstanceComplete(false), null);
+                saveDataToDisk(EXIT, false, null);
             }
         };
         registerReceiver(mKeySessionCloseReceiver, new IntentFilter(CommCareSessionService.KEY_SESSION_ENDING));
@@ -572,6 +536,48 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         };
         registerReceiver(mNoGPSReceiver, new IntentFilter(GeoUtils.ACTION_CHECK_GPS_ENABLED));
+    }
+
+    /**
+     * Setup Activity's UI
+     */
+    private void setupUI() {
+        setContentView(R.layout.screen_form_entry);
+        setNavBarVisibility();
+
+        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
+        ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
+
+        nextButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!"done".equals(v.getTag())) {
+                    FormEntryActivity.this.showNextView();
+                } else {
+                    FormEntryActivity.this.triggerUserFormComplete();
+                }
+            }
+        });
+
+        prevButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!"quit".equals(v.getTag())) {
+                    FormEntryActivity.this.showPreviousView();
+                } else {
+                    FormEntryActivity.this.triggerUserQuitInput();
+                }
+            }
+        });
+
+        mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
+
+        mBeenSwiped = false;
+        mAlertDialog = null;
+        mCurrentView = null;
+        mInAnimation = null;
+        mOutAnimation = null;
+        mGestureDetector = new GestureDetector(this);
     }
 
     public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
@@ -2783,7 +2789,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // Escape early since the user should either be redirected to login
             // page or the app isn't even being displayed.
             hasSaved = true;
-            finishReturnInstance();
+            finish();
         }
 
         switch (saveStatus) {
