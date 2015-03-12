@@ -321,4 +321,9 @@
     <color name="blue_grey_800">#37474f</color>
     <color name="blue_grey_900">#263238</color>
 
+    <!-- App colors start here -->
+    <color name="list_img_back_color">@color/black</color>
+    <color name="list_txt_back_color">@color/yellow_300</color>
+    <color name="list_soundicon_back_color">@color/green_600</color>
+
 </resources>
