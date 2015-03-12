@@ -258,8 +258,10 @@ public class MenuAdapter implements ListAdapter {
 
             mAudioButton.resetButton(audioURI, true);
         } else {
-            mAudioButton.resetButton(audioURI, false);
-            ((LinearLayout)mAudioButton.getParent()).removeView(mAudioButton);
+            if(mAudioButton != null) {
+                mAudioButton.resetButton(audioURI, false);
+                ((LinearLayout) mAudioButton.getParent()).removeView(mAudioButton);
+            }
         }
 
         // set up the image, if available
@@ -276,7 +278,9 @@ public class MenuAdapter implements ListAdapter {
 //            audioParams.addRule(CENTER_VERTICAL);
 //            addView(mImageView, imageParams);
         } else {
-            ((LinearLayout)mImageView.getParent()).removeView(mImageView);
+            if(mImageView != null) {
+                ((LinearLayout) mImageView.getParent()).removeView(mImageView);
+            }
         }
 
 
