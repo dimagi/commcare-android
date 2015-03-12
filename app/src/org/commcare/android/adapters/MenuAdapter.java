@@ -10,6 +10,7 @@ import java.util.Vector;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.view.HorizontalMediaView;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
@@ -34,10 +35,12 @@ import org.odk.collect.android.views.media.AudioButton;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -258,6 +261,24 @@ public class MenuAdapter implements ListAdapter {
             mAudioButton.resetButton(audioURI, false);
             ((LinearLayout)mAudioButton.getParent()).removeView(mAudioButton);
         }
+
+        // set up the image, if available
+        ImageView mImageView = (ImageView) menuListItem.findViewById(R.id.row_img);
+
+        final String imageURI = getImageURI(mObject);
+        Bitmap b = ViewUtil.inflateDisplayImage(context, imageURI);
+
+        if(b != null) {
+            mImageView.setImageBitmap(b);
+//            mImageView.setAdjustViewBounds(true);
+//            mImageView.setId(23422634);
+//            imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//            audioParams.addRule(CENTER_VERTICAL);
+//            addView(mImageView, imageParams);
+        } else {
+            ((LinearLayout)mImageView.getParent()).removeView(mImageView);
+        }
+
 
 //            if(navStyle != NAVIGATION_NONE) {
 //                audioParams.addRule(RelativeLayout.LEFT_OF, 2345345);
