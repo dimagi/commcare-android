@@ -298,7 +298,6 @@ public class CommCareSessionService extends Service  {
         }
         
         if(logout) {
-            ;logout();
             startLogout();
             showLoggedOutNotification();
         }
@@ -318,8 +317,7 @@ public class CommCareSessionService extends Service  {
         formSavedForKeySessionEndingReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // finishLogout();
-                logout();
+                finishLogout();
             }
         };
         registerReceiver(formSavedForKeySessionEndingReceiver,
