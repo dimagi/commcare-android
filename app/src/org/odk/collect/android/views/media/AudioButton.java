@@ -34,17 +34,25 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private MediaState currentState;
     private AudioController controller;
     private Object residingViewId;
-    
+
     /*
      * Constructor for if not explicitly using an AudioController
      */
     public AudioButton(Context context, final String URI, boolean visible) {
-        super(context);
+        this(context, null, URI, visible);
+    }
+
+    public AudioButton(Context context, AttributeSet attrs) {
+        this(context, attrs, "", true);
+    }
+
+    public AudioButton(Context context, AttributeSet attributeSet, final String URI, boolean visible) {
+        super(context, attributeSet);
         resetButton(URI, visible);
         shortURI = URI;
         shortURI = shortURI.replaceAll("^.*\\/", "");
 
-        //default implementation of controller if none is passed in
+        // default implementation of controller if none is passed in
         this.controller = new AudioController() {
             private MediaPlayer mp;
             boolean alive = false;
@@ -186,7 +194,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
          * Check if the button in this view had media assigned to 
          * it in a previously-existing app (before rotation, etc.)
          */
-        if(isInEditMode()) return;
         MediaEntity currEntity = controller.getCurrMedia();
         if (currEntity != null) {
             Object oldId = currEntity.getId();
@@ -382,10 +389,5 @@ public class AudioButton extends ImageButton implements OnClickListener {
         logAction("pause");
         controller.pauseCurrentMediaEntity();
         setStateToPaused();
-    }
-
-    public AudioButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        if(!this.isInEditMode()) throw new UnsupportedOperationException("Only in edit mode");
     }
 }
