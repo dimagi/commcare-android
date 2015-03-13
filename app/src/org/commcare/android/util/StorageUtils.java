@@ -3,6 +3,8 @@
  */
 package org.commcare.android.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -23,6 +25,7 @@ import org.javarosa.core.services.Logger;
  *
  */
 public class StorageUtils {
+    @SuppressWarnings("deprecation")
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
         //TODO: This could all be one big sql query instead of doing it in code
         
@@ -47,9 +50,17 @@ public class StorageUtils {
             try {
                 idToDateIndex.put(id, Date.parse(dateValue));
             } catch(IllegalArgumentException iae) {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
-                //For some reason this seems to be crashing on some devices... go with the next best ordering for now
-                idToDateIndex.put(id, Long.valueOf(id));
+                //As it turns out this string format is terrible! We need to use a diferent one in the future
+                try {
+                    //Try to use what the toString does on most devices
+                    SimpleDateFormat sdf = new SimpleDateFormat("dow mon dd hh:mm:ss zzz yyyy");
+                    idToDateIndex.put(id, sdf.parse(dateValue).getTime());
+                } catch (ParseException e) {
+                    //If it still doesn't work, fallback to using ids
+                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
+                    //For some reason this seems to be crashing on some devices... go with the next best ordering for now
+                    idToDateIndex.put(id, Long.valueOf(id));
+                }
             }
         }
         

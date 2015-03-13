@@ -1,6 +1,7 @@
 package org.commcare.android.tasks;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,6 +48,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -227,7 +230,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 
                 //This isn't awesome, but it's hard to work this in in a cleaner way
                 if(DEBUG_LOAD_FROM_LOCAL) {
-                    mDebugStream = this.c.getAssets().open("payload.xml");
+                    try {
+                        mDebugStream = ReferenceManager._().DeriveReference("jr://asset/payload.xml").getStream();
+                    } catch(InvalidReferenceException ire) {
+                        throw new IOException("No payload available at jr://asset/payload.xml");
+                    }
                     responseCode = 200;
                 } else {
                     response = requestor.makeCaseFetchRequest(server, useRequestFlags);
@@ -254,61 +261,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     
                     this.publishProgress(PROGRESS_AUTHED,0);
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
-                    
-                    final long dataSizeGuess = guessDataSize(response);
-                    
-                    BitCache cache = BitCacheFactory.getCache(c, dataSizeGuess);
-                    
-                    cache.initializeCache();
-                    
+                                        
                     try {
-                        OutputStream cacheOut = cache.getCacheStream();
-                        InputStream input;
-                        if(DEBUG_LOAD_FROM_LOCAL) {
-                            input = this.mDebugStream;
-                        } else {
-                            input = AndroidHttpClient.getUngzippedContent(response.getEntity());
-                        }
-                        Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
-                        AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(input), cacheOut, new StreamReadObserver() {
-                            long lastOutput = 0;
-                            
-                            /** The notification threshold. **/
-                            static final int PERCENT_INCREASE_THRESHOLD = 4;
-
-                            @Override
-                            public void notifyCurrentCount(long bytesRead) {
-                                boolean notify = false;
-                                
-                                //We always wanna notify when we get our first bytes
-                                if(lastOutput == 0) {
-                                    Log.i("commcare-network", "First"  + bytesRead + " bytes recieved from network: ");
-                                    notify = true;
-                                }
-                                //After, if we don't know how much data to expect, we can't do
-                                //anything useful
-                                if(dataSizeGuess == -1) {
-                                    //set this so the first notification up there doesn't keep firing
-                                    lastOutput = bytesRead;
-                                    return;
-                                }
-                                
-                                int percentIncrease = (int)(((bytesRead - lastOutput) * 100) / dataSizeGuess);
-                                
-                                //Now see if we're over the reporting threshold
-                                //TODO: Is this actually necessary? In theory this shouldn't 
-                                //matter due to android task polling magic?
-                                notify = percentIncrease > PERCENT_INCREASE_THRESHOLD; 
-                                    
-                                if(notify) {
-                                    lastOutput = bytesRead;
-                                    int totalRead = (int)(((bytesRead) * 100) / dataSizeGuess);
-                                    publishProgress(PROGRESS_DOWNLOADING, totalRead);
-                                }
-                            }
-                            
-                        });
-                    
+                        BitCache cache = writeResponseToCache(response);
+                        
                         InputStream cacheIn = cache.retrieveCache();
                         String syncToken = readInput(cacheIn, factory);
                         updateUserSyncToken(syncToken);
@@ -348,10 +304,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (StorageFullException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
-                    } finally {
-                        //destroy temp file
-                        cache.release();
-                    }
+                    } 
                 } else if(responseCode == 412) {
                     //Our local state is bad. We need to do a full restore.
                     int returnCode = recover(requestor, factory);
@@ -428,7 +381,85 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             return responseError;
             
     }
+    
+    /**
+     * Retrieves the HttpResponse stream and writes it to an initialized safe local cache. Notifies
+     * listeners of progress through the download if its size is available.
+     * 
+     * @param response
+     * @param cache
+     * @param dataSizeGuess An estimation of how large the provided response is. -1 for unknown. 
+     * @throws IOException If there is an issue reading or writing the response.
+     */
+    private BitCache writeResponseToCache(HttpResponse response) throws IOException {
+        BitCache cache = null;
+        try {
+            final long dataSizeGuess = guessDataSize(response);
+            
+            cache = BitCacheFactory.getCache(c, dataSizeGuess);
+            
+            cache.initializeCache();
+            
+            OutputStream cacheOut = cache.getCacheStream();
+            InputStream input;
+            
+            if(DEBUG_LOAD_FROM_LOCAL) {
+                input = this.mDebugStream;
+            } else {
+                input = AndroidHttpClient.getUngzippedContent(response.getEntity());
+            }
+            
+            Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
+            AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(input), cacheOut, new StreamReadObserver() {
+                long lastOutput = 0;
+                
+                /** The notification threshold. **/
+                static final int PERCENT_INCREASE_THRESHOLD = 4;
+    
+                @Override
+                public void notifyCurrentCount(long bytesRead) {
+                    boolean notify = false;
+                    
+                    //We always wanna notify when we get our first bytes
+                    if(lastOutput == 0) {
+                        Log.i("commcare-network", "First"  + bytesRead + " bytes recieved from network: ");
+                        notify = true;
+                    }
+                    //After, if we don't know how much data to expect, we can't do
+                    //anything useful
+                    if(dataSizeGuess == -1) {
+                        //set this so the first notification up there doesn't keep firing
+                        lastOutput = bytesRead;
+                        return;
+                    }
+                    
+                    int percentIncrease = (int)(((bytesRead - lastOutput) * 100) / dataSizeGuess);
+                    
+                    //Now see if we're over the reporting threshold
+                    //TODO: Is this actually necessary? In theory this shouldn't 
+                    //matter due to android task polling magic?
+                    notify = percentIncrease > PERCENT_INCREASE_THRESHOLD; 
+                        
+                    if(notify) {
+                        lastOutput = bytesRead;
+                        int totalRead = (int)(((bytesRead) * 100) / dataSizeGuess);
+                        publishProgress(PROGRESS_DOWNLOADING, totalRead);
+                    }
+                }
+            });
+            
+            return cache;
         
+        //If something goes wrong while we're reading into the cache
+        //we may need to free the storage we reserved.
+        } catch (IOException e) {
+            if(cache != null) { 
+                cache.release();
+            }
+            throw e;
+        }
+    }
+
     private long guessDataSize(HttpResponse response) {
         if(DEBUG_LOAD_FROM_LOCAL) {
             try {
@@ -458,7 +489,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
 
         
-        InputStream cacheIn;
         BitCache cache = null;
         
         //This chunk is the safe field of operations which can all fail in IO in such a way that we can
@@ -475,32 +505,12 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 return PROGRESS_RECOVERY_FAIL_SAFE;
             }
             
-            //Otherwise proceed with the restore
-            int dataSizeGuess = -1;
-            if(response.containsHeader("Content-Length")) {
-                String length = response.getFirstHeader("Content-Length").getValue();
-                try{
-                    dataSizeGuess = Integer.parseInt(length);
-                } catch(Exception e) {
-                    //Whatever.
-                }
-            }
             //Grab a cache. The plan is to download the incoming data, wipe (move) the existing db, and then
             //restore fresh from the downloaded file
-            cache = BitCacheFactory.getCache(c, dataSizeGuess);
-            cache.initializeCache();
-            
-            OutputStream cacheOut = cache.getCacheStream();
-            AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), cacheOut);
-        
-            cacheIn = cache.retrieveCache();
+            cache = writeResponseToCache(response);
                 
         } catch(IOException e) {
             e.printStackTrace();
-            if(cache != null) {
-                //If we made a temp file, we're done with it here.
-                cache.release();
-            }
             //Ok, well, we're bailing here, but we didn't make any changes
             Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Failed due to IOException|" + e.getMessage());
             return PROGRESS_RECOVERY_FAIL_SAFE;
@@ -524,7 +534,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         String failureReason = "";
         try { 
             //Get new data
-            String syncToken = readInput(cacheIn, factory);
+            String syncToken = readInput(cache.retrieveCache(), factory);
             updateUserSyncToken(syncToken);
             Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Succesful");
             return PROGRESS_DONE;
@@ -561,6 +571,17 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         //TODO: Roll back changes
         Logger.log(AndroidLogger.TYPE_USER, "Sync recovery failed|" + failureReason);
         return PROGRESS_RECOVERY_FAIL_BAD;
+    }
+
+    //Utility method for debugging of people need to dump the response b
+    private void dumpCache(BitCache cache) {
+        try{
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            AndroidStreamUtil.writeFromInputToOutput(cache.retrieveCache(), baos);
+            System.out.println(new String(baos.toByteArray()));
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateUserSyncToken(String syncToken) throws StorageFullException {
