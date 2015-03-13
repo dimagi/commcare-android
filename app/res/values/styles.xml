@@ -137,4 +137,14 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <style name="ListViewV2">
+        <item name="android:padding">@dimen/content_start</item>
+    </style>
+
+    <style name="ListContentV2">
+        <item name="android:layout_height">@dimen/list_height</item>
+        <item name="android:layout_margin">@dimen/content_min_margin</item>
+        <item name="android:colorBackground">@color/cc_core_bg</item>
+    </style>
+
 </resources>
