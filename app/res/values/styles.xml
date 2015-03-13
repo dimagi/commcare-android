@@ -139,6 +139,7 @@
 
     <style name="ListViewV2">
         <item name="android:padding">@dimen/content_start</item>
+        <item name="android:divider">@null</item>
     </style>
 
     <style name="ListContentV2">
