@@ -153,6 +153,7 @@
     <style name="ListViewHeaderV2">
         <item name="android:padding">@dimen/content_start</item>
         <item name="android:gravity">center_vertical</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>
