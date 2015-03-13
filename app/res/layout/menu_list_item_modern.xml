@@ -18,6 +18,7 @@
     <org.odk.collect.android.views.media.AudioButton
         android:id="@+id/row_soundicon"
         android:layout_width="wrap_content"
+        android:background="@color/transparent_background"
         style="@style/ListContentV2"
         android:layout_weight="1"
         />
