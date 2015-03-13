@@ -37,9 +37,9 @@ public class UserKeyRecord extends Persisted {
     /** This is a new record that hasn't been evaluated for usage yet **/
     public static final int TYPE_PENDING_DELETE = 4;
     
-    // Hash string patterns should contain 3 groupings that are delimited by '$'.
+    // Hashed passwords should contain 3 groupings that are delimited by '$'.
     // The 1st group describes the hashing algorithm, the 2nd is the salt, and
-    // the 3rd group is the hash.
+    // the 3rd group is the digest.
     public static final Pattern HASH_STRING_PATTERN = Pattern.compile("([^\\$]+)\\$([^\\$]+)\\$([^\\$]+)");
     
     private static final int DEFAULT_SALT_LENGTH = 6;
