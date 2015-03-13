@@ -52,23 +52,6 @@
 
     <dimen name="content_min_margin">16dp</dimen>
 
-    <dimen name="list_img_width">50dp</dimen>
-    <dimen name="list_img_height">50dp</dimen>
-
-    <dimen name="list_img_padding">15dp</dimen>
-    <dimen name="list_img_margin">5dp</dimen>
-
-    <dimen name="list_txt_width">75dp</dimen>
-    <dimen name="list_txt_height">35dp</dimen>
-
-    <dimen name="list_txt_padding">15dp</dimen>
-    <dimen name="list_txt_margin">5dp</dimen>
-
-    <dimen name="list_soundicon_width">40dp</dimen>
-    <dimen name="list_soundicon_height">40dp</dimen>
-
-    <dimen name="list_soundicon_padding">15dp</dimen>
-    <dimen name="list_soundicon_margin">5dp</dimen>
     <dimen name="content_start">16dp</dimen>
     <dimen name="list_height">48dp</dimen>
 
