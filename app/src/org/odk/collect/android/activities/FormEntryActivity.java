@@ -14,57 +14,7 @@
 
 package org.odk.collect.android.activities;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.Constants;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.form.api.FormEntryController;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.javarosa.model.xform.XFormsModule;
-import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.jr.extensions.IntentCallout;
-import org.odk.collect.android.listeners.AdvanceToNextListener;
-import org.odk.collect.android.listeners.FormLoaderListener;
-import org.odk.collect.android.listeners.FormSavedListener;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.logic.PropertyManager;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.preferences.PreferencesActivity.ProgressBarMode;
-import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
-import org.odk.collect.android.provider.InstanceProviderAPI;
-import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
-import org.odk.collect.android.tasks.FormLoaderTask;
-import org.odk.collect.android.tasks.SaveToDiskTask;
-import org.odk.collect.android.utilities.Base64Wrapper;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.utilities.GeoUtils;
-import org.odk.collect.android.views.ODKView;
-import org.odk.collect.android.views.ResizingImageView;
-import org.odk.collect.android.widgets.DateTimeWidget;
-import org.odk.collect.android.widgets.IntentWidget;
-import org.odk.collect.android.widgets.QuestionWidget;
-import org.odk.collect.android.widgets.TimeWidget;
-
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -93,7 +43,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -208,7 +157,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     // Extra returned from gp activity
     public static final String LOCATION_RESULT = "LOCATION_RESULT";
-    
 
     // Identifies the gp of the form used to launch form entry
     public static final String KEY_FORMPATH = "formpath";
@@ -345,6 +293,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         try {
             Collect.createODKDirs();
         } catch (RuntimeException e) {
+            Logger.exception(e);
             createErrorDialog(e.getMessage(), EXIT);
             return;
         }
@@ -633,10 +582,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (resultCode == RESULT_CANCELED) {
+            
             if(requestCode == HIERARCHY_ACTIVITY_FIRST_START) {
                 //they pressed 'back' on the first heirarchy screen. we should assume they want to
                 //back out of form entry all together
                 finishReturnInstance(false);
+            } else if(requestCode == INTENT_CALLOUT){
+                processIntentResponse(intent, true);
             }
             
             // request was canceled, so do nothing
@@ -762,7 +714,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
     
-    private void processIntentResponse(Intent response) {
+    private void processIntentResponse(Intent response){
+        processIntentResponse(response, false);
+    }
+    
+    private void processIntentResponse(Intent response, boolean cancelled) {
+        
+        // keep track of whether we should auto advance
+        boolean advance = false;
+        boolean quick = false;
+        
         //We need to go grab our intent callout object to process the results here
         
         IntentWidget bestMatch = null;
@@ -784,11 +745,22 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //get the original intent callout
             IntentCallout ic = bestMatch.getIntentCallout();
             
+            quick = ic.isQuickAppearance();
+            
             //And process it 
-            ic.processResponse(response, (ODKView)mCurrentView, mFormController.getInstance(), new File(destination));
+            advance = ic.processResponse(response, (ODKView)mCurrentView, mFormController.getInstance(), new File(destination));
+            
+            ic.setCancelled(cancelled);
+            
         }
         
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+        
+        // auto advance if we got a good result and are in quick mode
+        if(advance && quick){
+            showNextView();
+        }
+        
     }
 
 
@@ -960,6 +932,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 event = mFormController.getEvent(currentFormIndex);
             }
         } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
             FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
         }
 
@@ -1570,8 +1543,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 mFormController.getWidgetFactory(), this, isGroup);
                     Log.i(t, "created view for group");
                 } catch (RuntimeException e) {
+                    Logger.exception(e);
                     createErrorDialog(e.getMessage(), EXIT);
-                    e.printStackTrace();
                     // this is badness to avoid a crash.
                     // really a next view should increment the formcontroller, create the view
                     // if the view is null, then keep the current view and pop an error.
@@ -1705,6 +1678,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 }
             } while (event != FormEntryController.EVENT_END_OF_FORM);
             }catch(XPathTypeMismatchException e){
+                Logger.exception(e);
                 FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
             }
 
@@ -1753,6 +1727,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     //NOTE: This needs to be the same as the
                     //exit condition below, in case either changes
                     mBeenSwiped = false;
+                    FormEntryActivity.this.triggerUserQuitInput();
                     return;
                 }
                 
@@ -1771,6 +1746,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //NOTE: this needs to match the exist condition above
             //when there is no start screen
             mBeenSwiped = false;
+            FormEntryActivity.this.triggerUserQuitInput();
         }
     }
 
@@ -1942,6 +1918,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                             try {
                                 mFormController.newRepeat();
                             } catch (XPathTypeMismatchException e) {
+                                Logger.exception(e);
                                 FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
                                 return;
                             }
@@ -2035,6 +2012,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 switch (i) {
                     case DialogInterface.BUTTON1:
                         if (shouldExit) {
+                            setResult(RESULT_CANCELED);
                             finish();
                         }
                         break;
@@ -2896,53 +2874,21 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return false;
     }
 
-
     /*
+     * Looks for user swipes. If the user has swiped, move to the appropriate screen.
      * (non-Javadoc)
      * @see android.view.GestureDetector.OnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
      */
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        // Looks for user swipes. If the user has swiped, move to the appropriate screen.
-        
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        
-        //screen width and height in inches.
-        double sw = dm.xdpi * dm.widthPixels;
-        double sh = dm.ydpi * dm.heightPixels;
-        
-        //relative metrics for what constitutes a swipe (to adjust per screen size)
-        double swipeX = 0.25;
-        double swipeY = 0.25;
-        
-        //details of the motion itself
-        float xMov = Math.abs(e1.getX() - e2.getX());
-        float yMov = Math.abs(e1.getY() - e2.getY());
-        
-        double angleOfMotion = ((Math.atan(yMov / xMov) / Math.PI) * 180);
-        
-        //large screen (tablet style 
-        if( sw > 5 || sh > 5) {
-            swipeX = 0.5;
-        }
-        
-
-        // for all screens a swipe is left/right of at least .25" and at an angle of no more than 30
-        //degrees
-        int xPixelLimit = (int) (dm.xdpi * .25);
-        //int yPixelLimit = (int) (dm.ydpi * .25);
-
-        if ((xMov > xPixelLimit && angleOfMotion < 30)) {
+        if (CommCareActivity.isHorizontalSwipe(this, e1, e2)) {
+            mBeenSwiped = true;
             if (velocityX > 0) {
-                mBeenSwiped = true;
                 showPreviousView();
-                return true;
             } else {
-                mBeenSwiped = true;
                 showNextView();
-                return true;
             }
+            return true;
         }
 
         return false;

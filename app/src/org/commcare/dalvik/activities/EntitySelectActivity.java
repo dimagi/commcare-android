@@ -2,16 +2,20 @@ package org.commcare.dalvik.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
@@ -19,6 +23,7 @@ import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -41,6 +46,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -69,7 +75,7 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener  {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -247,7 +253,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
     }
-    
+
     private void createDataSetObserver() {
         mListStateObserver = new DataSetObserver() {
             @Override
@@ -315,7 +321,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 if(inAwesomeMode) {
                     if (adapter != null) {
                         displayReferenceAwesome(entity, adapter.getPosition(entity));
-        			adapter.setAwesomeMode(true);
+                        adapter.setAwesomeMode(true);
                         updateSelectedItem(entity, true);
                     }
                 } else {
@@ -356,22 +362,41 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             header.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             v.setBackgroundResource(R.drawable.blue_tabbed_box);
-	    	
-	    	// only add headers if we're not using grid mode
-	    	if(!shortSelect.usesGridView()){
-	    	header.addView(v,params);
-	    	}
+
+            // only add headers if we're not using grid mode
+            if(!shortSelect.usesGridView()){
+                header.addView(v,params);
+            }
             
             if(adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
                 EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
                 theloader.attachListener(this);
                 
                 theloader.execute(selectDatum.getNodeset());
+            } else {
+                startTimer();
             }
+            
         } catch(SessionUnavailableException sue) {
             //TODO: login and return
         }
     }
+    
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopTimer();
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopTimer();
+    }
+    
+
+    
 
     protected Intent getDetailIntent(TreeReference contextRef, Intent i) {
         //Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
@@ -701,9 +726,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-    	
+
         adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this, factory);
-		
+
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         
@@ -718,7 +743,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             updateSelectedItem(true);
         }
         
-        
+        this.startTimer();        
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -750,14 +775,35 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void attach(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
         this.loader = task;
-	}
-	
-	public boolean inAwesomeMode(){
-		return inAwesomeMode;
+    }
+
+    public boolean inAwesomeMode(){
+        return inAwesomeMode;
     }
     
     boolean rightFrameSetup = false;
     NodeEntityFactory factory;
+    
+    private void select() {
+        // create intent for return and store path
+        Intent i = new Intent(EntitySelectActivity.this.getIntent());
+        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+        setResult(RESULT_OK, i);
+        finish();
+    }
+
+    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
+    public void callRequested(String phoneNumber) {
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
+    }
+
+    public void addressRequested(String address) {
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
+    }
+
+    public void playVideo(String videoRef) {
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
+    }
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection, getIntent());
@@ -768,18 +814,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             Button next = (Button)findViewById(R.id.entity_select_button);
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
-
                 public void onClick(View v) {
-                    // create intent for return and store path
-                    Intent i = new Intent(EntitySelectActivity.this.getIntent());
-                    
-                    i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-                    setResult(RESULT_OK, i);
-
-                    finish();
+                    select();
                     return;
                 }
-                
             });
             
             if(getIntent().getBooleanExtra(EntityDetailActivity.IS_DEAD_END, false)) {
@@ -818,5 +856,85 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         displayException(e);
     }
 
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
+     */
+    @Override
+    protected boolean onForwardSwipe() {
+        // If user has picked an entity, move along to form entry
+        if (selectedIntent != null) {
+            if (inAwesomeMode && detailView != null && detailView.getCurrentTab() < detailView.getTabCount() - 1) {
+                return false;
+            }
+            select();
+        }
+        return true;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
+     */
+    @Override
+    protected boolean onBackwardSwipe() {
+        if (inAwesomeMode && detailView != null && detailView.getCurrentTab() > 0) {
+            return false;
+        }
+        finish();
+        return true;
+    }
+
+    //Below is helper code for the Refresh Feature. 
+    //this is a dev feature and should get restructured before release in prod.
+    //If the devloper setting is turned off this code should do nothing.
+    
+    private void triggerRebuild() {
+        if(loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            theloader.attachListener(this);
+            
+            theloader.execute(selectDatum.getNodeset());
+        }
+    }
+    
+    private Timer myTimer;
+    private Object timerLock = new Object();
+    boolean cancelled;
+    
+    private void startTimer() {
+        if(!DeveloperPreferences.isListRefreshEnabled()) { return; }
+        synchronized(timerLock) {
+            if(myTimer == null) {
+                myTimer = new Timer();
+                myTimer.schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+                            runOnUiThread( new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(!cancelled) {
+                                        triggerRebuild();
+                                    }
+                                }
+                            });
+                        }
+                }, 15*1000, 15 * 1000);
+                cancelled = false;
+            }
+        }
+    }
+    
+    private void stopTimer() {
+        synchronized(timerLock) {
+            if(myTimer != null) {
+                myTimer.cancel();
+                myTimer = null;
+                cancelled = true;
+            }
+        }
+    }
 
 }

@@ -84,13 +84,13 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
 
         if (prompt != null) {
             mReadOnly = prompt.isReadOnly();
-            String s = prompt.getAnswerText();
-            if (s != null) {
-                mAnswer.setText(s);
+            IAnswerData value = prompt.getAnswerValue();
+            if (value != null) {
+                mAnswer.setText(value.getDisplayText());
             }
 
             if (mReadOnly) {
-                if (s == null) {
+                if (value == null) {
                     mAnswer.setText("---");
                 }
                 mAnswer.setBackgroundDrawable(null);
