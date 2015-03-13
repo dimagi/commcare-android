@@ -136,6 +136,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
     
+    // The API allows for external calls. When this occurs, redispatch to their
+    // activity instead of commcare.
     boolean wasExternal = false;
     
     View homeScreen;
@@ -755,7 +757,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 clearSessionAndExit(currentState);
                 return;
             }
-        } else {
+        } else if (resultCode == RESULT_CANCELED) {
             Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
 
             // If the form was unstarted, we want to wipe the record.

@@ -138,19 +138,16 @@ public class AndroidSessionWrapper {
      * @throws IllegalArgumentException If the cursor provided doesn't point to any records,
      * or doesn't point to the appropriate columns
      */
-    public boolean beginRecordTransaction(Uri uri, Cursor c) throws IllegalArgumentException {        
-        if(!c.moveToFirst()) {
+    public boolean beginRecordTransaction(Uri uri, Cursor c) throws IllegalArgumentException {
+        if (!c.moveToFirst()) {
             throw new IllegalArgumentException("Empty query for instance record!");
         }
-        
+
         instanceUri = uri.toString();
         instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
 
-        if(InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
-            return true;
-        } else {
-            return false;
-        }
+        // was the record marked complete?
+        return InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
     }
 
     public FormRecord commitRecordTransaction() throws InvalidStateException {
@@ -162,9 +159,8 @@ public class AndroidSessionWrapper {
             recordStatus = FormRecord.STATUS_INCOMPLETE;
         }
 
-
         current = current.updateStatus(instanceUri, recordStatus);
-        
+
         try {
             FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(CommCareApplication._(), platform, current, recordStatus);
             
