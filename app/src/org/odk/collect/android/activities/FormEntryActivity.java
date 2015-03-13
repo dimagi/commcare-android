@@ -78,6 +78,7 @@ import android.widget.Toast;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
