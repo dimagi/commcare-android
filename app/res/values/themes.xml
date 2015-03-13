@@ -2,9 +2,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
         <!-- API 11 theme customizations can go here. -->
-        <item name="colorPrimary">@color/blue_500</item>
-        <item name="colorPrimaryDark">@color/blue_700</item>
-        <item name="colorAccent">@color/green_A200</item>
     </style>
     
     
