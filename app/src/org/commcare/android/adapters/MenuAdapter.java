@@ -305,7 +305,10 @@ public class MenuAdapter implements ListAdapter {
                     mIconView.setImageResource(R.drawable.ic_mode_edit_black_24dp);
                     break;
                 case NONE:
-                    mIconView.setImageResource(R.color.transparent);
+                    // remove it because we won't need it anymore
+                    if(mIconView != null) {
+                        ((LinearLayout) mIconView.getParent()).removeView(mIconView);
+                    }
                     break;
             }
         } else {
