@@ -207,6 +207,12 @@ public class MenuAdapter implements ListAdapter {
         return 0;
     }
 
+    private enum NavIconState {
+        NONE
+       ,NEXT
+       ,JUMP
+    }
+
     /* (non-Javadoc)
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
@@ -234,6 +240,7 @@ public class MenuAdapter implements ListAdapter {
         TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
         rowText.setText(mQuestionText);
 
+        // set up audio
         final String audioURI = getAudioURI(mObject);
         String audioFilename = "";
         if(audioURI != null && !audioURI.equals("")) {
@@ -250,8 +257,6 @@ public class MenuAdapter implements ListAdapter {
         // First set up the audio button
         AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
         if (audioFilename != "" && audioFile.exists()) {
-            // An audio file is specified
-//            mAudioButton = new AudioButton(getContext(), audioURI, true);
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
             mAudioButton.setFocusableInTouchMode(false);
@@ -265,59 +270,39 @@ public class MenuAdapter implements ListAdapter {
         }
 
         // set up the image, if available
-        ImageView mImageView = (ImageView) menuListItem.findViewById(R.id.row_img);
+        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
 
-        final String imageURI = getImageURI(mObject);
-        Bitmap b = ViewUtil.inflateDisplayImage(context, imageURI);
+        NavIconState iconChoice = NavIconState.NEXT;
 
-        if(b != null) {
-            mImageView.setImageBitmap(b);
-//            mImageView.setAdjustViewBounds(true);
-//            mImageView.setId(23422634);
-//            imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//            audioParams.addRule(CENTER_VERTICAL);
-//            addView(mImageView, imageParams);
+        //figure out some icons
+        if(mObject instanceof Entry) {
+            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
+            if(datum == null || datum.getNodeset() == null) {
+                iconChoice = NavIconState.JUMP;
+            }
+        }
+        if(!DeveloperPreferences.isNewNavEnabled()) {
+            iconChoice = NavIconState.NONE;
+        }
+
+        if(mIconView != null) {
+            switch (iconChoice) {
+                case NEXT:
+                    mIconView.setImageResource(R.drawable.ic_folder_black_24dp);
+                    break;
+                case JUMP:
+                    mIconView.setImageResource(R.drawable.ic_mode_edit_black_24dp);
+                    break;
+                case NONE:
+                    mIconView.setImageResource(R.color.transparent);
+                    break;
+            }
         } else {
-            if(mImageView != null) {
-                ((LinearLayout) mImageView.getParent()).removeView(mImageView);
+            if(mIconView != null) {
+                ((LinearLayout) mIconView.getParent()).removeView(mIconView);
             }
         }
 
-
-//            if(navStyle != NAVIGATION_NONE) {
-//                audioParams.addRule(RelativeLayout.LEFT_OF, 2345345);
-//            } else {
-//                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-//            }
-//            audioParams.addRule(CENTER_VERTICAL);
-//            addView(mAudioButton, audioParams);
-
-        //        HorizontalMediaView emv = (HorizontalMediaView)v;
-        //        String mQuestionText = textViewHelper(mObject);
-        //        if(emv == null) {
-        //            emv = new HorizontalMediaView(context);
-        //        }
-        //
-        //        int iconChoice = HorizontalMediaView.NAVIGATION_NEXT;
-        //
-        //        //figure out some icons
-        //        if(mObject instanceof Entry) {
-        //            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
-        //            if(datum == null || datum.getNodeset() == null) {
-        //                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
-        //            }
-        //        }
-        //        if(!DeveloperPreferences.isNewNavEnabled()) {
-        //            iconChoice = HorizontalMediaView.NAVIGATION_NONE;
-        //        }
-        //
-        //        //Final change, remove any numeric context requests. J2ME uses these to
-        //        //help with numeric navigation.
-        //        if(mQuestionText != null) {
-        //            mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
-        //        }
-        //        emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), iconChoice);
-        //        return emv;
         return menuListItem;
     }
 
