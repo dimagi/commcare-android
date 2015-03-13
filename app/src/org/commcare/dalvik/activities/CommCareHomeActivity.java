@@ -57,6 +57,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
+import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -93,10 +94,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public static final int LOGIN_USER = 0;
     public static final int GET_COMMAND = 1;
     public static final int GET_CASE = 2;
-
-    // Form entry request code
     public static final int MODEL_RESULT = 4;
-
     public static final int INIT_APP = 8;
     public static final int GET_INCOMPLETE_FORM = 16;
     public static final int GET_REFERRAL = 32;
@@ -178,7 +176,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
-        
         setContentView(R.layout.mainnew);
         configUi();
     }
@@ -605,9 +602,168 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     break;
                 }
             case MODEL_RESULT:
-                // Coming back from FormEntryActivity
-                processReturnFromFormEntry(resultCode, intent);
-                break;
+                //TODO: We might need to load this from serialized state?
+                currentState = CommCareApplication._().getCurrentSessionWrapper();
+
+                //This is the state we were in when we _Started_ form entry
+                FormRecord current = currentState.getFormRecord();
+                
+                //See if we were viewing an old form, in which case we don't want to change the historical record
+                //regardless of the exit code
+                //TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
+                if(FormRecord.STATUS_COMPLETE.equals(current.getStatus()) || FormRecord.STATUS_SAVED.equals(current.getStatus()) || FormRecord.STATUS_UNSENT.equals(current.getStatus())) {
+                    currentState.reset();
+                    if(wasExternal) {
+                        this.finish();
+                    } else {
+                        //Return to where we started
+                        goToFormArchive(false, current);
+                    }
+                    return;
+                }
+                
+                
+                if(resultCode == RESULT_OK) {
+                    Uri resultInstanceURI = intent.getData();
+                    
+                    //TODO: encapsulate this pattern somewhere?
+                    if(resultInstanceURI == null) {
+                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Form Entry Did not Return a Form");
+                        
+                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+                        Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
+                        
+                        currentState.reset();
+                        if(wasExternal) {
+                            this.finish();
+                        }
+                        refreshView();
+                        return;
+                    }
+                    
+                    Cursor c = getContentResolver().query(resultInstanceURI, null,null,null, null);
+                    boolean complete = false;
+                    try {
+                        complete = currentState.beginRecordTransaction(resultInstanceURI, c);
+                    } catch(IllegalArgumentException iae) {
+                        
+                        iae.printStackTrace();
+                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+                        Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
+                        
+                        //TODO: Fail more hardcore here? Wipe the form record and its ties?
+                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unrecoverable error when trying to read form|" + iae.getMessage());
+                        
+                        currentState.reset();
+                        if(wasExternal) {
+                            this.finish();
+                        }
+                        refreshView();
+                        return;
+                    } finally {
+                        c.close();
+                    }
+                     
+                    //TODO: Move this logic into the process task?
+                    try {
+                        current = currentState.commitRecordTransaction();
+                    } catch (Exception e) {
+                        
+                        //Something went wrong with all of the connections which should exist. Tell
+                        //the user, 
+                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+                        
+                        Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
+                        
+                        FormRecordCleanupTask.wipeRecord(this, currentState);
+                        
+                        //Notify the server of this problem (since we aren't going to crash) 
+                        ExceptionReportTask ert = new ExceptionReportTask();
+                        ert.execute(e);
+                        
+                        currentState.reset();
+                        if(wasExternal) {
+                            this.finish();
+                        }
+                        refreshView();
+                        return;
+                    }
+                    
+                    Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Completed");
+
+                                         
+                    //The form is either ready for processing, or not, depending on how it was saved
+                    if(complete) {
+                        //Form record should now be up to date now and stored correctly.
+                        
+                        //ctsims - App stack workflows require us to have processed _this_ specific form before 
+                        //we can move on, and that needs to be synchronous. We'll go ahead and try to process just
+                        //this form before moving on. We'll catch any errors here and just eat them (since the 
+                        //task will also try the process and fail if it does. 
+                        if(FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
+                            try {
+                                new FormRecordProcessor(this).process(current);
+                            } catch(Exception e) {
+                                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+                            }
+                        }
+
+                        //We're honoring in order submissions, now, so trigger a full submission
+                        //cycle
+                        checkAndStartUnsentTask(false);
+
+                        refreshView();
+                        if(wasExternal) {
+                            this.finish();
+                        }
+                        
+                        //Before we can terminate the session, we need to know that the form has been processed
+                        //in case there is state that depends on it. 
+                        
+                        if(!currentState.terminateSession()) {
+                            //If we didn't find somewhere to go,
+                            //we're gonna stay here
+                            return;
+                        }
+                        //Otherwise, we want to keep proceeding in order 
+                        //to keep running the workflow
+                    } else {
+                        //Form record is now stored. 
+                        currentState.reset();
+                        if(wasExternal) {
+                            this.finish();
+                        }
+                        refreshView();
+                        return;
+                    }
+                } else {
+                    Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
+                    
+                    //If the form was unstarted, we want to wipe the record. 
+                    if(current.getStatus() == FormRecord.STATUS_UNSTARTED) {
+                        //Entry was cancelled.
+                        FormRecordCleanupTask.wipeRecord(this, currentState);
+                    }
+
+                    if(wasExternal) {
+                        this.finish();
+                        currentState.reset();
+                        return;
+                    } else {
+                        if(current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
+                            //We should head back to the incomplete forms screen
+                            currentState.reset();
+                            goToFormArchive(true, current);
+                            return;
+                        } else {
+                            //If we cancelled form entry from a normal menu entry 
+                            //we want to go back to where were were right before we started 
+                            //entering the form.
+                            currentState.getSession().stepBack();
+                            currentState.setFormRecordId(-1);
+                        }
+                    }
+                }
             }             
             
             startNextFetch();
@@ -619,197 +775,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         super.onActivityResult(requestCode, resultCode, intent);
 
-    }
-
-    /**
-     * TODO
-     */
-    private void processReturnFromFormEntry(int resultCode, Intent intent) {
-        //TODO: We might need to load this from serialized state?
-        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
-
-        // if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
-        if(resultCode == 1) {
-            //Exception in form entry!
-            
-            if(intent.hasExtra("odk_exception")) {
-                Throwable ex = (Throwable)intent.getSerializableExtra("odk_exception");
-                ExceptionReportTask task = new ExceptionReportTask();
-                task.execute(ex);
-            } else {
-                RuntimeException ex = new RuntimeException("Unspecified exception from form entry engine");
-                ExceptionReportTask task = new ExceptionReportTask();
-                task.execute(ex);
-            }
-            
-            //TODO: Notification?
-            Toast.makeText(this, Localization.get("form.entry.segfault"), Toast.LENGTH_LONG);
-            
-            
-            currentState.reset();
-            refreshView();
-            return;
-        }
-        
-        //This is the state we were in when we _Started_ form entry
-        FormRecord current = currentState.getFormRecord();
-        
-        //See if we were viewing an old form, in which case we don't want to change the historical record
-        //regardless of the exit code
-        //TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        if(FormRecord.STATUS_COMPLETE.equals(current.getStatus()) || FormRecord.STATUS_SAVED.equals(current.getStatus()) || FormRecord.STATUS_UNSENT.equals(current.getStatus())) {
-            currentState.reset();
-            if(wasExternal) {
-                this.finish();
-            } else {
-                //Return to where we started
-                goToFormArchive(false, current);
-            }
-            return;
-        }
-        
-        
-        if(resultCode == RESULT_OK) {
-            Uri resultInstanceURI = intent.getData();
-            
-            //TODO: encapsulate this pattern somewhere?
-            if(resultInstanceURI == null) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Form Entry Did not Return a Form");
-                
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-                Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
-                
-                currentState.reset();
-                if(wasExternal) {
-                    this.finish();
-                }
-                refreshView();
-                return;
-            }
-            
-            Cursor c = getContentResolver().query(resultInstanceURI, null,null,null, null);
-            boolean complete = false;
-            try {
-                complete = currentState.beginRecordTransaction(resultInstanceURI, c);
-            } catch(IllegalArgumentException iae) {
-                
-                iae.printStackTrace();
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-                Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
-                
-                //TODO: Fail more hardcore here? Wipe the form record and its ties?
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unrecoverable error when trying to read form|" + iae.getMessage());
-                
-                currentState.reset();
-                if(wasExternal) {
-                    this.finish();
-                }
-                refreshView();
-                return;
-            } finally {
-                c.close();
-            }
-             
-            //TODO: Move this logic into the process task?
-            try {
-                current = currentState.commitRecordTransaction();
-            } catch (Exception e) {
-                
-                //Something went wrong with all of the connections which should exist. Tell
-                //the user, 
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-                
-                Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
-                
-                FormRecordCleanupTask.wipeRecord(this, currentState);
-                
-                //Notify the server of this problem (since we aren't going to crash) 
-                ExceptionReportTask ert = new ExceptionReportTask();
-                ert.execute(e);
-                
-                currentState.reset();
-                if(wasExternal) {
-                    this.finish();
-                }
-                refreshView();
-                return;
-            }
-            
-            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Completed");
-
-                                 
-            //The form is either ready for processing, or not, depending on how it was saved
-            if(complete) {
-                //Form record should now be up to date now and stored correctly.
-                
-                //ctsims - App stack workflows require us to have processed _this_ specific form before 
-                //we can move on, and that needs to be synchronous. We'll go ahead and try to process just
-                //this form before moving on. We'll catch any errors here and just eat them (since the 
-                //task will also try the process and fail if it does. 
-                if(FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
-                    try {
-                        new FormRecordProcessor(this).process(current);
-                    } catch(Exception e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error processing form. Should be recaptured during async processing: " + e.getMessage());
-                    }
-                }
-
-                //We're honoring in order submissions, now, so trigger a full submission
-                //cycle
-                checkAndStartUnsentTask(false);
-
-                refreshView();
-                if(wasExternal) {
-                    this.finish();
-                }
-                
-                //Before we can terminate the session, we need to know that the form has been processed
-                //in case there is state that depends on it. 
-                
-                if(!currentState.terminateSession()) {
-                    //If we didn't find somewhere to go,
-                    //we're gonna stay here
-                    return;
-                }
-                //Otherwise, we want to keep proceeding in order 
-                //to keep running the workflow
-            } else {
-                //Form record is now stored. 
-                currentState.reset();
-                if(wasExternal) {
-                    this.finish();
-                }
-                refreshView();
-                return;
-            }
-        } else {
-            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
-            
-            //If the form was unstarted, we want to wipe the record. 
-            if(current.getStatus() == FormRecord.STATUS_UNSTARTED) {
-                //Entry was cancelled.
-                FormRecordCleanupTask.wipeRecord(this, currentState);
-            }
-
-            if(wasExternal) {
-                this.finish();
-                currentState.reset();
-                return;
-            } else {
-                if(current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
-                    //We should head back to the incomplete forms screen
-                    currentState.reset();
-                    goToFormArchive(true, current);
-                    return;
-                } else {
-                    //If we cancelled form entry from a normal menu entry 
-                    //we want to go back to where were were right before we started 
-                    //entering the form.
-                    currentState.getSession().stepBack();
-                    currentState.setFormRecordId(-1);
-                }
-            }
-        }
     }
 
     private void showDemoModeWarning() {
@@ -867,7 +832,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         if(needed == null) {
             EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
-            //See if we failed any of our assertions
+            //See if we failed any of our asseertions
             Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
             if(text != null) {
                 createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
@@ -1017,8 +982,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
         
         //Create our form entry activity callout
-        Intent i =new Intent(getApplicationContext(), org.odk.collect.android.activities.FormEntryActivity.class);
-
+        Intent i =new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra("odk_title_fragment", BreadcrumbBarFragment.class.getName());
         
@@ -1183,7 +1147,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                      Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
                      
                      this.startActivityForResult(i, INIT_APP);
-            } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()){
+            } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()
+                    // if superuser is enabled, we won't need to validate multimedia, just launch the home screen directly
+                    && !DeveloperPreferences.isSuperuserEnabled()){
                 
                 Intent i = new Intent(this, CommCareVerificationActivity.class);
                 this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);

@@ -6,6 +6,7 @@ import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -42,7 +43,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;
-    private static final int CALL_OUT = 0;
     public static final String IS_DEAD_END = "eda_ide";
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
@@ -178,7 +178,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode) {
-        case CALL_OUT:
+        case DetailCalloutListenerDefaultImpl.CALL_OUT:
             if(resultCode == RESULT_CANCELED) {
                 mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
                 return;
@@ -200,22 +200,15 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 
 
     public void callRequested(String phoneNumber) {
-        Intent intent = new Intent(getApplicationContext(), CallOutActivity.class);
-        intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
-        this.startActivityForResult(intent, CALL_OUT);
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
 
-
     public void addressRequested(String address) {
-        Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
-        startActivity(call);
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
     
     public void playVideo(String videoRef) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse(videoRef), "video/*");
-        startActivity(intent);
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
     /*
