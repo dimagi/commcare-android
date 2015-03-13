@@ -37,7 +37,12 @@ public class UserKeyRecord extends Persisted {
     /** This is a new record that hasn't been evaluated for usage yet **/
     public static final int TYPE_PENDING_DELETE = 4;
     
-    public static final Pattern HASH_STRING_PATTERN=Pattern.compile("([^\\$]+)\\$([^\\$]+)\\$([^\\$]+)");
+    // Hash string patterns should contain 3 groupings that are delimited by '$'.
+    // The 1st group describes the hashing algorithm, the 2nd is the salt, and
+    // the 3rd group is the hash.
+    public static final Pattern HASH_STRING_PATTERN = Pattern.compile("([^\\$]+)\\$([^\\$]+)\\$([^\\$]+)");
+    
+    private static final int DEFAULT_SALT_LENGTH = 6;
     
     @Persisting(1)
     @MetaField(META_USERNAME)
@@ -125,18 +130,45 @@ public class UserKeyRecord extends Persisted {
         return type;
     }
     
-    private static final int DEFAULT_SALT_LENGTH = 6;
-    
+    /**
+     * Build a SHA-1 password hash out of a password string, where the salt is
+     * generated to be a globally unique string.  The hash is delimited by '$'.
+     *
+     * @param pwd is the plain-text password inputted by the user.
+     *
+     * @return SHA-1 hashed password
+     */
     public static String generatePwdHash(String pwd) {
         return generatePwdHash(pwd, PropertyUtils.genGUID(DEFAULT_SALT_LENGTH).toLowerCase());
     }
     
+    /**
+     * Grab the salt out of a hashed password.
+     *
+     * @param pwdString a String with three groups delimited by '$', the second
+     * containing the salt
+     *
+     * @return salt String out of a hashed password
+     */
     public static String extractSalt(String pwdString) {
         Matcher m = HASH_STRING_PATTERN.matcher(pwdString);
-        if(m.matches()) { return m.group(2);}
-        throw new IllegalArgumentException("Invalid pwd string for salt extraction");
+        if (m.matches()) {
+            // grab the salt segment out of the hashed password
+            return m.group(2);
+        }
+        throw new IllegalArgumentException("Unable to extract salt out of hashed password.");
     }
     
+    /**
+     * Build a SHA-1 password hash out of a password string and a salt.
+     * The hash is delimited by '$'.
+     *
+     * @param pwd is the plain-text password inputted by the user.
+     * @param salt is a random string included during hashing to prevent
+     * against hash dictionary attacks.
+     *
+     * @return SHA-1 hashed password
+     */
     public static String generatePwdHash(String pwd, String salt) {
         String alg = "sha1";
         int hashLength = 41;
@@ -147,9 +179,11 @@ public class UserKeyRecord extends Persisted {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+
         BigInteger number = new BigInteger(1, md.digest((salt+pwd).getBytes()));
         String hashed = number.toString(16);
         
+        // prepend 0's until the hash is of the correct length
         while(hashed.length() < hashLength) {
             hashed = "0" + hashed;
         }
@@ -163,10 +197,11 @@ public class UserKeyRecord extends Persisted {
 
     public boolean isPasswordValid(String password) {
         String hash = this.getPasswordHash();
-        if(HASH_STRING_PATTERN.matcher(hash).matches()) {
-            if(hash.equals(UserKeyRecord.generatePwdHash(password, UserKeyRecord.extractSalt(hash)))) { return true; }
-        }
-        return false;
+
+        // Is the local hash value a valid hash string pattern
+        // and does it match the hashed password (using the extracted salt)?
+        return (HASH_STRING_PATTERN.matcher(hash).matches() &&
+                hash.equals(UserKeyRecord.generatePwdHash(password, UserKeyRecord.extractSalt(hash))));
     }
 
     public byte[] unWrapKey(String password) {
@@ -178,14 +213,22 @@ public class UserKeyRecord extends Persisted {
         }
     }
     
+    /**
+     * Does today lie within the record's validity range.
+     *
+     * Expiration dates that are null or overflowed are ignored during this
+     * check.
+     */
     public boolean isCurrentlyValid() {
-        //currentTimeMillis is UTC
+        // NOTE: we expect our validity dates to be in UTC
+
+        // currentTimeMillis is UTC
         Date today = new Date(System.currentTimeMillis());
-        
-        //Our validity dates are all in UTC
-        if(validFrom.before(today) && (validTo == null || (validTo.getTime() != Long.MAX_VALUE && validTo.after(today)))) {
-            return true;
-        }
-        return false;
+
+        // Does today lie within key record validity range (ignoring
+        // null/overflowed expiration dates)?
+        return (validFrom.before(today) &&
+                (validTo == null ||
+                 (validTo.getTime() != Long.MAX_VALUE && validTo.after(today))));
     }
 }
