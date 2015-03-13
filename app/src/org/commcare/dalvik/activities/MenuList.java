@@ -46,10 +46,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     
     @UiElement(R.id.screen_suite_menu_list)
     private ListView list;
-
-    @UiElement(R.id.screen_suite_menu_list_header)
-    private TextView header;
-
+    
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -64,8 +61,10 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
            menuId="root";
        }
 
+       TextView header = new TextView(this);
        header.setText(BreadcrumbBarFragment.getBestTitle(this));
-
+       list.addHeaderView(header);
+       
        adapter = new MenuAdapter(this,platform,menuId);
        refreshView();
        
