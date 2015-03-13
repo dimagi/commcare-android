@@ -630,6 +630,25 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     /**
+     * Show FormEntry-related errors to users and log, then clean-up session
+     *
+     * @param toastText String sent to toast pop-up notification
+     * @param loggerText String sent to javarosa logger
+     * @param currentState session to be cleared
+     */
+    private void showFormEntryError(String toastText, String loggerText, AndroidSessionWrapper currentState) {
+        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+        Toast.makeText(this, toastText, Toast.LENGTH_LONG);
+
+        // log non-empty strings
+        if (!"".equals(loggerText)) {
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, loggerText);
+        }
+
+        clearSessionAndExit(currentState);
+    }
+
+    /**
      * Process returning home from the form entry activity.
      */
     private void processReturnFromFormEntry(int resultCode, Intent intent) {
@@ -657,15 +676,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         if (resultCode == RESULT_OK) {
             Uri resultInstanceURI = intent.getData();
-
-            // TODO: encapsulate this pattern somewhere?
             if (resultInstanceURI == null) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Form Entry did not return a form");
-
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-                Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
-
-                clearSessionAndExit();
+                showFormEntryError("Error while trying to read the form! See the notification",
+                        "Form Entry did not return a form",
+                        currentState);
                 return;
             }
 
@@ -674,15 +688,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             try {
                 complete = currentState.beginRecordTransaction(resultInstanceURI, c);
             } catch (IllegalArgumentException iae) {
-
                 iae.printStackTrace();
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-                Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
-
                 // TODO: Fail more hardcore here? Wipe the form record and its ties?
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unrecoverable error when trying to read form|" + iae.getMessage());
-
-                clearSessionAndExit();
+                showFormEntryError("Error while trying to read the form! See the notification",
+                        "Unrecoverable error when trying to read form|" + iae.getMessage(),
+                        currentState);
                 return;
             } finally {
                 c.close();
@@ -692,19 +702,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             try {
                 current = currentState.commitRecordTransaction();
             } catch (Exception e) {
-                // Something went wrong with all of the connections which should exist. Tell
-                // the user,
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-
-                Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
-
+                // Something went wrong with all of the connections which should exist.
                 FormRecordCleanupTask.wipeRecord(this, currentState);
 
                 // Notify the server of this problem (since we aren't going to crash)
                 ExceptionReportTask ert = new ExceptionReportTask();
                 ert.execute(e);
 
-                clearSessionAndExit();
+                showFormEntryError("An error occurred: " + e.getMessage() + " and your data could not be saved.", "", currentState);
                 return;
             }
 
@@ -731,13 +736,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 checkAndStartUnsentTask(false);
 
                 refreshView();
+
                 if (wasExternal) {
                     this.finish();
                 }
 
                 // Before we can terminate the session, we need to know that the form has been processed
                 // in case there is state that depends on it.
-
                 if (!currentState.terminateSession()) {
                     // If we didn't find somewhere to go,
                     // we're gonna stay here
@@ -747,7 +752,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // to keep running the workflow
             } else {
                 // Form record is now stored.
-                clearSessionAndExit();
+                clearSessionAndExit(currentState);
                 return;
             }
         } else {
