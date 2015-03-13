@@ -12,6 +12,16 @@
  * the License.
  */
 
+// XXX: look at current session, find unstarted form-record that moved to incomplete, then go commit form
+// form record status is used to determine workflow
+//
+// form record life
+//  - unstarted:
+//  - incomplete: assoc with session
+//  - complete: odk saved record, integreity check passed, not-processed
+//  - process:
+//  - unsent->sent
+
 package org.commcare.dalvik.odk.provider;
 
 import java.io.File;
