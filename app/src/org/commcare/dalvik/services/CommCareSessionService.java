@@ -369,8 +369,8 @@ public class CommCareSessionService extends Service  {
     /**
      * Close user database, broadcast session logout, expire the cypher pool
      */
+    // TODO: Remove this function after startLogout/finishLogout are finished
     public void logout() {
-        // TODO: wait until logout saving finishes before contining
         synchronized(lock){
             key = null;
             

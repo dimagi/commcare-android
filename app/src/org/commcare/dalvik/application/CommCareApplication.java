@@ -116,7 +116,7 @@ public class CommCareApplication extends Application {
     
     private CommCareApp currentApp;
     
-    // stores current state of applicatio: the session, form
+    // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
     
     /** Generalize **/
