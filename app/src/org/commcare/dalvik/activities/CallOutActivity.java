@@ -12,6 +12,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.widget.Toast;
+
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
@@ -27,7 +30,8 @@ public class CallOutActivity extends Activity {
     private static final int DIALOG_NUMBER_ACTION = 0;
     
     private static final int SMS_RESULT = 0;
-    
+    private static final int CALL_RESULT = 1;
+
     private static String number;
 
     
@@ -107,22 +111,33 @@ public class CallOutActivity extends Activity {
     }
     
     private void dispatchAction(String action) {
+        // using createChooser to handle any errors gracefully
         if(Intent.ACTION_CALL.equals(action) ) {
             tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
             
             Intent call = new Intent(Intent.ACTION_CALL);
             call.setData(Uri.parse("tel:" + number));
-            startActivity(call);
+            if(call.resolveActivity(getPackageManager()) != null){
+                startActivityForResult(call, CALL_RESULT);
+            } else {
+                Toast.makeText(this, Localization.get("callout.failure.dialer"), Toast.LENGTH_SHORT).show();
+                finish();
+            }
         } else {                    
             Intent sms = new Intent(Intent.ACTION_SENDTO);
             sms.setData(Uri.parse("smsto:" + number));
-            startActivityForResult(sms,SMS_RESULT);
+            if(sms.resolveActivity(getPackageManager()) != null){
+                startActivityForResult(sms, SMS_RESULT);
+            } else {
+                Toast.makeText(this, Localization.get("callout.failure.sms"), Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if(requestCode == SMS_RESULT) {
+        if(requestCode == SMS_RESULT || requestCode == CALL_RESULT) {
             //we're done here
             Intent i = new Intent(getIntent());
             

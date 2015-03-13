@@ -57,6 +57,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
+import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -175,7 +176,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
-        
         setContentView(R.layout.mainnew);
         configUi();
     }
@@ -256,6 +256,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
             }
         });
+
+        // CommCare-159047: this method call rebuilds the options menu
+        supportInvalidateOptionsMenu();
     }
 
     private boolean isOnline() {
@@ -601,28 +604,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             case MODEL_RESULT:
                 //TODO: We might need to load this from serialized state?
                 currentState = CommCareApplication._().getCurrentSessionWrapper();
-                if(resultCode == 1) {
-                    //Exception in form entry!
-                    
-                    if(intent.hasExtra("odk_exception")) {
-                        Throwable ex = (Throwable)intent.getSerializableExtra("odk_exception");
-                        ExceptionReportTask task = new ExceptionReportTask();
-                        task.execute(ex);
-                    } else {
-                        RuntimeException ex = new RuntimeException("Unspecified exception from form entry engine");
-                        ExceptionReportTask task = new ExceptionReportTask();
-                        task.execute(ex);
-                    }
-                    
-                    //TODO: Notification?
-                    Toast.makeText(this, Localization.get("form.entry.segfault"), Toast.LENGTH_LONG);
-                    
-                    
-                    currentState.reset();
-                    refreshView();
-                    break;
-                }
-                
+
                 //This is the state we were in when we _Started_ form entry
                 FormRecord current = currentState.getFormRecord();
                 
@@ -1000,7 +982,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
         
         //Create our form entry activity callout
-        Intent i =new Intent(getApplicationContext(), org.odk.collect.android.activities.FormEntryActivity.class);
+        Intent i =new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra("odk_title_fragment", BreadcrumbBarFragment.class.getName());
         
@@ -1165,7 +1147,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                      Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
                      
                      this.startActivityForResult(i, INIT_APP);
-            } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()){
+            } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()
+                    // if superuser is enabled, we won't need to validate multimedia, just launch the home screen directly
+                    && !DeveloperPreferences.isSuperuserEnabled()){
                 
                 Intent i = new Intent(this, CommCareVerificationActivity.class);
                 this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
