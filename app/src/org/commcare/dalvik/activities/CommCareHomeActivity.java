@@ -618,6 +618,18 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     /**
+     * clear local state in session session, and finish if was external is set,
+     * otherwise refesh the view.
+     */
+    private void clearSessionAndExit(AndroidSessionWrapper currentState) {
+        currentState.reset();
+        if (wasExternal) {
+            this.finish();
+        }
+        refreshView();
+    }
+
+    /**
      * Process returning home from the form entry activity.
      */
     private void processReturnFromFormEntry(int resultCode, Intent intent) {
@@ -648,16 +660,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             // TODO: encapsulate this pattern somewhere?
             if (resultInstanceURI == null) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Form Entry Did not Return a Form");
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Form Entry did not return a form");
 
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
                 Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
 
-                currentState.reset();
-                if (wasExternal) {
-                    this.finish();
-                }
-                refreshView();
+                clearSessionAndExit();
                 return;
             }
 
@@ -674,11 +682,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // TODO: Fail more hardcore here? Wipe the form record and its ties?
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unrecoverable error when trying to read form|" + iae.getMessage());
 
-                currentState.reset();
-                if (wasExternal) {
-                    this.finish();
-                }
-                refreshView();
+                clearSessionAndExit();
                 return;
             } finally {
                 c.close();
@@ -700,11 +704,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 ExceptionReportTask ert = new ExceptionReportTask();
                 ert.execute(e);
 
-                currentState.reset();
-                if (wasExternal) {
-                    this.finish();
-                }
-                refreshView();
+                clearSessionAndExit();
                 return;
             }
 
@@ -747,11 +747,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // to keep running the workflow
             } else {
                 // Form record is now stored.
-                currentState.reset();
-                if (wasExternal) {
-                    this.finish();
-                }
-                refreshView();
+                clearSessionAndExit();
                 return;
             }
         } else {
