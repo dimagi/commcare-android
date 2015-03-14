@@ -256,8 +256,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
 
-        registerFormEntryReceivers();
-
         // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
@@ -2507,6 +2505,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (mCurrentView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
+
+        if (mNoGPSReceiver != null) {
+            unregisterReceiver(mNoGPSReceiver);
+        }
+        if (mKeySessionCloseReceiver != null) {
+            unregisterReceiver(mKeySessionCloseReceiver);
+        }
+
         super.onPause();
     }
 
@@ -2518,6 +2524,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @Override
     protected void onResume() {
         super.onResume();
+
+        registerFormEntryReceivers();
+
         if (mFormLoaderTask != null) {
             mFormLoaderTask.setFormLoaderListener(this);
             if (mFormController != null && mFormLoaderTask.getStatus() == AsyncTask.Status.FINISHED) {
@@ -2647,12 +2656,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             if (mSaveToDiskTask.getStatus() == AsyncTask.Status.FINISHED) {
                 mSaveToDiskTask.cancel(false);
             }
-        }
-        if (mNoGPSReceiver != null) {
-            unregisterReceiver(mNoGPSReceiver);
-        }
-        if (mKeySessionCloseReceiver != null) {
-            unregisterReceiver(mKeySessionCloseReceiver);
         }
 
         super.onDestroy();
