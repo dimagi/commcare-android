@@ -19,22 +19,15 @@ package org.commcare.dalvik.odk.provider;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-/**
- * Convenience definitions for NotePadProvider
- */
 public final class FormsProviderAPI {
     public static final String AUTHORITY = "org.commcare.android.provider.odk.forms";
 
     // This class cannot be instantiated
     private FormsProviderAPI() {}
     
-    /**
-     * Notes table
-     */
     public static final class FormsColumns implements BaseColumns {
         // This class cannot be instantiated
         private FormsColumns() {}
-
 
         public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/forms");
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.odk.form";
@@ -61,7 +54,5 @@ public final class FormsProviderAPI {
         
         // this is null on create, and can only be set on an update.
         public static final String LANGUAGE = "language";
-        
-        
     }
 }
