@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.models;
 
 import java.io.IOException;
@@ -63,7 +60,7 @@ public class AndroidSessionWrapper {
     protected int formRecordId = -1;
     protected int sessionStateRecordId = -1;
     
-    //These are only to be used by the local (not recoverable) session 
+    // These are only to be used by the local (not recoverable) session 
     private String instanceUri = null;
     private String instanceStatus = null;
 
@@ -101,7 +98,6 @@ public class AndroidSessionWrapper {
      * Clears out all of the elements of this wrapper which are for an individual traversal.
      * Includes any cached info (since the casedb might have changed) and the individual id's
      * and such.
-     * 
      */
     private void cleanVolatiles() {
         formRecordId = -1;
@@ -117,10 +113,16 @@ public class AndroidSessionWrapper {
         return session;
     }
 
+    /**
+     * Lookup the current form record in database
+     *
+     * @return FormRecord or null
+     */
     public FormRecord getFormRecord() {
-        if(formRecordId == -1) {
+        if (formRecordId == -1) {
             return null;
         }
+
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         return storage.read(formRecordId);
     }
@@ -133,6 +135,7 @@ public class AndroidSessionWrapper {
      * Registers the instance data returned from form entry about this session, and specifies
      * whether the returned data is complete 
      * 
+     * @param uri 
      * @param c A cursor which points to at least one record of an ODK instance.
      * @return True if the record in question was marked completed, false otherwise
      * @throws IllegalArgumentException If the cursor provided doesn't point to any records,
@@ -143,6 +146,7 @@ public class AndroidSessionWrapper {
             throw new IllegalArgumentException("Empty query for instance record!");
         }
 
+        // set local state
         instanceUri = uri.toString();
         instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
 
@@ -152,8 +156,9 @@ public class AndroidSessionWrapper {
 
     public FormRecord commitRecordTransaction() throws InvalidStateException {
         FormRecord current = getFormRecord();
+
         String recordStatus = null;
-        if(InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
+        if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
             recordStatus = FormRecord.STATUS_COMPLETE;
         } else {
             recordStatus = FormRecord.STATUS_INCOMPLETE;

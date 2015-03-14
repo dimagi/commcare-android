@@ -660,12 +660,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         // This is the state we were in when we _Started_ form entry
         FormRecord current = currentState.getFormRecord();
 
-        // See if we were viewing an old form, in which case we don't want to change the historical record
-        // regardless of the exit code
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
         if (FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
                 FormRecord.STATUS_SAVED.equals(current.getStatus()) ||
                 FormRecord.STATUS_UNSENT.equals(current.getStatus())) {
+            // Viewing an old form, so don't change the historical record
+            // regardless of the exit code
             currentState.reset();
             if (wasExternal) {
                 this.finish();
@@ -688,6 +688,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Cursor c = getContentResolver().query(resultInstanceURI, null, null, null, null);
             boolean complete = false;
             try {
+                // register the instance uri and its status with the session
                 complete = currentState.beginRecordTransaction(resultInstanceURI, c);
             } catch (IllegalArgumentException iae) {
                 iae.printStackTrace();

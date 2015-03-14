@@ -207,8 +207,9 @@ public class InstanceProvider extends ContentProvider {
         }
 
         if (!values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {
-            String text = getDisplaySubtext(InstanceProviderAPI.STATUS_INCOMPLETE);
-            values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
+            // set display subtext to detail save date
+            values.put(InstanceColumns.DISPLAY_SUBTEXT,
+                    getDisplaySubtext(InstanceProviderAPI.STATUS_INCOMPLETE));
         }
 
         if (!values.containsKey(InstanceColumns.STATUS)) {
@@ -217,6 +218,7 @@ public class InstanceProvider extends ContentProvider {
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(INSTANCES_TABLE_NAME, null, values);
+
         if (rowId > 0) {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
@@ -351,7 +353,7 @@ public class InstanceProvider extends ContentProvider {
             values.put(InstanceColumns.DISPLAY_SUBTEXT,
                     getDisplaySubtext(values.getAsString(InstanceColumns.STATUS)));
         }
-        
+
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
                 count = db.update(INSTANCES_TABLE_NAME, values, where, whereArgs);

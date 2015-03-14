@@ -120,6 +120,8 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
     /**
      * Update or create a new entry in the form table for the
+     * @param incomplete
+     * @param canEditAfterCompleted
      */
     private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted) {
         ContentValues values = new ContentValues();
@@ -135,14 +137,14 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         // update this whether or not the status is complete.
         values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(canEditAfterCompleted));
 
-        // Insert or update the form into the instance database.
+        // Insert or update the form instance into the database.
         if (context.getContentResolver().getType(mUri) == InstanceColumns.CONTENT_ITEM_TYPE) {
-            // If FormEntryActivity was started with a concrete instance (e.i.
-            // by editing an existing form) then update that instance.
+            // Started with a concrete instance (e.i. by editing an existing
+            // form), so just update it.
             context.getContentResolver().update(mUri, values, null, null);
         } else if (context.getContentResolver().getType(mUri) == FormsColumns.CONTENT_ITEM_TYPE) {
-            // Starting from an empty form or possibly a manually saved form.
-            // Try updating, and create a new instance if that fails
+            // Started with an empty form or possibly a manually saved form.
+            // Try updating, and create a new instance if that fails.
             String[] whereArgs = {FormEntryActivity.mInstancePath};
             int rowsUpdated = context.getContentResolver().update(instanceContentUri, values,
                     InstanceColumns.INSTANCE_FILE_PATH + "=?", whereArgs);
