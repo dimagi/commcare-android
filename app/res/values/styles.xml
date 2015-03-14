@@ -154,6 +154,8 @@
         <item name="android:padding">@dimen/content_start</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:clickable">false</item>
+        <item name="android:longClickable">false</item>
     </style>
 
 </resources>
