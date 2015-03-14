@@ -199,6 +199,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public static final String FORM_SAVED_FOR_KEY_SESSION_ENDING = "FormEntryActivity_form_saved_for_key_session_ending";
 
     private String mFormPath;
+    // Path to a particular form instance
     public static String mInstancePath;
     private String mInstanceDestination;
     private GestureDetector mGestureDetector;
