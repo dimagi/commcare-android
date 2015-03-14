@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/screen_first_start_main"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <!-- TODO: extract style definition -->
+    <ImageView
+        android:id="@+id/screen_first_start_banner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true"
+        android:layout_marginRight="20px"
+        android:maxHeight="135px"
+        android:maxWidth="663px"
+        android:paddingBottom="20px"
+        android:paddingLeft="20px"
+        android:paddingTop="20px"
+        android:layout_marginBottom="16dp"
+        android:scaleType="fitStart"
+        android:src="@drawable/ccbanner" />
+
+    <TextView
+        android:id="@+id/str_setup_message"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="Welcome to CommCare!\n Please choose an installation method below."
+        android:textSize="@dimen/text_small"
+        android:layout_below="@id/screen_first_start_banner"
+        />
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/mainLayout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_below="@id/screen_first_start_banner"-->
+        <!--android:layout_above="@+id/screen_first_start_bottom"-->
+                    <!--android:layout_gravity="top"-->
+            <!--android:gravity="top">-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/screen_first_start_middle"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="top"-->
+            <!--android:gravity="top"-->
+            <!--android:orientation="vertical" >-->
+
+            <!--<ScrollView-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content">-->
+
+               <!--<LinearLayout-->
+                   <!--android:id="@+id/message_panel"-->
+                   <!--android:layout_width="fill_parent"-->
+                   <!--android:layout_height="wrap_content"-->
+                   <!--android:orientation="vertical" >-->
+
+
+
+                <!--</LinearLayout>-->
+            <!--</ScrollView>-->
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/advanced_panel"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:orientation="vertical"-->
+                <!--android:visibility="gone" >-->
+
+                <!--<TextView-->
+                    <!--android:id="@+id/TextView02"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:text="Application Profile " />-->
+
+                <!--<RelativeLayout-->
+                    <!--android:id="@+id/spinner_panel"-->
+                    <!--android:layout_width="fill_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:orientation="horizontal"-->
+                    <!--android:weightSum="1" >-->
+
+                    <!--<Spinner-->
+                        <!--android:id="@+id/url_spinner"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_alignParentLeft="true"-->
+                        <!--android:entries="@array/url_list"-->
+                        <!--android:prompt="@string/url_prompt" />-->
+
+                    <!--<EditText-->
+                        <!--android:id="@+id/edit_profile_location"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_alignParentRight="true"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:layout_toRightOf="@id/url_spinner" >-->
+                    <!--</EditText>-->
+                <!--</RelativeLayout>-->
+            <!--</LinearLayout>-->
+        <!--</LinearLayout>-->
+    <!--</RelativeLayout>-->
+
+    <LinearLayout
+        android:id="@+id/screen_first_start_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/str_setup_message"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_fetch_uri"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/barcode"
+            android:gravity="center"
+            android:layout_weight="0.5"
+            android:text="Scan Application Barcode" />
+
+        <Button
+            android:id="@+id/enter_app_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/barcode"
+            android:layout_weight="0.5"
+            android:text="Enter App Location" />
+
+        <!--<Button-->
+            <!--android:id="@+id/start_over"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="fill_parent"-->
+            <!--android:drawableTop="@drawable/barcode"-->
+            <!--android:text="Start Over" />-->
+
+        <!-- unnecessary, if you found an url just install it -->
+        <!--<Button-->
+            <!--android:id="@+id/start_install"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Start Install" />-->
+
+        <!-- TODO: are we removing this too? -->
+        <!--<Button-->
+            <!--android:id="@+id/enter_app_location"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Enter App Location" />-->
+
+        <!--<Button-->
+            <!--android:id="@+id/view_notification"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="See More" />-->
+
+        <!--<Button-->
+            <!--android:id="@+id/retry_install"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Retry Installation" />-->
+
+    </LinearLayout>
+    
+        
+    <!--<Button-->
+        	<!--android:id="@+id/login_button"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:text="Login to Existing App" />-->
+
+</RelativeLayout>
