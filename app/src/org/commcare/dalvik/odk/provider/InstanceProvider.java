@@ -199,20 +199,19 @@ public class InstanceProvider extends ContentProvider {
             values = new ContentValues();
         }
 
-        Long now = Long.valueOf(System.currentTimeMillis());
 
         // Make sure that the fields are all set
-        if (values.containsKey(InstanceColumns.LAST_STATUS_CHANGE_DATE) == false) {
-            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, now);
+        if (!values.containsKey(InstanceColumns.LAST_STATUS_CHANGE_DATE)) {
+            // set the change date to now
+            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, Long.valueOf(System.currentTimeMillis()));
         }
 
-        if (values.containsKey(InstanceColumns.DISPLAY_SUBTEXT) == false) {
-            Date today = new Date();
-            String text = getDisplaySubtext(InstanceProviderAPI.STATUS_INCOMPLETE, today);
+        if (!values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {
+            String text = getDisplaySubtext(InstanceProviderAPI.STATUS_INCOMPLETE);
             values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
         }
-        
-        if (values.containsKey(InstanceColumns.STATUS) == false) {
+
+        if (!values.containsKey(InstanceColumns.STATUS)) {
             values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
@@ -226,9 +225,15 @@ public class InstanceProvider extends ContentProvider {
 
         throw new SQLException("Failed to insert row into " + uri);
     }
-    
-    private String getDisplaySubtext(String state, Date date) {
-        String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(date);
+
+    /**
+     * Create display subtext for current date and time
+     *
+     * @param state is the status column of an instance entry
+     */
+    private String getDisplaySubtext(String state) {
+        String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(new Date());
+
         if (state == null) {
             return "Added on " + ts;
         } else if (InstanceProviderAPI.STATUS_INCOMPLETE.equalsIgnoreCase(state)) {
@@ -334,38 +339,27 @@ public class InstanceProvider extends ContentProvider {
      */
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+        int count;
+
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        int count;
-        String status = null;
+
+        // Given a value in the status column and none in the display subtext
+        // column, set the display subtext column from the status value.
+        if (values.containsKey(InstanceColumns.STATUS) &&
+                !values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {
+            values.put(InstanceColumns.DISPLAY_SUBTEXT,
+                    getDisplaySubtext(values.getAsString(InstanceColumns.STATUS)));
+        }
+        
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
-                if (values.containsKey(InstanceColumns.STATUS)) {
-                    status = values.getAsString(InstanceColumns.STATUS);
-                    
-                    if (values.containsKey(InstanceColumns.DISPLAY_SUBTEXT) == false) {
-                        Date today = new Date();
-                        String text = getDisplaySubtext(status, today);
-                        values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
-                    }
-                }
-                
                 count = db.update(INSTANCES_TABLE_NAME, values, where, whereArgs);
                 break;
 
             case INSTANCE_ID:
                 String instanceId = uri.getPathSegments().get(1);
 
-                if (values.containsKey(InstanceColumns.STATUS)) {
-                    status = values.getAsString(InstanceColumns.STATUS);
-                    
-                    if (values.containsKey(InstanceColumns.DISPLAY_SUBTEXT) == false) {
-                        Date today = new Date();
-                        String text = getDisplaySubtext(status, today);
-                        values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
-                    }
-                }
-               
                 count =
                     db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
                             + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
