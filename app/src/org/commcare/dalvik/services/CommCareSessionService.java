@@ -84,6 +84,13 @@ public class CommCareSessionService extends Service  {
     // to be closed down.
     public static final String KEY_SESSION_ENDING = "CommCareSessionService_key_session_ending";
 
+    // How long to wait until we force the session to finish logging out
+    private static final long LOGOUT_TIMEOUT = 3000;
+
+    // The logout process start time, used to wrap up logging out if
+    // the saving of incomplete forms takes too long
+    private long logoutStartedAt = -1;
+
     // Receiver that processes when a form has been saved due to the key
     // session expiring.
     private BroadcastReceiver formSavedForKeySessionEndingReceiver;
@@ -289,15 +296,26 @@ public class CommCareSessionService extends Service  {
     }
     
     private void maintenance() {
-        boolean logout = false;
         long time = new Date().getTime();
-        // If we're either past the session expire time, or the session expires more than its period in the future,
-        // we need to log the user out. The second case occurs if the system's clock is altered.
-        if(time > sessionExpireDate.getTime() || (sessionExpireDate.getTime() - time  > SESSION_LENGTH )) { 
-            logout = true;
+
+        // If logout process started and has taken longer than the logout
+        // timeout then wrap-up the process. This is especially necessary since
+        // if the FormEntryActivity  isn't active then it will never launch
+        // finishLogout upon receiving the KEY_SESSION_ENDING broadcast 
+        if (logoutStartedAt != -1 &&
+                time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
+            finishLogout();
         }
-        
-        if(logout) {
+
+        // If we haven't started logging out and we're either past the session
+        // expire time, or the session expires more than its period in the
+        // future, we need to log the user out. The second case occurs if the
+        // system's clock is altered.
+        if (isLoggedIn() && 
+                logoutStartedAt == -1 &&
+                (time > sessionExpireDate.getTime() || 
+                 (sessionExpireDate.getTime() - time  > SESSION_LENGTH ))) {
+            logoutStartedAt = new Date().getTime();
             startLogout();
             showLoggedOutNotification();
         }
@@ -322,9 +340,6 @@ public class CommCareSessionService extends Service  {
         };
         registerReceiver(formSavedForKeySessionEndingReceiver,
                 new IntentFilter(FormEntryActivity.FORM_SAVED_FOR_KEY_SESSION_ENDING));
-
-        // TODO: launch finishLogout if we haven't heard back from
-        // FormEntryActivity in a set amount of time
     }
 
     /**
@@ -360,6 +375,7 @@ public class CommCareSessionService extends Service  {
             if (maintenanceTimer != null) {
                 maintenanceTimer.cancel();
             }
+            logoutStartedAt = -1;
 
             pool.expire();
             this.stopForeground(true);
@@ -403,8 +419,7 @@ public class CommCareSessionService extends Service  {
     
     public boolean isLoggedIn() {
         synchronized(lock){
-            if(key == null) { return false;}
-            return true;
+            return (key != null);
         }
     }
     
