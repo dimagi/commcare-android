@@ -3,4 +3,9 @@
         <attr name="ratio_width" format="float" />
         <attr name="ratio_height" format="float" />
     </declare-styleable>
+    <declare-styleable name="SquareButtonWithText">
+        <attr name="backgroundcolor" format="reference|color" />
+        <attr name="subtitle" format="string" />
+        <attr name="img" format="reference" />
+    </declare-styleable>
 </resources>
