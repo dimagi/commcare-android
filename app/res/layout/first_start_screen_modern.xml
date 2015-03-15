@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/screen_first_start_main"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+                xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+                android:id="@+id/screen_first_start_main"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical">
 
     <!-- TODO: extract style definition -->
     <ImageView
@@ -114,23 +115,42 @@
         android:layout_below="@+id/str_setup_message"
         android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/btn_fetch_uri"
-            android:layout_width="0dp"
+        <org.commcare.android.view.SquareButtonWithText
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableTop="@drawable/barcode"
-            android:gravity="center"
-            android:layout_weight="0.5"
-            android:text="Scan Application Barcode" />
-
-        <Button
-            android:id="@+id/enter_app_location"
-            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            SquareButtonWithText:subtitle="Scan application barcode"
+            SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
+            SquareButtonWithText:img="@drawable/barcode"
+            />
+        <org.commcare.android.view.SquareButtonWithText
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableTop="@drawable/barcode"
-            android:layout_weight="0.5"
-            android:text="Enter App Location" />
+            android:layout_weight="1"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            SquareButtonWithText:subtitle="Enter URL"
+            SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
+            SquareButtonWithText:img="@drawable/icon_new"
+            />
 
+        <!--<RelativeLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!-->-->
+        <!--<org.commcare.android.view.SquareButton-->
+            <!--android:id="@+id/enter_app_location"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/icon_new"-->
+            <!--android:layout_marginLeft="8dp"-->
+            <!--android:layout_marginRight="16dp"-->
+            <!--android:background="@color/cc_light_cool_accent_color"-->
+            <!--android:text="Enter URL" />-->
+<!--</RelativeLayout>-->
         <!--<Button-->
             <!--android:id="@+id/start_over"-->
             <!--android:layout_width="wrap_content"-->
