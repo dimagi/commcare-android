@@ -734,8 +734,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     }
                 }
 
-                // We're honoring in order submissions, now, so trigger a full submission
-                // cycle
+                // We're honoring in order submissions, now, so trigger a full
+                // submission cycle
                 checkAndStartUnsentTask(false);
 
                 refreshView();
@@ -747,8 +747,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // Before we can terminate the session, we need to know that the form has been processed
                 // in case there is state that depends on it.
                 if (!currentState.terminateSession()) {
-                    // If we didn't find somewhere to go,
-                    // we're gonna stay here
+                    // If we didn't find somewhere to go, we're gonna stay here
                     return;
                 }
                 // Otherwise, we want to keep proceeding in order
@@ -771,19 +770,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 this.finish();
                 currentState.reset();
                 return;
+            } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
+                // We should head back to the incomplete forms screen
+                currentState.reset();
+                goToFormArchive(true, current);
+                return;
             } else {
-                if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
-                    // We should head back to the incomplete forms screen
-                    currentState.reset();
-                    goToFormArchive(true, current);
-                    return;
-                } else {
-                    // If we cancelled form entry from a normal menu entry
-                    // we want to go back to where were were right before we started
-                    // entering the form.
-                    currentState.getSession().stepBack();
-                    currentState.setFormRecordId(-1);
-                }
+                // If we cancelled form entry from a normal menu entry
+                // we want to go back to where were were right before we started
+                // entering the form.
+                currentState.getSession().stepBack();
+                currentState.setFormRecordId(-1);
             }
         }
     }
