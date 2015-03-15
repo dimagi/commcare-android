@@ -70,11 +70,4 @@ public class SquareButtonWithText extends RelativeLayout {
 
         inflateAndExtractCustomParams(context, attrs);
     }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public SquareButtonWithText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-
-        inflateAndExtractCustomParams(context, attrs);
-    }
 }
