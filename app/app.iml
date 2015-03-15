@@ -25,7 +25,6 @@
     <orderEntry type="module" module-name="backend" />
     <orderEntry type="module" module-name="cases" />
     <orderEntry type="module" module-name="core" />
-    <orderEntry type="module" module-name="appcompat" />
     <orderEntry type="library" name="android-support-v7-appcompat" level="project" />
     <orderEntry type="library" name="android-support-v42" level="project" />
   </component>
