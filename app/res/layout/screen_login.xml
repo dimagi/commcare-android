@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" 
-    android:id="@+id/screen_login_main">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/screen_login_main">
 
-    <LinearLayout
-        android:id="@+id/screen_login_bottom_pane"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" android:layout_alignParentBottom="true">
+    <!--<LinearLayout-->
+    <!--android:id="@+id/screen_login_bottom_pane"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:orientation="vertical" android:layout_alignParentBottom="true">-->
 
-        <TextView
-            android:id="@+id/str_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/VersionIdText" />
+    <!--<TextView-->
+    <!--android:id="@+id/str_version"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:textAppearance="@style/VersionIdText" />-->
 
-        <Button
-            android:id="@+id/login_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:nextFocusUp="@+id/edit_password" />
-    </LinearLayout>
+    <!--<Button-->
+    <!--android:id="@+id/login_button"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom"-->
+    <!--android:nextFocusUp="@+id/edit_password" />-->
+    <!--</LinearLayout>-->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/screen_login_bottom_pane"
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
 
@@ -51,71 +50,87 @@
             android:layout_weight=".8"
             android:gravity="center_vertical"
             android:orientation="vertical">
-            
-            <ScrollView
+
+            <!--<ScrollView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp"
+                android:paddingLeft="@dimen/login_box_margins"
+                android:paddingRight="@dimen/login_box_margins" >
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingBottom="4dp"
-                    android:paddingLeft="@dimen/login_box_margins"
-                    android:paddingRight="@dimen/login_box_margins" >
+                    android:text="Welcome back! Please log in."
+                    android:layout_gravity="center"
+                    android:layout_margin="16dp"
+                    android:textSize="16dp"
+                    />
 
-            <TextView
-                android:id="@+id/text_username"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:text="@+id/TextView02" />
+                <!-- TODO: add event handlers for when this gets filled / erased -->
+                <EditText
+                    android:id="@+id/edit_username"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:nextFocusDown="@+id/edit_password" android:contentDescription="Username"
+                    android:drawableLeft="@drawable/ic_account_box_grey600_24dp"
+                    android:background="@drawable/login_edit_text"
+                    style="@style/LoginEditTextV2"
+                    android:text="Username"
+                    >
 
-            <!-- TODO: add event handlers for when this gets filled / erased -->
-            <EditText
-                android:id="@+id/edit_username"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:nextFocusDown="@+id/edit_password" android:contentDescription="Username"
-                android:drawableLeft="@drawable/ic_account_box_grey600_24dp"
-                android:background="@drawable/login_edit_text"
-                style="@style/LoginEditTextV2"
-                android:text="Username"
-                >
+                    <requestFocus />
+                </EditText>
 
-                <requestFocus />
-            </EditText>
+                <!-- TODO: add event handlers for when this gets filled / erased -->
+                <EditText
+                    android:id="@+id/edit_password"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textVisiblePassword"
+                    android:nextFocusDown="@+id/checkserver"
+                    android:nextFocusUp="@+id/edit_username"
+                    android:drawableLeft="@drawable/ic_lock_grey600_24dp"
+                    android:background="@drawable/login_edit_text"
+                    style="@style/LoginEditTextV2"
+                    android:text="Password"
+                    />
 
-            <TextView
-                android:id="@+id/text_password"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_horizontal"
-                android:text="@+id/TextView03" />
+                <TextView
+                    android:id="@+id/screen_login_bad_password"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Incorrect Username or Password"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:textColor="@color/red"
+                    android:textStyle="bold"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center"/>
 
-            <!-- TODO: add event handlers for when this gets filled / erased -->
-            <EditText
-                android:id="@+id/edit_password"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textVisiblePassword"
-                android:nextFocusDown="@+id/checkserver"
-                android:nextFocusUp="@+id/edit_username"
-                android:drawableLeft="@drawable/ic_lock_grey600_24dp"
-                android:background="@drawable/login_edit_text"
-                style="@style/LoginEditTextV2"
-                android:text="Password"
-                />
-
-            <TextView
-                android:id="@+id/screen_login_bad_password"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="Incorrect Username or Password" android:background="@drawable/bubble_danger" android:paddingTop="2dp" android:paddingBottom="2dp" android:textColor="@color/red" android:textStyle="bold" android:visibility="gone" android:layout_marginLeft="2dp" android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_marginRight="2dp" android:gravity="center"/>
+                <Button
+                    android:id="@+id/login_button"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:textColor="@color/cc_neutral_bg"
+                    android:background="@color/cc_brand_color"
+                    android:text="Login"
+                    android:nextFocusUp="@+id/edit_password" />
             </LinearLayout>
-            
-            </ScrollView>
+
+            <!--</ScrollView>-->
 
         </LinearLayout>
 
