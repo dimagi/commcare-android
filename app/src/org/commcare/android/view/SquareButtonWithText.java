@@ -28,6 +28,8 @@ public class SquareButtonWithText extends RelativeLayout {
     int backgroundColor = android.R.drawable.btn_default;
     String text = "";
 
+    //region Custom parameter processing
+
     private void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
         inflate(context, R.layout.square_button_text, this);
 
@@ -54,6 +56,18 @@ public class SquareButtonWithText extends RelativeLayout {
         squareButton.setImageDrawable(backgroundImg);
         textView.setText(text);
     }
+
+    //endregion
+
+    //region Compatibility methods
+
+    public void setText(String text){
+        if (textView != null) {
+            textView.setText(text);
+        }
+    }
+
+    //endregion
 
     public SquareButtonWithText(Context context) {
         super(context);
