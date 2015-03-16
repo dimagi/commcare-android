@@ -11,6 +11,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localizer;
 import org.odk.collect.android.utilities.FileUtils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +20,7 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 /**
  * Utilities for converting CommCare UI diplsay details into Android objects 
@@ -80,5 +82,12 @@ public class ViewUtil {
             }
         }
         return null;
+    }
+
+    public static void hideVirtualKeyboard(Activity activity){
+        InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        inputManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
     }
 }
