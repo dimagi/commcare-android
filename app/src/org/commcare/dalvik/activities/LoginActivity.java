@@ -26,11 +26,14 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,14 +55,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static String ALREADY_LOGGED_IN = "la_loggedin";
-    
+
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
     
-    @UiElement(value=R.id.text_username, locale="login.username")
-    TextView userLabel;
-    @UiElement(value=R.id.text_password, locale="login.password")
-    TextView passLabel;
+//    @UiElement(value=R.id.text_username, locale="login.username")
+//    TextView userLabel;
+//    @UiElement(value=R.id.text_password, locale="login.password")
+//    TextView passLabel;
     @UiElement(R.id.screen_login_bad_password)
     TextView errorBox;
     
@@ -78,7 +81,24 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     public static final int TASK_KEY_EXCHANGE = 1;
     
     SqlStorage<UserKeyRecord> storage;
-    
+
+    private int editTextColor;
+    private View.OnKeyListener l;
+    private final TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                setLoginBoxesColor(editTextColor, false);
+            }
+        };
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -87,6 +107,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        editTextColor = username.getCurrentTextColor();
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         
         //Only on the initial creation
@@ -97,11 +118,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                 password.requestFocus();
             }
         }
+
+        final Activity loginAct = this;
         
         login.setOnClickListener(new OnClickListener() {
 
             public void onClick(View arg0) {
                 errorBox.setVisibility(View.GONE);
+                ViewUtil.hideVirtualKeyboard(loginAct);
                 //Try logging in locally
                 if(tryLocalLogin(false)) {
                     return;
@@ -110,7 +134,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                 startOta();
             }
         });
-        
+
+        username.addTextChangedListener(textWatcher);
+        password.addTextChangedListener(textWatcher);
+
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
         
         
@@ -446,13 +473,21 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         }
         
         //either way
+        setLoginBoxesColor(R.color.cc_attention_negative_color, true);
+
         errorBox.setVisibility(View.VISIBLE);
         errorBox.setText(toastText);
         
         Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
     }
-    
-    
+
+    private void setLoginBoxesColor(int colorId, boolean resolve) {
+        int color = resolve ? getResources().getColor(colorId) : colorId;
+        username.setTextColor(color);
+        password.setTextColor(color);
+    }
+
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)

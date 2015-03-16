@@ -4,17 +4,17 @@
                 android:layout_height="match_parent"
                 android:id="@+id/screen_login_main">
 
-    <!--<LinearLayout-->
-    <!--android:id="@+id/screen_login_bottom_pane"-->
-    <!--android:layout_width="fill_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:orientation="vertical" android:layout_alignParentBottom="true">-->
+    <LinearLayout
+    android:id="@+id/screen_login_bottom_pane"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" android:layout_alignParentBottom="true">
 
-    <!--<TextView-->
-    <!--android:id="@+id/str_version"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:textAppearance="@style/VersionIdText" />-->
+    <TextView
+    android:id="@+id/str_version"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textAppearance="@style/VersionIdText" />
 
     <!--<Button-->
     <!--android:id="@+id/login_button"-->
@@ -22,7 +22,7 @@
     <!--android:layout_height="wrap_content"-->
     <!--android:layout_gravity="bottom"-->
     <!--android:nextFocusUp="@+id/edit_password" />-->
-    <!--</LinearLayout>-->
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -72,7 +72,6 @@
                     android:textSize="16dp"
                     />
 
-                <!-- TODO: add event handlers for when this gets filled / erased -->
                 <EditText
                     android:id="@+id/edit_username"
                     android:layout_width="fill_parent"
@@ -82,31 +81,32 @@
                     android:drawableLeft="@drawable/ic_account_box_grey600_24dp"
                     android:background="@drawable/login_edit_text"
                     style="@style/LoginEditTextV2"
-                    android:text="Username"
+                    android:hint="Username"
                     >
 
                     <requestFocus />
                 </EditText>
 
-                <!-- TODO: add event handlers for when this gets filled / erased -->
                 <EditText
                     android:id="@+id/edit_password"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textVisiblePassword"
+                    android:inputType="textPassword"
                     android:nextFocusDown="@+id/checkserver"
                     android:nextFocusUp="@+id/edit_username"
                     android:drawableLeft="@drawable/ic_lock_grey600_24dp"
                     android:background="@drawable/login_edit_text"
+                    android:layout_marginBottom="8dp"
                     style="@style/LoginEditTextV2"
-                    android:text="Password"
+                    android:hint="Password"
                     />
 
                 <TextView
                     android:id="@+id/screen_login_bad_password"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="Incorrect Username or Password"
+                    android:text="We couldn't find a user with this password. Please try another!"
+                    android:visibility="gone"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
                     android:textColor="@color/red"
@@ -115,7 +115,7 @@
                     android:paddingRight="5dp"
                     android:layout_marginLeft="2dp"
                     android:layout_marginRight="2dp"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
                     android:layout_marginBottom="24dp"
                     android:gravity="center"/>
 
@@ -127,7 +127,8 @@
                     android:textColor="@color/cc_neutral_bg"
                     android:background="@color/cc_brand_color"
                     android:text="Login"
-                    android:nextFocusUp="@+id/edit_password" />
+                    android:nextFocusUp="@+id/edit_password"
+                    />
             </LinearLayout>
 
             <!--</ScrollView>-->
