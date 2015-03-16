@@ -158,4 +158,10 @@
         <item name="android:longClickable">false</item>
     </style>
 
+    <style name="LoginEditTextV2">
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:textColor">@color/grey</item>
+    </style>
+
 </resources>
