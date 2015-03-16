@@ -184,7 +184,11 @@ public class GraphView {
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
-                ((RangeXYValueSeries) series).add(parseXValue(b.getX()), parseYValue(b.getY()), parseRadiusValue(b.getRadius()));
+                try {
+                    ((RangeXYValueSeries) series).add(parseXValue(b.getX()), parseYValue(b.getY()), parseRadiusValue(b.getRadius()));
+                } catch(NumberFormatException nfe){
+                    System.out.println("Number format exception: " + nfe.toString());
+                }
             }
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
                 ((TimeSeries) series).add(parseXValue(p.getX()), parseYValue(p.getY()));
