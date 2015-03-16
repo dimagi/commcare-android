@@ -62,4 +62,55 @@
     <color name="solid_dark_red">#BF3D3D</color>
     <color name="solid_dark_orange">#F57E20</color>
 
+    <!-- COMMCARE OFFICIAL COLOR PALETTE -->
+    <!-- Best Practices and Usage Notes (more HQ-specific at the moment) can be found at commcarehq.org/styleguide/colors/ -->
+    <!-- Text vs. Background are suggested labels. Invert if you want the darker background, but the two colors
+         provide a good contrast ratio for longform readablility. Where applicable use the _color value to
+         highlight / accent content for icons, layout elements, etc. _color is also good for heading text, or background of
+         buttons with WHITE text but avoid for longform / paragraph text. -->
+
+    <!-- Core -->
+    <color name="cc_core_bg">#F2F2F1</color>
+    <color name="cc_core_text">#181715</color>
+
+    <!-- Brand -->
+    <color name="cc_brand_color">#004EBC</color>
+    <color name="cc_brand_bg">#BCDEFF</color>
+    <color name="cc_brand_text">#002C5F</color>
+
+    <!-- Neutral -->
+    <color name="cc_neutral_color">#685C53</color>
+    <color name="cc_neutral_bg">#D6D6D4</color>
+    <color name="cc_neutral_text">#373534</color>
+
+    <!-- Attention Positive -->
+    <color name="cc_attention_positive_color">#47B700</color>
+    <color name="cc_attention_positive_bg">#D5EACA</color>
+    <color name="cc_attention_positive_text">#216F00</color>
+
+    <!-- Attention Negative -->
+    <color name="cc_attention_negative_color">#E53E30</color>
+    <color name="cc_attention_negative_bg">#EFCFCB</color>
+    <color name="cc_attention_negative_text">#812627</color>
+
+    <!-- Dark Cool Accent -->
+    <color name="cc_dark_cool_accent_color">#9060C8</color>
+    <color name="cc_dark_cool_accent_bg">#D6C5EA</color>
+    <color name="cc_dark_cool_accent_text">#5D3F82</color>
+
+    <!-- Light Cool Accent -->
+    <color name="cc_light_cool_accent_color">#00BDC5</color>
+    <color name="cc_light_cool_accent_bg">#CCF3F4</color>
+    <color name="cc_light_cool_accent_text">#00799A</color>
+
+    <!-- Dark Warm Accent -->
+    <color name="cc_dark_warm_accent_color">#FF8400</color>
+    <color name="cc_dark_warm_accent_bg">#FFE3C2</color>
+    <color name="cc_dark_warm_accent_text">#994f00</color>
+
+    <!-- Light Warm Accent -->
+    <color name="cc_light_warm_accent_color">#F9C700</color>
+    <color name="cc_light_warm_accent_bg">#F8ECBD</color>
+    <color name="cc_light_warm_accent_text">#685300</color>
+
 </resources>

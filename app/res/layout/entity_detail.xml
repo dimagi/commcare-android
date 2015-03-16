@@ -27,12 +27,10 @@
 	        android:id="@+id/entity_select_button"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        
 	        android:drawableRight="@drawable/icon_next"
-	        android:text="Select"
+	        android:text="Continue"
 	        android:textSize="@dimen/text_large" >
-
-</Button>
+		</Button>
 
 	</FrameLayout>
 		    

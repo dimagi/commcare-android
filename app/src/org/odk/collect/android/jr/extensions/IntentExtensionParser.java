@@ -37,6 +37,9 @@ public class IntentExtensionParser implements IElementHandler {
         String component = e.getAttributeValue(null, "component");
         String type = e.getAttributeValue(null, "type");
         String data = e.getAttributeValue(null, "data");
+        String appearance = e.getAttributeValue(null, "appearance");
+        
+        System.out.println("0123 extention parser appearance is: " + appearance);
         
         String label = e.getAttributeValue(null, "button-label");
 
@@ -65,7 +68,7 @@ public class IntentExtensionParser implements IElementHandler {
             }
         }
 
-        form.getExtension(AndroidXFormExtensions.class).registerIntent(id, new IntentCallout(className, extras, response, type, component, data, label));
+        form.getExtension(AndroidXFormExtensions.class).registerIntent(id, new IntentCallout(className, extras, response, type, component, data, label, appearance));
     }
 
 }

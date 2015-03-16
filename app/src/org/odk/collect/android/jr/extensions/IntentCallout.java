@@ -47,6 +47,9 @@ public class IntentCallout implements Externalizable {
     private String component;
     private String data;
     private String buttonLabel;
+    private boolean isQuick;
+    private boolean isCancelled;
+
     
     // Generic Extra from intent callout extensions
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
@@ -60,7 +63,8 @@ public class IntentCallout implements Externalizable {
     }
     
     public IntentCallout(String className, Hashtable<String, TreeReference> refs, Hashtable<String, TreeReference> responses, 
-            String type, String component, String data, String buttonLabel) {
+            String type, String component, String data, String buttonLabel, String appearance) {
+        
         this.className = className;
         this.refs = refs;
         this.responses = responses;
@@ -68,6 +72,8 @@ public class IntentCallout implements Externalizable {
         this.component = component;
         this.data = data;
         this.buttonLabel = buttonLabel;
+        isQuick = (appearance != null && appearance.equals("quick"));
+
     }
     
     protected void attachToForm(FormDef form) {
@@ -95,7 +101,12 @@ public class IntentCallout implements Externalizable {
         return i;
     }
     
-    public void processResponse(Intent intent, ODKView currentView, FormInstance instance, File destination) {
+    public boolean processResponse(Intent intent, ODKView currentView, FormInstance instance, File destination) {
+        
+        if(intent == null){
+            return false;
+        }
+        
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
         ((ODKView) currentView).setBinaryData(result);
         
@@ -166,6 +177,8 @@ public class IntentCallout implements Externalizable {
             
             form.setValue(val == null ? null: AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
         }
+        if(result == null){return false;}
+        return true;
     }
 
     /*
@@ -177,6 +190,9 @@ public class IntentCallout implements Externalizable {
         className = ExtUtil.readString(in);
         refs = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
         responses = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
+        isQuick = ExtUtil.readBool(in);
+        component = ExtUtil.readString(in);
+        buttonLabel = ExtUtil.readString(in);
     }
 
     /*
@@ -188,10 +204,25 @@ public class IntentCallout implements Externalizable {
         ExtUtil.writeString(out, className);
         ExtUtil.write(out, new ExtWrapMap(refs));
         ExtUtil.write(out, new ExtWrapMap(responses));
+        ExtUtil.write(out, isQuick);
+        ExtUtil.write(out, component);
+        ExtUtil.write(out, buttonLabel);
     }
     
     public String getButtonLabel(){
         return buttonLabel;
     }
 
+    public boolean isQuickAppearance(){
+        return isQuick;
+    }
+
+    public void setCancelled(boolean cancelled){
+        this.isCancelled = cancelled;
+    }
+    
+    public boolean getCancelled(){
+        return isCancelled;
+    }
+    
 }

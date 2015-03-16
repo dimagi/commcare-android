@@ -8,8 +8,6 @@ import java.util.Vector;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.view.GridMediaView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
@@ -23,6 +21,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -57,8 +56,22 @@ public class MenuAdapter implements ListAdapter {
         
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
+        EvaluationContext ec = null;
         for(Suite s : platform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
+                try {
+                    XPathExpression relevance = m.getMenuRelevance();
+                    if (m.getMenuRelevance() != null) {
+                        if (ec == null) {
+                            ec = asw.getEvaluationContext();
+                        }
+                        if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
+                            continue;
+                        }
+                    }
+                } catch (XPathSyntaxException e) {
+                    e.printStackTrace();
+                }
                 if(m.getId().equals(menuID)) {
                     
                     if(menuTitle == null) {
@@ -72,10 +85,12 @@ public class MenuAdapter implements ListAdapter {
                     
                     for(String command : m.getCommandIds()) {
                         try {
-                            XPathExpression mRelevantCondition = m.getRelevantCondition(m.indexOfCommand(command));
+                            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
                             if(mRelevantCondition != null) {                            
-                                EvaluationContext mEC = asw.getEvaluationContext();
-                                Object ret = mRelevantCondition.eval(mEC);
+                                if (ec == null) {
+                                    ec = asw.getEvaluationContext();
+                                }
+                                Object ret = mRelevantCondition.eval(ec);
                                 try {
                                     if(!XPathFuncExpr.toBoolean(ret)) {
                                         continue;
@@ -85,7 +100,7 @@ public class MenuAdapter implements ListAdapter {
                                     throw new RuntimeException("relevancy condition for menu item returned non-boolean value : " + ret);
                                     
                                 }
-                            if(!XPathFuncExpr.toBoolean(ret)) { continue;}
+                                if(!XPathFuncExpr.toBoolean(ret)) { continue;}
                             }
                             
                             Entry e = map.get(command);
@@ -100,12 +115,12 @@ public class MenuAdapter implements ListAdapter {
                             
                             items.add(e);
                         } catch(XPathSyntaxException xpse) {
-                            String xpathExpression = m.getRelevantConditionRaw(m.indexOfCommand(command));
+                            String xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
                             CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[] {xpathExpression, xpse.getMessage()}));
                             objectData = new Object[0];
                             return;
                         } catch(XPathException xpe) {
-                            String xpathExpression = m.getRelevantConditionRaw(m.indexOfCommand(command));
+                            String xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
                             CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[] {xpathExpression, xpe.getMessage()}));
                             objectData = new Object[0];
                             return;

@@ -6,6 +6,7 @@ import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -26,6 +27,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -41,7 +43,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;
-    private static final int CALL_OUT = 0;
     public static final String IS_DEAD_END = "eda_ide";
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
@@ -114,15 +115,9 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      
         try {
             next.setOnClickListener(new OnClickListener() {
-    
                 public void onClick(View v) {
-                    Intent i = new Intent(EntityDetailActivity.this.getIntent());
-                    loadOutgoingIntent(i);
-                    setResult(RESULT_OK, i);
-    
-                    finish();
+                    select();
                 }
-                
             });
             
             if(getIntent().getBooleanExtra(IS_DEAD_END, false)) {
@@ -183,7 +178,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode) {
-        case CALL_OUT:
+        case DetailCalloutListenerDefaultImpl.CALL_OUT:
             if(resultCode == RESULT_CANCELED) {
                 mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
                 return;
@@ -205,22 +200,52 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 
 
     public void callRequested(String phoneNumber) {
-        Intent intent = new Intent(getApplicationContext(), CallOutActivity.class);
-        intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
-        this.startActivityForResult(intent, CALL_OUT);
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
 
-
     public void addressRequested(String address) {
-        Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
-        startActivity(call);
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
     
     public void playVideo(String videoRef) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse(videoRef), "video/*");
-        startActivity(intent);
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
+     */
+    @Override
+    protected boolean onForwardSwipe() {
+        // Move along, provided we're on the last tab of tabbed case details
+        if (mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
+            select();
+            return true;
+        }
+        return false;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
+     */
+    @Override
+    protected boolean onBackwardSwipe() {
+        // Move back, provided we're on the first screen of tabbed case details
+        if (mDetailView.getCurrentTab() < 1) {
+            finish();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Move along to form entry.
+     */
+    private void select() {
+        Intent i = new Intent(EntityDetailActivity.this.getIntent());
+        loadOutgoingIntent(i);
+        setResult(RESULT_OK, i);
+        finish();
+    }
 }
