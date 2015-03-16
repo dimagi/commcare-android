@@ -71,12 +71,18 @@
                 android:gravity="left"
                 android:text="@+id/TextView02" />
 
+            <!-- TODO: add event handlers for when this gets filled / erased -->
             <EditText
                 android:id="@+id/edit_username"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:nextFocusDown="@+id/edit_password" android:contentDescription="Username">
+                android:nextFocusDown="@+id/edit_password" android:contentDescription="Username"
+                android:drawableLeft="@drawable/ic_account_box_grey600_24dp"
+                android:background="@drawable/login_edit_text"
+                style="@style/LoginEditTextV2"
+                android:text="Username"
+                >
 
                 <requestFocus />
             </EditText>
@@ -88,14 +94,19 @@
                 android:gravity="left|center_horizontal"
                 android:text="@+id/TextView03" />
 
+            <!-- TODO: add event handlers for when this gets filled / erased -->
             <EditText
                 android:id="@+id/edit_password"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="-4dp"
-                android:inputType="textPassword"
+                android:inputType="textVisiblePassword"
                 android:nextFocusDown="@+id/checkserver"
-                android:nextFocusUp="@+id/edit_username" />
+                android:nextFocusUp="@+id/edit_username"
+                android:drawableLeft="@drawable/ic_lock_grey600_24dp"
+                android:background="@drawable/login_edit_text"
+                style="@style/LoginEditTextV2"
+                android:text="Password"
+                />
 
             <TextView
                 android:id="@+id/screen_login_bad_password"
