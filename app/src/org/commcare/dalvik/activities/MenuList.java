@@ -69,7 +69,8 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
            header = (TextView) getLayoutInflater().inflate(R.layout.menu_list_header, null);
        }
        header.setText(BreadcrumbBarFragment.getBestTitle(this));
-       list.addHeaderView(header);
+       // header must not be clickable
+       list.addHeaderView(header, null, false);
        
        adapter = new MenuAdapter(this,platform,menuId);
        refreshView();
