@@ -420,7 +420,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             return;
         }
         
-        
         try {
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
@@ -604,6 +603,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     break;
                 }
             case MODEL_RESULT:
+                // TODO: it is possible that we are returning here from
+                // FormEntryActivity after saving a form due to the session
+                // closing. If that is the cause we need to re-login. There
+                // should be a better way to dispatch the login screen, but I
+                // don't know how to do it. -- PLM
+                if (!CommCareApplication._().getSession().isLoggedIn()) {
+                    returnToLogin();
+                }
+
                 processReturnFromFormEntry(resultCode, intent);
                 break;
             }             
@@ -657,8 +665,25 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         // TODO: We might need to load this from serialized state?
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 
+        // TODO: refactor this into a method -- PLM
+        Uri resultInstanceURI = intent.getData();
+        if (resultInstanceURI == null) {
+            showFormEntryError("Error while trying to read the form! See the notification",
+                    "Form Entry did not return a form",
+                    currentState);
+            return;
+        }
+        Cursor c = getContentResolver().query(resultInstanceURI, null, null, null, null);
+        if (!c.moveToFirst()) {
+            throw new IllegalArgumentException("Empty query for instance record!");
+        }
+        String instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
+        // was the record marked complete?
+        boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
+
         // This is the state we were in when we _Started_ form entry
         FormRecord current = currentState.getFormRecord();
+
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
         if (FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
@@ -677,6 +702,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         if (resultCode == RESULT_OK) {
+            /*
             Uri resultInstanceURI = intent.getData();
             if (resultInstanceURI == null) {
                 showFormEntryError("Error while trying to read the form! See the notification",
@@ -733,6 +759,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                     }
                 }
+                // XXX PLM after here, we need
 
                 // We're honoring in order submissions, now, so trigger a full
                 // submission cycle
@@ -757,6 +784,37 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 clearSessionAndExit(currentState);
                 return;
             }
+        */
+            // The form is either ready for processing, or not, depending on how it was saved
+
+            // Figure out if a saved form is complete
+
+            if (complete) {
+                // We're honoring in order submissions, now, so trigger a full
+                // submission cycle
+                checkAndStartUnsentTask(false);
+
+                refreshView();
+
+                if (wasExternal) {
+                    this.finish();
+                }
+
+                // XXX: probably refactor part of this logic into InstanceProvider -- PLM
+                // Before we can terminate the session, we need to know that the form has been processed
+                // in case there is state that depends on it.
+                if (!currentState.terminateSession()) {
+                    // If we didn't find somewhere to go, we're gonna stay here
+                    return;
+                }
+                // Otherwise, we want to keep proceeding in order
+                // to keep running the workflow
+            } else {
+                // Form record is now stored.
+                // XXX: the currentState is already reset in InstanceProvider -- PLM
+                clearSessionAndExit(currentState);
+                return;
+            }
         } else if (resultCode == RESULT_CANCELED) {
             Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
 
@@ -766,13 +824,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 FormRecordCleanupTask.wipeRecord(this, currentState);
             }
 
+            currentState.reset();
             if (wasExternal) {
                 this.finish();
-                currentState.reset();
                 return;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
                 // We should head back to the incomplete forms screen
-                currentState.reset();
                 goToFormArchive(true, current);
                 return;
             } else {
@@ -996,8 +1053,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         i.putExtra("instancedestination", CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
         
-        //See if there's existing form data that we want to continue entering (note, this should be stored in the form
-        ///record as a URI link to the instance provider in the future)
+        // See if there's existing form data that we want to continue entering
+        // (note, this should be stored in the form record as a URI link to
+        // the instance provider in the future)
         if(r.getInstanceURI() != null) {
             i.setData(r.getInstanceURI());
         } else {

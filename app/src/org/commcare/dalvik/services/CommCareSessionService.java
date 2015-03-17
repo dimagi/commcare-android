@@ -57,8 +57,8 @@ public class CommCareSessionService extends Service  {
     private static long MAINTENANCE_PERIOD = 1000;
     
     // duration in milliseconds that session remains valid after a user logs in
-    // private static long SESSION_LENGTH = 1000*60*60*24;
-    private static long SESSION_LENGTH = 1000 * 30;
+    private static long SESSION_LENGTH = 1000*60*60*24;
+    // private static long SESSION_LENGTH = 1000 * 30;
     
     private Timer maintenanceTimer;
     private CipherPool pool;

@@ -114,7 +114,7 @@ public class AndroidSessionWrapper {
     }
 
     /**
-     * Lookup the current form record in database
+     * Lookup the current form record in database using the form record id
      *
      * @return FormRecord or null
      */
@@ -416,11 +416,13 @@ public class AndroidSessionWrapper {
      * and pop a new frame from the stack, if one exists.
      */
     public boolean terminateSession() {
-        //Possible should re-name this one. We no longer go "home" by default. We might start a new session's frame.
-        
-        //CTS: note, this maybe should just be clearing volitiles either way (rather than cherry picking this one),
-        //but this is necessary to ensure that stack ops don't re-use the case casedb as the form if the form
-        //modified the case database before stack ops fire
+        // Possible should re-name this one. We no longer go "home" by default.
+        // We might start a new session's frame.
+
+        // CTS: note, this maybe should just be clearing volitiles either way
+        // (rather than cherry picking this one), but this is necessary to
+        // ensure that stack ops don't re-use the case casedb as the form if the
+        // form modified the case database before stack ops fire
         initializer = null;
         
         //TODO: should this section get wrapped up in the session, maybe?
@@ -435,7 +437,8 @@ public class AndroidSessionWrapper {
             session.executeStackOperations(ops, ec);
         }
         
-        //Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
+        // Ok, now we just need to figure out if it's time to go home, or time
+        // to fire up a new session from the stack
         if(session.finishAndPop()) {
             //We just built a new session stack into the session, so we want to keep that,
             //clear out the internal state vars, though.

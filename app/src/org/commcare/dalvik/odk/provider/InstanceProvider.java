@@ -29,8 +29,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.logic.FormRecordProcessor;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.javarosa.core.services.Logger;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -222,10 +230,79 @@ public class InstanceProvider extends ContentProvider {
         if (rowId > 0) {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
+            bindToFormRecord(instanceUri);
             return instanceUri;
         }
 
         throw new SQLException("Failed to insert row into " + uri);
+    }
+
+    private void bindToFormRecord(Uri instanceUri) {
+
+        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+
+        if (instanceUri == null) {
+            showFormEntryError("Error while trying to read the form! See the notification",
+                    "Form Entry did not return a form",
+                    currentState);
+            return;
+        }
+
+        Cursor c = getContext().getContentResolver().query(instanceUri, null, null, null, null);
+        boolean complete = false;
+        try {
+            // register the instance uri and its status with the session
+            complete = currentState.beginRecordTransaction(instanceUri, c);
+        } catch (IllegalArgumentException iae) {
+            iae.printStackTrace();
+            // TODO: Fail more hardcore here? Wipe the form record and its ties?
+            showFormEntryError("Error while trying to read the form! See the notification",
+                    "Unrecoverable error when trying to read form|" + iae.getMessage(),
+                    currentState);
+            return;
+        } finally {
+            c.close();
+        }
+
+        // TODO: Move this logic into the process task?
+        FormRecord current;
+        try {
+            current = currentState.commitRecordTransaction();
+        } catch (Exception e) {
+            // Something went wrong with all of the connections which should exist.
+            FormRecordCleanupTask.wipeRecord(getContext(), currentState);
+
+            // Notify the server of this problem (since we aren't going to crash)
+            ExceptionReportTask ert = new ExceptionReportTask();
+            ert.execute(e);
+
+            showFormEntryError("An error occurred: " + e.getMessage() + " and your data could not be saved.", "", currentState);
+            return;
+        }
+
+        Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Completed");
+
+        // The form is either ready for processing, or not, depending on how it was saved
+        if (complete) {
+            // Form record should now be up to date now and stored correctly.
+
+            // ctsims - App stack workflows require us to have processed _this_ specific form before
+            // we can move on, and that needs to be synchronous. We'll go ahead and try to process just
+            // this form before moving on. We'll catch any errors here and just eat them (since the
+            // task will also try the process and fail if it does.
+            if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
+                try {
+                    new FormRecordProcessor(getContext()).process(current);
+                } catch (Exception e) {
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+                }
+            }
+
+        } else {
+            // Form record is now stored.
+            currentState.reset();
+            return;
+        }
     }
 
     /**
@@ -371,6 +448,8 @@ public class InstanceProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
+
+        bindToFormRecord(uri);
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
@@ -390,6 +469,27 @@ public class InstanceProvider extends ContentProvider {
         sInstancesProjectionMap.put(InstanceColumns.STATUS, InstanceColumns.STATUS);
         sInstancesProjectionMap.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, InstanceColumns.LAST_STATUS_CHANGE_DATE);
         sInstancesProjectionMap.put(InstanceColumns.DISPLAY_SUBTEXT, InstanceColumns.DISPLAY_SUBTEXT);
+    }
+
+    // TODO: duplicate from HomeActivity
+
+    /**
+     * Show FormEntry-related errors to users and log, then clean-up session
+     *
+     * @param toastText String sent to toast pop-up notification
+     * @param loggerText String sent to javarosa logger
+     * @param currentState session to be cleared
+     */
+    private void showFormEntryError(String toastText, String loggerText, AndroidSessionWrapper currentState) {
+        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
+        // Toast.makeText(this, toastText, Toast.LENGTH_LONG);
+
+        // log non-empty strings
+        if (!"".equals(loggerText)) {
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, loggerText);
+        }
+
+        currentState.reset();
     }
 
 }
