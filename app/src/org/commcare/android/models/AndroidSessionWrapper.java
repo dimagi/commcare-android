@@ -64,6 +64,8 @@ public class AndroidSessionWrapper {
     private String instanceUri = null;
     private String instanceStatus = null;
 
+    private boolean formEntryDataRegistered = false;
+
     public AndroidSessionWrapper(CommCarePlatform platform) {
         session = new CommCareSession(platform);
         this.platform = platform;
@@ -107,6 +109,7 @@ public class AndroidSessionWrapper {
         //CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly
         //we want to "update" the casedb rather than rebuild it, but this is safest for now.
         initializer = null;
+        formEntryDataRegistered = false;
     }
     
     public CommCareSession getSession() {
@@ -167,11 +170,12 @@ public class AndroidSessionWrapper {
         current = current.updateStatus(instanceUri, recordStatus);
 
         try {
+            formEntryDataRegistered = true;
             FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(CommCareApplication._(), platform, current, recordStatus);
             
             SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
             storage.write(updated);    
-            
+
             return updated;
         } catch (InvalidStructureException e1) {
             e1.printStackTrace();
@@ -190,6 +194,10 @@ public class AndroidSessionWrapper {
 
     public int getFormRecordId() {
         return formRecordId;
+    }
+
+    public boolean formRecordRegistered() {
+        return formEntryDataRegistered;
     }
     
     /**

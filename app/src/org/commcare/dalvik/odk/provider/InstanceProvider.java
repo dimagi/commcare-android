@@ -230,7 +230,6 @@ public class InstanceProvider extends ContentProvider {
         if (rowId > 0) {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
-            bindToFormRecord(instanceUri);
             return instanceUri;
         }
 
@@ -238,8 +237,11 @@ public class InstanceProvider extends ContentProvider {
     }
 
     private void bindToFormRecord(Uri instanceUri) {
-
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+
+        if (currentState.formRecordRegistered()) {
+            return;
+        }
 
         if (instanceUri == null) {
             showFormEntryError("Error while trying to read the form! See the notification",
@@ -442,6 +444,7 @@ public class InstanceProvider extends ContentProvider {
                 count =
                     db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
                             + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+                    bindToFormRecord(uri);
                 break;
 
             default:
@@ -449,7 +452,6 @@ public class InstanceProvider extends ContentProvider {
         }
 
 
-        bindToFormRecord(uri);
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
