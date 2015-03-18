@@ -64,7 +64,9 @@ public class AndroidSessionWrapper {
     private String instanceUri = null;
     private String instanceStatus = null;
 
-    private boolean formEntryDataRegistered = false;
+    // Has this session been registered with a form entry instance and
+    // connected that instance with the local form record?
+    private boolean formRecordIsRegistered = false;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
         session = new CommCareSession(platform);
@@ -109,7 +111,7 @@ public class AndroidSessionWrapper {
         //CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly
         //we want to "update" the casedb rather than rebuild it, but this is safest for now.
         initializer = null;
-        formEntryDataRegistered = false;
+        formRecordIsRegistered = false;
     }
     
     public CommCareSession getSession() {
@@ -137,8 +139,8 @@ public class AndroidSessionWrapper {
     /**
      * Registers the instance data returned from form entry about this session, and specifies
      * whether the returned data is complete 
-     * 
-     * @param uri 
+     *
+     * @param uri points to the instance we want to register with the session
      * @param c A cursor which points to at least one record of an ODK instance.
      * @return True if the record in question was marked completed, false otherwise
      * @throws IllegalArgumentException If the cursor provided doesn't point to any records,
@@ -157,6 +159,9 @@ public class AndroidSessionWrapper {
         return InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
     }
 
+    /**
+     * Update the session's form record status and link the record to an instance.
+     */
     public FormRecord commitRecordTransaction() throws InvalidStateException {
         FormRecord current = getFormRecord();
 
@@ -167,14 +172,17 @@ public class AndroidSessionWrapper {
             recordStatus = FormRecord.STATUS_INCOMPLETE;
         }
 
+        // update the form record to mirror the sessions instance uri and
+        // status.
         current = current.updateStatus(instanceUri, recordStatus);
 
+        // save the updated form record
         try {
-            formEntryDataRegistered = true;
+            formRecordIsRegistered = true;
             FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(CommCareApplication._(), platform, current, recordStatus);
-            
+
             SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-            storage.write(updated);    
+            storage.write(updated);
 
             return updated;
         } catch (InvalidStructureException e1) {
@@ -196,10 +204,14 @@ public class AndroidSessionWrapper {
         return formRecordId;
     }
 
+    /**
+     * Has the session been registered with a form entry instance and
+     * connected that instance with the session's form record?
+     */
     public boolean formRecordRegistered() {
-        return formEntryDataRegistered;
+        return formRecordIsRegistered;
     }
-    
+
     /**
      * A helper method to search for any saved sessions which match this current one
      *  
