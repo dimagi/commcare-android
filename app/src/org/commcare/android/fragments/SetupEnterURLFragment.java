@@ -70,9 +70,11 @@ public class SetupEnterURLFragment extends Fragment {
         String url = profileLocation.getText().toString();
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
         if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
-            return prefixURLSpinner.getSelectedItem() + url;
-        } else {
-            return url;
+            url = prefixURLSpinner.getSelectedItem() + "/" + url;
         }
+        if(!url.startsWith("http")){
+            url = "http://" + url;
+        }
+        return url;
     }
 }
