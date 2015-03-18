@@ -115,7 +115,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         }
 
         return SAVE_ERROR;
-
     }
 
     /**

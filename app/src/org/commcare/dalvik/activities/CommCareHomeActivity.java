@@ -609,13 +609,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // should be a better way to dispatch the login screen, but I
                 // don't know how to do it. -- PLM
                 if (!CommCareApplication._().getSession().isLoggedIn()) {
-                    returnToLogin();
-                }
+                    // clean-up some things in the state session
+                    // TODO: eventually do this inside of InstanceProvider
+                    CommCareApplication._().getCurrentSessionWrapper().reset();
 
-                processReturnFromFormEntry(resultCode, intent);
+                    returnToLogin();
+                } else {
+                    processReturnFromFormEntry(resultCode, intent);
+                }
                 break;
-            }             
-            
+            }
+
             startNextFetch();
             
         }
@@ -628,62 +632,18 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     /**
-     * clear local state in session session, and finish if was external is set,
-     * otherwise refesh the view.
-     */
-    private void clearSessionAndExit(AndroidSessionWrapper currentState) {
-        currentState.reset();
-        if (wasExternal) {
-            this.finish();
-        }
-        refreshView();
-    }
-
-    /**
-     * Show FormEntry-related errors to users and log, then clean-up session
+     * Process user returning home from the form entry activity.
+     * Triggers form submission cycle, cleans up some session state.
      *
-     * @param toastText String sent to toast pop-up notification
-     * @param loggerText String sent to javarosa logger
-     * @param currentState session to be cleared
-     */
-    private void showFormEntryError(String toastText, String loggerText, AndroidSessionWrapper currentState) {
-        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-        Toast.makeText(this, toastText, Toast.LENGTH_LONG);
-
-        // log non-empty strings
-        if (!"".equals(loggerText)) {
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, loggerText);
-        }
-
-        clearSessionAndExit(currentState);
-    }
-
-    /**
-     * Process returning home from the form entry activity.
+     * @param resultCode exit code of form entry activity
+     * @param intent points to form instance
      */
     private void processReturnFromFormEntry(int resultCode, Intent intent) {
         // TODO: We might need to load this from serialized state?
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 
-        // TODO: refactor this into a method -- PLM
-        Uri resultInstanceURI = intent.getData();
-        if (resultInstanceURI == null) {
-            showFormEntryError("Error while trying to read the form! See the notification",
-                    "Form Entry did not return a form",
-                    currentState);
-            return;
-        }
-        Cursor c = getContentResolver().query(resultInstanceURI, null, null, null, null);
-        if (!c.moveToFirst()) {
-            throw new IllegalArgumentException("Empty query for instance record!");
-        }
-        String instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
-        // was the record marked complete?
-        boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
-
         // This is the state we were in when we _Started_ form entry
         FormRecord current = currentState.getFormRecord();
-
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
         if (FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
@@ -702,93 +662,29 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         if (resultCode == RESULT_OK) {
-            /*
+            // Determine if the form instance is complete
+            // TODO: refactor this into a method -- PLM
             Uri resultInstanceURI = intent.getData();
             if (resultInstanceURI == null) {
-                showFormEntryError("Error while trying to read the form! See the notification",
-                        "Form Entry did not return a form",
-                        currentState);
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+                Toast.makeText(this,
+                        "Error while trying to read the form! See the notification",
+                        Toast.LENGTH_LONG);
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "Form Entry did not return a form");
+                clearSessionAndExit(currentState);
                 return;
             }
 
             Cursor c = getContentResolver().query(resultInstanceURI, null, null, null, null);
-            boolean complete = false;
-            try {
-                // register the instance uri and its status with the session
-                complete = currentState.beginRecordTransaction(resultInstanceURI, c);
-            } catch (IllegalArgumentException iae) {
-                iae.printStackTrace();
-                // TODO: Fail more hardcore here? Wipe the form record and its ties?
-                showFormEntryError("Error while trying to read the form! See the notification",
-                        "Unrecoverable error when trying to read form|" + iae.getMessage(),
-                        currentState);
-                return;
-            } finally {
-                c.close();
+            if (!c.moveToFirst()) {
+                throw new IllegalArgumentException("Empty query for instance record!");
             }
-
-            // TODO: Move this logic into the process task?
-            try {
-                current = currentState.commitRecordTransaction();
-            } catch (Exception e) {
-                // Something went wrong with all of the connections which should exist.
-                FormRecordCleanupTask.wipeRecord(this, currentState);
-
-                // Notify the server of this problem (since we aren't going to crash)
-                ExceptionReportTask ert = new ExceptionReportTask();
-                ert.execute(e);
-
-                showFormEntryError("An error occurred: " + e.getMessage() + " and your data could not be saved.", "", currentState);
-                return;
-            }
-
-            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Completed");
+            String instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
+            // was the record marked complete?
+            boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
 
             // The form is either ready for processing, or not, depending on how it was saved
-            if (complete) {
-                // Form record should now be up to date now and stored correctly.
-
-                // ctsims - App stack workflows require us to have processed _this_ specific form before
-                // we can move on, and that needs to be synchronous. We'll go ahead and try to process just
-                // this form before moving on. We'll catch any errors here and just eat them (since the
-                // task will also try the process and fail if it does.
-                if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
-                    try {
-                        new FormRecordProcessor(this).process(current);
-                    } catch (Exception e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error processing form. Should be recaptured during async processing: " + e.getMessage());
-                    }
-                }
-                // XXX PLM after here, we need
-
-                // We're honoring in order submissions, now, so trigger a full
-                // submission cycle
-                checkAndStartUnsentTask(false);
-
-                refreshView();
-
-                if (wasExternal) {
-                    this.finish();
-                }
-
-                // Before we can terminate the session, we need to know that the form has been processed
-                // in case there is state that depends on it.
-                if (!currentState.terminateSession()) {
-                    // If we didn't find somewhere to go, we're gonna stay here
-                    return;
-                }
-                // Otherwise, we want to keep proceeding in order
-                // to keep running the workflow
-            } else {
-                // Form record is now stored.
-                clearSessionAndExit(currentState);
-                return;
-            }
-        */
-            // The form is either ready for processing, or not, depending on how it was saved
-
-            // Figure out if a saved form is complete
-
             if (complete) {
                 // We're honoring in order submissions, now, so trigger a full
                 // submission cycle
@@ -811,11 +707,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // to keep running the workflow
             } else {
                 // Form record is now stored.
-                // XXX: the currentState is already reset in InstanceProvider -- PLM
+                // TODO: session state clearing might be something we want to
+                // do in InstanceProvider.bindToFormRecord.
                 clearSessionAndExit(currentState);
                 return;
             }
         } else if (resultCode == RESULT_CANCELED) {
+            // Nothing was saved during the form entry activity
+
             Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
 
             // If the form was unstarted, we want to wipe the record.
@@ -841,6 +740,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
         }
     }
+
+    /**
+     * clear local state in session session, and finish if was external is set,
+     * otherwise refesh the view.
+     */
+    private void clearSessionAndExit(AndroidSessionWrapper currentState) {
+        currentState.reset();
+        if (wasExternal) {
+            this.finish();
+        }
+        refreshView();
+    }
+
 
     private void showDemoModeWarning() {
         //TODO: How do we style this to "light"?

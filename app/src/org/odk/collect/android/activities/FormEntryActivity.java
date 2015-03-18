@@ -2774,11 +2774,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
+    /**
+     * {@inheritDoc}
+     *
+     * Display save status notification and exit or continue on in the form.
+     * If form entry is being saved because key session is expiring then
+     * broadcast the successful save.
+     *
      * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int)
-     * 
-     * Called by SavetoDiskTask if everything saves correctly.
      */
     @Override
     public void savingComplete(int saveStatus) {
@@ -2786,26 +2789,42 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
-            // NOTE: this doesn't do anything special when saveStatus is set to
-            // SavetoDiskTask.SAVE_ERROR
+            // Display save status notification
+            switch (saveStatus) {
+                case SaveToDiskTask.SAVED:
+                case SaveToDiskTask.SAVED_AND_EXIT:
+                    Toast.makeText(this,
+                            StringUtils.getStringRobust(this, R.string.data_saved_ok),
+                            Toast.LENGTH_SHORT).show();
+                    hasSaved = true;
+                    setResult(RESULT_OK);
+                    break;
+                case SaveToDiskTask.SAVE_ERROR:
+                    Toast.makeText(this,
+                            StringUtils.getStringRobust(this, R.string.data_saved_error),
+                            Toast.LENGTH_LONG)
+                    setResult(RESULT_CANCELED);
+                    break;
+                default:
+                    break;
+            }
 
-            // Send out intent saying that form state has been saved and
-            // CommCareSessionService can continue closing down key pool and
-            // user database.
+            // Send out intent saying that form state has been saved (or at
+            // least attempted to be saved) so CommCareSessionService can
+            // continue closing down key pool and user database.
             this.sendBroadcast(new Intent(FORM_SAVED_FOR_KEY_SESSION_ENDING));
 
             savingFormOnKeySessionExpiration = false;
 
             // Escape early since the user should either be redirected to login
             // page or the app isn't even being displayed.
-            hasSaved = true;
             finish();
         }
 
         switch (saveStatus) {
             case SaveToDiskTask.SAVED:
                 Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
-                        hasSaved = true;
+                hasSaved = true;
                 break;
             case SaveToDiskTask.SAVED_AND_EXIT:
                 Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
@@ -2904,7 +2923,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     /**
-     * Returns the instance that was just filled out to the calling activity, if requested.
+     * Returns the instance that was just filled out to the calling activity,
+     * if requested.
+     *
+     * @param reportSaved was a form saved? Delegates the result code of the
+     * activity
      */
     private void finishReturnInstance(boolean reportSaved) {
         String action = getIntent().getAction();
