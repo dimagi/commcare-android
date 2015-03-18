@@ -24,12 +24,15 @@ import java.io.IOException;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.tasks.ExceptionReportTask;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
@@ -146,6 +149,8 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 formBin.delete();
             }
         }
+        
+        // If we couldn't find a cached version, load the form from the XML
         if (fd == null) {
             // no binary, read from xml
             try {
@@ -156,8 +161,6 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 fd = XFormUtils.getFormFromInputStream(fis);
                 if (fd == null) {
                     mErrorMsg = "Error reading XForm file";
-                } else {
-                    serializeFormDef(fd, formPath);
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -171,8 +174,19 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             }
         }
 
+        //If we errored out, report back the issue
         if (mErrorMsg != null) {
             return null;
+        }
+        
+        // Try to write the form definition to a cached location
+        try {
+            serializeFormDef(fd, formPath);
+        } catch(Exception e) {
+            // The cache is a bonus, so if we can't write it, don't crash, but log 
+            // it so we can clean up whatever is preventing the cached version from
+            // working
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReportTask.getStackTrace(e));
         }
 
         fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler(context));
@@ -329,28 +343,34 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
 
     /**
-     * Write the FormDef to the file system as a binary blog.
+     * Write the FormDef to the file system as a binary blob.
      * 
      * @param filepath path to the form file
+     * @throws IOException 
      */
-    public void serializeFormDef(FormDef fd, String filepath) {
-        // calculate unique md5 identifier
+    public void serializeFormDef(FormDef fd, String filepath) throws IOException {
+        // calculate unique md5 identifier for this form
         String hash = FileUtils.getMd5Hash(new File(filepath));
         File formDef = new File(Collect.CACHE_PATH + "/" + hash + ".formdef");
 
-        // formdef does not exist, create one.
+        // create a serialized form file if there isn't already one at this hash
         if (!formDef.exists()) {
-            FileOutputStream fos;
+            FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(formDef);
                 DataOutputStream dos = new DataOutputStream(fos);
                 fd.writeExternal(dos);
                 dos.flush();
                 dos.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } finally {
+                //make sure we clean up the stream
+                if(fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        // there was already an error, this one is just cruft
+                    }
+                }
             }
         }
     }
