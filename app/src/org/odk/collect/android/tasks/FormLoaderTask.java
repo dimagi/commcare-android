@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -348,6 +349,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
      * @param filepath path to the form file
      * @throws IOException 
      */
+    @SuppressWarnings("resource")
     public void serializeFormDef(FormDef fd, String filepath) throws IOException {
         // calculate unique md5 identifier for this form
         String hash = FileUtils.getMd5Hash(new File(filepath));
@@ -355,20 +357,23 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
         // create a serialized form file if there isn't already one at this hash
         if (!formDef.exists()) {
-            FileOutputStream fos = null;
+            OutputStream outputStream = null;
             try {
-                fos = new FileOutputStream(formDef);
-                DataOutputStream dos = new DataOutputStream(fos);
+                outputStream = new FileOutputStream(formDef);
+                DataOutputStream dos;
+                outputStream = dos = new DataOutputStream(outputStream);
                 fd.writeExternal(dos);
                 dos.flush();
-                dos.close();
             } finally {
                 //make sure we clean up the stream
-                if(fos != null) {
+                if(outputStream != null) {
                     try {
-                        fos.close();
-                    } catch (IOException e) {
-                        // there was already an error, this one is just cruft
+                        outputStream.close();
+                    } catch (IOException e){
+                        // Swallow this. If we threw an exception from inside the 
+                        // try, this close exception will trump it on the return 
+                        // path, and we care a lot more about that exception
+                        // than this one.
                     }
                 }
             }
