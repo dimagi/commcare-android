@@ -402,9 +402,7 @@ public class InstanceProvider extends ContentProvider {
         }
 
         if (instanceUri == null) {
-            raiseFormEntryError("Error while trying to read the form! See the notification",
-                    "Form Entry did not return a form",
-                    currentState);
+            raiseFormEntryError("Form Entry did not return a form", currentState);
             return;
         }
 
@@ -416,8 +414,7 @@ public class InstanceProvider extends ContentProvider {
         } catch (IllegalArgumentException iae) {
             iae.printStackTrace();
             // TODO: Fail more hardcore here? Wipe the form record and its ties?
-            raiseFormEntryError("Error while trying to read the form! See the notification",
-                    "Unrecoverable error when trying to read form|" + iae.getMessage(),
+            raiseFormEntryError("Unrecoverable error when trying to read form|" + iae.getMessage(),
                     currentState);
             return;
         } finally {
@@ -436,7 +433,7 @@ public class InstanceProvider extends ContentProvider {
             ExceptionReportTask ert = new ExceptionReportTask();
             ert.execute(e);
 
-            raiseFormEntryError("An error occurred: " + e.getMessage() + " and your data could not be saved.", "", currentState);
+            raiseFormEntryError("An error occurred: " + e.getMessage() + " and your data could not be saved.", currentState);
             return;
         }
 

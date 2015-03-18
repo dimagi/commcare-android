@@ -2802,7 +2802,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 case SaveToDiskTask.SAVE_ERROR:
                     Toast.makeText(this,
                             StringUtils.getStringRobust(this, R.string.data_saved_error),
-                            Toast.LENGTH_LONG)
+                            Toast.LENGTH_LONG);
                     setResult(RESULT_CANCELED);
                     break;
                 default:
