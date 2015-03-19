@@ -1,4 +1,6 @@
+
 package org.commcare.dalvik.services;
+
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -376,6 +378,8 @@ public class CommCareSessionService extends Service  {
             }
             logoutStartedAt = -1;
 
+            unregisterReceiver(formSavedForKeySessionEndingReceiver);
+
             pool.expire();
             this.stopForeground(true);
         }
@@ -604,5 +608,4 @@ public class CommCareSessionService extends Service  {
     public void setMultiMediaVerified(boolean toggle){
         multimediaIsVerified = toggle;
     }
-
 }

@@ -1825,7 +1825,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mViewPane.addView(mCurrentView, lp);
 
         mCurrentView.startAnimation(mInAnimation);
-        if (mCurrentView instanceof ODKView)
+        if (mCurrentView instanceof ODKView) 
             ((ODKView) mCurrentView).setFocus(this);
         else {
             InputMethodManager inputManager =
@@ -2501,7 +2501,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     @Override
     protected void onPause() {
+        super.onPause();
+
         dismissDialogs();
+
         if (mCurrentView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
@@ -2512,8 +2515,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (mKeySessionCloseReceiver != null) {
             unregisterReceiver(mKeySessionCloseReceiver);
         }
-
-        super.onPause();
     }
 
 
