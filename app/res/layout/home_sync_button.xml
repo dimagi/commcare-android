@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.commcare.android.view.SquareButtonWithNotification
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="8dp"
+    android:layout_weight="1"
+    app:sbn_subtitle="Sync with server"
+    app:backgroundcolorButton="@color/bigday"
+    app:sbn_img="@drawable/sync"
+    app:notificationText="You have N pending items, and last synced with the server at SOMEDATE"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>
