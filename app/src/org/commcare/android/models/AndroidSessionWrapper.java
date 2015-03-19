@@ -64,10 +64,6 @@ public class AndroidSessionWrapper {
     private String instanceUri = null;
     private String instanceStatus = null;
 
-    // Has this session been registered with a form entry instance and
-    // connected that instance with the local form record?
-    private boolean formRecordIsRegistered = false;
-
     public AndroidSessionWrapper(CommCarePlatform platform) {
         session = new CommCareSession(platform);
         this.platform = platform;
@@ -111,7 +107,6 @@ public class AndroidSessionWrapper {
         //CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly
         //we want to "update" the casedb rather than rebuild it, but this is safest for now.
         initializer = null;
-        formRecordIsRegistered = false;
     }
     
     public CommCareSession getSession() {
@@ -178,7 +173,6 @@ public class AndroidSessionWrapper {
 
         // save the updated form record
         try {
-            formRecordIsRegistered = true;
             FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(CommCareApplication._(), platform, current, recordStatus);
 
             SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
@@ -202,14 +196,6 @@ public class AndroidSessionWrapper {
 
     public int getFormRecordId() {
         return formRecordId;
-    }
-
-    /**
-     * Has the session been registered with a form entry instance and
-     * connected that instance with the session's form record?
-     */
-    public boolean formRecordRegistered() {
-        return formRecordIsRegistered;
     }
 
     /**

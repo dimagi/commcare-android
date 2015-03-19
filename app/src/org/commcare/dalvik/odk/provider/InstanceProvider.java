@@ -226,6 +226,14 @@ public class InstanceProvider extends ContentProvider {
         if (rowId > 0) {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
+
+            try {
+                linkToSessionFormRecord(instanceUri);
+            } catch (Exception e) {
+                // TODO: correctly exit function with error code so that
+                // callers can propogate the failure
+            }
+
             return instanceUri;
         }
 
@@ -360,6 +368,7 @@ public class InstanceProvider extends ContentProvider {
                     getDisplaySubtext(values.getAsString(InstanceColumns.STATUS)));
         }
 
+
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
                 count = db.update(INSTANCES_TABLE_NAME, values, where, whereArgs);
@@ -371,20 +380,29 @@ public class InstanceProvider extends ContentProvider {
                 count =
                     db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
                             + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
-                try {
-                    bindToFormRecord(uri);
-                } catch (Exception e) {
-                    // TODO: correctly exit function with error code so that
-                    // callers can propogate the failure
-                }
                 break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
+        // If we've changed a particular form instance's status, and not
+        // created a new entry (hence count > 0 check), we need to mirror the
+        // change in that form's record.  NOTE: this conditional is crucial,
+        // since updating a form record in turn calls this update function, so
+        // we need to break the infinite loop by only updating the form record
+        // when the the status changes.
+        if (values.containsKey(InstanceColumns.STATUS) && count > 0) {
+            try {
+                linkToSessionFormRecord(uri);
+            } catch (Exception e) {
+                // TODO: correctly exit function with error code so that
+                // callers can propogate the failure
+            }
+        }
 
         getContext().getContentResolver().notifyChange(uri, null);
+
         return count;
     }
 
@@ -393,13 +411,8 @@ public class InstanceProvider extends ContentProvider {
      *
      * @param instanceUri points to a concrete instance we want to register
      */
-    private void bindToFormRecord(Uri instanceUri) {
+    private void linkToSessionFormRecord(Uri instanceUri) {
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
-
-        // abort if we have already performed this registration
-        if (currentState.formRecordRegistered()) {
-            return;
-        }
 
         if (instanceUri == null) {
             raiseFormEntryError("Form Entry did not return a form", currentState);
@@ -410,6 +423,10 @@ public class InstanceProvider extends ContentProvider {
         boolean complete = false;
         try {
             // register the instance uri and its status with the session
+            // NOTE: there is no safety checks preventing us from binding two
+            // different form instances to the form record found in the
+            // session. We just need to be careful to flush the session's form
+            // record before modifying a new form instance.
             complete = currentState.beginRecordTransaction(instanceUri, c);
         } catch (IllegalArgumentException iae) {
             iae.printStackTrace();
@@ -421,7 +438,6 @@ public class InstanceProvider extends ContentProvider {
             c.close();
         }
 
-        // TODO: Move this logic into the process task?
         FormRecord current;
         try {
             current = currentState.commitRecordTransaction();
