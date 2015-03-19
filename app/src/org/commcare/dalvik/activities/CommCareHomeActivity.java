@@ -644,7 +644,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         FormRecord current = currentState.getFormRecord();
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        /*
         if (FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
                 FormRecord.STATUS_SAVED.equals(current.getStatus()) ||
                 FormRecord.STATUS_UNSENT.equals(current.getStatus())) {
@@ -659,7 +658,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
             return;
         }
-        */
 
         if (resultCode == RESULT_OK) {
             // Determine if the form instance is complete
