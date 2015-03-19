@@ -8,4 +8,11 @@
         <attr name="subtitle" format="string" />
         <attr name="img" format="reference" />
     </declare-styleable>
+    <declare-styleable name="SquareButtonWithNotification">
+        <attr name="backgroundcolorButton" format="reference|color" />
+        <attr name="backgroundcolorNotification" format="reference|color" />
+        <attr name="sbn_subtitle" format="string" />
+        <attr name="notificationText" format="string" />
+        <attr name="sbn_img" format="reference" />
+    </declare-styleable>
 </resources>
