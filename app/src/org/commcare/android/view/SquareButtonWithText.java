@@ -50,9 +50,9 @@ public class SquareButtonWithText extends RelativeLayout {
     }
 
     private void setUI(int backgroundColor, Drawable backgroundImg, String text) {
-        squareButton.setBackgroundResource(backgroundColor);
-        squareButton.setImageDrawable(backgroundImg);
-        textView.setText(text);
+        setColor(backgroundColor);
+        setImage(backgroundImg);
+        setText(text);
     }
 
     //endregion
@@ -63,6 +63,14 @@ public class SquareButtonWithText extends RelativeLayout {
         if (textView != null) {
             textView.setText(text);
         }
+    }
+
+    public void setImage(Drawable backgroundImg) {
+        squareButton.setImageDrawable(backgroundImg);
+    }
+
+    public void setColor(int backgroundColor) {
+        squareButton.setBackgroundResource(backgroundColor);
     }
 
     //endregion
