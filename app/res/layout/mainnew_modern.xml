@@ -14,87 +14,24 @@
         android:adjustViewBounds="true"
         android:paddingTop="10dp"/>
 
-    <GridView
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <com.origamilabs.library.views.StaggeredGridView
         android:id="@+id/home_gridview_buttons"
         android:numColumns="2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:horizontalSpacing="8dp"
-        android:verticalSpacing="8dp"
         android:layout_margin="8dp"
+        android:layout_above="@+id/str_version"
+        app:itemMargin="8dp"
         />
-
-    <!--<LinearLayout-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="horizontal"-->
-        <!-->-->
-        <!--<LinearLayout-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:orientation="vertical"-->
-            <!--android:layout_weight="1"-->
-            <!-->-->
-
-            <!--<org.commcare.android.view.SquareButtonWithNotification-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_margin="8dp"-->
-                <!--android:layout_weight="1"-->
-                <!--app:sbn_subtitle="Start"-->
-                <!--app:backgroundcolorButton="@color/green"-->
-                <!--app:sbn_img="@drawable/pencil"-->
-                <!--/>-->
-            <!--<org.commcare.android.view.SquareButtonWithNotification-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_margin="8dp"-->
-                <!--android:layout_weight="1"-->
-                <!--app:sbn_subtitle="Saved forms"-->
-                <!--app:backgroundcolorButton="@color/bigday"-->
-                <!--app:sbn_img="@drawable/sync"-->
-                <!--app:notificationText="You have N pending items, and last synced with the server at SOMEDATE"-->
-                <!--/>-->
-
-            <!--<org.commcare.android.view.SquareButtonWithNotification-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_margin="8dp"-->
-                <!--android:layout_weight="1"-->
-                <!--app:sbn_subtitle="Start"-->
-                <!--app:backgroundcolorButton="@color/green"-->
-                <!--app:sbn_img="@drawable/pencil"-->
-                <!--/>-->
-
-            <!--</LinearLayout>-->
-
-        <!--<LinearLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:orientation="vertical"-->
-            <!--android:layout_weight="1"-->
-            <!-->-->
-
-            <!--<org.commcare.android.view.SquareButtonWithNotification-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_margin="8dp"-->
-                <!--android:layout_weight="1"-->
-                <!--app:sbn_subtitle="Saved forms"-->
-                <!--app:backgroundcolorButton="@color/blue_light"-->
-                <!--app:sbn_img="@drawable/notebook_full"-->
-                <!--/>-->
-            <!--<org.commcare.android.view.SquareButtonWithNotification-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_margin="8dp"-->
-                <!--android:layout_weight="1"-->
-                <!--app:sbn_subtitle="Incomplete forms"-->
-                <!--app:backgroundcolorButton="@color/solid_dark_orange"-->
-                <!--app:sbn_img="@drawable/notebook_incomplete"-->
-                <!--/>-->
-
-            <!--</LinearLayout>-->
-        <!--</LinearLayout>-->
-
+    <TextView
+        android:id="@+id/str_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/VersionIdText"
+        android:layout_alignParentBottom="true"
+        />
+    </RelativeLayout>
 </LinearLayout>
