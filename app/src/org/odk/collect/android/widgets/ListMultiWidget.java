@@ -1,20 +1,6 @@
 
 package org.odk.collect.android.widgets;
 
-import java.io.File;
-import java.util.Vector;
-
-import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectMultiData;
-import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.utilities.FileUtils;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -31,6 +17,21 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.SelectMultiData;
+import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.utilities.FileUtils;
+
+import java.io.File;
+import java.util.Vector;
+
 /**
  * ListMultiWidget handles multiple selection fields using check boxes. The check boxes are aligned
  * horizontally. They are typically meant to be used in a field list, where multiple questions with
@@ -39,7 +40,7 @@ import android.widget.TextView;
  * widget was at the top of your field list to provide the labels. If audio or video are specified
  * in the select answers they are ignored. This class is almost identical to ListWidget, except it
  * uses checkboxes. It also did not require a custom clickListener class.
- * 
+ *
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class ListMultiWidget extends QuestionWidget {
@@ -81,7 +82,7 @@ public class ListMultiWidget extends QuestionWidget {
         if (prompt.getAnswerValue() != null) {
             ve = (Vector<Selection>) getCurrentAnswer().getValue();
         }
-        
+
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
 
@@ -92,10 +93,10 @@ public class ListMultiWidget extends QuestionWidget {
 
                 // when clicked, check for readonly before toggling
                 c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                	/*
-                	 * (non-Javadoc)
-                	 * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
-                	 */
+                    /*
+                     * (non-Javadoc)
+                     * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
+                     */
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (!mCheckboxInit && mPrompt.isReadOnly()) {
@@ -124,8 +125,8 @@ public class ListMultiWidget extends QuestionWidget {
 
                 String imageURI = null;
                 imageURI =
-                    prompt.getSpecialFormSelectChoiceText(mItems.get(i),
-                        FormEntryCaption.TEXT_FORM_IMAGE);
+                        prompt.getSpecialFormSelectChoiceText(mItems.get(i),
+                                FormEntryCaption.TEXT_FORM_IMAGE);
 
                 // build image view (if an image is provided)
                 ImageView mImageView = null;
@@ -136,19 +137,19 @@ public class ListMultiWidget extends QuestionWidget {
                 if (imageURI != null) {
                     try {
                         String imageFilename =
-                            ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+                                ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                         final File imageFile = new File(imageFilename);
                         if (imageFile.exists()) {
                             Bitmap b = null;
                             try {
                                 Display display =
-                                    ((WindowManager) getContext().getSystemService(
-                                        Context.WINDOW_SERVICE)).getDefaultDisplay();
+                                        ((WindowManager) getContext().getSystemService(
+                                                Context.WINDOW_SERVICE)).getDefaultDisplay();
                                 int screenWidth = display.getWidth();
                                 int screenHeight = display.getHeight();
                                 b =
-                                    FileUtils.getBitmapScaledToDisplay(imageFile, screenHeight,
-                                        screenWidth);
+                                        FileUtils.getBitmapScaledToDisplay(imageFile, screenHeight,
+                                                screenWidth);
                             } catch (OutOfMemoryError e) {
                                 errorMsg = "ERROR: " + e.getMessage();
                             }
@@ -163,14 +164,14 @@ public class ListMultiWidget extends QuestionWidget {
                                 // An error hasn't been logged and loading the image failed, so it's
                                 // likely
                                 // a bad file.
-                                errorMsg = Localization.get("odk_file_invalid", imageFile.toString());
+                                errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
 
                             }
                         } else if (errorMsg == null) {
                             // An error hasn't been logged. We should have an image, but the file
                             // doesn't
                             // exist.
-                            errorMsg = Localization.get("odk_file_missing", imageFile.toString());
+                            errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
                         }
 
                         if (errorMsg != null) {
@@ -203,8 +204,8 @@ public class ListMultiWidget extends QuestionWidget {
                 LinearLayout answer = new LinearLayout(getContext());
                 answer.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout.LayoutParams params =
-                    new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-                            LayoutParams.WRAP_CONTENT);
+                        new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+                                LayoutParams.WRAP_CONTENT);
                 params.gravity = Gravity.TOP;
                 answer.setLayoutParams(params);
 
@@ -226,8 +227,8 @@ public class ListMultiWidget extends QuestionWidget {
 
                 // /Each button gets equal weight
                 LinearLayout.LayoutParams answerParams =
-                    new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
-                            LayoutParams.WRAP_CONTENT);
+                        new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+                                LayoutParams.WRAP_CONTENT);
                 answerParams.weight = 1;
 
                 buttonLayout.addView(answer, answerParams);
@@ -244,14 +245,14 @@ public class ListMultiWidget extends QuestionWidget {
 
         // The buttons take up the right half of the screen
         LinearLayout.LayoutParams buttonParams =
-            new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
         buttonParams.weight = 1;
 
         questionLayout.addView(buttonLayout, buttonParams);
         addView(questionLayout);
 
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
@@ -302,7 +303,7 @@ public class ListMultiWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -328,7 +329,7 @@ public class ListMultiWidget extends QuestionWidget {
 
         // Put the question text on the left half of the screen
         LinearLayout.LayoutParams labelParams =
-            new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
         labelParams.weight = 1;
 
         questionLayout = new LinearLayout(getContext());

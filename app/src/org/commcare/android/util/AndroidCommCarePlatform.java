@@ -20,7 +20,6 @@ import android.os.Bundle;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidCommCarePlatform extends CommCarePlatform {
 
@@ -56,31 +55,31 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     }
 
     public Uri getFormContentUri(String xFormNamespace) {
-        if(xmlnstable.containsKey(xFormNamespace)) {
+        if (xmlnstable.containsKey(xFormNamespace)) {
             return Uri.parse(xmlnstable.get(xFormNamespace));
         }
 
-        //Search through manually?
+        // Search through manually?
         return null;
     }
 
     public ResourceTable getGlobalResourceTable() {
-        if(global == null) {
-            global = ResourceTable.RetrieveTable( app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
+        if (global == null) {
+            global = ResourceTable.RetrieveTable(app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
         }
         return global;
     }
 
     public ResourceTable getUpgradeResourceTable() {
-        if(upgrade == null) {
+        if (upgrade == null) {
             upgrade = ResourceTable.RetrieveTable(app.getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
         }
         return upgrade;
     }
 
     public ResourceTable getRecoveryTable() {
-        if(recovery == null) {
-            recovery = ResourceTable.RetrieveTable( app.getStorage("RECOVERY_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
+        if (recovery == null) {
+            recovery = ResourceTable.RetrieveTable(app.getStorage("RECOVERY_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
         }
         return recovery;
     }
@@ -108,7 +107,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     }
 
     public void unpack(Bundle incoming) {
-        if(incoming == null) {
+        if (incoming == null) {
             return;
         }
     }
@@ -129,8 +128,8 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     public void initialize(ResourceTable global) {
         this.profile = null;
         this.installedSuites.clear();
-        //We also need to clear any _resource table_ linked localization files which may have
-        //been registered from another app, or from a pre-install location.
+        // We also need to clear any _resource table_ linked localization files which may have
+        // been registered from another app, or from a pre-install location.
         CommCareApplication._().intializeDefaultLocalizerData();
 
         super.initialize(global);

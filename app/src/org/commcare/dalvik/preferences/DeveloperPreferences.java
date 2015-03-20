@@ -33,15 +33,9 @@ public class DeveloperPreferences extends PreferenceActivity {
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
-
     // Does the user want to download the latest app version deployed (built),
     // not just the latest app version released (starred)?
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
-
-    private static final int CLEAR_USER_DATA = Menu.FIRST;
-    private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
-    private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
-    private static final int RECOVERY_MODE = Menu.FIRST + 3;
 
     /*
      * (non-Javadoc)
@@ -59,6 +53,16 @@ public class DeveloperPreferences extends PreferenceActivity {
         setTitle("Developer Preferences");
     }
 
+    /**
+     * Try to lookup key in app preferences and test equality of the result to
+     * matchingValue.  If either the app or preference key don't exist, just
+     * compare defaultValue to matchingValue
+     *
+     * @param key is a potential entry in the app preferences
+     * @param defaultValue use this value if key not found
+     * @param matchingValue compare this to key lookup or defaultValue
+     * @return boolean
+     */
     private static boolean doesPropertyMatch(String key, String defaultValue, String matchingValue) {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         if (app == null) {
@@ -68,6 +72,12 @@ public class DeveloperPreferences extends PreferenceActivity {
         return properties.getString(key, defaultValue).equals(matchingValue);
     }
 
+    /**
+     * Lookup superuser preference; if debug build, superuser is enabled by
+     * default.
+     *
+     * @return is the superuser developer preference enabled?
+     */
     public static boolean isSuperuserEnabled() {
         return doesPropertyMatch(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO, CommCarePreferences.YES);
     }
