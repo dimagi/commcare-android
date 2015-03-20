@@ -32,6 +32,14 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
     //endregion
 
+    //region Public methods
+
+    public void setOnClickListener(OnClickListener l){
+        buttonWithText.setOnClickListener(l);
+    }
+
+    //endregion
+
     //region Constructors
 
     public SquareButtonWithNotification(Context context, AttributeSet attrs) {
@@ -77,6 +85,10 @@ public class SquareButtonWithNotification extends RelativeLayout {
                 subText.setVisibility(INVISIBLE);
             }
         }
+    }
+
+    public void setText(String text){
+        buttonWithText.setText(text);
     }
 
     //endregion
