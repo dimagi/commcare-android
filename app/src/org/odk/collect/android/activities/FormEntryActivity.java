@@ -76,8 +76,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -95,6 +99,7 @@ import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
 import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.listeners.FormSavedListener;
+import org.odk.collect.android.listeners.FormSaveCallback;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
@@ -133,7 +138,8 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class FormEntryActivity extends FragmentActivity implements AnimationListener, FormLoaderListener,
-        FormSavedListener, AdvanceToNextListener, OnGestureListener, WidgetChangedListener {
+        FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
+        WidgetChangedListener {
     private static final String t = "FormEntryActivity";
 
     // Defines for FormEntryActivity
@@ -194,10 +200,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Random ID
     private static final int DELETE_REPEAT = 654321;
 
-    // Intent filter broadcasted when the form is saved due to the key session
-    // from CommCareSessionService expiring.
-    public static final String FORM_SAVED_FOR_KEY_SESSION_ENDING = "FormEntryActivity_form_saved_for_key_session_ending";
-
     private String mFormPath;
     // Path to a particular form instance
     public static String mInstancePath;
@@ -255,6 +257,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
+
+        try {
+            // CommCareSessionService will call this.formSaveCallback when the
+            // key session is closing down and we need to save any intermediate
+            // results before they become un-saveable.
+            CommCareApplication._().getSession().registerFormSaveCallback(this);
+        } catch (SessionUnavailableException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    "Couldn't register form save callback because session doesn't exist");
+        }
 
         // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -495,25 +507,33 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
+    public void formSaveCallback() {
+        // note that we have started saving the form
+        savingFormOnKeySessionExpiration = true;
+        // start saving form, which will call the key session logout completion
+        // function when it finishes.
+        saveDataToDisk(EXIT, false, null, true);
+    }
     /**
      * Setup BroadcastReceivers for:
-     *  - form saving on session closing
+     *  - going to login screen when key session closes
      *  - asking user if they want to enable gps
      */
     private void registerFormEntryReceivers() {
         // Listen for broadcast from CommCareSessionService saying the key
-        // session is closing down and we need to save any intermediate results
-        // before they become un-saveable.
+        // session is closing down so we logout, since the session and its
+        // FormRecord data is getting wiped
         mKeySessionCloseReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // note that we have started saving the form
-                savingFormOnKeySessionExpiration = true;
-                // start saving form, which will send out an intent on completion
-                saveDataToDisk(EXIT, false, null);
+                // XXX: This doesn't actually launch the activity!! -- PLM
+                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(i);
             }
         };
-        registerReceiver(mKeySessionCloseReceiver, new IntentFilter(CommCareSessionService.KEY_SESSION_ENDING));
+        registerReceiver(mKeySessionCloseReceiver,
+                new IntentFilter(CommCareSessionService.KEY_SESSION_ENDING));
 
         // See if this form needs GPS to be turned on
         mNoGPSReceiver = new BroadcastReceiver() {
@@ -535,7 +555,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 }
             }
         };
-        registerReceiver(mNoGPSReceiver, new IntentFilter(GeoUtils.ACTION_CHECK_GPS_ENABLED));
+        registerReceiver(mNoGPSReceiver,
+                new IntentFilter(GeoUtils.ACTION_CHECK_GPS_ENABLED));
     }
 
     /**
@@ -1269,7 +1290,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 return true;
             case MENU_SAVE:
                 // don't exit
-                saveDataToDisk(DO_NOT_EXIT, isInstanceComplete(false), null);
+                saveDataToDisk(DO_NOT_EXIT, isInstanceComplete(false), null, false);
                 return true;
             case MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
@@ -1559,7 +1580,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
                                         saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
-                                                .getText().toString());
+                                                .getText().toString(), false);
                                     }
                                 }
                             });
@@ -2105,21 +2126,26 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @param exit if set, will exit program after save.
      * @param complete has the user marked the instances as complete?
      * @param updatedSaveName set name of the instance's content provider, if non-null
+     * @param headless is this running as a GUI-less service
      *
      * @return 
      */
-    private boolean saveDataToDisk(boolean exit, boolean complete, String updatedSaveName) {
+    private boolean saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
         // save current answer
         if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete)) {
-            Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
+            if (!headless) {
+                Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
+            }
             return false;
         }
 
         mSaveToDiskTask =
-            new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey);
+            new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
         mSaveToDiskTask.setFormSavedListener(this);
         mSaveToDiskTask.execute();
-        showDialog(SAVING_DIALOG);
+        if (!headless) {
+            showDialog(SAVING_DIALOG);
+        }
 
         return true;
     }
@@ -2162,7 +2188,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                     if(items.length == 1) {
                                         discardChangesAndExit();
                                     } else {
-                                        saveDataToDisk(EXIT, isInstanceComplete(false), null);
+                                        saveDataToDisk(EXIT, isInstanceComplete(false), null, false);
                                     }
                                     break;
 
@@ -2512,6 +2538,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (mNoGPSReceiver != null) {
             unregisterReceiver(mNoGPSReceiver);
         }
+
         if (mKeySessionCloseReceiver != null) {
             unregisterReceiver(mKeySessionCloseReceiver);
         }
@@ -2564,7 +2591,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //if this fails, we _really_ don't want to mess anything up. this is a last minute
             //fix
         }
-        
+
+        // TODO: if session has ended, go to login screen
     }
 
     /**
@@ -2606,7 +2634,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Call when the user is ready to save and return the current form as complete 
      */
     private void triggerUserFormComplete() {
-        saveDataToDisk(EXIT, true, getDefaultFormTitle());
+        saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
     }
     
     @Override
@@ -2785,64 +2813,43 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int)
      */
     @Override
-    public void savingComplete(int saveStatus) {
-        dismissDialog(SAVING_DIALOG);
+    public void savingComplete(int saveStatus, boolean headless) {
+        if (!headless) {
+            dismissDialog(SAVING_DIALOG);
+        }
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
-            // Display save status notification
-            switch (saveStatus) {
-                case SaveToDiskTask.SAVED:
-                case SaveToDiskTask.SAVED_AND_EXIT:
-                    Toast.makeText(this,
-                            StringUtils.getStringRobust(this, R.string.data_saved_ok),
-                            Toast.LENGTH_SHORT).show();
-                    hasSaved = true;
-                    setResult(RESULT_OK);
-                    break;
-                case SaveToDiskTask.SAVE_ERROR:
-                    Toast.makeText(this,
-                            StringUtils.getStringRobust(this, R.string.data_saved_error),
-                            Toast.LENGTH_LONG);
-                    setResult(RESULT_CANCELED);
-                    break;
-                default:
-                    break;
-            }
-
-            // Send out intent saying that form state has been saved (or at
+            // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
-            this.sendBroadcast(new Intent(FORM_SAVED_FOR_KEY_SESSION_ENDING));
+            CommCareApplication._().getSession().finishLogout();
 
             savingFormOnKeySessionExpiration = false;
-
-            // Escape early since the user should either be redirected to login
-            // page or the app isn't even being displayed.
-            finish();
-        }
-
-        switch (saveStatus) {
-            case SaveToDiskTask.SAVED:
-                Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
-                hasSaved = true;
-                break;
-            case SaveToDiskTask.SAVED_AND_EXIT:
-                Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
-                hasSaved = true;
-                finishReturnInstance();
-                break;
-            case SaveToDiskTask.SAVE_ERROR:
-                Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_error), Toast.LENGTH_LONG)
-                        .show();
-                break;
-            case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
-            case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:
-                refreshCurrentView();
-                // an answer constraint was violated, so do a 'swipe' to the next
-                // question to display the proper toast(s)
-                next();
-                break;
+            return;
+        } else {
+            switch (saveStatus) {
+                case SaveToDiskTask.SAVED:
+                    Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
+                    hasSaved = true;
+                    break;
+                case SaveToDiskTask.SAVED_AND_EXIT:
+                    Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
+                    hasSaved = true;
+                    finishReturnInstance();
+                    break;
+                case SaveToDiskTask.SAVE_ERROR:
+                    Toast.makeText(this, StringUtils.getStringRobust(this, R.string.data_saved_error), Toast.LENGTH_LONG)
+                            .show();
+                    break;
+                case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
+                case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:
+                    refreshCurrentView();
+                    // an answer constraint was violated, so do a 'swipe' to the next
+                    // question to display the proper toast(s)
+                    next();
+                    break;
+            }
         }
     }
 

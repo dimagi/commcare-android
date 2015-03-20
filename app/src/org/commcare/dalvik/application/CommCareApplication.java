@@ -920,7 +920,7 @@ public class CommCareApplication extends Application {
             if (mIsBound) {
                 mIsBound = false;
                 // close down the commcare login session
-                mBoundService.logout();
+                mBoundService.startLogout();
                 // Detach our existing connection.
                 unbindService(mConnection);
             }

@@ -28,6 +28,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.listeners.FormSaveCallback;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -92,9 +93,9 @@ public class CommCareSessionService extends Service  {
     // the saving of incomplete forms takes too long
     private long logoutStartedAt = -1;
 
-    // Receiver that processes when a form has been saved due to the key
-    // session expiring.
-    private BroadcastReceiver formSavedForKeySessionEndingReceiver;
+    // Once key expiration process starts, we want to call this function to
+    // save the current form if it exists.
+    private FormSaveCallback formSaver;
     
     
     /**
@@ -332,16 +333,23 @@ public class CommCareSessionService extends Service  {
         // forms and prepare for the user database to close
         this.sendBroadcast(new Intent(KEY_SESSION_ENDING));
 
-        // listen for the FormEntryActivity to notify that any open form has been saved and closed
-        formSavedForKeySessionEndingReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                finishLogout();
-            }
-        };
-        registerReceiver(formSavedForKeySessionEndingReceiver,
-                new IntentFilter(FormEntryActivity.FORM_SAVED_FOR_KEY_SESSION_ENDING));
+        // save form progress if any
+        if (formSaver != null) {
+            formSaver.formSaveCallback();
+        }
     }
+
+    /**
+     * Allow for the form entry engine to register a method that can be used to
+     * save any forms being editted when key expiration begins.
+     *
+     * @param callbackObj object with a method for saving the current form
+     * being edited
+     */
+    public void registerFormSaveCallback(FormSaveCallback callbackObj) {
+        this.formSaver = callbackObj;
+    }
+
 
     /**
      * Conclude closing down the session by closing down key pool and user
@@ -378,47 +386,11 @@ public class CommCareSessionService extends Service  {
             }
             logoutStartedAt = -1;
 
-            unregisterReceiver(formSavedForKeySessionEndingReceiver);
-
             pool.expire();
             this.stopForeground(true);
         }
     }
 
-    /**
-     * Close user database, broadcast session logout, expire the cypher pool
-     */
-    // TODO: Remove this function after startLogout/finishLogout are finished
-    public void logout() {
-        synchronized(lock){
-            key = null;
-            
-            String username = null; 
-            
-            if(user != null) {
-                username = user.getUsername();
-                
-                //Let anyone who is listening know!
-                Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
-                this.sendBroadcast(i);
-            }
-            
-            String msg = username != null ? "Logging out user " + username  : "Logging out service login";
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
-            
-            if(userDatabase != null && userDatabase.isOpen()) {
-                userDatabase.close();
-            }
-            userDatabase = null;
-            user = null;
-            //this is null if we aren't actually in the foreground
-            if(maintenanceTimer != null) {
-                maintenanceTimer.cancel();
-            }
-            pool.expire();
-            this.stopForeground(true);
-        }
-    }
     
     public boolean isLoggedIn() {
         synchronized(lock){

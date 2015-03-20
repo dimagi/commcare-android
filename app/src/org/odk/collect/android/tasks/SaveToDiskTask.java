@@ -71,6 +71,10 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     private Context context;
     // URI to the table we are saving to
     private Uri instanceContentUri;
+
+    // Should this save task tell its save-complete callback to run without any
+    // GUI calls?
+    private boolean headless;
     
     SecretKeySpec symetricKey;
 
@@ -81,7 +85,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     public static final int SAVED_AND_EXIT = 504;
 
 
-    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey) {
+    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey, boolean headless) {
         this.mUri = mUri;
         mSave = saveAndExit;
         mMarkCompleted = markCompleted;
@@ -89,6 +93,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         this.context = context;
         this.instanceContentUri = instanceContentUri;
         this.symetricKey = symetricKey;
+        this.headless = headless;
     }
 
 
@@ -354,7 +359,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     protected void onPostExecute(Integer result) {
         synchronized (this) {
             if (mSavedListener != null)
-                mSavedListener.savingComplete(result);
+                mSavedListener.savingComplete(result, headless);
         }
     }
 

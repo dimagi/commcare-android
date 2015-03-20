@@ -443,7 +443,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().getSession().logout();
+                        CommCareApplication._().getSession().startLogout();
                     }
                     //set flag that we should autoupdate on next login
                     SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
