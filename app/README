@@ -17,3 +17,11 @@ external_strings_dev.xml
 and place your debug API key into the string definition there.
 
 B) Ant Build Properties
+
+## Test Framework Setup
+
+Unit Tests are being migrated. Currently not configurable through Ant.
+
+### Local Configuration 
+
+Set the ANDROID_HOME var on the unit tests to the appropriate SDK target's "android.jar" path 
