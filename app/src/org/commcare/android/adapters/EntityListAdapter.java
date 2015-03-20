@@ -93,9 +93,10 @@ public class EntityListAdapter implements ListAdapter {
     public EntityListAdapter(Activity activity, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
             int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) throws SessionUnavailableException {
         this.detail = detail;
+        actionEnabled = detail.getCustomAction() != null;
 
         this.full = full;
-        current = new ArrayList<Entity<TreeReference>>();
+        setCurrent(new ArrayList<Entity<TreeReference>>()); 
         this.references = references;
 
         this.context = activity;
@@ -114,8 +115,7 @@ public class EntityListAdapter implements ListAdapter {
             }
             filterValues("");
         } else {
-            current = new ArrayList<Entity<TreeReference>>(full);
-            actionPosition = current.size();
+            setCurrent(new ArrayList<Entity<TreeReference>>(full));
         }
         
         this.tts = tts;
@@ -129,11 +129,21 @@ public class EntityListAdapter implements ListAdapter {
         if(detail.getCustomAction() != null) {
         }
         usesGridView = detail.usesGridView();
-        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
-        
-        actionEnabled = detail.getCustomAction() != null;
+        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();        
     }
     
+    /**
+     * Set the current display set for this adapter
+     * 
+     * @param arrayList
+     */
+    private void setCurrent(List<Entity<TreeReference>> arrayList) {
+        current = arrayList;
+        if(actionEnabled) {
+            actionPosition = current.size();
+        }
+    }
+
     private void filterValues(String filterRaw) {
         this.filterValues(filterRaw, false);
     }
@@ -293,10 +303,7 @@ public class EntityListAdapter implements ListAdapter {
 
                 @Override
                 public void run() {
-                    current = matchList;
-                    if(actionEnabled) {
-                        actionPosition = current.size(); 
-                    }
+                    setCurrent(matchList);
                     currentSearchTerms = searchTerms;
                     update();
                 }
