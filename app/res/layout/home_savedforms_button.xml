@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <org.commcare.android.view.SquareButtonWithNotification
+    android:id="@+id/home.savedforms.sqbn"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="8dp"
