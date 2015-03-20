@@ -36,6 +36,15 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
     
     int current;
     
+    /**
+     * Create an iterator that will walk and return all numbers between minValue (inclusuve) and max value (exclusive)
+     * 
+     * @param c
+     * @param storage
+     * @param minValue
+     * @param maxValue
+     * @param countValue
+     */
     public IndexSpanningIterator(Cursor c, SqlStorage<T> storage, int minValue, int maxValue, int countValue) {
         start = minValue;
         current = start;
@@ -105,6 +114,11 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
                 
                 //Set the next gap to be the upcoming one (after current)
                 nextGap = upcomingGap;
+                
+                //Mark the iterator's progress as valid, since we know the current
+                //record exists and there is a gap set
+                currentIsValid = true;
+                break;
             }
         }
         
