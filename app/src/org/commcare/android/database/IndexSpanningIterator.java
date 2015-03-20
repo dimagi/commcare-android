@@ -83,13 +83,9 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
      * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
      */
     public boolean hasMore() {
-        //See whether we're ahead of the next gap 
-        if(nextGap > current) {
-            return true;
-        }
-
-        //if we've caught it the iteration is over
-        return false;
+        //See whether we're ahead of the next gap. If we are, there are valid
+        //ids remaining
+        return nextGap > current;
     }
     
     /**
