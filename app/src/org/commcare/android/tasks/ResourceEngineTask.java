@@ -1,5 +1,7 @@
 package org.commcare.android.tasks;
 
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Vector;
@@ -152,13 +154,25 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 ResourceTable recovery = platform.getRecoveryTable();
                 temporary.setStateListener(this);
 
-                // When profileRef points to HQ, add appropriate dev tags
-                if (DeveloperPreferences.isNewestAppVersionEnabled() && isHQProfile(profileRef)) {
-                    // Does the profileRef url already have query strings?
-                    if (profileRef.indexOf("?") != -1) {
-                        // if so, just add a new one to the end
-                        // NOTE: we append to the end, ignoring the fact that
-                        //       the url might already have a 'target' key
+                // When profileRef points is http, add appropriate dev flags
+                URL profileUrl = null;
+                try {
+                    profileUrl = new URL(profileRef);
+                } catch (MalformedURLException e) {
+                    // profileRef couldn't be parsed as a URL, so don't worry
+                    // about adding dev flags to the url's query
+                }
+
+                // If we want to be using/updating to the latest build of the
+                // app (instead of latest release), add it to the query tags of
+                // the profile reference
+                if (DeveloperPreferences.isNewestAppVersionEnabled() &&
+                        (profileUrl != null) &&
+                        ("https".equals(profileUrl.getProtocol()) ||
+                         "http".equals(profileUrl.getProtocol()))) {
+                    if (profileUrl.getQuery() != null) {
+                        // If the profileRef url already have query strings
+                        // just add a new one to the end
                         profileRef = profileRef + "&target=build";
                     } else {
                         // otherwise, start off the query string with a ?
@@ -167,10 +181,10 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 }
 
 
-                /* this populates the upgrade table with resources based on binary files,
-                 * starting with the profile file. If the new profile is not a newer version,
-                 * statgeUpgradeTable doesn't actually pull in all the new references
-                 */
+                // This populates the upgrade table with resources based on
+                // binary files, starting with the profile file. If the new
+                // profile is not a newer version, statgeUpgradeTable doesn't
+                // actually pull in all the new references
                 platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
                 Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
                 if (!newProfile.isNewer(profile)) {
@@ -179,7 +193,8 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
                 }
 
                 phase = PHASE_CHECKING;
-                // Replaces global table with temporary, or w/ recovery if something goes wrong
+                // Replaces global table with temporary, or w/ recovery if
+                // something goes wrong
                 platform.upgrade(global, temporary, recovery);
 
                 // And see where we ended up to see whether an upgrade actually occurred
@@ -329,15 +344,5 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 
     public void incrementProgress(int complete, int total) {
         this.publishProgress(new int[] {complete, total, phase});
-    }
-
-    /**
-     * Does a profile reference point to commcarehq.org?
-     *
-     * @param profileRef String representing any URI
-     * @return boolean that is true if profileRef is prefixed by commcarehq url
-     */
-    private static boolean isHQProfile(String profileRef) {
-        return profileRef.startsWith("https://www.commcarehq.org");
     }
 }
