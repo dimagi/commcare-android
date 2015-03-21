@@ -16,6 +16,8 @@ import java.util.HashMap;
  * Created by dancluna on 3/19/15.
  */
 public class HomeScreenAdapter extends BaseAdapter {
+    //region Buttons
+
     static final int[] buttonsResources = new int[]{
             R.layout.home_start_button,
             R.layout.home_savedforms_button,
@@ -32,12 +34,25 @@ public class HomeScreenAdapter extends BaseAdapter {
                 put(R.id.home_incompleteforms_sqbn,buttonsResources[4]);
     }};
 
+    //endregion
+
+    //region Private variables
+
     final View.OnClickListener[] buttonListeners = new View.OnClickListener[buttonsResources.length];
 
     final SquareButtonWithNotification[] buttons = new SquareButtonWithNotification[buttonsResources.length];
+
     private Context context;
 
+    //endregion
+
+    //region Constructors
+
     public HomeScreenAdapter(Context c) { this.context = c; }
+
+    //endregion
+
+    //region Public API
 
     public void setOnClickListenerForButton(int androidCode, boolean lookupID, View.OnClickListener listener){
         int code = androidCode;
@@ -55,14 +70,6 @@ public class HomeScreenAdapter extends BaseAdapter {
         }
         if(buttonIndex == null) throw new IllegalArgumentException("Layout code not found: " + code);
         setOnClickListenerForButton(buttonIndex, listener);
-    }
-
-    private void setOnClickListenerForButton(int buttonIndex, View.OnClickListener listener) {
-        buttonListeners[buttonIndex] = listener;
-        SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
-        if(button != null){
-            button.setOnClickListener(listener);
-        }
     }
 
     @Override
@@ -100,4 +107,18 @@ public class HomeScreenAdapter extends BaseAdapter {
             return view;
         }
     }
+
+    //endregion
+
+    //region Private methods
+
+    private void setOnClickListenerForButton(int buttonIndex, View.OnClickListener listener) {
+        buttonListeners[buttonIndex] = listener;
+        SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
+        if(button != null){
+            button.setOnClickListener(listener);
+        }
+    }
+
+    //endregion
 }
