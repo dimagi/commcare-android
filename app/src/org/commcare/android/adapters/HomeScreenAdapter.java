@@ -21,17 +21,17 @@ public class HomeScreenAdapter extends BaseAdapter {
     static final int[] buttonsResources = new int[]{
             R.layout.home_start_button,
             R.layout.home_savedforms_button,
+            R.layout.home_incompleteforms_button,
             R.layout.home_sync_button,
             R.layout.home_disconnect_button,
-            R.layout.home_incompleteforms_button,
     };
 
     static final HashMap<Integer, Integer> buttonsIDsToResources = new HashMap<Integer, Integer>() {{
-                put(R.id.home_start_sqbn,buttonsResources[0]);
-                put(R.id.home_savedforms_sqbn,buttonsResources[1]);
-                put(R.id.home_sync_sqbn,buttonsResources[2]);
-                put(R.id.home_disconnect_sqbn,buttonsResources[3]);
-                put(R.id.home_incompleteforms_sqbn,buttonsResources[4]);
+                put(R.id.home_start_sqbn,R.layout.home_start_button);
+                put(R.id.home_savedforms_sqbn,R.layout.home_savedforms_button);
+                put(R.id.home_sync_sqbn,R.layout.home_sync_button);
+                put(R.id.home_disconnect_sqbn,R.layout.home_disconnect_button);
+                put(R.id.home_incompleteforms_sqbn,R.layout.home_incompleteforms_button);
     }};
 
     //endregion
@@ -44,6 +44,8 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     private Context context;
 
+    private boolean[] hiddenButtons = new boolean[buttonsResources.length];
+
     //endregion
 
     //region Constructors
@@ -55,21 +57,16 @@ public class HomeScreenAdapter extends BaseAdapter {
     //region Public API
 
     public void setOnClickListenerForButton(int androidCode, boolean lookupID, View.OnClickListener listener){
-        int code = androidCode;
-        // if lookupID is set, we are mapping from an int in R.id to one in R.layout
-        if(lookupID){
-            Integer layoutCode = buttonsIDsToResources.get(androidCode);
-            if(layoutCode == null) throw new IllegalArgumentException("ID code not found: " + androidCode);
-            code = layoutCode;
-        }
-        Integer buttonIndex = null;
-        for (int i = 0; i < buttonsResources.length; i++) {
-            if(code == buttonsResources[i]){
-                buttonIndex = i;
-            }
-        }
-        if(buttonIndex == null) throw new IllegalArgumentException("Layout code not found: " + code);
+        int buttonIndex = getButtonIndex(androidCode, lookupID);
         setOnClickListenerForButton(buttonIndex, listener);
+    }
+
+    public SquareButtonWithNotification getButton(int androidCode, boolean lookupID){
+        return buttons[getButtonIndex(androidCode, lookupID)];
+    }
+
+    public void setNotificationTextForButton(int androidCode, boolean lookupID, String notificationText) {
+        getButton(androidCode, lookupID).setNotificationText(notificationText);
     }
 
     @Override
@@ -90,22 +87,29 @@ public class HomeScreenAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(position < 0 || position >= getCount()) return null;
+        for (int i = 0; i < hiddenButtons.length; i++) {
+            if(hiddenButtons[i]) return null;
+        }
         if(convertView != null){
             return convertView;
         } else {
             SquareButtonWithNotification view = (SquareButtonWithNotification) LayoutInflater.from(context)
                     .inflate(buttonsResources[position], parent, false);
             buttons[position] = view;
-            Log.i("DEBUG-i","Added button " + view + "to position " + position);
+            Log.i("HomeScrnAdpt","Added button " + view + "to position " + position);
 
             View.OnClickListener listener = buttonListeners[position];
             // creating now, but set a clickListener before, so we'll add it to this button...
             if(listener != null){
                 view.setOnClickListener(listener);
-                Log.i("DEBUG-i","Added onClickListener " + listener + " to button in position " + position);
+                Log.i("HomeScrnAdpt","Added onClickListener " + listener + " to button in position " + position);
             }
             return view;
         }
+    }
+
+    public void setButtonVisibility(int androidCode, boolean lookupID, boolean isButtonHidden){
+        hiddenButtons[getButtonIndex(androidCode, lookupID)] = isButtonHidden;
     }
 
     //endregion
@@ -118,6 +122,31 @@ public class HomeScreenAdapter extends BaseAdapter {
         if(button != null){
             button.setOnClickListener(listener);
         }
+    }
+
+    /**
+     * Returns the index of the button with the given resource code. If lookupID is set, will search for the button with the given R.id; if not, will search for the button with the given R.layout code.
+     * @param androidCode
+     * @param lookupID
+     * @return
+     * @throws java.lang.IllegalArgumentException If the given androidCode is not found
+     */
+    private int getButtonIndex(int androidCode, boolean lookupID){
+        int code = androidCode;
+        // if lookupID is set, we are mapping from an int in R.id to one in R.layout
+        if(lookupID){
+            Integer layoutCode = buttonsIDsToResources.get(androidCode);
+            if(layoutCode == null) throw new IllegalArgumentException("ID code not found: " + androidCode);
+            code = layoutCode;
+        }
+        Integer buttonIndex = null;
+        for (int i = 0; i < buttonsResources.length; i++) {
+            if(code == buttonsResources[i]){
+                buttonIndex = i;
+            }
+        }
+        if(buttonIndex == null) throw new IllegalArgumentException("Layout code not found: " + code);
+        return buttonIndex;
     }
 
     //endregion
