@@ -152,7 +152,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             
             searchbox.addTextChangedListener(this);
             FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
-            task.setListener(this);
+            task.addListener(this);
     
             adapter = new IncompleteFormListAdapter(this, platform, task);
             
@@ -570,7 +570,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
     
     public void afterTextChanged(Editable s) {
-        if(searchbox.getText() == s) {
+        if (searchbox.getText() == s) {
             adapter.applyTextFilter(s.toString());
         }
     }

@@ -15,9 +15,11 @@ import android.database.Cursor;
  * [1, 2, 3, 5, 6, 7, 10, 11]
  * 
  * in your table, this iterator produces those id's from the return set
- * [4, 8, 9]
+ * [4, 8, 9, 12]
  * 
  * which is notable less verbose for densely packed datasets.
+ * 
+ * This cursor is not threadsafe.
  * 
  * @author ctsims
  *
@@ -27,26 +29,48 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
     Cursor mCursor;
     SqlStorage<T> storage;
     boolean isClosedByProgress = false;
+    
+    /** Total expected records **/
     int count;
     
-    int start;
+    /** The largest integer that is _not_ included in the walk **/
     int end;
     
-    int nextGap;
-    
+    /** 
+     * The walker. Must be an integer which is included in the result set
+     * while the iterator is still valid/open. 
+     */
     int current;
     
+    /**  
+     * The next integer which will _not_ be included in the result set
+     */
+    int nextGap;
+    
+    /**
+     * Create an iterator that will walk and return Id's between minValue (inclusive) and max value (exclusive)
+     * 
+     * The input cursor of gaps should contain an entry for the last ID to be excluded, and should be ordered
+     * 
+     * if the cursor is empty, no ids are iterated over.
+     * 
+     * @param c - A cursor set with one column of integer values, which are gaps between minValue and maxValue.
+     * @param storage - The storage being iterated over
+     * @param minValue - The first (lowest) id value to be included in the result set. Must be smaller than the first gap
+     * @param maxValue - The last (largest) id value to be included in the result set
+     * @param countValue - The number of ID's in the set
+     */
     public IndexSpanningIterator(Cursor c, SqlStorage<T> storage, int minValue, int maxValue, int countValue) {
-        start = minValue;
-        current = start;
+        current = minValue;
+        
         end = maxValue;
         count = countValue;
         this.c = c;
         this.storage = storage;
         
-        //if there's no next value, it means there are no gaps, and we can just walk to the end
+        //If there's no input, there's no values to iterate over
         if(!c.moveToNext()) {
-            nextGap = end +1;
+            current = end = nextGap = -1;
             isClosedByProgress = true;
             c.close();
         } else {
@@ -59,15 +83,18 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
      * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
      */
     public boolean hasMore() {
-        //base case, we don't see the next gap yet
-        if(nextGap > current) {
-            return true;
-        }
-
-        //If current isn't a valid element we don't have any more
-        return false;
+        //See whether we're ahead of the next gap. If we are, there are valid
+        //ids remaining
+        return nextGap > current;
     }
     
+    /**
+     * When currently on a gap, move the current point up to another valid 
+     * entry if possible.
+     * 
+     * This method will either result in the iterator pointing to a new valid
+     * record, or being closed.
+     */
     private void expandToGap() {
         //If this is closed, we can't grow anymore
         if(isClosedByProgress) {
@@ -80,6 +107,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
             return;
         }
         
+        //Assume the current id is invalid (IE: points at a gap)
         boolean currentIsValid = false;
         
         //current points at a gap now, which means that it must 
@@ -105,6 +133,11 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
                 
                 //Set the next gap to be the upcoming one (after current)
                 nextGap = upcomingGap;
+                
+                //Mark the iterator's progress as valid, since we know the current
+                //record exists and there is a gap set
+                currentIsValid = true;
+                break;
             }
         }
         
