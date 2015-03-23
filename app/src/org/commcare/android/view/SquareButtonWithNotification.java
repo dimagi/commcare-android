@@ -38,6 +38,20 @@ public class SquareButtonWithNotification extends RelativeLayout {
         buttonWithText.setOnClickListener(l);
     }
 
+    public void setNotificationText(String textNotification) {
+        if (textNotification != null && textNotification.length() != 0) {
+            subText.setVisibility(VISIBLE);
+            subText.setText(textNotification);
+            subText.setBackgroundResource(backgroundColorNotification);
+        } else {
+            subText.setVisibility(INVISIBLE);
+        }
+    }
+
+    public void setText(String text){
+        buttonWithText.setText(text);
+    }
+
     //endregion
 
     //region Constructors
@@ -77,18 +91,8 @@ public class SquareButtonWithNotification extends RelativeLayout {
             buttonWithText.setColor(backgroundColorButton);
             buttonWithText.setImage(backgroundImg);
             buttonWithText.setText(subtitleButton);
-            if (textNotification != null && textNotification.length() != 0) {
-                subText.setVisibility(VISIBLE);
-                subText.setText(textNotification);
-                subText.setBackgroundResource(backgroundColorNotification);
-            } else {
-                subText.setVisibility(INVISIBLE);
-            }
+            setNotificationText(textNotification);
         }
-    }
-
-    public void setText(String text){
-        buttonWithText.setText(text);
     }
 
     //endregion
