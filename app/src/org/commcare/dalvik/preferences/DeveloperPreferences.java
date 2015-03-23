@@ -33,6 +33,9 @@ public class DeveloperPreferences extends PreferenceActivity {
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
+    // Does the user want to download the latest app version deployed (built),
+    // not just the latest app version released (starred)?
+    public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
 
     /*
      * (non-Javadoc)
@@ -98,4 +101,13 @@ public class DeveloperPreferences extends PreferenceActivity {
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
+    /**
+     * @return true if developer option to download the latest app version
+     * deployed (built) is enabled.  Otherwise the latest released (starred)
+     * app version will be downloaed on upgrade.
+     */
+    public static boolean isNewestAppVersionEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
 }
