@@ -118,7 +118,7 @@ public class DeveloperPreferences extends PreferenceActivity {
     }
 
     public static boolean isMarkdownEnabled(){
-        return doesPropertyMatch(MARKDOWN_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
 }
