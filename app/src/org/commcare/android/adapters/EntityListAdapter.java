@@ -344,8 +344,10 @@ public class EntityListAdapter implements ListAdapter {
                 String a1 = object1.getSortField(index);
                 String a2 = object2.getSortField(index);
 
-                if(a1 == null) { a1 = object1.getFieldString(i); }
-                if(a2 == null) { a2 = object2.getFieldString(i); }
+                // COMMCARE-161205: Problem with search functionality
+                // If one of these is null, we need to get the field in the same index, not the field in SortType
+                if(a1 == null) { a1 = object1.getFieldString(index); }
+                if(a2 == null) { a2 = object2.getFieldString(index); }
 
                 //TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
                 //For now, regardless of typing, blanks are always smaller than non-blanks
