@@ -1,11 +1,10 @@
 package org.commcare.android.view;
 
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Paint.Align;
-import android.view.View;
-import android.widget.LinearLayout;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Vector;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
@@ -27,11 +26,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Vector;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint.Align;
+import android.view.View;
+import android.widget.LinearLayout;
 
 /*
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
@@ -184,11 +184,7 @@ public class GraphView {
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
-                try {
-                    ((RangeXYValueSeries) series).add(parseXValue(b.getX()), parseYValue(b.getY()), parseRadiusValue(b.getRadius()));
-                } catch(NumberFormatException nfe){
-                    System.out.println("Number format exception: " + nfe.toString());
-                }
+                ((RangeXYValueSeries) series).add(parseXValue(b.getX()), parseYValue(b.getY()), parseRadiusValue(b.getRadius()));
             }
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
                 ((TimeSeries) series).add(parseXValue(p.getX()), parseYValue(p.getY()));
@@ -447,12 +443,8 @@ public class GraphView {
                 catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
-                    try {
-                        Integer count = Integer.valueOf(labelString);
-                        setLabelCount(key, count);
-                    } catch (NumberFormatException nfe){
-                        System.out.println("nfe with string: " + labelString);
-                    }
+                    Integer count = Integer.valueOf(labelString);
+                    setLabelCount(key, count);
                 }
             }
         }
