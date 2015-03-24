@@ -100,7 +100,7 @@ public class DeveloperPreferences extends PreferenceActivity {
     public static boolean isCssEnabled(){
         try{
             SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return properties.getString(CSS_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+            return properties.getString(CSS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
         } catch(NullPointerException e){
             // currentApp() is not initialized
             return false;
@@ -124,13 +124,7 @@ public class DeveloperPreferences extends PreferenceActivity {
     }
 
     public static boolean isMarkdownEnabled(){
-        try{
-            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return properties.getString(MARKDOWN_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
-        } catch(NullPointerException e){
-            // currentApp() is not initialized
-            return false;
-        }
+        return doesPropertyMatch(MARKDOWN_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
 }
