@@ -352,7 +352,7 @@ public abstract class QuestionWidget extends LinearLayout {
 
         // if we have markdown, use that.
         if(markdownText != null){
-            mQuestionText.setText(stylize(markdownText));
+            mQuestionText.setText(forceMarkdown(markdownText));
             mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
             mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
             // Wrap to the size of the parent view
@@ -607,6 +607,10 @@ public abstract class QuestionWidget extends LinearLayout {
      * Methods to make localization and styling easier for devs
      * copied from CommCareActivity
      */
+
+    public Spannable forceMarkdown(String text){
+        return MarkupUtil.returnMarkdown(getContext(), text);
+    }
 
     public Spannable stylize(String text){
         return MarkupUtil.styleSpannable(getContext(), text);
