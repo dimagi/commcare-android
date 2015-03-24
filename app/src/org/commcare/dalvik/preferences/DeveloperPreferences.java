@@ -98,13 +98,7 @@ public class DeveloperPreferences extends PreferenceActivity {
     }
     
     public static boolean isCssEnabled(){
-        try{
-            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return properties.getString(CSS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
-        } catch(NullPointerException e){
-            // currentApp() is not initialized
-            return false;
-        }
+        return doesPropertyMatch(CSS_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
     public static boolean isListRefreshEnabled() {

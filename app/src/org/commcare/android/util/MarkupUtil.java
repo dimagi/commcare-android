@@ -23,55 +23,36 @@ public class MarkupUtil {
     public static Spannable styleSpannable(Context c, String message){
 
         if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(generateMarkdown(c, message));
+            returnMarkdown(c, message);
         }
 
         if(DeveloperPreferences.isCssEnabled()){
-            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
+            returnCSS(message);
         }
 
         return new SpannableString(message);
     }
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey){
-        if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeGenerateMarkdown(c, localizationKey));
-        }
-
-        if(DeveloperPreferences.isCssEnabled()){
-            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + new String(Localization.get(localizationKey)));
-        }
-
-        return new SpannableString(Localization.get(localizationKey));
+        return styleSpannable(c, Localization.get(localizationKey));
     }
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg){
-
-        if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeGenerateMarkdown(c, localizationKey, new String[] {localizationArg}));
-        }
-
-        if(DeveloperPreferences.isCssEnabled()){
-            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArg));
-        }
-
-        return new SpannableString(Localization.get(localizationKey, localizationArg));
+        return styleSpannable(c, Localization.get(localizationKey, localizationArg));
     }
-
-
 
     public static Spannable localizeStyleSpannable(Context c, String localizationKey, String[] localizationArgs){
-
-        if(DeveloperPreferences.isMarkdownEnabled()){
-            return new SpannableString(localizeGenerateMarkdown(c, localizationKey, localizationArgs));
-        }
-
-        if(DeveloperPreferences.isCssEnabled()){
-            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + Localization.get(localizationKey, localizationArgs));
-        }
-
-        return new SpannableString(Localization.get(localizationKey, localizationArgs));
+        return styleSpannable( c, Localization.get(localizationKey, localizationArgs));
     }
+
+    public static Spannable returnMarkdown(Context c, String message){
+        return new SpannableString(generateMarkdown(c, message));
+    }
+
+    public static Spannable returnCSS(String message){
+        return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
+    }
+
 
     /*
      * Markdown styling utils from Bypass
