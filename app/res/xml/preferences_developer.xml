@@ -14,34 +14,40 @@ the License.
 -->
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
-<ListPreference 
-    android:key="cc-superuser-enabled" 
-    android:enabled="true" 
-    android:title="Developer Mode Enabled" 
-    android:entryValues="@array/pref_enabled_vals" 
+<ListPreference
+    android:key="cc-superuser-enabled"
+    android:enabled="true"
+    android:title="Developer Mode Enabled"
+    android:entryValues="@array/pref_enabled_vals"
     android:entries="@array/pref_enabled_lables"/>
-<ListPreference 
-    android:key="cc-action-nav-enabled" 
-    android:enabled="true" 
-    android:title="Action Bar Enabled" 
-    android:entryValues="@array/pref_enabled_vals" 
+<ListPreference
+    android:key="cc-action-nav-enabled"
+    android:enabled="true"
+    android:title="Action Bar Enabled"
+    android:entryValues="@array/pref_enabled_vals"
     android:entries="@array/pref_enabled_lables"/>
-<ListPreference 
-    android:key="cc-grid-menus" 
-    android:enabled="true" 
-    android:title="Grid Menus Enabled" 
-    android:entryValues="@array/pref_enabled_vals" 
+<ListPreference
+    android:key="cc-grid-menus"
+    android:enabled="true"
+    android:title="Grid Menus Enabled"
+    android:entryValues="@array/pref_enabled_vals"
     android:entries="@array/pref_enabled_lables"/>
-<ListPreference 
-	android:key="cc-nav-ui-enabled" 
-	android:enabled="true" 
-	android:title="Navigation UI" 
-	android:entryValues="@array/pref_enabled_vals" 
-	android:entries="@array/pref_enabled_lables"/>
-<ListPreference 
-	android:key="cc-list-refresh" 
-	android:enabled="true" 
-	android:title="Entity List Screen Auto-Refresh" 
-	android:entryValues="@array/pref_enabled_vals" 
-	android:entries="@array/pref_enabled_lables"/>
+<ListPreference
+    android:key="cc-nav-ui-enabled"
+    android:enabled="true"
+    android:title="Navigation UI"
+    android:entryValues="@array/pref_enabled_vals"
+    android:entries="@array/pref_enabled_lables"/>
+<ListPreference
+    android:key="cc-list-refresh"
+    android:enabled="true"
+    android:title="Entity List Screen Auto-Refresh"
+    android:entryValues="@array/pref_enabled_vals"
+    android:entries="@array/pref_enabled_lables"/>
+<ListPreference
+    android:key="cc-newest-version-from-hq"
+    android:enabled="true"
+    android:title="Use Newest App Version From HQ"
+    android:entryValues="@array/pref_enabled_vals"
+    android:entries="@array/pref_enabled_lables"/>
 </PreferenceScreen>

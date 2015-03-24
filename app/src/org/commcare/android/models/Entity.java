@@ -96,4 +96,16 @@ public class Entity<T> {
             return sortField.split("\\s+");
         }
 	}
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < data.length; i++) {
+            sb.append("\n" + i + "\n");
+            sb.append("Data: " + data[i] + "|");
+            sb.append("SortData: " + sortData[i] + "|");
+            sb.append("IsValidField: " + isValidField(i));
+        }
+        return sb.toString() + "\n" + super.toString();
+    }
 }

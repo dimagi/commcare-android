@@ -348,7 +348,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             SQLiteStatement count = db.compileStatement("SELECT COUNT(" + DbUtil.ID_COL + ") from " + table);
             
             int minValue = (int)min.simpleQueryForLong();
-            int maxValue = (int)max.simpleQueryForLong();
+            int maxValue = (int)max.simpleQueryForLong() + 1;
             int countValue = (int)count.simpleQueryForLong();
             
             min.close();
