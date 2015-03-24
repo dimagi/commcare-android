@@ -48,8 +48,10 @@ public class CommCareApp {
     public static CommCareApp currentSandbox;
 
     private Object appDbHandleLock = new Object();
-    private SQLiteDatabase appDatabase;
-
+    private SQLiteDatabase appDatabase; 
+    
+    public static Stylizer mStylizer;
+    
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
 
@@ -59,7 +61,11 @@ public class CommCareApp {
         // TODO: Badly coupled
         platform = new AndroidCommCarePlatform(version[0], version[1], CommCareApplication._(), this);
     }
-
+    
+    public Stylizer getStylizer(){
+        return mStylizer;
+    }
+    
     public String storageRoot() {
         // This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
         // it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
@@ -116,7 +122,11 @@ public class CommCareApp {
     public void setupSandbox() {
         setupSandbox(true);
     }
-
+    
+    public void initializeStylizer() {
+        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
+    }
+    
     /**
      * @param createFilePaths True if file paths should be created as usual. False otherwise
      */
@@ -258,8 +268,8 @@ public class CommCareApp {
             throw new RuntimeException(e);
         }
     }
-
-    public String getPreferencesFilename() {
+    
+    public String getPreferencesFilename(){
         return record.getApplicationId();
     }
 }

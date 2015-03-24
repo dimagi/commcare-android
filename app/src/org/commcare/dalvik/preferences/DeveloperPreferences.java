@@ -20,7 +20,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.view.Menu;
 
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -31,6 +30,8 @@ public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
+    public final static String CSS_ENABLED = "cc-css-enabled";
+    public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
     // Does the user want to download the latest app version deployed (built),
@@ -111,6 +112,7 @@ public class DeveloperPreferences extends PreferenceActivity {
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
+
     /**
      * @return true if developer option to download the latest app version
      * deployed (built) is enabled.  Otherwise the latest released (starred)
@@ -120,4 +122,15 @@ public class DeveloperPreferences extends PreferenceActivity {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
+
+    public static boolean isMarkdownEnabled(){
+        try{
+            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+            return properties.getString(MARKDOWN_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        } catch(NullPointerException e){
+            // currentApp() is not initialized
+            return false;
+        }
+    }
+
 }
