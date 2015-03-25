@@ -429,7 +429,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //NOTE: May need to do so elsewhere as well
         if(uiState == UiState.upgrade) {
             refreshView();
-            this.localize("updates.check");
+            mainMessage.setText(this.localize("updates.check"));
             startResourceInstall();
         }
     }
