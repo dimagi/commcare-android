@@ -22,16 +22,16 @@ import org.commcare.dalvik.activities.CommCareSetupActivity;
  */
 public class SetupInstallFragment extends Fragment {
     @UiElement(R.id.btn_fetch_uri)
-    Button scanBarcodeButton;
+    SquareButtonWithText scanBarcodeButton;
 
     @UiElement(R.id.enter_app_location)
-    Button enterURLButton;
+    SquareButtonWithText enterURLButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.setup_install, container, false);
-        scanBarcodeButton = (Button)view.findViewById(R.id.btn_fetch_uri);
-        enterURLButton = (Button)view.findViewById(R.id.enter_app_location);
+        scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
+        enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
