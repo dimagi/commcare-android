@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
@@ -178,7 +179,12 @@ public class EntityView extends LinearLayout {
                      renderedGraphsCache.put(i, new Hashtable<Integer, View>());
                  }
                  if (rendered == null) {
-                     rendered = g.getView((GraphData) field);
+                     try {
+                         rendered = g.getView((GraphData) field);
+                     } catch (InvalidStateException ise) {
+                         rendered = new TextView(context);
+                         ((TextView)rendered).setText(ise.getMessage());
+                     }
                      renderedGraphsCache.get(i).put(orientation, rendered);
                  }
                 ((LinearLayout) view).removeAllViews();

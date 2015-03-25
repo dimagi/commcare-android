@@ -14,6 +14,7 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
+import org.commcare.android.util.InvalidStateException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
@@ -32,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /*
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
@@ -78,7 +80,7 @@ public class GraphView {
         mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
     }
     
-    private void render(GraphData data) {
+    private void render(GraphData data) throws InvalidStateException {
         mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
@@ -91,7 +93,7 @@ public class GraphView {
         setMargins();        
     }
         
-    public Intent getIntent(GraphData data) {
+    public Intent getIntent(GraphData data) throws InvalidStateException {
         render(data);
         
         String title = mRenderer.getChartTitle();
@@ -108,7 +110,7 @@ public class GraphView {
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
      */
-    public View getView(GraphData data) {
+    public View getView(GraphData data) throws InvalidStateException {
         render(data);
         
         // Graph will not render correctly unless it has data, so
@@ -161,7 +163,7 @@ public class GraphView {
     /*
      * Set up a single series.
      */
-    private void renderSeries(SeriesData s) {
+    private void renderSeries(SeriesData s) throws InvalidStateException {
         XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
         mRenderer.addSeriesRenderer(currentRenderer);
         configureSeries(s, currentRenderer);
@@ -169,7 +171,7 @@ public class GraphView {
         XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             if (s.getConfiguration("radius-max") != null) {
-                ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max")));
+                ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max"), "radius-max"));
             }
         }
         mDataset.addSeries(series);
@@ -184,13 +186,13 @@ public class GraphView {
         for (XYPointData p : sortedPoints) {
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
-                ((RangeXYValueSeries) series).add(parseXValue(b.getX()), parseYValue(b.getY()), parseRadiusValue(b.getRadius()));
+                ((RangeXYValueSeries) series).add(parseXValue(b.getX(), "x value"), parseYValue(b.getY(), "y value"), parseRadiusValue(b.getRadius(), "radius"));
             }
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
-                ((TimeSeries) series).add(parseXValue(p.getX()), parseYValue(p.getY()));
+                ((TimeSeries) series).add(parseXValue(p.getX(), "x value"), parseYValue(p.getY(), "y value"));
             }
             else {
-                series.add(parseXValue(p.getX()), parseYValue(p.getY()));
+                series.add(parseXValue(p.getX(), "y value"), parseYValue(p.getY(), "y value"));
             }
         }
     }
@@ -235,13 +237,14 @@ public class GraphView {
     /*
      * Set up any annotations.
      */
-    private void renderAnnotations() {
+    private void renderAnnotations() throws InvalidStateException {
         Vector<AnnotationData> annotations = mData.getAnnotations();
         if (!annotations.isEmpty()) {
             // Create a fake series for the annotations
             XYSeries series = createSeries();
             for (AnnotationData a : annotations) {
-                series.addAnnotation(a.getAnnotation(), parseXValue(a.getX()), parseYValue(a.getY()));
+                String text = a.getAnnotation();
+                series.addAnnotation(text, parseXValue(a.getX(), "x value for annotation '" + text + "'"), parseYValue(a.getY(), "y value for annotation '" + text + "'"));
             }
             
             // Annotations won't display unless the series has some data in it
@@ -310,7 +313,7 @@ public class GraphView {
     /*
      * Configure graph's look and feel based on default assumptions and user-requested configuration.
      */
-    private void configure() {
+    private void configure() throws InvalidStateException{
         // Default options
         mRenderer.setBackgroundColor(mContext.getResources().getColor(R.color.white));
         mRenderer.setMarginsColor(mContext.getResources().getColor(R.color.white));
@@ -336,23 +339,23 @@ public class GraphView {
         mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
 
         if (mData.getConfiguration("x-min") != null) {
-            mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min")));
+            mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min"), "x-min"));
         }
         if (mData.getConfiguration("y-min") != null) {
-            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("y-min")));
+            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("y-min"), "y-min"));
         }
         if (mData.getConfiguration("secondary-y-min") != null) {
-            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("secondary-y-min")), 1);
+            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("secondary-y-min"), "secondary-y-min"), 1);
         }
         
         if (mData.getConfiguration("x-max") != null) {
-            mRenderer.setXAxisMax(parseXValue(mData.getConfiguration("x-max")));
+            mRenderer.setXAxisMax(parseXValue(mData.getConfiguration("x-max"), "x-max"));
         }
         if (mData.getConfiguration("y-max") != null) {
-            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("y-max")));
+            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("y-max"), "y-max"));
         }
         if (mData.getConfiguration("secondary-y-max") != null) {
-            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max")), 1);
+            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"), 1);
         }
         
         String showGrid = mData.getConfiguration("show-grid", "true");
@@ -380,39 +383,59 @@ public class GraphView {
     /**
      * Parse given string into Double for AChartEngine.
      * @param value
+     * @param description Something to identify the kind of value, used to augment any error message.
      * @return
      */
-    private Double parseXValue(String value) {
+    private Double parseXValue(String value, String description) throws InvalidStateException {
         if (mData.getType().equals(Graph.TYPE_TIME)) {
-            return Double.valueOf(DateUtils.parseDateTime(value).getTime());
+            return parseDouble(String.valueOf(DateUtils.parseDateTime(value).getTime()), "X value");
         }
 
-        return Double.valueOf(value);
+        return parseDouble(value, description);
     }
     
     /**
      * Parse given string into Double for AChartEngine.
      * @param value
+     * @param description Something to identify the kind of value, used to augment any error message.
      * @return
+     * @throws InvalidStateException 
      */
-    private Double parseYValue(String value) {
-        return Double.valueOf(value);
+    private Double parseYValue(String value, String description) throws InvalidStateException {
+        return parseDouble(value, description);
     }
     
     /**
      * Parse given string into Double for AChartEngine.
      * @param value
+     * @param description Something to identify the kind of value, used to augment any error message.
      * @return
      */
-    private Double parseRadiusValue(String value) {
-        return Double.valueOf(value);
+    private Double parseRadiusValue(String value, String description) throws InvalidStateException {
+        return parseDouble(value, description);
+    }
+    
+    /**
+     * Attempt to parse a double, but fail on NumberFormatException.
+     * @param value
+     * @param description Something to identify the kind of value, used to augment any error message.
+     * @return
+     * @throws InvalidStateException
+     */
+    private Double parseDouble(String value, String description) throws InvalidStateException {
+        try {
+            return Double.valueOf(value);
+        }
+        catch (NumberFormatException nfe) {
+            throw new InvalidStateException("Could not understand " + description + " '" + value + "'");
+        }
     }
 
     /**
      * Customize labels.
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
      */
-    private void configureLabels(String key) {
+    private void configureLabels(String key) throws InvalidStateException {
         // The labels setting might be a JSON array of numbers, 
         // a JSON object of number => string, or a single number
         String labelString = mData.getConfiguration(key);
@@ -423,7 +446,7 @@ public class GraphView {
                 setLabelCount(key, 0);
                 for (int i = 0; i < labels.length(); i++) {
                     String value = labels.getString(i);
-                    addTextLabel(key, parseXValue(value), value);
+                    addTextLabel(key, parseXValue(value, "x label '" + key + "'"), value);
                 }
             }
             catch (JSONException je) {
@@ -437,7 +460,7 @@ public class GraphView {
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                        String location = (String) i.next();
-                       addTextLabel(key, parseXValue(location), labels.getString(location));
+                       addTextLabel(key, parseXValue(location, "x label at " + location), labels.getString(location));
                     }
                 }
                 catch (JSONException e) {
@@ -509,7 +532,11 @@ public class GraphView {
     private class PointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
-            return parseXValue(lhs.getX()).compareTo(parseXValue(rhs.getX()));
+            try {
+                return parseXValue(lhs.getX(), "").compareTo(parseXValue(rhs.getX(), ""));
+            } catch (InvalidStateException e) {
+                return 0;
+            }
         }
     }
 
