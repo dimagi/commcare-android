@@ -388,7 +388,7 @@ public class GraphView {
      */
     private Double parseXValue(String value, String description) throws InvalidStateException {
         if (mData.getType().equals(Graph.TYPE_TIME)) {
-            return parseDouble(String.valueOf(DateUtils.parseDateTime(value).getTime()), "X value");
+            return parseDouble(String.valueOf(DateUtils.parseDateTime(value).getTime()), "x value");
         }
 
         return parseDouble(value, description);
