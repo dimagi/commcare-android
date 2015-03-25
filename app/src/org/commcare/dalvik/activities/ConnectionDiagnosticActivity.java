@@ -5,6 +5,7 @@ import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.ConnectionDiagnosticTask;
 import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -94,7 +95,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                                     Localization.get("connection.task.internet.fail") 
                                     : Localization.get("connection.task.remote.ping.fail");
                             
-                            receiver.txtInteractiveMessages.setText(displayMessage);
+                            receiver.txtInteractiveMessages.setText(localize(displayMessage));
                             receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
                             
                             receiver.settingsButton.setVisibility(View.VISIBLE);
@@ -194,7 +195,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                 else 
                 {
                     Logger.log(ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
-                    ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(Localization.get("connection.task.unset.posturl"));
+                    ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(ConnectionDiagnosticActivity.this, "connection.task.unset.posturl"));
                     ConnectionDiagnosticActivity.this.txtInteractiveMessages.setVisibility(View.VISIBLE);
                 }
             }

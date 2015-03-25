@@ -1,5 +1,9 @@
 package org.commcare.dalvik.activities;
 
+import in.uncod.android.bypass.Bypass;
+
+import java.io.StringReader;
+
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -11,6 +15,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -32,6 +37,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.InputType;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -99,6 +105,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     int dbState;
     int resourceState;
     int retryCount=0;
+    
+    public final boolean doStyle = true;
     
     
     public String incomingRef;
@@ -276,7 +284,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
             
         });
-        addressEntryButton.setText(Localization.get("install.button.enter"));
+        addressEntryButton.setText(this.localize("install.button.enter"));
         
         startOverButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -426,7 +434,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //NOTE: May need to do so elsewhere as well
         if(uiState == UiState.upgrade) {
             refreshView();
-            mainMessage.setText(Localization.get("updates.check"));
+            //mainMessage.setText(Localization.get("updates.check"));
+            mainMessage.setText("updates.check");
             startResourceInstall();
         }
     }
@@ -698,7 +707,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
+        menu.add(0, MODE_BASIC, 0, this.localize("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
         menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         return true;
@@ -733,19 +742,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToAutoUpgrade(){
-        retryButton.setText(Localization.get("upgrade.button.retry"));
-        startOverButton.setText(Localization.get("upgrade.button.startover"));
+        retryButton.setText(this.localize("upgrade.button.retry"));
+        startOverButton.setText(this.localize("upgrade.button.startover"));
         buttonView.setVisibility(View.INVISIBLE);
     }
     
     public void setModeToReady(String incomingRef) {
         buttonView.setVisibility(View.VISIBLE);
-        mainMessage.setText(Localization.get("install.ready"));
+        
+        mainMessage.setText(this.localize("install.ready"));
+        mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
+        
         editProfileRef.setText(incomingRef);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
-        startOverButton.setText(Localization.get("install.button.startover"));
+        startOverButton.setText(this.localize("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
         addressEntryButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
@@ -787,9 +799,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void setModeToBasic(String message){
         loginButton.setVisibility(View.GONE);
         buttonView.setVisibility(View.VISIBLE);
-        editProfileRef.setText("");    
+        editProfileRef.setText("");
         this.incomingRef = null;
-        mainMessage.setText(message);
+
+        mainMessage.setText(this.localize("install.barcode"));
+        mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
+        
         addressEntryButton.setVisibility(View.VISIBLE);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.VISIBLE);
@@ -797,8 +812,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startOverButton.setVisibility(View.GONE);
         installButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
-        retryButton.setText(Localization.get("install.button.retry"));
-        startOverButton.setText(Localization.get("install.button.startover"));
+        retryButton.setText(this.localize("install.button.retry"));
+        startOverButton.setText(this.localize("install.button.startover"));
     }
 
     public void setModeToAdvanced(){
@@ -808,13 +823,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         mScanBarcodeButton.setVisibility(View.GONE);
         addressEntryButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
-        startOverButton.setText(Localization.get("install.button.startover"));
+        startOverButton.setText(this.localize("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
         installButton.setEnabled(true);
         viewNotificationButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
-        retryButton.setText(Localization.get("install.button.retry"));
-        startOverButton.setText(Localization.get("install.button.startover"));
+		retryButton.setText(this.localize("install.button.retry"));
+        startOverButton.setText(this.localize("install.button.startover"));
         loginButton.setVisibility(View.GONE);
     }
 
@@ -893,7 +908,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             if(alwaysNotify) {
                 this.displayMessage= Localization.get("notification.for.details.setup.wrapper", new String[] {message.getDetails()});
                 this.canRetry = canRetry;
-                mainMessage.setText(displayMessage);
+                mainMessage.setText(Localization.get(displayMessage));
             } else {
                 
                 this.displayMessage= message.getDetails();
@@ -905,7 +920,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     fullErrorMessage = fullErrorMessage + message.getAction();
                 }
                 
-                mainMessage.setText(fullErrorMessage);
             }
         }
         

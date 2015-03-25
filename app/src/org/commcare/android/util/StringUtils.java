@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.support.v4.util.LruCache;
+import android.text.Spannable;
 import android.util.Pair;
 
 import org.javarosa.core.services.locale.Localization;
@@ -160,5 +161,20 @@ public class StringUtils {
         } catch(NoLocalizedTextException e) {
             return c.getString(resId, args);
         }
+    }
+
+    public static Spannable getStringSpannableRobust(Context c, int resId) {
+        return getStringSpannableRobust(c, resId, "");
+    }
+
+    public static Spannable getStringSpannableRobust(Context c, int resId, String args) {
+        String resourceName = c.getResources().getResourceEntryName(resId);
+        String ret = "";
+        try {
+            ret= Localization.get("odk_" + resourceName, new String[]{args});
+        } catch(NoLocalizedTextException e) {
+            ret= c.getString(resId, args);
+        }
+        return MarkupUtil.styleSpannable(c, ret);
     }
 }
