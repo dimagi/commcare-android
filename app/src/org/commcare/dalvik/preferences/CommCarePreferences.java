@@ -86,6 +86,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
     public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
 
+    public final static String LOGIN_DURATION = "cc-login-duration-hours";
+
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
 
@@ -226,6 +228,12 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         return properties.getString(FUZZY_SEARCH, NO).equals(YES);
+    }
+
+    public static int getLoginDuration() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+
+        return properties.getInt(LOGIN_DURATION, 24);
     }
 
     /*
