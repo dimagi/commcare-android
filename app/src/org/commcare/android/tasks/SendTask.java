@@ -1,7 +1,7 @@
 package org.commcare.android.tasks;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import android.content.Context;
+import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -17,8 +17,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.locale.Localization;
 
-import android.content.Context;
-import android.util.Log;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * @author ctsims
@@ -122,6 +122,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
             
             if(!(f.isDirectory())){
                 Log.e("send","Encountered non form entry in file dump folder at path: " + f.getAbsolutePath());
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[] {null, f.getName()}, MALFORMED_FILE_CATEGORY));
                 continue;
             }
             try{
