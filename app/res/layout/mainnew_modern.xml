@@ -17,21 +17,25 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <com.origamilabs.library.views.StaggeredGridView
+    <!--<com.origamilabs.library.views.StaggeredGridView-->
+        <GridView
         android:id="@+id/home_gridview_buttons"
         android:numColumns="2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="8dp"
         android:layout_above="@+id/str_version"
-        app:itemMargin="8dp"
+        android:horizontalSpacing="8dp"
+        android:verticalSpacing="8dp"
         />
+        <!--android:layout_margin="8dp"-->
+        <!--app:itemMargin="8dp"-->
     <TextView
         android:id="@+id/str_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/VersionIdText"
         android:layout_alignParentBottom="true"
+        android:visibility="gone"
         />
     </RelativeLayout>
 </LinearLayout>
