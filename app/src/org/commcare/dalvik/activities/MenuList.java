@@ -48,7 +48,6 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     @UiElement(R.id.screen_suite_menu_list)
     private ListView list;
 
-    @UiElement(R.id.menu_list_header)
     private TextView header;
 
     /*
