@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -29,6 +28,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
     int backgroundColorNotification = R.drawable.bubble;
     String subtitleButton = "";
     String textNotification = "";
+    private int colorButtonText = R.color.cc_core_bg;
 
     //endregion
 
@@ -85,6 +85,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
             backgroundColorNotification = typedArray.getResourceId(R.styleable.SquareButtonWithNotification_backgroundcolorNotification, backgroundColorNotification);
             subtitleButton = typedArray.getString(R.styleable.SquareButtonWithNotification_sbn_subtitle);
             textNotification = typedArray.getString(R.styleable.SquareButtonWithNotification_notificationText);
+            colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithNotification_colorButtonText, colorButtonText);
 
             typedArray.recycle();
 
@@ -92,6 +93,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
             buttonWithText.setImage(backgroundImg);
             buttonWithText.setText(subtitleButton);
             setNotificationText(textNotification);
+            buttonWithText.setTextColor(colorButtonText);
         }
     }
 

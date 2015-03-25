@@ -25,6 +25,7 @@ public class SquareButtonWithText extends RelativeLayout {
     Drawable backgroundImg;
     int backgroundColor = android.R.drawable.btn_default;
     String text = "";
+    private int colorButtonText = R.color.cc_core_bg;
 
     //region Custom parameter processing
 
@@ -36,6 +37,7 @@ public class SquareButtonWithText extends RelativeLayout {
         backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
         backgroundColor = typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent);
         text = typedArray.getString(R.styleable.SquareButtonWithText_subtitle);
+        colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, colorButtonText);
 
         typedArray.recycle();
 
@@ -43,16 +45,17 @@ public class SquareButtonWithText extends RelativeLayout {
         textView = (TextView) findViewById(R.id.text_view);
 
         if(isInEditMode()){
-            setUI(R.color.cc_brand_color, getResources().getDrawable(R.drawable.barcode), "Your text goes here");
+            setUI(R.color.cc_brand_color, getResources().getDrawable(R.drawable.barcode), "Your text goes here", colorButtonText);
         }
 
-        setUI(backgroundColor, backgroundImg, text);
+        setUI(backgroundColor, backgroundImg, text, colorButtonText);
     }
 
-    private void setUI(int backgroundColor, Drawable backgroundImg, String text) {
+    private void setUI(int backgroundColor, Drawable backgroundImg, String text, int colorButtonText) {
         setColor(backgroundColor);
         setImage(backgroundImg);
         setText(text);
+        setTextColor(colorButtonText);
     }
 
     //endregion
@@ -72,6 +75,8 @@ public class SquareButtonWithText extends RelativeLayout {
     public void setColor(int backgroundColor) {
         squareButton.setBackgroundResource(backgroundColor);
     }
+
+    public void setTextColor(int textColor) { textView.setTextColor(textColor); }
 
     //endregion
 
