@@ -192,16 +192,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return true;
     }
 
-    @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
-        View thisView = super.onCreateView(name, context, attrs);
-
-        TypedArray a=obtainStyledAttributes( attrs, R.styleable.StaggeredGridView);
-        gridViewMargin = a.getDimensionPixelSize(R.styleable.StaggeredGridView_itemMargin, 0);
-
-        return thisView;
-    }
-
     /*
          * (non-Javadoc)
          * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
