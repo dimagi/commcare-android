@@ -12,6 +12,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
@@ -20,6 +21,7 @@ import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
@@ -293,7 +295,7 @@ public class EntityDetailView extends FrameLayout {
             updateCurrentView(VIDEO, videoButton);
         } else {
             String text = textField;
-            data.setText(text);
+            data.setText((text));
             if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
                 veryLong = true;
             }

@@ -68,11 +68,11 @@ public class SpinnerMultiWidget extends QuestionWidget {
             answer_items[i] = prompt.getSelectChoiceText(mItems.get(i));
         }
 
-        selectionText.setText(StringUtils.getStringRobust(context, R.string.selected));
+        selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected));
         selectionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         selectionText.setVisibility(View.GONE);
 
-        button.setText(StringUtils.getStringRobust(context, R.string.select_answer));
+        button.setText(StringUtils.getStringSpannableRobust(context, R.string.select_answer));
         button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         button.setPadding(0, 0, 0, 7);
 
@@ -91,7 +91,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
 
                                     if (first) {
                                         first = false;
-                                        selectionText.setText(StringUtils.getStringRobust(context, R.string.selected)
+                                        selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
                                                 + answer_items[i].toString());
                                         selectionText.setVisibility(View.VISIBLE);
                                     } else {
@@ -156,7 +156,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
                 if (found) {
                     if (first) {
                         first = false;
-                        selectionText.setText(StringUtils.getStringRobust(context, R.string.selected)
+                        selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
                                 + answer_items[i].toString());
                         selectionText.setVisibility(View.VISIBLE);
                     } else {

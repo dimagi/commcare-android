@@ -69,14 +69,14 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
 
         mGetLocationButton = new Button(getContext());
         mGetLocationButton.setPadding(20, 20, 20, 20);
-        mGetLocationButton.setText(StringUtils.getStringRobust(getContext(), R.string.get_location));
+        mGetLocationButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_location));
         mGetLocationButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mGetLocationButton.setEnabled(!prompt.isReadOnly());
         mGetLocationButton.setLayoutParams(params);
 
         // setup play button
         mViewButton = new Button(getContext());
-        mViewButton.setText(StringUtils.getStringRobust(getContext(), R.string.show_location));
+        mViewButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.show_location));
         mViewButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mViewButton.setPadding(20, 20, 20, 20);
         mViewButton.setLayoutParams(params);
@@ -112,7 +112,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null && !s.equals("")) {
-            mGetLocationButton.setText(StringUtils.getStringRobust(getContext(), R.string.replace_location));
+            mGetLocationButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.replace_location));
             setBinaryData(s);
             mViewButton.setEnabled(true);
         } else {
@@ -171,7 +171,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     public void clearAnswer() {
         mStringAnswer.setText(null);
         mAnswerDisplay.setText(null);
-        mGetLocationButton.setText(StringUtils.getStringRobust(getContext(), R.string.get_location));
+        mGetLocationButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_location));
 
     }
 
@@ -260,12 +260,12 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
         mStringAnswer.setText(s);
 
         String[] sa = s.split(" ");
-        mAnswerDisplay.setText(StringUtils.getStringRobust(getContext(), R.string.latitude) + ": "
+        mAnswerDisplay.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.latitude) + ": "
                 + formatGps(Double.parseDouble(sa[0]), "lat") + "\n"
-                + StringUtils.getStringRobust(getContext(), R.string.longitude) + ": "
+                + StringUtils.getStringSpannableRobust(getContext(), R.string.longitude) + ": "
                 + formatGps(Double.parseDouble(sa[1]), "lon") + "\n"
-                + StringUtils.getStringRobust(getContext(), R.string.altitude) + ": " + truncateDouble(sa[2]) + "m\n"
-                + StringUtils.getStringRobust(getContext(), R.string.accuracy) + ": " + truncateDouble(sa[3]) + "m");
+                + StringUtils.getStringSpannableRobust(getContext(), R.string.altitude) + ": " + truncateDouble(sa[2]) + "m\n"
+                + StringUtils.getStringSpannableRobust(getContext(), R.string.accuracy) + ": " + truncateDouble(sa[3]) + "m");
         mWaitingForData = false;
     }
 
