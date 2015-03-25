@@ -55,6 +55,7 @@ public class TabbedDetailView extends RelativeLayout {
 
     public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        if(isInEditMode()) return;
         mContext = (FragmentActivity) context;
     }
     
