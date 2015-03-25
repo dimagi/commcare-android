@@ -2,7 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/screen_login_main">
+                android:id="@+id/screen_login_main"
+                android:background="@color/cc_core_bg"
+    >
 
     <LinearLayout
     android:id="@+id/screen_login_bottom_pane"

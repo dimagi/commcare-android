@@ -4,7 +4,9 @@
                 android:id="@+id/screen_first_start_main"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="@color/cc_core_bg"
+    >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -63,6 +65,7 @@
     SquareButtonWithText:subtitle="Scan application barcode"
     SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
     SquareButtonWithText:img="@drawable/barcode"
+    SquareButtonWithText:colorText="@color/white"
     />
 
     <org.commcare.android.view.SquareButtonWithText
@@ -76,6 +79,7 @@
     SquareButtonWithText:subtitle="Enter URL"
     SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
     SquareButtonWithText:img="@drawable/icon_new"
+    SquareButtonWithText:colorText="@color/white"
     />
     </LinearLayout>
             <!--<TextView-->
