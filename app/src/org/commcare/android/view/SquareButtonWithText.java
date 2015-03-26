@@ -76,7 +76,7 @@ public class SquareButtonWithText extends RelativeLayout {
         squareButton.setBackgroundResource(backgroundColor);
     }
 
-    public void setTextColor(int textColor) { textView.setTextColor(textColor); }
+    public void setTextColor(int textColor) { textView.setTextColor(getResources().getColor(textColor)); }
 
     //endregion
 

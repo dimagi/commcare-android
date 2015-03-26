@@ -11,6 +11,7 @@
     </declare-styleable>
     <declare-styleable name="SquareButtonWithNotification">
         <attr name="colorButtonText" format="reference|color" />
+        <attr name="colorNotificationText" format="reference|color" />
         <attr name="backgroundcolorButton" format="reference|color" />
         <attr name="backgroundcolorNotification" format="reference|color" />
         <attr name="sbn_subtitle" format="string" />

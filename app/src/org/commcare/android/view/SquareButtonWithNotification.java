@@ -25,10 +25,11 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
     Drawable backgroundImg;
     int backgroundColorButton = android.R.drawable.btn_default;
-    int backgroundColorNotification = R.drawable.bubble;
+    int backgroundColorNotification = android.R.color.holo_green_light;
     String subtitleButton = "";
     String textNotification = "";
-    private int colorButtonText = R.color.cc_core_bg;
+    private int colorButtonText = R.color.white;
+    private int colorNotificationText = R.color.black;
 
     //endregion
 
@@ -86,6 +87,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
             subtitleButton = typedArray.getString(R.styleable.SquareButtonWithNotification_sbn_subtitle);
             textNotification = typedArray.getString(R.styleable.SquareButtonWithNotification_notificationText);
             colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithNotification_colorButtonText, colorButtonText);
+            colorNotificationText = typedArray.getResourceId(R.styleable.SquareButtonWithNotification_colorNotificationText, colorNotificationText);
 
             typedArray.recycle();
 
@@ -94,6 +96,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
             buttonWithText.setText(subtitleButton);
             setNotificationText(textNotification);
             buttonWithText.setTextColor(colorButtonText);
+            subText.setTextColor(getResources().getColor(colorNotificationText));
         }
     }
 
