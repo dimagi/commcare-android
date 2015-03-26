@@ -11,6 +11,7 @@ import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Created by dancluna on 3/19/15.
@@ -45,6 +46,9 @@ public class HomeScreenAdapter extends BaseAdapter {
     private Context context;
 
     private boolean[] hiddenButtons = new boolean[buttonsResources.length];
+    private boolean isInitialized = false;
+
+    private LinkedList<SquareButtonWithNotification> visibleButtons;
 
     //endregion
 
@@ -72,7 +76,8 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return buttonsResources.length;
+//        return buttonsResources.length;
+        return visibleButtons == null ? buttonsResources.length : visibleButtons.size();
     }
 
     @Override
@@ -87,37 +92,54 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View view;
+        if(!isInitialized){
+            visibleButtons = new LinkedList<>();
+            Log.i("HomeScrnAdpt","Creating all buttons because got a null in position " + position);
+            for (int i = 0; i < buttons.length; i++) {
+                if (buttons[i] != null) continue;
+                SquareButtonWithNotification button = (SquareButtonWithNotification) LayoutInflater.from(context)
+                        .inflate(buttonsResources[i], parent, false);
+                buttons[i] = button;
+                Log.i("HomeScrnAdpt","Added button " + button + "to position " + i);
+
+                View.OnClickListener listener = buttonListeners[i];
+                // creating now, but set a clickListener before, so we'll add it to this button...
+                if(listener != null) {
+                    button.setOnClickListener(listener);
+                    Log.i("HomeScrnAdpt","Added onClickListener " + listener + " to button in position " + i);
+                }
+                if( i == position ) view = button;
+                if(!hiddenButtons[i]) visibleButtons.add(button);
+            }
+            isInitialized = true;
+        }
         if(position < 0 || position >= getCount()) return null;
         if(convertView != null) {
             return convertView;
         } else {
-            // going to assume we already created at least 1 button, if not, we'll just create them all here...
-            SquareButtonWithNotification view = buttons[position];
-            if(view == null) {
-                Log.i("HomeScrnAdpt","Creating all buttons because got a null in position " + position);
-                for (int i = 0; i < buttons.length; i++) {
-                    if (buttons[i] != null) continue;
-                    SquareButtonWithNotification button = (SquareButtonWithNotification) LayoutInflater.from(context)
-                            .inflate(buttonsResources[i], parent, false);
-                    buttons[i] = button;
-                    Log.i("HomeScrnAdpt","Added button " + button + "to position " + i);
+            SquareButtonWithNotification btn = visibleButtons.get(position);
 
-                    View.OnClickListener listener = buttonListeners[i];
-                    // creating now, but set a clickListener before, so we'll add it to this button...
-                    if(listener != null) {
-                        button.setOnClickListener(listener);
-                        Log.i("HomeScrnAdpt","Added onClickListener " + listener + " to button in position " + i);
-                    }
-                    if( i == position ) view = button;
-                }
+            if(btn == null) {
+                Log.i("HomeScrnAdpt","Unexpected null button");
             }
 
-            return view;
+            return btn;
         }
     }
 
     public void setButtonVisibility(int androidCode, boolean lookupID, boolean isButtonHidden){
-        hiddenButtons[getButtonIndex(androidCode, lookupID)] = isButtonHidden;
+        int index = getButtonIndex(androidCode, lookupID);
+        boolean toggled = isButtonHidden ^ hiddenButtons[index];
+        hiddenButtons[index] = isButtonHidden;
+        if (visibleButtons != null) {
+            if(!toggled) return;
+            if(isButtonHidden) {
+                visibleButtons.remove(buttons[index]);
+            } else {
+                visibleButtons.add(index, buttons[index]);
+            }
+        }
     }
 
     //endregion
