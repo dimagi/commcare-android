@@ -1,27 +1,31 @@
 package org.commcare.android.tests;
 
+import static junit.framework.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Vector;
 
-import junit.framework.TestCase;
-
 import org.commcare.android.database.IndexSpanningIterator;
 import org.commcare.android.mocks.ExtendedTestCursor;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class IndexSpanningIteratorTests extends TestCase {
+public class IndexSpanningIteratorTest {
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
     }
     
     private int[] i(int...inputs) {
         return inputs;
     }
     
+    @Test
     public void testGapWalking() {
         //Empty inputs
         testSpans(i(), i(), 0, 0, 0);

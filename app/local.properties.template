@@ -1,0 +1,12 @@
+## SDK Directory
+#sdk.dir=
+
+## Configure to the file containing your key properties
+#file.key.properties=
+
+## Set the below directories to pull in resources from the ant 
+## build targets from javarosa and commcare (point each to the
+## dist folders of those repos)  
+#build.source=true
+#javarosa.libs=
+#commcare.libs=
