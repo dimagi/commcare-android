@@ -2,7 +2,9 @@
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="wrap_content"
-  android:layout_height="wrap_content">
+  android:layout_height="wrap_content"
+  android:background="@color/cc_core_bg"
+    >
 
 <FrameLayout
     android:id="@+id/universal_frame_tile"
