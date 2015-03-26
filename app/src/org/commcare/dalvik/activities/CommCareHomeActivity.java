@@ -3,12 +3,10 @@ package org.commcare.dalvik.activities;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -20,7 +18,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.format.DateUtils;
-import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
@@ -31,7 +28,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -97,6 +93,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
+import in.srain.cube.views.GridViewWithHeaderAndFooter;
+
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
     
     public static final int LOGIN_USER = 0;
@@ -159,7 +157,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     SquareButtonWithNotification viewOldForms;
     HomeScreenAdapter adapter;
-    GridView gridView;
+    GridViewWithHeaderAndFooter gridView;
     int gridViewMargin;
 
     private boolean isUsingNewUI(){
@@ -195,7 +193,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(isUsingNewUI()) {
             setContentView(R.layout.mainnew_modern);
             adapter = new HomeScreenAdapter(this);
-            gridView = (GridView)findViewById(R.id.home_gridview_buttons);
+            View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
+            gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
+            gridView.addHeaderView(topBanner);
             gridView.setAdapter(adapter);
             gridView.requestLayout();
             adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
@@ -286,6 +286,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         };
         if(isUsingNewUI()){
             adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, false, logoutButtonListener);
+            if (logoutButton != null) { logoutButton.setNotificationText(getActivityTitle()); }
         } else {
             logoutButton.setOnClickListener(logoutButtonListener);
         }
@@ -1456,10 +1457,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         
 
-        if(startButton == null) return;
         //since these might have changed
-        startButton.setText(Localization.get(homeMessageKey));
-        logoutButton.setText(Localization.get(logoutMessageKey));
+        if(startButton != null)  startButton.setText(Localization.get(homeMessageKey));
+        if(logoutButton != null) logoutButton.setText(Localization.get(logoutMessageKey));
         
         
         CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
@@ -1475,24 +1475,24 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             if(isUsingNewUI()) {
 //                syncButton.setNotificationText(syncIndicator);
                 // TODO: which one is it? The subtext widget or the button content itself?
-                syncButton.setText(syncIndicator);
+                if(syncButton != null) syncButton.setText(syncIndicator);
             } else {
-                syncButton.setText(syncIndicator);
+                if(syncButton != null) syncButton.setText(syncIndicator);
             }
         } else {
-            syncButton.setText(Localization.get(syncKey));
+            if(syncButton != null) syncButton.setText(Localization.get(syncKey));
         }
         
         if(syncDetails.second[1] > 0) {
             String incompleteIndicator = (Localization.get("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
             if(isUsingNewUI()) {
 //                viewIncomplete.setNotificationText(incompleteIndicator);
-                viewIncomplete.setText(incompleteIndicator);
+                if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
             } else {
-                viewIncomplete.setText(incompleteIndicator);
+                if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
             }
         } else {
-            viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+            if(viewIncomplete != null) viewIncomplete.setText(Localization.get("home.forms.incomplete"));
         }
         
         if(syncDetails.second[0] > unsentFormNumberLimit){
@@ -1554,15 +1554,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 formRecordPane.setVisibility(View.VISIBLE);
 
                 if (!CommCarePreferences.isSavedFormsEnabled()) {
-                    viewOldForms.setVisibility(View.GONE);
+                    if(viewOldForms != null) viewOldForms.setVisibility(View.GONE);
                 } else {
-                    viewOldForms.setVisibility(View.VISIBLE);
+                    if(viewOldForms != null) viewOldForms.setVisibility(View.VISIBLE);
                 }
 
                 if (!CommCarePreferences.isIncompleteFormsEnabled()) {
-                    viewIncomplete.setVisibility(View.GONE);
+                    if(viewIncomplete != null) viewIncomplete.setVisibility(View.GONE);
                 } else {
-                    viewIncomplete.setVisibility(View.VISIBLE);
+                    if(viewIncomplete != null) viewIncomplete.setVisibility(View.VISIBLE);
                 }
 
             }
