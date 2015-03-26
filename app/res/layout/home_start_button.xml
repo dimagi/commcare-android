@@ -9,5 +9,6 @@
     android:layout_weight="1"
     app:sbn_subtitle="Start"
     app:backgroundcolorButton="@color/green"
+    app:colorButtonText="@color/white"
     app:sbn_img="@drawable/pencil">
 </org.commcare.android.view.SquareButtonWithNotification>

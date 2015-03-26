@@ -8,6 +8,7 @@
     app:sbn_subtitle="Saved forms"
     app:backgroundcolorButton="@color/blue_light"
     app:sbn_img="@drawable/notebook_full"
+    app:colorButtonText="@color/white"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>
 
