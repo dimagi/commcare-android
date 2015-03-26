@@ -192,7 +192,7 @@ public class GraphView {
                 ((TimeSeries) series).add(parseXValue(p.getX(), "x value"), parseYValue(p.getY(), "y value"));
             }
             else {
-                series.add(parseXValue(p.getX(), "y value"), parseYValue(p.getY(), "y value"));
+                series.add(parseXValue(p.getX(), "x value"), parseYValue(p.getY(), "y value"));
             }
         }
     }
