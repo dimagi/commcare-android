@@ -88,10 +88,7 @@ public class HomeScreenAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(position < 0 || position >= getCount()) return null;
-        for (int i = 0; i < hiddenButtons.length; i++) {
-            if(hiddenButtons[i]) return null;
-        }
-        if(convertView != null){
+        if(convertView != null) {
             return convertView;
         } else {
             // going to assume we already created at least 1 button, if not, we'll just create them all here...
