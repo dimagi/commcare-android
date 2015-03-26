@@ -19,12 +19,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:adjustViewBounds="true"
-            android:layout_marginRight="20px"
-            android:maxHeight="135px"
-            android:maxWidth="663px"
-            android:paddingBottom="20px"
-            android:paddingLeft="20px"
-            android:paddingTop="20px"
+            android:layout_marginRight="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
             android:layout_marginBottom="16dp"
             android:scaleType="fitStart"
             android:src="@drawable/ccbanner" />
@@ -32,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             >
                 <TextView
     android:id="@+id/str_setup_message"
@@ -64,7 +62,7 @@
     android:layout_weight="1"
     SquareButtonWithText:subtitle="Scan application barcode"
     SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
-    SquareButtonWithText:img="@drawable/barcode"
+    SquareButtonWithText:img="@drawable/scan_app_barcode"
     SquareButtonWithText:colorText="@color/white"
     />
 
@@ -78,7 +76,7 @@
     android:gravity="right"
     SquareButtonWithText:subtitle="Enter URL"
     SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
-    SquareButtonWithText:img="@drawable/icon_new"
+    SquareButtonWithText:img="@drawable/enter_url"
     SquareButtonWithText:colorText="@color/white"
     />
     </LinearLayout>
