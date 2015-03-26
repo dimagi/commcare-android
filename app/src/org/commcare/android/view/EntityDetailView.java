@@ -3,12 +3,15 @@
  */
 package org.commcare.android.view;
 
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
@@ -56,6 +59,7 @@ public class EntityDetailView extends FrameLayout {
     private AspectRatioLayout graphLayout;
     private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
     private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
+    private Set<Integer> graphsWithErrors;
     private ImageButton videoButton;
     private AudioButton audioButton;
     private View valuePane;
@@ -113,6 +117,7 @@ public class EntityDetailView extends FrameLayout {
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
         graphViewsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
+        graphsWithErrors = new HashSet<Integer>();
         graphIntentsCache = new Hashtable<Integer, Intent>();
         origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
         origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
@@ -179,6 +184,7 @@ public class EntityDetailView extends FrameLayout {
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
             // Fetch graph view from cache, or create it
             View graphView = null;
+            final Context context = getContext();
             int orientation = getResources().getConfiguration().orientation;
             if (graphViewsCache.get(index) != null) {
                 graphView = graphViewsCache.get(index).get(orientation);
@@ -187,41 +193,57 @@ public class EntityDetailView extends FrameLayout {
                 graphViewsCache.put(index, new Hashtable<Integer, View>());
             }
             if (graphView == null) {
-                GraphView g = new GraphView(getContext(), labelText);
+                GraphView g = new GraphView(context, labelText);
                 g.setClickable(true);
-                graphView = g.getView((GraphData) field);
+                try {
+                    graphView = g.getView((GraphData) field);
+                }
+                catch (InvalidStateException ise) {
+                    graphView = new TextView(context);
+                    int padding = (int) context.getResources().getDimension(R.dimen.spacer_small);
+                    graphView.setPadding(padding, padding, padding, padding);
+                    ((TextView)graphView).setText(ise.getMessage());
+                    graphsWithErrors.add(index);
+                }
                 graphViewsCache.get(index).put(orientation, graphView);
             }
             
             // Fetch full-screen graph intent from cache, or create it
             Intent graphIntent = graphIntentsCache.get(index);
-            final Context context = getContext();
-            if (graphIntent == null) {
+            if (graphIntent == null && !graphsWithErrors.contains(index)) {
                 GraphView g = new GraphView(context, labelText);
-                graphIntent = g.getIntent((GraphData) field);
-                graphIntentsCache.put(index, graphIntent);
+                try {
+                    graphIntent = g.getIntent((GraphData) field);
+                    graphIntentsCache.put(index, graphIntent);
+                }
+                catch (InvalidStateException ise) {
+                    // This shouldn't happen, since any error should have been caught during getView above
+                    graphsWithErrors.add(index);
+                }
             }
             final Intent finalIntent = graphIntent;
             
             // Open full-screen graph intent on double tap
-            final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onDown(MotionEvent e) {
-                    return true;
-                }
-        
-                @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    context.startActivity(finalIntent);
-                    return true;
-                }
-            });
-            graphView.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent event) {
-                    return detector.onTouchEvent(event);
-                }
-            });
+            if (!graphsWithErrors.contains(index)) {
+                final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDown(MotionEvent e) {
+                        return true;
+                    }
+            
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+                        context.startActivity(finalIntent);
+                        return true;
+                    }
+                });
+                graphView.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View view, MotionEvent event) {
+                        return detector.onTouchEvent(event);
+                    }
+                });
+            }
             
             graphLayout.removeAllViews();
             graphLayout.addView(graphView, GraphView.getLayoutParams());
