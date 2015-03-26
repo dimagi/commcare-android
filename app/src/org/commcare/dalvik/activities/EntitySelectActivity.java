@@ -1,10 +1,34 @@
 package org.commcare.dalvik.activities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.database.DataSetObserver;
+import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
@@ -37,36 +61,11 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.database.DataSetObserver;
-import android.net.Uri;
-import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 /**
  * 
@@ -170,7 +169,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
                 
                 TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
-                message.setText(Localization.get("select.placeholder.message", new String[] {Localization.get("cchq.case")}));
+                message.setText(localize("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
             } else {
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
@@ -557,10 +556,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
+        menu.add(0, MENU_SORT, MENU_SORT, localize("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if(mMappingEnabled) {
-            menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
+            menu.add(0, MENU_MAP, MENU_MAP, localize("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
         Action action = shortSelect.getCustomAction();
@@ -615,7 +614,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private void createSortMenu() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         
-        builder.setTitle(Localization.get("select.menu.sort"));
+        builder.setTitle(localize("select.menu.sort"));
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
         

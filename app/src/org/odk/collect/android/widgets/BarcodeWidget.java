@@ -56,7 +56,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
         
         // set button formatting
         mGetBarcodeButton = new Button(getContext());
-        mGetBarcodeButton.setText(StringUtils.getStringRobust(getContext(), R.string.get_barcode));
+        mGetBarcodeButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode));
         mGetBarcodeButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mGetBarcodeButton.setPadding(20, 20, 20, 20);
         mGetBarcodeButton.setEnabled(!prompt.isReadOnly());
@@ -77,7 +77,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
                         FormEntryActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                            StringUtils.getStringRobust(getContext(), R.string.barcode_scanner_error), Toast.LENGTH_SHORT)
+                            StringUtils.getStringSpannableRobust(getContext(), R.string.barcode_scanner_error), Toast.LENGTH_SHORT)
                             .show();
                     mWaitingForData = false;
                 }
@@ -91,7 +91,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            mGetBarcodeButton.setText(StringUtils.getStringRobust(getContext(), R.string.replace_barcode));
+            mGetBarcodeButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.replace_barcode));
             mStringAnswer.setText(s);
         }
         // finish complex layout
@@ -107,7 +107,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);
-        mGetBarcodeButton.setText(StringUtils.getStringRobust(getContext(), R.string.get_barcode));
+        mGetBarcodeButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode));
     }
 
 

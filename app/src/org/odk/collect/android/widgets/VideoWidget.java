@@ -74,7 +74,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         params.setMargins(7, 5, 7, 5);
         // setup capture button
         mCaptureButton = new Button(getContext());
-        mCaptureButton.setText(StringUtils.getStringRobust(getContext(), R.string.capture_video));
+        mCaptureButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.capture_video));
         mCaptureButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mCaptureButton.setPadding(20, 20, 20, 20);
         mCaptureButton.setEnabled(!prompt.isReadOnly());
@@ -97,7 +97,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        StringUtils.getStringRobust(getContext(), R.string.activity_not_found, "capture video"),
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "capture video"),
                             Toast.LENGTH_SHORT);
                 }
 
@@ -106,7 +106,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup capture button
         mChooseButton = new Button(getContext());
-        mChooseButton.setText(StringUtils.getStringRobust(getContext(), R.string.choose_video));
+        mChooseButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.choose_video));
         mChooseButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mChooseButton.setPadding(20, 20, 20, 20);
         mChooseButton.setEnabled(!prompt.isReadOnly());
@@ -131,7 +131,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                         FormEntryActivity.VIDEO_CHOOSER);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        StringUtils.getStringRobust(getContext(), R.string.activity_not_found, "choose video "),
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "choose video "),
                             Toast.LENGTH_SHORT);
                 }
 
@@ -140,7 +140,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup play button
         mPlayButton = new Button(getContext());
-        mPlayButton.setText(StringUtils.getStringRobust(getContext(), R.string.play_video));
+        mPlayButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.play_video));
         mPlayButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mPlayButton.setPadding(20, 20, 20, 20);
         mPlayButton.setLayoutParams(params);
@@ -160,7 +160,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                     ((Activity) getContext()).startActivity(i);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        StringUtils.getStringRobust(getContext(), R.string.activity_not_found, "video video"),
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "video video"),
                             Toast.LENGTH_SHORT);
                 }
             }

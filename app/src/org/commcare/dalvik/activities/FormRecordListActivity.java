@@ -16,30 +16,6 @@
 
 package org.commcare.dalvik.activities;
 
-import java.io.IOException;
-
-import org.commcare.android.adapters.IncompleteFormListAdapter;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.database.user.models.User;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.FormRecordLoadListener;
-import org.commcare.android.tasks.FormRecordLoaderTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.CommCareUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.view.IncompleteFormRecordView;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -67,6 +43,30 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.adapters.IncompleteFormListAdapter;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.User;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.logic.FormRecordProcessor;
+import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.tasks.FormRecordLoadListener;
+import org.commcare.android.tasks.FormRecordLoaderTask;
+import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.IncompleteFormRecordView;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.StorageFullException;
+
+import java.io.IOException;
 
 
 public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
@@ -147,7 +147,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             barcodeButton.setVisibility(View.GONE);
             
             TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-            searchLabel.setText(Localization.get("select.search.label"));
+            searchLabel.setText(this.localize("select.search.label"));
             
             searchbox.addTextChangedListener(this);
             FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
