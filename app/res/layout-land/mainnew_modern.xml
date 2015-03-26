@@ -14,23 +14,26 @@
         android:orientation="vertical"
         style="@style/MainPane">
 
-        <ImageView
-            android:id="@+id/main_top_banner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:paddingBottom="10dp"
-            android:scaleType="fitCenter"
-            android:layout_weight="1"
-            android:src="@drawable/ccbanner" />
+        <!--<ImageView-->
+            <!--android:id="@+id/main_top_banner"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:adjustViewBounds="true"-->
+            <!--android:paddingBottom="10dp"-->
+            <!--android:scaleType="fitCenter"-->
+            <!--android:layout_weight="1"-->
+            <!--android:src="@drawable/ccbanner" />-->
 
-        <GridView
+        <!-- adding top banner as dependency -->
+        <in.srain.cube.views.GridViewWithHeaderAndFooter
             android:layout_weight="1"
             android:id="@+id/home_gridview_buttons"
             android:numColumns="3"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/str_version"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:horizontalSpacing="8dp"
             android:verticalSpacing="8dp"
             />
@@ -41,7 +44,9 @@
             android:layout_weight="1"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:textAppearance="@style/VersionIdText"/>
+            android:textAppearance="@style/VersionIdText"
+            android:visibility="gone"
+            />
 
     </LinearLayout>
 

@@ -66,7 +66,8 @@ public class HomeScreenAdapter extends BaseAdapter {
     }
 
     public void setNotificationTextForButton(int androidCode, boolean lookupID, String notificationText) {
-        getButton(androidCode, lookupID).setNotificationText(notificationText);
+        SquareButtonWithNotification button = getButton(androidCode, lookupID);
+        if (button != null) button.setNotificationText(notificationText);
     }
 
     @Override
@@ -93,17 +94,27 @@ public class HomeScreenAdapter extends BaseAdapter {
         if(convertView != null){
             return convertView;
         } else {
-            SquareButtonWithNotification view = (SquareButtonWithNotification) LayoutInflater.from(context)
-                    .inflate(buttonsResources[position], parent, false);
-            buttons[position] = view;
-            Log.i("HomeScrnAdpt","Added button " + view + "to position " + position);
+            // going to assume we already created at least 1 button, if not, we'll just create them all here...
+            SquareButtonWithNotification view = buttons[position];
+            if(view == null) {
+                Log.i("HomeScrnAdpt","Creating all buttons because got a null in position " + position);
+                for (int i = 0; i < buttons.length; i++) {
+                    if (buttons[i] != null) continue;
+                    SquareButtonWithNotification button = (SquareButtonWithNotification) LayoutInflater.from(context)
+                            .inflate(buttonsResources[i], parent, false);
+                    buttons[i] = button;
+                    Log.i("HomeScrnAdpt","Added button " + button + "to position " + i);
 
-            View.OnClickListener listener = buttonListeners[position];
-            // creating now, but set a clickListener before, so we'll add it to this button...
-            if(listener != null){
-                view.setOnClickListener(listener);
-                Log.i("HomeScrnAdpt","Added onClickListener " + listener + " to button in position " + position);
+                    View.OnClickListener listener = buttonListeners[i];
+                    // creating now, but set a clickListener before, so we'll add it to this button...
+                    if(listener != null) {
+                        button.setOnClickListener(listener);
+                        Log.i("HomeScrnAdpt","Added onClickListener " + listener + " to button in position " + i);
+                    }
+                    if( i == position ) view = button;
+                }
             }
+
             return view;
         }
     }
