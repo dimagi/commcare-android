@@ -94,7 +94,7 @@ public class HomeScreenAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
         if(!isInitialized){
-            visibleButtons = new LinkedList<>();
+            visibleButtons = new LinkedList<SquareButtonWithNotification>();
             Log.i("HomeScrnAdpt","Creating all buttons because got a null in position " + position);
             for (int i = 0; i < buttons.length; i++) {
                 if (buttons[i] != null) continue;
