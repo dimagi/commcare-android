@@ -6,7 +6,7 @@
     android:layout_margin="8dp"
     android:layout_weight="1"
     app:sbn_subtitle="Incomplete forms"
-    app:backgroundcolorButton="@color/solid_dark_orange"
+    app:backgroundcolorButton="@drawable/round_button_incompleteforms"
     app:sbn_img="@drawable/incomplete_forms"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>

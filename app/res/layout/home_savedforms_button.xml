@@ -6,7 +6,7 @@
     android:layout_margin="8dp"
     android:layout_weight="1"
     app:sbn_subtitle="Saved forms"
-    app:backgroundcolorButton="@color/cc_light_cool_accent_color"
+    app:backgroundcolorButton="@drawable/round_button_savedforms"
     app:sbn_img="@drawable/saved_forms"
     app:colorButtonText="@color/white"
     xmlns:android="http://schemas.android.com/apk/res/android"
