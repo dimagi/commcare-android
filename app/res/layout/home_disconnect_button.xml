@@ -6,7 +6,7 @@
     android:layout_margin="8dp"
     android:layout_weight="1"
     app:sbn_subtitle="Disconnect"
-    app:backgroundcolorButton="@color/cc_neutral_color"
+    app:backgroundcolorButton="@drawable/round_button_disconnect"
     app:backgroundcolorNotification="@color/cc_neutral_text"
     app:colorNotificationText="@color/white"
     app:notificationText="Logged in as: "

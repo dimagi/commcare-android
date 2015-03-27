@@ -8,7 +8,7 @@
     android:layout_margin="8dp"
     android:layout_weight="1"
     app:sbn_subtitle="Start"
-    app:backgroundcolorButton="@color/cc_attention_positive_color"
+    app:backgroundcolorButton="@drawable/round_button_start"
     app:colorButtonText="@color/white"
     app:sbn_img="@drawable/start_icon">
 </org.commcare.android.view.SquareButtonWithNotification>
