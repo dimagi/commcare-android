@@ -14,16 +14,17 @@
 
 package org.odk.collect.android.widgets;
 
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
-import org.javarosa.form.api.FormEntryPrompt;
-
 import android.content.Context;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
+import org.javarosa.form.api.FormEntryPrompt;
 
 /**
  * Widget that restricts values to integers.
@@ -36,6 +37,7 @@ public class StringNumberWidget extends StringWidget {
         super(context, prompt, secret);
 
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
 
         // needed to make long readonly text scroll
         mAnswer.setHorizontallyScrolling(false);
@@ -103,6 +105,20 @@ public class StringNumberWidget extends StringWidget {
             } catch (Exception NumberFormatException) {
                 return null;
             }
+        }
+    }
+
+    /*
+ * (non-Javadoc)
+ * @see org.odk.collect.android.widgets.StringWidget#setLastQuestion(boolean)
+ * If this is the last question, set the action button to close the keyboard
+ */
+    @Override
+    public void setLastQuestion(boolean isLast){
+        if(isLast){
+            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE);
+        } else{
+            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
         }
     }
 
