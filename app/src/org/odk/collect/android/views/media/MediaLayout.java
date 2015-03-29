@@ -154,10 +154,10 @@ public class MediaLayout extends RelativeLayout {
             topPane.addView(mAudioButton, audioParams);
             topPane.addView(mVideoButton, videoParams);
         }
-        boolean textVisible = (text.getVisibility() != GONE);
+        boolean textVisible = (mView_Text.getVisibility() != GONE);
         if (textVisible) {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            topPane.addView(text, textParams);
+            topPane.addView(mView_Text, textParams);
         }
 
         // Now set up the image view
