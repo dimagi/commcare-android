@@ -1055,19 +1055,22 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
     enum FloatingLabel {
-        good ("floating-good", R.drawable.label_floating_good),
-        caution ("floating-caution", R.drawable.label_floating_caution),
-        bad ("floating-bad", R.drawable.label_floating_bad);
+        good ("floating-good", R.drawable.label_floating_good, R.color.cc_attention_positive_text),
+        caution ("floating-caution", R.drawable.label_floating_caution, R.color.cc_light_warm_accent_color),
+        bad ("floating-bad", R.drawable.label_floating_bad, R.color.cc_attention_negative_color);
         
         String label;
         int resourceId;
-        FloatingLabel(String label, int resourceId) {
+        int colorId;
+        FloatingLabel(String label, int resourceId, int colorId) {
             this.label = label;
             this.resourceId = resourceId;
+            this.colorId = colorId;
         }
         
         public String getAppearance() { return label;}
         public int getBackgroundDrawable() { return resourceId; }
+        public int getColorId() { return colorId; }
     };
     
     private void updateFloatingLabels(View currentView) {
@@ -1116,6 +1119,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 left.setText(smallLabels.get(i).first + ";" + smallLabels.get(i + 1).first);
                 left.setBackgroundResource(smallLabels.get(i).second.resourceId);
                 left.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
+                left.setTextColor(smallLabels.get(i).second.colorId);
                 layout.addView(left);
 
 //                TextView left = (TextView)View.inflate(this, R.layout.component_floating_label, null);
@@ -1143,6 +1147,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             view.setLayoutParams(lp);
             view.setText(largeLabels.get(i).first);
             view.setBackgroundResource(largeLabels.get(i).second.resourceId);
+            view.setTextColor(largeLabels.get(i).second.colorId);
             parent.addView(view);
         }
     }
