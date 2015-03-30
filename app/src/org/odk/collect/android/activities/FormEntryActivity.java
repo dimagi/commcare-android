@@ -46,6 +46,7 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
@@ -1096,33 +1097,41 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         ViewGroup parent = (ViewGroup)this.findViewById(R.id.form_entry_label_layout);
         parent.removeAllViews();
-        
+
+        int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+
         //Ok, now go ahead and add all of the small labels
         for(int i = 0 ; i < smallLabels.size(); i = i + 2 ) {
             if(i + 1 < smallLabels.size()) {
                 LinearLayout.LayoutParams lpp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-                lpp.setMargins(0, 1, 0, 0);
+                lpp.setMargins(0, pixels, 0, pixels);
                 LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
                 layout.setLayoutParams(lpp);
-                layout.setWeightSum(2);
-                
+//                layout.setWeightSum(2);
+
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
-                
                 TextView left = (TextView)View.inflate(this, R.layout.component_floating_label, null);
                 left.setLayoutParams(lp);
-                left.setText(smallLabels.get(i).first);
+                left.setText(smallLabels.get(i).first + ";" + smallLabels.get(i + 1).first);
                 left.setBackgroundResource(smallLabels.get(i).second.resourceId);
+                left.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
                 layout.addView(left);
-                
-                lp.setMargins(1, 0,0,0);
-                
-                TextView right = (TextView)View.inflate(this, R.layout.component_floating_label, null);
-                right.setLayoutParams(lp);
-                right.setText(smallLabels.get(i+1).first);
-                right.setBackgroundResource(smallLabels.get(i+1).second.resourceId);
-                layout.addView(right);
-                parent.addView(layout);
+
+//                TextView left = (TextView)View.inflate(this, R.layout.component_floating_label, null);
+//                left.setLayoutParams(lp);
+//                left.setText(smallLabels.get(i).first);
+//                left.setBackgroundResource(smallLabels.get(i).second.resourceId);
+//                layout.addView(left);
+//
+//                lp.setMargins(1, 0,0,0);
+//
+//                TextView right = (TextView)View.inflate(this, R.layout.component_floating_label, null);
+//                right.setLayoutParams(lp);
+//                right.setText(smallLabels.get(i+1).first);
+//                right.setBackgroundResource(smallLabels.get(i+1).second.resourceId);
+//                layout.addView(right);
+//                parent.addView(layout);
             } else {
                 largeLabels.add(smallLabels.get(i));
             }
@@ -1324,7 +1333,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         int saveStatus = saveAnswer(answers.get(index), index, evaluateConstraints);
                         if (evaluateConstraints && (saveStatus != FormEntryController.ANSWER_OK &&
                                                     (failOnRequired || saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                            createConstraintToast(index, mFormController.getQuestionPrompt(index) .getConstraintText(), saveStatus);
+                            createConstraintToast(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus);
                             return false;
                         }
                     } else {
