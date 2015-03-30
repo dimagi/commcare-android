@@ -3,7 +3,7 @@
     <!-- "shadow" -->
     <item>
         <shape android:shape="rectangle" >
-           <solid android:color="@color/dark_red"/>
+           <solid android:color="@color/cc_attention_negative_color"/>
            <!--<corners-->
                <!--android:radius="12dp"-->
                <!--android:bottomRightRadius="12dp"-->
@@ -15,9 +15,9 @@
     </item>
 
 
-    <item android:bottom="2dp" android:right="2dp">
+    <item android:left="8dp" android:top="8dp" android:bottom="8dp" android:right="8dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/cc_attention_negative_color"/>
+            <solid android:color="@color/cc_attention_negative_bg"/>
             <!--<corners-->
                <!--android:radius="12dp"-->
                <!--android:bottomRightRadius="12dp"-->
