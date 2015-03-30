@@ -107,7 +107,8 @@ public abstract class QuestionWidget extends LinearLayout {
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
-        setPadding(0, 7, 0, 0);
+        int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getContext().getResources().getDisplayMetrics());
+        setPadding(pixels, 7, pixels, 0);
 
         mLayout =
                 new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
