@@ -358,11 +358,11 @@ public class GraphView {
             mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"), 1);
         }
         
-        String showGrid = mData.getConfiguration("show-grid", "true");
-        if (Boolean.valueOf(showGrid).equals(Boolean.FALSE)) {
-            mRenderer.setShowGridX(false);
-            mRenderer.setShowGridY(false);
-        }
+        boolean showGrid = Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE);
+        mRenderer.setShowGridX(showGrid);
+        mRenderer.setShowGridY(showGrid);
+        mRenderer.setShowCustomTextGridX(showGrid);
+        mRenderer.setShowCustomTextGridY(showGrid);
 
         String showAxes = mData.getConfiguration("show-axes", "true");
         if (Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
