@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -77,6 +78,7 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -124,6 +126,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Set;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -539,6 +542,38 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 mFormLoaderTask = new FormLoaderTask(this, symetricKey, readOnly);
                 mFormLoaderTask.execute(formUri);
                 showDialog(PROGRESS_DIALOG);
+            }
+        }
+    }
+
+    private void setClickListenersForEverything() {
+        if (BuildConfig.DEBUG) {
+            ViewGroup layout = (ViewGroup) findViewById(android.R.id.content);
+            LinkedList<View> views = new LinkedList<View>();
+            views.add(layout);
+            for (int i = 0; !views.isEmpty(); i++) {
+                View child = views.getFirst();
+                views.removeFirst();
+                Log.i("GetID", "Adding onClickListener to view " + child);
+                child.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String vid;
+                        try {
+                            vid = "View id is: " + v.getResources().getResourceName(v.getId()) + " ( " + v.getId() + " )";
+                        } catch (Resources.NotFoundException excp) {
+                            vid = "View id is: " + v.getId();
+                        }
+                        Log.i("CLK", vid);
+                    }
+                });
+                if(child instanceof ViewGroup) {
+                    ViewGroup vg = (ViewGroup) child;
+                    for (int j = 0; j < vg.getChildCount(); j++) {
+                        View gchild = vg.getChildAt(j);
+                        if (!views.contains(gchild)) views.add(gchild);
+                    }
+                }
             }
         }
     }
@@ -1803,6 +1838,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(mCurrentView.getWindowToken(), 0);
         }
+//        setClickListenersForEverything();
     }
 
 
