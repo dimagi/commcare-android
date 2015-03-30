@@ -13,6 +13,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
@@ -79,17 +80,28 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Void, String, org.
                     outcome = doResponseOther(response);
                 }
             } catch (ClientProtocolException e) {
+                e.printStackTrace();
                 //This is a general HTTP exception, basically 
                 outcome = HttpCalloutOutcomes.NetworkFailure;
             } catch (UnknownHostException e) {
+                e.printStackTrace();
                 //HTTP Error 
                 outcome = HttpCalloutOutcomes.NetworkFailure;
             } catch(SSLPeerUnverifiedException e){
+                e.printStackTrace();
                 // Couldn't get a valid SSL certificate
                 outcome = HttpCalloutOutcomes.BadCertificate;
             } catch (IOException e) {
+                e.printStackTrace();
                 //This is probably related to local files, actually 
                 outcome = HttpCalloutOutcomes.NetworkFailure;
+            } catch (Exception e) {
+                //Catch any other unexpected errors 
+                Logger.log(AndroidLogger.TYPE_USER, "Unexpected error during HTTP Callout: " + ExceptionReportTask.getStackTrace(e));
+                
+               //Failures here should not necessarily prevent moving forward, but we should tag the
+               //outcome as an unknown failure
+                outcome = HttpCalloutOutcomes.UnkownError;
             } finally {
                 
             }
@@ -104,17 +116,24 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Void, String, org.
                 }
             } else {
                 if(!processSuccesfulRequest()) {
-                    return HttpCalloutOutcomes.BadResponse;
+                    //If the request couldn't be processed, check whether we
+                    //needed to succeed:
+                    if(HttpCalloutRequired()) {
+                        //If so, block moving on
+                        return HttpCalloutOutcomes.BadResponse;
+                    } else {
+                        //Otherwise, note the issue and move on. 
+                        calloutFailed = true;
+                    }
                 }
             }
         }
         
         //So either we didn't need our our HTTP callout or we succeeded. Either way, move on
         //to the next step
-    
         return doPostCalloutTask(calloutFailed);
     }
-    
+        
     protected boolean processSuccesfulRequest() {
         return true;
     }

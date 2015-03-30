@@ -358,10 +358,14 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         cleanupUserKeyRecords();
         
         //Now identify the current record (If we didn't get one, something bad happened)
-        UserKeyRecord current = getCurrentValidRecord(app, username, password, !HttpCalloutNeeded() || (calloutFailed && !HttpCalloutRequired()));
+        //We'll still allow expired records here for now until we have a clean mechanism
+        //for making the expiry process clear to users
+        UserKeyRecord current = getCurrentValidRecord(app, username, password, true);
         
         if(current == null)  {
-            //TODO: What is this failure mode
+            //If we got here and didn't have a valid record something is super wrong 
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "No valid key record found for: " + username);
+            return HttpCalloutTask.HttpCalloutOutcomes.UnkownError;
         }
         
         
