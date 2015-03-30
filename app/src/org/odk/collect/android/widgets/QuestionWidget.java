@@ -193,13 +193,13 @@ public abstract class QuestionWidget extends LinearLayout {
 
     public void notifyOnScreen(String text, boolean strong){
         if(strong){
-            this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_invalid));
+            this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_invalid_modern));
         } else{
             this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_warn));
         }
 
         if(this.toastView == null) {
-            this.toastView = View.inflate(this.getContext(), R.layout.toast_view, this).findViewById(R.id.toast_view_root);
+            this.toastView = View.inflate(this.getContext(), R.layout.toast_view_modern, this).findViewById(R.id.toast_view_root);
             focusPending = true;
         } else {
             if(this.toastView.getVisibility() != View.VISIBLE) {
