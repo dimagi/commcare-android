@@ -1103,6 +1103,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
 
+        int minHeight = 7 * pixels;
+
         //Ok, now go ahead and add all of the small labels
         for(int i = 0 ; i < smallLabels.size(); i = i + 2 ) {
             if(i + 1 < smallLabels.size()) {
@@ -1111,31 +1113,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
                 layout.setLayoutParams(lpp);
-//                layout.setWeightSum(2);
 
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
                 TextView left = (TextView)View.inflate(this, R.layout.component_floating_label, null);
                 left.setLayoutParams(lp);
-                left.setText(smallLabels.get(i).first + ";" + smallLabels.get(i + 1).first);
+                left.setText(smallLabels.get(i).first + "; " + smallLabels.get(i + 1).first);
                 left.setBackgroundResource(smallLabels.get(i).second.resourceId);
                 left.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
                 left.setTextColor(smallLabels.get(i).second.colorId);
+                left.setMinimumHeight(minHeight);
                 layout.addView(left);
 
-//                TextView left = (TextView)View.inflate(this, R.layout.component_floating_label, null);
-//                left.setLayoutParams(lp);
-//                left.setText(smallLabels.get(i).first);
-//                left.setBackgroundResource(smallLabels.get(i).second.resourceId);
-//                layout.addView(left);
-//
-//                lp.setMargins(1, 0,0,0);
-//
-//                TextView right = (TextView)View.inflate(this, R.layout.component_floating_label, null);
-//                right.setLayoutParams(lp);
-//                right.setText(smallLabels.get(i+1).first);
-//                right.setBackgroundResource(smallLabels.get(i+1).second.resourceId);
-//                layout.addView(right);
-//                parent.addView(layout);
+                parent.addView(layout);
+
             } else {
                 largeLabels.add(smallLabels.get(i));
             }
@@ -1143,11 +1133,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         for(int i = 0 ; i < largeLabels.size(); ++i ) {
             TextView view = (TextView)View.inflate(this, R.layout.component_floating_label, null);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 1, 0, 0);
+            lp.setMargins(0, pixels, 0, pixels);
             view.setLayoutParams(lp);
+            view.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
             view.setText(largeLabels.get(i).first);
             view.setBackgroundResource(largeLabels.get(i).second.resourceId);
             view.setTextColor(largeLabels.get(i).second.colorId);
+            view.setMinimumHeight(minHeight);
             parent.addView(view);
         }
     }
