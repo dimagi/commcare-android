@@ -84,22 +84,7 @@
         android:layout_below="@id/nav_pane"
         >
     </FrameLayout>
-    <FrameLayout
-        android:id="@+id/form_entry_labels"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/nav_pane"
-        >
 
-        <LinearLayout
-            android:id="@+id/form_entry_label_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-        </LinearLayout>
-
-    </FrameLayout>
 
     <ImageView
         android:id="@+id/nav_badge_border_drawer"
@@ -113,14 +98,25 @@
 
     </ImageView>
 
-
-
     <View
         android:id="@+id/screen_form_entry_bottom_anchor"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"/>
 
+    <FrameLayout
+        android:id="@+id/form_entry_labels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/screen_form_entry_bottom_anchor"
+        >
 
+        <LinearLayout
+            android:id="@+id/form_entry_label_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+        </LinearLayout>
 
+    </FrameLayout>
 </RelativeLayout>
