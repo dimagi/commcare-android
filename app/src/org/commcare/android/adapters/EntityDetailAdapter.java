@@ -106,6 +106,7 @@ public class EntityDetailAdapter implements ListAdapter {
             dv.setParams(session, detail, entity, valid.get(position), detailIndex);
             dv.setCallListener(listener);
         }
+        dv.setLineColor(position % 2 != 0);
         return dv;
     }
 
