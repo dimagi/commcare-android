@@ -1,0 +1,2 @@
+yellow-bg={color:gray; background-color:yellow;}
+red-bg={color:gray; background-color:red;}

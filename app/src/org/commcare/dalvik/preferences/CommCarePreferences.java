@@ -16,14 +16,6 @@
 
 package org.commcare.dalvik.preferences;
 
-import org.commcare.android.util.ChangeLocaleUtil;
-import org.commcare.android.util.CommCareUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.RecoveryActivity;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -38,6 +30,14 @@ import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import org.commcare.android.util.ChangeLocaleUtil;
+import org.commcare.android.util.CommCareUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.RecoveryActivity;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
@@ -85,6 +85,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
 
     public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
+
+    public final static String LOGIN_DURATION = "cc-login-duration-hours";
 
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
@@ -226,6 +228,12 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         return properties.getString(FUZZY_SEARCH, NO).equals(YES);
+    }
+
+    public static int getLoginDuration() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+
+        return properties.getInt(LOGIN_DURATION, 24);
     }
 
     /*

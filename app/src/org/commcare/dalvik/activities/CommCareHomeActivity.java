@@ -55,6 +55,7 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
@@ -94,6 +95,37 @@ import java.util.Date;
 import java.util.Vector;
 
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.text.Spannable;
+import android.text.format.DateUtils;
+import android.util.Base64;
+import android.util.Pair;
+import android.view.ContextThemeWrapper;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
     
@@ -233,7 +265,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            startButton = (Button)findViewById(R.id.home_start);
         }
-        if(startButton != null) startButton.setText(Localization.get("home.start"));
+        if(startButton != null){
+            Spannable startSpan = this.localize("home.start");
+            startButton.setText(startSpan);
+        }
         View.OnClickListener startListener = new OnClickListener() {
             public void onClick(View v) {
                 Intent i;
@@ -257,7 +292,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            viewIncomplete = (Button)findViewById(R.id.home_forms_incomplete);
         }
-        if(viewIncomplete != null) viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+        if(viewIncomplete != null) viewIncomplete.setText(this.localize("home.forms.incomplete"));
         View.OnClickListener viewIncompleteListener = new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(true);
@@ -277,7 +312,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            logoutButton = (Button)findViewById(R.id.home_logout);
         }
-        if(logoutButton != null) logoutButton.setText(Localization.get("home.logout"));
+        if(logoutButton != null) logoutButton.setText(this.localize("home.logout"));
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().logout();
@@ -294,7 +329,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         TextView formGroupLabel = (TextView) findViewById(R.id.home_formrecords_label);
         if(formGroupLabel != null) {
-            if(formGroupLabel != null) formGroupLabel.setText(Localization.get("home.forms"));
+            if(formGroupLabel != null) formGroupLabel.setText(this.localize("home.forms"));
         }
 
         if(isUsingNewUI()){
@@ -326,7 +361,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            syncButton = (Button)findViewById(R.id.home_sync);
         }
-        if(syncButton != null) syncButton.setText(Localization.get("home.sync"));
+        if(syncButton != null) syncButton.setText(this.localize("home.sync"));
         View.OnClickListener syncButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 if (!isOnline()) {
@@ -1458,8 +1493,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
 
         //since these might have changed
-        if(startButton != null)  startButton.setText(Localization.get(homeMessageKey));
-        if(logoutButton != null) logoutButton.setText(Localization.get(logoutMessageKey));
+        if(startButton != null)  startButton.setText(this.localize(homeMessageKey));
+        if(logoutButton != null) logoutButton.setText(this.localize(logoutMessageKey));
         
         
         CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
@@ -1471,7 +1506,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
         }
         if(syncDetails.second[0] > 0) {
-            String syncIndicator = (Localization.get("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
+            Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
             if(isUsingNewUI()) {
 //                syncButton.setNotificationText(syncIndicator);
                 // TODO: which one is it? The subtext widget or the button content itself?
@@ -1480,11 +1515,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 if(syncButton != null) syncButton.setText(syncIndicator);
             }
         } else {
-            if(syncButton != null) syncButton.setText(Localization.get(syncKey));
+            if(syncButton != null) syncButton.setText(this.localize(syncKey));
         }
         
         if(syncDetails.second[1] > 0) {
-            String incompleteIndicator = (Localization.get("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
+            Spannable incompleteIndicator = (this.localize("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
             if(isUsingNewUI()) {
 //                viewIncomplete.setNotificationText(incompleteIndicator);
                 if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
@@ -1492,7 +1527,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
             }
         } else {
-            if(viewIncomplete != null) viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+            if(viewIncomplete != null) viewIncomplete.setText(this.localize("home.forms.incomplete"));
         }
         
         if(syncDetails.second[0] > unsentFormNumberLimit){

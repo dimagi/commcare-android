@@ -6,6 +6,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -32,6 +33,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -927,4 +929,25 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         return xMov > xPixelLimit && angleOfMotion < 30;
     }
 
+    /*
+     * Methods to make localization and styling easier for devs
+     * copied from CommCareActivity
+     */
+    
+    public Spannable stylize(String text){
+        return MarkupUtil.styleSpannable(this, text);
+    }
+    
+    public Spannable localize(String key){
+        return MarkupUtil.localizeStyleSpannable(this, key);
+    }
+    
+    public Spannable localize(String key, String arg){
+        return MarkupUtil.localizeStyleSpannable(this, key, arg);
+    }
+    
+    public Spannable localize(String key, String[] args){
+        return MarkupUtil.localizeStyleSpannable(this, key, args);
+    }
+    
 }
