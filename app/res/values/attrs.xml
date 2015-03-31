@@ -18,4 +18,6 @@
         <attr name="notificationText" format="string" />
         <attr name="sbn_img" format="reference" />
     </declare-styleable>
+    <attr name="entity_detail_even_row_color" format="reference"></attr>
+    <attr name="entity_detail_odd_row_color" format="reference"></attr>
 </resources>

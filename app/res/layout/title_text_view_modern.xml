@@ -2,13 +2,8 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          android:paddingTop="16dp"
-          android:paddingBottom="16dp"
-          android:background="@color/cc_brand_color"
-          android:textColor="@color/cc_core_bg"
           android:text="Test text here"
-          android:paddingLeft="8dp"
-          android:paddingRight="8dp"
+          style="@style/TextViewV2"
     >
 
 </TextView>

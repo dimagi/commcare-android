@@ -3,19 +3,23 @@
     xmlns:customViews="http://schemas.android.com/apk/lib/org.commcare.android.view"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/grey_bordered_box"
-    android:orientation="horizontal" android:weightSum="10">
+    android:orientation="horizontal" android:weightSum="10"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    >
+    <!--android:background="@drawable/grey_bordered_box"-->
 
     <TextView
         android:id="@+id/detail_type_text"
         style="@style/EntityItemTextView"
         android:layout_width="0dp"
         android:layout_height="fill_parent"
-        android:background="@drawable/blue_tabbed_box"
-        android:gravity="top|left|center_vertical"
+        android:gravity="left|center_vertical"
         android:text="Text"
-        android:textAppearance="@style/EntityItemText"
+        android:textStyle="bold"
         android:typeface="normal" android:layout_weight="4" android:visibility="visible"/>
+    <!--android:background="@drawable/blue_tabbed_box"-->
+    <!--android:textAppearance="@style/EntityItemText"-->
 
     <FrameLayout
         android:id="@+id/detail_value_pane"
@@ -30,9 +34,10 @@
             android:layout_gravity="right|center_vertical"
             android:gravity="left|center_vertical"
             android:padding="15dp"
-            android:text="Value"
-            android:textAppearance="@style/EntityItemText"
+            android:text="Value really big here so it must fit in more than one line"
+            android:scrollHorizontally="false"
             android:visibility="visible" />
+        <!--android:textAppearance="@style/EntityItemText"-->
 
         <Button
             android:id="@+id/detail_value_phone"
