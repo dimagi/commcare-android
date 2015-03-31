@@ -234,6 +234,9 @@ public abstract class QuestionWidget extends LinearLayout {
      * will be fully visible in addition to the subview.
      */
     private void requestChildViewOnScreen(View child) {
+        //Take focus so the user can be prepared to interact with this question, since
+        //they will need to be fixing the input
+        acceptFocus();
 
         //Get the rectangle that wants to put itself on the screen
         Rect vitalPortion = new Rect();
