@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.widgets;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.IAnswerData;
@@ -51,14 +52,10 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
         super(context, prompt);
-        mAnswer = new EditText(context);
+        mAnswer = (EditText) inflate(context, R.layout.edit_text_question_widget, null);
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mAnswer.setOnClickListener(this);
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-        mAnswer.setLayoutParams(params);
-        
+
         mAnswer.addTextChangedListener(this);
         
         //Let's see if we can figure out a constraint for this string
@@ -76,8 +73,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
         setTextInputType(mAnswer);
 
-        // needed to make long read only text scroll
-        mAnswer.setHorizontallyScrolling(false);
         if(!secret) {
             mAnswer.setSingleLine(false);
         }
