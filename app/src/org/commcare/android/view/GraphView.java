@@ -246,7 +246,7 @@ public class GraphView {
             XYSeries series = createSeries();
             for (AnnotationData a : annotations) {
                 String text = a.getAnnotation();
-                String description = "annotation '" + text + "' as (" + a.getX() + ", " + a.getY() + ")";
+                String description = "annotation '" + text + "' at (" + a.getX() + ", " + a.getY() + ")";
                 series.addAnnotation(text, parseXValue(a.getX(), description), parseYValue(a.getY(), description));
             }
             
@@ -391,7 +391,11 @@ public class GraphView {
      */
     private Double parseXValue(String value, String description) throws InvalidStateException {
         if (mData.getType().equals(Graph.TYPE_TIME)) {
-            return parseDouble(String.valueOf(DateUtils.parseDateTime(value).getTime()), "x value");
+            Date parsed = DateUtils.parseDateTime(value);
+            if (parsed == null) {
+                throw new InvalidStateException("Could not parse date '" + value + "' in " + description);
+            }
+            return parseDouble(String.valueOf(parsed.getTime()), description);
         }
 
         return parseDouble(value, description);
