@@ -1,7 +1,7 @@
 package org.commcare.android.view;
 
 import org.commcare.dalvik.R;
-import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.model.DisplayUnit;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localizer;
 

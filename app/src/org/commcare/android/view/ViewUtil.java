@@ -5,7 +5,7 @@ package org.commcare.android.view;
 
 import java.io.File;
 
-import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.model.DisplayUnit;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localizer;

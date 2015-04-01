@@ -3,7 +3,7 @@
  */
 package org.commcare.android.view;
 
-import org.commcare.suite.model.Text;
+import org.javarosa.model.Text;
 import org.commcare.util.CommCarePlatform;
 
 import android.content.Context;

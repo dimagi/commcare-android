@@ -11,7 +11,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Text;
+import org.javarosa.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;

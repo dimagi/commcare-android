@@ -19,7 +19,7 @@ import org.commcare.dalvik.activities.FormRecordListActivity.FormRecordFilter;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
-import org.commcare.suite.model.Text;
+import org.javarosa.model.Text;
 
 import android.content.Context;
 import android.database.DataSetObserver;

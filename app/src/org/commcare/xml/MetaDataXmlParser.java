@@ -3,8 +3,8 @@ package org.commcare.xml;
 import java.io.IOException;
 
 import org.commcare.data.xml.TransactionParser;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -29,7 +29,7 @@ public class MetaDataXmlParser extends TransactionParser<String[]> {
 
     /*
      * (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     @Override
     public String[] parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {

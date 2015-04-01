@@ -13,7 +13,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
-import org.commcare.suite.model.Text;
+import org.javarosa.model.Text;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
