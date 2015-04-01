@@ -28,7 +28,6 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
@@ -44,7 +43,7 @@ import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.suite.model.Text;
+import org.javarosa.model.Text;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -1366,13 +1365,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
         }
         if(syncDetails.second[0] > 0) {
-            syncButton.setText(this.localize("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
+            syncButton.setText(this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
         } else {
             syncButton.setText(this.localize(syncKey));
         }
         
         if(syncDetails.second[1] > 0) {
-            viewIncomplete.setText(this.localize("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
+            viewIncomplete.setText(this.localize("home.forms.incomplete.indicator", new String[]{String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
         } else {
             viewIncomplete.setText(this.localize("home.forms.incomplete"));
         }

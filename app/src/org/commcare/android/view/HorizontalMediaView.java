@@ -3,7 +3,7 @@ package org.commcare.android.view;
 import java.io.File;
 
 import org.commcare.dalvik.R;
-import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.model.DisplayUnit;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;

@@ -12,7 +12,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.suite.model.Text;
+import org.javarosa.model.Text;
 
 import android.content.Context;
 import android.os.AsyncTask;
