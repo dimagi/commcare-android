@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * Fragment to display Detail content. Not meant for handling nested Detail objects.
@@ -76,7 +77,11 @@ public class EntityDetailFragment extends Fragment {
             thisActivity, asw.getSession(), childDetail, entity, 
             detailCalloutListener, audioController, args.getInt(DETAIL_INDEX)
         );
-        ((ListView) rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
+        final TextView header = (TextView) inflater.inflate(R.layout.entity_detail_header, null);
+        final ListView listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
+        header.setText(detail.getTitle().getText().evaluate());
+        listView.addHeaderView(header);
+        listView.setAdapter(adapter);
         return rootView;
     }
 
