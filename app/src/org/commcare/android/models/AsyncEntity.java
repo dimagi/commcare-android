@@ -115,6 +115,9 @@ public class AsyncEntity extends Entity<TreeReference>{
                 } catch(XPathException xpe) {
                     xpe.printStackTrace();
                     data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
+                } catch (XPathSyntaxException xse) {
+                    xse.printStackTrace();
+                    data[i] = "<invalid xpath: " + xse.getMessage() + ">";
                 }
             }
             return data[i];
