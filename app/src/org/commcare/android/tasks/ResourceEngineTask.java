@@ -23,7 +23,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xform.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 
 import android.content.Context;

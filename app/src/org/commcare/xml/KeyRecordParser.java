@@ -9,8 +9,8 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.util.Base64;
 import org.commcare.android.util.Base64DecoderException;
 import org.commcare.data.xml.TransactionParser;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xform.util.InvalidStructureException;
+import org.javarosa.xform.util.UnfullfilledRequirementsException;
 import org.joda.time.format.ISODateTimeFormat;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -34,7 +34,7 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
 
     /*
      * (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xform.parse.ElementParser#parse()
      */
     @Override
     public ArrayList<UserKeyRecord> parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
