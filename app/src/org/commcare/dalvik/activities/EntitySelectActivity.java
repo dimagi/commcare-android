@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,6 +39,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -62,6 +64,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -206,7 +209,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchbox.setHorizontallyScrolling(false);
         searchResultStatus = (TextView) findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
-        
+
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
         
         Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
@@ -356,11 +359,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 }
             }
             
-            //Hm, sadly we possibly need to rebuild this each time. 
-            EntityView v = new EntityView(this, shortSelect, headers);
+            //Hm, sadly we possibly need to rebuild this each time.
+            int[] colors = AndroidUtil.getThemeColorIDs(this, new int[]{ R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color });
+            Log.i("DEBUG-i","Background color is: " + colors[0] + ", text color is: " + colors[1]);
+            EntityView v = new EntityView(this, shortSelect, headers, colors[1]);
             header.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            v.setBackgroundResource(R.drawable.blue_tabbed_box);
+            v.setBackgroundColor(colors[0]);
 
             // only add headers if we're not using grid mode
             if(!shortSelect.usesGridView()){

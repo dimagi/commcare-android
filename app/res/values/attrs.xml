@@ -20,4 +20,6 @@
     </declare-styleable>
     <attr name="entity_detail_even_row_color" format="reference"></attr>
     <attr name="entity_detail_odd_row_color" format="reference"></attr>
+    <attr name="entity_view_header_background_color" format="reference"></attr>
+    <attr name="entity_view_header_text_color" format="reference"></attr>
 </resources>
