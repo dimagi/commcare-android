@@ -11,8 +11,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.javarosa.xform.util.InvalidStructureException;
-import org.javarosa.xform.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.kxml2.io.KXmlParser;
@@ -113,7 +113,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
                 /*
                  * (non-Javadoc)
-                 * @see org.javarosa.xform.parse.ElementParser#parse()
+                 * @see org.javarosa.xml.ElementParser#parse()
                  */
                 @Override
                 public String parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {

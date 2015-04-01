@@ -3,7 +3,7 @@
  */
 package org.commcare.android.resource.installers;
 
-import org.javarosa.xform.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 /**
  * An exception to represent that the local system can't provide an expected
