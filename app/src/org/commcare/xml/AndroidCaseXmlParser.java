@@ -45,12 +45,15 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     EntityStorageCache mEntityCache;
     CaseIndexTable mCaseIndexTable;
     
-    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
+    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage, EntityStorageCache entityCache, CaseIndexTable indexTable) {
         super(parser, storage);
-        mEntityCache = new EntityStorageCache("case");
-        mCaseIndexTable = new CaseIndexTable();
-    }
+        mEntityCache = entityCache;
+        mCaseIndexTable = indexTable;
+    }    
     
+    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
+        this(parser, storage, new EntityStorageCache("case"), new CaseIndexTable());
+    }
     
     //TODO: Sync the following two constructors!
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage, Cipher attachmentCipher, Cipher userCipher, File folder) {
@@ -95,7 +98,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     
     @Override
     public void commit(Case parsed) throws IOException {
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+        SQLiteDatabase db = getDbHandle();
         db.beginTransaction();
         try {
             super.commit(parsed);
@@ -106,6 +109,10 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         } finally {
             db.endTransaction();
         }
+    }
+    
+    protected SQLiteDatabase getDbHandle() {
+        return CommCareApplication._().getUserDbHandle();
     }
     
     /*

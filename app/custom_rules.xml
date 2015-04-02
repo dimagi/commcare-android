@@ -71,6 +71,11 @@
         <copy todir="${test.out.classes.dir}">
             <fileset dir="${test.source.dir}" includes="org.robolectric.Config.properties" />
         </copy>
+        
+        <!-- Move resources used by the tests -->
+        <copy todir="${test.out.classes.dir}" verbose="true">
+            <fileset dir="${test.source.dir}" includes="resources/**"/>
+        </copy>
         <path id="test.project.javac.classpath">
             <path refid="project.all.jars.path" />
             <path refid="tested.project.classpath" />
@@ -96,9 +101,10 @@
     <target name="unit-test" depends="prepare, -compile-tests" description="Runs all Robolectric unit tests.">
         <mkdir dir="${test.out.reports.dir}" />
         <path id="junit.classpath">
-            <path refid="test.project.javac.classpath" />
-            <path refid="project.target.class.path" />
+            <!-- have to start the classpath with the test outputs, otherwise we'll miss resource files -->
             <path path="${test.out.classes.dir}" />
+            <path refid="test.project.javac.classpath" />            
+            <path refid="project.target.class.path" />
         </path>
         <junit showoutput="true" failureproperty="junit.failure" printsummary="yes">
             <classpath refid="junit.classpath" />
