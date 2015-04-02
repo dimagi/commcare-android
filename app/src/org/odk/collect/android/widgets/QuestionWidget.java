@@ -193,6 +193,16 @@ public abstract class QuestionWidget extends LinearLayout {
     }
 
     public void notifyOnScreen(String text, boolean strong){
+        notifyOnScreen(text, strong, true);
+    }
+    
+    /**
+     * Add notification (e.g., validation error) to this question.
+     * @param text Text of message.
+     * @param strong If true, display a visually stronger, negative background.
+     * @param requestFocus If true, bring focus to this question.
+     */
+    public void notifyOnScreen(String text, boolean strong, boolean requestFocus){
         if(strong){
             this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_invalid));
         } else{
@@ -201,11 +211,11 @@ public abstract class QuestionWidget extends LinearLayout {
 
         if(this.toastView == null) {
             this.toastView = View.inflate(this.getContext(), R.layout.toast_view, this).findViewById(R.id.toast_view_root);
-            focusPending = true;
+            focusPending = requestFocus;
         } else {
             if(this.toastView.getVisibility() != View.VISIBLE) {
                 this.toastView.setVisibility(View.VISIBLE);
-                focusPending = true;
+                focusPending = requestFocus;
             }
         }
         TextView messageView = (TextView)this.toastView.findViewById(R.id.message);
@@ -213,7 +223,7 @@ public abstract class QuestionWidget extends LinearLayout {
 
         //If the toastView already exists, we can just scroll to it right now
         //if not, we actually have to do it later, when we lay this all back out
-        if(!focusPending) {
+        if(!focusPending && requestFocus) {
             requestChildViewOnScreen(messageView);
         }
     }
@@ -225,6 +235,10 @@ public abstract class QuestionWidget extends LinearLayout {
     public void notifyInvalid(String text) {
         notifyOnScreen(text, true);
     }
+    
+    public void notifyInvalid(String text, boolean requestFocus) {
+        notifyOnScreen(text, true, requestFocus);
+    }
 
     /*
      * Use to signal that there's a portion of this view that wants to be 
@@ -234,6 +248,9 @@ public abstract class QuestionWidget extends LinearLayout {
      * will be fully visible in addition to the subview.
      */
     private void requestChildViewOnScreen(View child) {
+        //Take focus so the user can be prepared to interact with this question, since
+        //they will need to be fixing the input
+        acceptFocus();
 
         //Get the rectangle that wants to put itself on the screen
         Rect vitalPortion = new Rect();

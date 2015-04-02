@@ -184,15 +184,17 @@ public class GraphView {
         Collections.sort(sortedPoints, new PointComparator());
         
         for (XYPointData p : sortedPoints) {
+            String description = "point (" + p.getX() + ", " + p.getY() + ")";
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData) p;
-                ((RangeXYValueSeries) series).add(parseXValue(b.getX(), "x value"), parseYValue(b.getY(), "y value"), parseRadiusValue(b.getRadius(), "radius"));
+                description += " with radius " + b.getRadius();
+                ((RangeXYValueSeries) series).add(parseXValue(b.getX(), description), parseYValue(b.getY(), description), parseRadiusValue(b.getRadius(), description));
             }
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
-                ((TimeSeries) series).add(parseXValue(p.getX(), "x value"), parseYValue(p.getY(), "y value"));
+                ((TimeSeries) series).add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             }
             else {
-                series.add(parseXValue(p.getX(), "x value"), parseYValue(p.getY(), "y value"));
+                series.add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             }
         }
     }
@@ -244,7 +246,8 @@ public class GraphView {
             XYSeries series = createSeries();
             for (AnnotationData a : annotations) {
                 String text = a.getAnnotation();
-                series.addAnnotation(text, parseXValue(a.getX(), "x value for annotation '" + text + "'"), parseYValue(a.getY(), "y value for annotation '" + text + "'"));
+                String description = "annotation '" + text + "' at (" + a.getX() + ", " + a.getY() + ")";
+                series.addAnnotation(text, parseXValue(a.getX(), description), parseYValue(a.getY(), description));
             }
             
             // Annotations won't display unless the series has some data in it
@@ -358,11 +361,11 @@ public class GraphView {
             mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"), 1);
         }
         
-        String showGrid = mData.getConfiguration("show-grid", "true");
-        if (Boolean.valueOf(showGrid).equals(Boolean.FALSE)) {
-            mRenderer.setShowGridX(false);
-            mRenderer.setShowGridY(false);
-        }
+        boolean showGrid = Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE);
+        mRenderer.setShowGridX(showGrid);
+        mRenderer.setShowGridY(showGrid);
+        mRenderer.setShowCustomTextGridX(showGrid);
+        mRenderer.setShowCustomTextGridY(showGrid);
 
         String showAxes = mData.getConfiguration("show-axes", "true");
         if (Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
@@ -388,7 +391,11 @@ public class GraphView {
      */
     private Double parseXValue(String value, String description) throws InvalidStateException {
         if (mData.getType().equals(Graph.TYPE_TIME)) {
-            return parseDouble(String.valueOf(DateUtils.parseDateTime(value).getTime()), "x value");
+            Date parsed = DateUtils.parseDateTime(value);
+            if (parsed == null) {
+                throw new InvalidStateException("Could not parse date '" + value + "' in " + description);
+            }
+            return parseDouble(String.valueOf(parsed.getTime()), description);
         }
 
         return parseDouble(value, description);
@@ -424,10 +431,14 @@ public class GraphView {
      */
     private Double parseDouble(String value, String description) throws InvalidStateException {
         try {
-            return Double.valueOf(value);
+            Double numeric = Double.valueOf(value);
+            if (numeric.isNaN()) {
+                throw new InvalidStateException("Could not understand '" + value + "' in " + description);
+            }
+            return numeric;
         }
         catch (NumberFormatException nfe) {
-            throw new InvalidStateException("Could not understand " + description + " '" + value + "'");
+            throw new InvalidStateException("Could not understand '" + value + "' in " + description);
         }
     }
 

@@ -23,7 +23,8 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.commcare.xml.CommCareElementParser;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 
 import android.content.Context;
@@ -241,7 +242,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
 
             vAvailable = e.getAvailableVesionString();
             vRequired = e.getRequiredVersionString();
-            majorIsProblem = e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION;
+            majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
 
             tryToClearApp();
 

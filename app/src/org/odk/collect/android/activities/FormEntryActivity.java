@@ -119,8 +119,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -1277,20 +1280,31 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints, boolean failOnRequired) {
         // only try to save if the current event is a question or a field-list group
+        boolean success = true;
         if (mFormController.getEvent() == FormEntryController.EVENT_QUESTION
                 || (mFormController.getEvent() == FormEntryController.EVENT_GROUP && mFormController
                         .indexIsInFieldList())) {
             if(mCurrentView instanceof ODKView) {
                 HashMap<FormIndex, IAnswerData> answers = ((ODKView) mCurrentView).getAnswers();
-                Set<FormIndex> indexKeys = answers.keySet();
+                
+                // Sort the answers so if there are multiple errors, we can bring focus to the first one
+                List<FormIndex> indexKeys = new ArrayList<FormIndex>();
+                indexKeys.addAll(answers.keySet());
+                Collections.sort(indexKeys, new Comparator<FormIndex>() {
+                   @Override
+                   public int compare(FormIndex arg0, FormIndex arg1) {
+                       return arg0.compareTo(arg1);
+                   }
+                });
+                
                 for (FormIndex index : indexKeys) {
                     // Within a group, you can only save for question events
                     if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
                         int saveStatus = saveAnswer(answers.get(index), index, evaluateConstraints);
                         if (evaluateConstraints && (saveStatus != FormEntryController.ANSWER_OK &&
                                                     (failOnRequired || saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                            createConstraintToast(index, mFormController.getQuestionPrompt(index) .getConstraintText(), saveStatus);
-                            return false;
+                            createConstraintToast(index, mFormController.getQuestionPrompt(index) .getConstraintText(), saveStatus, success);
+                            success = false;
                         }
                     } else {
                         Log.w(t,
@@ -1302,7 +1316,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 Log.w(t, "Unknown view type rendered while current event was question or group! View type: " + mCurrentView == null ? "null" : mCurrentView.getClass().toString());
             }    
         }
-        return true;
+        return success;
     }
 
 
@@ -1811,7 +1825,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     /**
      * Creates and displays a dialog displaying the violated constraint.
      */
-    private void createConstraintToast(FormIndex index, String constraintText, int saveStatus) {
+    private void createConstraintToast(FormIndex index, String constraintText, int saveStatus, boolean requestFocus) {
         switch (saveStatus) {
             case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 if (constraintText == null) {
@@ -1827,7 +1841,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         //We need to see if question in violation is on the screen, so we can show this cleanly.
         for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
             if(index.equals(q.getFormId())) {
-                q.notifyInvalid(constraintText);
+                q.notifyInvalid(constraintText, requestFocus);
                 displayed = true;
                 break;
             }
