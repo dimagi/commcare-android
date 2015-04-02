@@ -22,202 +22,202 @@ public class SQLiteCursorNative implements net.sqlcipher.Cursor{
         this.cursor = cursor;
     }
 
-    //@Override
+    @Override
     public int getCount() {
         return cursor.getCount();
     }
 
-    //@Override
+    @Override
     public int getColumnIndex(String columnName) {
         return cursor.getColumnIndex(columnName);
     }
 
-    //@Override
+    @Override
     public String[] getColumnNames() {
         return cursor.getColumnNames();
     }
 
-    //@Override
+    @Override
     public void deactivate() {
         cursor.deactivate();
     }
 
-    //@Override
+    @Override
     public void close() {
         cursor.close();
     }
 
-    //@Override
+    @Override
     public boolean requery() {
         return cursor.requery();
     }
 
-    //@Override
+    @Override
     public byte[] getBlob(int columnIndex) {
         return cursor.getBlob(columnIndex);
     }
 
-    //@Override
+    @Override
     public String getString(int columnIndex) {
         return cursor.getString(columnIndex);
     }
 
-    //@Override
+    @Override
     public void copyStringToBuffer(int columnIndex, CharArrayBuffer buffer) {
         cursor.copyStringToBuffer(columnIndex, buffer);
     }
 
-    //@Override
+    @Override
     public short getShort(int columnIndex) {
         return cursor.getShort(columnIndex);
     }
 
-    //@Override
+    @Override
     public int getInt(int columnIndex) {
         return cursor.getInt(columnIndex);
     }
 
-    //@Override
+    @Override
     public long getLong(int columnIndex) {
         return cursor.getLong(columnIndex);
     }
 
-    //@Override
+    @Override
     public float getFloat(int columnIndex) {
         return cursor.getFloat(columnIndex);
     }
 
-    //@Override
+    @Override
     public double getDouble(int columnIndex) {
         return cursor.getDouble(columnIndex);
     }
 
-    //@Override
+    @Override
     public boolean isNull(int columnIndex) {
         return cursor.isNull(columnIndex);
     }
     
-    //@Override
+    @Override
     public int getType(int columnIndex) {
         return cursor.getType(columnIndex);
     }
 
-    //@Override
+    @Override
     public int getColumnCount() {
         return cursor.getColumnCount();
     }
 
-    //@Override
+    @Override
     public boolean isClosed() {
         return cursor.isClosed();
     }
 
-    //@Override
+    @Override
     public int getColumnIndexOrThrow(String columnName) {
         return cursor.getColumnIndexOrThrow(columnName);
     }
 
-    //@Override
+    @Override
     public String getColumnName(int columnIndex) {
         return cursor.getColumnName(columnIndex);
     }
 
-    //@Override
+    @Override
     public void registerContentObserver(ContentObserver observer) {
         cursor.registerContentObserver(observer);
     }
 
-    //@Override
+    @Override
     public void unregisterContentObserver(ContentObserver observer) {
         cursor.unregisterContentObserver(observer);
     }
 
-    //@Override
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         cursor.registerDataSetObserver(observer);
     }
 
-    //@Override
+    @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
         cursor.unregisterDataSetObserver(observer);
     }
 
-    //@Override
+    @Override
     public void setNotificationUri(ContentResolver cr, Uri notifyUri) {
         cursor.setNotificationUri(cr, notifyUri);
     }
 
-    //@Override
+    @Override
     public Uri getNotificationUri() {
         return cursor.getNotificationUri();
     }
 
-    //@Override
+    @Override
     public boolean getWantsAllOnMoveCalls() {
         return cursor.getWantsAllOnMoveCalls();
     }
 
-    //@Override
+    @Override
     public Bundle getExtras() {
         return cursor.getExtras();
     }
 
-    //@Override
+    @Override
     public Bundle respond(Bundle extras) {
         return cursor.respond(extras);
     }
 
-    //@Override
+    @Override
     public int getPosition() {
         return cursor.getPosition();
     }
 
-    //@Override
+    @Override
     public boolean move(int offset) {
         return cursor.move(offset);
     }
 
-    //@Override
+    @Override
     public boolean moveToPosition(int position) {
         return cursor.moveToPosition(position);
     }
 
-    //@Override
+    @Override
     public boolean moveToFirst() {
         return cursor.moveToFirst();
     }
 
-    //@Override
+    @Override
     public boolean moveToLast() {
         return cursor.moveToLast();
     }
 
-    //@Override
+    @Override
     public boolean moveToNext() {
         return cursor.moveToNext();
     }
 
-    //@Override
+    @Override
     public boolean moveToPrevious() {
         return cursor.moveToPrevious();
     }
 
-    //@Override
+    @Override
     public boolean isFirst() {
         return cursor.isFirst();
     }
 
-    //@Override
+    @Override
     public boolean isLast() {
         return cursor.isLast();
     }
 
-    //@Override
+    @Override
     public boolean isBeforeFirst() {
         return cursor.isBeforeFirst();
     }
 
-    //@Override
+    @Override
     public boolean isAfterLast() {
         return cursor.isAfterLast();
     }

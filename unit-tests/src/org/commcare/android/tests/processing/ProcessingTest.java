@@ -79,6 +79,18 @@ public class ProcessingTest {
         Case c4 = getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id_child");
         assertEquals("Removed Index Count", 0, c4.getIndices().size());
     }
+    
+    @Test
+    public void testTypeChange() {
+        processResourceTransaction("resources/inputs/case_create.xml");
+        Case c = getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
+        assertEquals("Initial Type", "unit_test", c.getTypeId());
+        
+        processResourceTransaction("resources/inputs/case_change_type.xml");
+        Case c2 = getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
+        assertEquals("Changed Type", "changed_unit_test", c2.getTypeId());
+    }
+
 
     private TransactionParserFactory getFactory(final SQLiteDatabase db) {
         return new TransactionParserFactory() {
