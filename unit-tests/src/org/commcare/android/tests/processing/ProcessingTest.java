@@ -5,10 +5,8 @@ package org.commcare.android.tests.processing;
 
 import static junit.framework.Assert.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -27,10 +25,10 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AndroidCaseXmlParser;
-import org.commcare.xml.LedgerXmlParsers;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.commcare.xml.CaseXmlParser;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,9 +94,7 @@ public class ProcessingTest {
         return new TransactionParserFactory() {
             
             public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-                if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
-                    //return new LedgerXmlParsers(parser, CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class));
-                }else if(name.toLowerCase().equals("case")) {
+                if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace) && name.toLowerCase().equals("case")) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {
