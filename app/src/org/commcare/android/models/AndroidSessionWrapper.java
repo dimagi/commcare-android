@@ -47,6 +47,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * This is a container class which maintains all of the appropriate hooks for managing the details
@@ -237,8 +238,13 @@ public class AndroidSessionWrapper {
         SecretKey key = CommCareApplication._().createNewSymetricKey();
         
         //TODO: this has two components which can fail. be able to roll them back
-        
-        FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, getSession().getForm(), key.getEncoded(), null, new Date(0));
+
+        String form = getSession().getForm();
+        // COMMCARE-163637: in landscape mode, this returns null, and the FormRecord should not have any null fields
+        form = form != null ? form : "";
+
+        FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, form, key.getEncoded(), null, new Date(0));
+        Log.i("FormRecord","FormRecord is: " + r + ", session: " + getSession() + " | form: " + getSession().getForm() + " | key enc: " + key.getEncoded());
         storage.write(r);
         setFormRecordId(r.getID());
         
