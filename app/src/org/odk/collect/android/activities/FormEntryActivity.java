@@ -467,7 +467,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 //Since these are parceled across the content resolver, there's no guarantee of reference equality.
                 //We need to manually check value equality on the type
 
-                if(uri == null) {
+                if(uri == null) { // COMMCARE-163637: might be null if we're using the app in "awesome mode" - in which case we just get out
                     this.createErrorDialog("Invalid URI: (" + uri + ")", EXIT);
                     return;
                 }

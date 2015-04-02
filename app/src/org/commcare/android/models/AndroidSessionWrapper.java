@@ -240,6 +240,7 @@ public class AndroidSessionWrapper {
         //TODO: this has two components which can fail. be able to roll them back
 
         String form = getSession().getForm();
+        // COMMCARE-163637: in landscape mode, this returns null, and the FormRecord should not have any null fields
         form = form != null ? form : "";
 
         FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, form, key.getEncoded(), null, new Date(0));
