@@ -465,7 +465,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 
                 //csims@dimagi.com - Jan 24, 2012
                 //Since these are parceled across the content resolver, there's no guarantee of reference equality.
-                //We need to manually check value equality on the type 
+                //We need to manually check value equality on the type
+
+                if(uri == null) {
+                    this.createErrorDialog("Invalid URI: (" + uri + ")", EXIT);
+                    return;
+                }
                 
                 String contentType = getContentResolver().getType(uri);
                 
