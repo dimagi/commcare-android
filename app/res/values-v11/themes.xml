@@ -19,6 +19,7 @@
         <item name="android:background">@color/cc_brand_color</item>
         <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
         <item name="android:logo">@drawable/actionbar_modern_spacing</item>
+        <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
     </style>
 
     <style name="ActionBar.TitleTextStyle" parent="ActionBar.TitleTextStyle">
@@ -26,6 +27,11 @@
         <item name="android:paddingLeft">8dp</item>
     </style>
 
+    <style name="ActionButtonStyle" parent="@android:style/Widget.Holo.Light.ActionButton">
+        <item name="android:minWidth">8dp</item>
+    </style>
+
+    <!-- TODO: add new Settings icon here (needs asset file first) -->
     <style name="OverflowButton" parent="android:Widget.Holo.Light.ActionButton.Overflow">
         <!--<item name="android:src"></item>-->
     </style>
