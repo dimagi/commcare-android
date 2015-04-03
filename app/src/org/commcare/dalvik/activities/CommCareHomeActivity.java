@@ -55,7 +55,6 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
@@ -95,40 +94,12 @@ import java.util.Date;
 import java.util.Vector;
 
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Typeface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.Settings;
+
 import android.text.Spannable;
-import android.text.format.DateUtils;
-import android.util.Base64;
-import android.util.Pair;
-import android.view.ContextThemeWrapper;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
-    
+
     public static final int LOGIN_USER = 0;
     public static final int GET_COMMAND = 1;
     public static final int GET_CASE = 2;
@@ -190,6 +161,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     SquareButtonWithNotification viewOldForms;
     HomeScreenAdapter adapter;
     GridViewWithHeaderAndFooter gridView;
+    ImageView topBannerImageView;
     int gridViewMargin;
 
     private boolean isUsingNewUI(){
@@ -226,6 +198,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             setContentView(R.layout.mainnew_modern);
             adapter = new HomeScreenAdapter(this);
             View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
+            this.topBannerImageView = (ImageView) topBanner.findViewById(R.id.main_top_banner);
             gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
             gridView.addHeaderView(topBanner);
             gridView.setAdapter(adapter);
@@ -1486,8 +1459,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (!"".equals(customBannerURI)) {
             Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
             if (bitmap != null) {
-                ImageView bannerView = (ImageView) findViewById(R.id.main_top_banner);
-                bannerView.setImageBitmap(bitmap);
+                if(isUsingNewUI()){
+                    if(topBannerImageView != null) topBannerImageView.setImageBitmap(bitmap);
+                    else Log.i("TopBanner","TopBanner is null!");
+                } else {
+                    ImageView bannerView = (ImageView) findViewById(R.id.main_top_banner);
+                    bannerView.setImageBitmap(bitmap);
+                }
             }
         }
         
