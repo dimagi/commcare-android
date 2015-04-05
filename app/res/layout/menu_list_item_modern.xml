@@ -5,21 +5,21 @@
     android:textAppearance="@style/EntityItemText">
     <ImageView
         android:id="@+id/row_img"
+        android:layout_gravity="left"
         android:layout_width="wrap_content"
         style="@style/ListContentV2"
-        android:layout_weight="1"
         />
     <TextView
         android:id="@+id/row_txt"
+        android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         style="@style/ListContentV2"
-        android:layout_weight="5"
         />
     <org.odk.collect.android.views.media.AudioButton
         android:id="@+id/row_soundicon"
+        android:layout_gravity="right"
         android:layout_width="wrap_content"
         android:background="@color/transparent_background"
         style="@style/ListContentV2"
-        android:layout_weight="1"
         />
 </LinearLayout>
