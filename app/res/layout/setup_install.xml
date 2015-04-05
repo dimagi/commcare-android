@@ -25,6 +25,7 @@
             android:paddingTop="8dp"
             android:layout_marginBottom="16dp"
             android:scaleType="fitStart"
+            android:layout_gravity="center_horizontal"
             android:src="@drawable/ccbanner" />
         <LinearLayout
             android:layout_width="match_parent"
