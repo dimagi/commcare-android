@@ -22,7 +22,7 @@
         <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
     </style>
 
-    <style name="ActionBar.TitleTextStyle" parent="ActionBar.TitleTextStyle">
+    <style name="ActionBar.TitleTextStyle">
         <item name="android:textColor">@color/white</item>
         <item name="android:paddingLeft">8dp</item>
     </style>
