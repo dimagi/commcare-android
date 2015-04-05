@@ -13,5 +13,6 @@
         android:src="@drawable/ccbanner_hms"
         android:visibility="visible"
         android:adjustViewBounds="true"
+        android:layout_gravity="center_horizontal"
         android:paddingTop="10dp"/>
 </LinearLayout>
