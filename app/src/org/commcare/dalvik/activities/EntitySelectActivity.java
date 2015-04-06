@@ -92,7 +92,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     EditText searchbox;
     TextView searchResultStatus;
     EntityListAdapter adapter;
-    Entry prototype;
     LinearLayout header;
     ImageButton barcodeButton;
     
@@ -224,18 +223,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         header = (LinearLayout)findViewById(R.id.entity_select_header);
         
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-        
-        Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
-        prototype = entries.elementAt(0);
-        
-        
-        //(We shouldn't need the "" here, but we're avoiding making changes to commcare core for release issues)
-        if(entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
-            // We are just showing the detail screen, without option to moving
-            // on to form manipulation after
-            mViewMode = true;
-        }
-                
+
+        mViewMode = session.isViewCommand(session.getCommand());
+
         barcodeButton.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
@@ -863,10 +853,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
 
             String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-            
-            Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
-            prototype = entries.elementAt(0);
-            
+
+            if (passedCommand != null) {
+                mViewMode = session.isViewCommand(passedCommand);
+            } else {
+                mViewMode = session.isViewCommand(session.getCommand());
+            }
+
             detailView = new TabbedDetailView(this);
             detailView.setRoot((ViewGroup) rightFrame.findViewById(R.id.entity_detail_tabs));
 

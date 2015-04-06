@@ -49,7 +49,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     public static final String DETAIL_ID = "eda_detail_id";
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
 
-    Entry prototype;
     Entity<TreeReference> entity;
     EntityDetailAdapter adapter;
     NodeEntityFactory factory;
@@ -83,18 +82,13 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();            
         String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
-        
-        Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
-        prototype = entries.elementAt(0);
 
-        // (We shouldn't need the "" here, but we're avoiding making changes to
-        // commcare core for release issues)
-        if (entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
-            // We are just showing the detail screen, without option to moving
-            // on to form manipulation after
-            mViewMode = true;
+        if (passedCommand != null) {
+            mViewMode = session.isViewCommand(passedCommand);
+        } else {
+            mViewMode = session.isViewCommand(session.getCommand());
         }
-        
+
         factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
         
         mTreeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
