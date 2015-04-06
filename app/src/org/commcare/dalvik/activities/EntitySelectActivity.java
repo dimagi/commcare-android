@@ -814,14 +814,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     boolean rightFrameSetup = false;
     NodeEntityFactory factory;
     
-    private void select() {
-        // create intent for return and store path
-        Intent i = new Intent(EntitySelectActivity.this.getIntent());
-        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-        setResult(RESULT_OK, i);
-        finish();
-    }
-
     // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
     public void callRequested(String phoneNumber) {
         DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
@@ -841,18 +833,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
+
+            // Don't show next button in landscape mode, since there is nowhere
+            // to go from here
             Button next = (Button)findViewById(R.id.entity_select_button);
-            next.setText(Localization.get("select.detail.confirm"));
-            next.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    select();
-                    return;
-                }
-            });
-            
-            if(getIntent().getBooleanExtra(EntityDetailActivity.IS_DEAD_END, false)) {
-                next.setText("Done");
-            }
+            next.setVisibility(View.GONE);
 
             String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
             
