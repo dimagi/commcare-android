@@ -133,7 +133,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
                 }
             });
 
-            if(mViewMode) {
+            if (mViewMode) {
                 next.setText("Done");
             }
 

@@ -183,12 +183,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
                             EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
                     if (selectedRef != null) {
-                        // remove the reference from this intent, ensuring we don't
-                        // re-launch the detail for an entity even after
-                        // de-selecting it.
+                        // remove the reference from this intent, ensuring we
+                        // don't re-launch the detail for an entity even after
+                        // it being de-selected.
                         intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
 
-                        // attach the selected entity to the detail intent we are launching
+                        // attach the selected entity to the new detail intent
+                        // we're launching
                         Intent detailIntent = getDetailIntent(selectedRef, null);
 
                         startOther = true;
