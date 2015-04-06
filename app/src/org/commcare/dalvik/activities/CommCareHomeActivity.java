@@ -1540,17 +1540,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         if(isUsingNewUI()){
             // set adapter to hide the buttons...
-            if (!CommCarePreferences.isSavedFormsEnabled()) {
-                adapter.setButtonVisibility(R.layout.home_savedforms_button, false, true);
-            } else {
-                adapter.setButtonVisibility(R.layout.home_savedforms_button, false, false);
-            }
+            boolean showSavedForms = CommCarePreferences.isSavedFormsEnabled();
+            boolean showIncompleteForms = CommCarePreferences.isIncompleteFormsEnabled();
 
-            if (!CommCarePreferences.isIncompleteFormsEnabled()) {
-                adapter.setButtonVisibility(R.layout.home_savedforms_button, false, true);
-            } else {
-                adapter.setButtonVisibility(R.layout.home_incompleteforms_button, false, false);
-            }
+            Log.i("ShowForms","ShowSavedForms: " + showSavedForms + " | ShowIncompleteForms: " + showIncompleteForms);
+
+            adapter.setButtonVisibility(R.layout.home_savedforms_button, false, !showSavedForms);
+            adapter.setButtonVisibility(R.layout.home_incompleteforms_button, false, !showIncompleteForms);
+
             adapter.notifyDataSetChanged();
         } else {
             View formRecordPane = this.findViewById(R.id.home_formspanel);
