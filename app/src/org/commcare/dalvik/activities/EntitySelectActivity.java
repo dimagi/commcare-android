@@ -177,19 +177,22 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
                 //need to go to the detail screen instead.
-                if(oldActivity != null) {
+                if (oldActivity != null) {
                     Intent intent = this.getIntent();
 
                     TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
                             EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
                     if (selectedRef != null) {
+                        // remove the reference from this intent, ensuring we don't
+                        // re-launch the detail for an entity even after
+                        // de-selecting it.
+                        intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
+
+                        // attach the selected entity to the detail intent we are launching
                         Intent detailIntent = getDetailIntent(selectedRef, null);
+
                         startOther = true;
                         startActivityForResult(detailIntent, CONFIRM_SELECT);
-                    } else if (oldActivity.selectedIntent != null) {
-                        // XXX: old code that didn't work -- PLM
-                        startActivityForResult(oldActivity.selectedIntent, CONFIRM_SELECT);
-                        startOther = true;
                     }
                 }
             }
@@ -323,7 +326,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void onResume() {
         super.onResume();
         //Don't go through making the whole thing if we're finishing anyway.
-        if(this.isFinishing() || startOther) {return;}
+        if (this.isFinishing() || startOther) { return; }
         
         if(!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
             TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
