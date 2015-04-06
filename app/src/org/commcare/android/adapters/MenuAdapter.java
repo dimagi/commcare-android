@@ -306,6 +306,14 @@ public class MenuAdapter implements ListAdapter {
             }
         }
 
+        String imageURI = getImageURI(mObject);
+
+        Bitmap image = ViewUtil.inflateDisplayImage(context, imageURI);
+        if(image != null && mIconView != null) {
+            mIconView.setImageBitmap(image);
+            mIconView.setAdjustViewBounds(true);
+        }
+
         return menuListItem;
     }
 
