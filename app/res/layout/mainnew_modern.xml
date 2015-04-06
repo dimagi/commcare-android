@@ -17,8 +17,8 @@
         <!--android:paddingTop="10dp"/>-->
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
     <!--<com.origamilabs.library.views.StaggeredGridView-->
         <!--<GridView-->
     <!-- the top banner is going to be added as a header view to this element -->
@@ -32,6 +32,7 @@
         android:layout_above="@+id/str_version"
         android:horizontalSpacing="8dp"
         android:verticalSpacing="8dp"
+        android:paddingBottom="8dp"
         />
         <!--android:layout_margin="8dp"-->
         <!--app:itemMargin="8dp"-->
