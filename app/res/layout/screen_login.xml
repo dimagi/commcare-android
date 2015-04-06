@@ -34,15 +34,17 @@
 
         <FrameLayout
             android:layout_width="fill_parent"
-            android:layout_height="0px" android:layout_weight=".2" android:id="@+id/screen_login_banner_pane">
+            android:layout_height="0px"
+            android:layout_weight=".2"
+            android:id="@+id/screen_login_banner_pane">
 
             <ImageView
                 android:id="@+id/screen_login_top_banner"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:scaleType="fitStart"
-                android:src="@drawable/ccbanner" android:adjustViewBounds="true"/>
+                android:scaleType="fitCenter"
+                android:src="@drawable/ccbanner"
+                android:adjustViewBounds="true"/>
 
         </FrameLayout>
 
