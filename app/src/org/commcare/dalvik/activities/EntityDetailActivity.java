@@ -43,11 +43,12 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;
-    public static final String IS_DEAD_END = "eda_ide";
+
+    // reference id of selected element being detailed
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
-        
+
     Entry prototype;
     Entity<TreeReference> entity;
     EntityDetailAdapter adapter;
@@ -57,6 +58,10 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     TreeReference mTreeReference;
     
     private int detailIndex;
+
+    // Is the detail screen for showing elements without moving on to form
+    // manipulation?
+    private boolean mViewMode = false;
     
     @UiElement(value=R.id.entity_detail)
     RelativeLayout container;
@@ -81,6 +86,14 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         
         Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
         prototype = entries.elementAt(0);
+
+        // (We shouldn't need the "" here, but we're avoiding making changes to
+        // commcare core for release issues)
+        if (entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
+            // We just showing the detail screen, without moving on to form
+            // manipulation after
+            mViewMode = true;
+        }
         
         factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
         
@@ -119,11 +132,11 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
                     select();
                 }
             });
-            
-            if(getIntent().getBooleanExtra(IS_DEAD_END, false)) {
+
+            if(mViewMode) {
                 next.setText("Done");
             }
-            
+
             mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
             mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
         } catch(SessionUnavailableException sue) {
