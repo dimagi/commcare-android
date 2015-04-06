@@ -1031,7 +1031,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         	//TODO: _really_? This doesn't seem right
             nextButton.setTag("next");
         	
-        	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar));
+        	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar_modern));
         }
         
         progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
