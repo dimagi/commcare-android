@@ -40,11 +40,15 @@ import android.widget.RelativeLayout;
  */
 @ManagedUi(R.layout.entity_detail)
 public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
-    
     private CommCareSession session;
     private AndroidSessionWrapper asw;
+
+    // Determines whether to display "Done" or "Continue" on next button
     public static final String IS_DEAD_END = "eda_ide";
+
+    // reference id of selected element being detailed
     public static final String CONTEXT_REFERENCE = "eda_crid";
+
     public static final String DETAIL_ID = "eda_detail_id";
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
         

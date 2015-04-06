@@ -108,7 +108,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     boolean mViewMode = false;
     
+    // Has a detail screen not been defined?
     boolean mNoDetailMode = false;
+
+    // Are we returning showing the the detail view of an entity?
+    private boolean returningFromDetailActivity = false;
     
     private EntityLoaderTask loader;
     
@@ -313,8 +317,26 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //Don't go through making the whole thing if we're finishing anyway.
         if(this.isFinishing() || startOther) {return;}
         
+        // If we changing from landscape mode to portrait mode and have a
+        // selected entity, jump into its detail.
+        if (!returningFromDetailActivity && !inAwesomeMode) {
+            Intent intent = this.getIntent();
+
+            TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
+                    EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+            if (selectedRef != null) {
+                Intent detailIntent = getDetailIntent(selectedRef, null);
+                startActivityForResult(detailIntent, CONFIRM_SELECT);
+            }
+        }
+
+        // Done dispatching on detail-return-specific logic, so reset the flag
+        returningFromDetailActivity = false;
+
+        // XXX: no idea when the following code is ever entered -- PLM
         if(!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                    this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
             
             if(entity != null) {
                 if(inAwesomeMode) {
@@ -324,7 +346,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                         updateSelectedItem(entity, true);
                     }
                 } else {
-                    //Once we've done the initial dispatch, we don't want to end up triggering it later.
+                    // Once we've done the initial dispatch, we don't want to
+                    // end up triggering it later.
                     this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
                     
                     Intent i = getDetailIntent(entity, null);
@@ -397,32 +420,58 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
     
 
-    protected Intent getDetailIntent(TreeReference contextRef, Intent i) {
-        //Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
-        //we return
-        if (i == null) {
-            i = new Intent(getApplicationContext(), EntityDetailActivity.class);
+    /**
+     * Attach element selection information to the intent argument, or create a
+     * new EntityDetailActivity if null. Used for displaying a detailed view of
+     * an element (form instance).
+     *
+     * @param contextRef reference to the selected element for which to display
+     * detailed view
+     * @param i intent to attach extra data to. If null, create a fresh
+     * EntityDetailActivity intent
+     * @return The intent argument, or a newly created one, with element
+     * selection information attached.
+     */
+    protected Intent getDetailIntent(TreeReference contextRef, Intent detailIntent) {
+        if (detailIntent == null) {
+            detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         }
-        
-        TreeReference valueRef = XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
-        AbstractTreeElement element = asw.getEvaluationContext().resolveReference(valueRef.contextualize(contextRef));
+
+        // grab the session's (form) element reference, and load it.
+        TreeReference elementRef =
+            XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
+        TreeReference resolvedRef = elementRef.contextualize(contextRef);
+        EvaluationContext ec = asw.getEvaluationContext();
         String value = "";
+        if (resolvedRef == null || ec == null) {
+            value = "fail";
+        }
+        AbstractTreeElement element = ec.resolveReference(resolvedRef);
+
+        // get the case id and add it to the intent
+
         if(element != null && element.getValue() != null) {
             value = element.getValue().uncast().getString();
         }
-        
-        //See if we even have a long datum
+        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, value);
+
+        // Include long datum info if present. Otherwise that'll be the queue
+        // to just return
         if(selectDatum.getLongDetail() != null) {
-            //If so, add this. otherwise that'll be the queue to just return
-            i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
-            i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getPersistentDetail());
+            detailIntent.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail());
+            detailIntent.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
+                    selectDatum.getPersistentDetail());
         }
-   
-        i.putExtra(SessionFrame.STATE_DATUM_VAL, value);
-        SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
-        
-        return i;
-    }    
+
+        // Element details have nowhere to go, so make the continue button read
+        // "Done".
+        detailIntent.putExtra(EntityDetailActivity.IS_DEAD_END, true);
+
+        SerializationUtil.serializeToIntent(detailIntent,
+                EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
+
+        return detailIntent;
+    }
 
     /*
      * (non-Javadoc)
@@ -464,6 +513,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
             break;
         case CONFIRM_SELECT:
+            returningFromDetailActivity = true;
             resuming = true;
             if(resultCode == RESULT_OK && !mViewMode) {
                 // create intent for return and store path
@@ -478,20 +528,26 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     return;
                 } 
                 
-                //Otherwise, if we're in awesome mode, make sure we retain the original selection
-                if(inAwesomeMode) {
-                    TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-                    if(r != null) {
+                if (inAwesomeMode) {
+                    // Retain original selection
+                    TreeReference r = SerializationUtil.deserializeFromIntent(intent,
+                            EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                    if (r != null) {
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
                         updateSelectedItem(r, true);
                     }
                     releaseCurrentMediaEntity();        
+                } else {
+                    // forget about the element we were detailing if coming
+                    // back from EntityDetailActivity and not in awesomeMode
+                    intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
                 }
                 return;
             }
         case MAP_SELECT:
             if(resultCode == RESULT_OK) {
-                TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                TreeReference r = SerializationUtil.deserializeFromIntent(intent,
+                        EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
                 
                 if(inAwesomeMode) {
                     this.displayReferenceAwesome(r, adapter.getPosition(r));
@@ -748,7 +804,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private void updateSelectedItem(boolean forceMove) {
         TreeReference chosen = null;
         if(selectedIntent != null) {
-            chosen = SerializationUtil.deserializeFromIntent(selectedIntent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+            chosen = SerializationUtil.deserializeFromIntent(selectedIntent,
+                    EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
         }
         updateSelectedItem(chosen, forceMove);
     }
@@ -783,14 +840,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     boolean rightFrameSetup = false;
     NodeEntityFactory factory;
     
-    private void select() {
-        // create intent for return and store path
-        Intent i = new Intent(EntitySelectActivity.this.getIntent());
-        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-        setResult(RESULT_OK, i);
-        finish();
-    }
-
     // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
     public void callRequested(String phoneNumber) {
         DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
@@ -810,18 +859,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
+
+            // Don't show next button in landscape mode, since there is nowhere
+            // to go from here
             Button next = (Button)findViewById(R.id.entity_select_button);
-            next.setText(Localization.get("select.detail.confirm"));
-            next.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    select();
-                    return;
-                }
-            });
-            
-            if(getIntent().getBooleanExtra(EntityDetailActivity.IS_DEAD_END, false)) {
-                next.setText("Done");
-            }
+            next.setVisibility(View.GONE);
 
             String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
             
@@ -867,7 +909,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             if (inAwesomeMode && detailView != null && detailView.getCurrentTab() < detailView.getTabCount() - 1) {
                 return false;
             }
-            select();
+            // create intent for return and store path
+            Intent i = new Intent(EntitySelectActivity.this.getIntent());
+            i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+            setResult(RESULT_OK, i);
+            finish();
         }
         return true;
     }
