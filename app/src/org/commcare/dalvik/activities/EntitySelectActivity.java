@@ -230,6 +230,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         //(We shouldn't need the "" here, but we're avoiding making changes to commcare core for release issues)
         if(entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
+            // We are just showing the detail screen, without option to moving
+            // on to form manipulation after
             mViewMode = true;
         }
                 

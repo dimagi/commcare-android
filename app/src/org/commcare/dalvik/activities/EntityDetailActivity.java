@@ -90,8 +90,8 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         // (We shouldn't need the "" here, but we're avoiding making changes to
         // commcare core for release issues)
         if (entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
-            // We just showing the detail screen, without moving on to form
-            // manipulation after
+            // We are just showing the detail screen, without option to moving
+            // on to form manipulation after
             mViewMode = true;
         }
         
