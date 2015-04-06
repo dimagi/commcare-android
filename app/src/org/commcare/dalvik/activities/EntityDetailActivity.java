@@ -59,8 +59,8 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     
     private int detailIndex;
 
-    // Is the detail screen for showing elements without moving on to form
-    // manipulation?
+    // Is the detail screen for showing entities, without option for moving
+    // forward on to form manipulation?
     private boolean mViewMode = false;
     
     @UiElement(value=R.id.entity_detail)

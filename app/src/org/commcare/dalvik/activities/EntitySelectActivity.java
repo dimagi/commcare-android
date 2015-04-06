@@ -106,8 +106,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     boolean mMappingEnabled = false;
     
-    // Is the detail screen for showing elements without moving on to form
-    // manipulation?
+    // Is the detail screen for showing entities, without option for moving
+    // forward on to form manipulation?
     boolean mViewMode = false;
 
     // Has a detail screen not been defined?
