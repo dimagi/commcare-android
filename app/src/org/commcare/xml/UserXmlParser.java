@@ -8,7 +8,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;

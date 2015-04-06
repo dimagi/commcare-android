@@ -53,9 +53,9 @@ public class StorageUtils {
                 //As it turns out this string format is terrible! We need to use a diferent one in the future
                 try {
                     //Try to use what the toString does on most devices
-                    SimpleDateFormat sdf = new SimpleDateFormat("dow mon dd hh:mm:ss zzz yyyy");
+                    SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
                     idToDateIndex.put(id, sdf.parse(dateValue).getTime());
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     //If it still doesn't work, fallback to using ids
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
                     //For some reason this seems to be crashing on some devices... go with the next best ordering for now

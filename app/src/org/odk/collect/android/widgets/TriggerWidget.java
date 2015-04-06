@@ -64,7 +64,7 @@ public class TriggerWidget extends QuestionWidget {
         this.setOrientation(LinearLayout.VERTICAL);
 
         mTriggerButton = new CheckBox(getContext());
-        mTriggerButton.setText(StringUtils.getStringRobust(getContext(), R.string.trigger));
+        mTriggerButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.trigger));
                 mTriggerButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         // mActionButton.setPadding(20, 20, 20, 20);
         mTriggerButton.setEnabled(!prompt.isReadOnly());

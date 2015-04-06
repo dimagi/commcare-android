@@ -381,7 +381,7 @@ public class GridEntityView extends GridLayout {
 			    ((TextView)retVal).setText(mSpannable);
 			} else{
 			    // just process inline markup 
-			    Spannable mSpannable = MarkupUtil.getSpannable(rowData);
+			    Spannable mSpannable = MarkupUtil.returnCSS(rowData);
 			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
 			    ((TextView)retVal).setText(mSpannable);
 			}

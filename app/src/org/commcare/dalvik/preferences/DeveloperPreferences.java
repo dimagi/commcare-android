@@ -16,23 +16,27 @@
 
 package org.commcare.dalvik.preferences;
 
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
-import android.view.Menu;
-
 public class DeveloperPreferences extends PreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
+    public final static String CSS_ENABLED = "cc-css-enabled";
+    public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
+    // Does the user want to download the latest app version deployed (built),
+    // not just the latest app version released (starred)?
+    public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
 
     /*
      * (non-Javadoc)
@@ -92,10 +96,29 @@ public class DeveloperPreferences extends PreferenceActivity {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
+    
+    public static boolean isCssEnabled(){
+        return doesPropertyMatch(CSS_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
 
     public static boolean isListRefreshEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+
+    /**
+     * @return true if developer option to download the latest app version
+     * deployed (built) is enabled.  Otherwise the latest released (starred)
+     * app version will be downloaed on upgrade.
+     */
+    public static boolean isNewestAppVersionEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    public static boolean isMarkdownEnabled(){
+        return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
 }

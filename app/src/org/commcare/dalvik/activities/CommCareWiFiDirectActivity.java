@@ -1,10 +1,28 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Vector;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.ActionListener;
+import android.net.wifi.p2p.WifiP2pManager.Channel;
+import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -30,29 +48,11 @@ import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.ActionListener;
-import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Vector;
 
 /*
  * Copyright (C) 2011 The Android Open Source Project
@@ -282,7 +282,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         if (title != null)
             builder.setTitle(title);
         builder.setMessage(message);
-        builder.setNeutralButton("Receive Forms", new DialogInterface.OnClickListener(){
+        builder.setNeutralButton(localize("wifi.direct.receive.forms"), new DialogInterface.OnClickListener(){
 
             /*
              * (non-Javadoc)
@@ -293,7 +293,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
                 beReceiver();
             }});
 
-        builder.setNegativeButton("Send Forms", new DialogInterface.OnClickListener(){
+        builder.setNegativeButton(localize("wifi.direct.transfer.forms"), new DialogInterface.OnClickListener(){
 
             /*
              * (non-Javadoc)
@@ -304,7 +304,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
                 beSender();
             }});
 
-        builder.setPositiveButton("Submit Forms", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(localize("wifi.direct.submit.forms"), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 beSubmitter();
             }});

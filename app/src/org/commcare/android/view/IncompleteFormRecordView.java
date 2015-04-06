@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Text;
@@ -65,10 +66,10 @@ public class IncompleteFormRecordView extends LinearLayout {
     public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
         if(names.containsKey(record.getFormNamespace())) {
             Text name = names.get(record.getFormNamespace());
-            mPrimaryTextView.setText(name.evaluate());
+            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), name.evaluate()));
         } else {
             formExists = false;
-            mPrimaryTextView.setText(Localization.get("form.record.gone"));
+            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.gone"));
         }
         
         if(dataTitle != null) {
@@ -82,7 +83,7 @@ public class IncompleteFormRecordView extends LinearLayout {
             mRightTextView.setText("Never");
         }
         if(record.getStatus() == FormRecord.STATUS_UNSENT) {
-            mUpperRight.setText(Localization.get("form.record.unsent"));
+            mUpperRight.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.unsent"));
             mUpperRight.setTextAppearance(getContext(), R.style.WarningTextStyle);
             mUpperRight.setCompoundDrawablesWithIntrinsicBounds(null, null, rightHandSync, null);
         } else {

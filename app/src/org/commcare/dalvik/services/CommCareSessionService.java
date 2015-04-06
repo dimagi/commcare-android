@@ -2,16 +2,15 @@
 package org.commcare.dalvik.services;
 
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
+import android.text.format.DateFormat;
+import android.widget.RemoteViews;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -31,20 +30,19 @@ import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.listeners.FormSaveCallback;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Binder;
-import android.os.IBinder;
-import android.text.format.DateFormat;
-import android.widget.RemoteViews;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -116,6 +114,7 @@ public class CommCareSessionService extends Service  {
     @Override
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        setSessionLength();
         pool = new CipherPool() {
 
             /*
@@ -571,6 +570,10 @@ public class CommCareSessionService extends Service  {
             // END - Submission Listening Hooks
 
         };
+    }
+
+    public void setSessionLength(){
+        SESSION_LENGTH = CommCarePreferences.getLoginDuration() * 1000 * 60 * 60;
     }
     
     public boolean isMultimediaVerified(){

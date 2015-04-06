@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.TypedValue;
@@ -22,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
@@ -191,6 +193,16 @@ public abstract class QuestionWidget extends LinearLayout {
     }
 
     public void notifyOnScreen(String text, boolean strong){
+        notifyOnScreen(text, strong, true);
+    }
+    
+    /**
+     * Add notification (e.g., validation error) to this question.
+     * @param text Text of message.
+     * @param strong If true, display a visually stronger, negative background.
+     * @param requestFocus If true, bring focus to this question.
+     */
+    public void notifyOnScreen(String text, boolean strong, boolean requestFocus){
         if(strong){
             this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_invalid));
         } else{
@@ -199,11 +211,11 @@ public abstract class QuestionWidget extends LinearLayout {
 
         if(this.toastView == null) {
             this.toastView = View.inflate(this.getContext(), R.layout.toast_view, this).findViewById(R.id.toast_view_root);
-            focusPending = true;
+            focusPending = requestFocus;
         } else {
             if(this.toastView.getVisibility() != View.VISIBLE) {
                 this.toastView.setVisibility(View.VISIBLE);
-                focusPending = true;
+                focusPending = requestFocus;
             }
         }
         TextView messageView = (TextView)this.toastView.findViewById(R.id.message);
@@ -211,7 +223,7 @@ public abstract class QuestionWidget extends LinearLayout {
 
         //If the toastView already exists, we can just scroll to it right now
         //if not, we actually have to do it later, when we lay this all back out
-        if(!focusPending) {
+        if(!focusPending && requestFocus) {
             requestChildViewOnScreen(messageView);
         }
     }
@@ -223,6 +235,10 @@ public abstract class QuestionWidget extends LinearLayout {
     public void notifyInvalid(String text) {
         notifyOnScreen(text, true);
     }
+    
+    public void notifyInvalid(String text, boolean requestFocus) {
+        notifyOnScreen(text, true, requestFocus);
+    }
 
     /*
      * Use to signal that there's a portion of this view that wants to be 
@@ -232,6 +248,9 @@ public abstract class QuestionWidget extends LinearLayout {
      * will be fully visible in addition to the subview.
      */
     private void requestChildViewOnScreen(View child) {
+        //Take focus so the user can be prepared to interact with this question, since
+        //they will need to be fixing the input
+        acceptFocus();
 
         //Get the rectangle that wants to put itself on the screen
         Rect vitalPortion = new Rect();
@@ -337,17 +356,30 @@ public abstract class QuestionWidget extends LinearLayout {
         String audioURI = p.getAudioText();
         String videoURI = p.getSpecialFormQuestionText("video");
         String qrCodeContent = p.getSpecialFormQuestionText("qrcode");
+        String markdownText = p.getMarkdownText();
+
 
         // shown when image is clicked
         String bigImageURI = p.getSpecialFormQuestionText("big-image");
 
         // Add the text view. Textview always exists, regardless of whether there's text.
         mQuestionText = new TextView(getContext());
-        mQuestionText.setText(p.getLongText());
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
-        mQuestionText.setTypeface(null, Typeface.BOLD);
-        mQuestionText.setPadding(0, 0, 0, 7);
+
         mQuestionText.setId(38475483); // assign random id
+
+        // if we have markdown, use that.
+        if(markdownText != null){
+            mQuestionText.setText(forceMarkdown(markdownText));
+            mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
+            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+            // Wrap to the size of the parent view
+            mQuestionText.setHorizontallyScrolling(false);
+        } else {
+            mQuestionText.setText(p.getLongText());
+            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+            mQuestionText.setTypeface(null, Typeface.BOLD);
+            mQuestionText.setPadding(0, 0, 0, 7);
+        }
 
         if(p.getLongText()!= null){
             if(p.getLongText().contains("\u260E")){
@@ -408,7 +440,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(StringUtils.getStringRobust(this.getContext(), R.string.ok), errorListener);
+            mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this.getContext(), R.string.ok), errorListener);
             mAlertDialog.show();
         } else {
 
@@ -580,11 +612,24 @@ public abstract class QuestionWidget extends LinearLayout {
 
     public void checkFileSize(File file){
         if(FileUtils.isFileOversized(file)){
-            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file)+""));
+            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file) + ""));
         }
     }
 
     public void checkFileSize(String filepath){
         checkFileSize(new File(filepath));
+    }
+
+    /*
+     * Methods to make localization and styling easier for devs
+     * copied from CommCareActivity
+     */
+
+    public Spannable forceMarkdown(String text){
+        return MarkupUtil.returnMarkdown(getContext(), text);
+    }
+
+    public Spannable stylize(String text){
+        return MarkupUtil.styleSpannable(getContext(), text);
     }
 }

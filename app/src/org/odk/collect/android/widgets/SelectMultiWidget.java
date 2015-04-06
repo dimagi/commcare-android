@@ -14,7 +14,14 @@
 
 package org.odk.collect.android.widgets;
 
-import java.util.Vector;
+import android.content.Context;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
@@ -25,14 +32,7 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.views.media.MediaLayout;
 
-import android.content.Context;
-import android.util.TypedValue;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import java.util.Vector;
 
 /**
  * SelctMultiWidget handles multiple selection fields using checkboxes.
@@ -71,7 +71,7 @@ public class SelectMultiWidget extends QuestionWidget {
                 final CheckBox c = new CheckBox(getContext());
 
                 c.setId(buttonIdBase + i);
-                c.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                c.setText(stylize(prompt.getSelectChoiceText(mItems.get(i))));
                 c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
                 c.setFocusable(!prompt.isReadOnly());
                 c.setEnabled(!prompt.isReadOnly());

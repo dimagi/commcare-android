@@ -85,7 +85,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup capture button
         mCaptureButton = new Button(getContext());
-        mCaptureButton.setText(StringUtils.getStringRobust(getContext(), R.string.capture_image));
+        mCaptureButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image));
         mCaptureButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mCaptureButton.setPadding(20, 20, 20, 20);
         mCaptureButton.setEnabled(!prompt.isReadOnly());
@@ -119,7 +119,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                            StringUtils.getStringRobust(getContext(), R.string.activity_not_found, "image capture"),
+                            StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "image capture"),
                             Toast.LENGTH_SHORT);
                 }
 
@@ -128,7 +128,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup chooser button
         mChooseButton = new Button(getContext());
-        mChooseButton.setText(StringUtils.getStringRobust(getContext(), R.string.choose_image));
+        mChooseButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image));
         mChooseButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mChooseButton.setPadding(20, 20, 20, 20);
         mChooseButton.setEnabled(!prompt.isReadOnly());
@@ -152,7 +152,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                            StringUtils.getStringRobust(getContext(), R.string.activity_not_found, "choose image"),
+                            StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "choose image"),
                             Toast.LENGTH_SHORT);
                 }
 
@@ -233,7 +233,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                                 getContext().startActivity(i);
                             } catch (ActivityNotFoundException e) {
                                 Toast.makeText(getContext(),
-                                        StringUtils.getStringRobust(getContext(), R.string.activity_not_found, "view image"),
+                                        StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "view image"),
                                         Toast.LENGTH_SHORT);
                             }
                         }
@@ -279,7 +279,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mErrorTextView.setVisibility(View.GONE);
 
         // reset buttons
-        mCaptureButton.setText(StringUtils.getStringRobust(getContext(), R.string.capture_image));
+        mCaptureButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image));
     }
 
 
