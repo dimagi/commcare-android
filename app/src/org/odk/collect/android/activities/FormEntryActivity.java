@@ -36,6 +36,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
@@ -1098,19 +1099,23 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     
         
-        ViewGroup parent = (ViewGroup)this.findViewById(R.id.form_entry_label_layout);
+        final ViewGroup parent = (ViewGroup)this.findViewById(R.id.form_entry_label_layout);
         parent.removeAllViews();
 
         int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
 
         int minHeight = 7 * pixels;
 
+        int removalTimeMillis = 4 * 1000;
+
+        Handler handler = new Handler();
+
         //Ok, now go ahead and add all of the small labels
         for(int i = 0 ; i < smallLabels.size(); i = i + 2 ) {
             if(i + 1 < smallLabels.size()) {
                 LinearLayout.LayoutParams lpp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
                 lpp.setMargins(0, pixels, 0, pixels);
-                LinearLayout layout = new LinearLayout(this);
+                final LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
                 layout.setLayoutParams(lpp);
 
@@ -1126,12 +1131,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                 parent.addView(layout);
 
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i("LblRem","Removing view " + layout + " after its scheduled time");
+                        parent.removeView(layout);
+                    }
+                }, removalTimeMillis);
             } else {
                 largeLabels.add(smallLabels.get(i));
             }
         }
         for(int i = 0 ; i < largeLabels.size(); ++i ) {
-            TextView view = (TextView)View.inflate(this, R.layout.component_floating_label, null);
+            final TextView view = (TextView)View.inflate(this, R.layout.component_floating_label, null);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
             lp.setMargins(0, pixels, 0, pixels);
             view.setLayoutParams(lp);
@@ -1141,6 +1153,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             view.setTextColor(largeLabels.get(i).second.colorId);
             view.setMinimumHeight(minHeight);
             parent.addView(view);
+
+            handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i("LblRem","Removing view " + view + " after its scheduled time");
+                        parent.removeView(view);
+                    }
+                }, removalTimeMillis);
         }
     }
 
