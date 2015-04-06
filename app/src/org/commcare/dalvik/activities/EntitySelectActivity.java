@@ -313,6 +313,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //Don't go through making the whole thing if we're finishing anyway.
         if(this.isFinishing() || startOther) {return;}
         
+        // If we changing from landscape mode to portrait mode and have a
+        // selected entity, jump into its detail.
+        if (!inAwesomeMode) {
+            Intent intent = new Intent(this.getIntent());
+            TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+            if (selectedRef != null) {
+                Intent detailIntent = getDetailIntent(selectedRef, null);
+                startActivityForResult(detailIntent, CONFIRM_SELECT);
+            }
+        }
+
+        // XXX: no idea when the following code is ever entered -- PLM
         if(!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
             TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
             
