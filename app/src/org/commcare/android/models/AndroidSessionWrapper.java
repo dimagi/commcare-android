@@ -352,8 +352,19 @@ public class AndroidSessionWrapper {
         }
     }
     
+    /**
+     * @return The evaluation context for the current state.
+     */
     public EvaluationContext getEvaluationContext() {
         return session.getEvaluationContext(getIIF());
+    }
+    
+    /**
+     * @param commandId The id of the command to evaluate against
+     * @return The evaluation context relevant for the provided command id 
+     */
+    public EvaluationContext getEvaluationContext(String commandId) {
+        return session.getEvaluationContext(getIIF(), commandId);
     }
     
     CommCareInstanceInitializer initializer;

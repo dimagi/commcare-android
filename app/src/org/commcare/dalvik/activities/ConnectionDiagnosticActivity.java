@@ -1,5 +1,15 @@
 package org.commcare.dalvik.activities;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -11,16 +21,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * Activity that will diagnose various connection problems that a user may be facing.
@@ -95,7 +95,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                                     Localization.get("connection.task.internet.fail") 
                                     : Localization.get("connection.task.remote.ping.fail");
                             
-                            receiver.txtInteractiveMessages.setText(localize(displayMessage));
+                            receiver.txtInteractiveMessages.setText(displayMessage);
                             receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
                             
                             receiver.settingsButton.setVisibility(View.VISIBLE);
