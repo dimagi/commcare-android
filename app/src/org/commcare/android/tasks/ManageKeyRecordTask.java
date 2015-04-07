@@ -98,7 +98,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
-                CommCareApplication._().logout();
+                CommCareApplication._().getSession().startLogout();
                 listener.keysReadyForSync(receiver);
                 return;
             } else {
@@ -113,7 +113,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
 
         //For any other result make sure we're logged out. 
-        CommCareApplication._().logout();
+        CommCareApplication._().getSession().startLogout();
         
         //TODO: Do we wanna split this up at all? Seems unlikely. We don't have, like, a ton
         //more context that the receiving activity will

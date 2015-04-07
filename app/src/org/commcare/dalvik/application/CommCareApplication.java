@@ -919,8 +919,6 @@ public class CommCareApplication extends Application {
         synchronized (serviceLock) {
             if (mIsBound) {
                 mIsBound = false;
-                // close down the commcare login session
-                mBoundService.startLogout();
                 // Detach our existing connection.
                 unbindService(mConnection);
             }

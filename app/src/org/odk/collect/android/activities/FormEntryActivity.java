@@ -521,6 +521,15 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // start saving form, which will call the key session logout completion
             // function when it finishes.
             saveDataToDisk(EXIT, false, null, true);
+        } else {
+            try {
+                // nothing to save, so just finish logging out
+                CommCareApplication._().getSession().finishLogout();
+            } catch (SessionUnavailableException sue) {
+                // We've already logged out, probably by timing out the timer
+                // in CommCareSessionService.
+            }
+
         }
     }
     /**
@@ -2819,6 +2828,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
+            savingFormOnKeySessionExpiration = false;
+            if (saveStatus == SaveToDiskTask.SAVED ||
+                saveStatus == SaveToDiskTask.SAVED_AND_EXIT) {
+                hasSaved = true;
+             }
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
@@ -2828,21 +2842,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // form saving took too long, so we logged out already.
                 // XXX: this might have implications on whether the save was
                 // successful, but for now just hope the saveStatus correctly
-                // represents the save state.
+                // represents the save state. -- PLM
             }
-
-            savingFormOnKeySessionExpiration = false;
-            if (saveStatus == SaveToDiskTask.SAVED ||
-                saveStatus == SaveToDiskTask.SAVED_AND_EXIT) {
-                hasSaved = true;
-             }
-
-            // Re-direct to the home screen
-            Intent loginIntent = new Intent(getApplicationContext(), CommCareHomeActivity.class);
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(loginIntent);
-            return;
         } else {
             switch (saveStatus) {
                 case SaveToDiskTask.SAVED:

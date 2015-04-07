@@ -305,11 +305,6 @@ public class CommCareSessionService extends Service  {
                 time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
             finishLogout();
 
-            // Re-direct to the home screen
-            Intent loginIntent = new Intent(getApplicationContext(), CommCareHomeActivity.class);
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(loginIntent);
         }
 
         // If we haven't started logging out and we're either past the session
@@ -321,8 +316,7 @@ public class CommCareSessionService extends Service  {
                 (time > sessionExpireDate.getTime() || 
                  (sessionExpireDate.getTime() - time  > SESSION_LENGTH ))) {
             logoutStartedAt = new Date().getTime();
-            // the following logout method launches CommCareSessionService.startLogout()
-            CommCareApplication._().logout();
+            startLogout();
 
             showLoggedOutNotification();
         }
@@ -335,9 +329,15 @@ public class CommCareSessionService extends Service  {
      * database are closed down.
      */
     public void startLogout() {
-        // save form progress if any
+        // Remember when we started so that if form saving takes too long, the
+        // maintenance timer will launch finishLogout
+        logoutStartedAt = new Date().getTime();
+
+        // save form progress, if any
         if (formSaver != null) {
             formSaver.formSaveCallback();
+        } else {
+            finishLogout();
         }
     }
 
@@ -355,7 +355,8 @@ public class CommCareSessionService extends Service  {
 
     /**
      * Conclude closing down the session by closing down key pool and user
-     * database.
+     * database. Performs CommCareApplication logout to unbind its connection
+     * to this object. Launches CommCareHomeActivity upon completion.
      */
     public void finishLogout() {
         synchronized(lock){
@@ -394,8 +395,19 @@ public class CommCareSessionService extends Service  {
             }
             logoutStartedAt = -1;
 
+            CommCareApplication._().logout();
+
             pool.expire();
             this.stopForeground(true);
+
+            // Re-direct to the home screen
+            Intent loginIntent = new Intent(getApplicationContext(),
+                    CommCareHomeActivity.class);
+            // XXX: Is this the best way to start the login view? It sort of
+            // just pops up even when CommCare isn't active... not ideal -- PLM
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(loginIntent);
         }
     }
 

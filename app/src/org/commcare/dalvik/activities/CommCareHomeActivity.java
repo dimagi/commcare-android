@@ -218,7 +218,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         logoutButton.setText(this.localize("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication._().logout();
+                CommCareApplication._().getSession().startLogout();
                 returnToLogin(null);
             }
         });
@@ -452,7 +452,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().logout();
+                        CommCareApplication._().getSession().startLogout();
                     }
                     //set flag that we should autoupdate on next login
                     SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
