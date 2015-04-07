@@ -3,17 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Hashtable;
-
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Text;
-import org.javarosa.core.services.locale.Localization;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
@@ -21,6 +10,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Text;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -66,7 +65,7 @@ public class IncompleteFormRecordView extends LinearLayout {
     public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
         if(names.containsKey(record.getFormNamespace())) {
             Text name = names.get(record.getFormNamespace());
-            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), name.evaluate()));
+            mPrimaryTextView.setText(MarkupUtil.styleSpannable(IncompleteFormRecordView.this.getContext(), name.evaluate()));
         } else {
             formExists = false;
             mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.gone"));
