@@ -83,7 +83,7 @@ public class CommCareSessionService extends Service  {
     public static final String KEY_SESSION_ENDING = "CommCareSessionService_key_session_ending";
 
     // How long to wait until we force the session to finish logging out
-    private static final long LOGOUT_TIMEOUT = 1000 * 5;
+    private static final long LOGOUT_TIMEOUT = 1000;
 
     // The logout process start time, used to wrap up logging out if
     // the saving of incomplete forms takes too long
