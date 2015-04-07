@@ -2,6 +2,7 @@ package org.commcare.dalvik.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +10,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -29,6 +31,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -255,6 +258,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
+        handleIntent(getIntent());
     }
 
     private void createDataSetObserver() {
@@ -532,6 +536,27 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         finish();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if(intent == null) return;
+        String action = intent.getAction();
+        if(action == null) action = "";
+        switch(action){
+            case Intent.ACTION_SEARCH:
+                if(adapter != null) {
+                    String search = intent.getStringExtra(SearchManager.QUERY);
+                    Log.v("ActBarS", "Search query from action bar is: '" + search + "'");
+                    if(search != null) adapter.applyFilter(search);
+                }
+                break;
+        }
+    }
 
     public void afterTextChanged(Editable s) {
         if(searchbox.getText() == s) {
@@ -575,6 +600,30 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_report_problem, menu);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        {
+            SearchManager searchManager =
+                    (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            SearchView searchView =
+                    (SearchView) menu.findItem(R.id.search_action_bar).getActionView();
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    if(adapter != null){
+                        adapter.applyFilter(newText);
+                    }
+                    return false;
+                }
+            });
+            searchView.setSearchableInfo(
+                    searchManager.getSearchableInfo(getComponentName()));
+        }
 
         return true;
     }
