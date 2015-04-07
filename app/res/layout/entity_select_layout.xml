@@ -54,7 +54,10 @@
     android:layout_height="fill_parent"
     android:layout_above="@+id/searchfooter"
     android:layout_below="@+id/entity_select_filter_dropdown"
-    android:listSelector="@drawable/selector" >
+    android:listSelector="@drawable/selector"
+    android:divider="@drawable/divider_case_list_modern"
+    android:dividerHeight="8dp"
+    >
 </ListView>
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent"
