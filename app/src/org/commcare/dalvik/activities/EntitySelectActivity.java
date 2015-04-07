@@ -17,6 +17,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -703,6 +704,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(action != null) {
             ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION, action.getDisplay());
         }
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_report_problem, menu);
 
         return true;
     }
