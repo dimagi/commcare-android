@@ -612,18 +612,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     break;
                 }
             case MODEL_RESULT:
-                // It is possible that we are returning here from
-                // FormEntryActivity after saving a form due to the session
-                // closing. If that is the cause we need to re-login.
-                if (!CommCareApplication._().getSession().isLoggedIn()) {
-                    // clean-up some things in the state session
-                    // TODO: do this inside of InstanceProvider
-                    CommCareApplication._().getCurrentSessionWrapper().reset();
-
-                    returnToLogin();
-                } else {
-                    processReturnFromFormEntry(resultCode, intent);
-                }
+                processReturnFromFormEntry(resultCode, intent);
                 break;
             }
 
