@@ -446,7 +446,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().getSession().startLogout();
+                        CommCareApplication._().logout();
                     }
                     //set flag that we should autoupdate on next login
                     SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -645,6 +645,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         // This is the state we were in when we _Started_ form entry
         FormRecord current = currentState.getFormRecord();
+
+        if (current == null) {
+            // somehow we lost the form record for the current session
+            // TODO: how should this be handled? -- PLM
+            Toast.makeText(this,
+                    "Error while trying to save the form!",
+                    Toast.LENGTH_LONG);
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    "Form Entry couldn't save because of corrupt state.");
+            clearSessionAndExit(currentState);
+        }
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
         if (FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||

@@ -1,6 +1,4 @@
-
 package org.commcare.dalvik.services;
-
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -85,7 +83,7 @@ public class CommCareSessionService extends Service  {
     public static final String KEY_SESSION_ENDING = "CommCareSessionService_key_session_ending";
 
     // How long to wait until we force the session to finish logging out
-    private static final long LOGOUT_TIMEOUT = 3000;
+    private static final long LOGOUT_TIMEOUT = 1000 * 5;
 
     // The logout process start time, used to wrap up logging out if
     // the saving of incomplete forms takes too long
@@ -306,6 +304,12 @@ public class CommCareSessionService extends Service  {
         if (logoutStartedAt != -1 &&
                 time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
             finishLogout();
+
+            // Re-direct to the home screen
+            Intent loginIntent = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(loginIntent);
         }
 
         // If we haven't started logging out and we're either past the session
@@ -317,21 +321,20 @@ public class CommCareSessionService extends Service  {
                 (time > sessionExpireDate.getTime() || 
                  (sessionExpireDate.getTime() - time  > SESSION_LENGTH ))) {
             logoutStartedAt = new Date().getTime();
-            startLogout();
+            // the following logout method launches CommCareSessionService.startLogout()
+            CommCareApplication._().logout();
+
             showLoggedOutNotification();
         }
     }
     
     /**
-     * Begin closing down the session by notifying any pending forms that they
-     * need to saved and waiting for that to occur before closing down key
-     * pool and user database.
+     * Begin closing down the session by notifying any pending form that it
+     * needs to save. Logout is then completed in finishLogout after waiting
+     * for the form save to finish/timeout, after which key pool and user
+     * database are closed down.
      */
     public void startLogout() {
-        // tell everyone that the key session is ending and they need to save
-        // forms and prepare for the user database to close
-        this.sendBroadcast(new Intent(KEY_SESSION_ENDING));
-
         // save form progress if any
         if (formSaver != null) {
             formSaver.formSaveCallback();
@@ -356,6 +359,12 @@ public class CommCareSessionService extends Service  {
      */
     public void finishLogout() {
         synchronized(lock){
+            if (!isLoggedIn()) {
+                // Since both the FormSaveCallback callback and the maintenance
+                // timer might call this, only run if it hasn't been called
+                // before.
+                return;
+            }
             key = null;
             String msg = "Logging out service login";
 

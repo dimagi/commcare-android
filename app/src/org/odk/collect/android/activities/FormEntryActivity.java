@@ -82,6 +82,7 @@ import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -237,10 +238,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     
     private static String mHeaderString;
     
+    // Was the form saved? Used to set activity return code and decide whether
+    // form save callbacks have saving work to do.
+    // XXX: hasSaved doesn't seem to reset to false if the form is editted after
+    // saving. -- PLM
     public boolean hasSaved = false;
     
     private BroadcastReceiver mNoGPSReceiver;
-    private BroadcastReceiver mKeySessionCloseReceiver;
 
     // marked true if we are in the process of saving a form because the user
     // database & key session are expiring. Being set causes savingComplete to
@@ -511,33 +515,18 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     public void formSaveCallback() {
-        // note that we have started saving the form
-        savingFormOnKeySessionExpiration = true;
-        // start saving form, which will call the key session logout completion
-        // function when it finishes.
-        saveDataToDisk(EXIT, false, null, true);
+        if (!hasSaved) {
+            // note that we have started saving the form
+            savingFormOnKeySessionExpiration = true;
+            // start saving form, which will call the key session logout completion
+            // function when it finishes.
+            saveDataToDisk(EXIT, false, null, true);
+        }
     }
     /**
-     * Setup BroadcastReceivers for:
-     *  - going to login screen when key session closes
-     *  - asking user if they want to enable gps
+     * Setup BroadcastReceiver for asking user if they want to enable gps
      */
     private void registerFormEntryReceivers() {
-        // Listen for broadcast from CommCareSessionService saying the key
-        // session is closing down so we logout, since the session and its
-        // FormRecord data is getting wiped
-        mKeySessionCloseReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                // XXX: This doesn't actually launch the activity!! -- PLM
-                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(i);
-            }
-        };
-        registerReceiver(mKeySessionCloseReceiver,
-                new IntentFilter(CommCareSessionService.KEY_SESSION_ENDING));
-
         // See if this form needs GPS to be turned on
         mNoGPSReceiver = new BroadcastReceiver() {
             @Override
@@ -2552,10 +2541,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (mNoGPSReceiver != null) {
             unregisterReceiver(mNoGPSReceiver);
         }
-
-        if (mKeySessionCloseReceiver != null) {
-            unregisterReceiver(mKeySessionCloseReceiver);
-        }
     }
 
 
@@ -2837,9 +2822,26 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
-            CommCareApplication._().getSession().finishLogout();
+            try {
+                CommCareApplication._().getSession().finishLogout();
+            } catch (SessionUnavailableException sue) {
+                // form saving took too long, so we logged out already.
+                // XXX: this might have implications on whether the save was
+                // successful, but for now just hope the saveStatus correctly
+                // represents the save state.
+            }
 
             savingFormOnKeySessionExpiration = false;
+            if (saveStatus == SaveToDiskTask.SAVED ||
+                saveStatus == SaveToDiskTask.SAVED_AND_EXIT) {
+                hasSaved = true;
+             }
+
+            // Re-direct to the home screen
+            Intent loginIntent = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(loginIntent);
             return;
         } else {
             switch (saveStatus) {

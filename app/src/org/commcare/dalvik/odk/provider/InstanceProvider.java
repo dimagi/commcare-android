@@ -231,7 +231,7 @@ public class InstanceProvider extends ContentProvider {
                 linkToSessionFormRecord(instanceUri);
             } catch (Exception e) {
                 // TODO: correctly exit function with error code so that
-                // callers can propogate the failure
+                // callers can propogate the failure -- PLM
             }
 
             return instanceUri;
@@ -467,7 +467,8 @@ public class InstanceProvider extends ContentProvider {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
                 } catch (Exception e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                            "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                 }
             }
 
