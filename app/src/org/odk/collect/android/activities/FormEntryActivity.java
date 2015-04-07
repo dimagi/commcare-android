@@ -2814,7 +2814,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      *
      * Display save status notification and exit or continue on in the form.
      * If form entry is being saved because key session is expiring then
-     * broadcast the successful save.
+     * continue closing the session/logging out.
      *
      * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int)
      */
