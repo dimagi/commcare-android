@@ -2599,8 +2599,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //if this fails, we _really_ don't want to mess anything up. this is a last minute
             //fix
         }
-
-        // TODO: if session has ended, go to login screen
     }
 
     /**
