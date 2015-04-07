@@ -63,7 +63,7 @@ public class MenuAdapter implements ListAdapter {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {
                         if (ec == null) {
-                            ec = asw.getEvaluationContext();
+                            ec = asw.getEvaluationContext(m.getId());
                         }
                         if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
                             continue;
