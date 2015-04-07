@@ -157,14 +157,7 @@
 
         <activity
             android:name=".activities.EntitySelectActivity"
-            android:windowSoftInputMode="stateUnchanged|adjustResize"
-            android:launchMode="singleTop"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/entity_select_search" />
+            android:windowSoftInputMode="stateUnchanged|adjustResize" >
         </activity>
         <activity
             android:name=".activities.EntityDetailActivity"
