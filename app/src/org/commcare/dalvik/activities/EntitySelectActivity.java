@@ -575,27 +575,35 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION, action.getDisplay());
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.activity_report_problem, menu);
 
             searchView =
-                    (SearchView) menu.findItem(R.id.search_action_bar).getActionView();
-            if(searchView != null) searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    return true;
-                }
-
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    if(adapter != null){
-                        adapter.applyFilter(newText);
+                    (SearchView)menu.findItem(R.id.search_action_bar).getActionView();
+            if (searchView != null) {
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return true;
                     }
-                    return false;
-                }
-            });
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        if (adapter != null) {
+                            adapter.applyFilter(newText);
+                        }
+                        return false;
+                    }
+                });
+                int[] searchViewStyle = AndroidUtil.getThemeColorIDs(this, new int[]{R.attr.searchbox_action_bar_color});
+                int id = searchView.getContext()
+                        .getResources()
+                        .getIdentifier("android:id/search_src_text", null, null);
+                TextView textView = (TextView) searchView.findViewById(id);
+                textView.setTextColor(searchViewStyle[0]);
+            }
+
             View bottomSearchWidget = findViewById(R.id.searchfooter);
             if(bottomSearchWidget != null) bottomSearchWidget.setVisibility(View.GONE);
         }
