@@ -581,7 +581,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
             SearchView searchView =
                     (SearchView) menu.findItem(R.id.search_action_bar).getActionView();
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            if(searchView != null) searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     return true;
@@ -595,9 +595,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     return false;
                 }
             });
-            View barcodeScanButton = menu.findItem(R.id.barcode_scan_action_bar).getActionView();
-            barcodeScanButton.setOnClickListener(barcodeScanOnClickListener);
-
             View bottomSearchWidget = findViewById(R.id.searchfooter);
             if(bottomSearchWidget != null) bottomSearchWidget.setVisibility(View.GONE);
         }
@@ -634,6 +631,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 return true;
             case MENU_ACTION:
                 triggerDetailAction();
+                return true;
+            // handling click on the barcode scanner's actionbar
+            // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
+            case R.id.barcode_scan_action_bar:
+                barcodeScanOnClickListener.onClick(null);
                 return true;
         }
         return super.onOptionsItemSelected(item);
