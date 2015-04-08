@@ -100,6 +100,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     Entry prototype;
     LinearLayout header;
     ImageButton barcodeButton;
+    SearchView searchView;
     
     TextToSpeech tts;
     
@@ -264,7 +265,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             public void onChanged() {
                 super.onChanged();
                 //update the search results box
-                String query = searchbox.getText().toString();
+                String query = getSearchText().toString();
                 if (!"".equals(query)) {
                     searchResultStatus.setText(Localization.get("select.search.status", new String[] {
                         ""+adapter.getCount(true, false), 
@@ -579,7 +580,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.activity_report_problem, menu);
 
-            SearchView searchView =
+            searchView =
                     (SearchView) menu.findItem(R.id.search_action_bar).getActionView();
             if(searchView != null) searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
@@ -600,6 +601,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
 
         return true;
+    }
+
+    @SuppressWarnings("NewApi")
+    private CharSequence getSearchText(){
+        // not checking for build version because searchview will be null if not supported
+        if(searchView != null) return searchView.getQuery();
+        return searchbox.getText();
     }
     
     /* (non-Javadoc)
