@@ -12,6 +12,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         style="@style/MainPane">
 
         <!--<ImageView-->
@@ -36,6 +38,7 @@
             android:layout_marginEnd="8dp"
             android:horizontalSpacing="8dp"
             android:verticalSpacing="8dp"
+            android:paddingBottom="8dp"
             />
         <TextView
             android:id="@+id/str_version"
