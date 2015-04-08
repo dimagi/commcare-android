@@ -108,7 +108,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     TextView searchResultStatus;
     EntityListAdapter adapter;
     LinearLayout header;
-    ImageButton calloutButton;
+    ImageButton barcodeButton;
+    SearchView searchView;
     
     TextToSpeech tts;
     
@@ -148,8 +149,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             
             if (callout == null) {
                 // Default to barcode scanning if no callout defined in the detail
-                calloutButton = (ImageButton)findViewById(R.id.barcodeButton);
-                calloutButton.setOnClickListener(new OnClickListener() {
+                barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+                barcodeButton.setOnClickListener(new OnClickListener() {
                         public void onClick(View v) {
                             Intent i = new Intent("com.google.zxing.client.android.SCAN");
                             try {
@@ -167,13 +168,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 CalloutData calloutData = callout.evaluate();
                 
                 if (calloutData.getImage() != null) {
-                    setupImageLayout(calloutButton, calloutData.getImage());
+                    setupImageLayout(barcodeButton, calloutData.getImage());
                 }
                 
                 final String actionName = calloutData.getActionName();
                 final Hashtable<String, String> extras = calloutData.getExtras();
                 
-                calloutButton.setOnClickListener(new OnClickListener() {
+                barcodeButton.setOnClickListener(new OnClickListener() {
                         public void onClick(View v) {
                             Intent i = new Intent(actionName);
                             
@@ -361,7 +362,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             public void onChanged() {
                 super.onChanged();
                 //update the search results box
-                String query = searchbox.getText().toString();
+                String query = getSearchText().toString();
                 if (!"".equals(query)) {
                     searchResultStatus.setText(Localization.get("select.search.status", new String[] {
                         ""+adapter.getCount(true, false), 
@@ -714,7 +715,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.activity_report_problem, menu);
 
-            SearchView searchView =
+            searchView =
                     (SearchView) menu.findItem(R.id.search_action_bar).getActionView();
             if(searchView != null) searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
@@ -735,6 +736,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
 
         return true;
+    }
+
+    @SuppressWarnings("NewApi")
+    private CharSequence getSearchText(){
+        // not checking for build version because searchview will be null if not supported
+        if(searchView != null) return searchView.getQuery();
+        return searchbox.getText();
     }
     
     /* (non-Javadoc)
