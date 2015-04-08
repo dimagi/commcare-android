@@ -2,7 +2,6 @@ package org.commcare.dalvik.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -68,7 +67,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -130,7 +128,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private Detail shortSelect;
     
     private DataSetObserver mListStateObserver;
-    
+    private final OnClickListener barcodeScanOnClickListener = new OnClickListener() {
+
+            public void onClick(View v) {
+                Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                try {
+                    startActivityForResult(i, BARCODE_FETCH);
+                } catch (ActivityNotFoundException anfe) {
+                    Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
+                    noReader.show();
+                }
+            }
+        };
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -224,20 +234,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
             mViewMode = true;
         }
-                
-        barcodeButton.setOnClickListener(new OnClickListener() {
 
-            public void onClick(View v) {
-                Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                try {
-                    startActivityForResult(i, BARCODE_FETCH);
-                } catch(ActivityNotFoundException anfe) {
-                    Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
-                    noReader.show();
-                }
-            }
-            
-        });
+        barcodeButton.setOnClickListener(barcodeScanOnClickListener);
         
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
@@ -597,6 +595,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     return false;
                 }
             });
+            View barcodeScanButton = menu.findItem(R.id.barcode_scan_action_bar).getActionView();
+            barcodeScanButton.setOnClickListener(barcodeScanOnClickListener);
+
             View bottomSearchWidget = findViewById(R.id.searchfooter);
             if(bottomSearchWidget != null) bottomSearchWidget.setVisibility(View.GONE);
         }
