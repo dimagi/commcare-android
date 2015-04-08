@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.Gravity;
@@ -609,9 +610,12 @@ public class BreadcrumbBarFragment extends Fragment {
             NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
             
             Entity entity = nef.getEntity(ref);
-            
-            View tile = new GridEntityView(this.getActivity(), detail, entity, null);
-            return Pair.create(tile, ref);
+
+            Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
+            GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity, null);
+            int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(), new int[]{R.attr.drawer_pulldown_text_color});
+            tile.setTextColor(textColor[0]);
+            return Pair.create(((View)tile), ref);
         }
 
 

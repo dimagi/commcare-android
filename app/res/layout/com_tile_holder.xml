@@ -1,73 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/white" >
-    
-    <FrameLayout
-    android:id="@+id/com_tile_holder_top"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/border_bottom_black" >
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white" >
 
     <FrameLayout
-        android:id="@+id/com_tile_holder_frame"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-    </FrameLayout>
-
-    <LinearLayout
-        android:id="@+id/com_tile_holder_actions"
-        android:layout_width="wrap_content"
+        android:id="@+id/com_tile_holder_top"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:orientation="vertical"
-        android:weightSum="1" >
+        android:background="@color/cc_brand_text"
+        >
+        <!--android:background="@drawable/border_bottom_black"-->
 
-        <FrameLayout 
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="0.5"
-            android:visibility="invisible">
-	        <ImageButton
-	            android:id="@+id/imageButton2"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:src="@android:drawable/arrow_up_float" />
-        </FrameLayout>
-
-        <FrameLayout 
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="0.5">
-
-        <ImageButton
-            android:id="@+id/com_tile_holder_btn_open"
+        <FrameLayout
+            android:id="@+id/com_tile_holder_frame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:src="@android:drawable/arrow_down_float" />
+            >
 
         </FrameLayout>
-    
-    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/com_tile_holder_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:orientation="vertical"
+            android:weightSum="1" >
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                android:visibility="invisible">
+                <ImageButton
+                    android:id="@+id/imageButton2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_information"
+                    android:background="@drawable/circle_button"
+                    />
+                <!--android:src="@android:drawable/arrow_up_float" -->
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                >
+
+                <ImageButton
+                    android:id="@+id/com_tile_holder_btn_open"
+                    android:background="@drawable/circle_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:src="@drawable/ic_information"
+                    />
+                <!--android:src="@android:drawable/arrow_down_float" -->
+
+            </FrameLayout>
+
+        </LinearLayout>
     </FrameLayout>
 
     <RelativeLayout
         android:id="@+id/com_tile_holder_detail_master"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_below="@id/com_tile_holder_top" 
+        android:layout_below="@id/com_tile_holder_top"
         android:visibility="gone"
         android:layout_alignParentBottom="true">
-        
- 	    <org.commcare.android.view.TabbedDetailView
- 	        android:id="@+id/com_tile_holder_detail_frame"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:layout_alignParentTop="true"
-	        android:layout_above="@+id/com_tile_holder_btn_close" />
+
+        <org.commcare.android.view.TabbedDetailView
+            android:id="@+id/com_tile_holder_detail_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/com_tile_holder_btn_close" />
 
         <ImageButton
             android:id="@id/com_tile_holder_btn_close"
