@@ -2,6 +2,7 @@ package org.commcare.android.view;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityDetailPagerAdapter;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DisplayUnit;
@@ -151,11 +152,13 @@ public class TabbedDetailView extends RelativeLayout {
      * Get form list from database and insert into view.
      */
     public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
+        final int[] rowColors = AndroidUtil.getThemeColorIDs(getContext(),
+                new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
                 hasDetailCalloutListener, new EntityDetailAdapter.EntityDetailViewModifier() {
             @Override
             public void modifyEntityDetailView(EntityDetailView edv) {
-                edv.setOddEvenRowColors(getResources().getColor(R.color.cc_brand_bg),getResources().getColor(R.color.cc_attention_positive_color));
+                edv.setOddEvenRowColors(rowColors[0],rowColors[1]);
             }
         });
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
