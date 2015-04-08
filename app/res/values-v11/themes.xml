@@ -16,6 +16,7 @@
         <item name="android:actionBarStyle">@style/ActionBar</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowButton</item>
         <item name="searchbox_action_bar_color">@color/white</item>
+        <item name="drawer_pulldown_text_color">@color/white</item>
     </style>
 
     <style name="ActionBar" parent="android:Widget.Holo.Light.ActionBar">

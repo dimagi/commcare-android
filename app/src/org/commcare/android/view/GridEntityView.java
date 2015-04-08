@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.GridLayout;
@@ -32,6 +33,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Space;
 import android.widget.TextView;
+
+import java.util.Arrays;
 
 /**
  * @author wspride
@@ -48,6 +51,7 @@ public class GridEntityView extends GridLayout {
 	private GridCoordinate[] coords;
 	private GridStyle[] styles;
 	Object[] mRowData;
+    View[] mRowViews;
 	boolean mFuzzySearchEnabled = false;
 	boolean mIsAsynchronous = false;
 	
@@ -251,6 +255,9 @@ public class GridEntityView extends GridLayout {
 		coords = detail.getGridCoordinates();
 		styles = detail.getGridStyles();
 		mRowData = entity.getData();
+        mRowViews = new View[mRowData.length];
+
+        Log.v("TempForms", "Template: " + Arrays.toString(forms) + " | RowData: " + Arrays.toString(mRowData) + " | Coords: " + Arrays.toString(coords) + " | Styles: " + Arrays.toString(styles));
 		
 		String[] bgData = entity.getBackgroundData();
 		
@@ -318,10 +325,11 @@ public class GridEntityView extends GridLayout {
 			}
 
 			mView.setLayoutParams(mGridParams);
+
+            mRowViews[i] = mView;
 		
 			this.addView(mView, mGridParams);
 		}
-        
 	}
 	
 	/**
@@ -420,5 +428,15 @@ public class GridEntityView extends GridLayout {
     public void setSearchTerms(String[] currentSearchTerms) {
         this.searchTerms = currentSearchTerms;
         
+    }
+
+    public void setTextColor(int color){
+        for (int i = 0; i < mRowViews.length; i++) {
+            View v = mRowViews[i];
+            if (v == null) continue;
+            if(v instanceof TextView){
+                ((TextView)v).setTextColor(color);
+            }
+        }
     }
 }
