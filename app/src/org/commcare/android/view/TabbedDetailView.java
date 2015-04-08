@@ -1,5 +1,6 @@
 package org.commcare.android.view;
 
+import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
@@ -150,7 +151,13 @@ public class TabbedDetailView extends RelativeLayout {
      * Get form list from database and insert into view.
      */
     public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
-        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference, hasDetailCalloutListener);
+        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
+                hasDetailCalloutListener, new EntityDetailAdapter.EntityDetailViewModifier() {
+            @Override
+            public void modifyEntityDetailView(EntityDetailView edv) {
+                edv.setOddEvenRowColors(getResources().getColor(R.color.cc_brand_bg),getResources().getColor(R.color.cc_attention_positive_color));
+            }
+        });
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         markSelectedTab(0);
     }

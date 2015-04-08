@@ -35,10 +35,18 @@ public class EntityDetailFragment extends Fragment {
     private AndroidSessionWrapper asw;
     private NodeEntityFactory factory;
     private EntityDetailAdapter adapter;
+    private EntityDetailAdapter.EntityDetailViewModifier modifier;
 
     public EntityDetailFragment() {
         super();
         this.asw = CommCareApplication._().getCurrentSessionWrapper();
+    }
+
+    public void setEntityDetailModifier(EntityDetailAdapter.EntityDetailViewModifier edvm){
+        this.modifier = edvm;
+        if(adapter != null) {
+            adapter.setModifier(edvm);
+        }
     }
     
     /*
@@ -77,6 +85,7 @@ public class EntityDetailFragment extends Fragment {
             thisActivity, asw.getSession(), childDetail, entity, 
             detailCalloutListener, audioController, args.getInt(DETAIL_INDEX)
         );
+        adapter.setModifier(modifier);
         final TextView header = (TextView) inflater.inflate(R.layout.entity_detail_header, null);
         final ListView listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
         header.setText(detail.getTitle().getText().evaluate());
