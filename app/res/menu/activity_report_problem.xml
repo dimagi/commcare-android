@@ -7,8 +7,7 @@
     <item android:id="@+id/barcode_scan_action_bar"
           android:title="Scan Barcode"
           android:icon="@drawable/scan_app_barcode"
-          android:showAsAction="ifRoom"
-          android:actionViewClass="android.widget.Button" />
+          android:showAsAction="ifRoom" />
     <item android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
         android:orderInCategory="100" />
