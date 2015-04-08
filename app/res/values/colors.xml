@@ -116,4 +116,7 @@
     <!-- EditText color -->
     <color name="edit_text_color">#D0D0D0</color>
 
+    <!-- Drawer pulldown odd row color -->
+    <color name="drawer_pulldown_odd_row_color">#D0E8FF</color>
+
 </resources>
