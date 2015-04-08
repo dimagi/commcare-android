@@ -84,7 +84,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:src="@android:drawable/arrow_up_float"  />
+            android:src="@android:drawable/arrow_up_float"
+            android:visibility="gone"
+            />
     </RelativeLayout>
 
 </RelativeLayout>
