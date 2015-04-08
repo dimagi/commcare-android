@@ -632,7 +632,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * Triggers form submission cycle, cleans up some session state.
      *
      * @param resultCode exit code of form entry activity
-     * @param intent points to form instance
+     * @param intent The intent of the returning activity, with the
+     * saved form provided as the intent URI data
      */
     private void processReturnFromFormEntry(int resultCode, Intent intent) {
         // TODO: We might need to load this from serialized state?
