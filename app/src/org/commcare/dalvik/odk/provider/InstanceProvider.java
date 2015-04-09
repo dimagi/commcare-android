@@ -424,11 +424,14 @@ public class InstanceProvider extends ContentProvider {
     private Uri getInstanceRowUri(Uri potentialUri, String selection, String[] selectionArgs) {
         switch (sUriMatcher.match(potentialUri)) {
             case INSTANCES:
+                // the potential URI points to the instance table, so use the
+                // selection args to find a specific row id.
                 Cursor c = null;
                 try {
                     c = this.query(potentialUri, null, selection, selectionArgs, null);
                     c.moveToPosition(-1);
-                    while (c.moveToNext()) {
+                    if (c.moveToNext()) {
+                        // there should only be one result for this query
                         String instanceId = c.getString(c.getColumnIndex("_id"));
                         return InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
                     }
@@ -439,6 +442,7 @@ public class InstanceProvider extends ContentProvider {
                 }
                 break;
             case INSTANCE_ID:
+                // the potential URI points to a row in the instance table
                 return potentialUri;
             default:
                 throw new IllegalArgumentException("Unknown URI " + potentialUri);
