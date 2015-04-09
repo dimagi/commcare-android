@@ -159,11 +159,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     versionDisplay.setVisibility(View.GONE);
                     banner.setVisibility(View.GONE);
                 } else if(height < hideBanner) {
-                    versionDisplay.setVisibility(View.VISIBLE);
                     banner.setVisibility(View.GONE);
                 }  else {
-                    versionDisplay.setVisibility(View.VISIBLE);
-                    
                     // Override default CommCare banner if requested
                     String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_LOGIN, "");
                     if (!"".equals(customBannerURI)) {
