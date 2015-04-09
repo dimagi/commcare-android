@@ -31,8 +31,12 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     protected Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<Integer, Integer>();
     
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
+        this(instanceRoot, storage, reportMode,new CaseIndexTable());
+    }
+    
+    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode, CaseIndexTable caseIndexTable) {
         super(instanceRoot, storage, reportMode);
-        mCaseIndexTable = new CaseIndexTable();
+        mCaseIndexTable = caseIndexTable;
     }
     
     
