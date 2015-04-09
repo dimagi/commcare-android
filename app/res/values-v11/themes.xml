@@ -10,6 +10,9 @@
         <item name="entity_detail_even_row_color">@color/translucent_grey_light</item>
         <item name="entity_detail_odd_row_color">@color/transparent</item>
     </style>
+    <style name="AppTheme.Widget.TextView" parent="android:Widget.Holo.Light.TextView">
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
     <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
     <style name="TextAppearance.Custom.WindowTitle.Case" parent="style/TextAppearance.Custom.WindowTitle">
     </style>
