@@ -16,7 +16,8 @@
     android:id="@+id/str_version"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:textAppearance="@style/VersionIdText" />
+    android:textAppearance="@style/VersionIdText"
+    android:visibility="gone" />
 
     <!--<Button-->
     <!--android:id="@+id/login_button"-->
