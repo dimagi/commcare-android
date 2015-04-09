@@ -50,7 +50,7 @@
             android:layout_alignParentLeft="true"
             android:background="@drawable/selector_button_press"
             android:paddingLeft="8dp"
-            android:src="@drawable/icon_exit" />
+            android:src="@drawable/icon_chevron_left_brand" />
 
         <ProgressBar
             android:id="@+id/nav_prog_bar"
@@ -65,13 +65,13 @@
             android:layout_marginRight="32dp"
             android:indeterminate="false"
             android:indeterminateOnly="false"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
             android:max="100"
             android:progress="0"
             android:progressDrawable="@drawable/progressbar_modern"
             android:layout_centerInParent="true"
             />
+        <!--android:paddingTop="8dp"-->
+        <!--android:paddingBottom="8dp"-->
 
         <ImageButton
             android:id="@id/nav_btn_next"
@@ -80,7 +80,7 @@
             android:layout_alignParentRight="true"
             android:background="@drawable/selector_button_press"
             android:paddingRight="8dp"
-            android:src="@drawable/icon_next" />
+            android:src="@drawable/icon_chevron_right_brand" />
     </RelativeLayout>
     <FrameLayout
         android:id="@+id/form_entry_pane"
