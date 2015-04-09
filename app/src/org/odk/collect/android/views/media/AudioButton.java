@@ -253,14 +253,14 @@ public class AudioButton extends ImageButton implements OnClickListener {
     public void refreshAppearance() {
         switch(currentState) {
         case Ready:
-            this.setImageResource(R.drawable.ic_volume_playing_black_24dp);
+            this.setImageResource(R.drawable.icon_audioplay_lightcool);
             break;
         case Playing:
-            this.setImageResource(R.drawable.ic_volume_off_black_24dp);
+            this.setImageResource(R.drawable.icon_audiostop_darkwarm);
             break;
         case Paused:
         case PausedForRenewal:
-            this.setImageResource(R.drawable.ic_volume_playing_black_24dp);
+            this.setImageResource(R.drawable.icon_audioplay_lightcool);
         }
     }
     
