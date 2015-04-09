@@ -1010,10 +1010,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
         
         if(!details.relevantBeforeCurrentScreen) {
-        	prevButton.setImageResource(R.drawable.icon_exit);
+        	prevButton.setImageResource(R.drawable.icon_close_darkwarm);
         	prevButton.setTag("quit");
         } else {
-        	prevButton.setImageResource(R.drawable.icon_back);
+        	prevButton.setImageResource(R.drawable.icon_chevron_left_brand);
         	prevButton.setTag("back");
         }
         
@@ -1023,14 +1023,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         Rect bounds = progressBar.getProgressDrawable().getBounds(); //Save the drawable bound
 
         if(details.relevantAfterCurrentScreen == 0 && (details.requiredOnScreen == details.answeredOnScreen || details.requiredOnScreen < 1)) {
-        	nextButton.setImageResource(R.drawable.icon_done);
+        	nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
         	
         	//TODO: _really_? This doesn't seem right
             nextButton.setTag("done");
         	
         	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar_full));
         } else {
-        	nextButton.setImageResource(R.drawable.icon_next);
+        	nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
         	
         	//TODO: _really_? This doesn't seem right
             nextButton.setTag("next");
@@ -1109,10 +1109,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         int minHeight = 7 * pixels;
 
-        int removalTimeMillis = 4 * 1000;
-
-        Handler handler = new Handler();
-
         //Ok, now go ahead and add all of the small labels
         for(int i = 0 ; i < smallLabels.size(); i = i + 2 ) {
             if(i + 1 < smallLabels.size()) {
@@ -1133,14 +1129,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 layout.addView(left);
 
                 parent.addView(layout);
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i("LblRem","Removing view " + layout + " after its scheduled time");
-                        parent.removeView(layout);
-                    }
-                }, removalTimeMillis);
             } else {
                 largeLabels.add(smallLabels.get(i));
             }
@@ -1156,14 +1144,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             view.setTextColor(largeLabels.get(i).second.colorId);
             view.setMinimumHeight(minHeight);
             parent.addView(view);
-
-            handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i("LblRem","Removing view " + view + " after its scheduled time");
-                        parent.removeView(view);
-                    }
-                }, removalTimeMillis);
         }
     }
 
