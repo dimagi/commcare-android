@@ -311,7 +311,7 @@ public class CommCareSessionService extends Service  {
         // expire time, or the session expires more than its period in the
         // future, we need to log the user out. The second case occurs if the
         // system's clock is altered.
-        if (isLoggedIn() && 
+        if (isLoggedIn() &&
                 logoutStartedAt == -1 &&
                 (time > sessionExpireDate.getTime() || 
                  (sessionExpireDate.getTime() - time  > SESSION_LENGTH ))) {
@@ -403,9 +403,13 @@ public class CommCareSessionService extends Service  {
             // Re-direct to the home screen
             Intent loginIntent = new Intent(getApplicationContext(),
                     CommCareHomeActivity.class);
-            // XXX: Is this the best way to start the login view? It sort of
-            // just pops up even when CommCare isn't active... not ideal -- PLM
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            // TODO: instead of launching here, which will pop-up the login
+            // screen even if CommCare isn't in the foreground, we should
+            // broadcast an intent, which CommCareActivity can receive if in
+            // focus and dispatch the login activity. Will also need to extend
+            // CommCareActivity's onResume to check if we need to re-login when
+            // we bring CommCare back into the foreground, so that the user
+            // can't just continue doing work while logged out. -- PLM
             loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(loginIntent);
         }

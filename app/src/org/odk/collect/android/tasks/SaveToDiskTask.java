@@ -47,6 +47,7 @@ import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformatio
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -190,7 +191,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
      * In theory we don't have to write to disk, and this is where you'd add
      * other methods.
      * @param markCompleted
-     * @return
+     * @return was writing of data successful?
      */
     private boolean exportData(boolean markCompleted) {
         ByteArrayPayload payload;
@@ -211,7 +212,14 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         }
 
         // update the mUri. We've saved the reloadable instance, so update status...
-        updateInstanceDatabase(true, true);
+
+        try {
+            updateInstanceDatabase(true, true);
+        } catch (SQLException e) {
+            Log.e(t, "Error creating database entries for form.");
+            e.printStackTrace();
+            return false;
+        }
         
         if ( markCompleted ) {
             // now see if it is to be finalized and perhaps update everything...
@@ -263,7 +271,13 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
             // 2. Overwrite the instanceXml with the submission.xml 
             //    and remove the plaintext attachments if encrypting
             
-            updateInstanceDatabase(false, canEditAfterCompleted);
+            try {
+                updateInstanceDatabase(false, canEditAfterCompleted);
+            } catch (SQLException e) {
+                Log.e(t, "Error creating database entries for form.");
+                e.printStackTrace();
+                return false;
+            }
 
             if (  !canEditAfterCompleted ) {
                 // AT THIS POINT, there is no going back.  We are committed

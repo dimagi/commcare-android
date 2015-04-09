@@ -612,7 +612,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     break;
                 }
             case MODEL_RESULT:
-                processReturnFromFormEntry(resultCode, intent);
+                boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
+                if (!fetchNext) {
+                    return;
+                }
                 break;
             }
 
@@ -634,8 +637,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * @param resultCode exit code of form entry activity
      * @param intent The intent of the returning activity, with the
      * saved form provided as the intent URI data
+     * @return Flag signifying that caller should fetch the next activity in
+     * the session to launch. If false then caller should exit or spawn home
+     * activity.
      */
-    private void processReturnFromFormEntry(int resultCode, Intent intent) {
+    private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
         // TODO: We might need to load this from serialized state?
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 
@@ -651,6 +657,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Form Entry couldn't save because of corrupt state.");
             clearSessionAndExit(currentState);
+            return false;
         }
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
@@ -666,7 +673,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // Return to where we started
                 goToFormArchive(false, current);
             }
-            return;
+            return false;
         }
 
         if (resultCode == RESULT_OK) {
@@ -681,7 +688,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                         "Form Entry did not return a form");
                 clearSessionAndExit(currentState);
-                return;
+                return false;
             }
 
             Cursor c = getContentResolver().query(resultInstanceURI, null, null, null, null);
@@ -702,6 +709,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
                 if (wasExternal) {
                     this.finish();
+                    return false;
                 }
 
                 // XXX: probably refactor part of this logic into InstanceProvider -- PLM
@@ -709,7 +717,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // in case there is state that depends on it.
                 if (!currentState.terminateSession()) {
                     // If we didn't find somewhere to go, we're gonna stay here
-                    return;
+                    return false;
                 }
                 // Otherwise, we want to keep proceeding in order
                 // to keep running the workflow
@@ -718,7 +726,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 // TODO: session state clearing might be something we want to
                 // do in InstanceProvider.bindToFormRecord.
                 clearSessionAndExit(currentState);
-                return;
+                return false;
             }
         } else if (resultCode == RESULT_CANCELED) {
             // Nothing was saved during the form entry activity
@@ -734,11 +742,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             currentState.reset();
             if (wasExternal) {
                 this.finish();
-                return;
+                return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
                 // We should head back to the incomplete forms screen
                 goToFormArchive(true, current);
-                return;
+                return false;
             } else {
                 // If we cancelled form entry from a normal menu entry
                 // we want to go back to where were were right before we started
@@ -747,6 +755,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 currentState.setFormRecordId(-1);
             }
         }
+        return true;
     }
 
     /**

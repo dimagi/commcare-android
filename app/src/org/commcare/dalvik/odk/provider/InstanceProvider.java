@@ -230,8 +230,7 @@ public class InstanceProvider extends ContentProvider {
             try {
                 linkToSessionFormRecord(instanceUri);
             } catch (Exception e) {
-                // TODO: correctly exit function with error code so that
-                // callers can propogate the failure -- PLM
+                throw new SQLException("Failed to insert row into " + uri);
             }
 
             return instanceUri;
@@ -396,8 +395,7 @@ public class InstanceProvider extends ContentProvider {
             try {
                 linkToSessionFormRecord(uri);
             } catch (Exception e) {
-                // TODO: correctly exit function with error code so that
-                // callers can propogate the failure
+                throw new SQLException("Failed to update row " + uri);
             }
         }
 
@@ -423,10 +421,6 @@ public class InstanceProvider extends ContentProvider {
         boolean complete = false;
         try {
             // register the instance uri and its status with the session
-            // NOTE: there is no safety checks preventing us from binding two
-            // different form instances to the form record found in the
-            // session. We just need to be careful to flush the session's form
-            // record before modifying a new form instance.
             complete = currentState.beginRecordTransaction(instanceUri, c);
         } catch (IllegalArgumentException iae) {
             iae.printStackTrace();
@@ -449,7 +443,8 @@ public class InstanceProvider extends ContentProvider {
             ExceptionReportTask ert = new ExceptionReportTask();
             ert.execute(e);
 
-            raiseFormEntryError("An error occurred: " + e.getMessage() + " and your data could not be saved.", currentState);
+            raiseFormEntryError("An error occurred: " + e.getMessage() +
+                    " and your data could not be saved.", currentState);
             return;
         }
 

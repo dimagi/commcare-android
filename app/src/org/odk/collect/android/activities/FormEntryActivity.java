@@ -238,10 +238,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     
     private static String mHeaderString;
     
-    // Was the form saved? Used to set activity return code and decide whether
-    // form save callbacks have saving work to do.
-    // XXX: hasSaved doesn't seem to reset to false if the form is editted after
-    // saving. -- PLM
+    // Was the form saved? Used to set activity return code.
     public boolean hasSaved = false;
     
     private BroadcastReceiver mNoGPSReceiver;
@@ -515,23 +512,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     public void formSaveCallback() {
-        if (!hasSaved) {
-            // note that we have started saving the form
-            savingFormOnKeySessionExpiration = true;
-            // start saving form, which will call the key session logout completion
-            // function when it finishes.
-            saveDataToDisk(EXIT, false, null, true);
-        } else {
-            try {
-                // nothing to save, so just finish logging out
-                CommCareApplication._().getSession().finishLogout();
-            } catch (SessionUnavailableException sue) {
-                // We've already logged out, probably by timing out the timer
-                // in CommCareSessionService.
-            }
-
-        }
+        // note that we have started saving the form
+        savingFormOnKeySessionExpiration = true;
+        // start saving form, which will call the key session logout completion
+        // function when it finishes.
+        saveDataToDisk(EXIT, false, null, true);
     }
+
     /**
      * Setup BroadcastReceiver for asking user if they want to enable gps
      */
@@ -2827,10 +2814,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
             savingFormOnKeySessionExpiration = false;
-            if (saveStatus == SaveToDiskTask.SAVED ||
-                saveStatus == SaveToDiskTask.SAVED_AND_EXIT) {
-                hasSaved = true;
-             }
+
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
@@ -2838,9 +2822,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 CommCareApplication._().getSession().finishLogout();
             } catch (SessionUnavailableException sue) {
                 // form saving took too long, so we logged out already.
-                // XXX: this might have implications on whether the save was
-                // successful, but for now just hope the saveStatus correctly
-                // represents the save state. -- PLM
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "Saving current form took too long, " +
+                        "so data was (probably) discarded and the session closed. " +
+                        "Save exit code: " + saveStatus);
             }
         } else {
             switch (saveStatus) {
