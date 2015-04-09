@@ -1110,7 +1110,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         for(int i = 0 ; i < smallLabels.size(); i = i + 2 ) {
             if(i + 1 < smallLabels.size()) {
                 LinearLayout.LayoutParams lpp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-                lpp.setMargins(0, pixels, 0, pixels);
                 final LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
                 layout.setLayoutParams(lpp);
@@ -1133,7 +1132,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         for(int i = 0 ; i < largeLabels.size(); ++i ) {
             final TextView view = (TextView)View.inflate(this, R.layout.component_floating_label, null);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, pixels, 0, pixels);
             view.setLayoutParams(lp);
             view.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
             view.setText(largeLabels.get(i).first);
@@ -1837,9 +1835,21 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mViewPane.addView(mCurrentView, lp);
 
         mCurrentView.startAnimation(mInAnimation);
-        if (mCurrentView instanceof ODKView)
+        
+        TextView groupLabel = ((TextView)this.findViewById(R.id.form_entry_group_label));
+        
+        groupLabel.setVisibility(View.GONE);
+        
+        if (mCurrentView instanceof ODKView) {
             ((ODKView) mCurrentView).setFocus(this);
-        else {
+            
+            String groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
+
+            if(groupLabelText != "") {
+                groupLabel.setText(groupLabelText);
+                groupLabel.setVisibility(View.VISIBLE);
+            }
+        } else {
             InputMethodManager inputManager =
                 (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(mCurrentView.getWindowToken(), 0);
