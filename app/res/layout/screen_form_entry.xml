@@ -83,10 +83,25 @@
             android:src="@drawable/icon_chevron_right_brand" />
     </RelativeLayout>
     <FrameLayout
-        android:id="@+id/form_entry_pane"
+        android:id="@+id/form_entry_labels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/nav_pane"
+        >
+
+        <LinearLayout
+            android:id="@+id/form_entry_label_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/form_entry_pane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/form_entry_labels"
         >
     </FrameLayout>
 
@@ -109,19 +124,4 @@
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"/>
 
-    <FrameLayout
-        android:id="@+id/form_entry_labels"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/screen_form_entry_bottom_anchor"
-        >
-
-        <LinearLayout
-            android:id="@+id/form_entry_label_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-        </LinearLayout>
-
-    </FrameLayout>
 </RelativeLayout>
