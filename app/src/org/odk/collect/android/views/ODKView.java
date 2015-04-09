@@ -66,6 +66,8 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     private int mViewBannerCount = 0;
 
     private boolean mProgressEnabled;
+    
+    String mGroupLabel;
 
 
     public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory) {
@@ -156,7 +158,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
 
         // display which group you are in as well as the question
-        addGroupText(groups);
+        mGroupLabel = deriveGroupText(groups);
         
         addHintText(hintText);
         
@@ -312,7 +314,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     /**
      * // * Add a TextView containing the hierarchy of groups to which the question belongs. //
      */
-    private void addGroupText(FormEntryCaption[] groups) {
+    private String deriveGroupText(FormEntryCaption[] groups) {
         StringBuffer s = new StringBuffer("");
         String t = "";
         int i;
@@ -328,15 +330,24 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
                 s.append(" > ");
             }
         }
-
-        // build view
-        if (s.length() > 0) {
-            TextView tv = (TextView) inflate(getContext(), R.layout.title_text_view_modern, null);
-            tv.setText(s.substring(0, s.length() - 3));
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE - 4);
-            mView.addView(tv, mLayout);
-            mViewBannerCount ++;
+        
+        //remove the trailing " > "
+        if(s.length() > 0) {
+            s.delete(s.length() - 2, s.length());
         }
+        
+        return s.toString();
+    }
+    
+    
+    /**
+     * Ugh, the coupling here sucks, but this returns the group label
+     * to be used for this odk view. 
+     * 
+     * @return
+     */
+    public String getGroupLabel() {
+        return mGroupLabel;
     }
     
     private void addHintText(String hintText) {

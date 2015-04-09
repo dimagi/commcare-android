@@ -30,6 +30,19 @@
         android:textStyle="bold"
         android:layout_below="@id/form_entry_header_pane"
         android:visibility="invisible" />
+    
+    
+    <ImageView
+        android:id="@+id/nav_badge_border_drawer"
+        android:layout_width="@dimen/badge_circum_outer"
+        android:layout_height="@dimen/badge_overlap"
+        android:layout_alignLeft="@id/nav_badge"
+        android:layout_alignTop="@id/nav_badge"
+        android:scaleType="matrix"
+        android:src="@drawable/badge_border"
+        android:visibility="invisible" >
+
+    </ImageView>
 
     <RelativeLayout
         android:id="@+id/nav_pane"
@@ -84,10 +97,36 @@
             android:src="@drawable/icon_chevron_right_brand" />
     </RelativeLayout>
     <FrameLayout
-        android:id="@+id/form_entry_labels"
+        android:id="@+id/form_entry_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/nav_pane"
+        >
+
+        <TextView
+          android:id="@+id/form_entry_group_label"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:visibility="gone"
+          android:text="Header Text"
+          style="@style/TextViewV2"/>
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/form_entry_pane"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/form_entry_header"
+        android:layout_above="@+id/form_entry_labels"
+        >
+    </FrameLayout>
+
+
+    
+    <FrameLayout
+        android:id="@id/form_entry_labels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/screen_form_entry_bottom_anchor"
         >
 
         <LinearLayout
@@ -98,29 +137,9 @@
         </LinearLayout>
 
     </FrameLayout>
-    <FrameLayout
-        android:id="@+id/form_entry_pane"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/form_entry_labels"
-        >
-    </FrameLayout>
-
-
-    <ImageView
-        android:id="@+id/nav_badge_border_drawer"
-        android:layout_width="@dimen/badge_circum_outer"
-        android:layout_height="@dimen/badge_overlap"
-        android:layout_alignLeft="@id/nav_badge"
-        android:layout_alignTop="@id/nav_badge"
-        android:scaleType="matrix"
-        android:src="@drawable/badge_border"
-        android:visibility="invisible" >
-
-    </ImageView>
 
     <View
-        android:id="@+id/screen_form_entry_bottom_anchor"
+        android:id="@id/screen_form_entry_bottom_anchor"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"/>
