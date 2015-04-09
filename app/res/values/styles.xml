@@ -161,7 +161,7 @@
     <style name="LoginEditTextV2">
         <item name="android:paddingLeft">8dp</item>
         <item name="android:drawablePadding">8dp</item>
-        <item name="android:textColor">@color/grey</item>
+        <item name="android:textColor">@color/cc_core_text</item>
     </style>
 
 </resources>
