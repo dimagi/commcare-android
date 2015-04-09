@@ -3,12 +3,14 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
   <item>
     <shape android:shape="rectangle">
-      <solid android:color="@color/black"/>
+      <!-- <solid android:color="#8D9685"/> -->
+      <gradient android:angle="270" android:startColor="#8D9685" android:endColor="#BEBEBD"/>
       <corners android:radius="8dip"></corners>
     </shape>
   </item>
   <!-- Rounded corners for the button with the given color -->
-  <item android:bottom="1dp" android:left="1dp" android:top="1dp" android:right="1dp">
+  <item android:bottom="2dp" android:top="1dp"
+        android:left="1dp" android:right="1dp">
     <shape
         android:shape="rectangle"
         xmlns:android="http://schemas.android.com/apk/res/android">
