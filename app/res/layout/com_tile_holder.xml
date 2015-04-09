@@ -37,7 +37,7 @@
                     android:id="@+id/imageButton2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_information"
+                    android:src="@drawable/icon_info_fill_brandbg"
                     android:background="@drawable/circle_button"
                     />
                 <!--android:src="@android:drawable/arrow_up_float" -->
@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
-                    android:src="@drawable/ic_information"
+                    android:src="@drawable/icon_info_fill_brandbg"
                     />
                 <!--android:src="@android:drawable/arrow_down_float" -->
 

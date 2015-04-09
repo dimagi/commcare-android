@@ -33,6 +33,7 @@
         android:horizontalSpacing="8dp"
         android:verticalSpacing="8dp"
         android:paddingBottom="8dp"
+        android:scrollbars="none"
         />
         <!--android:layout_margin="8dp"-->
         <!--app:itemMargin="8dp"-->
