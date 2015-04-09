@@ -367,13 +367,15 @@ public class InstanceProvider extends ContentProvider {
                     getDisplaySubtext(values.getAsString(InstanceColumns.STATUS)));
         }
 
-
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
+                // assumes where/whereArgs were constructed to point to the
+                // entry to update
                 count = db.update(INSTANCES_TABLE_NAME, values, where, whereArgs);
                 break;
 
             case INSTANCE_ID:
+                // use the uri to manually build an update query
                 String instanceId = uri.getPathSegments().get(1);
 
                 count =
@@ -393,7 +395,7 @@ public class InstanceProvider extends ContentProvider {
         // when the the status changes.
         if (values.containsKey(InstanceColumns.STATUS) && count > 0) {
             try {
-                linkToSessionFormRecord(uri);
+                linkToSessionFormRecord(getInstanceRowUri(uri, where, whereArgs));
             } catch (Exception e) {
                 throw new SQLException("Failed to update row " + uri);
             }
@@ -405,11 +407,57 @@ public class InstanceProvider extends ContentProvider {
     }
 
     /**
-     * Register instance with the session's form record.
+     * Check if a URI points to a concrete instance; if it doesn't
+     * then rebuild the uri from the result of a query using the where
+     * arguments.
+     *
+     * @param potentialUri URI pointing to the instance table or a particular
+     * entry in that table
+     * @param selection A selection criteria to apply when filtering rows. If
+     * null then all rows are included.
+     * @param selectionArgs You may include ?s in selection, which will be
+     * replaced by the values from selectionArgs, in order that they appear in
+     * the selection. The values will be bound as Strings.
+     * @return URI pointing to a row in the instance table, either the one passed
+     * in or built from a query using the method arguments.
+     */
+    private Uri getInstanceRowUri(Uri potentialUri, String selection, String[] selectionArgs) {
+        switch (sUriMatcher.match(potentialUri)) {
+            case INSTANCES:
+                Cursor c = null;
+                try {
+                    c = this.query(potentialUri, null, selection, selectionArgs, null);
+                    c.moveToPosition(-1);
+                    while (c.moveToNext()) {
+                        String instanceId = c.getString(c.getColumnIndex("_id"));
+                        return InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
+                    }
+                } finally {
+                    if (c != null ) {
+                        c.close();
+                    }
+                }
+                break;
+            case INSTANCE_ID:
+                return potentialUri;
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        return null;
+    }
+
+    /**
+     * Register an instance with the session's form record.
      *
      * @param instanceUri points to a concrete instance we want to register
      */
     private void linkToSessionFormRecord(Uri instanceUri) {
+        if (getType(instanceUri) != InstanceColumns.CONTENT_ITEM_TYPE) {
+            Log.w(t, "Tried to link a FormRecord to a URI that doesn't point " +
+                    "to a concrete instance.");
+            return;
+        }
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 
         if (instanceUri == null) {
