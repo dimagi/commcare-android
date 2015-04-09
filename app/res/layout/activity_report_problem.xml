@@ -11,9 +11,9 @@
         android:paddingBottom="20px"
         android:paddingLeft="20px"
         android:paddingTop="20px"
-        android:scaleType="fitStart"
+        android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:src="@drawable/ccbanner"></ImageView>
+        android:src="@drawable/commcare_logo"></ImageView>
 
     <TextView
         android:id="@+id/ReportPrompt01"

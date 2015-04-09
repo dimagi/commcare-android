@@ -96,7 +96,7 @@ public class AndroidShortcuts extends Activity {
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
-        Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this,  R.drawable.icon);
+        Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this,  R.drawable.icon_app_white);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 
         // Now, return the result to the launcher

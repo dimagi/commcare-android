@@ -269,7 +269,7 @@ public class EntityView extends LinearLayout {
                 b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
                 if (b == null) {
                     //Input stream could not be used to derive bitmap, so showing error-indicating image
-                    iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                    iv.setImageDrawable(getResources().getDrawable(R.drawable.avatar_vellum_group));
                 }
                 else {
                     iv.setImageBitmap(b);
@@ -277,11 +277,11 @@ public class EntityView extends LinearLayout {
             } catch (IOException ex) {
                 ex.printStackTrace();
                 //Error loading image
-                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                iv.setImageDrawable(getResources().getDrawable(R.drawable.avatar_vellum_group));
             } catch (InvalidReferenceException ex) {
                 ex.printStackTrace();
                 //No image
-                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                iv.setImageDrawable(getResources().getDrawable(R.drawable.avatar_vellum_group));
             }
         }
         else {

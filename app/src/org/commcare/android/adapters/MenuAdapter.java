@@ -299,10 +299,10 @@ public class MenuAdapter implements ListAdapter {
         if(mIconView != null) {
             switch (iconChoice) {
                 case NEXT:
-                    mIconView.setImageResource(R.drawable.ic_folder_black_24dp);
+                    mIconView.setImageResource(R.drawable.avatar_module);
                     break;
                 case JUMP:
-                    mIconView.setImageResource(R.drawable.ic_mode_edit_black_24dp);
+                    mIconView.setImageResource(R.drawable.avatar_form);
                     break;
                 case NONE:
                     // remove it because we won't need it anymore

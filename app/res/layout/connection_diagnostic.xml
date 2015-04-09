@@ -13,8 +13,8 @@
         android:paddingBottom="0dp"
         android:paddingLeft="20dp"
         android:paddingTop="20dp"
-        android:scaleType="fitStart"
-        android:src="@drawable/ccbanner" />
+        android:scaleType="fitCenter"
+        android:src="@drawable/commcare_logo" />
 
     <RelativeLayout
         android:id="@+id/connection_test_frame"
