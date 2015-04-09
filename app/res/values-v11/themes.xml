@@ -44,7 +44,7 @@
 
     <!-- TODO: add new Settings icon here (needs asset file first) -->
     <style name="OverflowButton" parent="android:Widget.Holo.Light.ActionButton.Overflow">
-        <!--<item name="android:src"></item>-->
+        <item name="android:src">@drawable/ic_action_overflow</item>
     </style>
 
     <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
