@@ -39,6 +39,7 @@
             android:horizontalSpacing="8dp"
             android:verticalSpacing="8dp"
             android:paddingBottom="8dp"
+            android:scrollbars="none"
             />
         <TextView
             android:id="@+id/str_version"
