@@ -96,6 +96,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             @Override
             public void afterTextChanged(Editable s) {
                 setLoginBoxesColor(editTextColor, false);
+                username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
+                password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50),  null, null, null);
             }
         };
 
@@ -474,6 +476,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         
         //either way
         setLoginBoxesColor(R.color.cc_attention_negative_color, true);
+        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
+        password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg),  null, null, null);
 
         errorBox.setVisibility(View.VISIBLE);
         errorBox.setText(toastText);
