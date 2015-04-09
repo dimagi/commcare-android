@@ -62,9 +62,7 @@ public class MenuAdapter implements ListAdapter {
                 try {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {
-                        if (ec == null) {
-                            ec = asw.getEvaluationContext(m.getId());
-                        }
+                        ec = asw.getEvaluationContext(m.getId());
                         if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
                             continue;
                         }
@@ -87,9 +85,7 @@ public class MenuAdapter implements ListAdapter {
                         try {
                             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
                             if(mRelevantCondition != null) {                            
-                                if (ec == null) {
-                                    ec = asw.getEvaluationContext();
-                                }
+                                ec = asw.getEvaluationContext();
                                 Object ret = mRelevantCondition.eval(ec);
                                 try {
                                     if(!XPathFuncExpr.toBoolean(ret)) {
