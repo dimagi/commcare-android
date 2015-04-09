@@ -7,7 +7,7 @@
     android:layout_weight="1"
     app:sbn_subtitle="Saved forms"
     app:backgroundcolorButton="@drawable/round_button_savedforms"
-    app:sbn_img="@drawable/saved_forms"
+    app:sbn_img="@drawable/home_saved"
     app:colorButtonText="@color/white"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>

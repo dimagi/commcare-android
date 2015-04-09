@@ -7,7 +7,7 @@
     android:layout_weight="1"
     app:sbn_subtitle="Sync with server"
     app:backgroundcolorButton="@drawable/round_button_sync"
-    app:sbn_img="@drawable/server_sync"
+    app:sbn_img="@drawable/home_sync"
     app:backgroundcolorNotification="@color/cc_brand_text"
     app:colorButtonText="@color/white"
     app:colorNotificationText="@color/white"

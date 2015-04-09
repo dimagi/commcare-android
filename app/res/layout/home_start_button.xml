@@ -10,5 +10,5 @@
     app:sbn_subtitle="Start"
     app:backgroundcolorButton="@drawable/round_button_start"
     app:colorButtonText="@color/white"
-    app:sbn_img="@drawable/start_icon">
+    app:sbn_img="@drawable/home_start">
 </org.commcare.android.view.SquareButtonWithNotification>

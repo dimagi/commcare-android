@@ -10,6 +10,6 @@
     app:backgroundcolorNotification="@color/cc_neutral_text"
     app:colorNotificationText="@color/white"
     app:notificationText="Logged in as: "
-    app:sbn_img="@drawable/disconnect"
+    app:sbn_img="@drawable/home_logout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>
