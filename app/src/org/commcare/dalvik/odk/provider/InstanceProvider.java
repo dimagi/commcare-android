@@ -440,9 +440,8 @@ public class InstanceProvider extends ContentProvider {
                 break;
             case INSTANCE_ID:
                 return potentialUri;
-                break;
             default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+                throw new IllegalArgumentException("Unknown URI " + potentialUri);
         }
         return null;
     }
