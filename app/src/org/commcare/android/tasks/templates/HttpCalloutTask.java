@@ -29,7 +29,7 @@ import android.content.Context;
  * @author ctsims
  *
  */
-public abstract class HttpCalloutTask<R> extends CommCareTask<Void, String, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes, R>{
+public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes, R>{
     
     public enum HttpCalloutOutcomes {
         NetworkFailure,
