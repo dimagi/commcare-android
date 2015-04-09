@@ -130,6 +130,9 @@
  -->
     <dimen name="badge_overlap">7dp</dimen>
     <dimen name="badge_offset_side">10dp</dimen>
+    
+    <!-- This is the value that needs to be used to pull the lower view back up over the badge -->
+    <dimen name="badge_overlap_offset">-5dp</dimen>
 
 
     <style name="FloatingLabel" parent="@android:style/TextAppearance">
