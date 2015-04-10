@@ -373,9 +373,12 @@ public class GraphView {
         }
         
         // Labels
-        configureLabels("x-labels");
-        configureLabels("y-labels");
+        boolean hasX = configureLabels("x-labels");
+        boolean hasY = configureLabels("y-labels");
         configureLabels("secondary-y-labels");
+        boolean showLabels = hasX || hasY;
+        mRenderer.setShowLabels(showLabels);
+        mRenderer.setShowTickMarks(showLabels);
 
         boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
         mRenderer.setPanEnabled(panAndZoom, panAndZoom);
@@ -445,8 +448,11 @@ public class GraphView {
     /**
      * Customize labels.
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @return True iff axis has any labels at all
      */
-    private void configureLabels(String key) throws InvalidStateException {
+    private boolean configureLabels(String key) throws InvalidStateException {
+        boolean hasLabels = true;
+        
         // The labels setting might be a JSON array of numbers, 
         // a JSON object of number => string, or a single number
         String labelString = mData.getConfiguration(key);
@@ -459,6 +465,7 @@ public class GraphView {
                     String value = labels.getString(i);
                     addTextLabel(key, parseXValue(value, "x label '" + key + "'"), value);
                 }
+                hasLabels = labels.length() > 0;
             }
             catch (JSONException je) {
                 // Assume try block failed because labelString isn't an array.
@@ -469,9 +476,11 @@ public class GraphView {
                     JSONObject labels = new JSONObject(labelString);
                     setLabelCount(key, 0);
                     Iterator i = labels.keys();
+                    hasLabels = false;
                     while (i.hasNext()) {
                        String location = (String) i.next();
                        addTextLabel(key, parseXValue(location, "x label at " + location), labels.getString(location));
+                       hasLabels = true;
                     }
                 }
                 catch (JSONException e) {
@@ -479,9 +488,12 @@ public class GraphView {
                     // represents the number of labels the user wants.
                     Integer count = Integer.valueOf(labelString);
                     setLabelCount(key, count);
+                    hasLabels = count != 0;
                 }
             }
         }
+        
+        return hasLabels;
     }
     
     /**
