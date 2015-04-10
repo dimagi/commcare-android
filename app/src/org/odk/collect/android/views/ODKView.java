@@ -168,8 +168,12 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             
             if (!first) {
                 View divider = new View(getContext());
-                divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
-                divider.setMinimumHeight(3);
+                if(2 == 2) {
+                    divider.setMinimumHeight(0);
+                } else {
+                    divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+                    divider.setMinimumHeight(3);
+                }
                 dividers.add(divider);
                 mView.addView(divider);
             } else {

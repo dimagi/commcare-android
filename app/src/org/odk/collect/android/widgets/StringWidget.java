@@ -31,6 +31,7 @@ import android.text.method.TextKeyListener;
 import android.text.method.TextKeyListener.Capitalize;
 import android.util.TypedValue;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -52,7 +53,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
         super(context, prompt);
-        mAnswer = (EditText) inflate(context, R.layout.edit_text_question_widget, null);
+        mAnswer = (EditText) LayoutInflater.from(getContext()).inflate(R.layout.edit_text_question_widget, this, false);
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mAnswer.setOnClickListener(this);
 

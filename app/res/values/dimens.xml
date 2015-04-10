@@ -41,7 +41,10 @@
     <dimen name="graph_y_margin">0dp</dimen>
     <dimen name="graph_text_margin">35dp</dimen>
     
-    <!-- Start collect dimens -->
+    <!-- Form Entry -->
+    
+    <dimen name="question_widget_side_padding">16dp</dimen>
+    <dimen name="question_widget_side_inv">-16dp</dimen>
     
     <!--  Text sizes -->
 

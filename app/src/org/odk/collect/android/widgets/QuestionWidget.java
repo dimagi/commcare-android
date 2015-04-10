@@ -1,30 +1,10 @@
 package org.odk.collect.android.widgets;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.graphics.Rect;
-import android.graphics.Typeface;
-import android.preference.PreferenceManager;
-import android.text.Spannable;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.URLSpan;
-import android.text.util.Linkify;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import java.io.File;
 
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.StringUtils;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.AnswerDataFactory;
@@ -38,7 +18,31 @@ import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.ShrinkingTextView;
 import org.odk.collect.android.views.media.MediaLayout;
 
-import java.io.File;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.graphics.Rect;
+import android.graphics.Typeface;
+import android.os.Build;
+import android.preference.PreferenceManager;
+import android.text.Spannable;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 public abstract class QuestionWidget extends LinearLayout {
 
@@ -107,13 +111,15 @@ public abstract class QuestionWidget extends LinearLayout {
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
-        int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getContext().getResources().getDisplayMetrics());
-        setPadding(pixels, 7, pixels, 0);
+        
+        //TODO: This whole view should probably be inflated somehow 
+        int padding = this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
+        setPadding(padding, 7, padding, 0);
 
         mLayout =
                 new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-        mLayout.setMargins(10, 0, 10, 0);
+        //mLayout.setMargins(10, 0, 10, 0);
 
         addQuestionText(p);
         addHelpPlaceholder(p);
@@ -203,14 +209,18 @@ public abstract class QuestionWidget extends LinearLayout {
      * @param strong If true, display a visually stronger, negative background.
      * @param requestFocus If true, bring focus to this question.
      */
+    @SuppressLint("NewApi")
     public void notifyOnScreen(String text, boolean strong, boolean requestFocus){
         if(strong){
-            this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_invalid_modern));
+            ViewUtil.setBackgroundRetainPadding(this, this.getContext().getResources().getDrawable(R.drawable.bubble_invalid_modern));
         } else{
-            this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_warn));
+            ViewUtil.setBackgroundRetainPadding(this, this.getContext().getResources().getDrawable(R.drawable.bubble_warn));
         }
 
         if(this.toastView == null) {
+            // note: this is lame, but we bleed out the margins on the left and right here to make this overlap.
+            // We could accomplish the same thing by having two backgrounds, one for the widget as a whole, and 
+            // one for the internals (or splitting up the layout), but this'll do for now 
             this.toastView = View.inflate(this.getContext(), R.layout.toast_view_modern, this).findViewById(R.id.toast_view_root);
             focusPending = requestFocus;
         } else {
@@ -363,7 +373,8 @@ public abstract class QuestionWidget extends LinearLayout {
         // shown when image is clicked
         String bigImageURI = p.getSpecialFormQuestionText("big-image");
 
-        mQuestionText = (TextView) inflate(getContext(), R.layout.question_widget_text, null);
+        
+        mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
         mQuestionText.setText(p.getLongText());
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         mQuestionText.setId(38475483); // assign random id
@@ -379,7 +390,6 @@ public abstract class QuestionWidget extends LinearLayout {
             mQuestionText.setText(p.getLongText());
             mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
             mQuestionText.setTypeface(null, Typeface.BOLD);
-            mQuestionText.setPadding(0, 0, 0, 7);
         }
 
         if(p.getLongText()!= null){
@@ -602,7 +612,7 @@ public abstract class QuestionWidget extends LinearLayout {
     public void widgetEntryChanged(){
         if(this.toastView != null) {
             this.toastView.setVisibility(View.GONE);
-            this.setBackgroundDrawable(null);
+            ViewUtil.setBackgroundRetainPadding(this, null);
         }
         if(hasListener){
             widgetChangedListener.widgetEntryChanged();
