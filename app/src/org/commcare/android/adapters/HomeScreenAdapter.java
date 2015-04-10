@@ -71,7 +71,10 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     public void setNotificationTextForButton(int androidCode, boolean lookupID, String notificationText) {
         SquareButtonWithNotification button = getButton(androidCode, lookupID);
-        if (button != null) button.setNotificationText(notificationText);
+        if (button != null) {
+            button.setNotificationText(notificationText);
+            notifyDataSetChanged();
+        }
     }
 
     @Override

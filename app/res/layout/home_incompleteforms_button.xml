@@ -3,10 +3,9 @@
     android:id="@+id/home.incompleteforms.sqbn"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="8dp"
     android:layout_weight="1"
     app:sbn_subtitle="Incomplete forms"
-    app:backgroundcolorButton="@drawable/round_button_incompleteforms"
+    app:backgroundcolorButton="@color/solid_dark_orange"
     app:sbn_img="@drawable/home_incomplete"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>
