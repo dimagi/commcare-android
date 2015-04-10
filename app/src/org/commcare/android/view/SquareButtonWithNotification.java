@@ -3,6 +3,8 @@ package org.commcare.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -40,12 +42,16 @@ public class SquareButtonWithNotification extends RelativeLayout {
     }
 
     public void setNotificationText(String textNotification) {
+        this.setNotificationText((Spannable)(textNotification == null ? null : new SpannableString(textNotification)));
+    }
+    
+    public void setNotificationText(Spannable textNotification) {
         if (textNotification != null && textNotification.length() != 0) {
             subText.setVisibility(VISIBLE);
             subText.setText(textNotification);
             subText.setBackgroundResource(backgroundColorNotification);
         } else {
-            subText.setVisibility(INVISIBLE);
+            subText.setVisibility(GONE);
         }
     }
 

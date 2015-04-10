@@ -221,6 +221,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             gridView.requestLayout();
             adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
             gridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @SuppressLint("NewApi")
                 @Override
                 public void onGlobalLayout() {
                     if(adapter.getItem(0) == null){
@@ -308,7 +309,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         };
         if(isUsingNewUI()){
             adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, false, logoutButtonListener);
-            if (logoutButton != null) { logoutButton.setNotificationText(getActivityTitle()); }
+            if (logoutButton != null) { logoutButton.setNotificationText(getActivityTitle()); adapter.notifyDataSetChanged();}
         } else {
             logoutButton.setOnClickListener(logoutButtonListener);
         }
@@ -1505,9 +1506,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(syncDetails.second[0] > 0) {
             String syncIndicator = (Localization.get("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
             if(isUsingNewUI()) {
-//                syncButton.setNotificationText(syncIndicator);
-                // TODO: which one is it? The subtext widget or the button content itself?
-                if(syncButton != null) syncButton.setText(syncIndicator);
+                syncButton.setNotificationText(syncIndicator);
+                adapter.notifyDataSetChanged();
             } else {
                 if(syncButton != null) syncButton.setText(syncIndicator);
             }
