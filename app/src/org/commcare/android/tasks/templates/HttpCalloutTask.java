@@ -3,12 +3,7 @@
  */
 package org.commcare.android.tasks.templates;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.UnknownHostException;
-
-import javax.net.ssl.SSLPeerUnverifiedException;
+import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -18,12 +13,17 @@ import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.services.Logger;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.UnknownHostException;
+
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 /**
  * @author ctsims
@@ -53,7 +53,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
     
     
     @Override
-    protected HttpCalloutOutcomes doTaskBackground(Void... params) {
+    protected HttpCalloutOutcomes doTaskBackground(Object... params) {
         HttpCalloutOutcomes preHttpOutcome = doSetupTaskBeforeRequest();
         if(preHttpOutcome != null) {
             return preHttpOutcome;
