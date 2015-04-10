@@ -18,17 +18,18 @@ the License.
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="@color/cc_attention_negative_color"
-    android:id="@+id/toast_view_root"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
     android:layout_marginLeft="@dimen/question_widget_side_inv"
     android:layout_marginRight="@dimen/question_widget_side_inv"
+    android:layout_marginBottom="1dp"
+    android:id="@+id/toast_view_root"
     >
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
+    	android:paddingRight="8dp">
 
             <TextView
                 android:id="@+id/message"

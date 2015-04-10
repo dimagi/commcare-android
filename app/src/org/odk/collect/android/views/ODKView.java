@@ -69,6 +69,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     
     String mGroupLabel;
 
+    private static boolean SEPERATORS_ENABLED = false;
 
     public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory) {
         this(context, new FormEntryPrompt[] {
@@ -138,7 +139,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         mLayout =
             new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
-        mLayout.setMargins(10, 0, 10, 0);
+        //mLayout.setMargins(10, 0, 10, 0);
 
         //Figure out if we share hint text between questions
         String hintText = null;
@@ -168,11 +169,11 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             
             if (!first) {
                 View divider = new View(getContext());
-                if(2 == 2) {
-                    divider.setMinimumHeight(0);
-                } else {
+                if(SEPERATORS_ENABLED) {
                     divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
                     divider.setMinimumHeight(3);
+                } else {
+                    divider.setMinimumHeight(0);
                 }
                 dividers.add(divider);
                 mView.addView(divider);
@@ -224,8 +225,12 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     public void addQuestionToIndex(FormEntryPrompt fep, WidgetFactory factory, int i){
 
         View divider = new View(getContext());
-        divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
-        divider.setMinimumHeight(3);
+        if(SEPERATORS_ENABLED) {
+            divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+            divider.setMinimumHeight(3);
+        } else {
+            divider.setMinimumHeight(0);
+        }
         int dividerIndex = mViewBannerCount;
         if(i > 0) {
             dividerIndex += 2 * i - 1;
