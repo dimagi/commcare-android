@@ -24,9 +24,9 @@
             android:paddingLeft="8dp"
             android:paddingTop="8dp"
             android:layout_marginBottom="16dp"
-            android:scaleType="fitStart"
+            android:scaleType="fitCenter"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/ccbanner" />
+            android:src="@drawable/commcare_logo" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -63,7 +63,7 @@
     android:layout_weight="1"
     SquareButtonWithText:subtitle="Scan application barcode"
     SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
-    SquareButtonWithText:img="@drawable/scan_app_barcode"
+    SquareButtonWithText:img="@drawable/startup_barcode"
     SquareButtonWithText:colorText="@color/white"
     />
 
@@ -77,7 +77,7 @@
     android:gravity="right"
     SquareButtonWithText:subtitle="Enter URL"
     SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
-    SquareButtonWithText:img="@drawable/enter_url"
+    SquareButtonWithText:img="@drawable/startup_url"
     SquareButtonWithText:colorText="@color/white"
     />
     </LinearLayout>
