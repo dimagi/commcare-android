@@ -194,23 +194,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             this.ccApp = oldActivity.ccApp;
         }
 
-        // a few lines ahead:
-
-//        installButton.setOnClickListener(new OnClickListener() {
-//            public void onClick(View v) {
-//                //Now check on the resources
-//                if(resourceState == CommCareApplication.STATE_READY) {
-//                    if(!inUpgradeMode || uiState != UiState.error) {
-//                        fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
-//                        setModeToExistingApplication();
-//                    }
-//                } else if(resourceState == CommCareApplication.STATE_UNINSTALLED ||
-//                        (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode)) {
-//                    startResourceInstall();
-//                }
-//            }
-//        });
-
         Log.v("UIState","Current vars: " +
                         "UIState is: " + this.uiState + " " +
                         "incomingRef is: " + incomingRef + " " +
@@ -259,29 +242,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         ft.commit();
     }
 
-//    public void refreshView() {
-//
-//        switch(uiState){
-//            case basic:
-//                this.setModeToBasic();
-//                break;
-//            case advanced:
-//                this.setModeToAdvanced();
-//                break;
-//            case error:
-//                this.setModeToError(true);
-//                break;
-//            case upgrade:
-//                this.setModeToAutoUpgrade();
-//                break;
-//            case ready:
-//                this.setModeToReady(incomingRef);
-//                break;
-//        }
-//
-//    }
-
-
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onDestroy()
@@ -305,13 +265,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //Moved here to properly attach fragments and such.
         //NOTE: May need to do so elsewhere as well
         // TODO: check uiState and call the appropriate fragment
-//        if(uiState == UiState.upgrade) {
-//            refreshView();
-//            //mainMessage.setText(Localization.get("updates.check"));
-//            mainMessage.setText("updates.check");
-//            startResourceInstall();
-//        }
-
     }
     
     /* (non-Javadoc)
