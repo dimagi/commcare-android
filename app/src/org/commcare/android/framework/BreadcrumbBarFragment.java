@@ -237,6 +237,8 @@ public class BreadcrumbBarFragment extends Fragment {
 
         ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
+        final ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
+
         OnClickListener toggleButtonClickListener = new OnClickListener() {
 
             private boolean isClosed = true;
@@ -257,10 +259,12 @@ public class BreadcrumbBarFragment extends Fragment {
 
                         mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
                     }
+                    infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
                     expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
                     isClosed = false;
                 } else {
                     //collapses view
+                    infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
                     collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
                         @Override
                         public void run() {
@@ -271,7 +275,7 @@ public class BreadcrumbBarFragment extends Fragment {
             }
         };
 
-        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open)).setOnClickListener(toggleButtonClickListener);
+        infoButton.setOnClickListener(toggleButtonClickListener);
         
         return holder;
     }
