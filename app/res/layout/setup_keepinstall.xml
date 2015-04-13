@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+                    android:id="@+id/screen_first_start_main"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:orientation="vertical"
+                    android:background="@color/cc_core_bg"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!--&lt;!&ndash; TODO: extract style definition &ndash;&gt;-->
+            <ImageView
+                android:id="@+id/screen_first_start_banner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:adjustViewBounds="true"
+                android:layout_marginRight="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="8dp"
+                android:paddingTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/commcare_logo" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                >
+                <TextView
+                    android:id="@+id/str_setup_message"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:text="Almost there! Press the button below to install your app."
+                    android:textSize="@dimen/text_small"
+                    android:layout_below="@id/screen_first_start_banner"
+                    />
+
+                <LinearLayout
+                    android:id="@+id/screen_first_start_bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/str_setup_message"
+                    android:paddingBottom="16dp"
+                    android:orientation="horizontal" >
+
+                    <org.commcare.android.view.SquareButtonWithText
+                        android:id="@+id/btn_start_install"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        SquareButtonWithText:subtitle="Start install"
+                        SquareButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
+                        SquareButtonWithText:img="@drawable/install_start"
+                        SquareButtonWithText:colorText="@color/white"
+                        />
+
+                    <org.commcare.android.view.SquareButtonWithText
+                        android:id="@+id/btn_stop_install"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        SquareButtonWithText:subtitle="Start over"
+                        SquareButtonWithText:backgroundcolor="@color/cc_dark_warm_accent_text"
+                        SquareButtonWithText:img="@drawable/install_stop"
+                        SquareButtonWithText:colorText="@color/white"
+                        />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>
