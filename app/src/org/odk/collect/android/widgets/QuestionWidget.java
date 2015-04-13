@@ -464,7 +464,7 @@ public abstract class QuestionWidget extends LinearLayout {
 
         if(markdownText != null){
             text.setText(forceMarkdown(markdownText));
-            mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
+            text.setMovementMethod(LinkMovementMethod.getInstance());
         } else{
             text.setText(prompt.getHelpText());
         }
