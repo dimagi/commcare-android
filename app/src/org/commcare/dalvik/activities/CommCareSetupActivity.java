@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -19,6 +20,7 @@ import java.io.StringReader;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.SetupEnterURLFragment;
 import org.commcare.android.fragments.SetupInstallFragment;
+import org.commcare.android.fragments.SetupKeepInstallFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -92,7 +94,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void OnURLChosen(String url) {
         Log.d("DEBUG-d", "SetupEnterURLFragment returned: " + url);
         incomingRef = url;
-        startResourceInstall();
+        this.uiState = UiState.ready;
+        uiStateScreenTransition();
     }
     
     /*
@@ -107,6 +110,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public enum UiState { advanced, basic, ready, error, upgrade};
     public UiState uiState = UiState.basic;
     
+    public static final int MODE_BASIC = Menu.FIRST;
+    public static final int MODE_ADVANCED = Menu.FIRST + 1;
     public static final int MODE_ARCHIVE = Menu.FIRST + 2;
     
     public static final int BARCODE_CAPTURE = 1;
@@ -120,6 +125,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     boolean startAllowed = true;
     boolean inUpgradeMode = false;
     
+    int dbState;
+    int resourceState;
     int retryCount=0;
     
     public final boolean doStyle = true;
@@ -128,7 +135,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public String incomingRef;
     public boolean canRetry;
     public String displayMessage;
-
+    
+    String [] urlVals;
+    int previousUrlPosition=0;
+     
     boolean partialMode = false;
     
     CommCareApp ccApp;
@@ -143,6 +153,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
     
     private BroadcastReceiver purgeNotificationReceiver = null;
+
+    //region UIState fragments
+
+    final FragmentManager fm = getSupportFragmentManager();
+    final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
+    final SetupInstallFragment installFragment = new SetupInstallFragment();
+
+    //endregion
     
     /*
      * (non-Javadoc)
@@ -151,16 +169,151 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
 
-        SetupInstallFragment installFragment = new SetupInstallFragment();
+        //Retrieve instance state
+        if(savedInstanceState == null) {
+            Log.v("UiState", "SavedInstanceState is null, not getting anything from it =/");
+            if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
+                
+                //We got called from an outside application, it's gonna be a wild ride!
+                incomingRef = this.getIntent().getData().toString();
+                
+                if(incomingRef.contains(".ccz")){
+                    // make sure this is in the file system
+                    boolean isFile = incomingRef.contains("file://");
+                    if(isFile){
+                        // remove file:// prepend
+                        incomingRef = incomingRef.substring(incomingRef.indexOf("//")+2);
+                        Intent i = new Intent(this, InstallArchiveActivity.class);
+                        i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
+                        startActivityForResult(i, ARCHIVE_INSTALL);
+                    }
+                    else{
+                        // currently down allow other locations like http://
+                        fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true, false);
+                    }
+                }
+                else{
+                    this.uiState=uiState.ready;
+                    //Now just start up normally.
+                }
+            } else{
 
-        FragmentManager fm = getSupportFragmentManager();
+                incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
+
+            }
+            inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
+            isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
+        } else {
+            String uiStateEncoded = savedInstanceState.getString("advanced");
+            this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
+            Log.v("UiState","uiStateEncoded is: " + uiStateEncoded + ", so my uiState is: " + uiState);
+            incomingRef = savedInstanceState.getString("profileref");
+            inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
+            isAuto = savedInstanceState.getBoolean(KEY_AUTO);
+            //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
+            startAllowed = savedInstanceState.getBoolean("startAllowed");
+        }
+
+        // if we are in upgrade mode we want the UiState to reflect that, unless we are showing an error
+        if (inUpgradeMode && this.uiState != UiState.error){
+            this.uiState = UiState.upgrade;
+        }
+
+        // reclaim ccApp for resuming installation
+        if(oldActivity != null) {
+            this.ccApp = oldActivity.ccApp;
+        }
+
+        // a few lines ahead:
+
+//        installButton.setOnClickListener(new OnClickListener() {
+//            public void onClick(View v) {
+//                //Now check on the resources
+//                if(resourceState == CommCareApplication.STATE_READY) {
+//                    if(!inUpgradeMode || uiState != UiState.error) {
+//                        fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusFailState), true);
+//                        setModeToExistingApplication();
+//                    }
+//                } else if(resourceState == CommCareApplication.STATE_UNINSTALLED ||
+//                        (resourceState == CommCareApplication.STATE_UPGRADE && inUpgradeMode)) {
+//                    startResourceInstall();
+//                }
+//            }
+//        });
+
+        Log.v("UIState","Current vars: " +
+                        "UIState is: " + this.uiState + " " +
+                        "incomingRef is: " + incomingRef + " " +
+                        "startAllowed is: " + startAllowed + " "
+        );
+
+        uiStateScreenTransition();
+    }
+
+    private void uiStateScreenTransition() {
+        Fragment fragment;
         FragmentTransaction ft = fm.beginTransaction();
 
-        ft.replace(R.id.setup_fragment_container, installFragment);
+        switch (uiState){
+            case ready:
+                if(incomingRef == null || incomingRef.length() == 0){
+                    Log.e("Install","IncomingRef is empty!");
+                    Toast.makeText(getApplicationContext(), "Invalid URL: '" + incomingRef + "'", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                startInstall.setButtonCommands(new SetupKeepInstallFragment.StartStopInstallCommands(){
+                    @Override
+                    public void onStartInstallClicked() {
+                            startResourceInstall();
+                    }
+
+                    @Override
+                    public void onStopInstallClicked() {
+                        startResourceInstall(true);
+                        incomingRef = null;
+                        uiState = UiState.basic;
+                        uiStateScreenTransition();
+                    }
+                });
+                fragment = startInstall;
+                break;
+
+            default:
+                fragment = installFragment;
+                break;
+        }
+
+        ft.replace(R.id.setup_fragment_container, fragment);
 
         ft.commit();
     }
+
+//    public void refreshView() {
+//
+//        switch(uiState){
+//            case basic:
+//                this.setModeToBasic();
+//                break;
+//            case advanced:
+//                this.setModeToAdvanced();
+//                break;
+//            case error:
+//                this.setModeToError(true);
+//                break;
+//            case upgrade:
+//                this.setModeToAutoUpgrade();
+//                break;
+//            case ready:
+//                this.setModeToReady(incomingRef);
+//                break;
+//        }
+//
+//    }
+
 
     /*
      * (non-Javadoc)
@@ -181,9 +334,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onStart() {
         super.onStart();
-        startResourceInstall();
+        if(incomingRef != null && incomingRef.length() != 0) startResourceInstall();
         //Moved here to properly attach fragments and such.
         //NOTE: May need to do so elsewhere as well
+        // TODO: check uiState and call the appropriate fragment
+//        if(uiState == UiState.upgrade) {
+//            refreshView();
+//            //mainMessage.setText(Localization.get("updates.check"));
+//            mainMessage.setText("updates.check");
+//            startResourceInstall();
+//        }
+
     }
     
     /* (non-Javadoc)
@@ -207,6 +368,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
+        Log.v("UiState","Saving instance state: " + outState);
     }
     
     /* (non-Javadoc)
@@ -326,7 +488,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                      tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED;
             
             CustomProgressDialog lastDialog = getCurrentDialog();
-            /* used to tell the ResourceEngineTask whether or not it should sleep before 
+            /* used to tell the ResourceEngineTask whether or not it should sleep before
              * it starts, set based on whether we are currently in keep trying mode */
             boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
             
@@ -388,7 +550,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                             receiver.resourceTableWasFresh) {
                         receiver.ccApp.getAppPreferences().edit().putLong(KEY_LAST_INSTALL, System.currentTimeMillis()).commit();
                     }
-
                 }
 
                 /*
@@ -599,6 +760,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             message = Localization.get("updates.resources.profile");
         }
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        dialog.setCancelable(false);
         String checkboxText = Localization.get("updates.keep.trying");;
         CustomProgressDialog lastDialog = getCurrentDialog();
         boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
