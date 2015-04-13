@@ -46,7 +46,7 @@
                     android:layout_marginRight="16dp"
                     android:layout_marginBottom="16dp"
                     android:gravity="center"
-                    android:text="Almost there! Press the button below to install your app."
+                    android:text="Almost there!\n Press the button below to install your app."
                     android:textSize="@dimen/text_small"
                     android:layout_below="@id/screen_first_start_banner"
                     />
@@ -85,6 +85,24 @@
                         SquareButtonWithText:img="@drawable/install_stop"
                         SquareButtonWithText:colorText="@color/white"
                         />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/icon_wifi_neutral"
+                        android:layout_gravity="left"
+                        android:layout_marginLeft="32dp"
+                        android:layout_marginRight="32dp"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_small"
+                        android:layout_marginRight="16dp"
+                        android:text="If you are attempting to install from a server, make sure you have an internet connection."/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
