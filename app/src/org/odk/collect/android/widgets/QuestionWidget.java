@@ -459,7 +459,15 @@ public abstract class QuestionWidget extends LinearLayout {
      */
     private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
         TextView text = new TextView(getContext());
-        text.setText(prompt.getHelpText());
+
+        String markdownText =  prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
+
+        if(markdownText != null){
+            text.setText(forceMarkdown(markdownText));
+            mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
+        } else{
+            text.setText(prompt.getHelpText());
+        }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
