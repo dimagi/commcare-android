@@ -1335,7 +1335,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-            menu.add(0, v.getId(), 0, StringUtils.getStringSpannableRobust(this, R.string.clear_answer));
+        // menu.add(0, v.getId(), 0, StringUtils.getStringSpannableRobust(this, R.string.clear_answer));
         if (mFormController.indexContainsRepeatableGroup()) {
             menu.add(0, DELETE_REPEAT, 0, StringUtils.getStringSpannableRobust(this, R.string.delete_repeat));
         }
@@ -1349,15 +1349,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        /*
-         * We don't have the right view here, so we store the View's ID as the item ID and loop
-         * through the possible views to find the one the user clicked on.
-         */
-        for (QuestionWidget qw : ((ODKView) mCurrentView).getWidgets()) {
-            if (item.getItemId() == qw.getId()) {
-                createClearDialog(qw);
-            }
-        }
         if (item.getItemId() == DELETE_REPEAT) {
             createDeleteRepeatConfirmDialog();
         }
@@ -1547,7 +1538,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             case FormEntryController.EVENT_GROUP:
                 isGroup = true;
             case FormEntryController.EVENT_QUESTION:
-            
                 ODKView odkv = null;
                 // should only be a group here if the event_group is a field-list
                 try {
