@@ -60,4 +60,6 @@
 
     <dimen name="divider_left_margin">64dp</dimen>
 
+    <dimen name="help_text_padding">16dp</dimen>
+
 </resources>
