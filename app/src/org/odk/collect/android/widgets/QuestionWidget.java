@@ -145,13 +145,20 @@ public abstract class QuestionWidget extends LinearLayout {
         helpPlaceholder.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT));
 
-        ImageButton trigger = new ImageButton(getContext());
-        trigger.setImageResource(android.R.drawable.ic_menu_help);
+        final ImageButton trigger = new ImageButton(getContext());
+        trigger.setBackgroundResource(R.drawable.icon_info_outline_lightcool);
         final FormEntryPrompt prompt = p;
         trigger.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                fireHelpText(prompt);
+                trigger.setBackgroundResource(R.drawable.icon_info_fill_lightcool);
+                fireHelpText(prompt, new Runnable() {
+                    @Override
+                    public void run() {
+                        // back to the old icon
+                        trigger.setBackgroundResource(R.drawable.icon_info_outline_lightcool);
+                    }
+                });
             }
         });
         trigger.setId(847294011);
@@ -426,11 +433,15 @@ public abstract class QuestionWidget extends LinearLayout {
         addView(mediaLayout, mLayout);
     }
 
+    private void fireHelpText(FormEntryPrompt prompt) {
+        fireHelpText(prompt, null);
+    }
+
     /**
     * Display extra help, triggered by user request.
     * @param prompt
     */
-    private void fireHelpText(FormEntryPrompt prompt) {
+    private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
         if (!prompt.hasHelp()) {
             return;
         }                               
@@ -455,6 +466,7 @@ public abstract class QuestionWidget extends LinearLayout {
                     switch (i) {
                     case DialogInterface.BUTTON1:
                         dialog.cancel();
+                        if(r != null) r.run();
                         break;
                     }
                 }
