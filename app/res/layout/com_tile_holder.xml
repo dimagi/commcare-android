@@ -16,6 +16,7 @@
             android:id="@+id/com_tile_holder_frame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="left"
             >
 
         </FrameLayout>
@@ -23,10 +24,31 @@
         <LinearLayout
             android:id="@+id/com_tile_holder_actions"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
+            android:layout_height="match_parent"
+            android:layout_gravity="top|right"
             android:orientation="vertical"
             android:weightSum="1" >
+
+
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                >
+
+                <ImageButton
+                    android:id="@+id/com_tile_holder_btn_open"
+                    android:background="@drawable/circle_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:src="@drawable/icon_info_outline_brandbg"
+                    android:minHeight="32dp"
+                    android:minWidth="32dp"
+                    />
+
+            </FrameLayout>
 
             <FrameLayout
                 android:layout_width="wrap_content"
@@ -41,28 +63,7 @@
                     android:background="@drawable/circle_button"
                     android:minHeight="32dp"
                     android:minWidth="32dp"
-                    android:scaleType="fitXY"
                     />
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="0.5"
-                >
-
-                <ImageButton
-                    android:id="@+id/com_tile_holder_btn_open"
-                    android:background="@drawable/circle_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:src="@drawable/icon_info_fill_brandbg"
-                    android:minHeight="32dp"
-                    android:minWidth="32dp"
-                    android:scaleType="fitXY"
-                    />
-
             </FrameLayout>
 
         </LinearLayout>
