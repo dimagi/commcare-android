@@ -498,6 +498,7 @@ public abstract class QuestionWidget extends LinearLayout {
             text.setText(prompt.getHelpText());
         }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
         
@@ -509,8 +510,8 @@ public abstract class QuestionWidget extends LinearLayout {
             prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
             null
         );
-        helpLayout.setPadding(15, 15, 15, 15);
-        
+        helpLayout.setPadding(padding, padding, padding, padding);
+
         return helpLayout;
     }
 

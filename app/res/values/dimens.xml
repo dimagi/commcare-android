@@ -50,5 +50,16 @@
 
     <dimen name="text_larger">28dp</dimen>
     <dimen name="text_largest">40dp</dimen>
-    
+
+    <!-- Menu list row dimensions -->
+
+    <dimen name="content_min_margin">16dp</dimen>
+
+    <dimen name="content_start">8dp</dimen>
+    <dimen name="list_height">48dp</dimen>
+
+    <dimen name="divider_left_margin">64dp</dimen>
+
+    <dimen name="help_text_padding">16dp</dimen>
+
 </resources>
