@@ -22,6 +22,7 @@
         <item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>
         <item name="android:textSize">@dimen/text_medium</item>
         <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
+        <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
     </style>
 
     <style name="AppTheme.Widget.TextView" parent="android:Widget.Holo.Light.TextView">
