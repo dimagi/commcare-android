@@ -439,4 +439,15 @@ public class GridEntityView extends GridLayout {
             }
         }
     }
+
+    public void setTitleTextColor(int color){
+        for (int i = 0; i < mRowViews.length; i++) {
+            View v = mRowViews[i];
+            if (v == null) continue;
+            if(v instanceof TextView){
+                ((TextView)v).setTextColor(color);
+                return;
+            }
+        }
+    }
 }
