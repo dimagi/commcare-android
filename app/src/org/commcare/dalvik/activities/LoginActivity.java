@@ -77,6 +77,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     
     @UiElement(R.id.str_version)
     TextView versionDisplay;
+
+    @UiElement(R.id.login_button)
+    Button loginButton;
     
     public static final int TASK_KEY_EXCHANGE = 1;
     
@@ -98,6 +101,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                 setLoginBoxesColor(editTextColor, false);
                 username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
                 password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50),  null, null, null);
+                loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
+                loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
             }
         };
 
@@ -475,6 +480,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         setLoginBoxesColor(R.color.cc_attention_negative_color, true);
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg),  null, null, null);
+        loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
+        loginButton.setTextColor(getResources().getColor(R.color.cc_attention_negative_text));
 
         errorBox.setVisibility(View.VISIBLE);
         errorBox.setText(toastText);
