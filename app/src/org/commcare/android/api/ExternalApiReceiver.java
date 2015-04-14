@@ -1,9 +1,11 @@
 package org.commcare.android.api;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.widget.Toast;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
@@ -26,12 +28,10 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.widget.Toast;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * This broadcast receiver is the central point for incoming API calls from other apps.
@@ -317,26 +317,25 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             //TODO: See if it worked first?
             
             CommCareApplication._().logIn(key, matchingRecord);
-            new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
+            ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
                 @Override
                 public void keysLoginComplete(Object o) {
-                    // TODO Auto-generated method stub
-                    
+
                 }
 
                 @Override
                 public void keysReadyForSync(Object o) {
                     // TODO Auto-generated method stub
-                    
+
                 }
 
                 @Override
                 public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
                     // TODO Auto-generated method stub
-                    
+
                 }
-                
+
             }) {
                 /*
                  * (non-Javadoc)
@@ -345,7 +344,9 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 @Override
                 protected void deliverUpdate(Object r, String... update) {
                 }
-            }.execute();
+            };
+            mKeyRecordTask.connect(dummyconnector);
+            mKeyRecordTask.execute();
             
             return true;
         }catch (Exception e) {
