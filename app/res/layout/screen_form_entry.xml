@@ -109,7 +109,10 @@
           android:layout_height="match_parent"
           android:visibility="gone"
           android:text="Header Text"
-          style="@style/TextViewV2"/>
+          style="@style/TextViewV2"
+          android:paddingLeft="16dp"
+          android:paddingRight="16dp"
+            />
     </FrameLayout>
     <FrameLayout
         android:id="@+id/form_entry_pane"
