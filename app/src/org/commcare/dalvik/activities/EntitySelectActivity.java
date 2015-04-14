@@ -642,8 +642,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
     private void createSortMenu() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        
-        builder.setTitle(localize("select.menu.sort"));
+        //use the old method here because some Android versions don't like Spannables for titles
+        builder.setTitle(Localization.get("select.menu.sort"));
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
         
