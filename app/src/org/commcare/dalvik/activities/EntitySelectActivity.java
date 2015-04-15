@@ -32,7 +32,6 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -58,7 +57,6 @@ import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
@@ -626,18 +624,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 createSortMenu();
                 return true;
             case MENU_MAP:
-                try
-                {
-                    Class.forName("com.google.android.maps.MapActivity");
-                }
-                catch (Throwable e1) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Could not load maps: " + e1);
-                    Toast noMaps = Toast.makeText(EntitySelectActivity.this, "Google Maps aren't available on this device. Please contact technical support for more information.", Toast.LENGTH_LONG);
-                    noMaps.show();
-                    return true;
-                }
                 Intent i = new Intent(this, EntityMapActivity.class);
-
                 this.startActivityForResult(i, MAP_SELECT);
                 return true;
             case MENU_ACTION:
