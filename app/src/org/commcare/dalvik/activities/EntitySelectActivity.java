@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -51,13 +52,13 @@ import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
@@ -170,6 +171,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
                 
                 TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
+                //use the old method here because some Android versions don't like Spannables for titles
                 message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
             } else {
                 setContentView(R.layout.entity_select_layout);
@@ -202,6 +204,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
         searchLabel.setOnClickListener(new OnClickListener(){
             @Override
@@ -411,7 +414,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      *
      * @param contextRef reference to the selected element for which to display
      * detailed view
-     * @param i intent to attach extra data to. If null, create a fresh
+     * @param detailIntent intent to attach extra data to. If null, create a fresh
      * EntityDetailActivity intent
      * @return The intent argument, or a newly created one, with element
      * selection information attached.
@@ -584,6 +587,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+        //use the old method here because some Android versions don't like Spannables for titles
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if(mMappingEnabled) {
@@ -622,7 +626,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 createSortMenu();
                 return true;
             case MENU_MAP:
+                try
+                {
+                    Class.forName("com.google.android.maps.MapActivity");
+                }
+                catch (Throwable e1) {
+                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Could not load maps: " + e1);
+                    Toast noMaps = Toast.makeText(EntitySelectActivity.this, "Google Maps aren't available on this device. Please contact technical support for more information.", Toast.LENGTH_LONG);
+                    noMaps.show();
+                    return true;
+                }
                 Intent i = new Intent(this, EntityMapActivity.class);
+
                 this.startActivityForResult(i, MAP_SELECT);
                 return true;
             case MENU_ACTION:
@@ -839,6 +854,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
             Button next = (Button)findViewById(R.id.entity_select_button);
+            //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
