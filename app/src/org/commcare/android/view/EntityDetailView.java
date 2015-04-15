@@ -3,29 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.Entity;
-import org.commcare.android.util.DetailCalloutListener;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.MediaUtil;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
-import org.commcare.util.CommCareSession;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -41,6 +18,27 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.Entity;
+import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.MediaUtil;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
+import org.commcare.util.CommCareSession;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ViewId;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 /**
  * @author ctsims
@@ -76,6 +74,7 @@ public class EntityDetailView extends FrameLayout {
     private static final String FORM_ADDRESS = "address";
     private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
+    private static final String FORM_CALLOUT = "callout";
 
     private static final int TEXT = 0;
     private static final int PHONE = 1;
@@ -151,7 +150,20 @@ public class EntityDetailView extends FrameLayout {
                 this.removeView(currentView);
                 updateCurrentView(PHONE, callout);
             }
-        } else if(FORM_ADDRESS.equals(form)) {
+        }
+        else if(FORM_CALLOUT.equals(form)) {
+            final String address = textField;
+            addressText.setText(address);
+            if(current != ADDRESS) {
+                addressButton.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        listener.addressRequested(MediaUtil.getGeoIntentURI(address));
+                    }
+                });
+                updateCurrentView(ADDRESS, addressView);
+            }
+        }
+        else if(FORM_ADDRESS.equals(form)) {
             final String address = textField;
             addressText.setText(address);
             if(current != ADDRESS) {

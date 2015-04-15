@@ -9,6 +9,8 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -25,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,19 +52,23 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Action;
+import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -84,6 +91,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private static final int CONFIRM_SELECT = 0;
     private static final int BARCODE_FETCH = 1;
     private static final int MAP_SELECT = 2;
+    private static final int CALLOUT = 3;
     
     private static final int MENU_SORT = Menu.FIRST;
     private static final int MENU_MAP = Menu.FIRST + 1;
@@ -93,7 +101,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     TextView searchResultStatus;
     EntityListAdapter adapter;
     LinearLayout header;
-    ImageButton barcodeButton;
+    ImageButton calloutButton;
     
     TextToSpeech tts;
     
@@ -221,24 +229,60 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchbox.setHorizontallyScrolling(false);
         searchResultStatus = (TextView) findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
-        
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
         mViewMode = session.isViewCommand(session.getCommand());
 
-        barcodeButton.setOnClickListener(new OnClickListener() {
 
-            public void onClick(View v) {
-                Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                try {
-                    startActivityForResult(i, BARCODE_FETCH);
-                } catch(ActivityNotFoundException anfe) {
-                    Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
-                    noReader.show();
+        Callout[] callouts = shortSelect.getCallouts();
+
+        if(callouts.length < 1) {
+
+            calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
+            calloutButton.setOnClickListener(new OnClickListener() {
+
+                public void onClick(View v) {
+                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                    try {
+                        startActivityForResult(i, BARCODE_FETCH);
+                    } catch (ActivityNotFoundException anfe) {
+                        Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
+                        noReader.show();
+                    }
                 }
+
+            });
+        } else {
+
+            calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
+
+            for(Callout callout: callouts) {
+                final String actionName = callout.getActionName();
+                final Hashtable<String, String> extras = callout.getExtras();
+                final Vector<String> responses = callout.getResponses();
+                if(callout.getImage() != null) {
+                    setupImageLayout(calloutButton, callout.getImage());
+                }
+
+                calloutButton.setOnClickListener(new OnClickListener() {
+
+                    public void onClick(View v) {
+                        Intent i = new Intent(actionName);
+
+                        for(String key: extras.keySet()){
+                            i.putExtra(key, extras.get(key));
+                        }
+                        try {
+                            startActivityForResult(i, CALLOUT);
+                        } catch (ActivityNotFoundException anfe) {
+                            Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
+                            noReader.show();
+                        }
+                    }
+
+                });
+
             }
-            
-        });
+        }
         
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
@@ -259,6 +303,38 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
+    }
+
+    /*
+* Updates the ImageView layout that is passed in, based on the
+* new id and source
+*/
+    public void setupImageLayout(View layout, final String source) {
+        ImageView iv = (ImageView) layout;
+        Bitmap b;
+        if (!source.equals("")) {
+            try {
+                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
+                if (b == null) {
+                    //Input stream could not be used to derive bitmap, so showing error-indicating image
+                    iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                }
+                else {
+                    iv.setImageBitmap(b);
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                //Error loading image
+                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+            } catch (InvalidReferenceException ex) {
+                ex.printStackTrace();
+                //No image
+                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+            }
+        }
+        else {
+            iv.setImageDrawable(getResources().getDrawable(R.color.white));
+        }
     }
 
     private void createDataSetObserver() {
@@ -412,8 +488,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      *
      * @param contextRef reference to the selected element for which to display
      * detailed view
-     * @param i intent to attach extra data to. If null, create a fresh
-     * EntityDetailActivity intent
      * @return The intent argument, or a newly created one, with element
      * selection information attached.
      */
@@ -489,6 +563,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 this.searchbox.setText(result);
             }
             break;
+        case CALLOUT:
+            if(resultCode == Activity.RESULT_OK) {
+                for (Callout callout: shortSelect.getCallouts()){
+                    for (String key: callout.getResponses()){
+                        String result = intent.getStringExtra(key);
+                        if(result != null) {
+                            this.searchbox.setText(result);
+                            break;
+                        }
+                    }
+                }
+            }
         case CONFIRM_SELECT:
             resuming = true;
             if(resultCode == RESULT_OK && !mViewMode) {

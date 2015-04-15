@@ -1,24 +1,5 @@
 package org.commcare.android.view;
 
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import org.commcare.android.models.AsyncEntity;
-import org.commcare.android.models.Entity;
-import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,6 +15,26 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.commcare.android.models.AsyncEntity;
+import org.commcare.android.models.Entity;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.CalloutData;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ViewId;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -52,6 +53,7 @@ public class EntityView extends LinearLayout {
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
     public static final String FORM_GRAPH = "graph";
+    public static final String FORM_CALLLOUT = "callout";
     
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
@@ -137,6 +139,10 @@ public class EntityView extends LinearLayout {
             retVal = b;
         } 
         else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
+            View layout = View.inflate(context, R.layout.entity_item_graph, null);
+            retVal = layout;
+        }
+        else if (FORM_CALLLOUT.equals(form) && data instanceof CalloutData) {
             View layout = View.inflate(context, R.layout.entity_item_graph, null);
             retVal = layout;
         }
