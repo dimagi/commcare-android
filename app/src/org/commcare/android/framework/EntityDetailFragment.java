@@ -4,6 +4,7 @@ import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
@@ -89,6 +90,8 @@ public class EntityDetailFragment extends Fragment {
         final TextView header = (TextView) inflater.inflate(R.layout.entity_detail_header, null);
         final ListView listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
         header.setText(detail.getTitle().getText().evaluate());
+        int[] color = AndroidUtil.getThemeColorIDs(this.getActivity(), new int[]{ R.attr.drawer_pulldown_even_row_color});
+        header.setBackgroundColor(color[0]);
         listView.addHeaderView(header);
         listView.setAdapter(adapter);
         return rootView;
