@@ -68,6 +68,13 @@
             android:scaleType="fitCenter"
             android:visibility="visible" />
 
+        <Button
+            android:id="@+id/callout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
         <org.commcare.android.view.AspectRatioLayout
             android:id="@+id/graph"
             android:layout_width="fill_parent"

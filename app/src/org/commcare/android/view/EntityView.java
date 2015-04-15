@@ -22,7 +22,6 @@ import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
-import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -142,7 +141,7 @@ public class EntityView extends LinearLayout {
             View layout = View.inflate(context, R.layout.entity_item_graph, null);
             retVal = layout;
         }
-        else if (FORM_CALLLOUT.equals(form) && data instanceof CalloutData) {
+        else if (FORM_CALLLOUT.equals(form)) {
             View layout = View.inflate(context, R.layout.entity_item_graph, null);
             retVal = layout;
         }

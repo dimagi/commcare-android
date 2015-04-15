@@ -26,6 +26,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.util.CommCareSession;
@@ -54,6 +55,7 @@ public class EntityDetailView extends FrameLayout {
     private Button addressButton;
     private TextView addressText;
     private ImageView imageView;
+    private Button calloutButton;
     private AspectRatioLayout graphLayout;
     private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
     private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
@@ -83,6 +85,7 @@ public class EntityDetailView extends FrameLayout {
     private static final int VIDEO = 4;
     private static final int AUDIO = 5;
     private static final int GRAPH = 6;
+    private static final int CALLOUT = 7;
     
     int current = TEXT;
     
@@ -115,6 +118,7 @@ public class EntityDetailView extends FrameLayout {
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
+        calloutButton = (Button)detailRow.findViewById(R.id.callout);
         graphViewsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         graphsWithErrors = new HashSet<Integer>();
         graphIntentsCache = new Hashtable<Integer, Intent>();
@@ -151,17 +155,20 @@ public class EntityDetailView extends FrameLayout {
                 updateCurrentView(PHONE, callout);
             }
         }
-        else if(FORM_CALLOUT.equals(form)) {
-            final String address = textField;
-            addressText.setText(address);
-            if(current != ADDRESS) {
-                addressButton.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        listener.addressRequested(MediaUtil.getGeoIntentURI(address));
-                    }
-                });
-                updateCurrentView(ADDRESS, addressView);
-            }
+        else if(FORM_CALLOUT.equals(form) && (field instanceof Callout)) {
+
+            final Callout callout = (Callout) field;
+
+            calloutButton.setText(callout.getActionName());
+
+            calloutButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.performCallout(callout, CALLOUT);
+                }
+            });
+
+            updateCurrentView(CALLOUT, calloutButton);
         }
         else if(FORM_ADDRESS.equals(form)) {
             final String address = textField;

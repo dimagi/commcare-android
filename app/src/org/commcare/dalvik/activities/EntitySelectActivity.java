@@ -918,6 +918,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void playVideo(String videoRef) {
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
+
+    public void performCallout(Callout callout, int id) {
+        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
+    }
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection, getIntent());
