@@ -65,7 +65,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 /**
  * 
@@ -171,7 +170,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
                 
                 TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
-                message.setText(localize("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
+                message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
             } else {
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
@@ -585,10 +584,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_SORT, MENU_SORT, localize("select.menu.sort")).setIcon(
+        menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if(mMappingEnabled) {
-            menu.add(0, MENU_MAP, MENU_MAP, localize("select.menu.map")).setIcon(
+            menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
         Action action = shortSelect.getCustomAction();
