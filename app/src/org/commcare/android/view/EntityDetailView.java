@@ -55,7 +55,10 @@ public class EntityDetailView extends FrameLayout {
     private Button addressButton;
     private TextView addressText;
     private ImageView imageView;
+    private View calloutView;
     private Button calloutButton;
+    private TextView calloutText;
+    private ImageButton calloutImageButton;
     private AspectRatioLayout graphLayout;
     private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
     private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
@@ -118,7 +121,10 @@ public class EntityDetailView extends FrameLayout {
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
-        calloutButton = (Button)detailRow.findViewById(R.id.callout);
+        calloutView = (View)detailRow.findViewById(R.id.callout_view);
+        calloutText = (TextView)detailRow.findViewById(R.id.callout_text);
+        calloutButton = (Button)detailRow.findViewById(R.id.callout_button);
+        calloutImageButton = (ImageButton)detailRow.findViewById(R.id.callout_image_button);
         graphViewsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         graphsWithErrors = new HashSet<Integer>();
         graphIntentsCache = new Hashtable<Integer, Intent>();
@@ -159,16 +165,66 @@ public class EntityDetailView extends FrameLayout {
 
             final Callout callout = (Callout) field;
 
-            calloutButton.setText(callout.getActionName());
+            String displayName = callout.getDisplayName();
+            String imagePath = callout.getImage();
+            String actionName = callout.getActionName();
 
-            calloutButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.performCallout(callout, CALLOUT);
+            if(imagePath != null) {
+
+                System.out.println("415 imagePath not null: " + imagePath);
+
+                calloutButton.setVisibility(View.GONE);
+
+                Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imagePath);
+
+                if (b == null) {
+                    System.out.println("415 imagePath B is null");
+                    calloutImageButton.setImageDrawable(null);
+                } else {
+                    System.out.println("415 b not null");
+                    //Ok, so. We should figure out whether our image is large or small.
+                    if (b.getWidth() > (getScreenWidth() / 2)) {
+                        veryLong = true;
+                    }
+
+                    calloutImageButton.setPadding(10, 10, 10, 10);
+                    calloutImageButton.setAdjustViewBounds(true);
+                    calloutImageButton.setImageBitmap(b);
+                    calloutImageButton.setId(23422634);
                 }
-            });
 
-            updateCurrentView(CALLOUT, calloutButton);
+                calloutImageButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        listener.performCallout(callout, CALLOUT);
+                    }
+                });
+
+                if(displayName != null){
+                    calloutText.setText(displayName);
+                } else{
+                    calloutText.setVisibility(View.GONE);
+                }
+
+            } else {
+                calloutImageButton.setVisibility(View.GONE);
+                calloutText.setVisibility(View.GONE);
+
+                if(displayName != null){
+                    calloutButton.setText(displayName);
+                } else{
+                    calloutButton.setText(actionName);
+                }
+
+                calloutButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        listener.performCallout(callout, CALLOUT);
+                    }
+                });
+            }
+
+            updateCurrentView(CALLOUT, calloutView);
         }
         else if(FORM_ADDRESS.equals(form)) {
             final String address = textField;

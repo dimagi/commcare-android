@@ -68,12 +68,42 @@
             android:scaleType="fitCenter"
             android:visibility="visible" />
 
-        <Button
-            android:id="@+id/callout"
+        <LinearLayout
+            android:id="@+id/callout_view"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
             android:orientation="vertical"
-            android:visibility="gone" />
+            android:paddingBottom="4dp"
+            android:paddingLeft="11dp"
+            android:paddingRight="4dp"
+            android:paddingTop="4dp"
+            android:visibility="gone" >
+
+            <ImageButton
+                android:id="@+id/callout_image_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawablePadding="15dp"
+                android:text="Callout" />
+
+            <Button
+                android:id="@+id/callout_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawablePadding="15dp"
+                android:text="Callout" />
+
+            <TextView
+                android:id="@+id/callout_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:paddingLeft="10dp"/>
+
+        </LinearLayout>
 
         <org.commcare.android.view.AspectRatioLayout
             android:id="@+id/graph"
