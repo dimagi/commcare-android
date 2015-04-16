@@ -63,6 +63,9 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        final String destination = this.getIntent().getStringExtra(EXTRA_FILE_DESTINATION);
+
         super.onCreate(savedInstanceState);
         btnFetchFiles.setOnClickListener(new OnClickListener() {
 
@@ -74,7 +77,8 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             public void onClick(View v) {
                 //Go fetch us a file path!
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("file/*");
+                // intent.setType("file/*");
+                intent.setType("application/zip");
                 try {
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
                 } catch(ActivityNotFoundException e) {
@@ -82,12 +86,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                 }
             }
         });
-        
-        
-        
-        final String destination = this.getIntent().getStringExtra(EXTRA_FILE_DESTINATION);
-        
-        
+
         btnInstallMultimedia.setOnClickListener(new OnClickListener() {
             /*
              * (non-Javadoc)
@@ -163,7 +162,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
             if(resultCode == Activity.RESULT_OK) {
-                String filePath = intent.getData().getPath();
+                String filePath = getRealPathFromURI(intent.getData());
                 editFileLocation.setText(filePath);
             }
         }
@@ -194,7 +193,8 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             return;
         }
         
-        if(!(new File(location)).exists()) {
+        String path = Environment.getExternalStorageDirectory();
+        if(!(new File(path, location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
             this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);
@@ -207,6 +207,16 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             btnInstallMultimedia.setEnabled(true);
             return;
         }
+    }
+
+    // XXX: Attempt to turn a URI into an absolute file path.
+    //      Doesn't work.
+    private String getRealPathFromURI(Uri contentUri) {
+        Cursor c = getContentResolver().query(contentUri,null,null,null,null);
+        c.moveToNext();
+        String path = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
+        c.close();
+        return path;
     }
     
     /* (non-Javadoc)
