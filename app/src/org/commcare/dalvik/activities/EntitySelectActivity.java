@@ -233,9 +233,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         mViewMode = session.isViewCommand(session.getCommand());
 
 
-        Callout[] callouts = shortSelect.getCallouts();
+        Callout callout = shortSelect.getCallout();
 
-        if(callouts.length < 1) {
+        if(callout == null) {
 
             calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
             calloutButton.setOnClickListener(new OnClickListener() {
@@ -253,9 +253,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             });
         } else {
 
-            calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
-
-            for(Callout callout: callouts) {
                 final String actionName = callout.getActionName();
                 final Hashtable<String, String> extras = callout.getExtras();
                 final Vector<String> responses = callout.getResponses();
@@ -281,7 +278,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
                 });
 
-            }
+
         }
         
         searchbox.addTextChangedListener(this);
@@ -565,7 +562,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             break;
         case CALLOUT:
             if(resultCode == Activity.RESULT_OK) {
-                for (Callout callout: shortSelect.getCallouts()){
+                    Callout callout = shortSelect.getCallout();
                     for (String key: callout.getResponses()){
                         String result = intent.getStringExtra(key);
                         if(result != null) {
@@ -573,7 +570,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                             break;
                         }
                     }
-                }
+
             }
         case CONFIRM_SELECT:
             resuming = true;

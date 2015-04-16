@@ -170,18 +170,15 @@ public class EntityDetailView extends FrameLayout {
             String actionName = callout.getActionName();
 
             if(imagePath != null) {
-
-                System.out.println("415 imagePath not null: " + imagePath);
-
+                //only use the image if available
                 calloutButton.setVisibility(View.GONE);
+                calloutText.setVisibility(View.GONE);
 
                 Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imagePath);
 
                 if (b == null) {
-                    System.out.println("415 imagePath B is null");
                     calloutImageButton.setImageDrawable(null);
                 } else {
-                    System.out.println("415 b not null");
                     //Ok, so. We should figure out whether our image is large or small.
                     if (b.getWidth() > (getScreenWidth() / 2)) {
                         veryLong = true;
@@ -199,17 +196,10 @@ public class EntityDetailView extends FrameLayout {
                         listener.performCallout(callout, CALLOUT);
                     }
                 });
-
-                if(displayName != null){
-                    calloutText.setText(displayName);
-                } else{
-                    calloutText.setVisibility(View.GONE);
-                }
-
             } else {
                 calloutImageButton.setVisibility(View.GONE);
                 calloutText.setVisibility(View.GONE);
-
+                // use display name if available, otherwise use URI
                 if(displayName != null){
                     calloutButton.setText(displayName);
                 } else{
