@@ -174,7 +174,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                             CommCareApplication._().getCurrentApp().getAppPreferences().
                                     edit().putString(DeveloperPreferences.SUPERUSER_ENABLED, YES).commit();
                             Toast.makeText(CommCarePreferences.this, "Developer Mode Enabled", Toast.LENGTH_SHORT).show();
-                            ;
                         }
                     }
 
@@ -197,7 +196,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     }
 
     public static boolean isInSenseMode() {
-        return CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense");
+        return (CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null &&
+                CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense"));
     }
 
     public static boolean isIncompleteFormsEnabled() {
@@ -238,7 +238,11 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         // default to 24 hours
-        return Integer.parseInt(properties.getString(LOGIN_DURATION, "28800"));
+        try {
+            return Integer.parseInt(properties.getString(LOGIN_DURATION, "28800"));
+        } catch (NumberFormatException e) {
+            return 28000;
+        }
     }
 
     /*
