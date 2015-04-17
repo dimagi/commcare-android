@@ -11,6 +11,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -78,7 +79,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             public void onClick(View v) {
                 //Go fetch us a file path!
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("file/*");
+                intent.setType("*/*");
                 try {
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
                 } catch(ActivityNotFoundException e) {
@@ -188,8 +189,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
             if(resultCode == Activity.RESULT_OK) {
-                String filePath = intent.getData().getPath();
-                editFileLocation.setText(filePath);
+                // Android 4.4 and above sometimes don't return absolute
+                // filepaths from the file chooser. So resolve the URI into a
+                // valid file path.
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                        intent.getData());
+                if (filePath != null) {
+                    editFileLocation.setText(filePath);
+                }
             }
         }
     }

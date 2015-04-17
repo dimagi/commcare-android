@@ -11,6 +11,8 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
@@ -77,7 +79,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             public void onClick(View v) {
                 //Go fetch us a file path!
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                // intent.setType("file/*");
+                // only allow look for zip files
                 intent.setType("application/zip");
                 try {
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
@@ -162,8 +164,14 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
             if(resultCode == Activity.RESULT_OK) {
-                String filePath = getRealPathFromURI(intent.getData());
-                editFileLocation.setText(filePath);
+                // Android 4.4 and above sometimes don't return absolute
+                // filepaths from the file chooser. So resolve the URI into a
+                // valid file path.
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                        intent.getData());
+                if (filePath != null) {
+                    editFileLocation.setText(filePath);
+                }
             }
         }
     }
@@ -184,8 +192,9 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             btnInstallMultimedia.setEnabled(false);
             return;
         }
-        
+
         String location = editFileLocation.getText().toString();
+
         if("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.empty"));
             this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
@@ -193,8 +202,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             return;
         }
         
-        String path = Environment.getExternalStorageDirectory();
-        if(!(new File(path, location)).exists()) {
+        if(!(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
             this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);
@@ -207,16 +215,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             btnInstallMultimedia.setEnabled(true);
             return;
         }
-    }
-
-    // XXX: Attempt to turn a URI into an absolute file path.
-    //      Doesn't work.
-    private String getRealPathFromURI(Uri contentUri) {
-        Cursor c = getContentResolver().query(contentUri,null,null,null,null);
-        c.moveToNext();
-        String path = c.getString(c.getColumnIndex(MediaStore.MediaColumns.DATA));
-        c.close();
-        return path;
     }
     
     /* (non-Javadoc)
