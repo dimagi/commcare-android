@@ -193,9 +193,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     private static final int PROGRESS_DIALOG = 1;
     private static final int SAVING_DIALOG = 2;
 
-    // Random ID
-    private static final int DELETE_REPEAT = 654321;
-
     private String mFormPath;
     public static String mInstancePath;
     private String mInstanceDestination;
@@ -1327,45 +1324,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         qw.clearAnswer();
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-            menu.add(0, v.getId(), 0, StringUtils.getStringSpannableRobust(this, R.string.clear_answer));
-        if (mFormController.indexContainsRepeatableGroup()) {
-            menu.add(0, DELETE_REPEAT, 0, StringUtils.getStringSpannableRobust(this, R.string.delete_repeat));
-        }
-        menu.setHeaderTitle(StringUtils.getStringSpannableRobust(this, R.string.edit_prompt));
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
-     */
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        /*
-         * We don't have the right view here, so we store the View's ID as the item ID and loop
-         * through the possible views to find the one the user clicked on.
-         */
-        for (QuestionWidget qw : ((ODKView) mCurrentView).getWidgets()) {
-            if (item.getItemId() == qw.getId()) {
-                createClearDialog(qw);
-            }
-        }
-        if (item.getItemId() == DELETE_REPEAT) {
-            createDeleteRepeatConfirmDialog();
-        }
-
-        return super.onContextItemSelected(item);
-    }
-
-
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onRetainCustomNonConfigurationInstance()
@@ -1547,7 +1505,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             case FormEntryController.EVENT_GROUP:
                 isGroup = true;
             case FormEntryController.EVENT_QUESTION:
-            
                 ODKView odkv = null;
                 // should only be a group here if the event_group is a field-list
                 try {
@@ -1565,13 +1522,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     return new View(this);
                 }
 
-                // Makes a "clear answer" menu pop up on long-click
-                for (QuestionWidget qw : odkv.getWidgets()) {
-                    if (!qw.getPrompt().isReadOnly() && !mFormController.isFormReadOnly()) {
-                        registerForContextMenu(qw);
-                    }
-                }
-                
                 updateNavigationCues(odkv);
                 
                 return odkv;
@@ -2040,43 +1990,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
 
     /**
-     * Creates a confirm/cancel dialog for deleting repeats.
-     */
-    private void createDeleteRepeatConfirmDialog() {
-        mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        String name = mFormController.getLastRepeatedGroupName();
-        int repeatcount = mFormController.getLastRepeatedGroupRepeatCount();
-        if (repeatcount != -1) {
-            name += " (" + (repeatcount + 1) + ")";
-        }
-        mAlertDialog.setTitle(StringUtils.getStringSpannableRobust(this, R.string.delete_repeat_ask, name));
-                mAlertDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.delete_repeat_confirm, name));
-                        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
-                            /*
-                             * (non-Javadoc)
-                             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                             */
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                switch (i) {
-                                    case DialogInterface.BUTTON1: // yes
-                                        mFormController.deleteRepeat();
-                                        showPreviousView();
-                                        break;
-                                    case DialogInterface.BUTTON2: // no
-                                        break;
-                                }
-                            }
-                        };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.discard_group), quitListener);
-                mAlertDialog.setButton2(StringUtils.getStringSpannableRobust(this, R.string.delete_repeat_no), quitListener);
-                        mAlertDialog.show();
-    }
-
-
-    /**
      * Saves data and writes it to disk. If exit is set, program will exit after save completes.
      * Complete indicates whether the user has marked the isntancs as complete. If updatedSaveName
      * is non-null, the instances content provider is updated with the new name
@@ -2288,49 +2201,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         finishReturnInstance(false);
     }
-
-
-    /**
-     * Confirm clear answer dialog
-     */
-    private void createClearDialog(final QuestionWidget qw) {
-        mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-
-        mAlertDialog.setTitle(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_ask));
-
-        String question = qw.getPrompt().getLongText();
-
-        if (question.length() > 50) {
-            question = question.substring(0, 50) + "...";
-        }
-
-        mAlertDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question));
-
-        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
-
-                    /*
-                     * (non-Javadoc)
-                     * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        switch (i) {
-                            case DialogInterface.BUTTON1: // yes
-                                clearAnswer(qw);
-                                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                                break;
-                            case DialogInterface.BUTTON2: // no
-                                break;
-                        }
-                    }
-                };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
-                mAlertDialog.setButton2(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-                        mAlertDialog.show();
-    }
-
 
     /**
      * Creates and displays a dialog allowing the user to set the language for the form.
