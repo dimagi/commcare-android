@@ -235,9 +235,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         Callout callout = shortSelect.getCallout();
 
+        calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
+
         if(callout == null) {
 
-            calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
             calloutButton.setOnClickListener(new OnClickListener() {
 
                 public void onClick(View v) {
@@ -562,11 +563,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             break;
         case CALLOUT:
             if(resultCode == Activity.RESULT_OK) {
+
+                    String result = intent.getStringExtra("odk_intent_data");
+
+                    if(result != null){
+                        this.searchbox.setText(result);
+                        break;
+                    }
+                    //just use first non-null response for now
                     Callout callout = shortSelect.getCallout();
                     for (String key: callout.getResponses()){
-                        String result = intent.getStringExtra(key);
+                        String result2 = intent.getStringExtra(key);
                         if(result != null) {
-                            this.searchbox.setText(result);
+                            this.searchbox.setText(result2);
                             break;
                         }
                     }
