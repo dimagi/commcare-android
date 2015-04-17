@@ -54,9 +54,8 @@ public class CommCareSessionService extends Service  {
     private NotificationManager mNM;
     
     private static long MAINTENANCE_PERIOD = 1000;
-    
-    // duration in milliseconds that session remains valid after a user logs in
-    private static long SESSION_LENGTH = 1000*60*60*24;
+    // session length in MS
+    private static long sessionLength = 1000 * 60 * 60 * 24;
     
     private Timer maintenanceTimer;
     private CipherPool pool;
@@ -273,7 +272,7 @@ public class CommCareSessionService extends Service  {
             
             this.user = user;
             
-            this.sessionExpireDate = new Date(new Date().getTime() + SESSION_LENGTH);
+            this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
             
             // Display a notification about us starting.  We put an icon in the status bar.
             showLoggedInNotification(user);
@@ -296,7 +295,6 @@ public class CommCareSessionService extends Service  {
     
     private void maintenance() {
         long time = new Date().getTime();
-
         // If logout process started and has taken longer than the logout
         // timeout then wrap-up the process. This is especially necessary since
         // if the FormEntryActivity  isn't active then it will never launch
@@ -304,7 +302,6 @@ public class CommCareSessionService extends Service  {
         if (logoutStartedAt != -1 &&
                 time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
             finishLogout();
-
         }
 
         // If we haven't started logging out and we're either past the session
@@ -314,7 +311,7 @@ public class CommCareSessionService extends Service  {
         if (isLoggedIn() &&
                 logoutStartedAt == -1 &&
                 (time > sessionExpireDate.getTime() || 
-                 (sessionExpireDate.getTime() - time  > SESSION_LENGTH ))) {
+                 (sessionExpireDate.getTime() - time  > sessionLength))) {
             logoutStartedAt = new Date().getTime();
             startLogout();
 
@@ -597,10 +594,14 @@ public class CommCareSessionService extends Service  {
         };
     }
 
+    /**
+     * Read the login session duration from app preferences and set the session
+     * length accordingly.
+     */
     public void setSessionLength(){
-        SESSION_LENGTH = CommCarePreferences.getLoginDuration() * 1000 * 60 * 60;
+        sessionLength = CommCarePreferences.getLoginDuration() * 1000;
     }
-    
+
     public boolean isMultimediaVerified(){
         return multimediaIsVerified;
     }

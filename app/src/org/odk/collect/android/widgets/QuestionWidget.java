@@ -368,7 +368,7 @@ public abstract class QuestionWidget extends LinearLayout {
         mQuestionText.setId(38475483); // assign random id
 
         // if we have markdown, use that.
-        if(markdownText != null){
+        if (markdownText != null) {
             mQuestionText.setText(forceMarkdown(markdownText));
             mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
             mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
@@ -459,7 +459,15 @@ public abstract class QuestionWidget extends LinearLayout {
      */
     private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
         TextView text = new TextView(getContext());
-        text.setText(prompt.getHelpText());
+
+        String markdownText =  prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
+
+        if (markdownText != null) {
+            text.setText(forceMarkdown(markdownText));
+            text.setMovementMethod(LinkMovementMethod.getInstance());
+        } else {
+            text.setText(prompt.getHelpText());
+        }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
