@@ -452,7 +452,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().getSession().startLogout();
+                        try {
+                            CommCareApplication._().getSession().startLogout();
+                        } catch (SessionUnavailableException e) {
+                            // if the session isn't available, we don't need to logout
+                        }
                     }
                     //set flag that we should autoupdate on next login
                     SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();

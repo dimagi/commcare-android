@@ -133,7 +133,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     protected void onCancelled() {
         super.onCancelled();
         if(wasKeyLoggedIn) {
-            CommCareApplication._().getSession().startLogout();
+            try {
+                CommCareApplication._().getSession().startLogout();
+            } catch (SessionUnavailableException e) {
+                // if the session isn't available, we don't need to logout
+            }
         }
     }
     
@@ -245,7 +249,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 if(responseCode == 401) {
                     //If we logged in, we need to drop those credentials
                     if(loginNeeded) {
-                        CommCareApplication._().getSession().startLogout();
+                        try {
+                            CommCareApplication._().getSession().startLogout();
+                        } catch (SessionUnavailableException e) {
+                            // if the session isn't available, we don't need to logout
+                        }
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
                     return AUTH_FAILED;
@@ -320,7 +328,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //wipe our login if one happened
                         if(loginNeeded) {
-                            CommCareApplication._().getSession().startLogout();
+                            try {
+                                CommCareApplication._().getSession().startLogout();
+                            } catch (SessionUnavailableException e) {
+                                // if the session isn't available, we don't need to logout
+                            }
                         }
                         this.publishProgress(PROGRESS_DONE);
                         return UNKNOWN_FAILURE;
@@ -330,18 +342,30 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //wipe our login if one happened
                         if(loginNeeded) {
-                            CommCareApplication._().getSession().startLogout();
+                            try {
+                                CommCareApplication._().getSession().startLogout();
+                            } catch (SessionUnavailableException e) {
+                                // if the session isn't available, we don't need to logout
+                            }
                         }
                         this.publishProgress(PROGRESS_DONE);
                         return UNKNOWN_FAILURE;
                     }
                     
                     if(loginNeeded) {
-                        CommCareApplication._().getSession().startLogout();
+                        try {
+                            CommCareApplication._().getSession().startLogout();
+                        } catch (SessionUnavailableException e) {
+                            // if the session isn't available, we don't need to logout
+                        }
                     }
                 } else if(responseCode == 500) {
                     if(loginNeeded) {
-                        CommCareApplication._().getSession().startLogout();
+                        try {
+                            CommCareApplication._().getSession().startLogout();
+                        } catch (SessionUnavailableException e) {
+                            // if the session isn't available, we don't need to logout
+                        }
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return SERVER_ERROR;
@@ -366,16 +390,16 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-            }catch (SessionUnavailableException sue) {
+            } catch (SessionUnavailableException sue) {
                 //TODO: Keys were lost somehow.
                 sue.printStackTrace();
-                
-                //Make sure that we are logged out. We can get into a funny state
-                //here
-                CommCareApplication._().getSession().startLogout();
             }
             if(loginNeeded) {
-                CommCareApplication._().getSession().startLogout();
+                try {
+                    CommCareApplication._().getSession().startLogout();
+                } catch (SessionUnavailableException e) {
+                    // if the session isn't available, we don't need to logout
+                }
             }
             this.publishProgress(PROGRESS_DONE);
             return responseError;
