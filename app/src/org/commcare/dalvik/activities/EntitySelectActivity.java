@@ -53,6 +53,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
@@ -233,7 +234,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         mViewMode = session.isViewCommand(session.getCommand());
 
 
-        Callout callout = shortSelect.getCallout();
+        CalloutData callout = shortSelect.getCallout();
 
         calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
 
@@ -925,7 +926,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
-    public void performCallout(Callout callout, int id) {
+    public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
     

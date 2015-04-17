@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.widget.Toast;
 
 import org.commcare.dalvik.activities.CallOutActivity;
-import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.CalloutData;
 
 import java.util.Hashtable;
 
@@ -41,7 +41,7 @@ public class DetailCalloutListenerDefaultImpl {
         act.startActivity(intent);
     }
 
-    public static void performCallout(Activity act, Callout callout, int id) {
+    public static void performCallout(Activity act, CalloutData callout, int id) {
         Intent i = new Intent(callout.getActionName());
 
         Hashtable<String, String> extras = callout.getExtras();
