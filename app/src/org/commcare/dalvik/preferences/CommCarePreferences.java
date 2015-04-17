@@ -238,7 +238,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         // default to 24 hours
-        return properties.getFloat(LOGIN_DURATION, 28800);
+        return properties.getInt(LOGIN_DURATION, 28800);
     }
 
     /*
