@@ -398,8 +398,7 @@ public class CommCareSessionService extends Service  {
             this.stopForeground(true);
 
             // Re-direct to the home screen
-            Intent loginIntent = new Intent(getApplicationContext(),
-                    CommCareHomeActivity.class);
+            Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
             // TODO: instead of launching here, which will pop-up the login
             // screen even if CommCare isn't in the foreground, we should
             // broadcast an intent, which CommCareActivity can receive if in
@@ -407,7 +406,8 @@ public class CommCareSessionService extends Service  {
             // CommCareActivity's onResume to check if we need to re-login when
             // we bring CommCare back into the foreground, so that the user
             // can't just continue doing work while logged out. -- PLM
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(loginIntent);
         }
     }
