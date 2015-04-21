@@ -54,7 +54,7 @@ public class CommCareSessionService extends Service  {
     private static long MAINTENANCE_PERIOD = 1000;
 
     // session length in MS
-    private static long SESSION_LENGTH = 1000*60*60*24;
+    private static long sessionLength = 1000 * 60 * 60 * 24;
     
     private Timer maintenanceTimer;
     private CipherPool pool;
@@ -253,7 +253,7 @@ public class CommCareSessionService extends Service  {
             
             this.user = user;
             
-            this.sessionExpireDate = new Date(new Date().getTime() + SESSION_LENGTH);
+            this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
             
             // Display a notification about us starting.  We put an icon in the status bar.
             showLoggedInNotification(user);
@@ -279,7 +279,7 @@ public class CommCareSessionService extends Service  {
         long time = new Date().getTime();
         // If we're either past the session expire time, or the session expires more than its period in the future, 
         // we need to log the user out
-        if(time > sessionExpireDate.getTime() || (sessionExpireDate.getTime() - time  > SESSION_LENGTH )) { 
+        if(time > sessionExpireDate.getTime() || (sessionExpireDate.getTime() - time  > sessionLength )) { 
             logout = true;
         }
         
@@ -502,10 +502,14 @@ public class CommCareSessionService extends Service  {
         };
     }
 
+    /**
+     * Read the login session duration from app preferences and set the session
+     * length accordingly.
+     */
     public void setSessionLength(){
-        SESSION_LENGTH = CommCarePreferences.getLoginDuration() * 1000 * 60 * 60;
+        sessionLength = CommCarePreferences.getLoginDuration() * 1000;
     }
-    
+
     public boolean isMultimediaVerified(){
         return multimediaIsVerified;
     }
