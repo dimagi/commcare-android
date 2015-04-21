@@ -25,7 +25,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.TextPaint;
@@ -40,6 +39,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -146,17 +146,19 @@ public abstract class QuestionWidget extends LinearLayout {
                 FrameLayout.LayoutParams.WRAP_CONTENT));
 
         final ImageButton trigger = new ImageButton(getContext());
-        trigger.setBackgroundResource(R.drawable.icon_info_outline_lightcool);
+        trigger.setScaleType(ScaleType.FIT_CENTER);
+        trigger.setImageResource(R.drawable.icon_info_outline_lightcool);
+        trigger.setBackgroundDrawable(null);
         final FormEntryPrompt prompt = p;
         trigger.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                trigger.setBackgroundResource(R.drawable.icon_info_fill_lightcool);
+                trigger.setImageResource(R.drawable.icon_info_fill_lightcool);
                 fireHelpText(prompt, new Runnable() {
                     @Override
                     public void run() {
                         // back to the old icon
-                        trigger.setBackgroundResource(R.drawable.icon_info_outline_lightcool);
+                        trigger.setImageResource(R.drawable.icon_info_outline_lightcool);
                     }
                 });
             }
