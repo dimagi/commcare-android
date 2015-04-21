@@ -86,7 +86,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
     public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
 
-    public final static String LOGIN_DURATION = "cc-login-duration-hours";
+    public final static String LOGIN_DURATION = "cc-login-duration-seconds";
 
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
@@ -174,7 +174,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                             CommCareApplication._().getCurrentApp().getAppPreferences().
                                     edit().putString(DeveloperPreferences.SUPERUSER_ENABLED, YES).commit();
                             Toast.makeText(CommCarePreferences.this, "Developer Mode Enabled", Toast.LENGTH_SHORT).show();
-                            ;
                         }
                     }
 
@@ -197,7 +196,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     }
 
     public static boolean isInSenseMode() {
-        return CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense");
+        return (CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null &&
+                CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense"));
     }
 
     public static boolean isIncompleteFormsEnabled() {
@@ -230,10 +230,19 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         return properties.getString(FUZZY_SEARCH, NO).equals(YES);
     }
 
+    /**
+     * @return How many seconds should a user session remain open before
+     *         expiring?
+     */
     public static int getLoginDuration() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        return properties.getInt(LOGIN_DURATION, 24);
+        // default to 24 hours
+        try {
+            return Integer.parseInt(properties.getString(LOGIN_DURATION, "28800"));
+        } catch (NumberFormatException e) {
+            return 28000;
+        }
     }
 
     /*

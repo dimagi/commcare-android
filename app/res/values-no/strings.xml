@@ -51,13 +51,8 @@
 <string name="delete_confirm">Slett %s skjema(er)?</string>
 <string name="delete_file">Slett utvalgte</string>
 <string name="delete_no">Ikke slett</string>
-<string name="delete_repeat">Slette gruppe</string>
-<string name="delete_repeat_ask">Slette gruppen?</string>
-<string name="delete_repeat_confirm">Slette gruppe \"%s\" og alle sub-grupper?</string>
-<string name="delete_repeat_no">Avbryt</string>
 <string name="delete_yes">Slett skjemaer</string>
 <string name="discard_answer">Slett svar</string>
-<string name="discard_group">Slett gruppe</string>
 <string name="download">Hent utvalgte</string>
 <string name="download_forms_result">Last ned resultat</string>
 <string name="downloading_data">Kobler til server</string>
