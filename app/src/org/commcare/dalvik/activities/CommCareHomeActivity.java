@@ -1492,7 +1492,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         if(syncDetails.second[0] > 0) {
             Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
-            if(isUsingNewUI()) {
+            if(isUsingNewUI() && syncButton != null) {
                 syncButton.setNotificationText(syncIndicator);
                 adapter.notifyDataSetChanged();
             } else {
