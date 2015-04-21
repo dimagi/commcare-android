@@ -1,6 +1,14 @@
 package org.commcare.dalvik.activities;
 
-import java.util.Vector;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.util.Pair;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.framework.CommCareActivity;
@@ -16,23 +24,11 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
-
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Pair;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 
 /**
  * @author ctsims
@@ -216,6 +212,10 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     
     public void playVideo(String videoRef) {
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
+    }
+
+    public void performCallout(Callout callout, int id){
+        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 
     /*

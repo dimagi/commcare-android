@@ -1,10 +1,15 @@
 package org.commcare.android.logic;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.Toast;
 
 import org.commcare.dalvik.activities.CallOutActivity;
+import org.commcare.suite.model.Callout;
+
+import java.util.Hashtable;
 
 /**
  * Created by dancluna on 3/5/15.
@@ -34,5 +39,21 @@ public class DetailCalloutListenerDefaultImpl {
         intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(videoRef), "video/*");
         act.startActivity(intent);
+    }
+
+    public static void performCallout(Activity act, Callout callout, int id) {
+        Intent i = new Intent(callout.getActionName());
+
+        Hashtable<String, String> extras = callout.getExtras();
+
+        for(String key: extras.keySet()){
+            i.putExtra(key, extras.get(key));
+        }
+        try {
+            act.startActivityForResult(i, id);
+        } catch (ActivityNotFoundException anfe) {
+            Toast noReader = Toast.makeText(act, "No application found for action: " + callout.getActionName(), Toast.LENGTH_LONG);
+            noReader.show();
+        }
     }
 }

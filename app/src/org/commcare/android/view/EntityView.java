@@ -1,8 +1,20 @@
 package org.commcare.android.view;
 
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Vector;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.speech.tts.TextToSpeech;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.BackgroundColorSpan;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
@@ -19,21 +31,9 @@ import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.speech.tts.TextToSpeech;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.style.BackgroundColorSpan;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -52,6 +52,7 @@ public class EntityView extends LinearLayout {
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
     public static final String FORM_GRAPH = "graph";
+    public static final String FORM_CALLLOUT = "callout";
     
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
@@ -137,6 +138,10 @@ public class EntityView extends LinearLayout {
             retVal = b;
         } 
         else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
+            View layout = View.inflate(context, R.layout.entity_item_graph, null);
+            retVal = layout;
+        }
+        else if (FORM_CALLLOUT.equals(form)) {
             View layout = View.inflate(context, R.layout.entity_item_graph, null);
             retVal = layout;
         }
