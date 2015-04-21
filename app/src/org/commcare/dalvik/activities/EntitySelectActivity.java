@@ -233,10 +233,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         mViewMode = session.isViewCommand(session.getCommand());
 
-
-        CalloutData callout = shortSelect.getCallout();
-
         calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
+
+        Callout callout = shortSelect.getCallout();
 
         if(callout == null) {
 
@@ -255,11 +254,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             });
         } else {
 
-                final String actionName = callout.getActionName();
-                final Hashtable<String, String> extras = callout.getExtras();
-                final Vector<String> responses = callout.getResponses();
-                if(callout.getImage() != null) {
-                    setupImageLayout(calloutButton, callout.getImage());
+                CalloutData calloutData = callout.evaluate();
+
+                final String actionName = calloutData.getActionName();
+                final Hashtable<String, String> extras = calloutData.getExtras();
+                final Vector<String> responses = calloutData.getResponses();
+                if(calloutData.getImage() != null) {
+                    setupImageLayout(calloutButton, calloutData.getImage());
                 }
 
                 calloutButton.setOnClickListener(new OnClickListener() {
@@ -267,7 +268,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     public void onClick(View v) {
                         Intent i = new Intent(actionName);
 
+                        System.out.println("416 on click");
+
                         for(String key: extras.keySet()){
+
+                            System.out.println("416 key: " + key + " val: " + extras.get(key));
+
                             i.putExtra(key, extras.get(key));
                         }
                         try {

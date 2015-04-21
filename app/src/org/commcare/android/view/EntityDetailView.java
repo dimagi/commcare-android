@@ -26,7 +26,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
-import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.util.CommCareSession;
@@ -161,9 +161,9 @@ public class EntityDetailView extends FrameLayout {
                 updateCurrentView(PHONE, callout);
             }
         }
-        else if(FORM_CALLOUT.equals(form) && (field instanceof Callout)) {
+        else if(FORM_CALLOUT.equals(form) && (field instanceof CalloutData)) {
 
-            final Callout callout = (Callout) field;
+            final CalloutData callout = (CalloutData) field;
 
             String displayName = callout.getDisplayName();
             String imagePath = callout.getImage();
