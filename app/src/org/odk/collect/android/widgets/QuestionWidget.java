@@ -407,7 +407,6 @@ public abstract class QuestionWidget extends LinearLayout {
         } else {
             mQuestionText.setText(p.getLongText());
             mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
-            mQuestionText.setTypeface(null, Typeface.BOLD);
         }
 
         if(p.getLongText()!= null){
