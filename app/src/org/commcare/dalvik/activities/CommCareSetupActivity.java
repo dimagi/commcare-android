@@ -261,7 +261,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onStart() {
         super.onStart();
-        if(incomingRef != null && incomingRef.length() != 0) startResourceInstall();
+        uiStateScreenTransition();
+        if(incomingRef != null && incomingRef.length() != 0) {
+//            startResourceInstall();
+        }
         //Moved here to properly attach fragments and such.
         //NOTE: May need to do so elsewhere as well
         // TODO: check uiState and call the appropriate fragment
@@ -314,6 +317,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         if(result == null) return;
         incomingRef = result;
+        this.uiState = UiState.ready;
         //Definitely have a URI now.
         try {
             ReferenceManager._().DeriveReference(incomingRef);
