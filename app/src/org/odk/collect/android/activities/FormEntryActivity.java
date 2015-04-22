@@ -2909,7 +2909,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             if (velocityX > 0) {
                 showPreviousView();
             } else {
-                showNextView();
+                int event = mFormController.getEvent(mFormController.getNextFormIndex(mFormController.getFormIndex(), true));
+                if(event != FormEntryController.EVENT_END_OF_FORM) {
+                    showNextView();
+                }
             }
             return true;
         }
