@@ -82,6 +82,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -2909,7 +2910,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 showPreviousView();
             } else {
                 int event = mFormController.getEvent(mFormController.getNextFormIndex(mFormController.getFormIndex(), true));
-                if(event != FormEntryController.EVENT_END_OF_FORM) {
+                boolean navBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
+                if(!navBar || (navBar && event != FormEntryController.EVENT_END_OF_FORM)) {
                     showNextView();
                 }
             }
