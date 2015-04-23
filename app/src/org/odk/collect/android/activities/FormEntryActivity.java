@@ -2034,43 +2034,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
 
     /**
-     * Creates a confirm/cancel dialog for deleting repeats.
-     */
-    private void createDeleteRepeatConfirmDialog() {
-        mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        String name = mFormController.getLastRepeatedGroupName();
-        int repeatcount = mFormController.getLastRepeatedGroupRepeatCount();
-        if (repeatcount != -1) {
-            name += " (" + (repeatcount + 1) + ")";
-        }
-        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.delete_repeat_ask, name));
-                mAlertDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.delete_repeat_confirm, name));
-                        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
-                            /*
-                             * (non-Javadoc)
-                             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                             */
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                switch (i) {
-                                    case DialogInterface.BUTTON1: // yes
-                                        mFormController.deleteRepeat();
-                                        showPreviousView();
-                                        break;
-                                    case DialogInterface.BUTTON2: // no
-                                        break;
-                                }
-                            }
-                        };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.discard_group), quitListener);
-                mAlertDialog.setButton2(StringUtils.getStringSpannableRobust(this, R.string.delete_repeat_no), quitListener);
-                        mAlertDialog.show();
-    }
-
-
-    /**
      * Saves data and writes it to disk. If exit is set, program will exit after save completes.
      * Complete indicates whether the user has marked the isntancs as complete. If updatedSaveName
      * is non-null, the instances content provider is updated with the new name
