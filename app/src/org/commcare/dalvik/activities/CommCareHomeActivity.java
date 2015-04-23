@@ -5,6 +5,38 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.text.format.DateUtils;
+import android.util.Base64;
+import android.util.Log;
+import android.util.Pair;
+import android.view.ContextThemeWrapper;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -1558,8 +1590,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void createPreferencesMenu() {
-        Intent i = new Intent(this, CommCarePreferences.class);
-        CommCareHomeActivity.this.startActivityForResult(i, PREFERENCES_ACTIVITY);
+        createPreferencesMenu(this);
+    }
+
+    public static void createPreferencesMenu(Activity activity) {
+        Intent i = new Intent(activity, CommCarePreferences.class);
+        activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
     
     private void createCallLogActivity() {
