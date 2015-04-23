@@ -456,7 +456,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if(mHeaderString != null) {
                     setTitle(mHeaderString);
                 } else {
-                    setTitle(StringUtils.getStringSpannableRobust(this, R.string.app_name) + " > " + StringUtils.getStringSpannableRobust(this, R.string.loading_form));
+                    setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
                 }
                 
                 
@@ -1201,20 +1201,20 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         menu.removeItem(MENU_PREFERENCES);
 
         if(mIncompleteEnabled) {
-            menu.add(0, MENU_SAVE, 0, StringUtils.getStringSpannableRobust(this, R.string.save_all_answers)).setIcon(
+            menu.add(0, MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers)).setIcon(
                     android.R.drawable.ic_menu_save);
         }
-        menu.add(0, MENU_HIERARCHY_VIEW, 0, StringUtils.getStringSpannableRobust(this, R.string.view_hierarchy)).setIcon(
+        menu.add(0, MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy)).setIcon(
                 R.drawable.ic_menu_goto);
         
-        menu.add(0, MENU_LANGUAGES, 0, StringUtils.getStringSpannableRobust(this, R.string.change_language))
+        menu.add(0, MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
                 .setIcon(R.drawable.ic_menu_start_conversation)
                 .setEnabled(
                         (mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1) ? false
                                 : true);
         
         
-        menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringSpannableRobust(this, R.string.general_preferences)).setIcon(
+        menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.general_preferences)).setIcon(
                 android.R.drawable.ic_menu_preferences);
         return true;
     }
@@ -1384,7 +1384,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //Localization?
             return mHeaderString;
         } else {
-            return StringUtils.getStringSpannableRobust(this, R.string.app_name) + " > " + mFormController.getFormTitle();
+            return StringUtils.getStringRobust(this, R.string.app_name) + " > " + mFormController.getFormTitle();
         }
 
     }
@@ -1964,7 +1964,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         
         if (mFormController.getLastRepeatCount() > 0) {
-            mRepeatDialog.setTitle(StringUtils.getStringSpannableRobust(this, R.string.leaving_repeat_ask));
+            mRepeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.leaving_repeat_ask));
                     mRepeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
                             mFormController.getLastGroupText()));
             newButton.setText(StringUtils.getStringSpannableRobust(this, R.string.add_another));
@@ -1975,7 +1975,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
 
         } else {
-            mRepeatDialog.setTitle(StringUtils.getStringSpannableRobust(this, R.string.entering_repeat_ask));
+            mRepeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.entering_repeat_ask));
                     mRepeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
                             mFormController.getLastGroupText()));
             newButton.setText(StringUtils.getStringSpannableRobust(this, R.string.entering_repeat));
@@ -2008,7 +2008,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mErrorMessage = errorMsg;
         mAlertDialog = new AlertDialog.Builder(this).create();
         mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        mAlertDialog.setTitle(StringUtils.getStringSpannableRobust(this, R.string.error_occured));
+        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.error_occured));
                 mAlertDialog.setMessage(errorMsg);
         DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
             /*
@@ -2031,6 +2031,44 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.ok), errorListener);
                 mAlertDialog.show();
     }
+
+
+    /**
+     * Creates a confirm/cancel dialog for deleting repeats.
+     */
+    private void createDeleteRepeatConfirmDialog() {
+        mAlertDialog = new AlertDialog.Builder(this).create();
+        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
+        String name = mFormController.getLastRepeatedGroupName();
+        int repeatcount = mFormController.getLastRepeatedGroupRepeatCount();
+        if (repeatcount != -1) {
+            name += " (" + (repeatcount + 1) + ")";
+        }
+        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.delete_repeat_ask, name));
+                mAlertDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.delete_repeat_confirm, name));
+                        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
+                            /*
+                             * (non-Javadoc)
+                             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+                             */
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                switch (i) {
+                                    case DialogInterface.BUTTON1: // yes
+                                        mFormController.deleteRepeat();
+                                        showPreviousView();
+                                        break;
+                                    case DialogInterface.BUTTON2: // no
+                                        break;
+                                }
+                            }
+                        };
+        mAlertDialog.setCancelable(false);
+        mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.discard_group), quitListener);
+                mAlertDialog.setButton2(StringUtils.getStringSpannableRobust(this, R.string.delete_repeat_no), quitListener);
+                        mAlertDialog.show();
+    }
+
 
     /**
      * Saves data and writes it to disk. If exit is set, program will exit after save completes.
@@ -2065,7 +2103,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         mAlertDialog =
                                 new AlertDialog.Builder(this)
                                         .setIcon(android.R.drawable.ic_dialog_info)
-                                        .setTitle(StringUtils.getStringSpannableRobust(this, R.string.quit_application, mFormController.getFormTitle()))
+                                        .setTitle(StringUtils.getStringRobust(this, R.string.quit_application, mFormController.getFormTitle()))
                                                 .setNeutralButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_exit),
                         new DialogInterface.OnClickListener() {
                             /*
@@ -2253,7 +2291,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mAlertDialog = new AlertDialog.Builder(this).create();
         mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
 
-        mAlertDialog.setTitle(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_ask));
+        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.clear_answer_ask));
 
         String question = qw.getPrompt().getLongText();
 
@@ -2334,7 +2372,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 refreshCurrentView();
                             }
                         })
-                    .setTitle(StringUtils.getStringSpannableRobust(this, R.string.change_language))
+                    .setTitle(StringUtils.getStringRobust(this, R.string.change_language))
                     .setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_change),
                         new DialogInterface.OnClickListener() {
                             /*
@@ -2375,7 +2413,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         }
                     };
                 mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
-                mProgressDialog.setTitle(StringUtils.getStringSpannableRobust(this, R.string.loading_form));
+                mProgressDialog.setTitle(StringUtils.getStringRobust(this, R.string.loading_form));
                         mProgressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
                                 mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
@@ -2398,7 +2436,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         }
                     };
                 mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
-                mProgressDialog.setTitle(StringUtils.getStringSpannableRobust(this, R.string.saving_form));
+                mProgressDialog.setTitle(StringUtils.getStringRobust(this, R.string.saving_form));
                         mProgressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
                                 mProgressDialog.setIndeterminate(true);
                 mProgressDialog.setCancelable(false);
