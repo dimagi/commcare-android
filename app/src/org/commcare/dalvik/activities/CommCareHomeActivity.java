@@ -1,6 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -1705,8 +1706,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void createPreferencesMenu() {
-        Intent i = new Intent(this, CommCarePreferences.class);
-        CommCareHomeActivity.this.startActivityForResult(i, PREFERENCES_ACTIVITY);
+        createPreferencesMenu(this);
+    }
+
+    public static void createPreferencesMenu(Activity activity) {
+        Intent i = new Intent(activity, CommCarePreferences.class);
+        activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
     
     private void createCallLogActivity() {
