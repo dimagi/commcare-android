@@ -71,37 +71,33 @@ public class MenuAdapter implements ListAdapter {
         EvaluationContext ec = null;
         for(Suite s : platform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
+                String xpathExpression = "";
                 try {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {
-                        if (ec == null) {
-                            ec = asw.getEvaluationContext(m.getId());
-                        }
+                        xpathExpression = m.getMenuRelevanceRaw();
+                        ec = asw.getEvaluationContext(m.getId());
                         if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
                             continue;
                         }
                     }
-                } catch (XPathSyntaxException e) {
-                    e.printStackTrace();
-                }
-                if(m.getId().equals(menuID)) {
-                    
-                    if(menuTitle == null) {
-                        //TODO: Do I need args, here?
-                        try {
-                            menuTitle = m.getName().evaluate();
-                        }catch(Exception e) {
-                            e.printStackTrace();
+                    if(m.getId().equals(menuID)) {
+                        
+                        if(menuTitle == null) {
+                            //TODO: Do I need args, here?
+                            try {
+                                menuTitle = m.getName().evaluate();
+                            }catch(Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                    
-                    for(String command : m.getCommandIds()) {
-                        try {
+                        
+                        for(String command : m.getCommandIds()) {
+                            xpathExpression = "";
                             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
                             if(mRelevantCondition != null) {                            
-                                if (ec == null) {
-                                    ec = asw.getEvaluationContext();
-                                }
+                                xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
+                                ec = asw.getEvaluationContext();
                                 Object ret = mRelevantCondition.eval(ec);
                                 try {
                                     if(!XPathFuncExpr.toBoolean(ret)) {
@@ -126,34 +122,32 @@ public class MenuAdapter implements ListAdapter {
                             }
                             
                             items.add(e);
-                        } catch(XPathSyntaxException xpse) {
-                            String xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                            CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[] {xpathExpression, xpse.getMessage()}));
-                            objectData = new Object[0];
-                            return;
-                        } catch(XPathException xpe) {
-                            String xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                            CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[] {xpathExpression, xpe.getMessage()}));
-                            objectData = new Object[0];
-                            return;
                         }
+                        continue;
                     }
-                    continue;
-                }
-                if(menuID.equals(m.getRoot())){
-                    //make sure we didn't already add this ID
-                    boolean idExists = false;
-                    for(Object o : items) {
-                        if(o instanceof Menu) {
-                            if(((Menu)o).getId().equals(m.getId())){
-                                idExists = true;
-                                break;
+                    if(menuID.equals(m.getRoot())){
+                        //make sure we didn't already add this ID
+                        boolean idExists = false;
+                        for(Object o : items) {
+                            if(o instanceof Menu) {
+                                if(((Menu)o).getId().equals(m.getId())){
+                                    idExists = true;
+                                    break;
+                                }
                             }
                         }
+                        if(!idExists) {
+                            items.add(m);
+                        }
                     }
-                    if(!idExists) {
-                        items.add(m);
-                    }
+                } catch(XPathSyntaxException xpse) {
+                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[] {xpathExpression, xpse.getMessage()}));
+                    objectData = new Object[0];
+                    return;
+                } catch(XPathException xpe) {
+                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[] {xpathExpression, xpe.getMessage()}));
+                    objectData = new Object[0];
+                    return;
                 }
             }
         }
