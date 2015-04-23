@@ -211,6 +211,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         FragmentTransaction ft = fm.beginTransaction();
 
         switch (uiState){
+            case upgrade:
             case ready:
                 if(incomingRef == null || incomingRef.length() == 0){
                     Log.e("Install","IncomingRef is empty!");
@@ -264,12 +265,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onStart() {
         super.onStart();
         uiStateScreenTransition();
-        if(incomingRef != null && incomingRef.length() != 0) {
-//            startResourceInstall();
+        // upgrade app if needed
+        if(uiState == UiState.upgrade && incomingRef != null && incomingRef.length() != 0){
+            startResourceInstall(true);
         }
-        //Moved here to properly attach fragments and such.
-        //NOTE: May need to do so elsewhere as well
-        // TODO: check uiState and call the appropriate fragment
     }
     
     /* (non-Javadoc)
