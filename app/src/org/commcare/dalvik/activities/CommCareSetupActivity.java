@@ -223,7 +223,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
                     @Override
                     public void onStopInstallClicked() {
-                        startResourceInstall(true);
                         incomingRef = null;
                         uiState = UiState.basic;
                         uiStateScreenTransition();
