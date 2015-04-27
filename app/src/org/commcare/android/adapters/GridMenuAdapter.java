@@ -1,14 +1,13 @@
 package org.commcare.android.adapters;
 
-import org.commcare.android.view.GridMediaView;
-import org.commcare.android.view.HorizontalMediaView;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.services.locale.Localizer;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.commcare.android.view.GridMediaView;
+import org.commcare.suite.model.Displayable;
+import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.services.locale.Localizer;
 
 /**
  * Overrides MenuAdapter to provide a different tile (MenuGridEntryView)
@@ -30,10 +29,10 @@ public class GridMenuAdapter extends MenuAdapter {
     @Override
     public View getView(int i, View v, ViewGroup vg) {
 
-        Object mObject = objectData[i];
+        Displayable mDisplayable = displayableData[i];
 
         GridMediaView emv = (GridMediaView)v;
-        String mQuestionText = textViewHelper(mObject);
+        String mQuestionText = textViewHelper(mDisplayable);
         if(emv == null) {
             emv = new GridMediaView(context);
         }
@@ -43,7 +42,7 @@ public class GridMenuAdapter extends MenuAdapter {
         if(mQuestionText != null) {
             mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
         }
-        emv.setAVT(mQuestionText, getImageURI(mObject));
+        emv.setAVT(mQuestionText, mDisplayable.getImageURI());
         return emv;
 
     }

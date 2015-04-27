@@ -16,22 +16,6 @@
 
 package org.commcare.dalvik.activities;
 
-import java.io.IOException;
-
-import org.commcare.android.adapters.GridMenuAdapter;
-import org.commcare.android.adapters.MenuAdapter;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Menu;
-import org.commcare.util.CommCarePlatform;
-import org.commcare.util.SessionFrame;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -40,6 +24,23 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
+
+import org.commcare.android.adapters.GridMenuAdapter;
+import org.commcare.android.adapters.MenuAdapter;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Displayable;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
+import org.commcare.util.CommCarePlatform;
+import org.commcare.util.SessionFrame;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+
+import java.io.IOException;
 
 /**
  * Handles the alternative Grid appearance for Module and Form navigation
@@ -136,8 +137,8 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view,
             int position, long id) {
-        Object value = parent.getAdapter().getItem(position);
-        String audioURI = adapter.getAudioURI(value);
+        Displayable value = (Displayable)parent.getAdapter().getItem(position);
+        String audioURI = value.getAudioURI();
         String audioFilename = "";
         
         MediaPlayer mp = new MediaPlayer();

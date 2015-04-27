@@ -1,10 +1,5 @@
 package org.commcare.android.view;
 
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.DisplayUnit;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.services.locale.Localizer;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +8,12 @@ import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.graph.DisplayData;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.locale.Localizer;
 
 /**
  * This layout for the GenericMenuFormAdapter allows you to load an image, audio, and text
@@ -48,7 +49,8 @@ public class GridMediaView extends RelativeLayout {
 
 
     public void setDisplay(DisplayUnit display) {
-        setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getImageURI());
+        DisplayData mData = display.evaluate();
+        setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), mData.getImageURI());
     }
 
     //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
