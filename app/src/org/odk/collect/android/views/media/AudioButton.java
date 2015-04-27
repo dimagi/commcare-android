@@ -138,7 +138,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         };
     }
     
-    /*
+    /**
      * Constructor for if an AudioController is being used
      */
     public AudioButton(Context context, String URI, Object id, AudioController controller,
@@ -254,11 +254,13 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
     }
     
-    /*
-     * Derives the audio source filename from the URI. Returns the 
-     * filename if successful, and an empty string otherwise
+    /**
+     * Gets the audio source filename from the URI.
+     *
+     * @return Filepath of audio source stored in local URI. Returns an empty
+     * string if no audio source is found.
      */
-    private String preprocessClick() {
+    private String getAudioFilename() {
         if (URI == null) {
             // No audio file specified
             Log.e(t, "No audio file was specified");
@@ -289,9 +291,11 @@ public class AudioButton extends ImageButton implements OnClickListener {
 
     @Override
     public void onClick(View v) {
-        String audioFilename = preprocessClick();
-        if ("".equals(audioFilename)) return;
-        
+        String audioFilename = getAudioFilename();
+        if ("".equals(audioFilename)) {
+            return;
+        }
+
         switch(currentState) {
         case Ready:
             MediaPlayer player = new MediaPlayer();
