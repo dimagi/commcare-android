@@ -326,7 +326,7 @@ public class GridEntityView extends GridLayout {
 	
 	/**
 	 * Get the correct View for this particular activity.
-     * 
+     *
 	 * @param context
 	 * @param multimediaType either "image", "audio", or default text. Describes how this XPath result should be displayed.
 	 * @param horzAlign How the text should be aligned horizontally - left, center, or right ONE OF horzAlign or vertAlign

@@ -34,9 +34,8 @@ public class AudioButton extends ImageButton implements OnClickListener {
         this(context, URI, null, null, visible);
     }
 
-    public AudioButton(Context context, String URI, Object id, AudioController controller,
-            boolean visible) {
-
+    public AudioButton(Context context, String URI, Object id,
+            AudioController controller, boolean visible) {
         super(context);
 
         resetButton(URI, visible);
@@ -55,13 +54,15 @@ public class AudioButton extends ImageButton implements OnClickListener {
         this.URI = URI;
         this.currentState = MediaState.Ready;
         this.setImageResource(R.drawable.ic_media_btn_play);
+
+        this.setOnClickListener(this);
+
         setFocusable(false);
         setFocusableInTouchMode(false);
-        this.setOnClickListener(this);
+
         if (visible) {
             this.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             this.setVisibility(View.INVISIBLE);
         }
     }
@@ -139,15 +140,15 @@ public class AudioButton extends ImageButton implements OnClickListener {
 
     public void refreshAppearance() {
         switch(currentState) {
-        case Ready:
-            this.setImageResource(R.drawable.ic_media_btn_play);
-            break;
-        case Playing:
-            this.setImageResource(R.drawable.ic_media_pause);
-            break;
-        case Paused:
-        case PausedForRenewal:
-            this.setImageResource(R.drawable.ic_media_btn_continue);
+            case Ready:
+                this.setImageResource(R.drawable.ic_media_btn_play);
+                break;
+            case Playing:
+                this.setImageResource(R.drawable.ic_media_pause);
+                break;
+            case Paused:
+            case PausedForRenewal:
+                this.setImageResource(R.drawable.ic_media_btn_continue);
         }
     }
 
@@ -194,37 +195,55 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
 
         switch(currentState) {
-        case Ready:
-            MediaPlayer player = new MediaPlayer();
-            try {
-                player.setDataSource(audioFilename);
-                player.prepare();
-                player.setOnCompletionListener(new OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        endPlaying();
-                    }
+            case Ready:
+                MediaPlayer player = new MediaPlayer();
+                try {
+                    player.setDataSource(audioFilename);
+                    player.prepare();
+                    player.setOnCompletionListener(new OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            endPlaying();
+                        }
 
-                });
-                controller.setCurrent(new MediaEntity(URI, player, residingViewId,
-                            currentState), this);
+                    });
+                    controller.setCurrent(new MediaEntity(URI, player, residingViewId, currentState), this);
+                    startPlaying();
+                } catch (IOException e) {
+                    String errorMsg = getContext().getString(R.string.audio_file_invalid);
+                    Log.e(t, errorMsg);
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+                break;
+            case PausedForRenewal:
+            case Paused:
                 startPlaying();
-            } catch (IOException e) {
-                String errorMsg = getContext().getString(R.string.audio_file_invalid);
-                Log.e(t, errorMsg);
-                Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-            }
-            break;
-        case PausedForRenewal:
-        case Paused:
-            startPlaying();
-            break;
-        case Playing:
-            pausePlaying();
-            break;
+                break;
+            case Playing:
+                pausePlaying();
+                break;
         }
     }
+
+    public void startPlaying() {
+        logAction("start");
+        controller.playCurrentMediaEntity();
+        setStateToPlaying();
+    }
+
+    public void endPlaying() {
+        logAction("stop");
+        controller.releaseCurrentMediaEntity();
+        setStateToReady();
+    }
+
+    public void pausePlaying() {
+        logAction("pause");
+        controller.pauseCurrentMediaEntity();
+        setStateToPaused();
+    }
+
 
     private void logAction(String action) {
         String message = action + " " + shortURI;
@@ -259,26 +278,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
         return returnValue;
     }
 
-    public void startPlaying() {
-        logAction("start");
-        controller.playCurrentMediaEntity();
-        setStateToPlaying();
-    }
-
-    public void endPlaying() {
-        logAction("stop");
-        if (!currentState.equals(MediaState.Playing)) {
-            controller.releaseCurrentMediaEntity();
-            setStateToReady();
-        }
-    }
-
-    public void pausePlaying() {
-        logAction("pause");
-        controller.pauseCurrentMediaEntity();
-        setStateToPaused();
-    }
-
     public AudioController buildAudioControllerInstance() {
         return new AudioController() {
             private MediaPlayer mp;
@@ -304,6 +303,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
                 if (mp != null) {
                     mp.reset();
                     mp.release();
+                    mp = null;
                     alive = false;
                 }
             }
@@ -355,7 +355,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
                 }
                 return mp.getCurrentPosition();
             }
-
         };
     }
 }
