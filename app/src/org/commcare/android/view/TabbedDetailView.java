@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,8 +35,10 @@ public class TabbedDetailView extends RelativeLayout {
     private EntityDetailPagerAdapter mEntityDetailPagerAdapter;
     private ViewPager mViewPager;
     private View mViewPagerWrapper;
-    
+
     private int mAlternateId = -1;
+
+    private boolean useNewTabStyle = true;
     
     public TabbedDetailView(Context context) {
         this(context, -1);
@@ -100,6 +103,10 @@ public class TabbedDetailView extends RelativeLayout {
      * Populate view with content from given Detail.
      */
     public void setDetail(Detail detail) {
+        if(useNewTabStyle){
+            mMenu.setVisibility(VISIBLE);
+            return;
+        }
         Detail[] details = detail.getDetails();
 
         LinearLayout.LayoutParams pagerLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -110,7 +117,7 @@ public class TabbedDetailView extends RelativeLayout {
         if (details.length > 0) {
             mMenu.setWeightSum(details.length);
             LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, 
+                LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1
             );
@@ -124,7 +131,7 @@ public class TabbedDetailView extends RelativeLayout {
                         markSelectedTab(index);
                     }
                 };
-                
+
                 // Create MenuListEntryView for tab
                 HorizontalMediaView view = new HorizontalMediaView(mContext);
                 DisplayUnit title = d.getTitle();
@@ -133,7 +140,7 @@ public class TabbedDetailView extends RelativeLayout {
                 view.setClickable(true);
                 view.setOnClickListener(listener);
                 view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-                mMenu.addView(view, fillLayout);                    
+                mMenu.addView(view, fillLayout);
             }
             markSelectedTab(0);
             menuVisibility = View.VISIBLE;
@@ -161,8 +168,24 @@ public class TabbedDetailView extends RelativeLayout {
                 edv.setOddEvenRowColors(rowColors[0],rowColors[1]);
             }
         });
+        mEntityDetailPagerAdapter.setOnLeftClick(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int prevIndex = Math.max(0, mViewPager.getCurrentItem() - 1);
+                Log.i("DEBUG-i","Previous index is: " + prevIndex);
+                mViewPager.setCurrentItem(prevIndex);
+            }
+        });
+        mEntityDetailPagerAdapter.setOnRightClick(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int nextIndex = Math.min(mEntityDetailPagerAdapter.getCount(), mViewPager.getCurrentItem() + 1);
+                Log.i("DEBUG-i","Next index is: " + nextIndex);
+                mViewPager.setCurrentItem(nextIndex);
+            }
+        });
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
-        markSelectedTab(0);
+        if(!useNewTabStyle) markSelectedTab(0);
     }
 
     /*

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.view.View;
 
 /**
  * Subclass of FragmentStatePagerAdapter for populating a ViewPager (swipe-based paging widget) with entity detail fields.
@@ -21,6 +22,16 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     int detailIndex;
     boolean hasDetailCalloutListener;
     TreeReference mEntityReference;
+    View.OnClickListener onLeftClick;
+    View.OnClickListener onRightClick;
+
+    public void setOnRightClick(View.OnClickListener onRightClick) {
+        this.onRightClick = onRightClick;
+    }
+
+    public void setOnLeftClick(View.OnClickListener onLeftClick) {
+        this.onLeftClick = onLeftClick;
+    }
 
     public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener) {    
         super(fm);
@@ -43,6 +54,8 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int i) {
         EntityDetailFragment fragment = new EntityDetailFragment();
         fragment.setEntityDetailModifier(modifier);
+        fragment.setOnLeftClick(onLeftClick);
+        fragment.setOnRightClick(onRightClick);
         Bundle args = new Bundle();
         args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
         if (detail.isCompound()) {
