@@ -164,7 +164,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
             if(resultCode == Activity.RESULT_OK) {
-                // Android 4.4 and above sometimes don't return absolute
+                // Android versions 4.4 and up sometimes don't return absolute
                 // filepaths from the file chooser. So resolve the URI into a
                 // valid file path.
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
