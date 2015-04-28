@@ -11,6 +11,8 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
@@ -63,6 +65,9 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        final String destination = this.getIntent().getStringExtra(EXTRA_FILE_DESTINATION);
+
         super.onCreate(savedInstanceState);
         btnFetchFiles.setOnClickListener(new OnClickListener() {
 
@@ -74,7 +79,8 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             public void onClick(View v) {
                 //Go fetch us a file path!
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("file/*");
+                // only allow look for zip files
+                intent.setType("application/zip");
                 try {
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
                 } catch(ActivityNotFoundException e) {
@@ -82,12 +88,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                 }
             }
         });
-        
-        
-        
-        final String destination = this.getIntent().getStringExtra(EXTRA_FILE_DESTINATION);
-        
-        
+
         btnInstallMultimedia.setOnClickListener(new OnClickListener() {
             /*
              * (non-Javadoc)
@@ -163,8 +164,14 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
             if(resultCode == Activity.RESULT_OK) {
-                String filePath = intent.getData().getPath();
-                editFileLocation.setText(filePath);
+                // Android versions 4.4 and up sometimes don't return absolute
+                // filepaths from the file chooser. So resolve the URI into a
+                // valid file path.
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                        intent.getData());
+                if (filePath != null) {
+                    editFileLocation.setText(filePath);
+                }
             }
         }
     }
@@ -185,8 +192,9 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             btnInstallMultimedia.setEnabled(false);
             return;
         }
-        
+
         String location = editFileLocation.getText().toString();
+
         if("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.empty"));
             this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
