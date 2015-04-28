@@ -602,7 +602,7 @@ public class PreferencesActivity extends PreferenceActivity implements
     
     public static ProgressBarMode getProgressBarMode(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean navBar = prefs.getBoolean(KEY_NAVIGATION_BAR, false);
+        boolean navBar = prefs.getBoolean(KEY_NAVIGATION_BAR, true);
         boolean progressBar = prefs.getBoolean(KEY_PROGRESS_BAR, true);
         if(!navBar && !progressBar) { return ProgressBarMode.None;}
         else if(!navBar && progressBar) { return ProgressBarMode.ProgressOnly;}
