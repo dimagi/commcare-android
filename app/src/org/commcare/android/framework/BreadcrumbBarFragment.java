@@ -344,7 +344,7 @@ public class BreadcrumbBarFragment extends Fragment {
             
                 if(!breadCrumbsEnabled) {
                     ActionBar actionBar = this.getActivity().getActionBar();
-                    actionBar.setSubtitle(title);
+                    actionBar.setSubtitle(null);
                 } else {
                     //This part can change more dynamically
                     if(localIdPart != -1 ) {
