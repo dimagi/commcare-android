@@ -3,14 +3,18 @@
  */
 package org.commcare.android.adapters;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import android.content.Context;
+import android.database.DataSetObserver;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -21,17 +25,13 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import android.content.Context;
-import android.database.DataSetObserver;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Adapter class to handle both Menu and Entry items
@@ -43,7 +43,7 @@ public class MenuAdapter implements ListAdapter {
     private AndroidSessionWrapper asw;
     private CommCarePlatform mPlatform;
     protected Context context;
-    protected Object[] objectData;
+    protected MenuDisplayable[] displayableData;
     
     private String menuTitle = null;
     
@@ -52,44 +52,40 @@ public class MenuAdapter implements ListAdapter {
         this.mPlatform = platform;
         this.context = context;
         
-        Vector<Object> items = new Vector<Object>();
+        Vector<MenuDisplayable> items = new Vector<MenuDisplayable>();
         
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
         EvaluationContext ec = null;
         for(Suite s : platform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
+                String xpathExpression = "";
                 try {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {
-                        if (ec == null) {
-                            ec = asw.getEvaluationContext(m.getId());
-                        }
+                        xpathExpression = m.getMenuRelevanceRaw();
+                        ec = asw.getEvaluationContext(m.getId());
                         if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
                             continue;
                         }
                     }
-                } catch (XPathSyntaxException e) {
-                    e.printStackTrace();
-                }
-                if(m.getId().equals(menuID)) {
-                    
-                    if(menuTitle == null) {
-                        //TODO: Do I need args, here?
-                        try {
-                            menuTitle = m.getName().evaluate();
-                        }catch(Exception e) {
-                            e.printStackTrace();
+                    if(m.getId().equals(menuID)) {
+                        
+                        if(menuTitle == null) {
+                            //TODO: Do I need args, here?
+                            try {
+                                menuTitle = m.getName().evaluate();
+                            }catch(Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                    
-                    for(String command : m.getCommandIds()) {
-                        try {
+                        
+                        for(String command : m.getCommandIds()) {
+                            xpathExpression = "";
                             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
                             if(mRelevantCondition != null) {                            
-                                if (ec == null) {
-                                    ec = asw.getEvaluationContext();
-                                }
+                                xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
+                                ec = asw.getEvaluationContext();
                                 Object ret = mRelevantCondition.eval(ec);
                                 try {
                                     if(!XPathFuncExpr.toBoolean(ret)) {
@@ -114,46 +110,39 @@ public class MenuAdapter implements ListAdapter {
                             }
                             
                             items.add(e);
-                        } catch(XPathSyntaxException xpse) {
-                            String xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                            CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[] {xpathExpression, xpse.getMessage()}));
-                            objectData = new Object[0];
-                            return;
-                        } catch(XPathException xpe) {
-                            String xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                            CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[] {xpathExpression, xpe.getMessage()}));
-                            objectData = new Object[0];
-                            return;
                         }
+                        continue;
                     }
-                    continue;
-                }
-                if(menuID.equals(m.getRoot())){
-                    //make sure we didn't already add this ID
-                    boolean idExists = false;
-                    for(Object o : items) {
-                        if(o instanceof Menu) {
-                            if(((Menu)o).getId().equals(m.getId())){
-                                idExists = true;
-                                break;
+                    if(menuID.equals(m.getRoot())){
+                        //make sure we didn't already add this ID
+                        boolean idExists = false;
+                        for(Object o : items) {
+                            if(o instanceof Menu) {
+                                if(((Menu)o).getId().equals(m.getId())){
+                                    idExists = true;
+                                    break;
+                                }
                             }
                         }
+                        if(!idExists) {
+                            items.add(m);
+                        }
                     }
-                    if(!idExists) {
-                        items.add(m);
-                    }
+                } catch(XPathSyntaxException xpse) {
+                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[] {xpathExpression, xpse.getMessage()}));
+                    displayableData = new MenuDisplayable[0];
+                    return;
+                } catch(XPathException xpe) {
+                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[] {xpathExpression, xpe.getMessage()}));
+                    displayableData = new MenuDisplayable[0];
+                    return;
                 }
             }
         }
         
-        objectData = new Object[items.size()];
-        items.copyInto(objectData);
+        displayableData = new MenuDisplayable[items.size()];
+        items.copyInto(displayableData);
     }
-    
-    public String getMenuTitle() {
-        return menuTitle;
-    }
-    
     /* (non-Javadoc)
      * @see android.widget.ListAdapter#areAllItemsEnabled()
      */
@@ -172,14 +161,14 @@ public class MenuAdapter implements ListAdapter {
      * @see android.widget.Adapter#getCount()
      */
     public int getCount() {
-        return (objectData.length);
+        return (displayableData.length);
     }
 
     /* (non-Javadoc)
      * @see android.widget.Adapter#getItem(int)
      */
     public Object getItem(int i) {
-        return objectData[i];
+        return displayableData[i];
     }
 
     /* (non-Javadoc)
@@ -187,7 +176,7 @@ public class MenuAdapter implements ListAdapter {
      */
     public long getItemId(int i) {
 
-        Object tempItem = objectData[i];
+        Object tempItem = displayableData[i];
         
         if(tempItem instanceof Menu){
             return ((Menu)tempItem).getId().hashCode();
@@ -210,8 +199,8 @@ public class MenuAdapter implements ListAdapter {
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
     public View getView(int i, View v, ViewGroup vg) {
-        
-        Object mObject = objectData[i];
+
+        MenuDisplayable mObject = displayableData[i];
         
         HorizontalMediaView emv = (HorizontalMediaView)v;
         String mQuestionText = textViewHelper(mObject);
@@ -240,45 +229,18 @@ public class MenuAdapter implements ListAdapter {
         if(mQuestionText != null) {
             mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
         }
-        emv.setAVT(mQuestionText, getAudioURI(mObject), getImageURI(mObject), iconChoice);
+        emv.setAVT(mQuestionText, mObject.getAudioURI(), mObject.getImageURI(), iconChoice);
         return emv;
     }
-    
-    /*
-     * Helpers to make the getView call Entry/Menu agnostic
-     */
-    
-    public String getAudioURI(Object e){
-        if(e instanceof Menu){
-            return ((Menu)e).getAudioURI();
-        }
-        return ((Entry)e).getAudioURI();
-    }
-    
-    public String getImageURI(Object e){
-        if(e instanceof Menu){
-            return ((Menu)e).getImageURI();
-        }
-        return ((Entry)e).getImageURI();
-    }
-    
+
     /*
      * Helper to build the TextView for the HorizontalMediaView constructor
      */
-    public String textViewHelper(Object e){
-        String displayText;
-        if(e instanceof Menu){
-            displayText = ((Menu)e).getName().evaluate();
-        }
-        else{
-            displayText = ((Entry)e).getText().evaluate();
-        }
-        //mQuestionText.setTypeface(null, Typeface.NORMAL);
-        //mQuestionText.setPadding(0, 0, 0, 7);
-        //mQuestionText.setId((int)Math.random()*100000000); // assign random id
-        //mQuestionText.setHorizontallyScrolling(false);
-        return displayText;
+    public String textViewHelper(MenuDisplayable e){
+        return e.getDisplayText();
     }
+
+
 
     /* (non-Javadoc)
      * @see android.widget.Adapter#getViewTypeCount()

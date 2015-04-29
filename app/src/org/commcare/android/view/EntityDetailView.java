@@ -3,29 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.Entity;
-import org.commcare.android.util.DetailCalloutListener;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.MediaUtil;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
-import org.commcare.util.CommCareSession;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -42,6 +19,28 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.Entity;
+import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.MediaUtil;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.CalloutData;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
+import org.commcare.util.CommCareSession;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ViewId;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
+
 /**
  * @author ctsims
  *
@@ -56,6 +55,10 @@ public class EntityDetailView extends FrameLayout {
     private Button addressButton;
     private TextView addressText;
     private ImageView imageView;
+    private View calloutView;
+    private Button calloutButton;
+    private TextView calloutText;
+    private ImageButton calloutImageButton;
     private AspectRatioLayout graphLayout;
     private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
     private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
@@ -76,6 +79,7 @@ public class EntityDetailView extends FrameLayout {
     private static final String FORM_ADDRESS = "address";
     private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
+    private static final String FORM_CALLOUT = "callout";
 
     private static final int TEXT = 0;
     private static final int PHONE = 1;
@@ -84,6 +88,7 @@ public class EntityDetailView extends FrameLayout {
     private static final int VIDEO = 4;
     private static final int AUDIO = 5;
     private static final int GRAPH = 6;
+    private static final int CALLOUT = 7;
     
     int current = TEXT;
     
@@ -116,6 +121,10 @@ public class EntityDetailView extends FrameLayout {
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
+        calloutView = (View)detailRow.findViewById(R.id.callout_view);
+        calloutText = (TextView)detailRow.findViewById(R.id.callout_text);
+        calloutButton = (Button)detailRow.findViewById(R.id.callout_button);
+        calloutImageButton = (ImageButton)detailRow.findViewById(R.id.callout_image_button);
         graphViewsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         graphsWithErrors = new HashSet<Integer>();
         graphIntentsCache = new Hashtable<Integer, Intent>();
@@ -151,7 +160,63 @@ public class EntityDetailView extends FrameLayout {
                 this.removeView(currentView);
                 updateCurrentView(PHONE, callout);
             }
-        } else if(FORM_ADDRESS.equals(form)) {
+        } else if (FORM_CALLOUT.equals(form) && (field instanceof CalloutData)) {
+
+            final CalloutData callout = (CalloutData) field;
+
+            String imagePath = callout.getImage();
+
+            if (imagePath != null) {
+                // use image as button, if available
+                calloutButton.setVisibility(View.GONE);
+                calloutText.setVisibility(View.GONE);
+
+                Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imagePath);
+
+                if (b == null) {
+                    calloutImageButton.setImageDrawable(null);
+                } else {
+                    // Figure out whether our image small or large.
+                    if (b.getWidth() > (getScreenWidth() / 2)) {
+                        veryLong = true;
+                    }
+
+                    calloutImageButton.setPadding(10, 10, 10, 10);
+                    calloutImageButton.setAdjustViewBounds(true);
+                    calloutImageButton.setImageBitmap(b);
+                    calloutImageButton.setId(23422634);
+                }
+
+                calloutImageButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        listener.performCallout(callout, CALLOUT);
+                    }
+                });
+            } else {
+                calloutImageButton.setVisibility(View.GONE);
+                calloutText.setVisibility(View.GONE);
+
+                String displayName = callout.getDisplayName();
+                // use display name if available, otherwise use URI
+                if (displayName != null) {
+                    calloutButton.setText(displayName);
+                } else {
+                    String actionName = callout.getActionName();
+                    calloutButton.setText(actionName);
+                }
+
+                calloutButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        listener.performCallout(callout, CALLOUT);
+                    }
+                });
+            }
+
+            updateCurrentView(CALLOUT, calloutView);
+        }
+        else if(FORM_ADDRESS.equals(form)) {
             final String address = textField;
             addressText.setText(address);
             if(current != ADDRESS) {

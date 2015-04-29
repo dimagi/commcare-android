@@ -51,13 +51,8 @@
 <string name="delete_confirm">Ištrinti %s formą(-as)?</string>
 <string name="delete_file">Ištrinti pažymėtas</string>
 <string name="delete_no">Neištrinti</string>
-<string name="delete_repeat">Pašalinti grupę</string>
-<string name="delete_repeat_ask">Pašalinti šią grupę?</string>
-<string name="delete_repeat_confirm">Pašalinti grupę \"%s\" ir visus jos pogrupius?</string>
-<string name="delete_repeat_no">Atšaukti</string>
 <string name="delete_yes">Ištrinti formas</string>
 <string name="discard_answer">Pašalinti atsakymą</string>
-<string name="discard_group">Pašalinti grupę</string>
 <string name="download">Atsiųsti parinktas</string>
 <string name="download_forms_result">Atsiuntimo rezultatas</string>
 <string name="downloading_data">Jungiamasi prie serverio</string>

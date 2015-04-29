@@ -9,6 +9,8 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -25,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,19 +52,24 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Action;
+import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -84,6 +92,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private static final int CONFIRM_SELECT = 0;
     private static final int BARCODE_FETCH = 1;
     private static final int MAP_SELECT = 2;
+    private static final int CALLOUT = 3;
     
     private static final int MENU_SORT = Menu.FIRST;
     private static final int MENU_MAP = Menu.FIRST + 1;
@@ -93,7 +102,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     TextView searchResultStatus;
     EntityListAdapter adapter;
     LinearLayout header;
-    ImageButton barcodeButton;
+    ImageButton calloutButton;
     
     TextToSpeech tts;
     
@@ -171,7 +180,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
                 
                 TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
-                message.setText(localize("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
+                //use the old method here because some Android versions don't like Spannables for titles
+                message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
             } else {
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
@@ -203,6 +213,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
         searchLabel.setOnClickListener(new OnClickListener(){
             @Override
@@ -221,25 +232,55 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchbox.setHorizontallyScrolling(false);
         searchResultStatus = (TextView) findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
-        
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
         mViewMode = session.isViewCommand(session.getCommand());
 
-        barcodeButton.setOnClickListener(new OnClickListener() {
+        Callout callout = shortSelect.getCallout();
 
-            public void onClick(View v) {
-                Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                try {
-                    startActivityForResult(i, BARCODE_FETCH);
-                } catch(ActivityNotFoundException anfe) {
-                    Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
-                    noReader.show();
+        if (callout == null) {
+            // Default to barcode scanning if no callout defined in the detail
+            calloutButton = (ImageButton)findViewById(R.id.barcodeButton);
+            calloutButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                    try {
+                        startActivityForResult(i, BARCODE_FETCH);
+                    } catch (ActivityNotFoundException anfe) {
+                        Toast noReader = Toast.makeText(EntitySelectActivity.this,
+                                "No barcode reader available! You can install one " +
+                                "from the android market.",
+                                Toast.LENGTH_LONG);
+                        noReader.show();
+                    }
                 }
+            });
+        } else {
+            CalloutData calloutData = callout.evaluate();
+
+            if (calloutData.getImage() != null) {
+                setupImageLayout(calloutButton, calloutData.getImage());
             }
-            
-        });
-        
+
+            final String actionName = calloutData.getActionName();
+            final Hashtable<String, String> extras = calloutData.getExtras();
+
+            calloutButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    Intent i = new Intent(actionName);
+
+                    for(String key: extras.keySet()){
+                        i.putExtra(key, extras.get(key));
+                    }
+                    try {
+                        startActivityForResult(i, CALLOUT);
+                    } catch (ActivityNotFoundException anfe) {
+                        Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
+                        noReader.show();
+                    }
+                }
+            });
+        }
+
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
@@ -259,6 +300,38 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
+    }
+
+    /**
+     * Updates the ImageView layout that is passed in, based on the
+     * new id and source
+     */
+    public void setupImageLayout(View layout, final String imagePath) {
+        ImageView iv = (ImageView)layout;
+        Bitmap b;
+        if (!imagePath.equals("")) {
+            try {
+                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(imagePath).getStream());
+                if (b == null) {
+                    // Input stream could not be used to derive bitmap, so
+                    // showing error-indicating image
+                    iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                } else {
+                    iv.setImageBitmap(b);
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                // Error loading image, default to folder button
+                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+            } catch (InvalidReferenceException ex) {
+                ex.printStackTrace();
+                // No image, default to folder button
+                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+            }
+        } else {
+            // no image passed in, draw a white background
+            iv.setImageDrawable(getResources().getDrawable(R.color.white));
+        }
     }
 
     private void createDataSetObserver() {
@@ -412,7 +485,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      *
      * @param contextRef reference to the selected element for which to display
      * detailed view
-     * @param i intent to attach extra data to. If null, create a fresh
+     * @param detailIntent intent to attach extra data to. If null, create a fresh
      * EntityDetailActivity intent
      * @return The intent argument, or a newly created one, with element
      * selection information attached.
@@ -489,6 +562,22 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 this.searchbox.setText(result);
             }
             break;
+        case CALLOUT:
+            if (resultCode == Activity.RESULT_OK) {
+                String result = intent.getStringExtra("odk_intent_data");
+                if (result != null) {
+                    this.searchbox.setText(result);
+                    break;
+                }
+                Callout callout = shortSelect.getCallout();
+                for (String key : callout.getResponses()) {
+                    result = intent.getStringExtra(key);
+                    if (result != null) {
+                        this.searchbox.setText(result);
+                        break;
+                    }
+                }
+            }
         case CONFIRM_SELECT:
             resuming = true;
             if(resultCode == RESULT_OK && !mViewMode) {
@@ -585,10 +674,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_SORT, MENU_SORT, localize("select.menu.sort")).setIcon(
+        //use the old method here because some Android versions don't like Spannables for titles
+        menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if(mMappingEnabled) {
-            menu.add(0, MENU_MAP, MENU_MAP, localize("select.menu.map")).setIcon(
+            menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
         Action action = shortSelect.getCustomAction();
@@ -642,8 +732,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
     private void createSortMenu() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        
-        builder.setTitle(localize("select.menu.sort"));
+        //use the old method here because some Android versions don't like Spannables for titles
+        builder.setTitle(Localization.get("select.menu.sort"));
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
         
@@ -832,6 +922,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void playVideo(String videoRef) {
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
+
+    public void performCallout(CalloutData callout, int id) {
+        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
+    }
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection, getIntent());
@@ -840,6 +934,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
             Button next = (Button)findViewById(R.id.entity_select_button);
+            //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {

@@ -51,13 +51,8 @@
 <string name="delete_confirm">Apagar %s formulário(s)?</string>
 <string name="delete_file">Apagar Selecionados</string>
 <string name="delete_no">Não Apagar</string>
-<string name="delete_repeat">Remover grupo</string>
-<string name="delete_repeat_ask">Remover este Grupo?</string>
-<string name="delete_repeat_confirm">Remover grupo \"%s\" e todos os seus sub-grupos?</string>
-<string name="delete_repeat_no">Cancelar</string>
 <string name="delete_yes">Apagar Formulários</string>
 <string name="discard_answer">Remove response</string>
-<string name="discard_group">Remover grupo</string>
 <string name="download">Pegar Selecionados</string>
 <string name="download_forms_result">Download Resultado</string>
 <string name="downloading_data">Conectando com o Servidor</string>
