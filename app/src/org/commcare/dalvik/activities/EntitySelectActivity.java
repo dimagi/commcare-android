@@ -53,6 +53,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
@@ -234,7 +235,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         mViewMode = session.isViewCommand(session.getCommand());
 
-
         Callout callout = shortSelect.getCallout();
 
         if (callout == null) {
@@ -255,26 +255,26 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 }
             });
         } else {
-            if (callout.getImage() != null) {
-                setupImageLayout(calloutButton, callout.getImage());
+            CalloutData calloutData = callout.evaluate();
+
+            if (calloutData.getImage() != null) {
+                setupImageLayout(calloutButton, calloutData.getImage());
             }
 
-            final String actionName = callout.getActionName();
-            final Hashtable<String, String> extras = callout.getExtras();
+            final String actionName = calloutData.getActionName();
+            final Hashtable<String, String> extras = calloutData.getExtras();
+
             calloutButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     Intent i = new Intent(actionName);
 
-                    for (String key : extras.keySet()) {
+                    for(String key: extras.keySet()){
                         i.putExtra(key, extras.get(key));
                     }
                     try {
                         startActivityForResult(i, CALLOUT);
                     } catch (ActivityNotFoundException anfe) {
-                        Toast noReader = Toast.makeText(EntitySelectActivity.this,
-                                "No application found for action: " +
-                                actionName,
-                                Toast.LENGTH_LONG);
+                        Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
                         noReader.show();
                     }
                 }
@@ -564,15 +564,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             break;
         case CALLOUT:
             if (resultCode == Activity.RESULT_OK) {
+                String result = intent.getStringExtra("odk_intent_data");
+                if (result != null) {
+                    this.searchbox.setText(result);
+                    break;
+                }
                 Callout callout = shortSelect.getCallout();
                 for (String key : callout.getResponses()) {
-                    String result = intent.getStringExtra(key);
+                    result = intent.getStringExtra(key);
                     if (result != null) {
                         this.searchbox.setText(result);
                         break;
                     }
                 }
-
             }
         case CONFIRM_SELECT:
             resuming = true;
@@ -919,7 +923,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
-    public void performCallout(Callout callout, int id) {
+    public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
     

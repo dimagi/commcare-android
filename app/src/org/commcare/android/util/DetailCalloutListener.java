@@ -3,7 +3,7 @@
  */
 package org.commcare.android.util;
 
-import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.CalloutData;
 
 /**
  * @author ctsims
@@ -16,5 +16,5 @@ public interface DetailCalloutListener {
     
     public void playVideo(String videoRef);
 
-    public void performCallout(Callout callout, int id);
+    public void performCallout(CalloutData callout, int id);
 }

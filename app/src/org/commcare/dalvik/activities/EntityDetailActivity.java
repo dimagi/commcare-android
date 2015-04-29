@@ -24,7 +24,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
@@ -214,7 +214,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
-    public void performCallout(Callout callout, int id){
+    public void performCallout(CalloutData callout, int id){
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 
