@@ -321,11 +321,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
-                // Error loading image
+                // Error loading image, default to folder button
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
             } catch (InvalidReferenceException ex) {
                 ex.printStackTrace();
-                // No image
+                // No image, default to folder button
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
             }
         } else {
