@@ -1,7 +1,6 @@
 package org.odk.collect.android.jr.extensions;
 
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.IDataReference;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
@@ -31,7 +30,7 @@ public class PollSensorExtensionParser implements IElementHandler {
         
         String ref = e.getAttributeValue(null, "ref");
         if (ref != null) {
-            IDataReference dataRef = new XPathReference(ref);
+            XPathReference dataRef = new XPathReference(ref);
             dataRef = XFormParser.getAbsRef(dataRef, TreeReference.rootRef());
             TreeReference treeRef = FormInstance.unpackReference(dataRef);
             p.registerActionTarget(treeRef);

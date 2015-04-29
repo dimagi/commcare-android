@@ -160,17 +160,14 @@ public class EntityDetailView extends FrameLayout {
                 this.removeView(currentView);
                 updateCurrentView(PHONE, callout);
             }
-        }
-        else if(FORM_CALLOUT.equals(form) && (field instanceof CalloutData)) {
+        } else if (FORM_CALLOUT.equals(form) && (field instanceof CalloutData)) {
 
             final CalloutData callout = (CalloutData) field;
 
-            String displayName = callout.getDisplayName();
             String imagePath = callout.getImage();
-            String actionName = callout.getActionName();
 
-            if(imagePath != null) {
-                //only use the image if available
+            if (imagePath != null) {
+                // use image as button, if available
                 calloutButton.setVisibility(View.GONE);
                 calloutText.setVisibility(View.GONE);
 
@@ -179,7 +176,7 @@ public class EntityDetailView extends FrameLayout {
                 if (b == null) {
                     calloutImageButton.setImageDrawable(null);
                 } else {
-                    //Ok, so. We should figure out whether our image is large or small.
+                    // Figure out whether our image small or large.
                     if (b.getWidth() > (getScreenWidth() / 2)) {
                         veryLong = true;
                     }
@@ -199,10 +196,13 @@ public class EntityDetailView extends FrameLayout {
             } else {
                 calloutImageButton.setVisibility(View.GONE);
                 calloutText.setVisibility(View.GONE);
+
+                String displayName = callout.getDisplayName();
                 // use display name if available, otherwise use URI
-                if(displayName != null){
+                if (displayName != null) {
                     calloutButton.setText(displayName);
-                } else{
+                } else {
+                    String actionName = callout.getActionName();
                     calloutButton.setText(actionName);
                 }
 

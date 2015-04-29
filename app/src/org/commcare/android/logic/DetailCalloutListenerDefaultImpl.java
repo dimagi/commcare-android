@@ -28,13 +28,13 @@ public class DetailCalloutListenerDefaultImpl {
     }
 
 
-    public static void addressRequested(Activity act,String address) {
+    public static void addressRequested(Activity act, String address) {
         Intent call;
         call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
         act.startActivity(call);
     }
 
-    public static void playVideo(Activity act,String videoRef) {
+    public static void playVideo(Activity act, String videoRef) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(videoRef), "video/*");
@@ -46,13 +46,15 @@ public class DetailCalloutListenerDefaultImpl {
 
         Hashtable<String, String> extras = callout.getExtras();
 
-        for(String key: extras.keySet()){
+        for (String key : extras.keySet()) {
             i.putExtra(key, extras.get(key));
         }
         try {
             act.startActivityForResult(i, id);
         } catch (ActivityNotFoundException anfe) {
-            Toast noReader = Toast.makeText(act, "No application found for action: " + callout.getActionName(), Toast.LENGTH_LONG);
+            Toast noReader = Toast.makeText(act,
+                    "No application found for action: " + callout.getActionName(),
+                    Toast.LENGTH_LONG);
             noReader.show();
         }
     }

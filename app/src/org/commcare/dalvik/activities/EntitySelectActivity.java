@@ -73,6 +73,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 /**
  * 
@@ -234,62 +235,52 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         mViewMode = session.isViewCommand(session.getCommand());
 
-        calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
-
         Callout callout = shortSelect.getCallout();
 
-        if(callout == null) {
-
+        if (callout == null) {
+            // Default to barcode scanning if no callout defined in the detail
+            calloutButton = (ImageButton)findViewById(R.id.barcodeButton);
             calloutButton.setOnClickListener(new OnClickListener() {
-
                 public void onClick(View v) {
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                     try {
                         startActivityForResult(i, BARCODE_FETCH);
                     } catch (ActivityNotFoundException anfe) {
-                        Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
+                        Toast noReader = Toast.makeText(EntitySelectActivity.this,
+                                "No barcode reader available! You can install one " +
+                                "from the android market.",
+                                Toast.LENGTH_LONG);
                         noReader.show();
                     }
                 }
-
             });
         } else {
+            CalloutData calloutData = callout.evaluate();
 
-                CalloutData calloutData = callout.evaluate();
+            if (calloutData.getImage() != null) {
+                setupImageLayout(calloutButton, calloutData.getImage());
+            }
 
-                final String actionName = calloutData.getActionName();
-                final Hashtable<String, String> extras = calloutData.getExtras();
-                final Vector<String> responses = calloutData.getResponses();
-                if(calloutData.getImage() != null) {
-                    setupImageLayout(calloutButton, calloutData.getImage());
-                }
+            final String actionName = calloutData.getActionName();
+            final Hashtable<String, String> extras = calloutData.getExtras();
 
-                calloutButton.setOnClickListener(new OnClickListener() {
+            calloutButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    Intent i = new Intent(actionName);
 
-                    public void onClick(View v) {
-                        Intent i = new Intent(actionName);
-
-                        System.out.println("416 on click");
-
-                        for(String key: extras.keySet()){
-
-                            System.out.println("416 key: " + key + " val: " + extras.get(key));
-
-                            i.putExtra(key, extras.get(key));
-                        }
-                        try {
-                            startActivityForResult(i, CALLOUT);
-                        } catch (ActivityNotFoundException anfe) {
-                            Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
-                            noReader.show();
-                        }
+                    for(String key: extras.keySet()){
+                        i.putExtra(key, extras.get(key));
                     }
-
-                });
-
-
+                    try {
+                        startActivityForResult(i, CALLOUT);
+                    } catch (ActivityNotFoundException anfe) {
+                        Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
+                        noReader.show();
+                    }
+                }
+            });
         }
-        
+
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
@@ -311,34 +302,34 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //tts = new TextToSpeech(this, this);
     }
 
-    /*
-* Updates the ImageView layout that is passed in, based on the
-* new id and source
-*/
-    public void setupImageLayout(View layout, final String source) {
-        ImageView iv = (ImageView) layout;
+    /**
+     * Updates the ImageView layout that is passed in, based on the
+     * new id and source
+     */
+    public void setupImageLayout(View layout, final String imagePath) {
+        ImageView iv = (ImageView)layout;
         Bitmap b;
-        if (!source.equals("")) {
+        if (!imagePath.equals("")) {
             try {
-                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
+                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(imagePath).getStream());
                 if (b == null) {
-                    //Input stream could not be used to derive bitmap, so showing error-indicating image
+                    // Input stream could not be used to derive bitmap, so
+                    // showing error-indicating image
                     iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-                }
-                else {
+                } else {
                     iv.setImageBitmap(b);
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
-                //Error loading image
+                // Error loading image
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
             } catch (InvalidReferenceException ex) {
                 ex.printStackTrace();
-                //No image
+                // No image
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
             }
-        }
-        else {
+        } else {
+            // no image passed in, draw a white background
             iv.setImageDrawable(getResources().getDrawable(R.color.white));
         }
     }
@@ -572,24 +563,20 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
             break;
         case CALLOUT:
-            if(resultCode == Activity.RESULT_OK) {
-
-                    String result = intent.getStringExtra("odk_intent_data");
-
-                    if(result != null){
+            if (resultCode == Activity.RESULT_OK) {
+                String result = intent.getStringExtra("odk_intent_data");
+                if (result != null) {
+                    this.searchbox.setText(result);
+                    break;
+                }
+                Callout callout = shortSelect.getCallout();
+                for (String key : callout.getResponses()) {
+                    result = intent.getStringExtra(key);
+                    if (result != null) {
                         this.searchbox.setText(result);
                         break;
                     }
-                    //just use first non-null response for now
-                    Callout callout = shortSelect.getCallout();
-                    for (String key: callout.getResponses()){
-                        String result2 = intent.getStringExtra(key);
-                        if(result != null) {
-                            this.searchbox.setText(result2);
-                            break;
-                        }
-                    }
-
+                }
             }
         case CONFIRM_SELECT:
             resuming = true;
