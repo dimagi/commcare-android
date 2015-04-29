@@ -72,6 +72,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 /**
  * 
@@ -236,52 +237,50 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         Callout callout = shortSelect.getCallout();
 
-        if(callout == null) {
-
-            calloutButton = (ImageButton) findViewById(R.id.barcodeButton);
+        if (callout == null) {
+            // Default to barcode scanning if no callout defined in the detail
+            calloutButton = (ImageButton)findViewById(R.id.barcodeButton);
             calloutButton.setOnClickListener(new OnClickListener() {
-
                 public void onClick(View v) {
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                     try {
                         startActivityForResult(i, BARCODE_FETCH);
                     } catch (ActivityNotFoundException anfe) {
-                        Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
+                        Toast noReader = Toast.makeText(EntitySelectActivity.this,
+                                "No barcode reader available! You can install one " +
+                                "from the android market.",
+                                Toast.LENGTH_LONG);
                         noReader.show();
                     }
                 }
-
             });
         } else {
+            if (callout.getImage() != null) {
+                setupImageLayout(calloutButton, callout.getImage());
+            }
 
-                final String actionName = callout.getActionName();
-                final Hashtable<String, String> extras = callout.getExtras();
-                final Vector<String> responses = callout.getResponses();
-                if(callout.getImage() != null) {
-                    setupImageLayout(calloutButton, callout.getImage());
-                }
+            final String actionName = callout.getActionName();
+            final Hashtable<String, String> extras = callout.getExtras();
+            calloutButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    Intent i = new Intent(actionName);
 
-                calloutButton.setOnClickListener(new OnClickListener() {
-
-                    public void onClick(View v) {
-                        Intent i = new Intent(actionName);
-
-                        for(String key: extras.keySet()){
-                            i.putExtra(key, extras.get(key));
-                        }
-                        try {
-                            startActivityForResult(i, CALLOUT);
-                        } catch (ActivityNotFoundException anfe) {
-                            Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
-                            noReader.show();
-                        }
+                    for (String key : extras.keySet()) {
+                        i.putExtra(key, extras.get(key));
                     }
-
-                });
-
-
+                    try {
+                        startActivityForResult(i, CALLOUT);
+                    } catch (ActivityNotFoundException anfe) {
+                        Toast noReader = Toast.makeText(EntitySelectActivity.this,
+                                "No application found for action: " +
+                                actionName,
+                                Toast.LENGTH_LONG);
+                        noReader.show();
+                    }
+                }
+            });
         }
-        
+
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
@@ -303,34 +302,34 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //tts = new TextToSpeech(this, this);
     }
 
-    /*
-* Updates the ImageView layout that is passed in, based on the
-* new id and source
-*/
-    public void setupImageLayout(View layout, final String source) {
-        ImageView iv = (ImageView) layout;
+    /**
+     * Updates the ImageView layout that is passed in, based on the
+     * new id and source
+     */
+    public void setupImageLayout(View layout, final String imagePath) {
+        ImageView iv = (ImageView)layout;
         Bitmap b;
-        if (!source.equals("")) {
+        if (!imagePath.equals("")) {
             try {
-                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
+                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(imagePath).getStream());
                 if (b == null) {
-                    //Input stream could not be used to derive bitmap, so showing error-indicating image
+                    // Input stream could not be used to derive bitmap, so
+                    // showing error-indicating image
                     iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-                }
-                else {
+                } else {
                     iv.setImageBitmap(b);
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
-                //Error loading image
+                // Error loading image
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
             } catch (InvalidReferenceException ex) {
                 ex.printStackTrace();
-                //No image
+                // No image
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
             }
-        }
-        else {
+        } else {
+            // no image passed in, draw a white background
             iv.setImageDrawable(getResources().getDrawable(R.color.white));
         }
     }
@@ -564,15 +563,15 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
             break;
         case CALLOUT:
-            if(resultCode == Activity.RESULT_OK) {
-                    Callout callout = shortSelect.getCallout();
-                    for (String key: callout.getResponses()){
-                        String result = intent.getStringExtra(key);
-                        if(result != null) {
-                            this.searchbox.setText(result);
-                            break;
-                        }
+            if (resultCode == Activity.RESULT_OK) {
+                Callout callout = shortSelect.getCallout();
+                for (String key : callout.getResponses()) {
+                    String result = intent.getStringExtra(key);
+                    if (result != null) {
+                        this.searchbox.setText(result);
+                        break;
                     }
+                }
 
             }
         case CONFIRM_SELECT:
