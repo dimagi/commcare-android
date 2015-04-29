@@ -14,7 +14,7 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.suite.model.Displayable;
+import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -43,7 +43,7 @@ public class MenuAdapter implements ListAdapter {
     private AndroidSessionWrapper asw;
     private CommCarePlatform mPlatform;
     protected Context context;
-    protected Displayable[] displayableData;
+    protected MenuDisplayable[] displayableData;
     
     private String menuTitle = null;
     
@@ -52,7 +52,7 @@ public class MenuAdapter implements ListAdapter {
         this.mPlatform = platform;
         this.context = context;
         
-        Vector<Object> items = new Vector<Object>();
+        Vector<MenuDisplayable> items = new Vector<MenuDisplayable>();
         
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
@@ -130,17 +130,17 @@ public class MenuAdapter implements ListAdapter {
                     }
                 } catch(XPathSyntaxException xpse) {
                     CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[] {xpathExpression, xpse.getMessage()}));
-                    displayableData = new Displayable[0];
+                    displayableData = new MenuDisplayable[0];
                     return;
                 } catch(XPathException xpe) {
                     CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[] {xpathExpression, xpe.getMessage()}));
-                    displayableData = new Displayable[0];
+                    displayableData = new MenuDisplayable[0];
                     return;
                 }
             }
         }
         
-        displayableData = new Displayable[items.size()];
+        displayableData = new MenuDisplayable[items.size()];
         items.copyInto(displayableData);
     }
     /* (non-Javadoc)
@@ -199,8 +199,8 @@ public class MenuAdapter implements ListAdapter {
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
     public View getView(int i, View v, ViewGroup vg) {
-        
-        Displayable mObject = displayableData[i];
+
+        MenuDisplayable mObject = displayableData[i];
         
         HorizontalMediaView emv = (HorizontalMediaView)v;
         String mQuestionText = textViewHelper(mObject);
@@ -236,7 +236,7 @@ public class MenuAdapter implements ListAdapter {
     /*
      * Helper to build the TextView for the HorizontalMediaView constructor
      */
-    public String textViewHelper(Displayable e){
+    public String textViewHelper(MenuDisplayable e){
         return e.getDisplayText();
     }
 

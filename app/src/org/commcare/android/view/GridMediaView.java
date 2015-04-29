@@ -49,7 +49,7 @@ public class GridMediaView extends RelativeLayout {
 
 
     public void setDisplay(DisplayUnit display) {
-        DisplayData mData = display.evaluate();
+        DisplayData mData = display.evaluate(ec);
         setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), mData.getImageURI());
     }
 

@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.commcare.android.view.GridMediaView;
-import org.commcare.suite.model.Displayable;
+import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.locale.Localizer;
 
@@ -29,7 +29,7 @@ public class GridMenuAdapter extends MenuAdapter {
     @Override
     public View getView(int i, View v, ViewGroup vg) {
 
-        Displayable mDisplayable = displayableData[i];
+        MenuDisplayable mDisplayable = displayableData[i];
 
         GridMediaView emv = (GridMediaView)v;
         String mQuestionText = textViewHelper(mDisplayable);
