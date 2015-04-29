@@ -3,14 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.io.File;
-
-import org.commcare.suite.model.DisplayUnit;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localizer;
-import org.odk.collect.android.utilities.FileUtils;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +11,14 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+
+import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
+import org.odk.collect.android.utilities.FileUtils;
+
+import java.io.File;
 
 /**
  * Utilities for converting CommCare UI diplsay details into Android objects 
@@ -31,7 +31,7 @@ public class ViewUtil {
     //This is silly and isn't really what we want here, but it's a start. (We'd like to be able to add
     //a displayunit to a menu in a super easy/straightforward way.
     public static void addDisplayToMenu(Context context, Menu menu, int menuId, DisplayUnit display) {
-        Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI());
+        Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI().evaluate());
         MenuItem item = menu.add(0, menuId, menuId, Localizer.clearArguments(display.getText().evaluate()).trim());
         if(b != null) {
             item.setIcon(new BitmapDrawable(context.getResources(),b));
