@@ -572,13 +572,14 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 }
                 Callout callout = shortSelect.getCallout();
                 for (String key : callout.getResponses()) {
-                    result = intent.getStringExtra(key);
+                    result = intent.getExtras().getString(key);
                     if (result != null) {
                         this.searchbox.setText(result);
                         break;
                     }
                 }
             }
+            break;
         case CONFIRM_SELECT:
             resuming = true;
             if(resultCode == RESULT_OK && !mViewMode) {
