@@ -153,7 +153,7 @@ public class ResizingImageView extends ImageView {
             Toast.makeText(
                     getContext(),
                     getContext().getString(R.string.activity_not_found,
-                            "view image"), Toast.LENGTH_SHORT);
+                            "view image"), Toast.LENGTH_SHORT).show();
         }
     }
 

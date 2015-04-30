@@ -657,7 +657,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             // TODO: how should this be handled? -- PLM
             Toast.makeText(this,
                     "Error while trying to save the form!",
-                    Toast.LENGTH_LONG);
+                    Toast.LENGTH_LONG).show();
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Form Entry couldn't save because of corrupt state.");
             clearSessionAndExit(currentState);
@@ -688,7 +688,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
                 Toast.makeText(this,
                         "Error while trying to read the form! See the notification",
-                        Toast.LENGTH_LONG);
+                        Toast.LENGTH_LONG).show();
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                         "Form Entry did not return a form");
                 clearSessionAndExit(currentState);
