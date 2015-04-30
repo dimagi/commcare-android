@@ -73,7 +73,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 /**
  * 
@@ -237,9 +236,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         Callout callout = shortSelect.getCallout();
 
+        calloutButton = (ImageButton)findViewById(R.id.barcodeButton);
+
         if (callout == null) {
             // Default to barcode scanning if no callout defined in the detail
-            calloutButton = (ImageButton)findViewById(R.id.barcodeButton);
+
             calloutButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
