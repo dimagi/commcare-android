@@ -114,7 +114,8 @@ public class CommCareApplication extends Application {
     private static CommCareApplication app;
 
     private CommCareApp currentApp;
-
+    
+    // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
 
     // Generalize
@@ -125,6 +126,19 @@ public class CommCareApplication extends Application {
     boolean updatePending = false;
 
     private ArchiveFileRoot mArchiveFileRoot;
+
+    // Fields for managing a connection to the CommCareSessionService
+    //
+    // A bound service is created out of the CommCareSessionService to ensure
+    // it stays in memory.
+    private CommCareSessionService mBoundService;
+    private ServiceConnection mConnection;
+    private Object serviceLock = new Object();
+    // Has the CommCareSessionService been bound?
+    boolean mIsBound = false;
+    // Has CommCareSessionService initilization finished?
+    // Important so we don't use the service before the db is initialized.
+    boolean mIsBinding = false;
 
     /*
      * (non-Javadoc)
@@ -214,19 +228,29 @@ public class CommCareApplication extends Application {
         c.startActivity(i);
     }
 
+    /**
+     * Close down the commcare session and login session.
+     */
     public void logout() {
-        synchronized (serviceLock) {
-            if (this.sessionWrapper != null) {
+        synchronized(serviceLock) {
+            if(this.sessionWrapper != null) {
+                // clear out commcare session
                 sessionWrapper.reset();
             }
-
+            
+            // close down the commcare login session
             doUnbindService();
         }
     }
-
+    
+    /**
+     * Start commcare login session.
+     */
     public void logIn(byte[] symetricKey, UserKeyRecord record) {
-        synchronized (serviceLock) {
-            if (this.mIsBound) {
+        synchronized(serviceLock) {
+            // if we already have a connection established to
+            // CommCareSessionService, close it and open a new one
+            if(this.mIsBound) {
                 logout();
             }
             doBindService(symetricKey, record);
@@ -640,16 +664,7 @@ public class CommCareApplication extends Application {
             this.mCurrentServiceBindTimeout = timeout;
         }
     }
-
-    //Start Service code. Will be changed in the future
-    private CommCareSessionService mBoundService;
-
-    private ServiceConnection mConnection;
-
-    private Object serviceLock = new Object();
-    boolean mIsBound = false;
-    boolean mIsBinding = false;
-
+    
     void doBindService(final byte[] key, final UserKeyRecord record) {
         mConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
@@ -666,6 +681,7 @@ public class CommCareApplication extends Application {
                     mBoundService = ((CommCareSessionService.LocalBinder) service).getService();
 
                     //Don't let anyone touch this until it's logged in
+                    // Open user database
                     mBoundService.prepareStorage(key, record);
 
                     if (record != null) {
@@ -895,11 +911,14 @@ public class CommCareApplication extends Application {
         return updatePending;
     }
 
+    /**
+     * Logout of commcare login session and close down connection to the bound
+     * service.
+     */
     void doUnbindService() {
         synchronized (serviceLock) {
             if (mIsBound) {
                 mIsBound = false;
-                mBoundService.logout();
                 // Detach our existing connection.
                 unbindService(mConnection);
             }

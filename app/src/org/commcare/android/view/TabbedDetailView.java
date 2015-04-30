@@ -1,11 +1,5 @@
 package org.commcare.android.view;
 
-import org.commcare.android.adapters.EntityDetailPagerAdapter;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DisplayUnit;
-import org.javarosa.core.model.instance.TreeReference;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
@@ -18,6 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import org.commcare.android.adapters.EntityDetailPagerAdapter;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * Widget that combines a ViewPager with a set of page titles styled to look like tabs.
@@ -125,7 +125,7 @@ public class TabbedDetailView extends RelativeLayout {
                 // Create MenuListEntryView for tab
                 HorizontalMediaView view = new HorizontalMediaView(mContext);
                 DisplayUnit title = d.getTitle();
-                view.setAVT(title.getText().evaluate(), title.getAudioURI(), title.getImageURI());
+                view.setAVT(title.getText().evaluate(), title.getAudioURI().evaluate(), title.getImageURI().evaluate());
                 view.setGravity(Gravity.CENTER);
                 view.setClickable(true);
                 view.setOnClickListener(listener);
