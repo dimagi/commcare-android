@@ -24,6 +24,8 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.listeners.FormSaveCallback;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -52,7 +54,6 @@ public class CommCareSessionService extends Service  {
     private NotificationManager mNM;
     
     private static long MAINTENANCE_PERIOD = 1000;
-
     // session length in MS
     private static long sessionLength = 1000 * 60 * 60 * 24;
     
@@ -75,6 +76,21 @@ public class CommCareSessionService extends Service  {
     // We use it on Notification start, and to cancel it.
     private int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
     private int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
+
+    // Intent filter for when key session expires and the key pool/user db need
+    // to be closed down.
+    public static final String KEY_SESSION_ENDING = "CommCareSessionService_key_session_ending";
+
+    // How long to wait until we force the session to finish logging out
+    private static final long LOGOUT_TIMEOUT = 1000;
+
+    // The logout process start time, used to wrap up logging out if
+    // the saving of incomplete forms takes too long
+    private long logoutStartedAt = -1;
+
+    // Once key expiration process starts, we want to call this function to
+    // save the current form if it exists.
+    private FormSaveCallback formSaver;
     
     
     /**
@@ -230,6 +246,9 @@ public class CommCareSessionService extends Service  {
         }
     }
 
+    /**
+     * (Re-)open user database
+     */
     public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
         synchronized(lock){
             this.key = symetricKey;
@@ -275,55 +294,128 @@ public class CommCareSessionService extends Service  {
     }
     
     private void maintenance() {
-        boolean logout = false;
         long time = new Date().getTime();
-        // If we're either past the session expire time, or the session expires more than its period in the future, 
-        // we need to log the user out
-        if(time > sessionExpireDate.getTime() || (sessionExpireDate.getTime() - time  > sessionLength )) { 
-            logout = true;
+        // If logout process started and has taken longer than the logout
+        // timeout then wrap-up the process. This is especially necessary since
+        // if the FormEntryActivity  isn't active then it will never launch
+        // finishLogout upon receiving the KEY_SESSION_ENDING broadcast 
+        if (logoutStartedAt != -1 &&
+                time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
+            finishLogout();
         }
-        
-        if(logout) {
-            logout();
+
+        // If we haven't started logging out and we're either past the session
+        // expire time, or the session expires more than its period in the
+        // future, we need to log the user out. The second case occurs if the
+        // system's clock is altered.
+        if (isLoggedIn() &&
+                logoutStartedAt == -1 &&
+                (time > sessionExpireDate.getTime() || 
+                 (sessionExpireDate.getTime() - time  > sessionLength))) {
+            logoutStartedAt = new Date().getTime();
+            startLogout();
+
             showLoggedOutNotification();
         }
     }
     
-    public void logout() {
-        synchronized(lock){
-            key = null;
-            
-            String username = null; 
-            
-            if(user != null) {
-                username = user.getUsername();
-                
-                //Let anyone who is listening know!
-                Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
-                this.sendBroadcast(i);
-            }
-            
-            String msg = username != null ? "Logging out user " + username  : "Logging out service login";
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
-            
-            if(userDatabase != null && userDatabase.isOpen()) {
-                userDatabase.close();
-            }
-            userDatabase = null;
-            user = null;
-            //this is null if we aren't actually in the foreground
-            if(maintenanceTimer != null) {
-                maintenanceTimer.cancel();
-            }
-            pool.expire();
-            this.stopForeground(true);
+    /**
+     * Begin closing down the session by notifying any pending form that it
+     * needs to save. Logout is then completed in finishLogout after waiting
+     * for the form save to finish/timeout, after which key pool and user
+     * database are closed down.
+     */
+    public void startLogout() {
+        // Remember when we started so that if form saving takes too long, the
+        // maintenance timer will launch finishLogout
+        logoutStartedAt = new Date().getTime();
+
+        // save form progress, if any
+        if (formSaver != null) {
+            formSaver.formSaveCallback();
+        } else {
+            finishLogout();
         }
     }
+
+    /**
+     * Allow for the form entry engine to register a method that can be used to
+     * save any forms being editted when key expiration begins.
+     *
+     * @param callbackObj object with a method for saving the current form
+     * being edited
+     */
+    public void registerFormSaveCallback(FormSaveCallback callbackObj) {
+        this.formSaver = callbackObj;
+    }
+
+
+    /**
+     * Conclude closing down the session by closing down key pool and user
+     * database. Performs CommCareApplication logout to unbind its connection
+     * to this object. Launches CommCareHomeActivity upon completion.
+     */
+    public void finishLogout() {
+        synchronized(lock){
+            if (!isLoggedIn()) {
+                // Since both the FormSaveCallback callback and the maintenance
+                // timer might call this, only run if it hasn't been called
+                // before.
+                return;
+            }
+            key = null;
+            String msg = "Logging out service login";
+
+            // Let anyone who is listening know!
+            Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
+            this.sendBroadcast(i);
+
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
+
+            if (user != null) {
+                if (user.getUsername() != null) {
+                    msg = "Logging out user " + user.getUsername();
+                }
+                user = null;
+            }
+
+            if (userDatabase != null) {
+                if (userDatabase.isOpen()) {
+                    userDatabase.close();
+                }
+                userDatabase = null;
+            }
+
+            // timer is null if we aren't actually in the foreground
+            if (maintenanceTimer != null) {
+                maintenanceTimer.cancel();
+            }
+            logoutStartedAt = -1;
+
+            CommCareApplication._().logout();
+
+            pool.expire();
+            this.stopForeground(true);
+
+            // Re-direct to the home screen
+            Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
+            // TODO: instead of launching here, which will pop-up the login
+            // screen even if CommCare isn't in the foreground, we should
+            // broadcast an intent, which CommCareActivity can receive if in
+            // focus and dispatch the login activity. Will also need to extend
+            // CommCareActivity's onResume to check if we need to re-login when
+            // we bring CommCare back into the foreground, so that the user
+            // can't just continue doing work while logged out. -- PLM
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(loginIntent);
+        }
+    }
+
     
     public boolean isLoggedIn() {
         synchronized(lock){
-            if(key == null) { return false;}
-            return true;
+            return (key != null);
         }
     }
     
@@ -517,5 +609,4 @@ public class CommCareSessionService extends Service  {
     public void setMultiMediaVerified(boolean toggle){
         multimediaIsVerified = toggle;
     }
-
 }
