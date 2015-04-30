@@ -33,6 +33,8 @@ import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -264,7 +266,8 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         }
 
         // get the file path and create a copy in the instance folder
-        String binaryPath = getPathFromUri((Uri) binaryuri);
+        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                (Uri)binaryuri);
         String extension = binaryPath.substring(binaryPath.lastIndexOf("."));
         String destVideoPath = mInstanceFolder + "/" + System.currentTimeMillis() + extension;
 
