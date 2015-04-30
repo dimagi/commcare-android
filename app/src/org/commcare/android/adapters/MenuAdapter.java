@@ -218,7 +218,7 @@ public class MenuAdapter implements ListAdapter {
      */
     public View getView(int i, View v, ViewGroup vg) {
         
-        Object mObject = objectData[i];
+        MenuDisplayable mObject = displayableData[i];
 
         // inflate view
         View menuListItem = v;
@@ -241,7 +241,7 @@ public class MenuAdapter implements ListAdapter {
         rowText.setText(mQuestionText);
 
         // set up audio
-        final String audioURI = getAudioURI(mObject);
+        final String audioURI = mObject.getAudioURI();
         String audioFilename = "";
         if(audioURI != null && !audioURI.equals("")) {
             try {
@@ -306,7 +306,7 @@ public class MenuAdapter implements ListAdapter {
             }
         }
 
-        String imageURI = getImageURI(mObject);
+        String imageURI = mObject.getImageURI();
 
         Bitmap image = ViewUtil.inflateDisplayImage(context, imageURI);
         if(image != null && mIconView != null) {
