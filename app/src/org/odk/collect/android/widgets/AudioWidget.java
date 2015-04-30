@@ -228,28 +228,6 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-
-    private String getPathFromUri(Uri uri) {
-        if (uri.toString().startsWith("file")) {
-            return uri.toString().substring(6);
-        } else {
-            String[] audioProjection = {
-                Audio.Media.DATA
-            };
-            Cursor c =
-                ((Activity) getContext()).managedQuery(uri, audioProjection, null, null, null);
-            ((Activity) getContext()).startManagingCursor(c);
-            int column_index = c.getColumnIndexOrThrow(Audio.Media.DATA);
-            String audioPath = null;
-            if (c.getCount() > 0) {
-                c.moveToFirst();
-                audioPath = c.getString(column_index);
-            }
-            return audioPath;
-        }
-    }
-
-
     /*
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
