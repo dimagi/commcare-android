@@ -109,7 +109,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
                 } else {
                     i = new Intent(getContext(), GeoPointActivity.class);
                 }
-                ((Activity) getContext()).startActivityForResult(i,
+                ((Activity)getContext()).startActivityForResult(i,
                         FormEntryActivity.LOCATION_CAPTURE);
                 mWaitingForData = true;
             }
@@ -230,7 +230,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -241,19 +241,19 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
      */
     @Override
     public void setBinaryData(Object answer) {
-        String s = (String) answer;
+        String s = (String)answer;
         mStringAnswer.setText(s);
 
         String[] sa = s.split(" ");
         mAnswerDisplay.setText(
                 StringUtils.getStringSpannableRobust(getContext(), R.string.latitude) +
-                ": " + formatGps(Double.parseDouble(sa[0]), "lat") + "\n" +
-                StringUtils.getStringSpannableRobust(getContext(), R.string.longitude) +
-                ": " + formatGps(Double.parseDouble(sa[1]), "lon") + "\n" +
-                StringUtils.getStringSpannableRobust(getContext(), R.string.altitude) +
-                ": " + truncateDouble(sa[2]) + "m\n" +
-                StringUtils.getStringSpannableRobust(getContext(), R.string.accuracy) +
-                ": " + truncateDouble(sa[3]) + "m");
+                        ": " + formatGps(Double.parseDouble(sa[0]), "lat") + "\n" +
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.longitude) +
+                        ": " + formatGps(Double.parseDouble(sa[1]), "lon") + "\n" +
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.altitude) +
+                        ": " + truncateDouble(sa[2]) + "m\n" +
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.accuracy) +
+                        ": " + truncateDouble(sa[3]) + "m");
         mWaitingForData = false;
     }
 
