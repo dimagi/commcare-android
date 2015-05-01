@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,44 +40,36 @@ import org.odk.collect.android.activities.FormEntryActivity;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
-    private Button mGetBarcodeButton;
-    private TextView mStringAnswer;
+    private final Button mGetBarcodeButton;
+    private final TextView mStringAnswer;
     private boolean mWaitingForData;
-
 
     public BarcodeWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
         mWaitingForData = false;
         setOrientation(LinearLayout.VERTICAL);
 
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-        
         // set button formatting
         mGetBarcodeButton = new Button(getContext());
-        mGetBarcodeButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode));
-        mGetBarcodeButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mGetBarcodeButton.setPadding(20, 20, 20, 20);
-        mGetBarcodeButton.setEnabled(!prompt.isReadOnly());
-        mGetBarcodeButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mGetBarcodeButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // launch barcode capture intent on click
         mGetBarcodeButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 Intent i = new Intent("com.google.zxing.client.android.SCAN");
                 mWaitingForData = true;
                 try {
-                    ((Activity) getContext()).startActivityForResult(i,
-                        FormEntryActivity.BARCODE_CAPTURE);
+                    ((Activity)getContext()).startActivityForResult(i,
+                            FormEntryActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(), R.string.barcode_scanner_error), Toast.LENGTH_SHORT)
-                            .show();
+                            StringUtils.getStringSpannableRobust(getContext(),
+                                    R.string.barcode_scanner_error),
+                            Toast.LENGTH_SHORT).show();
                     mWaitingForData = false;
                 }
             }
@@ -91,7 +82,8 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            mGetBarcodeButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.replace_barcode));
+            mGetBarcodeButton.setText(StringUtils.getStringSpannableRobust(getContext(),
+                    R.string.replace_barcode));
             mStringAnswer.setText(s);
         }
         // finish complex layout
