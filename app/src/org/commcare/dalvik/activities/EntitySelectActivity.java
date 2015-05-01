@@ -683,7 +683,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         Action action = shortSelect.getCustomAction();
         if(action != null) {
-            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION, action.getDisplay());
+            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
+                    action.getDisplay().evaluate());
         }
 
         return true;
