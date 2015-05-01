@@ -60,10 +60,9 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
         mWaitingForData = false;
         mUseMaps = false;
         String appearance = prompt.getAppearanceHint();
-        // use maps or not
-        if (appearance != null && appearance.equalsIgnoreCase("maps")) {
+        if ("maps".equalsIgnoreCase(appearance)) {
             try {
-                // do google maps exist on the device
+                // use google maps it exists on the device
                 Class.forName("com.google.android.maps.MapActivity");
                 mUseMaps = true;
             } catch (ClassNotFoundException e) {
