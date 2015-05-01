@@ -106,8 +106,7 @@ public class PieChartBuilder extends Activity {
         public void onClick(View v) {
           SeriesSelection seriesSelection = mChartView.getCurrentSeriesAndPoint();
           if (seriesSelection == null) {
-            Toast.makeText(PieChartBuilder.this, "No chart element selected", Toast.LENGTH_SHORT)
-                .show();
+            Toast.makeText(PieChartBuilder.this, "No chart element selected", Toast.LENGTH_SHORT).show();
           } else {
             for (int i = 0; i < mSeries.getItemCount(); i++) {
               mRenderer.getSeriesRendererAt(i).setHighlighted(i == seriesSelection.getPointIndex());

@@ -247,11 +247,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     try {
                         startActivityForResult(i, BARCODE_FETCH);
                     } catch (ActivityNotFoundException anfe) {
-                        Toast noReader = Toast.makeText(EntitySelectActivity.this,
+                        Toast.makeText(EntitySelectActivity.this,
                                 "No barcode reader available! You can install one " +
                                 "from the android market.",
-                                Toast.LENGTH_LONG);
-                        noReader.show();
+                                Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -275,8 +274,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     try {
                         startActivityForResult(i, CALLOUT);
                     } catch (ActivityNotFoundException anfe) {
-                        Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
-                        noReader.show();
+                        Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG).show();
                     }
                 }
             });
