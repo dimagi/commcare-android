@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -30,10 +29,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -55,42 +54,35 @@ import java.io.File;
 public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "SignatureWidget";
 
-    private Button mSignButton;
+    private final Button mSignButton;
     private String mBinaryName;
-    private String mInstanceFolder;
+    private final String mInstanceFolder;
     private ImageView mImageView;
     private boolean mWaitingForData;
 
-    private TextView mErrorTextView;
+    private final TextView mErrorTextView;
 
     public SignatureWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
-                    FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
+                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
-
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
 
         mErrorTextView = new TextView(context);
         mErrorTextView.setText("Selected file is not a valid image");
 
         // setup Blank Image Button
         mSignButton = new Button(getContext());
-        mSignButton.setText(getContext().getString(R.string.sign_button));
-        mSignButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mSignButton.setPadding(20, 20, 20, 20);
-        mSignButton.setEnabled(!prompt.isReadOnly());
-        mSignButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mSignButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.sign_button),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
+
         // launch capture intent on click
         mSignButton.setOnClickListener(new View.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 launchSignatureActivity();
@@ -103,7 +95,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         addView(mErrorTextView);
 
         // and hide the sign button if read-only
-        if ( prompt.isReadOnly() ) {
+        if (prompt.isReadOnly()) {
             mSignButton.setVisibility(View.GONE);
         }
         mErrorTextView.setVisibility(View.GONE);
@@ -115,8 +107,8 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         if (mBinaryName != null) {
             mImageView = new ImageView(getContext());
             Display display =
-                    ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                    .getDefaultDisplay();
+                    ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                            .getDefaultDisplay();
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
@@ -135,20 +127,14 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
             mImageView.setOnClickListener(new View.OnClickListener() {
-                /*
-                 * (non-Javadoc)
-                 * @see android.view.View.OnClickListener#onClick(android.view.View)
-                 */
                 @Override
                 public void onClick(View v) {
-    
                     launchSignatureActivity();
                 }
             });
 
             addView(mImageView);
         }
-
     }
 
     private void launchSignatureActivity() {
@@ -218,7 +204,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
-            return new StringData(mBinaryName.toString());
+            return new StringData(mBinaryName);
         } else {
             return null;
         }
@@ -227,7 +213,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
 
     /*
      * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
+     j* @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
      */
     @Override
     public void setBinaryData(Object binaryURI) {
@@ -267,11 +253,11 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         return mWaitingForData;
     }
 
-    public void setWaitingForBinaryData() {
+    private void setWaitingForBinaryData() {
         mWaitingForData = true;
     }
     
-    public void cancelWaitingForBinaryData() {
+    private void cancelWaitingForBinaryData() {
         mWaitingForData = false;
     }
 
