@@ -100,7 +100,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                         StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "capture video"),
-                            Toast.LENGTH_SHORT);
+                            Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -134,7 +134,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                         StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "choose video "),
-                            Toast.LENGTH_SHORT);
+                            Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -163,7 +163,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                         StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "video video"),
-                            Toast.LENGTH_SHORT);
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -159,8 +159,7 @@ public class ExternalAppActivity extends Activity {
                  keyId = data.getStringExtra("commcare_sharing_key_id");
                  publicKey = data.getByteArrayExtra("commcare_sharing_key_payload");
             } else {
-                Toast t = Toast.makeText(this, "Key Request Denied!", Toast.LENGTH_LONG);
-                t.show();
+                Toast.makeText(this, "Key Request Denied!", Toast.LENGTH_LONG).show();
             }
         }
     }

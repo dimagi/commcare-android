@@ -52,10 +52,9 @@ public class DetailCalloutListenerDefaultImpl {
         try {
             act.startActivityForResult(i, id);
         } catch (ActivityNotFoundException anfe) {
-            Toast noReader = Toast.makeText(act,
+            Toast.makeText(act,
                     "No application found for action: " + callout.getActionName(),
-                    Toast.LENGTH_LONG);
-            noReader.show();
+                    Toast.LENGTH_LONG).show();
         }
     }
 }

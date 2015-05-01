@@ -28,14 +28,17 @@ import java.io.File;
  */
 public class ViewUtil {
 
-    //This is silly and isn't really what we want here, but it's a start. (We'd like to be able to add
-    //a displayunit to a menu in a super easy/straightforward way.
-    public static void addDisplayToMenu(Context context, Menu menu, int menuId, DisplayData display) {
-        MenuItem item = menu.add(0, menuId, menuId, Localizer.clearArguments(display.getName()).trim());
-        if(display.getImageURI() != null){
+    // This is silly and isn't really what we want here, but it's a start.
+    // (We'd like to be able to add a displayunit to a menu in a super
+    // easy/straightforward way.
+    public static void addDisplayToMenu(Context context, Menu menu,
+                                        int menuId, DisplayData display) {
+        MenuItem item = menu.add(0, menuId, menuId,
+                Localizer.clearArguments(display.getName()).trim());
+        if (display.getImageURI() != null) {
             Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI());
-            if(b != null) {
-                item.setIcon(new BitmapDrawable(context.getResources(),b));
+            if (b != null) {
+                item.setIcon(new BitmapDrawable(context.getResources(), b));
             }
         }
     }
