@@ -213,7 +213,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
 
     /*
      * (non-Javadoc)
-     j* @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
+     * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
      */
     @Override
     public void setBinaryData(Object binaryURI) {
