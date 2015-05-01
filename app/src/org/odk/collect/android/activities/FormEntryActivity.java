@@ -2796,8 +2796,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     finishReturnInstance();
                     break;
                 case SaveToDiskTask.SAVE_ERROR:
-                    Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_LONG)
-                            .show();
+                    Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_LONG).show();
                     break;
                 case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:

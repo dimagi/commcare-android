@@ -33,6 +33,8 @@ import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -98,7 +100,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                         StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "capture video"),
-                            Toast.LENGTH_SHORT);
+                            Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -132,7 +134,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                         StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "choose video "),
-                            Toast.LENGTH_SHORT);
+                            Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -161,7 +163,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                         StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "video video"),
-                            Toast.LENGTH_SHORT);
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -230,28 +232,6 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-
-    private String getPathFromUri(Uri uri) {
-        if (uri.toString().startsWith("file")) {
-            return uri.toString().substring(6);
-        } else {
-            String[] videoProjection = {
-                Video.Media.DATA
-            };
-            Cursor c =
-                ((Activity) getContext()).managedQuery(uri, videoProjection, null, null, null);
-            ((Activity) getContext()).startManagingCursor(c);
-            int column_index = c.getColumnIndexOrThrow(Video.Media.DATA);
-            String videoPath = null;
-            if (c.getCount() > 0) {
-                c.moveToFirst();
-                videoPath = c.getString(column_index);
-            }
-            return videoPath;
-        }
-    }
-
-
     /*
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
@@ -264,7 +244,8 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         }
 
         // get the file path and create a copy in the instance folder
-        String binaryPath = getPathFromUri((Uri) binaryuri);
+        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                (Uri)binaryuri);
         String extension = binaryPath.substring(binaryPath.lastIndexOf("."));
         String destVideoPath = mInstanceFolder + "/" + System.currentTimeMillis() + extension;
 

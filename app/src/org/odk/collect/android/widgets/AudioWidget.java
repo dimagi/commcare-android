@@ -33,6 +33,8 @@ import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -210,26 +212,10 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-    private String getPathFromUri(Uri uri) {
-        if (uri.toString().startsWith("file")) {
-            return uri.toString().substring(6);
-        } else {
-            String[] audioProjection = {
-                    Audio.Media.DATA
-            };
-            Cursor c =
-                    ((Activity)getContext()).managedQuery(uri, audioProjection, null, null, null);
-            ((Activity)getContext()).startManagingCursor(c);
-            int column_index = c.getColumnIndexOrThrow(Audio.Media.DATA);
-            String audioPath = null;
-            if (c.getCount() > 0) {
-                c.moveToFirst();
-                audioPath = c.getString(column_index);
-            }
-            return audioPath;
-        }
-    }
-
+    /*
+     * (non-Javadoc)
+     * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
+     */
     @Override
     public void setBinaryData(Object binaryuri) {
         // when replacing an answer. remove the current media.
@@ -238,7 +224,8 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         }
 
         // get the file path and create a copy in the instance folder
-        String binaryPath = getPathFromUri((Uri)binaryuri);
+        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                (Uri)binaryuri);
         String extension = binaryPath.substring(binaryPath.lastIndexOf("."));
         String destAudioPath = mInstanceFolder + "/" + System.currentTimeMillis() + extension;
 
