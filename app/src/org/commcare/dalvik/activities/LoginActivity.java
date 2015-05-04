@@ -9,6 +9,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
@@ -179,28 +180,28 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     protected void deliverResult( LoginActivity receiver, Integer result) {
                         switch(result) {
                         case DataPullTask.AUTH_FAILED:
-                            receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
+                            receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                             break;
                         case DataPullTask.BAD_DATA:
-                            receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+                            receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
                             break;
                         case DataPullTask.DOWNLOAD_SUCCESS:
                             if(!tryLocalLogin(true)) {
-                                receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_CredentialMismatch, new String[3], NOTIFICATION_MESSAGE_LOGIN));
+                                receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                             } else {
                                 break;
                             }
                         case DataPullTask.UNREACHABLE_HOST:
-                            receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                            receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
                             break;
                         case DataPullTask.CONNECTION_TIMEOUT:
-                            receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_Timeout, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                            receiver.raiseLoginMessage(StockMessages.Remote_Timeout, true);
                             break;
                         case DataPullTask.SERVER_ERROR:
-                            receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_ServerError, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                            receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
                             break;
                         case DataPullTask.UNKNOWN_FAILURE:
-                            receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                            receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                             break;
                         }
 
@@ -236,7 +237,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                      */
                     @Override
                     protected void deliverError( LoginActivity receiver, Exception e) {
-                        receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                        receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                     }
             
         };
@@ -284,11 +285,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         return tryLocalLogin(getUsername(), password.getText().toString(), warnMultipleAccounts);
     }
         
-    private boolean tryLocalLogin(final String username, String password, final boolean warnMultipleAccounts) {
+    private boolean tryLocalLogin(final String username, String password,
+            final boolean warnMultipleAccounts) {
         try{
-            
-            //TODO: We don't actually even use this anymore other than for hte local login count, which
-            //seems super silly.
+            // TODO: We don't actually even use this anymore other than for hte
+            // local login count, which seems super silly.
             UserKeyRecord matchingRecord = null;
             int count = 0;
             for(UserKeyRecord record : storage()) {
@@ -304,27 +305,27 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     MessageDigest md = MessageDigest.getInstance("SHA-1");
                     BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
                     String hashed = number.toString(16);
-                        
-                    while(hashed.length() < check.length()) {
+
+                    while (hashed.length() < check.length()) {
                         hashed = "0" + hashed;
                     }
-                    
-                    if(hash.equals(alg + "$" + salt + "$" + hashed)) {
+                    if (hash.equals(alg + "$" + salt + "$" + hashed)) {
                         matchingRecord = record;
                     }
                 }
             }
-            
+
             final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
-            
+
             ManageKeyRecordTask<LoginActivity> task = new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username, password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener<LoginActivity>() {
 
                 @Override
                 public void keysLoginComplete(LoginActivity r) {
                     if(triggerTooManyUsers) {
-                        //We've successfully pulled down new user data. 
-                        //Should see if the user already has a sandbox and let them know that their old data doesn't transition
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged, new String[3]), true);
+                        // We've successfully pulled down new user data.
+                        // Should see if the user already has a sandbox and let
+                        // them know that their old data doesn't transition
+                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
                         Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
                     }
                     r.done();
@@ -332,45 +333,44 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
                 @Override
                 public void keysReadyForSync(LoginActivity r) {
-                    //TODO: we only wanna do this on the _first_ try. Not subsequent ones (IE: On return from startOta)
+                    // TODO: we only wanna do this on the _first_ try. Not
+                    // subsequent ones (IE: On return from startOta)
                     r.startOta();
                 }
 
                 @Override
                 public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
+
                     switch(outcome) {
                     case AuthFailed:
                         Logger.log(AndroidLogger.TYPE_USER, "auth failed");
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_BadCredentials, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
+                        r.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                         break;
                     case BadResponse:
                         Logger.log(AndroidLogger.TYPE_USER, "bad response");
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_BadRestore, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                        r.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
                         break;
                     case NetworkFailure:
                         Logger.log(AndroidLogger.TYPE_USER, "bad network");
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
+                        r.raiseLoginMessage(StockMessages.Remote_NoNetwork, false);
                         break;
                     case NetworkFailureBadPassword:
                         Logger.log(AndroidLogger.TYPE_USER, "bad network");
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Remote_NoNetwork_BadPass, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                        r.raiseLoginMessage(StockMessages.Remote_NoNetwork_BadPass, true);
                         break;
                     case BadCertificate:
                         Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.BadSSLCertificate, new String[3], NOTIFICATION_MESSAGE_LOGIN), false);
+                        r.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
                         break;
                     case UnkownError:
                         Logger.log(AndroidLogger.TYPE_USER, "unknown");
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Restore_Unknown, new String[3], NOTIFICATION_MESSAGE_LOGIN), true);
+                        r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;
+                    default:
+                        return;
                     }
                 }
-                
             }) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                 */
                 @Override
                 protected void deliverUpdate(LoginActivity receiver, String... update) {
                     receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
@@ -434,25 +434,28 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         }
     }
 
-    private void raiseMessage(NotificationMessage message) {
-        raiseMessage(message, true);
+    private void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
+        NotificationMessage message = NotificationMessageFactory.message(messageTag,
+                NOTIFICATION_MESSAGE_LOGIN);
+        raiseMessage(message, showTop);
     }
-    
+
     private void raiseMessage(NotificationMessage message, boolean showTop) {
         String toastText = message.getTitle();
-        if(showTop) {
+
+        if (showTop) {
             CommCareApplication._().reportNotificationMessage(message);
-            toastText = Localization.get("notification.for.details.wrapper", new String[] {toastText});
+            toastText = Localization.get("notification.for.details.wrapper",
+                    new String[] {toastText});
         }
-        
-        //either way
+
         errorBox.setVisibility(View.VISIBLE);
         errorBox.setText(toastText);
-        
-        Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
+
+        Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
-    
-    
+
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
