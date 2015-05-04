@@ -24,7 +24,6 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.listeners.FormSaveCallback;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -260,7 +259,7 @@ public class CommCareSessionService extends Service  {
         }
     }
     
-    public void logIn(User user) {
+    public void beginSession(User user) {
         synchronized(lock){
             if(user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
@@ -298,22 +297,22 @@ public class CommCareSessionService extends Service  {
         // If logout process started and has taken longer than the logout
         // timeout then wrap-up the process. This is especially necessary since
         // if the FormEntryActivity  isn't active then it will never launch
-        // finishLogout upon receiving the KEY_SESSION_ENDING broadcast 
+        // completeClosingSession upon receiving the KEY_SESSION_ENDING broadcast
         if (logoutStartedAt != -1 &&
                 time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
-            finishLogout();
+            completeClosingSession();
         }
 
         // If we haven't started logging out and we're either past the session
         // expire time, or the session expires more than its period in the
         // future, we need to log the user out. The second case occurs if the
         // system's clock is altered.
-        if (isLoggedIn() &&
+        if (isActive() &&
                 logoutStartedAt == -1 &&
                 (time > sessionExpireDate.getTime() || 
                  (sessionExpireDate.getTime() - time  > sessionLength))) {
             logoutStartedAt = new Date().getTime();
-            startLogout();
+            beginClosingSession();
 
             showLoggedOutNotification();
         }
@@ -321,20 +320,20 @@ public class CommCareSessionService extends Service  {
     
     /**
      * Begin closing down the session by notifying any pending form that it
-     * needs to save. Logout is then completed in finishLogout after waiting
+     * needs to save. Logout is then completed in completeClosingSession after waiting
      * for the form save to finish/timeout, after which key pool and user
      * database are closed down.
      */
-    public void startLogout() {
+    public void beginClosingSession() {
         // Remember when we started so that if form saving takes too long, the
-        // maintenance timer will launch finishLogout
+        // maintenance timer will launch completeClosingSession
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
         if (formSaver != null) {
             formSaver.formSaveCallback();
         } else {
-            finishLogout();
+            completeClosingSession();
         }
     }
 
@@ -355,9 +354,9 @@ public class CommCareSessionService extends Service  {
      * database. Performs CommCareApplication logout to unbind its connection
      * to this object. Launches CommCareHomeActivity upon completion.
      */
-    public void finishLogout() {
+    public void completeClosingSession() {
         synchronized(lock){
-            if (!isLoggedIn()) {
+            if (!isActive()) {
                 // Since both the FormSaveCallback callback and the maintenance
                 // timer might call this, only run if it hasn't been called
                 // before.
@@ -413,7 +412,7 @@ public class CommCareSessionService extends Service  {
     }
 
     
-    public boolean isLoggedIn() {
+    public boolean isActive() {
         synchronized(lock){
             return (key != null);
         }

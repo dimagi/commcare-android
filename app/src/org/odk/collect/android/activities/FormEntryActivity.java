@@ -80,10 +80,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -2776,7 +2773,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
             try {
-                CommCareApplication._().getSession().finishLogout();
+                CommCareApplication._().getSession().completeClosingSession();
             } catch (SessionUnavailableException sue) {
                 // form saving took too long, so we logged out already.
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,

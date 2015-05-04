@@ -256,7 +256,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         
         try {
             //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
-        if(CommCareApplication._().getSession().isLoggedIn() && CommCareApplication._().getSession().getLoggedInUser() != null) {
+        if(CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
             Intent i = new Intent();
             i.putExtra(ALREADY_LOGGED_IN, true);
             setResult(RESULT_OK, i);
