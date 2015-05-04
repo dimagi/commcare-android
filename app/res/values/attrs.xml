@@ -7,5 +7,6 @@
         <attr name="backgroundcolor" format="reference|color" />
         <attr name="subtitle" format="string" />
         <attr name="img" format="reference" />
+        <attr name="colorText" format="reference|color" />
     </declare-styleable>
 </resources>
