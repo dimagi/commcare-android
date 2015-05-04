@@ -297,10 +297,10 @@ public class CommCareSessionService extends Service  {
         // If logout process started and has taken longer than the logout
         // timeout then wrap-up the process. This is especially necessary since
         // if the FormEntryActivity  isn't active then it will never launch
-        // completeClosingSession upon receiving the KEY_SESSION_ENDING broadcast
+        // closeSession upon receiving the KEY_SESSION_ENDING broadcast
         if (logoutStartedAt != -1 &&
                 time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
-            completeClosingSession();
+            closeSession();
         }
 
         // If we haven't started logging out and we're either past the session
@@ -312,28 +312,26 @@ public class CommCareSessionService extends Service  {
                 (time > sessionExpireDate.getTime() || 
                  (sessionExpireDate.getTime() - time  > sessionLength))) {
             logoutStartedAt = new Date().getTime();
-            beginClosingSession();
+            saveFormAndCloseSession();
 
             showLoggedOutNotification();
         }
     }
-    
+
     /**
-     * Begin closing down the session by notifying any pending form that it
-     * needs to save. Logout is then completed in completeClosingSession after waiting
-     * for the form save to finish/timeout, after which key pool and user
-     * database are closed down.
+     * Notify any open form that it needs to save, then close the key session
+     * after waiting for the form save to complete/timeout.
      */
-    public void beginClosingSession() {
+    public void saveFormAndCloseSession() {
         // Remember when we started so that if form saving takes too long, the
-        // maintenance timer will launch completeClosingSession
+        // maintenance timer will launch closeSession
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
         if (formSaver != null) {
             formSaver.formSaveCallback();
         } else {
-            completeClosingSession();
+            closeSession();
         }
     }
 
@@ -350,11 +348,11 @@ public class CommCareSessionService extends Service  {
 
 
     /**
-     * Conclude closing down the session by closing down key pool and user
-     * database. Performs CommCareApplication logout to unbind its connection
-     * to this object. Launches CommCareHomeActivity upon completion.
+     * Closes the key pool and user database. Performs CommCareApplication
+     * logout to unbind its connection to this object. Launches
+     * CommCareHomeActivity upon completion.
      */
-    public void completeClosingSession() {
+    public void closeSession() {
         synchronized(lock){
             if (!isActive()) {
                 // Since both the FormSaveCallback callback and the maintenance

@@ -2773,7 +2773,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
             try {
-                CommCareApplication._().getSession().completeClosingSession();
+                CommCareApplication._().getSession().closeSession();
             } catch (SessionUnavailableException sue) {
                 // form saving took too long, so we logged out already.
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
