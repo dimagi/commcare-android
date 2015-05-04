@@ -157,19 +157,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     }
 
     private void startOta() {
-        
-        //We should go digest auth this user on the server and see whether to pull them
-        //down.
+        // We should go digest auth this user on the server and see whether to
+        // pull them down.
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        
+
         // TODO Auto-generated method stub
-        //TODO: we don't actually always want to do this. We need to have an alternate route where we log in locally and sync 
-        //(with unsent form submissions) more centrally.
-        
-        DataPullTask<LoginActivity> dataPuller = new DataPullTask<LoginActivity>(getUsername(), 
-                 password.getText().toString(),
-                 prefs.getString("ota-restore-url",LoginActivity.this.getString(R.string.ota_restore_url)),
-                 prefs.getString("key_server",LoginActivity.this.getString(R.string.key_server)),
+        // TODO: we don't actually always want to do this. We need to have an
+        // alternate route where we log in locally and sync (with unsent form
+        // submissions) more centrally.
+
+        DataPullTask<LoginActivity> dataPuller = 
+            new DataPullTask<LoginActivity>(getUsername(), password.getText().toString(),
+                 prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
+                 prefs.getString("key_server", LoginActivity.this.getString(R.string.key_server)),
                  LoginActivity.this) {
 
                     /*
@@ -204,7 +204,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                             receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                             break;
                         }
-
                     }
 
                     /*
@@ -212,7 +211,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
                      */
                     @Override
-                    protected void deliverUpdate( LoginActivity receiver, Integer... update) {
+                    protected void deliverUpdate(LoginActivity receiver, Integer... update) {
                         if(update[0] == DataPullTask.PROGRESS_STARTED) {
                             receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_CLEANED) {
@@ -239,9 +238,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     protected void deliverError( LoginActivity receiver, Exception e) {
                         receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                     }
-            
         };
-        
+
         dataPuller.connect(this);
         dataPuller.execute();
     }
@@ -317,7 +315,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
             final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
 
-            ManageKeyRecordTask<LoginActivity> task = new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username, password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener<LoginActivity>() {
+            ManageKeyRecordTask<LoginActivity> task =
+                new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE,
+                        username, password,
+                        CommCareApplication._().getCurrentApp(),
+                        new ManageKeyRecordListener<LoginActivity>() {
 
                 @Override
                 public void keysLoginComplete(LoginActivity r) {
@@ -340,7 +342,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
                 @Override
                 public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
-
                     switch(outcome) {
                     case AuthFailed:
                         Logger.log(AndroidLogger.TYPE_USER, "auth failed");
@@ -376,10 +377,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
                 }
             };
-            
+
             task.connect(this);
             task.execute();
-            
+
             return true;
         }catch (Exception e) {
             e.printStackTrace();

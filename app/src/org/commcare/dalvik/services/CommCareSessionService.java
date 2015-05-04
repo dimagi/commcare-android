@@ -303,10 +303,10 @@ public class CommCareSessionService extends Service  {
             closeSession();
         }
 
-        // If we haven't started logging out and we're either past the session
-        // expire time, or the session expires more than its period in the
-        // future, we need to log the user out. The second case occurs if the
-        // system's clock is altered.
+        // If we haven't started closing the session and we're either past the
+        // session expire time, or the session expires more than its period in
+        // the future, we need to log the user out. The second case occurs if
+        // the system's clock is altered.
         if (isActive() &&
                 logoutStartedAt == -1 &&
                 (time > sessionExpireDate.getTime() || 
