@@ -121,9 +121,6 @@ public class CaseDataContentProvider extends ContentProvider {
     //this is the complex case. Querying the full case database for metadata.
     private Cursor queryCaseList(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
-        System.out.println("428 query case list");
-
-
         //Not cached yet. Long term this should be a priority.
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
         
