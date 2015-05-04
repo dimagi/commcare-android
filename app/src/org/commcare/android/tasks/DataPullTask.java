@@ -134,7 +134,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         super.onCancelled();
         if(wasKeyLoggedIn) {
             try {
-                CommCareApplication._().getSession().closeSession();
+                CommCareApplication._().getSession().closeSession(false);
             } catch (SessionUnavailableException e) {
                 // if the session isn't available, we don't need to logout
             }
@@ -250,7 +250,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     //If we logged in, we need to drop those credentials
                     if(loginNeeded) {
                         try {
-                            CommCareApplication._().getSession().closeSession();
+                            CommCareApplication._().getSession().closeSession(false);
                         } catch (SessionUnavailableException e) {
                             // if the session isn't available, we don't need to logout
                         }
@@ -329,7 +329,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         //wipe our login if one happened
                         if(loginNeeded) {
                             try {
-                                CommCareApplication._().getSession().closeSession();
+                                CommCareApplication._().getSession().closeSession(false);
                             } catch (SessionUnavailableException e) {
                                 // if the session isn't available, we don't need to logout
                             }
@@ -343,7 +343,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         //wipe our login if one happened
                         if(loginNeeded) {
                             try {
-                                CommCareApplication._().getSession().closeSession();
+                                CommCareApplication._().getSession().closeSession(false);
                             } catch (SessionUnavailableException e) {
                                 // if the session isn't available, we don't need to logout
                             }
@@ -354,7 +354,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     
                     if(loginNeeded) {
                         try {
-                            CommCareApplication._().getSession().closeSession();
+                            CommCareApplication._().getSession().closeSession(false);
                         } catch (SessionUnavailableException e) {
                             // if the session isn't available, we don't need to logout
                         }
@@ -362,7 +362,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 } else if(responseCode == 500) {
                     if(loginNeeded) {
                         try {
-                            CommCareApplication._().getSession().closeSession();
+                            CommCareApplication._().getSession().closeSession(false);
                         } catch (SessionUnavailableException e) {
                             // if the session isn't available, we don't need to logout
                         }
@@ -396,7 +396,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             }
             if(loginNeeded) {
                 try {
-                    CommCareApplication._().getSession().closeSession();
+                    CommCareApplication._().getSession().closeSession(false);
                 } catch (SessionUnavailableException e) {
                     // if the session isn't available, we don't need to logout
                 }

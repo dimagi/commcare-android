@@ -300,7 +300,7 @@ public class CommCareSessionService extends Service  {
         // closeSession upon receiving the KEY_SESSION_ENDING broadcast
         if (logoutStartedAt != -1 &&
                 time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
-            closeSession();
+            closeSession(true);
         }
 
         // If we haven't started closing the session and we're either past the
@@ -331,7 +331,7 @@ public class CommCareSessionService extends Service  {
         if (formSaver != null) {
             formSaver.formSaveCallback();
         } else {
-            closeSession();
+            closeSession(true);
         }
     }
 
@@ -349,10 +349,12 @@ public class CommCareSessionService extends Service  {
 
     /**
      * Closes the key pool and user database. Performs CommCareApplication
-     * logout to unbind its connection to this object. Launches
-     * CommCareHomeActivity upon completion.
+     * logout to unbind its connection to this object.
+     *
+     * @param sessionExpired should the user be redirected to the login screen
+     *                       upon closing this session?
      */
-    public void closeSession() {
+    public void closeSession(boolean sessionExpired) {
         synchronized(lock){
             if (!isActive()) {
                 // Since both the FormSaveCallback callback and the maintenance
@@ -394,18 +396,21 @@ public class CommCareSessionService extends Service  {
             pool.expire();
             this.stopForeground(true);
 
-            // Re-direct to the home screen
-            Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
-            // TODO: instead of launching here, which will pop-up the login
-            // screen even if CommCare isn't in the foreground, we should
-            // broadcast an intent, which CommCareActivity can receive if in
-            // focus and dispatch the login activity. Will also need to extend
-            // CommCareActivity's onResume to check if we need to re-login when
-            // we bring CommCare back into the foreground, so that the user
-            // can't just continue doing work while logged out. -- PLM
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(loginIntent);
+            if (sessionExpired) {
+                // Re-direct to the home screen
+                Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
+                // TODO: instead of launching here, which will pop-up the login
+                // screen even if CommCare isn't in the foreground, we should
+                // broadcast an intent, which CommCareActivity can receive if
+                // in focus and dispatch the login activity. Will also need to
+                // extend CommCareActivity's onResume to check if we need to
+                // re-login when we bring CommCare back into the foreground, so
+                // that the user can't just continue doing work while logged
+                // out. -- PLM
+                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(loginIntent);
+            }
         }
     }
 
