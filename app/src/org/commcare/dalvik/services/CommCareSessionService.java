@@ -259,7 +259,7 @@ public class CommCareSessionService extends Service  {
         }
     }
     
-    public void beginSession(User user) {
+    public void startSession(User user) {
         synchronized(lock){
             if(user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());

@@ -2757,7 +2757,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * If form entry is being saved because key session is expiring then
      * continue closing the session/logging out.
      *
-     * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int)
+     * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int, boolean)
      */
     @Override
     public void savingComplete(int saveStatus, boolean headless) {
