@@ -258,7 +258,13 @@ public class CommCareSessionService extends Service  {
             userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
-    
+
+    /**
+     * Register a user with a session and start the session expiration timer.
+     * Assumes user database and key pool have already been setup .
+     *
+     * @param user attach this user to the session
+     */
     public void startSession(User user) {
         synchronized(lock){
             if(user != null) {
@@ -414,13 +420,16 @@ public class CommCareSessionService extends Service  {
         }
     }
 
-    
+    /**
+     * Is the session active? Active sessions have an open key pool and user
+     * database.
+     */
     public boolean isActive() {
         synchronized(lock){
             return (key != null);
         }
     }
-    
+
     public Cipher getEncrypter() throws SessionUnavailableException {
         synchronized(lock){
             if(key == null) {
