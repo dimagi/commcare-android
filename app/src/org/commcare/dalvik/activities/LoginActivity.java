@@ -59,10 +59,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
     
-//    @UiElement(value=R.id.text_username, locale="login.username")
-//    TextView userLabel;
-//    @UiElement(value=R.id.text_password, locale="login.password")
-//    TextView passLabel;
     @UiElement(R.id.screen_login_bad_password)
     TextView errorBox;
     

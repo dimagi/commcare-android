@@ -37,9 +37,9 @@
             android:layout_width="fill_parent"
             android:layout_height="0px"
             android:layout_weight=".2"
-            android:paddingTop="8dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:paddingTop="@dimen/content_start"
+            android:paddingLeft="@dimen/content_start"
+            android:paddingRight="@dimen/content_start"
             android:id="@+id/screen_login_banner_pane">
 
             <ImageView
@@ -107,7 +107,7 @@
                     android:nextFocusUp="@+id/edit_username"
                     android:drawableLeft="@drawable/icon_lock_neutral50"
                     android:background="@drawable/login_edit_text"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="@dimen/content_start"
                     style="@style/LoginEditTextV2"
                     android:hint="Password"
                     android:textSize="@dimen/text_medium"
