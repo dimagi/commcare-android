@@ -11,6 +11,8 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -82,8 +84,6 @@ public class CaseDataContentProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
-        System.out.println("428 query");
-
         //first, determine whether we're logged in and whether we have a valid data set to even be iterating over.
         try {
             CommCareApplication._().getUserDbHandle();
@@ -108,7 +108,6 @@ public class CaseDataContentProvider extends ContentProvider {
         case CaseDataAPI.AttachmentColumns.MATCH_ATTACHMENTS:
             return queryCaseAttachments(uri.getLastPathSegment(), projection, selection, selectionArgs, sortOrder);
         case CaseDataAPI.IndexColumns.MATCH_INDEX:
-            System.out.println("428 unimplemented");
             //Unimplemented
             return null;
         }
@@ -215,15 +214,13 @@ public class CaseDataContentProvider extends ContentProvider {
 
     private Cursor queryCaseAttachments(String caseId, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
-        System.out.println("428 Querying case attachments for: " + caseId);
-
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
 
         //Default projection.
         MatrixCursor retCursor = new MatrixCursor(new String[] {CaseDataAPI.DataColumns._ID,
                 CaseDataAPI.DataColumns.CASE_ID,
-                "attachment"});
+                "attachment", "jr-source","file-source"});
 
         Case c;
         try {
@@ -236,10 +233,20 @@ public class CaseDataContentProvider extends ContentProvider {
 
         Vector<String> attachments = c.getAttachments();
 
-        System.out.println("428 Querying case attachments for: " + caseId + " size: " + attachments.size());
-
         for(String attachment: attachments) {
-            retCursor.addRow(new Object[] {i, caseId, attachment});
+
+            String jrSource = c.getAttachmentSource(attachment);
+
+            String fileSource;
+
+            try {
+                fileSource = ReferenceManager._().DeriveReference(jrSource).getLocalURI();
+            } catch (InvalidReferenceException e) {
+                e.printStackTrace();
+                fileSource = "invalid";
+            }
+
+            retCursor.addRow(new Object[] {i, caseId, attachment, jrSource, fileSource});
             ++i;
         }
 
@@ -253,9 +260,6 @@ public class CaseDataContentProvider extends ContentProvider {
      * @return
      */
     private Cursor queryCaseData(String caseId, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-
-        System.out.println("428 query case data");
-
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
         
