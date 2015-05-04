@@ -1,9 +1,10 @@
 package org.commcare.dalvik.provider;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.net.Uri;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
@@ -11,11 +12,10 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 
-import android.content.ContentProvider;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.net.Uri;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * The case data content provider defines the interface for external applications
@@ -81,6 +81,9 @@ public class CaseDataContentProvider extends ContentProvider {
      */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+
+        System.out.println("428 query");
+
         //first, determine whether we're logged in and whether we have a valid data set to even be iterating over.
         try {
             CommCareApplication._().getUserDbHandle();
@@ -93,6 +96,8 @@ public class CaseDataContentProvider extends ContentProvider {
         
         //Standard dispatcher following Android best practices
         int match = CaseDataAPI.UriMatch(uri);
+
+        System.out.println("428 match is: " + match);
         
         switch(match) {
         case CaseDataAPI.MetadataColumns.MATCH_CASES:
@@ -100,8 +105,10 @@ public class CaseDataContentProvider extends ContentProvider {
             return queryCaseList(uri, projection, selection, selectionArgs, sortOrder);
         case CaseDataAPI.DataColumns.MATCH_DATA:
             return queryCaseData(uri.getLastPathSegment(), projection, selection, selectionArgs, sortOrder);
-        case CaseDataAPI.IndexColumns.MATCH_INDEX:
         case CaseDataAPI.AttachmentColumns.MATCH_ATTACHMENTS:
+            return queryCaseAttachments(uri.getLastPathSegment(), projection, selection, selectionArgs, sortOrder);
+        case CaseDataAPI.IndexColumns.MATCH_INDEX:
+            System.out.println("428 unimplemented");
             //Unimplemented
             return null;
         }
@@ -114,6 +121,9 @@ public class CaseDataContentProvider extends ContentProvider {
 
     //this is the complex case. Querying the full case database for metadata.
     private Cursor queryCaseList(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+
+        System.out.println("428 query case list");
+
 
         //Not cached yet. Long term this should be a priority.
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
@@ -202,6 +212,40 @@ public class CaseDataContentProvider extends ContentProvider {
         }
         return retCursor;
     }
+
+    private Cursor queryCaseAttachments(String caseId, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+
+        System.out.println("428 Querying case attachments for: " + caseId);
+
+        //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
+        SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+
+        //Default projection.
+        MatrixCursor retCursor = new MatrixCursor(new String[] {CaseDataAPI.DataColumns._ID,
+                CaseDataAPI.DataColumns.CASE_ID,
+                "attachment"});
+
+        Case c;
+        try {
+            c = storage.getRecordForValue(ACase.INDEX_CASE_ID, caseId);
+        } catch(NoSuchElementException nsee) {
+            //No cases with a matching index.
+            return retCursor;
+        }
+        int i = 0;
+
+        Vector<String> attachments = c.getAttachments();
+
+        System.out.println("428 Querying case attachments for: " + caseId + " size: " + attachments.size());
+
+        for(String attachment: attachments) {
+            retCursor.addRow(new Object[] {i, caseId, attachment});
+            ++i;
+        }
+
+        return retCursor;
+
+    }
     
     /**
      * Query the casedb for the key/value pairs for a specific case.
@@ -209,6 +253,9 @@ public class CaseDataContentProvider extends ContentProvider {
      * @return
      */
     private Cursor queryCaseData(String caseId, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+
+        System.out.println("428 query case data");
+
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
         
