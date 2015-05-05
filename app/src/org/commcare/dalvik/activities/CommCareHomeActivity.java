@@ -662,9 +662,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        if (FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
-                FormRecord.STATUS_SAVED.equals(current.getStatus()) ||
-                FormRecord.STATUS_UNSENT.equals(current.getStatus())) {
+        if (intent.getBooleanExtra(FormEntryActivity.IS_ARCHIVED_FORM, false) ||
+                FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
+                FormRecord.STATUS_SAVED.equals(current.getStatus())) {
             // Viewing an old form, so don't change the historical record
             // regardless of the exit code
             currentState.reset();
