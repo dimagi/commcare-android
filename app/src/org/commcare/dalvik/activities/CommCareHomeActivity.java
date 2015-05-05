@@ -352,7 +352,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            syncButton = (Button)findViewById(R.id.home_sync);
         }
-        if(syncButton != null) syncButton.setText(Localization.get("home.sync"));
+        if(syncButton != null) setSyncText(CommCareApplication._().getSyncDisplayParameters(), null);
         View.OnClickListener syncButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 if (!isOnline()) {
@@ -1506,17 +1506,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else if (syncDetails.second[0] > 1) {
             message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
         }
-        if(syncDetails.second[0] > 0) {
-            Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
-            if(isUsingNewUI() && syncButton != null) {
-                syncButton.setNotificationText(syncIndicator);
-                adapter.notifyDataSetChanged();
-            } else {
-                if(syncButton != null) syncButton.setText(syncIndicator);
-            }
-        } else {
-            if(syncButton != null) syncButton.setText(Localization.get(syncKey));
-        }
+        setSyncText(syncDetails, syncKey);
 
         setIncompleteFormsText(syncDetails);
 
@@ -1588,6 +1578,24 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
 
             }
+        }
+    }
+
+    private void setSyncText(Pair<Long, int[]> syncDetails, String syncKey) {
+        String key = syncKey;
+        if(key == null){
+            key = isDemoUser() ? "home.sync.demo" : "home.sync";
+        }
+        if(syncDetails.second[0] > 0) {
+            Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(key)}));
+            if(isUsingNewUI() && syncButton != null) {
+                syncButton.setNotificationText(syncIndicator);
+                adapter.notifyDataSetChanged();
+            } else {
+                if(syncButton != null) syncButton.setText(syncIndicator);
+            }
+        } else {
+            if(syncButton != null) syncButton.setText(this.localize(key));
         }
     }
 
