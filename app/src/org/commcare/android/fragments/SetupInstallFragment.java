@@ -10,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * Created by dancluna on 3/17/15.
@@ -30,6 +32,8 @@ public class SetupInstallFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.setup_install, container, false);
+        TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
+        setupMsg.setText(Localization.get("install.barcode"));
         scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
         enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {

@@ -9,10 +9,12 @@ import android.support.v4.app.Fragment;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * Created by dancluna on 3/17/15.
@@ -41,8 +43,11 @@ public class SetupEnterURLFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.setup_enter_url, container, false);
         installButton = (Button) view.findViewById(R.id.start_install);
+        installButton.setText(Localization.get("install.button.start"));
         prefixURLSpinner = (Spinner) view.findViewById(R.id.url_spinner);
         profileLocation = (EditText) view.findViewById(R.id.edit_profile_location);
+        TextView appProfile = (TextView) view.findViewById(R.id.TextView02);
+        appProfile.setText(Localization.get("install.appprofile"));
 
         installButton.setOnClickListener(new View.OnClickListener() {
             @Override
