@@ -19,11 +19,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:adjustViewBounds="true"
-            android:layout_marginRight="8dp"
-            android:paddingBottom="8dp"
-            android:paddingLeft="8dp"
-            android:paddingTop="8dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginRight="@dimen/content_start"
+            android:paddingBottom="@dimen/content_start"
+            android:paddingLeft="@dimen/content_start"
+            android:paddingTop="@dimen/content_start"
+            android:layout_marginBottom="@dimen/content_min_margin"
             android:scaleType="fitCenter"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/commcare_logo" />
@@ -33,82 +33,54 @@
             android:orientation="vertical"
             android:gravity="center_horizontal"
             >
-                <TextView
-    android:id="@+id/str_setup_message"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:layout_marginBottom="16dp"
-    android:gravity="center"
-    android:text="Welcome to CommCare!\n Please choose an installation method below."
-    android:textSize="@dimen/text_small"
-    android:layout_below="@id/screen_first_start_banner"
-    />
+            <TextView
+                android:id="@+id/str_setup_message"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_min_margin"
+                android:layout_marginRight="@dimen/content_min_margin"
+                android:layout_marginBottom="@dimen/content_min_margin"
+                android:gravity="center"
+                android:text="Welcome to CommCare!\n Please choose an installation method below."
+                android:textSize="@dimen/text_small"
+                android:layout_below="@id/screen_first_start_banner"
+                />
 
-    <LinearLayout
-    android:id="@+id/screen_first_start_bottom"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/str_setup_message"
-    android:paddingBottom="16dp"
-    android:orientation="horizontal" >
+            <LinearLayout
+                android:id="@+id/screen_first_start_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/str_setup_message"
+                android:paddingBottom="@dimen/content_min_margin"
+                android:orientation="horizontal" >
 
-    <org.commcare.android.view.SquareButtonWithText
-    android:id="@+id/btn_fetch_uri"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="8dp"
-    android:layout_weight="1"
-    SquareButtonWithText:subtitle="Scan application barcode"
-    SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
-    SquareButtonWithText:img="@drawable/startup_barcode"
-    SquareButtonWithText:colorText="@color/white"
-    />
+                <org.commcare.android.view.SquareButtonWithText
+                    android:id="@+id/btn_fetch_uri"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_min_margin"
+                    android:layout_marginRight="@dimen/content_start"
+                    android:layout_weight="1"
+                    SquareButtonWithText:subtitle="Scan application barcode"
+                    SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
+                    SquareButtonWithText:img="@drawable/startup_barcode"
+                    SquareButtonWithText:colorText="@color/white"
+                    />
 
-    <org.commcare.android.view.SquareButtonWithText
-    android:id="@+id/enter_app_location"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="16dp"
-    android:layout_weight="1"
-    android:gravity="right"
-    SquareButtonWithText:subtitle="Enter URL"
-    SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
-    SquareButtonWithText:img="@drawable/startup_url"
-    SquareButtonWithText:colorText="@color/white"
-    />
-    </LinearLayout>
-            <!--<TextView-->
-                <!--android:id="@+id/str_setup_message"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="10px"-->
-                <!--android:layout_marginRight="10px"-->
-                <!--android:gravity="center"-->
-                <!--android:text="Welcome to CommCare! The application needs to load external resources. Make sure that you have an internet connection to begin."-->
-                <!--android:textSize="@dimen/text_small" />-->
-
+                <org.commcare.android.view.SquareButtonWithText
+                    android:id="@+id/enter_app_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_start"
+                    android:layout_marginRight="@dimen/content_min_margin"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    SquareButtonWithText:subtitle="Enter URL"
+                    SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
+                    SquareButtonWithText:img="@drawable/startup_url"
+                    SquareButtonWithText:colorText="@color/white"
+                    />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-    <!--<Button-->
-        <!--android:id="@+id/btn_fetch_uri"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="10dp"-->
-        <!--android:drawableRight="@drawable/barcode"-->
-        <!--android:text="Scan Application Barcode"-->
-        <!--android:layout_above="@+id/enter_app_location"-->
-        <!--/>-->
-    <!--<Button-->
-        <!--android:id="@+id/enter_app_location"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Enter App Location"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--/>-->
-
-
 </RelativeLayout>
