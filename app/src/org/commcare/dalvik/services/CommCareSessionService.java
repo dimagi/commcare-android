@@ -52,7 +52,7 @@ public class CommCareSessionService extends Service  {
 
     private NotificationManager mNM;
     
-    private static long MAINTENANCE_PERIOD = 1000;
+    private static final long MAINTENANCE_PERIOD = 1000;
     // session length in MS
     private static long sessionLength = 1000 * 60 * 60 * 24;
     
@@ -65,7 +65,7 @@ public class CommCareSessionService extends Service  {
     
     private Date sessionExpireDate;
     
-    private Object lock = new Object();
+    private final Object lock = new Object();
     
     private User user;
     
@@ -73,12 +73,8 @@ public class CommCareSessionService extends Service  {
     
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
-    private int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
-    private int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
-
-    // Intent filter for when key session expires and the key pool/user db need
-    // to be closed down.
-    public static final String KEY_SESSION_ENDING = "CommCareSessionService_key_session_ending";
+    private final int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
+    private final int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
 
     // How long to wait until we force the session to finish logging out
     private static final long LOGOUT_TIMEOUT = 1000;
@@ -328,16 +324,18 @@ public class CommCareSessionService extends Service  {
      * Notify any open form that it needs to save, then close the key session
      * after waiting for the form save to complete/timeout.
      */
-    public void saveFormAndCloseSession() {
+    private void saveFormAndCloseSession() {
         // Remember when we started so that if form saving takes too long, the
         // maintenance timer will launch closeSession
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
-        if (formSaver != null) {
-            formSaver.formSaveCallback();
-        } else {
-            closeSession(true);
+        synchronized(lock) {
+            if (formSaver != null) {
+                formSaver.formSaveCallback();
+            } else {
+                closeSession(true);
+            }
         }
     }
 
@@ -357,7 +355,9 @@ public class CommCareSessionService extends Service  {
      * a form open that might need to be saved if the session expires.
      */
     public void unregisterFormSaveCallback() {
-        this.formSaver = null;
+        synchronized(lock) {
+            this.formSaver = null;
+        }
     }
 
 
@@ -617,7 +617,7 @@ public class CommCareSessionService extends Service  {
      * Read the login session duration from app preferences and set the session
      * length accordingly.
      */
-    public void setSessionLength(){
+    private void setSessionLength(){
         sessionLength = CommCarePreferences.getLoginDuration() * 1000;
     }
 
