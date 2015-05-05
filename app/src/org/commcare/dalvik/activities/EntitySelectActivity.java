@@ -563,21 +563,17 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             break;
         case CALLOUT:
             if (resultCode == Activity.RESULT_OK) {
-                boolean resultSet = false;
                 String result = intent.getStringExtra("odk_intent_data");
                 if (result != null) {
                     this.searchbox.setText(result);
-                    resultSet = true;
+                    break;
                 }
                 Callout callout = shortSelect.getCallout();
                 for (String key : callout.getResponses()) {
                     result = intent.getExtras().getString(key);
                     if (result != null) {
-                        session.setDatum(key,result);
-                        if(!resultSet) {
-                            resultSet = true;
-                            this.searchbox.setText(result);
-                        }
+                        this.searchbox.setText(result);
+                        break;
                     }
                 }
             }
