@@ -215,7 +215,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         logoutButton.setText(this.localize("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication._().getSession().saveFormAndCloseSession();
+                CommCareApplication._().getSession().closeSession(false);
                 returnToLogin(null);
             }
         });
@@ -450,7 +450,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
                         try {
-                            CommCareApplication._().getSession().saveFormAndCloseSession();
+                            CommCareApplication._().getSession().closeSession(false);
                         } catch (SessionUnavailableException e) {
                             // if the session isn't available, we don't need to logout
                         }

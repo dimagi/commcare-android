@@ -2912,6 +2912,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 }
             }
         }
+
+        CommCareApplication._().getSession().unregisterFormSaveCallback();
         this.dismissDialogs();
         finish();
     }
