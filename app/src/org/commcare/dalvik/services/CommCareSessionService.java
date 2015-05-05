@@ -24,7 +24,6 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.listeners.FormSaveCallback;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -259,8 +258,14 @@ public class CommCareSessionService extends Service  {
             userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
-    
-    public void logIn(User user) {
+
+    /**
+     * Register a user with a session and start the session expiration timer.
+     * Assumes user database and key pool have already been setup .
+     *
+     * @param user attach this user to the session
+     */
+    public void startSession(User user) {
         synchronized(lock){
             if(user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
@@ -298,43 +303,41 @@ public class CommCareSessionService extends Service  {
         // If logout process started and has taken longer than the logout
         // timeout then wrap-up the process. This is especially necessary since
         // if the FormEntryActivity  isn't active then it will never launch
-        // finishLogout upon receiving the KEY_SESSION_ENDING broadcast 
+        // closeSession upon receiving the KEY_SESSION_ENDING broadcast
         if (logoutStartedAt != -1 &&
                 time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
-            finishLogout();
+            closeSession(true);
         }
 
-        // If we haven't started logging out and we're either past the session
-        // expire time, or the session expires more than its period in the
-        // future, we need to log the user out. The second case occurs if the
-        // system's clock is altered.
-        if (isLoggedIn() &&
+        // If we haven't started closing the session and we're either past the
+        // session expire time, or the session expires more than its period in
+        // the future, we need to log the user out. The second case occurs if
+        // the system's clock is altered.
+        if (isActive() &&
                 logoutStartedAt == -1 &&
                 (time > sessionExpireDate.getTime() || 
                  (sessionExpireDate.getTime() - time  > sessionLength))) {
             logoutStartedAt = new Date().getTime();
-            startLogout();
+            saveFormAndCloseSession();
 
             showLoggedOutNotification();
         }
     }
-    
+
     /**
-     * Begin closing down the session by notifying any pending form that it
-     * needs to save. Logout is then completed in finishLogout after waiting
-     * for the form save to finish/timeout, after which key pool and user
-     * database are closed down.
+     * Notify any open form that it needs to save, then close the key session
+     * after waiting for the form save to complete/timeout.
      */
-    public void startLogout() {
+    public void saveFormAndCloseSession() {
         // Remember when we started so that if form saving takes too long, the
-        // maintenance timer will launch finishLogout
+        // maintenance timer will launch closeSession
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
         if (formSaver != null) {
             formSaver.formSaveCallback();
         } else {
-            finishLogout();
+            closeSession(true);
         }
     }
 
@@ -351,13 +354,15 @@ public class CommCareSessionService extends Service  {
 
 
     /**
-     * Conclude closing down the session by closing down key pool and user
-     * database. Performs CommCareApplication logout to unbind its connection
-     * to this object. Launches CommCareHomeActivity upon completion.
+     * Closes the key pool and user database. Performs CommCareApplication
+     * logout to unbind its connection to this object.
+     *
+     * @param sessionExpired should the user be redirected to the login screen
+     *                       upon closing this session?
      */
-    public void finishLogout() {
+    public void closeSession(boolean sessionExpired) {
         synchronized(lock){
-            if (!isLoggedIn()) {
+            if (!isActive()) {
                 // Since both the FormSaveCallback callback and the maintenance
                 // timer might call this, only run if it hasn't been called
                 // before.
@@ -397,28 +402,34 @@ public class CommCareSessionService extends Service  {
             pool.expire();
             this.stopForeground(true);
 
-            // Re-direct to the home screen
-            Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
-            // TODO: instead of launching here, which will pop-up the login
-            // screen even if CommCare isn't in the foreground, we should
-            // broadcast an intent, which CommCareActivity can receive if in
-            // focus and dispatch the login activity. Will also need to extend
-            // CommCareActivity's onResume to check if we need to re-login when
-            // we bring CommCare back into the foreground, so that the user
-            // can't just continue doing work while logged out. -- PLM
-            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(loginIntent);
+            if (sessionExpired) {
+                // Re-direct to the home screen
+                Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
+                // TODO: instead of launching here, which will pop-up the login
+                // screen even if CommCare isn't in the foreground, we should
+                // broadcast an intent, which CommCareActivity can receive if
+                // in focus and dispatch the login activity. Will also need to
+                // extend CommCareActivity's onResume to check if we need to
+                // re-login when we bring CommCare back into the foreground, so
+                // that the user can't just continue doing work while logged
+                // out. -- PLM
+                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(loginIntent);
+            }
         }
     }
 
-    
-    public boolean isLoggedIn() {
+    /**
+     * Is the session active? Active sessions have an open key pool and user
+     * database.
+     */
+    public boolean isActive() {
         synchronized(lock){
             return (key != null);
         }
     }
-    
+
     public Cipher getEncrypter() throws SessionUnavailableException {
         synchronized(lock){
             if(key == null) {

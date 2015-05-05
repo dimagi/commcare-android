@@ -15,12 +15,10 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DumpTask;
-import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
@@ -28,7 +26,6 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
@@ -218,7 +215,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         logoutButton.setText(this.localize("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication._().getSession().startLogout();
+                CommCareApplication._().getSession().saveFormAndCloseSession();
                 returnToLogin(null);
             }
         });
@@ -453,7 +450,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
                         try {
-                            CommCareApplication._().getSession().startLogout();
+                            CommCareApplication._().getSession().saveFormAndCloseSession();
                         } catch (SessionUnavailableException e) {
                             // if the session isn't available, we don't need to logout
                         }
@@ -1153,7 +1150,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 Intent i = new Intent(this, CommCareVerificationActivity.class);
                 this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
                 
-            } else if(!CommCareApplication._().getSession().isLoggedIn()) {
+            } else if(!CommCareApplication._().getSession().isActive()) {
                 //We got brought back to this point despite 
                 returnToLogin();
             } else if(this.getIntent().hasExtra(SESSION_REQUEST)) {
