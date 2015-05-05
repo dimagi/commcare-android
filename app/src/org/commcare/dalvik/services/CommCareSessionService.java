@@ -352,6 +352,14 @@ public class CommCareSessionService extends Service  {
         this.formSaver = callbackObj;
     }
 
+    /**
+     * Unregister the form save callback; should occur when there is no longer
+     * a form open that might need to be saved if the session expires.
+     */
+    public void unregisterFormSaveCallback() {
+        this.formSaver = null;
+    }
+
 
     /**
      * Closes the key pool and user database. Performs CommCareApplication
