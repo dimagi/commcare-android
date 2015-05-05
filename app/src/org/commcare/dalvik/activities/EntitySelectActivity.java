@@ -572,7 +572,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 Callout callout = shortSelect.getCallout();
                 for (String key : callout.getResponses()) {
                     result = intent.getExtras().getString(key);
-                    if (!resultSet) {
+                    if (result != null && !resultSet) {
                         resultSet = true;
                         this.searchbox.setText(result);
                         break;
