@@ -281,7 +281,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            viewIncomplete = (Button)findViewById(R.id.home_forms_incomplete);
         }
-        if(viewIncomplete != null) viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+        if(viewIncomplete != null) {
+            setIncompleteFormsText(CommCareApplication._().getSyncDisplayParameters());
+        }
         View.OnClickListener viewIncompleteListener = new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(true);
@@ -1515,19 +1517,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
             if(syncButton != null) syncButton.setText(Localization.get(syncKey));
         }
-        
-        if(syncDetails.second[1] > 0) {
-            String incompleteIndicator = (Localization.get("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
-            if(isUsingNewUI()) {
-//                viewIncomplete.setNotificationText(incompleteIndicator);
-                if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
-            } else {
-                if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
-            }
-        } else {
-            if(viewIncomplete != null) viewIncomplete.setText(Localization.get("home.forms.incomplete"));
-        }
-        
+
+        setIncompleteFormsText(syncDetails);
+
         if(syncDetails.second[0] > unsentFormNumberLimit){
             syncOK = false;
         }
@@ -1596,6 +1588,21 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
 
             }
+        }
+    }
+
+    private void setIncompleteFormsText(Pair<Long, int[]> syncDetails) {
+        if(syncDetails.second[1] > 0) {
+            Log.i("syncDetails", "SyncDetails has count " + syncDetails.second[1]);
+            Spannable incompleteIndicator = (this.localize("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
+            if(isUsingNewUI()) {
+                if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
+            } else {
+                if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
+            }
+        } else {
+            Log.i("syncDetails","SyncDetails has no count");
+            if(viewIncomplete != null) viewIncomplete.setText(this.localize("home.forms.incomplete"));
         }
     }
 
