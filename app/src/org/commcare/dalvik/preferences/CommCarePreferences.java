@@ -239,9 +239,9 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
         // default to 24 hours
         try {
-            return Integer.parseInt(properties.getString(LOGIN_DURATION, "28800"));
+            return Integer.parseInt(properties.getString(LOGIN_DURATION, "86400"));
         } catch (NumberFormatException e) {
-            return 28000;
+            return 86400;
         }
     }
 
