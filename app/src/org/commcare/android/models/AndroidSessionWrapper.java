@@ -160,6 +160,10 @@ public class AndroidSessionWrapper {
     public FormRecord commitRecordTransaction() throws InvalidStateException {
         FormRecord current = getFormRecord();
 
+        if (current == null) {
+            throw new InvalidStateException("No form record found when trying to save form.");
+        }
+
         String recordStatus = null;
         if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
             recordStatus = FormRecord.STATUS_COMPLETE;
