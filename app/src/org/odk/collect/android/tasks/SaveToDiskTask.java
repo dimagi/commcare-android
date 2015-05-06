@@ -28,7 +28,6 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -39,8 +38,9 @@ import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.logic.FormController;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
+import org.odk.collect.android.provider.InstanceProviderAPI;
+import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.utilities.EncryptionUtils;
 import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformation;
 
@@ -347,7 +347,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     /**
      * This method actually writes the xml to disk.
      * @param payload
-     * @param output
+     * @param path
      * @return
      */
     private boolean exportXmlFile(ByteArrayPayload payload, OutputStream output) {
