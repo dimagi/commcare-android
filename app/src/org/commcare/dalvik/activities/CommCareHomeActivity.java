@@ -636,8 +636,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * Triggers form submission cycle, cleans up some session state.
      *
      * @param resultCode exit code of form entry activity
-     * @param intent The intent of the returning activity, with the
-     * saved form provided as the intent URI data
+     * @param intent     The intent of the returning activity, with the
+     *                   saved form provided as the intent URI data. Null if
+     *                   the form didn't exit cleanly
      * @return Flag signifying that caller should fetch the next activity in
      * the session to launch. If false then caller should exit or spawn home
      * activity.
@@ -662,7 +663,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        if (intent.getBooleanExtra(FormEntryActivity.IS_ARCHIVED_FORM, false) ||
+        if ((intent != null && intent.getBooleanExtra(FormEntryActivity.IS_ARCHIVED_FORM, false)) ||
                 FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
                 FormRecord.STATUS_SAVED.equals(current.getStatus())) {
             // Viewing an old form, so don't change the historical record
