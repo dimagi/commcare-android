@@ -1020,28 +1020,34 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         //is to invalidate the view, though.
         Rect bounds = progressBar.getProgressDrawable().getBounds(); //Save the drawable bound
 
+        Log.i("Questions","Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
+
+        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
+
+        progressBar.setMax(details.totalQuestions);
+
         if(details.relevantAfterCurrentScreen == 0 && (details.requiredOnScreen == details.answeredOnScreen || details.requiredOnScreen < 1)) {
         	nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
-        	
+
         	//TODO: _really_? This doesn't seem right
             nextButton.setTag("done");
-        	
+
         	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar_full));
+
+            Log.i("Questions","Form complete");
+            // if we get here, it means we don't have any more relevant questions after this one, so we mark it as complete
+            progressBar.setProgress(details.totalQuestions); // completely fills the progressbar
         } else {
         	nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
-        	
+
         	//TODO: _really_? This doesn't seem right
             nextButton.setTag("next");
-        	
+
         	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar_modern));
+
+            progressBar.setProgress(details.completedQuestions);
         }
-        
-        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
-        
-        progressBar.setMax(details.totalQuestions);
-        progressBar.setProgress(details.completedQuestions);
-        
-        
+
         //We should probably be doing this based on the widgets, maybe, not the model? Hard to call.
         updateBadgeInfo(details.requiredOnScreen, details.answeredOnScreen);
     }
