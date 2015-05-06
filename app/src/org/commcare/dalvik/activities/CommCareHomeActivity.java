@@ -99,12 +99,24 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public static final int GET_REFERRAL = 32;
     public static final int UPGRADE_APP = 64;
     public static final int REPORT_PROBLEM_ACTIVITY = 128;
+
+    /**
+     * Request code for automatically validating media from home dispatch.
+     * Should signal a return from CommCareVerificationActivity.
+     */
     public static final int MISSING_MEDIA_ACTIVITY=256;
     public static final int DUMP_FORMS_ACTIVITY=512;
     public static final int WIFI_DIRECT_ACTIVITY=1024;
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     public static final int PREFERENCES_ACTIVITY=4096;
-    
+
+    /**
+     * Request code for launching media validator manually (Settings ->
+     * Validate Media). Should signal a return from
+     * CommCareVerificationActivity.
+     */
+    public static final int MEDIA_VALIDATOR_ACTIVITY=8192;
+
     public static final int USE_OLD_DIALOG = 1;
     public static final int DIALOG_CORRUPTED = 4;
     public static final int DIALOG_NO_STORAGE = 8;
@@ -465,12 +477,20 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             case PREFERENCES_ACTIVITY:
                 configUi();
                 return;
-            case MISSING_MEDIA_ACTIVITY:
+            case MEDIA_VALIDATOR_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){
-                    this.finish();
+                    return;
+                } else if (resultCode == RESULT_OK){
+                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
-                else if(resultCode == RESULT_OK){
+            case MISSING_MEDIA_ACTIVITY:
+                if(resultCode == RESULT_CANCELED){
+                    // exit the app if media wasn't validated on automatic
+                    // validation check.
+                    this.finish();
+                    return;
+                } else if(resultCode == RESULT_OK){
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -1563,7 +1583,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     private void startValidationActivity(){
         Intent i = new Intent(this, CommCareVerificationActivity.class);
-        CommCareHomeActivity.this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+        CommCareHomeActivity.this.startActivityForResult(i, MEDIA_VALIDATOR_ACTIVITY);
     }
     
     private void startFormDumpActivity(){
