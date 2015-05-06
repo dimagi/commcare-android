@@ -188,23 +188,9 @@ public class CommCareApplication extends Application {
             pil.dumpToNewLogger();
         }
 
-//        PreferenceChangeListener listener = new PreferenceChangeListener(this);
-//        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
-
         intializeDefaultLocalizerData();
 
         //The fallback in case the db isn't installed 
-        resourceState = STATE_UNINSTALLED;
-
-        //We likely want to do this for all of the storage, this is just a way to deal with fixtures
-        //temporarily. 
-        //StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
-
-//        Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
-//        
-//        //Dump any logs we've been keeping track of in memory to storage
-//        pil.dumpToNewLogger();
-
         resourceState = initializeAppResources();
     }
 
@@ -1069,10 +1055,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * the
-     *
-     * @return a path to a file location that can be used to store a file temporarily and will be cleaned up as part of
-     * CommCare's application lifecycle
+     * @return a path to a file location that can be used to store a file
+     * temporarily and will be cleaned up as part of CommCare's application
+     * lifecycle
      */
     public String getTempFilePath() {
         return getAndroidFsTemp() + PropertyUtils.genUUID();
