@@ -272,27 +272,8 @@ public class CommCareApplication extends Application {
         tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
-    private void detachCallListener() {
-        if (listener != null) {
-            TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
-            tManager.listen(listener, PhoneStateListener.LISTEN_NONE);
-            listener = null;
-        }
-    }
-
     public CallInPhoneListener getCallListener() {
         return listener;
-    }
-
-
-    public int versionCode() {
-        try {
-            PackageManager pm = this.getPackageManager();
-            PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);
-            return pi.versionCode;
-        } catch (NameNotFoundException e) {
-            throw new RuntimeException("Android package name not available.");
-        }
     }
 
     public int[] getCommCareVersion() {
@@ -507,45 +488,6 @@ public class CommCareApplication extends Application {
 
     public static CommCareApplication _() {
         return app;
-    }
-
-    /**
-     * This method goes through and identifies whether there are elements in the
-     * database which point to/expect files to exist on the file system, and clears
-     * out any records which refer to files that don't exist.
-     */
-    public void cleanUpDatabaseFileLinkages() throws SessionUnavailableException {
-        Vector<Integer> toDelete = new Vector<Integer>();
-
-        SqlStorage<FormRecord> storage = getUserStorage(FormRecord.class);
-
-        //Can't load the records outright, since we'd need to be logged in (The key is encrypted)
-        for (SqlStorageIterator iterator = storage.iterate(); iterator.hasMore(); ) {
-            int id = iterator.nextID();
-            String instanceRecordUri = storage.getMetaDataFieldForRecord(id, FormRecord.META_INSTANCE_URI);
-            if (instanceRecordUri == null) {
-                toDelete.add(id);
-                continue;
-            }
-
-            //otherwise, grab this record and see if the file's around
-
-            Cursor c = this.getContentResolver().query(Uri.parse(instanceRecordUri), new String[]{InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
-            if (!c.moveToFirst()) {
-                toDelete.add(id);
-            } else {
-                String path = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-                if (path == null || !new File(path).exists()) {
-                    toDelete.add(id);
-                }
-            }
-            c.close();
-        }
-
-        for (int recordid : toDelete) {
-            //this should go to the form record wipe cleanup task
-            storage.remove(recordid);
-        }
     }
 
     /**
