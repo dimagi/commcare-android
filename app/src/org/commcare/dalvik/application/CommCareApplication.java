@@ -15,7 +15,6 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -33,7 +32,6 @@ import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
-import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
@@ -47,7 +45,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
@@ -78,8 +75,6 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -193,23 +188,9 @@ public class CommCareApplication extends Application {
             pil.dumpToNewLogger();
         }
 
-//        PreferenceChangeListener listener = new PreferenceChangeListener(this);
-//        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
-
         intializeDefaultLocalizerData();
 
         //The fallback in case the db isn't installed 
-        resourceState = STATE_UNINSTALLED;
-
-        //We likely want to do this for all of the storage, this is just a way to deal with fixtures
-        //temporarily. 
-        //StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
-
-//        Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
-//        
-//        //Dump any logs we've been keeping track of in memory to storage
-//        pil.dumpToNewLogger();
-
         resourceState = initializeAppResources();
     }
 
@@ -272,27 +253,8 @@ public class CommCareApplication extends Application {
         tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
-    private void detachCallListener() {
-        if (listener != null) {
-            TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
-            tManager.listen(listener, PhoneStateListener.LISTEN_NONE);
-            listener = null;
-        }
-    }
-
     public CallInPhoneListener getCallListener() {
         return listener;
-    }
-
-
-    public int versionCode() {
-        try {
-            PackageManager pm = this.getPackageManager();
-            PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);
-            return pi.versionCode;
-        } catch (NameNotFoundException e) {
-            throw new RuntimeException("Android package name not available.");
-        }
     }
 
     public int[] getCommCareVersion() {
@@ -487,65 +449,8 @@ public class CommCareApplication extends Application {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onLowMemory()
-     */
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onTerminate()
-     */
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-    }
-
     public static CommCareApplication _() {
         return app;
-    }
-
-    /**
-     * This method goes through and identifies whether there are elements in the
-     * database which point to/expect files to exist on the file system, and clears
-     * out any records which refer to files that don't exist.
-     */
-    public void cleanUpDatabaseFileLinkages() throws SessionUnavailableException {
-        Vector<Integer> toDelete = new Vector<Integer>();
-
-        SqlStorage<FormRecord> storage = getUserStorage(FormRecord.class);
-
-        //Can't load the records outright, since we'd need to be logged in (The key is encrypted)
-        for (SqlStorageIterator iterator = storage.iterate(); iterator.hasMore(); ) {
-            int id = iterator.nextID();
-            String instanceRecordUri = storage.getMetaDataFieldForRecord(id, FormRecord.META_INSTANCE_URI);
-            if (instanceRecordUri == null) {
-                toDelete.add(id);
-                continue;
-            }
-
-            //otherwise, grab this record and see if the file's around
-
-            Cursor c = this.getContentResolver().query(Uri.parse(instanceRecordUri), new String[]{InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
-            if (!c.moveToFirst()) {
-                toDelete.add(id);
-            } else {
-                String path = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-                if (path == null || !new File(path).exists()) {
-                    toDelete.add(id);
-                }
-            }
-            c.close();
-        }
-
-        for (int recordid : toDelete) {
-            //this should go to the form record wipe cleanup task
-            storage.remove(recordid);
-        }
     }
 
     /**
@@ -716,7 +621,7 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
-                            performArchivedFormPurge(getCurrentApp(), user);
+                            performArchivedFormPurge(getCurrentApp());
                         }
                     }
                 }
@@ -791,13 +696,12 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Check through user storage and identify whether there are any forms which can be purged
-     * from the device.
+     * Check through user storage and identify whether there are any forms
+     * which can be purged from the device.
      *
      * @param app  The current app
-     * @param user The user who's storage we're reviewing
      */
-    private void performArchivedFormPurge(CommCareApp app, User user) {
+    private void performArchivedFormPurge(CommCareApp app) {
         int daysForReview = -1;
         String daysToPurge = app.getAppPreferences().getString("cc-days-form-retain", "-1");
         try {
@@ -1151,10 +1055,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * the
-     *
-     * @return a path to a file location that can be used to store a file temporarily and will be cleaned up as part of
-     * CommCare's application lifecycle
+     * @return a path to a file location that can be used to store a file
+     * temporarily and will be cleaned up as part of CommCare's application
+     * lifecycle
      */
     public String getTempFilePath() {
         return getAndroidFsTemp() + PropertyUtils.genUUID();
