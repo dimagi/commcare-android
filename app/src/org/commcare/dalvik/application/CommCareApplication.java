@@ -658,7 +658,7 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
-                            performArchivedFormPurge(getCurrentApp(), user);
+                            performArchivedFormPurge(getCurrentApp());
                         }
                     }
                 }
@@ -733,13 +733,12 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Check through user storage and identify whether there are any forms which can be purged
-     * from the device.
+     * Check through user storage and identify whether there are any forms
+     * which can be purged from the device.
      *
      * @param app  The current app
-     * @param user The user who's storage we're reviewing
      */
-    private void performArchivedFormPurge(CommCareApp app, User user) {
+    private void performArchivedFormPurge(CommCareApp app) {
         int daysForReview = -1;
         String daysToPurge = app.getAppPreferences().getString("cc-days-form-retain", "-1");
         try {
