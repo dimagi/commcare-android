@@ -467,10 +467,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 return;
             case MISSING_MEDIA_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){
-                    this.finish();
                     return;
-                }
-                else if(resultCode == RESULT_OK){
+                } else if(resultCode == RESULT_OK){
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -1552,7 +1550,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private void createCallLogActivity() {
         Intent i = new Intent(this, PhoneLogActivity.class);
         startActivity(i);
-
     }
     
     private void startReportActivity() {
