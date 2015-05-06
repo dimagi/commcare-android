@@ -463,24 +463,6 @@ public class CommCareApplication extends Application {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onLowMemory()
-     */
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onTerminate()
-     */
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-    }
-
     public static CommCareApplication _() {
         return app;
     }
