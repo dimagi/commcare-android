@@ -1,6 +1,7 @@
 package org.commcare.dalvik.application;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -139,6 +140,11 @@ public class CommCareApplication extends Application {
     // Has CommCareSessionService initilization finished?
     // Important so we don't use the service before the db is initialized.
     boolean mIsBinding = false;
+
+    /**
+     * Handler to receive notifications and show them the user using toast.
+     */
+    private final PopupHandler toaster = new PopupHandler(this);
 
     /*
      * (non-Javadoc)
@@ -884,7 +890,8 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Whether automated stuff like autoupdates/syncing are valid and should be triggered.
+     * Whether automated stuff like auto-updates/syncing are valid and should
+     * be triggered.
      *
      * @return
      */
@@ -903,9 +910,9 @@ public class CommCareApplication extends Application {
         if (!areAutomatedActionsValid()) {
             return false;
         }
-        //We only set this to true occasionally, but in theory it could be set to false 
-        //from other factors, so turn it off if it is.
-        if (getPendingUpdateStatus() == false) {
+        // We only set this to true occasionally, but in theory it could be set
+        // to false from other factors, so turn it off if it is.
+        if (!getPendingUpdateStatus()) {
             updatePending = false;
         }
         return updatePending;
@@ -966,20 +973,6 @@ public class CommCareApplication extends Application {
     private int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
 
     ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
-
-    Handler toaster = new Handler() {
-        /*
-         * (non-Javadoc)
-         * @see android.os.Handler#handleMessage(android.os.Message)
-         */
-        @Override
-        public void handleMessage(Message m) {
-            NotificationMessage message = m.getData().getParcelable("message");
-            Toast.makeText(CommCareApplication.this,
-                    Localization.get("notification.for.details.wrapper", new String[]{message.getTitle()}),
-                    Toast.LENGTH_LONG).show();
-        }
-    };
 
     public void reportNotificationMessage(NotificationMessage message) {
         reportNotificationMessage(message, false);
@@ -1163,4 +1156,42 @@ public class CommCareApplication extends Application {
     public ArchiveFileRoot getArchiveFileRoot() {
         return mArchiveFileRoot;
     }
+
+    /**
+     * Message handler that pops-up notifications to the user via toast.
+     */
+    private static class PopupHandler extends Handler {
+        /**
+         * Reference to the context used to show pop-ups (the parent class).
+         * Reference is weak to avoid memory leaks.
+         */
+        private final WeakReference<CommCareApplication> mActivity;
+
+        /**
+         * @param activity Is the context used to pop-up the toast message.
+         */
+        public PopupHandler(CommCareApplication activity) {
+            mActivity = new WeakReference<CommCareApplication>(activity);
+        }
+
+        /**
+         * Pops up the message to the user by way of toast
+         *
+         * @param message Has a 'message' parcel storing pop-up message text
+         */
+        @Override
+        public void handleMessage(Message m) {
+            NotificationMessage message = m.getData().getParcelable("message");
+
+            CommCareApplication activity = mActivity.get();
+
+            if (activity != null) {
+                Toast.makeText(activity,
+                        Localization.get("notification.for.details.wrapper",
+                            new String[]{message.getTitle()}),
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 }
