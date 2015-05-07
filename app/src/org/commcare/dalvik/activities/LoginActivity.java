@@ -486,8 +486,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         Toast.makeText(this,toastText, Toast.LENGTH_LONG).show();
     }
 
-    private void setLoginBoxesColor(int colorId, boolean resolve) {
-        int color = resolve ? getResources().getColor(colorId) : colorId;
+    /**
+     * Sets the login boxes (user/pass) to the given color.
+     * @param colorIdOrCode Color ID of resource or color code
+     * @param isColorId Calls getResources.getColor if set, uses the given colorIdOrCode as the color code if not
+     */
+    private void setLoginBoxesColor(int colorIdOrCode, boolean isColorId) {
+        int color = isColorId ? getResources().getColor(colorIdOrCode) : colorIdOrCode;
         username.setTextColor(color);
         password.setTextColor(color);
     }
