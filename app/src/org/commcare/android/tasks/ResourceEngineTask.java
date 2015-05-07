@@ -119,6 +119,9 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
     // launch this task
     private final boolean shouldSleep;
 
+    // last time in system millis that we updated the status dialog
+    private long lastTime = 0;
+
     protected String vAvailable;
     protected String vRequired;
     protected boolean majorIsProblem;
@@ -305,26 +308,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
     @Override
-    protected void onProgressUpdate(int[]... values) {
-        super.onProgressUpdate(values);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
-    @Override
-    protected void onPostExecute(ResourceEngineOutcomes result) {
-        super.onPostExecute(result);
-    }
-
-    // last time in system millis that we updated the status dialog
-    private long lastTime = 0;
-
     public void resourceStateUpdated(ResourceTable table) {
         // if last time isn't set or is less than our spacing count, do not
         // perform status update
@@ -360,6 +344,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         incrementProgress(score, resources.size());
     }
 
+    @Override
     public void incrementProgress(int complete, int total) {
         this.publishProgress(new int[]{complete, total, phase});
     }
