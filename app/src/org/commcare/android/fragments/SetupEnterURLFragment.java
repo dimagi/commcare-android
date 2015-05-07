@@ -17,12 +17,18 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 /**
+ * Fragment for inputting app installation URL, "returned" through the URLInstaller interface.
  * Created by dancluna on 3/17/15.
  */
 @ManagedUi(R.layout.setup_enter_url)
 public class SetupEnterURLFragment extends Fragment {
 
     public interface URLInstaller {
+        /**
+         * Called when user fills in an URL and presses 'Start Install'.
+         * The parent activity is responsible for implementing this interface and doing something with the URL.
+         * @param url URL typed by the user
+         */
         public void OnURLChosen(String url);
     }
 
@@ -69,10 +75,16 @@ public class SetupEnterURLFragment extends Fragment {
         }
     }
 
+    /**
+     * Returns the chosen URL in the UI, prefixing it with http:// if not set.
+     * @return The current URL
+     */
     public String getURL(){
         int selectedPrefix = prefixURLSpinner.getSelectedItemPosition();
         String url = profileLocation.getText().toString();
-        if(url == null || url.length() == 0) return url;
+        if (url == null || url.length() == 0) {
+            return url;
+        }
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
         if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;

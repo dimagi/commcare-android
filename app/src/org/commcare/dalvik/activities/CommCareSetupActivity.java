@@ -60,14 +60,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_START_OVER = "start_over_uprgrade";
     public static final String KEY_LAST_INSTALL = "last_install_time";
 
-    @Override
-    public void OnURLChosen(String url) {
-        Log.d("DEBUG-d", "SetupEnterURLFragment returned: " + url);
-        incomingRef = url;
-        this.uiState = UiState.ready;
-        uiStateScreenTransition();
-    }
-    
     /*
      * enum indicating which UI mconfiguration should be shown.
      * basic: First install, user can scan barcode and move to ready mode or select advanced mode
@@ -200,6 +192,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         "startAllowed is: " + startAllowed + " "
         );
 
+        uiStateScreenTransition();
+    }
+
+    @Override
+    public void OnURLChosen(String url) {
+        Log.d("DEBUG-d", "SetupEnterURLFragment returned: " + url);
+        incomingRef = url;
+        this.uiState = UiState.ready;
         uiStateScreenTransition();
     }
 
