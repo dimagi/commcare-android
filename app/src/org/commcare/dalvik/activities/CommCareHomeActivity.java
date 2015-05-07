@@ -460,7 +460,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     }
                     //set flag that we should autoupdate on next login
                     SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
-                    preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true);
+                    preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true).commit();
                     //The onResume() will take us to the screen
                     return;
                 }
