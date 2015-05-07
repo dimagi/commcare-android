@@ -34,7 +34,9 @@ import android.os.SystemClock;
 /**
  * @author ctsims
  */
-public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes, R> implements TableStateListener {
+public abstract class ResourceEngineTask<R>
+        extends CommCareTask<String, int[], org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes, R>
+        implements TableStateListener {
 
     public enum ResourceEngineOutcomes implements MessageTag {
         /**
