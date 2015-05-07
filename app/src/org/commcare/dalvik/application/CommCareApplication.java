@@ -782,7 +782,7 @@ public class CommCareApplication extends Application {
         boolean autoUpdateTriggered = preferences.getBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE, false);
 
         if (autoUpdateTriggered) {
-            preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE, false);
+            preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE, false).commit();
             return true;
         }
         //See if auto update is even turned on
