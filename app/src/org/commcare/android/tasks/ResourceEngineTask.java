@@ -27,7 +27,6 @@ import org.commcare.xml.CommCareElementParser;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.SystemClock;
@@ -98,38 +97,36 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         }
     }
 
-    Context c;
-    CommCareApp app;
+    private final CommCareApp app;
 
-    public static final int PHASE_CHECKING = 0;
+    private static final int PHASE_CHECKING = 0;
     public static final int PHASE_DOWNLOAD = 1;
     public static final int PHASE_COMMIT = 2;
 
     /**
      * Wait time between dialog updates in milliseconds
      */
-    public static final long STATUS_UPDATE_WAIT_TIME = 1000;
+    private static final long STATUS_UPDATE_WAIT_TIME = 1000;
 
     protected UnresolvedResourceException missingResourceException = null;
     protected int badReqCode = -1;
-    protected int phase = -1;
-    boolean upgradeMode = false;
-    boolean partialMode = false;
-    boolean startOverUpgrade;
+    private int phase = -1;
+    private boolean upgradeMode = false;
+    private boolean partialMode = false;
+    private final boolean startOverUpgrade;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
     // trying mode for installation, we want to sleep in between attempts to
     // launch this task
-    boolean shouldSleep;
+    private final boolean shouldSleep;
 
     protected String vAvailable;
     protected String vRequired;
     protected boolean majorIsProblem;
 
-    public ResourceEngineTask(Context c, boolean upgradeMode, boolean partialMode, CommCareApp app,
+    public ResourceEngineTask(boolean upgradeMode, boolean partialMode, CommCareApp app,
                               boolean startOverUpgrade, int taskId, boolean shouldSleep)
             throws SessionUnavailableException {
         this.partialMode = partialMode;
-        this.c = c;
         this.upgradeMode = upgradeMode;
         this.app = app;
         this.startOverUpgrade = startOverUpgrade;
@@ -263,8 +260,6 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         } catch (LocalStorageUnavailableException e) {
             e.printStackTrace();
 
-            tryToClearApp();
-
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Couldn't install file to local storage|" + e.getMessage());
             return ResourceEngineOutcomes.StatusNoLocalStorage;
@@ -276,16 +271,12 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
             vRequired = e.getRequiredVersionString();
             majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
 
-            tryToClearApp();
-
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "App resources are incompatible with this device|" + e.getMessage());
             return ResourceEngineOutcomes.StatusBadReqs;
         } catch (UnresolvedResourceException e) {
             // couldn't find a resource, which isn't good.
             e.printStackTrace();
-
-            tryToClearApp();
 
             Throwable mExceptionCause = e.getCause();
 
@@ -299,7 +290,7 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
             missingResourceException = e;
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
                     "A resource couldn't be found, almost certainly due to the network|" +
-                    e.getMessage());
+                            e.getMessage());
             if (e.isMessageUseful()) {
                 return ResourceEngineOutcomes.StatusMissingDetails;
             } else {
@@ -308,20 +299,10 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
         } catch (Exception e) {
             e.printStackTrace();
 
-            tryToClearApp();
-
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Unknown error ocurred during install|" + e.getMessage());
             return ResourceEngineOutcomes.StatusFailUnknown;
         }
-    }
-
-    /**
-     * For now, never clear automatically - just let user choose when to retry
-     * vs. resume
-     */
-    protected void tryToClearApp() {
-        //if(partialMode == false && upgradeMode == false){}
     }
 
     /* (non-Javadoc)
@@ -339,12 +320,10 @@ public abstract class ResourceEngineTask<R> extends CommCareTask<String, int[], 
     @Override
     protected void onPostExecute(ResourceEngineOutcomes result) {
         super.onPostExecute(result);
-        //remove all references
-        c = null;
     }
 
     // last time in system millis that we updated the status dialog
-    long lastTime = 0;
+    private long lastTime = 0;
 
     public void resourceStateUpdated(ResourceTable table) {
         // if last time isn't set or is less than our spacing count, do not
