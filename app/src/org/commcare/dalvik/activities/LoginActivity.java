@@ -59,7 +59,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
     
-    @UiElement(R.id.screen_login_bad_password)
+    @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
     TextView errorBox;
     
     @UiElement(R.id.edit_username)
@@ -142,8 +142,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         password.addTextChangedListener(textWatcher);
 
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
-        
-        
+        username.setHint(Localization.get("login.username"));
+        password.setHint(Localization.get("login.password"));
+
         final View activityRootView = findViewById(R.id.screen_login_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             /*
