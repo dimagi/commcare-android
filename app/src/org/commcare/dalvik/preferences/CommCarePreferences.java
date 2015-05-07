@@ -232,16 +232,19 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
     /**
      * @return How many seconds should a user session remain open before
-     *         expiring?
+     * expiring?
      */
     public static int getLoginDuration() {
+        final int oneDayInSecs = 60 * 60 * 24;
+
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        // default to 24 hours
+        // try loading setting but default to 24 hours
         try {
-            return Integer.parseInt(properties.getString(LOGIN_DURATION, "86400"));
+            return Integer.parseInt(properties.getString(LOGIN_DURATION,
+                    Integer.toString(oneDayInSecs)));
         } catch (NumberFormatException e) {
-            return 86400;
+            return oneDayInSecs;
         }
     }
 
