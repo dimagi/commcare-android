@@ -1225,26 +1225,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));        
     }
 
-
-    /*
-     * NOTE: This is probably not valid anymore
-     */
-    private boolean testBotchedUpgrade() {
-        //If the install folder is empty, we know that commcare wiped out our stuff.
-        File install = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_INSTALL));
-        File[] installed = install.listFiles();
-        if(installed == null || installed.length == 0) {
-            return true;
-        }
-        //there's another failure mode where the files somehow end up empty.
-        for(File f : installed) {
-            if(f.length() != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         mAskOldDialog = new AlertDialog.Builder(this).create();
         mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));
