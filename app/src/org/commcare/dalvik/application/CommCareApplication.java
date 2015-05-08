@@ -558,7 +558,7 @@ public class CommCareApplication extends Application {
         int[] versions = this.getCommCareVersion();
         String ccv = "";
         for (int vn : versions) {
-            if (ccv != "") {
+            if (!"".equals(ccv)) {
                 ccv += ".";
             }
             ccv += vn;
@@ -709,7 +709,7 @@ public class CommCareApplication extends Application {
         if (!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
             long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
 
-            long duration = (24 * 60 * 60 * 100) * (autoUpdateFreq == CommCarePreferences.FREQUENCY_DAILY ? 1 : 7);
+            long duration = (24 * 60 * 60 * 100) * (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq) ? 1 : 7);
 
             return isPending(lastUpdateCheck, duration);
         }
@@ -965,7 +965,7 @@ public class CommCareApplication extends Application {
             NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             Vector<NotificationMessage> toRemove = new Vector<NotificationMessage>();
             for (NotificationMessage message : pendingMessages) {
-                if (category == null || message.getCategory() == category) {
+                if (category == null || category.equals(message.getCategory())) {
                     toRemove.add(message);
                 }
             }
