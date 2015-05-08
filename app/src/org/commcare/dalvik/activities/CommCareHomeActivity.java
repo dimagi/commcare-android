@@ -458,10 +458,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                             // if the session isn't available, we don't need to logout
                         }
                     }
-                    //set flag that we should autoupdate on next login
-                    SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
-                    preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true);
-                    //The onResume() will take us to the screen
                     return;
                 }
                 break;
