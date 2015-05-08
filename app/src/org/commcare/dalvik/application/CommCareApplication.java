@@ -895,19 +895,19 @@ public class CommCareApplication extends Application {
      *
      * @return
      */
-    private boolean areAutomatedActionsValid() {
+    private boolean areAutomatedActionsInvalid() {
         try {
             if (User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType())) {
-                return false;
+                return true;
             }
         } catch (SessionUnavailableException sue) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public boolean isUpdatePending() {
-        if (!areAutomatedActionsValid()) {
+        if (areAutomatedActionsInvalid()) {
             return false;
         }
         // We only set this to true occasionally, but in theory it could be set
@@ -1094,19 +1094,16 @@ public class CommCareApplication extends Application {
 
         long lastRestore = prefs.getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
 
-        if (isPending(lastRestore, period)) {
-            return true;
-        }
-        return false;
+        return (isPending(lastRestore, period));
     }
 
     public synchronized boolean isSyncPending(boolean clearFlag) {
-        if (!areAutomatedActionsValid()) {
+        if (areAutomatedActionsInvalid()) {
             return false;
         }
         //We only set this to true occasionally, but in theory it could be set to false 
         //from other factors, so turn it off if it is.
-        if (getPendingSyncStatus() == false) {
+        if (!getPendingSyncStatus()) {
             syncPending = false;
         }
         if (!syncPending) {
