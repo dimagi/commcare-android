@@ -33,7 +33,6 @@ import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
-import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
@@ -195,23 +194,9 @@ public class CommCareApplication extends Application {
             pil.dumpToNewLogger();
         }
 
-//        PreferenceChangeListener listener = new PreferenceChangeListener(this);
-//        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
-
         intializeDefaultLocalizerData();
 
         //The fallback in case the db isn't installed 
-        resourceState = STATE_UNINSTALLED;
-
-        //We likely want to do this for all of the storage, this is just a way to deal with fixtures
-        //temporarily. 
-        //StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
-
-//        Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
-//        
-//        //Dump any logs we've been keeping track of in memory to storage
-//        pil.dumpToNewLogger();
-
         resourceState = initializeAppResources();
     }
 
@@ -717,8 +702,8 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Check through user storage and identify whether there are any forms which can be purged
-     * from the device.
+     * Check through user storage and identify whether there are any forms
+     * which can be purged from the device.
      *
      * @param app  The current app
      */
@@ -1060,10 +1045,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * the
-     *
-     * @return a path to a file location that can be used to store a file temporarily and will be cleaned up as part of
-     * CommCare's application lifecycle
+     * @return a path to a file location that can be used to store a file
+     * temporarily and will be cleaned up as part of CommCare's application
+     * lifecycle
      */
     public String getTempFilePath() {
         return getAndroidFsTemp() + PropertyUtils.genUUID();
