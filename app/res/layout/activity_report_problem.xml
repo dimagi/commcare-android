@@ -34,6 +34,7 @@
         android:gravity="top"
         android:hint="@string/your_comment"
         android:inputType="textMultiLine"
+        android:maxLines="5"
         android:textColor="@color/black" />
 
     <Button
