@@ -116,11 +116,11 @@ public class CommCareApplication extends Application {
     private AndroidSessionWrapper sessionWrapper;
 
     // Generalize
-    private Object globalDbHandleLock = new Object();
+    private final Object globalDbHandleLock = new Object();
     private SQLiteDatabase globalDatabase;
 
     //Kind of an odd way to do this
-    boolean updatePending = false;
+    private boolean updatePending = false;
 
     private ArchiveFileRoot mArchiveFileRoot;
 
@@ -130,12 +130,12 @@ public class CommCareApplication extends Application {
     // it stays in memory.
     private CommCareSessionService mBoundService;
     private ServiceConnection mConnection;
-    private Object serviceLock = new Object();
+    private final Object serviceLock = new Object();
     // Has the CommCareSessionService been bound?
-    boolean mIsBound = false;
+    private boolean mIsBound = false;
     // Has CommCareSessionService initilization finished?
     // Important so we don't use the service before the db is initialized.
-    boolean mIsBinding = false;
+    private boolean mIsBinding = false;
 
     /**
      * Handler to receive notifications and show them the user using toast.
@@ -468,24 +468,6 @@ public class CommCareApplication extends Application {
                 return handle;
             }
         });
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onLowMemory()
-     */
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onTerminate()
-     */
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
     }
 
     public static CommCareApplication _() {
@@ -907,9 +889,9 @@ public class CommCareApplication extends Application {
 
     // Start - Error message Hooks
 
-    private int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
+    private final int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
 
-    ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
+    private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
 
     public void reportNotificationMessage(NotificationMessage message) {
         reportNotificationMessage(message, false);
