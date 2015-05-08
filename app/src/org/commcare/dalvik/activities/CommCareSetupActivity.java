@@ -87,7 +87,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MODE_ARCHIVE = Menu.FIRST + 2;
     
     public static final int BARCODE_CAPTURE = 1;
-    public static final int MISSING_MEDIA_ACTIVITY=2;
     public static final int ARCHIVE_INSTALL = 3;
     public static final int DIALOG_INSTALL_PROGRESS = 4; 
 
