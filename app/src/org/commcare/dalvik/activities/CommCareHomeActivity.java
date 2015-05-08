@@ -761,11 +761,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 FormRecordCleanupTask.wipeRecord(this, currentState);
             }
 
-            currentState.reset();
             if (wasExternal) {
+                currentState.reset();
                 this.finish();
                 return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
+                currentState.reset();
                 // We should head back to the incomplete forms screen
                 goToFormArchive(true, current);
                 return false;
