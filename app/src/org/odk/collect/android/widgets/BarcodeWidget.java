@@ -23,9 +23,9 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
@@ -42,7 +42,7 @@ import org.odk.collect.android.activities.FormEntryActivity;
  */
 public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
     private Button mGetBarcodeButton;
-    private TextView mStringAnswer;
+    private EditText mStringAnswer;
     private boolean mWaitingForData;
 
 
@@ -85,7 +85,7 @@ public class BarcodeWidget extends QuestionWidget implements IBinaryWidget {
         });
 
         // set text formatting
-        mStringAnswer = new TextView(getContext());
+        mStringAnswer = new EditText(getContext());
         mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mStringAnswer.setGravity(Gravity.CENTER);
 
