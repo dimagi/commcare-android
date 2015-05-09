@@ -42,11 +42,18 @@ import org.odk.collect.android.jr.extensions.IntentCallout;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class IntentWidget extends QuestionWidget implements IBinaryWidget {
-    private Button launchIntentButton;
-    private TextView mStringAnswer;
+    protected Button launchIntentButton;
+    protected TextView mStringAnswer;
     private boolean mWaitingForData;
     private Intent intent;
-    private IntentCallout ic;
+    protected IntentCallout ic;
+    private int calloutId = FormEntryActivity.INTENT_CALLOUT;
+
+    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic, int calloutId) {
+        this(context, prompt, in, ic);
+        this.calloutId = calloutId;
+    }
+
 
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic) {
         super(context, prompt);
@@ -55,31 +62,13 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         this.ic = ic;
         
         mWaitingForData = false;
-        setOrientation(LinearLayout.VERTICAL);
 
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-        
-        // set button formatting
-        launchIntentButton = new Button(getContext());
-        setButtonLabel();
-        launchIntentButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        launchIntentButton.setPadding(20, 20, 20, 20);
-        launchIntentButton.setEnabled(!prompt.isReadOnly());
-        launchIntentButton.setLayoutParams(params);
+        makeTextView(prompt);
+        makeButton(prompt);
 
-        // launch barcode capture intent on click
-        launchIntentButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
-            @Override
-            public void onClick(View v) {
-                performCallout();
-            }
-        });
+    }
 
+    public void makeTextView(FormEntryPrompt prompt) {
         // set text formatting
         mStringAnswer = new TextView(getContext());
         mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
@@ -93,14 +82,47 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         // finish complex layout
         addView(launchIntentButton);
         addView(mStringAnswer);
-        
+
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
-        if(s == null && ic.isQuickAppearance() && !ic.getCancelled()){
+        if(s == null && "quick".equals(ic.getAppearance()) && !ic.getCancelled()){
             performCallout();
         } else if(ic.getCancelled()){
             //reset the cancelled flag
             ic.setCancelled(false);
         }
+    }
+
+    public void makeButton(FormEntryPrompt prompt){
+        setOrientation(LinearLayout.VERTICAL);
+
+        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
+        params.setMargins(7, 5, 7, 5);
+
+        // set button formatting
+        launchIntentButton = new Button(getContext());
+        setButtonLabel();
+        launchIntentButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        launchIntentButton.setPadding(20, 20, 20, 20);
+        launchIntentButton.setEnabled(!prompt.isReadOnly());
+        launchIntentButton.setLayoutParams(params);
+
+        String s = prompt.getAnswerText();
+        if (s != null) {
+            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button_update));
+        }
+
+        // launch barcode capture intent on click
+        launchIntentButton.setOnClickListener(new View.OnClickListener() {
+            /*
+             * (non-Javadoc)
+             * @see android.view.View.OnClickListener#onClick(android.view.View)
+             */
+            @Override
+            public void onClick(View v) {
+                performCallout();
+            }
+        });
+        addView(launchIntentButton);
     }
 
     public void performCallout(){
@@ -114,7 +136,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
             }
             
             ((Activity) getContext()).startActivityForResult(intent,
-                FormEntryActivity.INTENT_CALLOUT);
+                calloutId);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                 "Couldn't find intent for callout!", Toast.LENGTH_SHORT)

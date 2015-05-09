@@ -788,7 +788,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //get the original intent callout
             IntentCallout ic = bestMatch.getIntentCallout();
             
-            quick = ic.isQuickAppearance();
+            quick = "quick".equals(ic.getAppearance());
             
             //And process it 
             advance = ic.processResponse(response, (ODKView)mCurrentView, mFormController.getInstance(), new File(destination));
@@ -1343,7 +1343,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         int saveStatus = saveAnswer(answers.get(index), index, evaluateConstraints);
                         if (evaluateConstraints && (saveStatus != FormEntryController.ANSWER_OK &&
                                                     (failOnRequired || saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                            createConstraintToast(index, mFormController.getQuestionPrompt(index) .getConstraintText(), saveStatus, success);
+                            createConstraintToast(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
                             success = false;
                         }
                     } else {

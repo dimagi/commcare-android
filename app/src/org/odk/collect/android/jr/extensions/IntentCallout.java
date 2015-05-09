@@ -48,7 +48,7 @@ public class IntentCallout implements Externalizable {
     private String component;
     private String data;
     private String buttonLabel;
-    private boolean isQuick;
+    private String appearance;
     private boolean isCancelled;
 
     
@@ -57,11 +57,6 @@ public class IntentCallout implements Externalizable {
     
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
-
-    
-    public IntentCallout() {
-        
-    }
     
     public IntentCallout(String className, Hashtable<String, TreeReference> refs, Hashtable<String, TreeReference> responses, 
             String type, String component, String data, String buttonLabel, String appearance) {
@@ -73,7 +68,7 @@ public class IntentCallout implements Externalizable {
         this.component = component;
         this.data = data;
         this.buttonLabel = buttonLabel;
-        isQuick = (appearance != null && appearance.equals("quick"));
+        this.appearance = appearance;
 
     }
     
@@ -92,11 +87,13 @@ public class IntentCallout implements Externalizable {
         } if(component != null){
             i.setComponent(new ComponentName(component, className));
         }
-        for(Enumeration<String> en = refs.keys() ; en.hasMoreElements() ;) {
-            String key = en.nextElement();
-            AbstractTreeElement e = ec.resolveReference(refs.get(key));
-            if(e != null && e.getValue() != null) {
-                i.putExtra(key, e.getValue().uncast().getString());
+        if(refs != null) {
+            for (Enumeration<String> en = refs.keys(); en.hasMoreElements(); ) {
+                String key = en.nextElement();
+                AbstractTreeElement e = ec.resolveReference(refs.get(key));
+                if (e != null && e.getValue() != null) {
+                    i.putExtra(key, e.getValue().uncast().getString());
+                }
             }
         }
         return i;
@@ -115,68 +112,74 @@ public class IntentCallout implements Externalizable {
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
         
         //Load all of the data from the incoming bundle
-        for(String key : responses.keySet()) {
-            //See if the value exists at all, if not, skip it
-            if(!response.containsKey(key)) { continue;}
-            
-            //Get our response value
-            String responseValue = response.getString(key);
-            if(key == null) { key = "";}
-            
-            //Figure out where it's going
-            TreeReference ref = responses.get(key);
-            
-            EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
+        if(responses != null) {
+            for (String key : responses.keySet()) {
+                //See if the value exists at all, if not, skip it
+                if (!response.containsKey(key)) {
+                    continue;
+                }
 
-            AbstractTreeElement node = context.resolveReference(ref);
-            
-            if(node == null) {
-                //continue?
-                
+                //Get our response value
+                String responseValue = response.getString(key);
+                if (key == null) {
+                    key = "";
+                }
+
+                //Figure out where it's going
+                TreeReference ref = responses.get(key);
+
+                EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
+
+                AbstractTreeElement node = context.resolveReference(ref);
+
+                if (node == null) {
+                    //continue?
+
+                }
+                int dataType = node.getDataType();
+
+                //TODO: Handle file system errors in a way that is more visible to the user
+
+                //See if this is binary data and we'll have to do something complex...
+                if (dataType == Constants.DATATYPE_BINARY) {
+                    //We need to copy the binary data at this address into the appropriate location
+                    if (responseValue == null || responseValue.equals("")) {
+                        //If the response was blank, wipe out any data that was present before
+                        form.setValue(null, ref);
+                        continue;
+                    }
+
+                    //Otherwise, grab that file
+                    File src = new File(responseValue);
+                    if (!src.exists()) {
+                        //TODO: How hard should we be failing here?
+                        Log.w("FormEntryActivity-Callout", "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
+                        //Wipe out any reference that exists
+                        form.setValue(null, ref);
+                        continue;
+                    }
+
+                    File newFile = new File(destination, src.getName());
+
+                    //Looks like our source file exists, so let's go grab it
+                    FileUtils.copyFile(src, newFile);
+
+                    //That code throws no errors, so we have to manually check whether the copy worked.
+                    if (newFile.exists() && newFile.length() == src.length()) {
+                        form.setValue(new StringData(newFile.toString()), ref);
+                        continue;
+                    } else {
+                        Log.e("FormEntryActivity-Callout", "ODK Failed to property write a file to " + newFile.toString());
+                        form.setValue(null, ref);
+                        continue;
+                    }
+                }
+
+                //otherwise, just load it up
+                IAnswerData val = Recalculate.wrapData(responseValue, dataType);
+
+                form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
             }
-            int dataType = node.getDataType();
-            
-            //TODO: Handle file system errors in a way that is more visible to the user
-            
-            //See if this is binary data and we'll have to do something complex...
-            if(dataType == Constants.DATATYPE_BINARY) {
-                //We need to copy the binary data at this address into the appropriate location
-                if(responseValue == null || responseValue.equals("")) {
-                    //If the response was blank, wipe out any data that was present before
-                    form.setValue(null, ref);
-                    continue;
-                }
-                
-                //Otherwise, grab that file
-                File src = new File(responseValue);
-                if(!src.exists()) {
-                    //TODO: How hard should we be failing here?
-                    Log.w("FormEntryActivity-Callout", "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
-                    //Wipe out any reference that exists
-                    form.setValue(null, ref);
-                    continue;
-                }
-                
-                File newFile = new File(destination, src.getName());
-                
-                //Looks like our source file exists, so let's go grab it
-                FileUtils.copyFile(src, newFile);
-                
-                //That code throws no errors, so we have to manually check whether the copy worked.
-                if(newFile.exists() && newFile.length() == src.length()) {
-                    form.setValue(new StringData(newFile.toString()), ref);
-                    continue;
-                } else {
-                    Log.e("FormEntryActivity-Callout", "ODK Failed to property write a file to " + newFile.toString());
-                    form.setValue(null, ref);
-                    continue;    
-                }
-            }
-            
-            //otherwise, just load it up
-            IAnswerData val = Recalculate.wrapData(responseValue, dataType);
-            
-            form.setValue(val == null ? null: AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
         }
         if(result == null){return false;}
         return true;
@@ -191,7 +194,7 @@ public class IntentCallout implements Externalizable {
         className = ExtUtil.readString(in);
         refs = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
         responses = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
-        isQuick = ExtUtil.readBool(in);
+        appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
@@ -205,7 +208,7 @@ public class IntentCallout implements Externalizable {
         ExtUtil.writeString(out, className);
         ExtUtil.write(out, new ExtWrapMap(refs));
         ExtUtil.write(out, new ExtWrapMap(responses));
-        ExtUtil.write(out, isQuick);
+        ExtUtil.write(out, new ExtWrapNullable(appearance));
         ExtUtil.write(out, new ExtWrapNullable(component));
         ExtUtil.write(out, new ExtWrapNullable(buttonLabel));
     }
@@ -214,9 +217,7 @@ public class IntentCallout implements Externalizable {
         return buttonLabel;
     }
 
-    public boolean isQuickAppearance(){
-        return isQuick;
-    }
+    public String getAppearance(){return appearance;}
 
     public void setCancelled(boolean cancelled){
         this.isCancelled = cancelled;
