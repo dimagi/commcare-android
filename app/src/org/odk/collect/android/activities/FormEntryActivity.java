@@ -2313,31 +2313,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (question.length() > 50) {
             question = question.substring(0, 50) + "...";
         }
-
-        mAlertDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question));
-
-        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
-
-                    /*
-                     * (non-Javadoc)
-                     * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                     */
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        switch (i) {
-                            case DialogInterface.BUTTON1: // yes
-                                clearAnswer(qw);
-                                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                                break;
-                            case DialogInterface.BUTTON2: // no
-                                break;
-                        }
-                    }
-                };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
-                mAlertDialog.setButton2(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-                        mAlertDialog.show();
     }
 
 
