@@ -1309,54 +1309,55 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 .getEvent() == FormEntryController.EVENT_GROUP);
     }
 
-    
     private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints) {
         return saveAnswersForCurrentScreen(evaluateConstraints, true, false);
     }
 
     /**
      * Attempt to save the answer(s) in the current screen to into the data model.
-     * 
+     *
      * @param evaluateConstraints
-     * @param failOnRequired Whether or not the constraint evaluation should
-     * return false if the question is only required. (this is helpful for
-     * incomplete saves)
-     * @param headless running in a process that can't display graphics
+     * @param failOnRequired      Whether or not the constraint evaluation
+     *                            should return false if the question is only
+     *                            required. (this is helpful for incomplete
+     *                            saves)
+     * @param headless            running in a process that can't display graphics
      * @return false if any error occurs while saving (constraint violated,
      * etc...), true otherwise.
      */
     private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints,
-            boolean failOnRequired,
-            boolean headless) {
-        // only try to save if the current event is a question or a field-list group
+                                                boolean failOnRequired,
+                                                boolean headless) {
+        // only try to save if the current event is a question or a field-list
+        // group
         boolean success = true;
         if ((mFormController.getEvent() == FormEntryController.EVENT_QUESTION)
-                || ((mFormController.getEvent() == FormEntryController.EVENT_GROUP) && 
-                    mFormController.indexIsInFieldList())) {
+                || ((mFormController.getEvent() == FormEntryController.EVENT_GROUP) &&
+                mFormController.indexIsInFieldList())) {
             if (mCurrentView instanceof ODKView) {
                 HashMap<FormIndex, IAnswerData> answers =
-                    ((ODKView) mCurrentView).getAnswers();
+                        ((ODKView)mCurrentView).getAnswers();
 
                 // Sort the answers so if there are multiple errors, we can
                 // bring focus to the first one
                 List<FormIndex> indexKeys = new ArrayList<FormIndex>();
                 indexKeys.addAll(answers.keySet());
                 Collections.sort(indexKeys, new Comparator<FormIndex>() {
-                   @Override
-                   public int compare(FormIndex arg0, FormIndex arg1) {
-                       return arg0.compareTo(arg1);
-                   }
+                    @Override
+                    public int compare(FormIndex arg0, FormIndex arg1) {
+                        return arg0.compareTo(arg1);
+                    }
                 });
-                
+
                 for (FormIndex index : indexKeys) {
                     // Within a group, you can only save for question events
                     if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
                         int saveStatus = saveAnswer(answers.get(index),
                                 index, evaluateConstraints);
-                        if (evaluateConstraints && 
+                        if (evaluateConstraints &&
                                 ((saveStatus != FormEntryController.ANSWER_OK) &&
-                                 (failOnRequired || 
-                                  saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
+                                        (failOnRequired ||
+                                                saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
                             if (!headless) {
                                 createConstraintToast(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
                             }
@@ -1364,14 +1365,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         }
                     } else {
                         Log.w(t,
-                            "Attempted to save an index referencing something other than a question: "
-                            + index.getReference());
+                                "Attempted to save an index referencing something other than a question: "
+                                        + index.getReference());
                     }
                 }
             } else {
                 Log.w(t,
                         "Unknown view type rendered while current event was question or group! View type: " +
-                        mCurrentView == null ? "null" : mCurrentView.getClass().toString());
+                                mCurrentView == null ? "null" : mCurrentView.getClass().toString());
             }
         }
         return success;
