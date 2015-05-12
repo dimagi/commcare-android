@@ -80,10 +80,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -188,6 +185,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     
     public static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
+
+    /**
+     * Intent extra flag to track if this form is an archive. Used to trigger
+     * return logic when this activity exits to the home screen, such as
+     * whether to redirect to archive view or sync the form.
+     */
+    public static final String IS_ARCHIVED_FORM = "is-archive-form";
 
     // Identifies whether this is a new form, or reloading a form after a screen
     // rotation (or similar)
@@ -2559,7 +2563,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if(mFormController.isFormReadOnly()) {
             //It's possible we just want to "finish" here, but
             //I don't really wanna break any c compatibility
-            finishReturnInstance();
+            finishReturnInstance(false);
         } else {
             createQuitDialog();
         }
@@ -2765,7 +2769,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * If form entry is being saved because key session is expiring then
      * continue closing the session/logging out.
      *
-     * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int)
+     * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int, boolean)
      */
     @Override
     public void savingComplete(int saveStatus, boolean headless) {
@@ -2781,7 +2785,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
             try {
-                CommCareApplication._().getSession().finishLogout();
+                CommCareApplication._().getSession().closeSession(true);
             } catch (SessionUnavailableException sue) {
                 // form saving took too long, so we logged out already.
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
@@ -2913,13 +2917,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 c.moveToFirst();
                 String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
                 Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
+
+                Intent formReturnIntent = new Intent();
+                formReturnIntent.putExtra(IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
+
                 if(reportSaved || hasSaved) {
-                    setResult(RESULT_OK, new Intent().setData(instance));
+                    setResult(RESULT_OK, formReturnIntent.setData(instance));
                 } else {
-                    setResult(RESULT_CANCELED, new Intent().setData(instance));
+                    setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
                 }
             }
         }
+
+        CommCareApplication._().getSession().unregisterFormSaveCallback();
         this.dismissDialogs();
         finish();
     }

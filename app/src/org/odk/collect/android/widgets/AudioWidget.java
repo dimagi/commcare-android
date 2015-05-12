@@ -19,16 +19,13 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore.Audio;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
@@ -54,12 +51,12 @@ import java.io.File;
 public class AudioWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "MediaWidget";
 
-    private Button mCaptureButton;
-    private Button mPlayButton;
-    private Button mChooseButton;
+    private final Button mCaptureButton;
+    private final Button mPlayButton;
+    private final Button mChooseButton;
 
     private String mBinaryName;
-    private String mInstanceFolder;
+    private final String mInstanceFolder;
 
     private boolean mWaitingForData;
 
@@ -73,17 +70,12 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
         setOrientation(LinearLayout.VERTICAL);
 
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-
         // setup capture button
         mCaptureButton = new Button(getContext());
-        mCaptureButton.setText(StringUtils.getStringSpannableRobust(getContext(),
-                R.string.capture_audio));
-        mCaptureButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mCaptureButton.setPadding(20, 20, 20, 20);
-        mCaptureButton.setEnabled(!prompt.isReadOnly());
-        mCaptureButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mCaptureButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.capture_audio),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
@@ -108,12 +100,10 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
         // setup capture button
         mChooseButton = new Button(getContext());
-        mChooseButton.setText(StringUtils.getStringSpannableRobust(getContext(),
-                R.string.choose_sound));
-        mChooseButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mChooseButton.setPadding(20, 20, 20, 20);
-        mChooseButton.setEnabled(!prompt.isReadOnly());
-        mChooseButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mChooseButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -132,16 +122,15 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                                     "choose audio"),
                             Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
         // setup play button
         mPlayButton = new Button(getContext());
-        mPlayButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio));
-        mPlayButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mPlayButton.setPadding(20, 20, 20, 20);
-        mPlayButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mPlayButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
@@ -206,7 +195,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
-            return new StringData(mBinaryName.toString());
+            return new StringData(mBinaryName);
         } else {
             return null;
         }
