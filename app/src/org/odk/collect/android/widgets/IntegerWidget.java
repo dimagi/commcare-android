@@ -14,6 +14,15 @@
 
 package org.odk.collect.android.widgets;
 
+import android.content.Context;
+import android.text.InputType;
+import android.text.method.DigitsKeyListener;
+import android.text.method.PasswordTransformationMethod;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+
 import org.javarosa.core.model.condition.pivot.IntegerRangeHint;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.IAnswerData;
@@ -21,14 +30,6 @@ import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.LongData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.utilities.IntegerSizeFilter;
-
-import android.content.Context;
-import android.text.InputType;
-import android.text.method.DigitsKeyListener;
-import android.text.method.PasswordTransformationMethod;
-import android.util.TypedValue;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 
 /**
  * Widget that restricts values to integers.
@@ -178,6 +179,16 @@ public class IntegerWidget extends StringWidget {
         } else{
             mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
         }
+    }
+
+    /*
+ * (non-Javadoc)
+ * @see android.view.View.OnClickListener#onClick(android.view.View)
+ */
+    @Override
+    public void onClick(View v) {
+        setFocus(getContext());
+        // don't revert click behavior in this case since it might be customized.
     }
 
 }
