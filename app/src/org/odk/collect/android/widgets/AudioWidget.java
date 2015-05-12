@@ -1,11 +1,11 @@
 /*
  * Copyright (C) 2009 University of Washington
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -41,8 +41,9 @@ import org.odk.collect.android.utilities.FileUtils;
 import java.io.File;
 
 /**
- * Widget that allows user to take pictures, sounds or video and add them to the form.
- * 
+ * Widget that allows user to take pictures, sounds or video and add them to
+ * the form.
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
@@ -90,7 +91,8 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found, "audio capture"),
+                                    R.string.activity_not_found,
+                                    "audio capture"),
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -116,7 +118,8 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found, "choose audio"),
+                                    R.string.activity_not_found,
+                                    "choose audio"),
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -137,11 +140,12 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                 File f = new File(mInstanceFolder + "/" + mBinaryName);
                 i.setDataAndType(Uri.fromFile(f), "audio/*");
                 try {
-                    getContext().startActivity(i);
+                    ((Activity)getContext()).startActivity(i);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found, "play audio"),
+                                    R.string.activity_not_found,
+                                    "play audio"),
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -168,7 +172,6 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         addView(mPlayButton);
     }
 
-
     private void deleteMedia() {
         // get the file path and delete the file
         File f = new File(mInstanceFolder + "/" + mBinaryName);
@@ -180,11 +183,6 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         mBinaryName = null;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         // remove the file
@@ -194,11 +192,6 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         mPlayButton.setEnabled(false);
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
@@ -228,8 +221,8 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         File source = new File(binaryPath);
         File newAudio = new File(destAudioPath);
         FileUtils.copyFile(source, newAudio);
-        
-       checkFileSize(newAudio);
+
+        checkFileSize(newAudio);
 
         if (newAudio.exists()) {
             // Add the copy to the content provier
@@ -240,7 +233,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
             values.put(Audio.Media.DATA, newAudio.getAbsolutePath());
 
             Uri AudioURI =
-                getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
+                    getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
             Log.i(t, "Inserting AUDIO returned uri = " + AudioURI.toString());
         } else {
             Log.e(t, "Inserting Audio file FAILED");
@@ -250,34 +243,19 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         mWaitingForData = false;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.IBinaryWidget#isWaitingForBinaryData()
-     */
     @Override
     public boolean isWaitingForBinaryData() {
         return mWaitingForData;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mCaptureButton.setOnLongClickListener(l);
@@ -285,11 +263,6 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         mPlayButton.setOnLongClickListener(l);
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
@@ -297,5 +270,4 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         mChooseButton.cancelLongPress();
         mPlayButton.cancelLongPress();
     }
-
 }
