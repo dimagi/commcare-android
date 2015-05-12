@@ -15,12 +15,10 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DumpTask;
-import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
@@ -28,7 +26,6 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
@@ -102,12 +99,24 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public static final int GET_REFERRAL = 32;
     public static final int UPGRADE_APP = 64;
     public static final int REPORT_PROBLEM_ACTIVITY = 128;
+
+    /**
+     * Request code for automatically validating media from home dispatch.
+     * Should signal a return from CommCareVerificationActivity.
+     */
     public static final int MISSING_MEDIA_ACTIVITY=256;
     public static final int DUMP_FORMS_ACTIVITY=512;
     public static final int WIFI_DIRECT_ACTIVITY=1024;
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     public static final int PREFERENCES_ACTIVITY=4096;
-    
+
+    /**
+     * Request code for launching media validator manually (Settings ->
+     * Validate Media). Should signal a return from
+     * CommCareVerificationActivity.
+     */
+    public static final int MEDIA_VALIDATOR_ACTIVITY=8192;
+
     public static final int USE_OLD_DIALOG = 1;
     public static final int DIALOG_CORRUPTED = 4;
     public static final int DIALOG_NO_STORAGE = 8;
@@ -218,7 +227,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         logoutButton.setText(this.localize("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication._().getSession().startLogout();
+                CommCareApplication._().getSession().closeSession(false);
                 returnToLogin(null);
             }
         });
@@ -453,7 +462,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
                         try {
-                            CommCareApplication._().getSession().startLogout();
+                            CommCareApplication._().getSession().closeSession(false);
                         } catch (SessionUnavailableException e) {
                             // if the session isn't available, we don't need to logout
                         }
@@ -464,12 +473,20 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             case PREFERENCES_ACTIVITY:
                 configUi();
                 return;
-            case MISSING_MEDIA_ACTIVITY:
+            case MEDIA_VALIDATOR_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){
-                    this.finish();
+                    return;
+                } else if (resultCode == RESULT_OK){
+                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
-                else if(resultCode == RESULT_OK){
+            case MISSING_MEDIA_ACTIVITY:
+                if(resultCode == RESULT_CANCELED){
+                    // exit the app if media wasn't validated on automatic
+                    // validation check.
+                    this.finish();
+                    return;
+                } else if(resultCode == RESULT_OK){
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -635,8 +652,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * Triggers form submission cycle, cleans up some session state.
      *
      * @param resultCode exit code of form entry activity
-     * @param intent The intent of the returning activity, with the
-     * saved form provided as the intent URI data
+     * @param intent     The intent of the returning activity, with the
+     *                   saved form provided as the intent URI data. Null if
+     *                   the form didn't exit cleanly
      * @return Flag signifying that caller should fetch the next activity in
      * the session to launch. If false then caller should exit or spawn home
      * activity.
@@ -661,9 +679,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        if (FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
-                FormRecord.STATUS_SAVED.equals(current.getStatus()) ||
-                FormRecord.STATUS_UNSENT.equals(current.getStatus())) {
+        if ((intent != null && intent.getBooleanExtra(FormEntryActivity.IS_ARCHIVED_FORM, false)) ||
+                FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
+                FormRecord.STATUS_SAVED.equals(current.getStatus())) {
             // Viewing an old form, so don't change the historical record
             // regardless of the exit code
             currentState.reset();
@@ -739,11 +757,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 FormRecordCleanupTask.wipeRecord(this, currentState);
             }
 
-            currentState.reset();
             if (wasExternal) {
+                currentState.reset();
                 this.finish();
                 return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
+                currentState.reset();
                 // We should head back to the incomplete forms screen
                 goToFormArchive(true, current);
                 return false;
@@ -1149,7 +1168,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 Intent i = new Intent(this, CommCareVerificationActivity.class);
                 this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
                 
-            } else if(!CommCareApplication._().getSession().isLoggedIn()) {
+            } else if(!CommCareApplication._().getSession().isActive()) {
                 //We got brought back to this point despite 
                 returnToLogin();
             } else if(this.getIntent().hasExtra(SESSION_REQUEST)) {
@@ -1561,7 +1580,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     private void startValidationActivity(){
         Intent i = new Intent(this, CommCareVerificationActivity.class);
-        CommCareHomeActivity.this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+        CommCareHomeActivity.this.startActivityForResult(i, MEDIA_VALIDATOR_ACTIVITY);
     }
     
     private void startFormDumpActivity(){
