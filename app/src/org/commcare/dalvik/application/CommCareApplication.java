@@ -613,7 +613,7 @@ public class CommCareApplication extends Application {
                     mIsBinding = false;
 
                     if (user != null) {
-                        getSession().logIn(user);
+                        getSession().startSession(user);
                         attachCallListener();
                         CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 

@@ -19,6 +19,7 @@ import android.text.InputType;
 import android.text.method.DigitsKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
@@ -120,6 +121,16 @@ public class StringNumberWidget extends StringWidget {
         } else{
             mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
         }
+    }
+
+    /*
+* (non-Javadoc)
+* @see android.view.View.OnClickListener#onClick(android.view.View)
+*/
+    @Override
+    public void onClick(View v) {
+        setFocus(getContext());
+        // don't revert click behavior in this case since it might be customized.
     }
 
 }

@@ -605,8 +605,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
              * it starts, set based on whether we are currently in keep trying mode */
             boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
             
-            ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, 
-                    inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep) {
+            ResourceEngineTask<CommCareSetupActivity> task =
+                new ResourceEngineTask<CommCareSetupActivity>(inUpgradeMode,
+                        partialMode, app, startOverUpgrade,
+                        DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                 /*
                  * (non-Javadoc)
