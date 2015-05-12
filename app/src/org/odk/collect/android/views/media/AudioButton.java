@@ -25,7 +25,6 @@ import android.widget.Toast;
 public class AudioButton extends ImageButton implements OnClickListener {
     private final static String t = "AudioButton";
     private String URI;
-    private String shortURI;
     private MediaState currentState;
     private AudioController controller;
     private Object residingViewId;
@@ -39,7 +38,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
         super(context);
 
         resetButton(URI, visible);
-        shortURI = URI.replaceAll("^.*\\/", "");
 
         if (controller == null) {
             this.controller = buildAudioControllerInstance();
@@ -246,7 +244,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
 
 
     private void logAction(String action) {
-        String message = action + " " + shortURI;
+        String message = action + " " + URI;
         Integer progress = controller.getProgress();
         Integer duration = controller.getDuration();
         if (progress != null && duration != null) {
