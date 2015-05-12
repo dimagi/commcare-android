@@ -12,6 +12,8 @@ import org.javarosa.core.model.instance.TreeReference;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -163,15 +165,9 @@ public class TabbedDetailView extends RelativeLayout {
      * Get form list from database and insert into view.
      */
     public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
-        final int[] rowColors = AndroidUtil.getThemeColorIDs(getContext(),
-                new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
-                hasDetailCalloutListener, new EntityDetailAdapter.EntityDetailViewModifier() {
-            @Override
-            public void modifyEntityDetailView(EntityDetailView edv) {
-                edv.setOddEvenRowColors(rowColors[0],rowColors[1]);
-            }
-        });
+                hasDetailCalloutListener, new DefaultEDVModifier()
+        );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         markSelectedTab(0);
     }
@@ -205,5 +201,30 @@ public class TabbedDetailView extends RelativeLayout {
     public int getTabCount() {
         return mViewPager.getAdapter().getCount();
     }
-    
+
+    //region Private classes
+
+    private class DefaultEDVModifier implements EntityDetailAdapter.EntityDetailViewModifier, Parcelable {
+        final int[] rowColors = AndroidUtil.getThemeColorIDs(getContext(),
+                new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
+
+        public DefaultEDVModifier() {
+        }
+
+        @Override
+        public void modifyEntityDetailView(EntityDetailView edv) {
+            edv.setOddEvenRowColors(rowColors[0], rowColors[1]);
+        }
+
+        @Override
+        public int describeContents() {
+            return rowColors[0] ^ rowColors[1];
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+        }
+    }
+
+    //endregion
 }

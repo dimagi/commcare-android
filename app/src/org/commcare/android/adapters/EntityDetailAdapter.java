@@ -112,10 +112,12 @@ public class EntityDetailAdapter implements ListAdapter {
             dv = new EntityDetailView(context, session, detail, entity, valid.get(position), controller, 
                     detailIndex);
             dv.setCallListener(listener);
-            if(modifier != null) modifier.modifyEntityDetailView(dv);
         } else{
             dv.setParams(session, detail, entity, valid.get(position), detailIndex);
             dv.setCallListener(listener);
+        }
+        if(modifier != null){
+            modifier.modifyEntityDetailView(dv);
         }
         dv.setLineColor(position % 2 != 0);
         return dv;

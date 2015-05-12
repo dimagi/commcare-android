@@ -15,6 +15,7 @@ import org.odk.collect.android.views.media.AudioController;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,13 +50,29 @@ public class EntityDetailFragment extends Fragment {
             adapter.setModifier(edvm);
         }
     }
-    
+
+    public static String MODIFIER_KEY = "modifier";
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(modifier instanceof Parcelable) {
+            outState.putParcelable(MODIFIER_KEY, (Parcelable)modifier);
+        } else {
+            throw new IllegalArgumentException(modifier + " must implement Parcelable!");
+        }
+    }
+
     /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
+         * (non-Javadoc)
+         * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+         */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if(savedInstanceState != null){
+            this.modifier = (EntityDetailAdapter.EntityDetailViewModifier) savedInstanceState.getParcelable(MODIFIER_KEY);
+        }
+
         // Note that some of this setup could be moved into onAttach if it would help performance
         Bundle args = getArguments();
 
