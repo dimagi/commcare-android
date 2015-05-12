@@ -86,8 +86,6 @@
             android:progressDrawable="@drawable/progressbar_modern"
             android:layout_centerInParent="true"
             />
-        <!--android:paddingTop="8dp"-->
-        <!--android:paddingBottom="8dp"-->
 
         <ImageButton
             android:id="@id/nav_btn_next"
@@ -100,35 +98,16 @@
             android:paddingRight="8dp"
             android:src="@drawable/icon_chevron_right_brand" />
     </RelativeLayout>
-    <FrameLayout
-        android:id="@+id/form_entry_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/nav_pane"
-        >
 
-        <TextView
-          android:id="@+id/form_entry_group_label"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:visibility="gone"
-          android:text="Header Text"
-          style="@style/TextViewV2"
-          android:paddingLeft="16dp"
-          android:paddingRight="16dp"
-            />
-    </FrameLayout>
     <FrameLayout
         android:id="@+id/form_entry_pane"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/form_entry_header"
+        android:layout_below="@id/nav_pane"
         android:layout_above="@+id/form_entry_labels"
         >
     </FrameLayout>
 
-
-    
     <FrameLayout
         android:id="@id/form_entry_labels"
         android:layout_width="match_parent"

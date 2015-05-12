@@ -70,6 +70,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -1843,17 +1844,21 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         mCurrentView.startAnimation(mInAnimation);
         
-        TextView groupLabel = ((TextView)this.findViewById(R.id.form_entry_group_label));
-        
-        groupLabel.setVisibility(View.GONE);
-        
         if (mCurrentView instanceof ODKView) {
             ((ODKView) mCurrentView).setFocus(this);
             
             String groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
 
+            FrameLayout header = (FrameLayout)mCurrentView.findViewById(R.id.form_entry_header);
+
+            TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+            header.setVisibility(View.GONE);
+            groupLabel.setVisibility(View.GONE);
+
             if(groupLabelText != "") {
                 groupLabel.setText(groupLabelText);
+                header.setVisibility(View.VISIBLE);
                 groupLabel.setVisibility(View.VISIBLE);
             }
         } else {
@@ -1861,7 +1866,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(mCurrentView.getWindowToken(), 0);
         }
-//        setClickListenersForEverything();
     }
 
 
