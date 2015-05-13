@@ -81,6 +81,11 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -103,9 +108,6 @@ import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
 import org.odk.collect.android.preferences.PreferencesActivity;
 import org.odk.collect.android.preferences.PreferencesActivity.ProgressBarMode;
-import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
-import org.odk.collect.android.provider.InstanceProviderAPI;
-import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.tasks.FormLoaderTask;
 import org.odk.collect.android.tasks.SaveToDiskTask;
 import org.odk.collect.android.utilities.Base64Wrapper;
@@ -435,7 +437,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 
                 String contentType = getContentResolver().getType(uri);
                 
-                Uri formUri = null;;
+                Uri formUri = null;
 
                 if (contentType.equals(InstanceColumns.CONTENT_ITEM_TYPE)) {
                     Cursor instanceCursor = this.managedQuery(uri, null, null, null, null);
@@ -1357,7 +1359,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     }
                 }
             } else {
-                Log.w(t, "Unknown view type rendered while current event was question or group! View type: " + mCurrentView == null ? "null" : mCurrentView.getClass().toString());
+                String viewClass = "null";
+                if (mCurrentView != null) {
+                    viewClass = mCurrentView.getClass().toString();
+                }
+                Log.w(t, "Unknown view type rendered while current event was question or group! View type: " +
+                        viewClass);
             }    
         }
         return success;

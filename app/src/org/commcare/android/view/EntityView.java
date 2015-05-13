@@ -169,11 +169,9 @@ public class EntityView extends LinearLayout {
             if (FORM_AUDIO.equals(form)) {
                 ViewId uniqueId = new ViewId(rowId, i, false);
                 setupAudioLayout(view, (String) field, uniqueId);
-            }
-            else if(FORM_IMAGE.equals(form)) {
+            } else if(FORM_IMAGE.equals(form)) {
                 setupImageLayout(view, (String) field);
-            } 
-            else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+            } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
                 int orientation = getResources().getConfiguration().orientation;
                 GraphView g = new GraphView(context, "");
                 View rendered = null;
@@ -195,8 +193,8 @@ public class EntityView extends LinearLayout {
                 ((LinearLayout) view).removeAllViews();
                 ((LinearLayout) view).addView(rendered, g.getLayoutParams());
                 view.setVisibility(VISIBLE);
-            }
-            else { //text to speech
+            } else {
+                //text to speech
                 setupTextAndTTSLayout(view, (String) field, e.getSortField(i));
             }
         }
