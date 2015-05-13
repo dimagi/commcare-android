@@ -1504,8 +1504,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
         }
         if(syncDetails.second[0] > 0) {
-            String syncIndicator = (Localization.get("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
-            if(isUsingNewUI()) {
+            Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
+            if(isUsingNewUI() && syncButton != null) {
                 syncButton.setNotificationText(syncIndicator);
                 adapter.notifyDataSetChanged();
             } else {
