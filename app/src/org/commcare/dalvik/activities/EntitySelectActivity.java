@@ -45,7 +45,6 @@ import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
@@ -460,7 +459,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         } catch(SessionUnavailableException sue) {
             //TODO: login and return
         } catch(RuntimeException re) {
-            createErrorDialog(re.getMessage());
+            createErrorDialog(re.getMessage(), true);
         }
     }
     
@@ -1034,31 +1033,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
     }
 
-    private void createErrorDialog(String errorMsg) {
-        AlertDialog dialog = new AlertDialog.Builder(this).create();
-        dialog.setIcon(android.R.drawable.ic_dialog_info);
-        dialog.setTitle(StringUtils.getStringRobust(this, R.string.error_occured));
-        dialog.setMessage(errorMsg);
-        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-             */
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        setResult(RESULT_CANCELED);
-                        finish();
-                }
-            }
-        };
-        dialog.setCancelable(false);
-        dialog.setButton(AlertDialog.BUTTON_POSITIVE, StringUtils.getStringSpannableRobust(this, R.string.ok), errorListener);
-        dialog.show();
-    }
-
-    
     private Timer myTimer;
     private Object timerLock = new Object();
     boolean cancelled;
