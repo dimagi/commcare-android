@@ -176,6 +176,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 ArrayAdapter<String> spinneritems = new ArrayAdapter<String>(this, R.layout.form_filter_display, names);
                 filterSelect.setAdapter(spinneritems);
                 spinneritems.setDropDownViewResource(R.layout.form_filter_item);
+                filterSelect.setSelection(0, false);
                 filterSelect.setOnItemSelectedListener(new OnItemSelectedListener() {
                     
                     /*
@@ -422,7 +423,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
                 User u = CommCareApplication._().getSession().getLoggedInUser();
                 String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
-                
+
                 //We should go digest auth this user on the server and see whether to pull them
                 //down.
                 DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),u.getCachedPwd(), source, "", this) {
@@ -586,13 +587,14 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
 
 
-    public void notifyPriorityLoaded(Integer record, boolean priority) {
+    @Override
+    public void notifyPriorityLoaded(FormRecord record, boolean priority) {
         if(priority) {
             adapter.notifyDataSetChanged();
         }
     }
 
-
+    @Override
     public void notifyLoaded() {
         enableSearch();
     }
