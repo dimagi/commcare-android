@@ -449,3 +449,6 @@ archive.install.button=Install App
 wifi.direct.transfer.forms=Transfer Forms
 wifi.direct.receive.forms=Receive Forms
 wifi.direct.submit.forms=Submit Forms
+
+odk_perfect_match_color=\#87D13E
+odk_fuzzy_match_color=\#FFE88F
