@@ -59,6 +59,9 @@ public class SquareButtonWithNotification extends RelativeLayout {
         buttonWithText.setText(text);
     }
 
+
+    public void setText(Spannable text) { buttonWithText.setText(text.toString()); }
+
     //endregion
 
     //region Constructors
