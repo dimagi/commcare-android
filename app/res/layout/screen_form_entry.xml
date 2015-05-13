@@ -50,22 +50,23 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/nav_badge"
         android:background="@color/cc_core_bg"
-        android:maxHeight="56dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:minHeight="@dimen/new_progressbar_minheight"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/content_start"
+        android:paddingRight="@dimen/content_start"
         android:layout_marginTop="@dimen/badge_overlap_offset"
-        android:paddingTop="8dp" >
+        >
 
         <ImageButton
             android:id="@+id/nav_btn_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="32dp"
-            android:paddingRight="24dp"
+            android:minWidth="@dimen/new_progressbar_button_minwidth"
+            android:minHeight="@dimen/new_progressbar_button_minheight"
+            android:paddingRight="@dimen/new_progressbar_button_padding"
             android:layout_alignParentLeft="true"
             android:background="@drawable/selector_button_press"
-            android:paddingLeft="8dp"
+            android:paddingLeft="@dimen/content_start"
             android:src="@drawable/icon_chevron_left_brand" />
 
         <ProgressBar
@@ -77,8 +78,10 @@
             android:layout_alignParentTop="true"
             android:layout_toLeftOf="@+id/nav_btn_next"
             android:layout_toRightOf="@id/nav_btn_prev"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginLeft="@dimen/content_start"
+            android:layout_marginRight="@dimen/content_start"
+            android:paddingBottom="@dimen/content_start"
+            android:paddingTop="@dimen/content_start"
             android:indeterminate="false"
             android:indeterminateOnly="false"
             android:max="100"
@@ -91,11 +94,12 @@
             android:id="@id/nav_btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="32dp"
-            android:paddingLeft="24dp"
+            android:minWidth="@dimen/new_progressbar_button_minwidth"
+            android:minHeight="@dimen/new_progressbar_button_minheight"
+            android:paddingLeft="@dimen/new_progressbar_button_padding"
             android:layout_alignParentRight="true"
             android:background="@drawable/selector_button_press"
-            android:paddingRight="8dp"
+            android:paddingRight="@dimen/content_start"
             android:src="@drawable/icon_chevron_right_brand" />
     </RelativeLayout>
 
