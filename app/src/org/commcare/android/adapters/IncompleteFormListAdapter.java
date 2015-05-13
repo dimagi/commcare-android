@@ -121,6 +121,19 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     }
 
     /**
+     * Load new records and text if the given FormFilter differs from the
+     * current filter.
+     *
+     * @param newFilter update the internal FormFilter to this value
+     */
+    public void setFilterAndResetRecords(FormRecordFilter newFilter) {
+        if (!newFilter.equals(this.filter)) {
+            setFormFilter(newFilter);
+            resetRecords();
+        }
+    }
+
+    /**
      * Reload form record list for current filter status and collect pertinent
      * text data using FormRecordLoaderTask; results will then be re-filtered
      * and displayed via callbacks.
