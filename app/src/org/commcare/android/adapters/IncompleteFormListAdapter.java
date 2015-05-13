@@ -54,8 +54,8 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
     /**
      * Maps FormRecord ID to an array of text that will be shown to the user
-     * and query-able. Text should includes modified date, record title, & form
-     * name.
+     * and query-able. Text should includes modified date, record title, and
+     * form name.
      */
     private final Hashtable<Integer, String[]> searchCache = new Hashtable<Integer, String[]>();
 

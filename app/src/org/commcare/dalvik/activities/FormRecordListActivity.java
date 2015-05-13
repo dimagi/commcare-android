@@ -179,6 +179,10 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                      */
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long id) {
+                        // NOTE: This gets called every time a spinner gets
+                        // set-up and also every time spinner state is restored
+                        // on scree-rotation. Hence we defer onCreate record
+                        // loading until this gets triggered automatically.
                         adapter.setFilterAndResetRecords(FormRecordFilter.values()[index]);
 
                         //This is only relevant with the new menu format, old menus have a hard
