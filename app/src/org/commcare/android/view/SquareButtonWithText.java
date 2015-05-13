@@ -27,6 +27,26 @@ public class SquareButtonWithText extends RelativeLayout {
     String text = "";
     private int colorButtonText = R.color.cc_core_bg;
 
+    //region Constructors
+
+    public SquareButtonWithText(Context context) {
+        super(context);
+    }
+
+    public SquareButtonWithText(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        inflateAndExtractCustomParams(context, attrs);
+    }
+
+    public SquareButtonWithText(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+
+        inflateAndExtractCustomParams(context, attrs);
+    }
+
+    //endregion
+
     //region Custom parameter processing
 
     private void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
@@ -41,10 +61,10 @@ public class SquareButtonWithText extends RelativeLayout {
 
         typedArray.recycle();
 
-        squareButton = (SquareButton) findViewById(R.id.square_button);
-        textView = (TextView) findViewById(R.id.text_view);
+        squareButton = (SquareButton)findViewById(R.id.square_button);
+        textView = (TextView)findViewById(R.id.text_view);
 
-        if(isInEditMode()){
+        if (isInEditMode()) {
             setUI(R.color.cc_brand_color, getResources().getDrawable(R.drawable.barcode), "Your text goes here", colorButtonText);
         }
 
@@ -62,7 +82,7 @@ public class SquareButtonWithText extends RelativeLayout {
 
     //region Compatibility methods
 
-    public void setText(String text){
+    public void setText(String text) {
         if (textView != null) {
             textView.setText(text);
         }
@@ -76,25 +96,11 @@ public class SquareButtonWithText extends RelativeLayout {
         squareButton.setBackgroundResource(backgroundColor);
     }
 
-    public void setTextColor(int textColor) { textView.setTextColor(getResources().getColor(textColor)); }
+    public void setTextColor(int textColor) {
+        textView.setTextColor(getResources().getColor(textColor));
+    }
 
     //endregion
-
-    public SquareButtonWithText(Context context) {
-        super(context);
-    }
-
-    public SquareButtonWithText(Context context, AttributeSet attrs) {
-        super(context, attrs);
-
-        inflateAndExtractCustomParams(context, attrs);
-    }
-
-    public SquareButtonWithText(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-
-        inflateAndExtractCustomParams(context, attrs);
-    }
 
     @Override
     public void setOnClickListener(OnClickListener l) {
