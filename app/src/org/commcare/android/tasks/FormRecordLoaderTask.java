@@ -253,9 +253,8 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<FormRecord,
 
         for (FormRecordLoadListener listener : this.listeners) {
             if (listener != null) {
-                // XXX: PLM: pretty sure loaded.contains(values[0].first) is always true at this point.
-                // Should really refactor the following line so that this is
-                // only called if we pulled the value from the priority queue
+                // XXX: PLM: pretty sure loaded.contains(values[0].first) is
+                // always true at this point.
                 listener.notifyPriorityLoaded(values[0].first,
                         loaded.contains(values[0].first.getID()));
             }
