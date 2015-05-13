@@ -458,6 +458,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             
         } catch(SessionUnavailableException sue) {
             //TODO: login and return
+        } catch(RuntimeException re) {
+            createErrorDialog(re.getMessage(), true);
         }
     }
     
@@ -1030,7 +1032,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             theloader.execute(selectDatum.getNodeset());
         }
     }
-    
+
     private Timer myTimer;
     private Object timerLock = new Object();
     boolean cancelled;
