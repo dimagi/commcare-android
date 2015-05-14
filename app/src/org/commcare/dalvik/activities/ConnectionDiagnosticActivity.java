@@ -30,17 +30,9 @@ import org.javarosa.core.services.locale.Localization;
 
 @ManagedUi(R.layout.connection_diagnostic)
 public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
-    
 
-    
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
-    
-    @UiElement(R.id.screen_bulk_image1)
-    ImageView banner;
-    
-    @UiElement(value = R.id.connection_test_prompt, locale="connection.test.prompt")
-    TextView connectionPrompt;
-    
+
     @UiElement(value = R.id.run_connection_test, locale="connection.test.run")
     Button btnRunTest;
     
