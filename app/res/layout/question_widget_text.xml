@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollHorizontally="false"
-    android:text="QuestionWidget placeholder text: there should be a really big question text here, greater than the screen&apos;s size"
-    android:textStyle="bold" >
+    android:text="QuestionWidget placeholder text: there should be a really big question text here, greater than the screen&apos;s size" >
 
 </TextView>
