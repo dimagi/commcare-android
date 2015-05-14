@@ -221,7 +221,6 @@ public class GraphView {
             mData.setConfiguration("x-min", Double.toString(0.5));
             mData.setConfiguration("x-max", Double.toString(sortedPoints.size() + 0.5));
             mData.setConfiguration("x-labels", barLabels.toString());
-            System.out.println("[jls] " + barLabels.toString());
         }
     }
     
@@ -361,6 +360,11 @@ public class GraphView {
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
+        
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            //mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
+            mRenderer.setBarSpacing(0.5);
+        }
         
         // User-configurable options
         mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
