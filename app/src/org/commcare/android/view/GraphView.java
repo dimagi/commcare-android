@@ -191,7 +191,23 @@ public class GraphView {
         for (XYPointData d : s.getPoints()) {
             sortedPoints.add(d);
         }
-        Collections.sort(sortedPoints, new PointComparator(!mData.getType().equals(Graph.TYPE_BAR)));
+        Comparator<XYPointData> comparator;
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            String barSort = s.getConfiguration("bar-sort", "");
+            if (barSort.equals("ascending")) {
+                comparator = new AscendingValuePointComparator();
+            }
+            else if (barSort.equals("descending")) {
+                comparator = new DescendingValuePointComparator();
+            }
+            else {
+                comparator = new StringPointComparator();
+            }
+        }
+        else {
+            comparator = new NumericPointComparator();
+        }
+        Collections.sort(sortedPoints, comparator);
         
         int barIndex = 1;
         JSONObject barLabels = new JSONObject();
@@ -595,19 +611,9 @@ public class GraphView {
      * Comparator to sort XYPointData-derived objects by x value.
      * @author jschweers
      */
-    private class PointComparator implements Comparator<XYPointData> {
-        boolean mParse = true;
-        
-        public PointComparator(boolean parse) {
-            super();
-            mParse = parse;
-        }
-        
+    private class NumericPointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
-            if (!mParse) {
-                return lhs.getX().compareTo(rhs.getX());
-            }
             try {
                 return parseXValue(lhs.getX(), "").compareTo(parseXValue(rhs.getX(), ""));
             } catch (InvalidStateException e) {
@@ -616,4 +622,32 @@ public class GraphView {
         }
     }
 
+    private class StringPointComparator implements Comparator<XYPointData> {
+        @Override
+        public int compare(XYPointData lhs, XYPointData rhs) {
+            return lhs.getX().compareTo(rhs.getX());
+        }
+    }
+
+    private class AscendingValuePointComparator implements Comparator<XYPointData> {
+        @Override
+        public int compare(XYPointData lhs, XYPointData rhs) {
+            try {
+                return parseXValue(lhs.getY(), "").compareTo(parseXValue(rhs.getY(), ""));
+            } catch (InvalidStateException e) {
+                return 0;
+            }
+        }
+    }
+
+    private class DescendingValuePointComparator implements Comparator<XYPointData> {
+        @Override
+        public int compare(XYPointData lhs, XYPointData rhs) {
+            try {
+                return parseXValue(rhs.getY(), "").compareTo(parseXValue(lhs.getY(), ""));
+            } catch (InvalidStateException e) {
+                return 0;
+            }
+        }
+    }
 }
