@@ -113,4 +113,7 @@
     <color name="cc_light_warm_accent_bg">#F8ECBD</color>
     <color name="cc_light_warm_accent_text">#685300</color>
 
+    <!-- EditText color -->
+    <color name="edit_text_color">#D0D0D0</color>
+
 </resources>
