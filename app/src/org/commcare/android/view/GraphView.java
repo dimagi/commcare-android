@@ -79,7 +79,7 @@ public class GraphView {
             bottomMargin += textAllowance;
         }
         if (mData.getType().equals(Graph.TYPE_BAR)) {
-            bottomMargin *= 2;
+            bottomMargin += 100;
         }
         mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
     }
