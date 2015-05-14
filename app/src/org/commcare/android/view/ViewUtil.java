@@ -21,7 +21,9 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.reference.InvalidReferenceException;
