@@ -512,6 +512,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
+    @Override
     public void formSaveCallback() {
         // note that we have started saving the form
         savingFormOnKeySessionExpiration = true;
@@ -564,7 +565,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if (!"done".equals(v.getTag())) {
                     FormEntryActivity.this.showNextView();
                 } else {
-                    FormEntryActivity.this.triggerUserFormComplete();
+                    saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
                 }
             }
         });
@@ -1587,8 +1588,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                         Toast.makeText(FormEntryActivity.this, StringUtils.getStringSpannableRobust(FormEntryActivity.this, R.string.save_as_error),
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
-                                        saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
-                                                .getText().toString(), false);
+                                        saveDataToDisk(EXIT,
+                                                       instanceComplete.isChecked(),
+                                                       saveAs.getText().toString(),
+                                                       false);
                                     }
                                 }
                             });
@@ -2006,7 +2009,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             	if(!nextExitsForm) {
             		showNextView();
             	} else {
-            		FormEntryActivity.this.triggerUserFormComplete();
+                    saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
             	}
 			}
         	
@@ -2098,26 +2101,31 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     /**
      * Saves form data to disk.
      *
-     * @param exit if set, will exit program after save.
-     * @param complete has the user marked the instances as complete?
-     * @param updatedSaveName set name of the instance's content provider, if
+     * @param exit            If set, will exit program after save.
+     * @param complete        Has the user marked the instances as complete?
+     * @param updatedSaveName Set name of the instance's content provider, if
      *                        non-null
-     * @param headless is this running as a GUI-less service
-     *
+     * @param headless        Disables GUI warnings and lets answers that
+     *                        violate constraints be saved.
      * @return Did the data save successfully?
      */
     private boolean saveDataToDisk(boolean exit, boolean complete,
                                    String updatedSaveName, boolean headless) {
-        // save current answer
-        if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete, headless)) {
-            if (!headless) {
-                Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
-            }
+        // save current answer; if headless, don't evaluate the constraints
+        // before doing so.
+        if (headless &&
+                (!saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS, complete, headless))) {
+            return false;
+        } else if (!headless &&
+                !saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete, headless)) {
+            Toast.makeText(this,
+                    StringUtils.getStringSpannableRobust(this, R.string.data_saved_error),
+                    Toast.LENGTH_SHORT).show();
             return false;
         }
 
         mSaveToDiskTask =
-            new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
+                new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
         mSaveToDiskTask.setFormSavedListener(this);
         mSaveToDiskTask.execute();
         if (!headless) {
@@ -2600,14 +2608,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
         return saveName;
     }
-    
-    /**
-     * Call when the user is ready to save and return the current form as complete 
-     */
-    private void triggerUserFormComplete() {
-        saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
-    }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
