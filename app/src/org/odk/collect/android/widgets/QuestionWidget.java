@@ -393,7 +393,10 @@ public abstract class QuestionWidget extends LinearLayout {
         // shown when image is clicked
         String bigImageURI = p.getSpecialFormQuestionText("big-image");
 
+        
         mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
+        mQuestionText.setText(p.getLongText());
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         mQuestionText.setId(38475483); // assign random id
 
         // if we have markdown, use that.
