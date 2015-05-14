@@ -78,6 +78,9 @@ public class GraphView {
         if (!mRenderer.getXTitle().equals("")) {
             bottomMargin += textAllowance;
         }
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            bottomMargin *= 2;
+        }
         mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
     }
     
@@ -188,7 +191,6 @@ public class GraphView {
         for (XYPointData d : s.getPoints()) {
             sortedPoints.add(d);
         }
-        // TODO: sort for bars (alphabetical)
         Collections.sort(sortedPoints, new PointComparator(!mData.getType().equals(Graph.TYPE_BAR)));
         
         int barIndex = 1;
@@ -230,6 +232,13 @@ public class GraphView {
      */
     public static LinearLayout.LayoutParams getLayoutParams() {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
+    }
+    
+    public double getRatio() {
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            return 1;
+        }
+        return 2;
     }
     
     /**
@@ -352,7 +361,6 @@ public class GraphView {
         mRenderer.setXLabelsAlign(Align.CENTER);
         mRenderer.setYLabelsAlign(Align.RIGHT);
         mRenderer.setYLabelsAlign(Align.LEFT, 1);
-        mRenderer.setYLabelsPadding(10);
         mRenderer.setYAxisAlign(Align.RIGHT, 1);
         mRenderer.setAxesColor(mContext.getResources().getColor(R.color.grey_lighter));
         mRenderer.setLabelsTextSize(mTextSize);
@@ -361,8 +369,13 @@ public class GraphView {
         mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
         
+        int padding = 10;
+        mRenderer.setXLabelsPadding(padding);
+        mRenderer.setYLabelsPadding(padding);
+        mRenderer.setYLabelsVerticalPadding(padding);
+        
         if (mData.getType().equals(Graph.TYPE_BAR)) {
-            //mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
+            mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
             mRenderer.setBarSpacing(0.5);
         }
         

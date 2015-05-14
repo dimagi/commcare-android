@@ -262,6 +262,7 @@ public class EntityDetailView extends FrameLayout {
                 g.setClickable(true);
                 try {
                     graphView = g.getView((GraphData) field);
+                    graphLayout.setRatio((float) g.getRatio(), (float) 1);
                 }
                 catch (InvalidStateException ise) {
                     graphView = new TextView(context);
