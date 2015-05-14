@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.achartengine.ChartFactory;
+import org.achartengine.chart.BarChart;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -103,6 +104,9 @@ public class GraphView {
         if (mData.getType().equals(Graph.TYPE_TIME)) {
             return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, title, getTimeFormat());
         }
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            return ChartFactory.getBarChartIntent(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT, title);
+        }
         return ChartFactory.getLineChartIntent(mContext, mDataset, mRenderer, title);
     }
     
@@ -141,6 +145,9 @@ public class GraphView {
         }
         if (mData.getType().equals(Graph.TYPE_TIME)) {
             return ChartFactory.getTimeChartView(mContext, mDataset, mRenderer, getTimeFormat());
+        }
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT);
         }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
     }
@@ -181,8 +188,11 @@ public class GraphView {
         for (XYPointData d : s.getPoints()) {
             sortedPoints.add(d);
         }
-        Collections.sort(sortedPoints, new PointComparator());
+        // TODO: sort for bars (alphabetical)
+        Collections.sort(sortedPoints, new PointComparator(!mData.getType().equals(Graph.TYPE_BAR)));
         
+        int barIndex = 1;
+        JSONObject barLabels = new JSONObject();
         for (XYPointData p : sortedPoints) {
             String description = "point (" + p.getX() + ", " + p.getY() + ")";
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
@@ -193,9 +203,25 @@ public class GraphView {
             else if (mData.getType().equals(Graph.TYPE_TIME)) {
                 ((TimeSeries) series).add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             }
+            else if (mData.getType().equals(Graph.TYPE_BAR)) {
+                series.add(barIndex, parseYValue(p.getY(), description));
+                try {
+                    barLabels.put(Double.toString(barIndex), p.getX());
+                }
+                catch (JSONException e) {
+                    throw new InvalidStateException("Could not handle bar label '" + p.getX() + "': " + e.getMessage());
+                }
+                barIndex++;
+            }
             else {
                 series.add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             }
+        }
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            mData.setConfiguration("x-min", Double.toString(0.5));
+            mData.setConfiguration("x-max", Double.toString(sortedPoints.size() + 0.5));
+            mData.setConfiguration("x-labels", barLabels.toString());
+            System.out.println("[jls] " + barLabels.toString());
         }
     }
     
@@ -553,8 +579,18 @@ public class GraphView {
      * @author jschweers
      */
     private class PointComparator implements Comparator<XYPointData> {
+        boolean mParse = true;
+        
+        public PointComparator(boolean parse) {
+            super();
+            mParse = parse;
+        }
+        
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
+            if (!mParse) {
+                return lhs.getX().compareTo(rhs.getX());
+            }
             try {
                 return parseXValue(lhs.getX(), "").compareTo(parseXValue(rhs.getX(), ""));
             } catch (InvalidStateException e) {
