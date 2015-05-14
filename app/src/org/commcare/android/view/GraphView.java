@@ -78,6 +78,11 @@ public class GraphView {
         if (!mRenderer.getXTitle().equals("")) {
             bottomMargin += textAllowance;
         }
+        
+        // Bar charts have text labels that are likely to be long (names, etc.).
+        // This is a terrible, temporary way to give them extra space. At some point
+        // there'll need to be a more robust solution for setting margins that
+        // respond to data and screen size.
         if (mData.getType().equals(Graph.TYPE_BAR)) {
             bottomMargin += 100;
         }
@@ -222,6 +227,11 @@ public class GraphView {
                 ((TimeSeries) series).add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             }
             else if (mData.getType().equals(Graph.TYPE_BAR)) {
+                // In CommCare, bar graphs are specified with x as a set of text labels
+                // and y as a set of values. In AChartEngine, bar graphs are a subclass
+                // of XY graphs, with numeric x and y values. Deal with this by 
+                // assigning an arbitrary, evenly-spaced x value to each bar and then
+                // populating x-labels with the user's x values. 
                 series.add(barIndex, parseYValue(p.getY(), description));
                 try {
                     barLabels.put(Double.toString(barIndex), p.getX());
@@ -250,7 +260,15 @@ public class GraphView {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
     }
     
+    /**
+     * Get graph's desired aspect ratio. 
+     * @return Ratio, expressed as a double: width / height.
+     */
     public double getRatio() {
+        // Most graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
+        // and happened to look nice for partographs. Vertically-oriented graphs,
+        // however, get squished unless they're drawn as a square. Expect to revisit 
+        // this eventually (make all graphs square? user-configured aspect ratio?).
         if (mData.getType().equals(Graph.TYPE_BAR)) {
             return 1;
         }
@@ -622,6 +640,11 @@ public class GraphView {
         }
     }
 
+    /**
+     * Comparator to sort XYPointData-derived objects by x value without parsing them.
+     * Useful for bar graphs, where x values are text.
+     * @author jschweers
+     */
     private class StringPointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
@@ -629,6 +652,11 @@ public class GraphView {
         }
     }
 
+    /**
+     * Comparator to sort XYPoint-derived data by y value, in ascending order.
+     * Useful for bar graphs, nonsensical for other graphs.
+     * @author jschweers
+     */
     private class AscendingValuePointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
@@ -640,6 +668,11 @@ public class GraphView {
         }
     }
 
+    /**
+     * Comparator to sort XYPoint-derived data by y value, in descending order.
+     * Useful for bar graphs, nonsensical for other graphs.
+     * @author jschweers
+     */
     private class DescendingValuePointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
