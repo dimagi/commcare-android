@@ -2055,12 +2055,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @param complete has the user marked the instances as complete?
      * @param updatedSaveName set name of the instance's content provider, if non-null
      * @param headless is this running as a GUI-less service
-     *
-     * @return Did the data save successfully?
      */
-    private boolean saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
         if (!formHasLoaded()) {
-            return false;
+            return;
         }
 
         // save current answer
@@ -2068,7 +2066,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             if (!headless) {
                 Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
             }
-            return false;
+            return;
+        }
+
+        // If a save task is already running, just let it do its thing
+        if ((mSaveToDiskTask != null) &&
+                (mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED)) {
+            return;
         }
 
         mSaveToDiskTask =
@@ -2078,8 +2082,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (!headless) {
             showDialog(SAVING_DIALOG);
         }
-
-        return true;
     }
 
 
