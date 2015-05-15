@@ -755,9 +755,19 @@ public class CommCareApplication extends Application {
             return;
         }
 
+        DataSubmissionListener dataListener = null;
+
+        try {
+            dataListener =
+                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
+        } catch (SessionUnavailableException sue) {
+            // abort since it looks like the session expired
+            return;
+        }
+
         LogSubmissionTask task = new LogSubmissionTask(this,
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
-                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title),
+                dataListener,
                 url);
 
         //Execute on a true multithreaded chain, since this is an asynchronous process

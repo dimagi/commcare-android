@@ -136,7 +136,15 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                     }
                     
                 };
-                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+
+                try {
+                    mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+                } catch (SessionUnavailableException sue) {
+                    // abort since it looks like the session expired
+                    displayMessage("CommCare session is no longer available.");
+                    return;
+                }
+
                 mProcess.connect(RecoveryActivity.this);
                 
                 //Execute on a true multithreaded chain. We should probably replace all of our calls with this
