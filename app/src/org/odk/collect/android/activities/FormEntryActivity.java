@@ -2058,6 +2058,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return Did the data save successfully?
      */
     private boolean saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+        if (!formHasLoaded()) {
+            return false;
+        }
+
         // save current answer
         if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete)) {
             if (!headless) {
@@ -2987,5 +2991,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         updateFormRelevencies();
         updateNavigationCues(this.mCurrentView);
         
+    }
+    /**
+     * Has form loading (via FormLoaderTask) completed?
+     */
+    private boolean formHasLoaded() {
+        return mFormController == null;
     }
 }
