@@ -2486,7 +2486,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
             return;
         }
-        
+
+        try {
+            // CommCareSessionService will call this.formSaveCallback when the
+            // key session is closing down and we need to save any intermediate
+            // results before they become un-saveable.
+            CommCareApplication._().getSession().registerFormSaveCallback(this);
+        } catch (SessionUnavailableException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    "Couldn't register form save callback because session doesn't exist");
+        }
+
         //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
         //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
         //on screen rotation. We need to re-do any setAnswers that we perform on them after
@@ -2687,16 +2697,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             Intent i = new Intent(this, FormHierarchyActivity.class);
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
-        }
-
-        try {
-            // CommCareSessionService will call this.formSaveCallback when the
-            // key session is closing down and we need to save any intermediate
-            // results before they become un-saveable.
-            CommCareApplication._().getSession().registerFormSaveCallback(this);
-        } catch (SessionUnavailableException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "Couldn't register form save callback because session doesn't exist");
         }
 
         //mFormController.setLanguage(mFormController.getLanguage());
