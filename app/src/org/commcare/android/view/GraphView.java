@@ -169,6 +169,7 @@ public class GraphView {
         configureSeries(s, currentRenderer);
 
         XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
+        series.setTitle(s.getConfiguration("name", ""));
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
             if (s.getConfiguration("radius-max") != null) {
                 ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max"), "radius-max"));
@@ -333,7 +334,6 @@ public class GraphView {
         mRenderer.setLabelsTextSize(mTextSize);
         mRenderer.setAxisTitleTextSize(mTextSize);
         mRenderer.setApplyBackgroundColor(true);
-        mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
         
         // User-configurable options
@@ -372,6 +372,11 @@ public class GraphView {
             mRenderer.setShowAxes(false);
         }
         
+        // Legend
+        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false")).booleanValue();
+        mRenderer.setShowLegend(showLegend);
+        mRenderer.setLegendTextSize(mTextSize);
+
         // Labels
         boolean hasX = configureLabels("x-labels");
         boolean hasY = configureLabels("y-labels");
