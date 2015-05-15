@@ -14,7 +14,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
-import android.os.AsyncTask;
 import android.util.Pair;
 
 
