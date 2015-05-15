@@ -263,6 +263,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
 
+        try {
+            // CommCareSessionService will call this.formSaveCallback when the
+            // key session is closing down and we need to save any intermediate
+            // results before they become un-saveable.
+            CommCareApplication._().getSession().registerFormSaveCallback(this);
+        } catch (SessionUnavailableException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    "Couldn't register form save callback because session doesn't exist");
+        }
+
+
         // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
@@ -2485,16 +2496,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (mErrorMessage != null && (mAlertDialog != null && !mAlertDialog.isShowing())) {
             CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
             return;
-        }
-
-        try {
-            // CommCareSessionService will call this.formSaveCallback when the
-            // key session is closing down and we need to save any intermediate
-            // results before they become un-saveable.
-            CommCareApplication._().getSession().registerFormSaveCallback(this);
-        } catch (SessionUnavailableException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "Couldn't register form save callback because session doesn't exist");
         }
 
         //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
