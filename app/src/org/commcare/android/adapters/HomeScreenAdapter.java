@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
+ * Sets up home screen buttons and gives accessors for setting their visibility and listeners
  * Created by dancluna on 3/19/15.
  */
 public class HomeScreenAdapter extends BaseAdapter {
@@ -60,17 +61,27 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     //region Public API
 
-    public void setOnClickListenerForButton(int androidCode, boolean lookupID, View.OnClickListener listener){
-        int buttonIndex = getButtonIndex(androidCode, lookupID);
-        setOnClickListenerForButton(buttonIndex, listener);
+    /**
+     * Sets the onClickListener for the given button
+     * @param resourceCode Android resource code (R.id.$button or R.layout.$button)
+     * @param lookupID If set, will search for the button with the given R.id
+     * @param listener OnClickListener for the button
+     */
+    public void setOnClickListenerForButton(int resourceCode, boolean lookupID, View.OnClickListener listener){
+        int buttonIndex = getButtonIndex(resourceCode, lookupID);
+        buttonListeners[buttonIndex] = listener;
+        SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
+        if(button != null){
+            button.setOnClickListener(listener);
+        }
     }
 
-    public SquareButtonWithNotification getButton(int androidCode, boolean lookupID){
-        return buttons[getButtonIndex(androidCode, lookupID)];
+    public SquareButtonWithNotification getButton(int resourceCode, boolean lookupID){
+        return buttons[getButtonIndex(resourceCode, lookupID)];
     }
 
-    public void setNotificationTextForButton(int androidCode, boolean lookupID, String notificationText) {
-        SquareButtonWithNotification button = getButton(androidCode, lookupID);
+    public void setNotificationTextForButton(int resourceCode, boolean lookupID, String notificationText) {
+        SquareButtonWithNotification button = getButton(resourceCode, lookupID);
         if (button != null) {
             button.setNotificationText(notificationText);
             notifyDataSetChanged();
@@ -95,7 +106,6 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view;
         if(!isInitialized){
             visibleButtons = new LinkedList<SquareButtonWithNotification>();
             Log.i("HomeScrnAdpt","Creating all buttons because got a null in position " + position);
@@ -112,7 +122,6 @@ public class HomeScreenAdapter extends BaseAdapter {
                     button.setOnClickListener(listener);
                     Log.i("HomeScrnAdpt","Added onClickListener " + listener + " to button in position " + i);
                 }
-                if( i == position ) view = button;
                 if(!hiddenButtons[i]) visibleButtons.add(button);
             }
             isInitialized = true;
@@ -131,13 +140,19 @@ public class HomeScreenAdapter extends BaseAdapter {
         }
     }
 
-    public void setButtonVisibility(int androidCode, boolean lookupID, boolean isButtonHidden){
-        int index = getButtonIndex(androidCode, lookupID);
-        boolean toggled = isButtonHidden ^ hiddenButtons[index];
+    /**
+     * Sets visibility for the button with the given resource code
+     * @param resourceCode Android resource code (R.id.$button or R.layout.$button)
+     * @param lookupID If set, will search for the button with the given R.id
+     * @param isButtonHidden Button visibility state (true for hidden, false for visible)
+     */
+    public void setButtonVisibility(int resourceCode, boolean lookupID, boolean isButtonHidden){
+        int index = getButtonIndex(resourceCode, lookupID);
+        boolean toggled = isButtonHidden ^ hiddenButtons[index]; // checking if the button visibility was changed in this call
         hiddenButtons[index] = isButtonHidden;
         if (visibleButtons != null) {
-            if(!toggled) return;
-            if(isButtonHidden) {
+            if(!toggled) return; // if the visibility was not changed, we don't need to do anything
+            if(isButtonHidden) { // if the visibility was changed, we add/remove the button from the visible buttons' list
                 visibleButtons.remove(buttons[index]);
             } else {
                 visibleButtons.add(index, buttons[index]);
@@ -149,33 +164,28 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     //region Private methods
 
-    private void setOnClickListenerForButton(int buttonIndex, View.OnClickListener listener) {
-        buttonListeners[buttonIndex] = listener;
-        SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
-        if(button != null){
-            button.setOnClickListener(listener);
-        }
-    }
+
 
     /**
      * Returns the index of the button with the given resource code. If lookupID is set, will search for the button with the given R.id; if not, will search for the button with the given R.layout code.
-     * @param androidCode
+     * @param resourceCode
      * @param lookupID
      * @return
-     * @throws java.lang.IllegalArgumentException If the given androidCode is not found
+     * @throws java.lang.IllegalArgumentException If the given resourceCode is not found
      */
-    private int getButtonIndex(int androidCode, boolean lookupID){
-        int code = androidCode;
+    private int getButtonIndex(int resourceCode, boolean lookupID){
+        int code = resourceCode;
         // if lookupID is set, we are mapping from an int in R.id to one in R.layout
         if(lookupID){
-            Integer layoutCode = buttonsIDsToResources.get(androidCode);
-            if(layoutCode == null) throw new IllegalArgumentException("ID code not found: " + androidCode);
+            Integer layoutCode = buttonsIDsToResources.get(resourceCode);
+            if(layoutCode == null) throw new IllegalArgumentException("ID code not found: " + resourceCode);
             code = layoutCode;
         }
         Integer buttonIndex = null;
         for (int i = 0; i < buttonsResources.length; i++) {
             if(code == buttonsResources[i]){
                 buttonIndex = i;
+                break;
             }
         }
         if(buttonIndex == null) throw new IllegalArgumentException("Layout code not found: " + code);

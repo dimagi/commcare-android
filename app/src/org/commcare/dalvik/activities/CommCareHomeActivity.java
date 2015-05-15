@@ -320,7 +320,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         TextView formGroupLabel = (TextView) findViewById(R.id.home_formrecords_label);
         if(formGroupLabel != null) {
-            if(formGroupLabel != null) formGroupLabel.setText(Localization.get("home.forms"));
+            formGroupLabel.setText(Localization.get("home.forms"));
         }
 
         if(isUsingNewUI()){
@@ -1351,7 +1351,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivityForResult(i,LOGIN_USER);
+        startActivityForResult(i, LOGIN_USER);
     }
     
     public void createNoStorageDialog() {
@@ -1429,11 +1429,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         if(isUsingNewUI()) {
             adapter.setNotificationTextForButton(R.layout.home_sync_button, false, message);
-//            int margin = getResources().getDimensionPixelSize(R.dimen.margin);
-//            int margin = gridView.getResources().getDimensionPixelSize(R.styleable.StaggeredGridView_itemMargin);
-//            int margin = gridViewMargin;
-//            gridView.setItemMargin(margin); // set the GridView margin
-//            gridView.setPadding(margin, margin, margin, margin); // have the margin on the sides as well
         } else {
             TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
             syncMessage.setText(message);
@@ -1564,30 +1559,32 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
              */
 
                 formRecordPane.setVisibility(View.VISIBLE);
-
-                if (!CommCarePreferences.isSavedFormsEnabled()) {
-                    if(viewOldForms != null) viewOldForms.setVisibility(View.GONE);
-                } else {
-                    if(viewOldForms != null) viewOldForms.setVisibility(View.VISIBLE);
+                if(viewOldForms != null) {
+                    if (!CommCarePreferences.isSavedFormsEnabled()) {
+                        viewOldForms.setVisibility(View.GONE);
+                    } else {
+                        viewOldForms.setVisibility(View.VISIBLE);
+                    }
                 }
 
-                if (!CommCarePreferences.isIncompleteFormsEnabled()) {
-                    if(viewIncomplete != null) viewIncomplete.setVisibility(View.GONE);
-                } else {
-                    if(viewIncomplete != null) viewIncomplete.setVisibility(View.VISIBLE);
+                if(viewIncomplete != null) {
+                    if (!CommCarePreferences.isIncompleteFormsEnabled()) {
+                        viewIncomplete.setVisibility(View.GONE);
+                    } else {
+                        viewIncomplete.setVisibility(View.VISIBLE);
+                    }
                 }
 
             }
         }
     }
 
-    private void setSyncText(Pair<Long, int[]> syncDetails, String syncKey) {
-        String key = syncKey;
-        if(key == null){
-            key = isDemoUser() ? "home.sync.demo" : "home.sync";
+    private void setSyncText(Pair<Long, int[]> syncDetails, String syncTextKey) {
+        if(syncTextKey == null){
+            syncTextKey = isDemoUser() ? "home.sync.demo" : "home.sync";
         }
         if(syncDetails.second[0] > 0) {
-            Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(key)}));
+            Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncTextKey)}));
             if(isUsingNewUI() && syncButton != null) {
                 syncButton.setNotificationText(syncIndicator);
                 adapter.notifyDataSetChanged();
@@ -1595,7 +1592,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 if(syncButton != null) syncButton.setText(syncIndicator);
             }
         } else {
-            if(syncButton != null) syncButton.setText(this.localize(key));
+            if(syncButton != null) syncButton.setText(this.localize(syncTextKey));
         }
     }
 
@@ -1693,7 +1690,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
                 //CommCareUtil.printInstance("jr://instance/stockdb");
-                createPreferencesMenu();
+                createPreferencesMenu(this);
                 return true;
             case MENU_UPDATE:
                 if(!isOnline() && isAirplaneModeOn()){
@@ -1733,10 +1730,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return super.onOptionsItemSelected(item);
     }
     
-    private void createPreferencesMenu() {
-        createPreferencesMenu(this);
-    }
-
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
