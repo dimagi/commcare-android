@@ -19,7 +19,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     protected int taskId = GENERIC_TASK_ID;
     
     public CommCareTask() {
-        
     }
 
     /* (non-Javadoc)

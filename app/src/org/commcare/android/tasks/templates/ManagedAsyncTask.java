@@ -24,8 +24,10 @@ public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
     /**
      * Create task and add it to list of managed tasks.
      */
-    public void ManagedAsyncTask() {
-        livingTasks.add(this);
+    public ManagedAsyncTask() {
+        synchronized(livingTasks) {
+            livingTasks.add(this);
+        }
     }
 
     /**
