@@ -273,6 +273,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
+
         // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
@@ -2054,16 +2055,24 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @param complete has the user marked the instances as complete?
      * @param updatedSaveName set name of the instance's content provider, if non-null
      * @param headless is this running as a GUI-less service
-     *
-     * @return Did the data save successfully?
      */
-    private boolean saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+        if (!formHasLoaded()) {
+            return;
+        }
+
         // save current answer
         if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete)) {
             if (!headless) {
                 Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
             }
-            return false;
+            return;
+        }
+
+        // If a save task is already running, just let it do its thing
+        if ((mSaveToDiskTask != null) &&
+                (mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED)) {
+            return;
         }
 
         mSaveToDiskTask =
@@ -2073,8 +2082,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (!headless) {
             showDialog(SAVING_DIALOG);
         }
-
-        return true;
     }
 
 
@@ -2492,7 +2499,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
             return;
         }
-        
+
         //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
         //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
         //on screen rotation. We need to re-do any setAnswers that we perform on them after
@@ -2694,7 +2701,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
-        
+
         //mFormController.setLanguage(mFormController.getLanguage());
         
         /* here was code that loaded cached language preferences fin the
@@ -2987,5 +2994,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         updateFormRelevencies();
         updateNavigationCues(this.mCurrentView);
         
+    }
+    /**
+     * Has form loading (via FormLoaderTask) completed?
+     */
+    private boolean formHasLoaded() {
+        return mFormController != null;
     }
 }
