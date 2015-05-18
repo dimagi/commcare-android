@@ -41,9 +41,6 @@ import android.widget.TextView;
 
 @ManagedUi(R.layout.screen_form_dump)
 public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpActivity> {
-    
-    @UiElement(R.id.screen_bulk_image1)
-    ImageView banner;
      
     @UiElement(value = R.id.screen_bulk_form_prompt, locale="bulk.form.prompt")
     TextView txtDisplayPrompt;
