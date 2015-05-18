@@ -215,7 +215,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
 
-        if (user.getUserType().equals(User.TYPE_DEMO)) {
+        if (User.TYPE_DEMO.equals(user.getUserType())) {
             generator = new HttpRequestGenerator();
         } else {
             generator = new HttpRequestGenerator(user);
