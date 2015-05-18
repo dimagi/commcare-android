@@ -66,6 +66,13 @@ public class CommCareSessionService extends Service  {
     private Date sessionExpireDate;
     
     private final Object lock = new Object();
+
+    /**
+     * Lock that must be obtained in order to close down the session.
+     * NOTE PLM: Worth considering eventually removing this and refactoring
+     * processes to be more easily interrupted/aborted.
+     */
+    public static final Object LOGOUT_LOCK = new Object();
     
     private User user;
     
@@ -371,60 +378,62 @@ public class CommCareSessionService extends Service  {
      */
     public void closeSession(boolean sessionExpired) {
         synchronized(lock){
-            if (!isActive()) {
-                // Since both the FormSaveCallback callback and the maintenance
-                // timer might call this, only run if it hasn't been called
-                // before.
-                return;
-            }
-            key = null;
-            String msg = "Logging out service login";
-
-            // Let anyone who is listening know!
-            Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
-            this.sendBroadcast(i);
-
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
-
-            if (user != null) {
-                if (user.getUsername() != null) {
-                    msg = "Logging out user " + user.getUsername();
+            synchronized(CommCareSessionService.LOGOUT_LOCK) {
+                if (!isActive()) {
+                    // Since both the FormSaveCallback callback and the maintenance
+                    // timer might call this, only run if it hasn't been called
+                    // before.
+                    return;
                 }
-                user = null;
-            }
+                key = null;
+                String msg = "Logging out service login";
 
-            if (userDatabase != null) {
-                if (userDatabase.isOpen()) {
-                    userDatabase.close();
+                // Let anyone who is listening know!
+                Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
+                this.sendBroadcast(i);
+
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
+
+                if (user != null) {
+                    if (user.getUsername() != null) {
+                        msg = "Logging out user " + user.getUsername();
+                    }
+                    user = null;
                 }
-                userDatabase = null;
-            }
 
-            // timer is null if we aren't actually in the foreground
-            if (maintenanceTimer != null) {
-                maintenanceTimer.cancel();
-            }
-            logoutStartedAt = -1;
+                if (userDatabase != null) {
+                    if (userDatabase.isOpen()) {
+                        userDatabase.close();
+                    }
+                    userDatabase = null;
+                }
 
-            CommCareApplication._().logout();
+                // timer is null if we aren't actually in the foreground
+                if (maintenanceTimer != null) {
+                    maintenanceTimer.cancel();
+                }
+                logoutStartedAt = -1;
 
-            pool.expire();
-            this.stopForeground(true);
+                CommCareApplication._().logout();
 
-            if (sessionExpired) {
-                // Re-direct to the home screen
-                Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
-                // TODO: instead of launching here, which will pop-up the login
-                // screen even if CommCare isn't in the foreground, we should
-                // broadcast an intent, which CommCareActivity can receive if
-                // in focus and dispatch the login activity. Will also need to
-                // extend CommCareActivity's onResume to check if we need to
-                // re-login when we bring CommCare back into the foreground, so
-                // that the user can't just continue doing work while logged
-                // out. -- PLM
-                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(loginIntent);
+                pool.expire();
+                this.stopForeground(true);
+
+                if (sessionExpired) {
+                    // Re-direct to the home screen
+                    Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
+                    // TODO: instead of launching here, which will pop-up the login
+                    // screen even if CommCare isn't in the foreground, we should
+                    // broadcast an intent, which CommCareActivity can receive if
+                    // in focus and dispatch the login activity. Will also need to
+                    // extend CommCareActivity's onResume to check if we need to
+                    // re-login when we bring CommCare back into the foreground, so
+                    // that the user can't just continue doing work while logged
+                    // out. -- PLM
+                    loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(loginIntent);
+                }
             }
         }
     }
