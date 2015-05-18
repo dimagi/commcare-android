@@ -306,7 +306,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void syncData(boolean formsToSend) {
-        User u = null;
+        User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
         } catch (SessionUnavailableException sue) {
