@@ -14,8 +14,10 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.ConnectionDiagnosticTask;
+import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -170,11 +172,11 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                 String url = settings.getString("PostURL", null);
                 
                 if(url != null) {
-                    DataSubmissionListener dataListener = null;
+                    DataSubmissionListener dataListener;
 
                     try {
                         dataListener =
-                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title)
+                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
                     } catch (SessionUnavailableException sue) {
                         // abort since it looks like the session expired
                         return;

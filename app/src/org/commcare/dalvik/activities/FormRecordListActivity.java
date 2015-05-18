@@ -421,12 +421,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-                User u = null;
+                User u;
                 try {
                     u = CommCareApplication._().getSession().getLoggedInUser();
                 } catch (SessionUnavailableException sue) {
-                    // abort since it looks like the session expired
-                    return;
+                    // abort and let default processing happen, since it looks
+                    // like the session expired.
+                    return false;
                 }
 
                 String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
