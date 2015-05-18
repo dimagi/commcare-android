@@ -563,7 +563,7 @@ public class BreadcrumbBarFragment extends Fragment {
             //Add the app icon
             TextView iconBearer = ((TextView)layout.getChildAt(layout.getChildCount() - 1));
             
-            iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.ab_icon,0,0,0);
+            iconBearer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_app_white,0,0,0);
             iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
             
             //Add an "Anchor" view to the left hand side of the bar. The relative layout doesn't work unless

@@ -2,6 +2,6 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:left="8dp"
-        android:drawable="@drawable/ab_icon"
+        android:drawable="@drawable/icon_app_white"
         android:right="8dp"/>
 </layer-list>
