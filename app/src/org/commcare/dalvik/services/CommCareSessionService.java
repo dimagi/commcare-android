@@ -77,8 +77,8 @@ public class CommCareSessionService extends Service  {
     private final int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
 
     // How long to wait until we force the session to finish logging out. Set
-    // at 30 seconds to make sure huge forms on slow phones actually get saved
-    private static final long LOGOUT_TIMEOUT = 1000 * 30;
+    // at 90 seconds to make sure huge forms on slow phones actually get saved
+    private static final long LOGOUT_TIMEOUT = 1000 * 90;
 
     // The logout process start time, used to wrap up logging out if
     // the saving of incomplete forms takes too long
