@@ -550,6 +550,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
+    /**
+     * Debug method to toast a view's ID whenever it is clicked.
+     */
     private void setClickListenersForEverything() {
         if (BuildConfig.DEBUG) {
             ViewGroup layout = (ViewGroup) findViewById(android.R.id.content);
