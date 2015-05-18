@@ -377,8 +377,8 @@ public class CommCareSessionService extends Service  {
      *                       upon closing this session?
      */
     public void closeSession(boolean sessionExpired) {
-        synchronized(lock){
-            synchronized(CommCareSessionService.LOGOUT_LOCK) {
+        synchronized (lock) {
+            synchronized (CommCareSessionService.LOGOUT_LOCK) {
                 if (!isActive()) {
                     // Since both the FormSaveCallback callback and the maintenance
                     // timer might call this, only run if it hasn't been called
