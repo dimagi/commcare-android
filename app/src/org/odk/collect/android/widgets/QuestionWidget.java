@@ -235,13 +235,6 @@ public abstract class QuestionWidget extends LinearLayout {
             // one for the internals (or splitting up the layout), but this'll do for now 
             this.toastView = View.inflate(this.getContext(), R.layout.toast_view_modern, this).findViewById(R.id.toast_view_root);
 
-//            
-//            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) toastView.getLayoutParams();
-//            int margin = -1 * this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
-//
-//            params.setMargins(margin, 0,margin,0);
-//            this.addView(toastView, params);
-
             focusPending = requestFocus;
         } else {
             if(this.toastView.getVisibility() != View.VISIBLE) {

@@ -1849,8 +1849,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         if (mCurrentView instanceof ODKView) {
             ((ODKView) mCurrentView).setFocus(this);
-            
-            String groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
 
             FrameLayout header = (FrameLayout)mCurrentView.findViewById(R.id.form_entry_header);
 
@@ -1859,7 +1857,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             header.setVisibility(View.GONE);
             groupLabel.setVisibility(View.GONE);
 
-            if(groupLabelText != "") {
+            String groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
+
+            if(!"".equals(groupLabelText)) {
                 groupLabel.setText(groupLabelText);
                 header.setVisibility(View.VISIBLE);
                 groupLabel.setVisibility(View.VISIBLE);
@@ -1955,17 +1955,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         mRepeatDialog.setIcon(android.R.drawable.ic_dialog_info);
         
-        boolean navBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
+        boolean hasNavBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
         
         //this is super gross...
         NavigationDetails details = null;
-        if(navBar) {
+        if(hasNavBar) {
             details = calculateNavigationStatus();
         }
         
-        final boolean backExitsForm = navBar && !details.relevantBeforeCurrentScreen;
+        final boolean backExitsForm = hasNavBar && !details.relevantBeforeCurrentScreen;
         
-        final boolean nextExitsForm = navBar && details.relevantAfterCurrentScreen == 0;
+        final boolean nextExitsForm = hasNavBar && details.relevantAfterCurrentScreen == 0;
         
         Button back = (Button)view.findViewById(R.id.component_repeat_back);
         
