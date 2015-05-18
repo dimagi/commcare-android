@@ -38,6 +38,8 @@ public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
      */
     @Override
     protected void onPreExecute() {
+        super.onPreExecute();
+
         synchronized(livingTasks) {
             livingTasks.add(this);
         }
