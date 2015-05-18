@@ -15,20 +15,11 @@ import java.util.ArrayList;
 public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
 
     /**
-     * List of running/to-be-run tasks. Tasks remove themselves automatically
-     * upon completion.
+     * List of running tasks. Tasks add/remove themselves automatically upon
+     * start, cancellation, and completion.
      */
     private static final ArrayList<ManagedAsyncTask<?, ?, ?>> livingTasks =
             new ArrayList<ManagedAsyncTask<?, ?, ?>>();
-
-    /**
-     * Create task and add it to list of managed tasks.
-     */
-    public ManagedAsyncTask() {
-        synchronized(livingTasks) {
-            livingTasks.add(this);
-        }
-    }
 
     /**
      * Call cancel on all tasks and then wipe the living task list.
@@ -39,6 +30,16 @@ public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
                 task.cancel(true);
             }
             livingTasks.clear();
+        }
+    }
+
+    /**
+     * Before executing add the task to list of managed tasks.
+     */
+    @Override
+    protected void onPreExecute() {
+        synchronized(livingTasks) {
+            livingTasks.add(this);
         }
     }
 
