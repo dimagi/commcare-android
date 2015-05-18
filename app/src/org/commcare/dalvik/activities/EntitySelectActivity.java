@@ -61,6 +61,7 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
@@ -142,55 +143,58 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     private DataSetObserver mListStateObserver;
     private final OnClickListener barcodeScanOnClickListener = new OnClickListener() {
-            
+
+        @Override
+        public void onClick(View v) {
             mViewMode = session.isViewCommand(session.getCommand());
-            
+
             Callout callout = shortSelect.getCallout();
-            
+
             if (callout == null) {
                 // Default to barcode scanning if no callout defined in the detail
                 barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
                 barcodeButton.setOnClickListener(new OnClickListener() {
-                        public void onClick(View v) {
-                            Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                            try {
-                                startActivityForResult(i, BARCODE_FETCH);
-                            } catch (ActivityNotFoundException anfe) {
-                                Toast noReader = Toast.makeText(EntitySelectActivity.this,
-                                                                "No barcode reader available! You can install one " +
-                                                                "from the android market.",
-                                                                Toast.LENGTH_LONG);
-                                noReader.show();
-                            }
+                    public void onClick(View v) {
+                        Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                        try {
+                            startActivityForResult(i, BARCODE_FETCH);
+                        } catch (ActivityNotFoundException anfe) {
+                            Toast noReader = Toast.makeText(EntitySelectActivity.this,
+                                    "No barcode reader available! You can install one " +
+                                            "from the android market.",
+                                    Toast.LENGTH_LONG);
+                            noReader.show();
                         }
-                    });
+                    }
+                });
             } else {
                 CalloutData calloutData = callout.evaluate();
-                
+
                 if (calloutData.getImage() != null) {
                     setupImageLayout(barcodeButton, calloutData.getImage());
                 }
-                
+
                 final String actionName = calloutData.getActionName();
                 final Hashtable<String, String> extras = calloutData.getExtras();
-                
+
                 barcodeButton.setOnClickListener(new OnClickListener() {
-                        public void onClick(View v) {
-                            Intent i = new Intent(actionName);
-                            
-                            for(String key: extras.keySet()){
-                                i.putExtra(key, extras.get(key));
-                            }
-                            try {
-                                startActivityForResult(i, CALLOUT);
-                            } catch (ActivityNotFoundException anfe) {
-                                Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
-                                noReader.show();
-                            }
+                    public void onClick(View v) {
+                        Intent i = new Intent(actionName);
+
+                        for(String key: extras.keySet()){
+                            i.putExtra(key, extras.get(key));
                         }
-                    });
+                        try {
+                            startActivityForResult(i, CALLOUT);
+                        } catch (ActivityNotFoundException anfe) {
+                            Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
+                            noReader.show();
+                        }
+                    }
+                });
             }
-        };
+        }
+    };
 
     /*
      * (non-Javadoc)
@@ -291,18 +295,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         header = (LinearLayout)findViewById(R.id.entity_select_header);
 
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-        
-        Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
-        prototype = entries.elementAt(0);
-        
-        
-        //(We shouldn't need the "" here, but we're avoiding making changes to commcare core for release issues)
-        if(entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
-            mViewMode = true;
-        }
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
-        
+
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
