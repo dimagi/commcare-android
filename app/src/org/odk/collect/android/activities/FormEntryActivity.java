@@ -565,7 +565,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if (!"done".equals(v.getTag())) {
                     FormEntryActivity.this.showNextView();
                 } else {
-                    saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
+                    triggerUserFormComplete();
                 }
             }
         });
@@ -2009,7 +2009,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             	if(!nextExitsForm) {
             		showNextView();
             	} else {
-                    saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
+                    triggerUserFormComplete();
             	}
 			}
         	
@@ -2607,6 +2607,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         }
         return saveName;
+    }
+
+    /**
+     * Call when the user is ready to save and return the current form as complete 
+     */
+    private void triggerUserFormComplete() {
+        saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
     }
 
     @Override
