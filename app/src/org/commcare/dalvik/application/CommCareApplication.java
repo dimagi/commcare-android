@@ -573,6 +573,7 @@ public class CommCareApplication extends Application {
 //        
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
+        // TODO PLM wrap in try/catch for SessionUnavailableException
         final String username = this.getSession().getLoggedInUser().getUsername();
 
         final Set<String> dbIdsToRemove = new HashSet<String>();
