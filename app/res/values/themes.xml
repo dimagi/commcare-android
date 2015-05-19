@@ -3,7 +3,6 @@
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!-- API 11 theme customizations can go here. -->
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
-        <item name="android:radioButtonStyle">@style/radio_button_modern</item>
         <item name="entity_detail_even_row_color">@color/translucent_grey_light</item>
         <item name="entity_detail_odd_row_color">@color/transparent</item>
         <item name="entity_view_header_background_color">@color/cc_brand_text</item>
@@ -13,11 +12,6 @@
         <item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>
     </style>
 
-    <style name="radio_button_modern">
-        <item name="android:button">@drawable/radio_button_modern</item>
-        <item name="android:background">@drawable/radio_button_modern</item>
-    </style>
-    
 	<style name="Theme.LightSliding" parent="@android:style/Theme.Light">
 	    <item name="android:windowAnimationStyle">@style/Animation.ScreenAnimations</item>
 	</style>
