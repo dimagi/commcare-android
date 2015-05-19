@@ -41,11 +41,11 @@ import java.util.Vector;
  */
 public class EntityView extends LinearLayout {
     
-    private View[] views;
+    private final View[] views;
     private String[] forms;
     private TextToSpeech tts; 
     private String[] searchTerms;
-    private Context context;
+    private final Context context;
     private AudioController controller;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
@@ -60,8 +60,8 @@ public class EntityView extends LinearLayout {
     /*
      * Constructor for row/column contents
      */
-    public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
-            String[] searchTerms, AudioController controller, long rowId, boolean mFuzzySearchEnabled) {
+    public EntityView(final Context context, final Detail d, final Entity e, final TextToSpeech tts,
+            final String[] searchTerms, final AudioController controller, final long rowId, final boolean mFuzzySearchEnabled) {
         super(context);
         this.context = context;
         //this is bad :(
@@ -74,18 +74,18 @@ public class EntityView extends LinearLayout {
         this.rowId = rowId;
         views = new View[e.getNumFields()];
         forms = d.getTemplateForms();
-        float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
+        final float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
         
         for (int i = 0; i < views.length; ++i) {
             if (weights[i] != 0) {
-                Object uniqueId = new ViewId(rowId, i, false);
+                final Object uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(e.getField(i), forms[i], uniqueId, e.getSortField(i));
                 views[i].setId(i);
             }
         }
         refreshViewsForNewEntity(e, false, rowId);
         for (int i = 0; i < views.length; i++) {
-            LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+            final LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
             if (views[i] != null) {
                 addView(views[i], l);
             }
@@ -97,22 +97,22 @@ public class EntityView extends LinearLayout {
     /*
      * Constructor for row/column headers
      */
-    public EntityView(Context context, Detail d, String[] headerText, Integer textColor) {
+    public EntityView(final Context context, final Detail d, final String[] headerText, final Integer textColor) {
         super(context);
         this.context = context;
         this.setWeightSum(1);
         views = new View[headerText.length];
-        float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
-        String[] headerForms = d.getHeaderForms();
+        final float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
+        final String[] headerForms = d.getHeaderForms();
         
         for (int i = 0 ; i < views.length ; ++i) {
             if (lengths[i] != 0) {
-                LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
-                ViewId uniqueId = new ViewId(rowId, i, false);
+                final LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
+                final ViewId uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(headerText[i], headerForms[i], uniqueId, null);      
                 views[i].setId(i);
                 if(textColor != null) {
-                    TextView tv = (TextView) views[i].findViewById(R.id.component_audio_text_txt);
+                    final TextView tv = (TextView) views[i].findViewById(R.id.component_audio_text_txt);
                     if(tv != null) tv.setTextColor(textColor);
                 }
                 addView(views[i], l);
@@ -124,15 +124,15 @@ public class EntityView extends LinearLayout {
      * Creates up a new view in the view with ID uniqueid, based upon
      * the entity's text and form
      */
-    private View initView(Object data, String form, Object uniqueId, String sortField) {
-        View retVal;
+    private View initView(final Object data, final String form, final Object uniqueId, final String sortField) {
+        final View retVal;
         if (FORM_IMAGE.equals(form)) {
-            ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);
+            final ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);
             retVal = iv;
         } 
         else if (FORM_AUDIO.equals(form)) {
-            String text = (String) data;
-            AudioButton b;
+            final String text = (String) data;
+            final AudioButton b;
             if (text != null & text.length() > 0) {
                 b = new AudioButton(context, text, uniqueId, controller, true);
             }
@@ -142,44 +142,44 @@ public class EntityView extends LinearLayout {
             retVal = b;
         } 
         else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
-            View layout = View.inflate(context, R.layout.entity_item_graph, null);
+            final View layout = View.inflate(context, R.layout.entity_item_graph, null);
             retVal = layout;
         }
         else if (FORM_CALLLOUT.equals(form)) {
-            View layout = View.inflate(context, R.layout.entity_item_graph, null);
+            final View layout = View.inflate(context, R.layout.entity_item_graph, null);
             retVal = layout;
         }
         else {
-            View layout = View.inflate(context, R.layout.component_audio_text, null);
+            final View layout = View.inflate(context, R.layout.component_audio_text, null);
             setupTextAndTTSLayout(layout, (String) data, sortField);
             retVal = layout;
         }
         return retVal;
     }
     
-    public void setSearchTerms(String[] terms) {
+    public void setSearchTerms(final String[] terms) {
         this.searchTerms = terms;
     }
     
 
-    public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
+    public void refreshViewsForNewEntity(final Entity e, final boolean currentlySelected, final long rowId) {
         for (int i = 0; i < e.getNumFields() ; ++i) {
-            Object field = e.getField(i);
-            View view = views[i];
-            String form = forms[i];
+            final Object field = e.getField(i);
+            final View view = views[i];
+            final String form = forms[i];
             
             if (view == null) { continue; }
             
             if (FORM_AUDIO.equals(form)) {
-                ViewId uniqueId = new ViewId(rowId, i, false);
+                final ViewId uniqueId = new ViewId(rowId, i, false);
                 setupAudioLayout(view, (String) field, uniqueId);
             }
             else if(FORM_IMAGE.equals(form)) {
                 setupImageLayout(view, (String) field);
             } 
             else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
-                int orientation = getResources().getConfiguration().orientation;
-                GraphView g = new GraphView(context, "");
+                final int orientation = getResources().getConfiguration().orientation;
+                final GraphView g = new GraphView(context, "");
                 View rendered = null;
                  if (renderedGraphsCache.get(i) != null) {
                      rendered = renderedGraphsCache.get(i).get(orientation);
@@ -190,7 +190,7 @@ public class EntityView extends LinearLayout {
                  if (rendered == null) {
                      try {
                          rendered = g.getView((GraphData) field);
-                     } catch (InvalidStateException ise) {
+                     } catch (final InvalidStateException ise) {
                          rendered = new TextView(context);
                          ((TextView)rendered).setText(ise.getMessage());
                      }
@@ -216,8 +216,8 @@ public class EntityView extends LinearLayout {
      * Updates the AudioButton layout that is passed in, based on the
      * new id and source
      */
-    private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
-        AudioButton b = (AudioButton)layout;
+    private void setupAudioLayout(final View layout, final String source, final ViewId uniqueId) {
+        final AudioButton b = (AudioButton)layout;
         if (source != null && source.length() > 0) {
             b.modifyButtonForNewView(uniqueId, source, true);
         }
@@ -229,11 +229,11 @@ public class EntityView extends LinearLayout {
     /*
      * Updates the text layout that is passed in, based on the new text
      */
-    private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
-        TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
+    private void setupTextAndTTSLayout(final View layout, final String text, final String searchField) {
+        final TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
         tv.setVisibility(View.VISIBLE);
         tv.setText(highlightSearches(this.getContext(), searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
-        ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
+        final ImageButton btn = (ImageButton)layout.findViewById(R.id.component_audio_text_btn_audio);
         btn.setFocusable(false);
 
         btn.setOnClickListener(new OnClickListener(){
@@ -243,19 +243,19 @@ public class EntityView extends LinearLayout {
              * @see android.view.View.OnClickListener#onClick(android.view.View)
              */
             @Override
-            public void onClick(View v) {
-                String textToRead = text;
+            public void onClick(final View v) {
+                final String textToRead = text;
                 tts.speak(textToRead, TextToSpeech.QUEUE_FLUSH, null);
             }
         });
         if (tts == null || text == null || text.equals("")) {
             btn.setVisibility(View.INVISIBLE);
-            RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+            final RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
             params.width = 0;
             btn.setLayoutParams(params);
         } else {
             btn.setVisibility(View.VISIBLE);
-            RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
+            final RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
             params.width = LayoutParams.WRAP_CONTENT;
             btn.setLayoutParams(params);
         }
@@ -266,9 +266,9 @@ public class EntityView extends LinearLayout {
      * Updates the ImageView layout that is passed in, based on the  
      * new id and source
      */
-    public void setupImageLayout(View layout, final String source) {
-        ImageView iv = (ImageView) layout;
-        Bitmap b;
+    public void setupImageLayout(final View layout, final String source) {
+        final ImageView iv = (ImageView) layout;
+        final Bitmap b;
         if (!source.equals("")) {
             try {
                 b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
@@ -279,11 +279,11 @@ public class EntityView extends LinearLayout {
                 else {
                     iv.setImageBitmap(b);
                 }
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 ex.printStackTrace();
                 //Error loading image
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-            } catch (InvalidReferenceException ex) {
+            } catch (final InvalidReferenceException ex) {
                 ex.printStackTrace();
                 //No image
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
@@ -309,7 +309,7 @@ public class EntityView extends LinearLayout {
      * @param strictMode
      * @return
      */
-    public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
+    public static Spannable highlightSearches(final Context context, final String[] searchTerms, final Spannable raw, String backgroundString, final boolean fuzzySearchEnabled, final boolean strictMode) {
         if (searchTerms == null) {
             return raw;
         }
@@ -329,14 +329,14 @@ public class EntityView extends LinearLayout {
                 backgroundString = StringUtils.normalize(raw.toString());
             }
 
-            String normalizedDisplayString = StringUtils.normalize(raw.toString());
+            final String normalizedDisplayString = StringUtils.normalize(raw.toString());
 
             removeSpans(raw);
 
-            Vector<int[]> matches = new Vector<int[]>();
+            final Vector<int[]> matches = new Vector<int[]>();
 
             //Highlight direct substring matches
-            for (String searchText : searchTerms) {
+            for (final String searchText : searchTerms) {
                 if ("".equals(searchText)) {
                     continue;
                 }
@@ -345,7 +345,7 @@ public class EntityView extends LinearLayout {
                 //isn't null due to the background string check above
 
                 //check to see where we should start displaying this chunk
-                int offset = TextUtils.indexOf(normalizedDisplayString, backgroundString);
+                final int offset = TextUtils.indexOf(normalizedDisplayString, backgroundString);
                 if (offset == -1) {
                     //We can't safely highlight any of this, due to this field not actually
                     //containing the same string we're searching by.
@@ -358,7 +358,7 @@ public class EntityView extends LinearLayout {
                 while (index >= 0) {
 
                     //grab the display offset for actually displaying things
-                    int displayIndex = index + offset;
+                    final int displayIndex = index + offset;
 
                     raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.yellow)), displayIndex, displayIndex
                             + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -376,7 +376,7 @@ public class EntityView extends LinearLayout {
             if (fuzzySearchEnabled && backgroundString != null) {
                 backgroundString += " ";
 
-                for (String searchText : searchTerms) {
+                for (final String searchText : searchTerms) {
 
                     if ("".equals(searchText)) {
                         continue;
@@ -391,7 +391,7 @@ public class EntityView extends LinearLayout {
                         boolean skip = matches.size() != 0;
 
                         //See whether the fuzzy match overlaps at all with the concrete matches
-                        for (int[] textMatch : matches) {
+                        for (final int[] textMatch : matches) {
                             if (curStart < textMatch[0] && curEnd <= textMatch[0]) {
                                 skip = false;
                             } else if (curStart >= textMatch[1] && curEnd > textMatch[1]) {
@@ -406,13 +406,13 @@ public class EntityView extends LinearLayout {
 
                         if (!skip) {
                             //Walk the string to find words that are fuzzy matched
-                            String currentSpan = backgroundString.substring(curStart, curEnd);
+                            final String currentSpan = backgroundString.substring(curStart, curEnd);
 
                             //First, figure out where we should be matching (if we don't
                             //have anywhere to match, that means there's nothing to display
                             //anyway)
-                            int indexInDisplay = normalizedDisplayString.indexOf(currentSpan);
-                            int length = (curEnd - curStart);
+                            final int indexInDisplay = normalizedDisplayString.indexOf(currentSpan);
+                            final int length = (curEnd - curStart);
 
                             if (indexInDisplay != -1 && StringUtils.fuzzyMatch(currentSpan, searchText).first) {
                                 raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.green)), indexInDisplay,
@@ -424,7 +424,7 @@ public class EntityView extends LinearLayout {
                     }
                 }
             }
-        } catch (Exception excp){
+        } catch (final Exception excp){
             removeSpans(raw);
             Logger.log("search-hl", excp.toString() + " " + ExceptionReportTask.getStackTrace(excp));
         }
@@ -436,19 +436,19 @@ public class EntityView extends LinearLayout {
      * Removes all background color spans from the Spannable
      * @param raw Spannable to remove background colors from
      */
-    private static void removeSpans(Spannable raw) {
+    private static void removeSpans(final Spannable raw) {
         //Zero out the existing spans
-        BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
-        for (BackgroundColorSpan span : spans) {
+        final BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
+        for (final BackgroundColorSpan span : spans) {
             raw.removeSpan(span);
         }
     }
 
-    private float[] calculateDetailWeights(int[] hints) {
-        float[] weights = new float[hints.length];
+    private float[] calculateDetailWeights(final int[] hints) {
+        final float[] weights = new float[hints.length];
         int fullSize = 100;
         int sharedBetween = 0;
-        for(int hint : hints) {
+        for(final int hint : hints) {
             if(hint != -1) {
                 fullSize -= hint;
             } else {
@@ -456,10 +456,10 @@ public class EntityView extends LinearLayout {
             }
         }
         
-        double average = ((double)fullSize) / (double)sharedBetween;
+        final double average = ((double)fullSize) / (double)sharedBetween;
         
         for(int i = 0; i < hints.length; ++i) {
-            int hint = hints[i];
+            final int hint = hints[i];
             weights[i] = hint == -1? (float)(average/100.0) :  (float)(((double)hint)/100.0);
         }
 
