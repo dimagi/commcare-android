@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,21 +29,21 @@ public class SetupInstallFragment extends Fragment {
     SquareButtonWithText enterURLButton;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.setup_install, container, false);
-        TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.setup_install, container, false);
+        final TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.barcode"));
         scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
         enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 try {
-                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                    final Intent i = new Intent("com.google.zxing.client.android.SCAN");
                     //Barcode only
                     i.putExtra("SCAN_FORMATS","QR_CODE");
                     getActivity().startActivityForResult(i, CommCareSetupActivity.BARCODE_CAPTURE);
-                } catch (ActivityNotFoundException e) {
+                } catch (final ActivityNotFoundException e) {
                     Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
                     scanBarcodeButton.setVisibility(View.GONE);
                 }
@@ -52,11 +51,11 @@ public class SetupInstallFragment extends Fragment {
         });
         enterURLButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
+            public void onClick(final View v) {
+                final SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
                 // if we use getChildFragmentManager, we're going to have a crash
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
+                final FragmentManager fm = getActivity().getSupportFragmentManager();
+                final FragmentTransaction ft = fm.beginTransaction();
                 ft.replace(SetupInstallFragment.this.getId(), enterUrl);
                 ft.addToBackStack(null);
                 ft.commit();
