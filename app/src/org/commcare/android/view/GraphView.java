@@ -155,7 +155,7 @@ public class GraphView {
             return ChartFactory.getTimeChartView(mContext, mDataset, mRenderer, getTimeFormat());
         }
         if (mData.getType().equals(Graph.TYPE_BAR)) {
-            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT);
+            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, BarChart.Type.STACKED);
         }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
     }
@@ -197,19 +197,16 @@ public class GraphView {
             sortedPoints.add(d);
         }
         Comparator<XYPointData> comparator;
-        if (mData.getType().equals(Graph.TYPE_BAR)) {
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
             String barSort = s.getConfiguration("bar-sort", "");
             if (barSort.equals("ascending")) {
                 comparator = new AscendingValuePointComparator();
-            }
-            else if (barSort.equals("descending")) {
+            } else if (barSort.equals("descending")) {
                 comparator = new DescendingValuePointComparator();
-            }
-            else {
+            } else {
                 comparator = new StringPointComparator();
             }
-        }
-        else {
+        } else {
             comparator = new NumericPointComparator();
         }
         Collections.sort(sortedPoints, comparator);
