@@ -47,15 +47,15 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     private final static String t = "CLASSNAME";
     private final static int TEXTSIZE = 21;
     
-    private Context mContext;
+    private final Context mContext;
 
-    private LinearLayout mView;
-    private LinearLayout.LayoutParams mLayout;
-    private ArrayList<QuestionWidget> widgets;
-    private ArrayList<View> dividers;
+    private final LinearLayout mView;
+    private final LinearLayout.LayoutParams mLayout;
+    private final ArrayList<QuestionWidget> widgets;
+    private final ArrayList<View> dividers;
     private ProgressBar mProgressBar;
     
-    private int mQuestionFontsize;
+    private final int mQuestionFontsize;
 
     public final static String FIELD_LIST = "field-list";
     
@@ -67,28 +67,28 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
 
     private boolean mProgressEnabled;
     
-    String mGroupLabel;
+    final String mGroupLabel;
 
-    private static boolean SEPERATORS_ENABLED = false;
+    private static final boolean SEPERATORS_ENABLED = false;
 
-    public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory) {
+    public ODKView(final Context context, final FormEntryPrompt questionPrompt, final FormEntryCaption[] groups, final WidgetFactory factory) {
         this(context, new FormEntryPrompt[] {
             questionPrompt
         }, groups, factory);
     }
     
-    public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory, WidgetChangedListener wcl) {
+    public ODKView(final Context context, final FormEntryPrompt questionPrompt, final FormEntryCaption[] groups, final WidgetFactory factory, final WidgetChangedListener wcl) {
         this(context, new FormEntryPrompt[] {
             questionPrompt
         }, groups, factory, wcl, false);
     }
     
-    public ODKView(Context context, FormEntryPrompt[] questionPrompts, FormEntryCaption[] groups, WidgetFactory factory) {
+    public ODKView(final Context context, final FormEntryPrompt[] questionPrompts, final FormEntryCaption[] groups, final WidgetFactory factory) {
         this(context, questionPrompts, groups, factory, null, false);
     }
 
 
-    public ODKView(Context context, FormEntryPrompt[] questionPrompts, FormEntryCaption[] groups, WidgetFactory factory, WidgetChangedListener wcl, boolean isGroup) {
+    public ODKView(final Context context, final FormEntryPrompt[] questionPrompts, final FormEntryCaption[] groups, final WidgetFactory factory, final WidgetChangedListener wcl, final boolean isGroup) {
         super(context);
         
         if(wcl !=null){
@@ -96,20 +96,20 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             wcListener = wcl;
         }
         
-        SharedPreferences settings = 
+        final SharedPreferences settings =
              PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
 
-        String question_font =
+        final String question_font =
                 settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
 
-        mQuestionFontsize = new Integer(question_font).intValue();
+        mQuestionFontsize = Integer.valueOf(question_font).intValue();
         
         mContext = context;
 
         widgets = new ArrayList<QuestionWidget>();
         dividers = new ArrayList<View>();
 
-        View layout = inflate(getContext(), R.layout.odkview_layout, null);
+        final View layout = inflate(getContext(), R.layout.odkview_layout, null);
 
         mView = (LinearLayout) layout.findViewById(R.id.odkview_layout);
         
@@ -122,13 +122,13 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             mProgressBar = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
             mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progressbar));
             
-            LinearLayout.LayoutParams barLayout =
+            final LinearLayout.LayoutParams barLayout =
                 new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
             barLayout.setMargins(15, 15, 15, 15);
             barLayout.gravity = Gravity.BOTTOM;
             
-            LinearLayout barView = new LinearLayout(getContext());
+            final LinearLayout barView = new LinearLayout(getContext());
             barView.setOrientation(LinearLayout.VERTICAL);
             barView.setGravity(Gravity.BOTTOM);
             barView.addView((View) mProgressBar);
@@ -144,10 +144,10 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         String hintText = null;
         if(questionPrompts.length > 1) {
             hintText = questionPrompts[0].getHintText();
-            for (FormEntryPrompt p : questionPrompts) {
+            for (final FormEntryPrompt p : questionPrompts) {
                 //If something doesn't have hint text at all,
                 //bail
-                String curHintText = p.getHintText();
+                final String curHintText = p.getHintText();
                 //Otherwise see if it matches
                 if(curHintText == null || !curHintText.equals(hintText)) {
                     //If not, we can't do this trick
@@ -164,10 +164,10 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         
         boolean first = true;
         
-        for (FormEntryPrompt p: questionPrompts) {
+        for (final FormEntryPrompt p: questionPrompts) {
             
             if (!first) {
-                View divider = new View(getContext());
+                final View divider = new View(getContext());
                 if(SEPERATORS_ENABLED) {
                     divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
                     divider.setMinimumHeight(3);
@@ -179,7 +179,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             } else {
                 first = false;
             }
-            QuestionWidget qw;
+            final QuestionWidget qw;
             // if question or answer type is not supported, use text widget
             qw = factory.createWidgetFromPrompt(p, getContext());
             qw.setLongClickable(true);
@@ -202,15 +202,15 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         addView(layout);
     }
     
-    public void removeQuestionFromIndex(int i){
+    public void removeQuestionFromIndex(final int i){
         mView.removeView((View) widgets.get(i));
-        int dividerIndex = Math.max(i - 1, 0);
+        final int dividerIndex = Math.max(i - 1, 0);
         mView.removeView(dividers.get(dividerIndex));
         widgets.remove(i);
         dividers.remove(dividerIndex);
     }
     
-    public void removeQuestionsFromIndex(ArrayList<Integer> indexes){
+    public void removeQuestionsFromIndex(final ArrayList<Integer> indexes){
         //Always gotta move backwards when removing, ensure that this list
         //goes backwards
         Collections.sort(indexes);
@@ -221,9 +221,9 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
     }
     
-    public void addQuestionToIndex(FormEntryPrompt fep, WidgetFactory factory, int i){
+    public void addQuestionToIndex(final FormEntryPrompt fep, final WidgetFactory factory, final int i){
 
-        View divider = new View(getContext());
+        final View divider = new View(getContext());
         if(SEPERATORS_ENABLED) {
             divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
             divider.setMinimumHeight(3);
@@ -237,7 +237,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         mView.addView(divider, getViewIndex(dividerIndex));
         dividers.add(Math.max(0, i - 1), divider);
         
-        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());;
+        final QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());
         qw.setLongClickable(true);
         qw.setOnLongClickListener(this);
         qw.setId(VIEW_ID + widgetIdCount++);
@@ -258,15 +258,15 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * @return a HashMap of answers entered by the user for this set of widgets
      */
     public HashMap<FormIndex, IAnswerData> getAnswers() {
-        HashMap<FormIndex, IAnswerData> answers = new HashMap<FormIndex, IAnswerData>();
-        Iterator<QuestionWidget> i = widgets.iterator();
+        final HashMap<FormIndex, IAnswerData> answers = new HashMap<FormIndex, IAnswerData>();
+        final Iterator<QuestionWidget> i = widgets.iterator();
         while (i.hasNext()) {
             /*
              * The FormEntryPrompt has the FormIndex, which is where the answer gets stored. The
              * QuestionWidget has the answer the user has entered.
              */
-            QuestionWidget q = i.next();
-            FormEntryPrompt p = q.getPrompt();
+            final QuestionWidget q = i.next();
+            final FormEntryPrompt p = q.getPrompt();
             answers.put(p.getIndex(), q.getAnswer());
         }
 
@@ -277,13 +277,13 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * @see android.widget.LinearLayout#onMeasure(int, int)
      */
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int newHeight = MeasureSpec.getSize(heightMeasureSpec);
-        int newWidth = MeasureSpec.getSize(widthMeasureSpec);
-        int oldHeight = this.getMeasuredHeight();
+    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+        final int newHeight = MeasureSpec.getSize(heightMeasureSpec);
+        final int newWidth = MeasureSpec.getSize(widthMeasureSpec);
+        final int oldHeight = this.getMeasuredHeight();
         
         if(oldHeight == 0 || Math.abs(((newHeight * 1.0 - oldHeight) / oldHeight)) > .2) {
-            for(QuestionWidget qw : this.widgets) { 
+            for(final QuestionWidget qw : this.widgets) {
                 qw.updateFrameSize(newWidth, newHeight);
             }
         }
@@ -312,7 +312,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * @param progress Current value
      * @param max Progress bar will be given range 0..max
      */
-    public void updateProgressBar(int progress, int max) {
+    public void updateProgressBar(final int progress, final int max) {
         if (mProgressBar != null) {
             mProgressBar.setMax(max);
             mProgressBar.setProgress(progress);
@@ -322,18 +322,18 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     /**
      * // * Add a TextView containing the hierarchy of groups to which the question belongs. //
      */
-    private String deriveGroupText(FormEntryCaption[] groups) {
-        StringBuffer s = new StringBuffer("");
+    private String deriveGroupText(final FormEntryCaption[] groups) {
+        final StringBuffer s = new StringBuffer("");
         String t = "";
         int i;
         // list all groups in one string
-        for (FormEntryCaption g : groups) {
+        for (final FormEntryCaption g : groups) {
             i = g.getMultiplicity() + 1;
             t = g.getLongText();
             if (t != null) {
                 s.append(t);
                 if (g.repeats() && i > 0) {
-                    s.append(" (" + i + ")");
+                    s.append(" (").append(i).append(")");
                 }
                 s.append(" > ");
             }
@@ -358,7 +358,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         return mGroupLabel;
     }
     
-    private void addHintText(String hintText) {
+    private void addHintText(final String hintText) {
         if (hintText != null && !hintText.equals("")) {
             TextView mHelpText = new TextView(getContext());
             mHelpText = new TextView(getContext());
@@ -377,7 +377,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     
 
 
-    public void setFocus(Context context) {
+    public void setFocus(final Context context) {
         if (widgets.size() > 0) {
             widgets.get(0).setFocus(context);
         }
@@ -389,10 +389,10 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * 
      * @param answer
      */
-    public void setBinaryData(Object answer) {
+    public void setBinaryData(final Object answer) {
         
         boolean set = false;
-        for (QuestionWidget q : widgets) {
+        for (final QuestionWidget q : widgets) {
             if (q instanceof IBinaryWidget) {
                 if (((IBinaryWidget) q).isWaitingForBinaryData()) {
                     ((IBinaryWidget) q).setBinaryData(answer);
@@ -405,7 +405,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         if (!set) {
             Log.w(t, "Attempting to return data to a widget or set of widgets not looking for data");
                      
-            for (QuestionWidget q : widgets) {
+            for (final QuestionWidget q : widgets) {
                 if (q instanceof IBinaryWidget) {
                     ((IBinaryWidget) q).setBinaryData(answer);
                     set = true;
@@ -443,9 +443,9 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * @see android.view.View#setOnFocusChangeListener(android.view.View.OnFocusChangeListener)
      */
     @Override
-    public void setOnFocusChangeListener(OnFocusChangeListener l) {
+    public void setOnFocusChangeListener(final OnFocusChangeListener l) {
         for (int i = 0; i < widgets.size(); i++) {
-            QuestionWidget qw = widgets.get(i);
+            final QuestionWidget qw = widgets.get(i);
             qw.setOnFocusChangeListener(l);
         }
     }
@@ -456,7 +456,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * @see android.view.View.OnLongClickListener#onLongClick(android.view.View)
      */
     @Override
-    public boolean onLongClick(View v) {
+    public boolean onLongClick(final View v) {
         return false;
     }
     
@@ -468,7 +468,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
-        for (QuestionWidget qw : widgets) {
+        for (final QuestionWidget qw : widgets) {
             qw.cancelLongPress();
         }
     }
@@ -490,7 +490,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
 
         StringWidget last = null;
         
-        for(QuestionWidget q: widgets){
+        for(final QuestionWidget q: widgets){
             
             if(q instanceof StringWidget){
                 if(last != null){
@@ -506,7 +506,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * Remove question, based on position. 
      * @param questionIndex Index in question list.
      */
-    public void removeWidget(int questionIndex){
+    public void removeWidget(final int questionIndex){
         mView.removeViewAt(getViewIndex(questionIndex));
     }
     
@@ -514,7 +514,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * Remove question, based on view object.
      * @param v View to remove
      */
-    public void removeWidget(View v){
+    public void removeWidget(final View v){
         mView.removeView(v);
     }
 
@@ -523,7 +523,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * @param questionIndex Index in the list of questions.
      * @return Index of question's view in mView.
      */
-    private int getViewIndex(int questionIndex) {
+    private int getViewIndex(final int questionIndex) {
         // Account for progress bar
         if (mProgressEnabled) {
             return questionIndex + 1;
