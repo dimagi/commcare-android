@@ -12,30 +12,30 @@ public class AspectRatioLayout extends FrameLayout {
     float mRatioWidth;
     float mRatioHeight;
 
-    public AspectRatioLayout(Context context) {
+    public AspectRatioLayout(final Context context) {
         super(context);
     }
 
-    public AspectRatioLayout(Context context, AttributeSet attrs) {
+    public AspectRatioLayout(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         initializeRatio(context, attrs);
     }
 
-    public AspectRatioLayout(Context context, AttributeSet attrs, int defStyle) {
+    public AspectRatioLayout(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
         initializeRatio(context, attrs);
     }
     
-    private void initializeRatio(Context context, AttributeSet attrs) {
+    private void initializeRatio(final Context context, final AttributeSet attrs) {
         if(!isInEditMode()) {
-            String namespace = "http://schemas.android.com/apk/lib/" + this.getClass().getPackage().getName();
+            final String namespace = "http://schemas.android.com/apk/lib/" + this.getClass().getPackage().getName();
             mRatioWidth = attrs.getAttributeFloatValue(namespace, "ratio_width", 1);
             mRatioHeight = attrs.getAttributeFloatValue(namespace, "ratio_height", 1);
         }
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         super.onMeasure(
             MeasureSpec.makeMeasureSpec(widthMeasureSpec, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec((int) (widthMeasureSpec * mRatioHeight / mRatioWidth), MeasureSpec.EXACTLY)

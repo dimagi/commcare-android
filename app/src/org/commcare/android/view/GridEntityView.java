@@ -85,8 +85,8 @@ public class GridEntityView extends GridLayout {
 	public double screenHeight;
 	public double rowHeight;
 	public double rowWidth;
-	private CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
-	private AudioController controller;
+	private final CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
+	private final AudioController controller;
 	
 	/**
 	 * Used to create a entity view tile outside of a managed context (like 
@@ -96,7 +96,7 @@ public class GridEntityView extends GridLayout {
 	 * @param detail
 	 * @param entity
 	 */
-	public GridEntityView(Context context, Detail detail, Entity entity, AudioController controller) {
+	public GridEntityView(@SuppressWarnings("LocalCanBeFinal") Context context, @SuppressWarnings("LocalCanBeFinal") Detail detail, @SuppressWarnings("LocalCanBeFinal") Entity entity, @SuppressWarnings("LocalCanBeFinal") AudioController controller) {
 	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), controller, false);
 	}
 	
@@ -112,7 +112,7 @@ public class GridEntityView extends GridLayout {
 	 * @param controller
 	 * @param fuzzySearchEnabled
 	 */
-	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, AudioController controller, boolean fuzzySearchEnabled) {
+	public GridEntityView(@SuppressWarnings("LocalCanBeFinal") Context context, @SuppressWarnings("LocalCanBeFinal") Detail detail, @SuppressWarnings("LocalCanBeFinal") Entity entity, @SuppressWarnings("LocalCanBeFinal") String[] searchTerms, @SuppressWarnings("LocalCanBeFinal") CachingAsyncImageLoader mLoader, @SuppressWarnings("LocalCanBeFinal") AudioController controller, @SuppressWarnings("LocalCanBeFinal") boolean fuzzySearchEnabled) {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.controller = controller;
@@ -185,7 +185,7 @@ public class GridEntityView extends GridLayout {
 	 * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
 	 * @param context
 	 */
-	public void addBuffers(Context context){
+	public void addBuffers(@SuppressWarnings("LocalCanBeFinal") Context context){
 		
 		for(int i=0; i<NUMBER_ROWS_PER_GRID;i++){
 			
@@ -219,7 +219,7 @@ public class GridEntityView extends GridLayout {
 	
 	// get the maximum height of this grid
 	
-	public int getMaxRows(Detail detail){
+	public int getMaxRows(@SuppressWarnings("LocalCanBeFinal") Detail detail){
 	    
 	    GridCoordinate[] coordinates = detail.getGridCoordinates();
 	    int currentMaxHeight = 0;
@@ -242,7 +242,7 @@ public class GridEntityView extends GridLayout {
 	 * @param detail - the Detail describing how to display each entry
 	 * @param entity - the Entity describing the actual data of each entry
 	 */
-	public void setViews(Context context, Detail detail, Entity entity){
+	public void setViews(@SuppressWarnings("LocalCanBeFinal") Context context, @SuppressWarnings("LocalCanBeFinal") Detail detail, @SuppressWarnings("LocalCanBeFinal") Entity entity){
 		
 		// clear all previous entries in this grid
 		this.removeAllViews();
@@ -266,14 +266,19 @@ public class GridEntityView extends GridLayout {
 		// see if any entities have background data set
 		for(int i=0; i<bgData.length; i++){
 			if(!bgData[i].equals("")){
-				if(bgData[i].equals(("red-border"))){
-					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
-				} else if(bgData[i].equals(("yellow-border"))){
-					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
-				} else if(bgData[i].equals(("red-background"))){
-                    this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
-                } else if(bgData[i].equals(("yellow-background"))){
-                    this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
+                switch (bgData[i]) {
+                    case ("red-border"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
+                        break;
+                    case ("yellow-border"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
+                        break;
+                    case ("red-background"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
+                        break;
+                    case ("yellow-background"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
+                        break;
                 }
 			}
 		}
@@ -344,93 +349,95 @@ public class GridEntityView extends GridLayout {
 	 * @param rowData The actual data to display, either an XPath to media or a String to display
 	 * @return
 	 */
-	private View getView(Context context, String multimediaType, GridLayout.LayoutParams mGridParams,  String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
+	private View getView(@SuppressWarnings("LocalCanBeFinal") Context context, @SuppressWarnings("LocalCanBeFinal") String multimediaType, @SuppressWarnings("LocalCanBeFinal") GridLayout.LayoutParams mGridParams,  @SuppressWarnings("LocalCanBeFinal") String horzAlign, @SuppressWarnings("LocalCanBeFinal") String vertAlign, @SuppressWarnings("LocalCanBeFinal") String textsize, @SuppressWarnings("LocalCanBeFinal") String rowData, @SuppressWarnings("LocalCanBeFinal") ViewId uniqueId, @SuppressWarnings("LocalCanBeFinal") String cssid, @SuppressWarnings("LocalCanBeFinal") String searchField) {
 		View retVal;
-		if(multimediaType.equals(EntityView.FORM_IMAGE)){
-			retVal = new ImageView(context);
-	        if(horzAlign.equals("center")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
-	        } else if(horzAlign.equals("left")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
-	        } else if(horzAlign.equals("right")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
-	        }  
-			retVal.setPadding(CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL,CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL);
-			// image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
-			if(rowData != null && !rowData.equals("")){
-			    if(mImageLoader != null){
-			        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
-			    } else{
-			        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
-			        ((ImageView)retVal).setImageBitmap(b);
-			    }
-			}
-		} 
-		else if(multimediaType.equals(EntityView.FORM_AUDIO)){
-    		if (rowData != null & rowData.length() > 0) {
-    			retVal = new AudioButton(context, rowData, uniqueId, controller, true);
-    		}
-    		else {
-    			retVal = new AudioButton(context, rowData, uniqueId, controller, false);
-    		}
-		} else{
-			retVal = new TextView(context);
-			
-			//the html spanner currently does weird stuff like converts "a  a" into "a a"
-			//so we've gotta mirror that for the search text. Booooo. I dunno if there's any
-			//other other side effects (newlines? nbsp?)
-			
-			String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
-			
-			if(cssid !=null && !cssid.equals("none")){
-			    // user defined a style we want to use
-			    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
-			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
-			    ((TextView)retVal).setText(mSpannable);
-			} else{
-			    // just process inline markup 
-			    Spannable mSpannable = MarkupUtil.returnCSS(rowData);
-			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
-			    ((TextView)retVal).setText(mSpannable);
-			}
+        switch (multimediaType) {
+            case EntityView.FORM_IMAGE:
+                retVal = new ImageView(context);
+                if (horzAlign.equals("center")) {
+                    ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
+                } else if (horzAlign.equals("left")) {
+                    ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
+                } else if (horzAlign.equals("right")) {
+                    ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
+                }
+                retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
+                // image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
+                if (rowData != null && !rowData.equals("")) {
+                    if (mImageLoader != null) {
+                        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
+                    } else {
+                        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
+                        ((ImageView)retVal).setImageBitmap(b);
+                    }
+                }
+                break;
+            case EntityView.FORM_AUDIO:
+                if (rowData != null & rowData.length() > 0) {
+                    retVal = new AudioButton(context, rowData, uniqueId, controller, true);
+                } else {
+                    retVal = new AudioButton(context, rowData, uniqueId, controller, false);
+                }
+                break;
+            default:
+                retVal = new TextView(context);
 
-			// handle horizontal alignments
-			if(horzAlign.equals("center")){
-				((TextView)retVal).setGravity(Gravity.CENTER_HORIZONTAL);
-			} else if(horzAlign.equals("left")) {
-				((TextView)retVal).setGravity(Gravity.TOP);
-			} else if(horzAlign.equals("right")) {
-				((TextView)retVal).setGravity(Gravity.RIGHT);
-			}  
-			// handle vertical alignment
-			if(vertAlign.equals("center")){
-				((TextView)retVal).setGravity(Gravity.CENTER_VERTICAL);
-			} else if(vertAlign.equals("top")) {
-				((TextView)retVal).setGravity(Gravity.TOP);
-			} else if(vertAlign.equals("bottom")) {
-				((TextView)retVal).setGravity(Gravity.BOTTOM);
-			}
-			
-			// handle text resizing
-			if(textsize.equals("large")){
-				((TextView)retVal).setTextSize(LARGE_FONT/DENSITY);
-			} else if(textsize.equals("small")){
-				((TextView)retVal).setTextSize(SMALL_FONT/DENSITY);
-			} else if(textsize.equals("medium")){
-				((TextView)retVal).setTextSize(MEDIUM_FONT/DENSITY);
-			} else if(textsize.equals("xlarge")){
-				((TextView)retVal).setTextSize(XLARGE_FONT/DENSITY);
-			} 
-		}
+                //the html spanner currently does weird stuff like converts "a  a" into "a a"
+                //so we've gotta mirror that for the search text. Booooo. I dunno if there's any
+                //other other side effects (newlines? nbsp?)
+
+                String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
+
+                if (cssid != null && !cssid.equals("none")) {
+                    // user defined a style we want to use
+                    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
+                    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
+                    ((TextView)retVal).setText(mSpannable);
+                } else {
+                    // just process inline markup
+                    Spannable mSpannable = MarkupUtil.returnCSS(rowData);
+                    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
+                    ((TextView)retVal).setText(mSpannable);
+                }
+
+                // handle horizontal alignments
+                if (horzAlign.equals("center")) {
+                    ((TextView)retVal).setGravity(Gravity.CENTER_HORIZONTAL);
+                } else if (horzAlign.equals("left")) {
+                    ((TextView)retVal).setGravity(Gravity.TOP);
+                } else if (horzAlign.equals("right")) {
+                    ((TextView)retVal).setGravity(Gravity.RIGHT);
+                }
+                // handle vertical alignment
+                if (vertAlign.equals("center")) {
+                    ((TextView)retVal).setGravity(Gravity.CENTER_VERTICAL);
+                } else if (vertAlign.equals("top")) {
+                    ((TextView)retVal).setGravity(Gravity.TOP);
+                } else if (vertAlign.equals("bottom")) {
+                    ((TextView)retVal).setGravity(Gravity.BOTTOM);
+                }
+
+                // handle text resizing
+                if (textsize.equals("large")) {
+                    ((TextView)retVal).setTextSize(LARGE_FONT / DENSITY);
+                } else if (textsize.equals("small")) {
+                    ((TextView)retVal).setTextSize(SMALL_FONT / DENSITY);
+                } else if (textsize.equals("medium")) {
+                    ((TextView)retVal).setTextSize(MEDIUM_FONT / DENSITY);
+                } else if (textsize.equals("xlarge")) {
+                    ((TextView)retVal).setTextSize(XLARGE_FONT / DENSITY);
+                }
+                break;
+        }
 		
 		return retVal;
 	}
-    public void setSearchTerms(String[] currentSearchTerms) {
+    public void setSearchTerms(@SuppressWarnings("LocalCanBeFinal") String[] currentSearchTerms) {
         this.searchTerms = currentSearchTerms;
         
     }
 
-    public void setTextColor(int color){
+    public void setTextColor(@SuppressWarnings("LocalCanBeFinal") int color){
         for (int i = 0; i < mRowViews.length; i++) {
             View v = mRowViews[i];
             if (v == null) continue;
@@ -440,7 +447,7 @@ public class GridEntityView extends GridLayout {
         }
     }
 
-    public void setTitleTextColor(int color){
+    public void setTitleTextColor(@SuppressWarnings("LocalCanBeFinal") int color){
         for (int i = 0; i < mRowViews.length; i++) {
             View v = mRowViews[i];
             if (v == null) continue;

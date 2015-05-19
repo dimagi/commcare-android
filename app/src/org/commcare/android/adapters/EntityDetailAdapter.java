@@ -29,23 +29,23 @@ public class EntityDetailAdapter implements ListAdapter {
         void modifyEntityDetailView(EntityDetailView edv);
     }
     
-    Context context;
-    CommCareSession session;
-    Detail detail;
-    Entity entity;
-    DetailCalloutListener listener;
-    List<Integer> valid;
-    AudioController controller;
-    int detailIndex;
+    final Context context;
+    final CommCareSession session;
+    final Detail detail;
+    final Entity entity;
+    final DetailCalloutListener listener;
+    final List<Integer> valid;
+    final AudioController controller;
+    final int detailIndex;
 
-    public void setModifier(EntityDetailViewModifier modifier) {
+    public void setModifier(final EntityDetailViewModifier modifier) {
         this.modifier = modifier;
     }
 
     EntityDetailViewModifier modifier;
 
-    public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
-            DetailCalloutListener listener, AudioController controller, int detailIndex) {    
+    public EntityDetailAdapter(final Context context, final CommCareSession session, final Detail detail, final Entity entity,
+            final DetailCalloutListener listener, final AudioController controller, final int detailIndex) {
         this.context = context;
         this.session = session;
         this.detail = detail;
@@ -71,7 +71,7 @@ public class EntityDetailAdapter implements ListAdapter {
     /* (non-Javadoc)
      * @see android.widget.ListAdapter#isEnabled(int)
      */
-    public boolean isEnabled(int position) {
+    public boolean isEnabled(final int position) {
         return false;
     }
 
@@ -85,28 +85,28 @@ public class EntityDetailAdapter implements ListAdapter {
     /* (non-Javadoc)
      * @see android.widget.Adapter#getItem(int)
      */
-    public Object getItem(int position) {
+    public Object getItem(final int position) {
         return entity.getField(valid.get(position));
     }
 
     /* (non-Javadoc)
      * @see android.widget.Adapter#getItemId(int)
      */
-    public long getItemId(int position) {
+    public long getItemId(final int position) {
         return valid.get(position);
     }
 
     /* (non-Javadoc)
      * @see android.widget.Adapter#getItemViewType(int)
      */
-    public int getItemViewType(int position) {
+    public int getItemViewType(final int position) {
         return 0;
     }
 
     /* (non-Javadoc)
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, final View convertView, final ViewGroup parent) {
         EntityDetailView dv =(EntityDetailView)convertView;
         if (dv == null) {
             dv = new EntityDetailView(context, session, detail, entity, valid.get(position), controller, 
@@ -147,13 +147,13 @@ public class EntityDetailAdapter implements ListAdapter {
     /* (non-Javadoc)
      * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
      */
-    public void registerDataSetObserver(DataSetObserver observer) {
+    public void registerDataSetObserver(final DataSetObserver observer) {
     }
 
     /* (non-Javadoc)
      * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
      */
-    public void unregisterDataSetObserver(DataSetObserver observer) {
+    public void unregisterDataSetObserver(final DataSetObserver observer) {
     }
 
 }
