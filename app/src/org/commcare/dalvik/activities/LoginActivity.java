@@ -54,7 +54,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public static String ALREADY_LOGGED_IN = "la_loggedin";
+    public static final String ALREADY_LOGGED_IN = "la_loggedin";
 
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
