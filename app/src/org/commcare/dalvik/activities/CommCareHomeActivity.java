@@ -306,7 +306,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void syncData(boolean formsToSend) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
+        User u;
+        try {
+            u = CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException sue) {
+            // abort since it looks like the session expired
+            return;
+        }
         
         if(User.TYPE_DEMO.equals(u.getUserType())) {
             //Remind the user that there's no syncing in demo mode.0
@@ -1115,7 +1121,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
             
         };
-        mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+
+        try {
+            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+        } catch (SessionUnavailableException sue) {
+            // abort since it looks like the session expired
+            return;
+        }
         mProcess.connect(this);
         
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this

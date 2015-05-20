@@ -391,6 +391,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
             } catch (SessionUnavailableException sue) {
+                // TODO PLM: eventually take out this catch. These should be
+                // checked locally
                 //TODO: Keys were lost somehow.
                 sue.printStackTrace();
             }

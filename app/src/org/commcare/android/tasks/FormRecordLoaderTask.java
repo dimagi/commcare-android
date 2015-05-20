@@ -11,11 +11,11 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.suite.model.Text;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Pair;
 
 /**
@@ -27,7 +27,7 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, ArrayList<String>>, Integer> {
+public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Integer, ArrayList<String>>, Integer> {
 
     private Hashtable<String,String> descriptorCache;
     private SqlStorage<SessionStateDescriptor> descriptorStorage;

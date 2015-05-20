@@ -108,8 +108,15 @@ public class CommCareUtil {
             //This is mostly for dev purposes
             Toast.makeText(c, "Couldn't submit logs! Invalid submission URL...", Toast.LENGTH_LONG).show();
         } else {
-            LogSubmissionTask reportSubmitter = new LogSubmissionTask(CommCareApplication._(), true, CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title), url);
-            reportSubmitter.execute();
+            try {
+                LogSubmissionTask reportSubmitter =
+                    new LogSubmissionTask(CommCareApplication._(), true,
+                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title),
+                            url);
+                reportSubmitter.execute();
+            } catch (SessionUnavailableException e) {
+                Toast.makeText(c, "Couldn't submit logs! No longer logged in", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }

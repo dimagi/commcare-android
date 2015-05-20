@@ -21,6 +21,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
@@ -377,6 +378,10 @@ public class CommCareSessionService extends Service  {
                 // before.
                 return;
             }
+
+            // Cancel any running tasks before closing down the user databse.
+            ManagedAsyncTask.cancelTasks();
+
             key = null;
             String msg = "Logging out service login";
 

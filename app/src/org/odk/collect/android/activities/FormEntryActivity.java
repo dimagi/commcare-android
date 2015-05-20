@@ -1372,9 +1372,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     }
                 }
             } else {
-                Log.w(t,
-                        "Unknown view type rendered while current event was question or group! View type: " +
-                                mCurrentView == null ? "null" : mCurrentView.getClass().toString());
+                String viewType;
+                if (mCurrentView == null || mCurrentView.getClass() == null) {
+                   viewType = "null";
+                } else {
+                    viewType = mCurrentView.getClass().toString();
+                }
+                Log.w(t, "Unknown view type rendered while current event was question or group! View type: " + viewType);
             }
         }
         return success;
@@ -2924,7 +2928,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         }
 
-        CommCareApplication._().getSession().unregisterFormSaveCallback();
+        try {
+            CommCareApplication._().getSession().unregisterFormSaveCallback();
+        } catch (SessionUnavailableException sue) {
+            // looks like the session expired
+        }
+
         this.dismissDialogs();
         finish();
     }
