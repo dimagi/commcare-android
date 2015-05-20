@@ -39,6 +39,7 @@ import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.xml.CommCareTransactionParserFactory;
@@ -147,6 +148,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
      */
     @Override
     protected Integer doTaskBackground(Void... params) {
+        // Don't try to sync if logging out is occuring
+        if (!CommCareSessionService.logout_lock.tryLock()) {
+            // TODO PLM: once this task is refactored into manageable
+            // components, it should use the ManagedAsyncTask pattern of
+            // checking for isCancelled() and aborting at safe places.
+            return UNKNOWN_FAILURE;
+        }
+
+
+        // Wrap in a 'try' to enable a 'finally' close that releases the
+        // logout_lock.
+        try {
         publishProgress(PROGRESS_STARTED);
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
@@ -405,7 +418,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             }
             this.publishProgress(PROGRESS_DONE);
             return responseError;
-            
+        } finally {
+            CommCareSessionService.logout_lock.unlock();
+        }
     }
     
     /**
@@ -447,7 +462,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     
                     //We always wanna notify when we get our first bytes
                     if(lastOutput == 0) {
-                        Log.i("commcare-network", "First"  + bytesRead + " bytes recieved from network: ");
+                        Log.i("commcare-network", "First"  + bytesRead + " bytes received from network: ");
                         notify = true;
                     }
                     //After, if we don't know how much data to expect, we can't do
