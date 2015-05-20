@@ -34,6 +34,7 @@ import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
@@ -573,6 +574,7 @@ public class CommCareApplication extends Application {
 //        
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
+        // TODO PLM wrap in try/catch for SessionUnavailableException
         final String username = this.getSession().getLoggedInUser().getUsername();
 
         final Set<String> dbIdsToRemove = new HashSet<String>();
@@ -755,9 +757,19 @@ public class CommCareApplication extends Application {
             return;
         }
 
+        DataSubmissionListener dataListener = null;
+
+        try {
+            dataListener =
+                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
+        } catch (SessionUnavailableException sue) {
+            // abort since it looks like the session expired
+            return;
+        }
+
         LogSubmissionTask task = new LogSubmissionTask(this,
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
-                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title),
+                dataListener,
                 url);
 
         //Execute on a true multithreaded chain, since this is an asynchronous process

@@ -2904,7 +2904,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         }
 
-        CommCareApplication._().getSession().unregisterFormSaveCallback();
+        try {
+            CommCareApplication._().getSession().unregisterFormSaveCallback();
+        } catch (SessionUnavailableException sue) {
+            // looks like the session expired
+        }
+
         this.dismissDialogs();
         finish();
     }

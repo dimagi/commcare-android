@@ -420,7 +420,16 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                User u = CommCareApplication._().getSession().getLoggedInUser();
+
+                User u;
+                try {
+                    u = CommCareApplication._().getSession().getLoggedInUser();
+                } catch (SessionUnavailableException sue) {
+                    // abort and let default processing happen, since it looks
+                    // like the session expired.
+                    return false;
+                }
+
                 String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
                 
                 //We should go digest auth this user on the server and see whether to pull them

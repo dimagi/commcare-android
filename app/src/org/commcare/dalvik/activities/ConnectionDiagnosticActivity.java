@@ -14,8 +14,10 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.ConnectionDiagnosticTask;
+import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -169,23 +171,28 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                         CommCareApplication._().getCurrentApp().getAppPreferences();
                 String url = settings.getString("PostURL", null);
                 
-                if(url != null) 
-                {
-                    LogSubmissionTask reportSubmitter = 
+                if(url != null) {
+                    DataSubmissionListener dataListener;
+
+                    try {
+                        dataListener =
+                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
+                    } catch (SessionUnavailableException sue) {
+                        // abort since it looks like the session expired
+                        return;
+                    }
+                    LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
-                                    CommCareApplication._(), 
-                                    true, 
-                                    CommCareApplication._().getSession().startDataSubmissionListener(
-                                            R.string.submission_logs_title), url);
+                                    CommCareApplication._(),
+                                    true,
+                                    dataListener, url);
                     reportSubmitter.execute();
                     ConnectionDiagnosticActivity.this.finish();
                     Toast.makeText(
                             CommCareApplication._(), 
                             Localization.get("connection.task.report.commcare.popup"), 
                             Toast.LENGTH_LONG).show();
-                } 
-                else 
-                {
+                } else {
                     Logger.log(ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
                     ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(ConnectionDiagnosticActivity.this, "connection.task.unset.posturl"));
                     ConnectionDiagnosticActivity.this.txtInteractiveMessages.setVisibility(View.VISIBLE);
