@@ -513,6 +513,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
+    @Override
     public void formSaveCallback() {
         // note that we have started saving the form
         savingFormOnKeySessionExpiration = true;
@@ -565,7 +566,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if (!"done".equals(v.getTag())) {
                     FormEntryActivity.this.showNextView();
                 } else {
-                    FormEntryActivity.this.triggerUserFormComplete();
+                    triggerUserFormComplete();
                 }
             }
         });
@@ -1310,51 +1311,64 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 .getEvent() == FormEntryController.EVENT_GROUP);
     }
 
-    
     private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints) {
-        return saveAnswersForCurrentScreen(evaluateConstraints, true);
+        return saveAnswersForCurrentScreen(evaluateConstraints, true, false);
     }
 
     /**
      * Attempt to save the answer(s) in the current screen to into the data model.
-     * 
+     *
      * @param evaluateConstraints
-     * @param failOnRequired Whether or not the constraint evaluation should return false if the question
-     * is only required. (this is helpful for incomplete saves)
-     * @return false if any error occurs while saving (constraint violated, etc...), true otherwise.
+     * @param failOnRequired      Whether or not the constraint evaluation
+     *                            should return false if the question is only
+     *                            required. (this is helpful for incomplete
+     *                            saves)
+     * @param headless            running in a process that can't display graphics
+     * @return false if any error occurs while saving (constraint violated,
+     * etc...), true otherwise.
      */
-    private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints, boolean failOnRequired) {
-        // only try to save if the current event is a question or a field-list group
+    private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints,
+                                                boolean failOnRequired,
+                                                boolean headless) {
+        // only try to save if the current event is a question or a field-list
+        // group
         boolean success = true;
-        if (mFormController.getEvent() == FormEntryController.EVENT_QUESTION
-                || (mFormController.getEvent() == FormEntryController.EVENT_GROUP && mFormController
-                        .indexIsInFieldList())) {
-            if(mCurrentView instanceof ODKView) {
-                HashMap<FormIndex, IAnswerData> answers = ((ODKView) mCurrentView).getAnswers();
-                
-                // Sort the answers so if there are multiple errors, we can bring focus to the first one
+        if ((mFormController.getEvent() == FormEntryController.EVENT_QUESTION)
+                || ((mFormController.getEvent() == FormEntryController.EVENT_GROUP) &&
+                mFormController.indexIsInFieldList())) {
+            if (mCurrentView instanceof ODKView) {
+                HashMap<FormIndex, IAnswerData> answers =
+                        ((ODKView)mCurrentView).getAnswers();
+
+                // Sort the answers so if there are multiple errors, we can
+                // bring focus to the first one
                 List<FormIndex> indexKeys = new ArrayList<FormIndex>();
                 indexKeys.addAll(answers.keySet());
                 Collections.sort(indexKeys, new Comparator<FormIndex>() {
-                   @Override
-                   public int compare(FormIndex arg0, FormIndex arg1) {
-                       return arg0.compareTo(arg1);
-                   }
+                    @Override
+                    public int compare(FormIndex arg0, FormIndex arg1) {
+                        return arg0.compareTo(arg1);
+                    }
                 });
-                
+
                 for (FormIndex index : indexKeys) {
                     // Within a group, you can only save for question events
                     if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
-                        int saveStatus = saveAnswer(answers.get(index), index, evaluateConstraints);
-                        if (evaluateConstraints && (saveStatus != FormEntryController.ANSWER_OK &&
-                                                    (failOnRequired || saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                            createConstraintToast(index, mFormController.getQuestionPrompt(index) .getConstraintText(), saveStatus, success);
+                        int saveStatus = saveAnswer(answers.get(index),
+                                index, evaluateConstraints);
+                        if (evaluateConstraints &&
+                                ((saveStatus != FormEntryController.ANSWER_OK) &&
+                                        (failOnRequired ||
+                                                saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
+                            if (!headless) {
+                                createConstraintToast(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+                            }
                             success = false;
                         }
                     } else {
                         Log.w(t,
-                            "Attempted to save an index referencing something other than a question: "
-                                    + index.getReference());
+                                "Attempted to save an index referencing something other than a question: "
+                                        + index.getReference());
                     }
                 }
             } else {
@@ -1579,8 +1593,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                         Toast.makeText(FormEntryActivity.this, StringUtils.getStringSpannableRobust(FormEntryActivity.this, R.string.save_as_error),
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
-                                        saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
-                                                .getText().toString(), false);
+                                        saveDataToDisk(EXIT,
+                                                       instanceComplete.isChecked(),
+                                                       saveAs.getText().toString(),
+                                                       false);
                                     }
                                 }
                             });
@@ -1998,7 +2014,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             	if(!nextExitsForm) {
             		showNextView();
             	} else {
-            		FormEntryActivity.this.triggerUserFormComplete();
+                    triggerUserFormComplete();
             	}
 			}
         	
@@ -2057,21 +2073,29 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     /**
      * Saves form data to disk.
      *
-     * @param exit if set, will exit program after save.
-     * @param complete has the user marked the instances as complete?
-     * @param updatedSaveName set name of the instance's content provider, if non-null
-     * @param headless is this running as a GUI-less service
+     * @param exit            If set, will exit program after save.
+     * @param complete        Has the user marked the instances as complete?
+     * @param updatedSaveName Set name of the instance's content provider, if
+     *                        non-null
+     * @param headless        Disables GUI warnings and lets answers that
+     *                        violate constraints be saved.
+     * @return Did the data save successfully?
      */
     private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
         if (!formHasLoaded()) {
             return;
         }
 
-        // save current answer
-        if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete)) {
-            if (!headless) {
-                Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
-            }
+        // save current answer; if headless, don't evaluate the constraints
+        // before doing so.
+        if (headless &&
+                (!saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS, complete, headless))) {
+            return;
+        } else if (!headless &&
+                !saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete, headless)) {
+            Toast.makeText(this,
+                    StringUtils.getStringSpannableRobust(this, R.string.data_saved_error),
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -2082,7 +2106,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
 
         mSaveToDiskTask =
-            new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
+                new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
         mSaveToDiskTask.setFormSavedListener(this);
         mSaveToDiskTask.execute();
         if (!headless) {
@@ -2563,14 +2587,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
         return saveName;
     }
-    
+
     /**
      * Call when the user is ready to save and return the current form as complete 
      */
     private void triggerUserFormComplete() {
         saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
     }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
