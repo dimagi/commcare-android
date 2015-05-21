@@ -265,7 +265,7 @@ public class GridEntityView extends GridLayout {
 		
 		// see if any entities have background data set
 		for(int i=0; i<bgData.length; i++){
-			if(!bgData[i].equals("")){
+			if(!"".equals(bgData[i])){
                 switch (bgData[i]) {
                     case ("red-border"):
                         this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
@@ -354,12 +354,16 @@ public class GridEntityView extends GridLayout {
         switch (multimediaType) {
             case EntityView.FORM_IMAGE:
                 retVal = new ImageView(context);
-                if (horzAlign.equals("center")) {
-                    ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
-                } else if (horzAlign.equals("left")) {
-                    ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
-                } else if (horzAlign.equals("right")) {
-                    ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
+                switch(horzAlign){
+                    case "center":
+                        ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
+                        break;
+                    case "left":
+                        ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
+                        break;
+                    case "right":
+                        ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
+                        break;
                 }
                 retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
                 // image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling

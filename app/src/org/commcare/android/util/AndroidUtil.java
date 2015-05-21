@@ -116,6 +116,12 @@ public final class AndroidUtil {
         setClickListenersForEverything(act, (ViewGroup) act.findViewById(android.R.id.content));
     }
 
+    /**
+     * Returns an int array with the color values for the given attributes (R.attr).
+     * @param context
+     * @param attrs
+     * @return
+     */
     public static int[] getThemeColorIDs(final Context context, final int[] attrs){
         final int[] colors = new int[attrs.length];
         final Resources.Theme theme = context.getTheme();
