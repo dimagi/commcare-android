@@ -96,7 +96,7 @@ public class GridEntityView extends GridLayout {
 	 * @param detail
 	 * @param entity
 	 */
-	public GridEntityView(@SuppressWarnings("LocalCanBeFinal") Context context, @SuppressWarnings("LocalCanBeFinal") Detail detail, @SuppressWarnings("LocalCanBeFinal") Entity entity, @SuppressWarnings("LocalCanBeFinal") AudioController controller) {
+	public GridEntityView(final Context context, final Detail detail, final Entity entity, final AudioController controller) {
 	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), controller, false);
 	}
 	
@@ -112,7 +112,7 @@ public class GridEntityView extends GridLayout {
 	 * @param controller
 	 * @param fuzzySearchEnabled
 	 */
-	public GridEntityView(@SuppressWarnings("LocalCanBeFinal") Context context, @SuppressWarnings("LocalCanBeFinal") Detail detail, @SuppressWarnings("LocalCanBeFinal") Entity entity, @SuppressWarnings("LocalCanBeFinal") String[] searchTerms, @SuppressWarnings("LocalCanBeFinal") CachingAsyncImageLoader mLoader, @SuppressWarnings("LocalCanBeFinal") AudioController controller, @SuppressWarnings("LocalCanBeFinal") boolean fuzzySearchEnabled) {
+	public GridEntityView(final Context context, final Detail detail, final Entity entity, final String[] searchTerms, final CachingAsyncImageLoader mLoader, final AudioController controller, final boolean fuzzySearchEnabled) {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.controller = controller;
@@ -185,7 +185,7 @@ public class GridEntityView extends GridLayout {
 	 * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
 	 * @param context
 	 */
-	public void addBuffers(@SuppressWarnings("LocalCanBeFinal") Context context){
+	public void addBuffers(final Context context){
 		
 		for(int i=0; i<NUMBER_ROWS_PER_GRID;i++){
 			
@@ -219,7 +219,7 @@ public class GridEntityView extends GridLayout {
 	
 	// get the maximum height of this grid
 	
-	public int getMaxRows(@SuppressWarnings("LocalCanBeFinal") Detail detail){
+	public int getMaxRows(final Detail detail){
 	    
 	    GridCoordinate[] coordinates = detail.getGridCoordinates();
 	    int currentMaxHeight = 0;
@@ -242,7 +242,7 @@ public class GridEntityView extends GridLayout {
 	 * @param detail - the Detail describing how to display each entry
 	 * @param entity - the Entity describing the actual data of each entry
 	 */
-	public void setViews(@SuppressWarnings("LocalCanBeFinal") Context context, @SuppressWarnings("LocalCanBeFinal") Detail detail, @SuppressWarnings("LocalCanBeFinal") Entity entity){
+	public void setViews(final Context context, final Detail detail, final Entity entity){
 		
 		// clear all previous entries in this grid
 		this.removeAllViews();
@@ -349,7 +349,7 @@ public class GridEntityView extends GridLayout {
 	 * @param rowData The actual data to display, either an XPath to media or a String to display
 	 * @return
 	 */
-	private View getView(@SuppressWarnings("LocalCanBeFinal") Context context, @SuppressWarnings("LocalCanBeFinal") String multimediaType, @SuppressWarnings("LocalCanBeFinal") GridLayout.LayoutParams mGridParams,  @SuppressWarnings("LocalCanBeFinal") String horzAlign, @SuppressWarnings("LocalCanBeFinal") String vertAlign, @SuppressWarnings("LocalCanBeFinal") String textsize, @SuppressWarnings("LocalCanBeFinal") String rowData, @SuppressWarnings("LocalCanBeFinal") ViewId uniqueId, @SuppressWarnings("LocalCanBeFinal") String cssid, @SuppressWarnings("LocalCanBeFinal") String searchField) {
+	private View getView(final Context context, final String multimediaType, final GridLayout.LayoutParams mGridParams,  final String horzAlign, final String vertAlign, final String textsize, final String rowData, final ViewId uniqueId, final String cssid, final String searchField) {
 		View retVal;
         switch (multimediaType) {
             case EntityView.FORM_IMAGE:
@@ -432,12 +432,12 @@ public class GridEntityView extends GridLayout {
 		
 		return retVal;
 	}
-    public void setSearchTerms(@SuppressWarnings("LocalCanBeFinal") String[] currentSearchTerms) {
+    public void setSearchTerms(final String[] currentSearchTerms) {
         this.searchTerms = currentSearchTerms;
         
     }
 
-    public void setTextColor(@SuppressWarnings("LocalCanBeFinal") int color){
+    public void setTextColor(final int color){
         for (int i = 0; i < mRowViews.length; i++) {
             View v = mRowViews[i];
             if (v == null) continue;
@@ -447,7 +447,7 @@ public class GridEntityView extends GridLayout {
         }
     }
 
-    public void setTitleTextColor(@SuppressWarnings("LocalCanBeFinal") int color){
+    public void setTitleTextColor(final int color){
         for (int i = 0; i < mRowViews.length; i++) {
             View v = mRowViews[i];
             if (v == null) continue;
