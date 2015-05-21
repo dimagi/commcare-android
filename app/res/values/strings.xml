@@ -15,7 +15,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>20</item>
+        <item>22</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -137,13 +137,8 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="delete_confirm">Delete %s form(s)?</string>
     <string name="delete_file">Delete Selected</string>
     <string name="delete_no">Do Not Delete</string>
-    <string name="delete_repeat">Remove group</string>
-    <string name="delete_repeat_ask">Remove This Group?</string>
-    <string name="delete_repeat_confirm">Remove group \"%s\" and all of its sub-groups?</string>
-    <string name="delete_repeat_no">Cancel</string>
     <string name="delete_yes">Delete Forms</string>
     <string name="discard_answer">Remove response</string>
-    <string name="discard_group">Remove group</string>
     <string name="download">Get Selected</string>
     <string name="download_forms_result">Download Result</string>
     <string name="downloading_data">Connecting to Server</string>

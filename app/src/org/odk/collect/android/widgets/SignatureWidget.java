@@ -15,8 +15,24 @@ package org.odk.collect.android.widgets;
  */
 
 
-import java.io.File;
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.util.Log;
+import android.view.Display;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -27,26 +43,7 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.UrlUtils;
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.provider.MediaStore.Images;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.Display;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.io.File;
 
 /**
  * Signature widget.
@@ -57,42 +54,35 @@ import android.widget.Toast;
 public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "SignatureWidget";
 
-    private Button mSignButton;
+    private final Button mSignButton;
     private String mBinaryName;
-    private String mInstanceFolder;
+    private final String mInstanceFolder;
     private ImageView mImageView;
     private boolean mWaitingForData;
 
-    private TextView mErrorTextView;
+    private final TextView mErrorTextView;
 
     public SignatureWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
-                    FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
+                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
-
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
 
         mErrorTextView = new TextView(context);
         mErrorTextView.setText("Selected file is not a valid image");
 
         // setup Blank Image Button
         mSignButton = new Button(getContext());
-        mSignButton.setText(getContext().getString(R.string.sign_button));
-        mSignButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mSignButton.setPadding(20, 20, 20, 20);
-        mSignButton.setEnabled(!prompt.isReadOnly());
-        mSignButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mSignButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.sign_button),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
+
         // launch capture intent on click
         mSignButton.setOnClickListener(new View.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 launchSignatureActivity();
@@ -105,7 +95,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         addView(mErrorTextView);
 
         // and hide the sign button if read-only
-        if ( prompt.isReadOnly() ) {
+        if (prompt.isReadOnly()) {
             mSignButton.setVisibility(View.GONE);
         }
         mErrorTextView.setVisibility(View.GONE);
@@ -117,8 +107,8 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         if (mBinaryName != null) {
             mImageView = new ImageView(getContext());
             Display display =
-                    ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                    .getDefaultDisplay();
+                    ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                            .getDefaultDisplay();
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
@@ -137,20 +127,14 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
             mImageView.setOnClickListener(new View.OnClickListener() {
-                /*
-                 * (non-Javadoc)
-                 * @see android.view.View.OnClickListener#onClick(android.view.View)
-                 */
                 @Override
                 public void onClick(View v) {
-    
                     launchSignatureActivity();
                 }
             });
 
             addView(mImageView);
         }
-
     }
 
     private void launchSignatureActivity() {
@@ -220,7 +204,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
-            return new StringData(mBinaryName.toString());
+            return new StringData(mBinaryName);
         } else {
             return null;
         }
@@ -232,36 +216,19 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
      * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
      */
     @Override
-    public void setBinaryData(Object answer) {
+    public void setBinaryData(Object binaryURI) {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
             deleteMedia();
         }
 
-        String binaryPath = UrlUtils.getPathFromUri((Uri) answer,getContext());
-        File newImage = new File(binaryPath);
+        String binaryPath = UrlUtils.getPathFromUri((Uri) binaryURI,getContext());
+        File f = new File(binaryPath);
+        mBinaryName = f.getName();
+        Log.i(t, "Setting current answer to " + f.getName());
 
-        if (newImage.exists()) {
-            // Add the new image to the Media content provider so that the
-            // viewing is fast in Android 2.0+
-            ContentValues values = new ContentValues(6);
-            values.put(Images.Media.TITLE, newImage.getName());
-            values.put(Images.Media.DISPLAY_NAME, newImage.getName());
-            values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-            values.put(Images.Media.MIME_TYPE, "image/jpeg");
-            values.put(Images.Media.DATA, newImage.getAbsolutePath());
-
-            Uri imageURI = getContext().getContentResolver().insert(
-                    Images.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(t, "Inserting image returned uri = " + imageURI.toString());
-
-            mBinaryName = newImage.getName();
-            Log.i(t, "Setting current answer to " + newImage.getName());
-        } else {
-            Log.e(t, "NO IMAGE EXISTS at: " + newImage.getAbsolutePath());
-        }
-        setWaitingForBinaryData();
+        mWaitingForData = false;
     }
 
     /*
@@ -286,11 +253,11 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         return mWaitingForData;
     }
 
-    public void setWaitingForBinaryData() {
+    private void setWaitingForBinaryData() {
         mWaitingForData = true;
     }
     
-    public void cancelWaitingForBinaryData() {
+    private void cancelWaitingForBinaryData() {
         mWaitingForData = false;
     }
 

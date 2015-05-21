@@ -14,20 +14,21 @@
 
 package org.odk.collect.android.widgets;
 
-import java.text.NumberFormat;
-
-import org.javarosa.core.model.data.DecimalData;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.form.api.FormEntryPrompt;
-
 import android.content.Context;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+
+import org.javarosa.core.model.data.DecimalData;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryPrompt;
+
+import java.text.NumberFormat;
 
 /**
  * A widget that restricts values to floating point numbers.
@@ -122,6 +123,16 @@ public class DecimalWidget extends StringWidget {
         } else{
             mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
         }
+    }
+
+    /*
+* (non-Javadoc)
+* @see android.view.View.OnClickListener#onClick(android.view.View)
+*/
+    @Override
+    public void onClick(View v) {
+        setFocus(getContext());
+        // don't revert click behavior in this case since it might be customized.
     }
 
 }

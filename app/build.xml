@@ -40,47 +40,6 @@
          This file is an integral part of the build system for your
          application and should be checked into Version Control Systems. -->
     <loadproperties srcFile="project.properties" />
-	
-	<property file="${file.key.properties}" />
-	<property file="${file.remote.properties}" />
-
-
-    <!-- quick check on sdk.dir -->
-    <fail
-            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through an env var"
-            unless="sdk.dir"
-    />
-
-    <target name="cc-setup" depends="build-from-source, addversionnumber">
-    	<!-- update resources -->
-		<tstamp>
-		  <format property="TODAY_TIMESTAMP"
-		          pattern="MMMM-dd-yyyy"/>
-		</tstamp>
-		<mkdir dir="${custom.dir.resource}"/>
-		
-		<copy todir="${custom.dir.resource}">
-			<fileset dir="res"/>
-		</copy>
-		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
-		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${version.code}"/>
-    	<replace file="${custom.dir.resource}/values/external_strings.xml" token="MAPS_KEY" value="${maps.api.key}"/>
-    </target>
-	
-	<target name="build-from-source" if="build.source">
-		<!-- todo: that -->
-		<copy todir="${jar.libs.dir}">
-			<fileset dir="${javarosa.libs}" includes="*.jar"/>
-			<fileset dir="${commcare.libs}" includes="*.jar"/>
-		</copy>
-	</target>
-	
-	<target name="addversionnumber" if="build.server">
-		<property name="android.version.code" value="android:versionCode="/>
-		<replaceregexp file="AndroidManifest.xml"
-			match='android:versionCode="(.*)"'
-			replace='${android.version.code}"${version.code}"'/>
-	</target>
 
 	
 <!-- extension targets. Uncomment the ones where you want to do custom work
@@ -97,6 +56,9 @@
     <target name="-post-compile">
     </target>
 -->
+
+    <import file="custom_rules.xml" optional="true" />
+
 
     <!-- Import the actual build file.
 
@@ -118,20 +80,5 @@
     -->
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
-	
-	<target name="prepare" depends="cc-setup"/>
-	
-	<target name="cc-release" depends="prepare, release">
-	</target>
-	
-	<target name="run-tests" if="build.run.tests">
-		<ant antfile="${dir.test.project}/build.xml" target="all" inheritAll="false" inheritRefs="false">
-			<!--property name="compile.source" value="${compile.source}"/-->
-			<property name="avd.name" value="${avd.name}"/>
-			<property name="sdk.home" value="${sdk.home}"/>
-		</ant>
-	</target>
-	
-	<target name="test-and-release" depends="prepare, run-tests, cc-release"/>
 
 </project>

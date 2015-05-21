@@ -1,11 +1,10 @@
 package org.odk.collect.android.jr.extensions;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
 
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
@@ -20,16 +19,18 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.ODKView;
 
-import android.content.ComponentName;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -191,8 +192,8 @@ public class IntentCallout implements Externalizable {
         refs = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
         responses = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
         isQuick = ExtUtil.readBool(in);
-        component = ExtUtil.readString(in);
-        buttonLabel = ExtUtil.readString(in);
+        component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
 
     /*
@@ -205,8 +206,8 @@ public class IntentCallout implements Externalizable {
         ExtUtil.write(out, new ExtWrapMap(refs));
         ExtUtil.write(out, new ExtWrapMap(responses));
         ExtUtil.write(out, isQuick);
-        ExtUtil.write(out, component);
-        ExtUtil.write(out, buttonLabel);
+        ExtUtil.write(out, new ExtWrapNullable(component));
+        ExtUtil.write(out, new ExtWrapNullable(buttonLabel));
     }
     
     public String getButtonLabel(){

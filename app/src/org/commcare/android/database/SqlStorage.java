@@ -39,6 +39,11 @@ import android.util.Pair;
  */
 public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
     
+    /**
+     * Static flag identifying whether storage optimizations are active.
+     */
+    public static boolean STORAGE_OPTIMIZATIONS_ACTIVE = true;
+    
     public static final boolean STORAGE_OUTPUT_DEBUG = false;  
     
     String table;
@@ -324,6 +329,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return iterate(true);
     }
     
+    
     /**
      * Creates a custom iterator for this storage which can either include or exclude the actual data.
      * 
@@ -338,7 +344,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         //faster method depending on our stats. This method retrieves the 
         //index records that _don't_ exist so we can assume the spans that
         //do.
-        if(includeData == false) {
+        if(includeData == false && STORAGE_OPTIMIZATIONS_ACTIVE) {
             SQLiteDatabase db = helper.getHandle();
 
             SQLiteStatement min = db.compileStatement("SELECT MIN(" + DbUtil.ID_COL + ") from " + table);
@@ -348,7 +354,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             SQLiteStatement count = db.compileStatement("SELECT COUNT(" + DbUtil.ID_COL + ") from " + table);
             
             int minValue = (int)min.simpleQueryForLong();
-            int maxValue = (int)max.simpleQueryForLong();
+            int maxValue = (int)max.simpleQueryForLong() + 1;
             int countValue = (int)count.simpleQueryForLong();
             
             min.close();

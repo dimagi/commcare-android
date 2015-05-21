@@ -1,16 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.tasks.ConnectionDiagnosticTask;
-import org.commcare.android.tasks.LogSubmissionTask;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,6 +9,18 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.ConnectionDiagnosticTask;
+import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * Activity that will diagnose various connection problems that a user may be facing.
@@ -194,7 +195,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                 else 
                 {
                     Logger.log(ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
-                    ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(Localization.get("connection.task.unset.posturl"));
+                    ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(ConnectionDiagnosticActivity.this, "connection.task.unset.posturl"));
                     ConnectionDiagnosticActivity.this.txtInteractiveMessages.setVisibility(View.VISIBLE);
                 }
             }

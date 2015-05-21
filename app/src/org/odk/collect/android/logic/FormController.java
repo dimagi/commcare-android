@@ -21,7 +21,6 @@ import java.util.Vector;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
-import org.javarosa.core.model.IDataReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.data.IAnswerData;
@@ -683,7 +682,7 @@ public class FormController {
      * 
      * @return
      */
-    private IDataReference getSubmissionDataReference() {
+    private XPathReference getSubmissionDataReference() {
         FormDef formDef = mFormEntryController.getModel().getForm();
         // Determine the information about the submission...
         SubmissionProfile p = formDef.getSubmissionProfile();
@@ -705,7 +704,7 @@ public class FormController {
      *              not been encrypted).
      */
     public boolean isSubmissionEntireForm() {
-        IDataReference sub = getSubmissionDataReference();
+        XPathReference sub = getSubmissionDataReference();
         return ( getInstance().resolveReference(sub) == null );
     }
     
@@ -759,7 +758,7 @@ public class FormController {
         if ( p == null || p.getRef() == null ) {
             trueSubmissionElement = rootElement;
         } else {
-            IDataReference ref = p.getRef();
+            XPathReference ref = p.getRef();
             trueSubmissionElement = formDef.getInstance().resolveReference(ref);
             // resolveReference returns null if the reference is to the root element...
             if ( trueSubmissionElement == null ) {

@@ -1,21 +1,5 @@
 package org.commcare.android.view;
 
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import org.commcare.android.models.AsyncEntity;
-import org.commcare.android.models.Entity;
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -31,6 +15,25 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.commcare.android.models.AsyncEntity;
+import org.commcare.android.models.Entity;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ViewId;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -49,6 +52,7 @@ public class EntityView extends LinearLayout {
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
     public static final String FORM_GRAPH = "graph";
+    public static final String FORM_CALLLOUT = "callout";
     
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
@@ -137,6 +141,10 @@ public class EntityView extends LinearLayout {
             View layout = View.inflate(context, R.layout.entity_item_graph, null);
             retVal = layout;
         }
+        else if (FORM_CALLLOUT.equals(form)) {
+            View layout = View.inflate(context, R.layout.entity_item_graph, null);
+            retVal = layout;
+        }
         else {
             View layout = View.inflate(context, R.layout.component_audio_text, null);
             setupTextAndTTSLayout(layout, (String) data, sortField);
@@ -161,11 +169,9 @@ public class EntityView extends LinearLayout {
             if (FORM_AUDIO.equals(form)) {
                 ViewId uniqueId = new ViewId(rowId, i, false);
                 setupAudioLayout(view, (String) field, uniqueId);
-            }
-            else if(FORM_IMAGE.equals(form)) {
+            } else if(FORM_IMAGE.equals(form)) {
                 setupImageLayout(view, (String) field);
-            } 
-            else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+            } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
                 int orientation = getResources().getConfiguration().orientation;
                 GraphView g = new GraphView(context, "");
                 View rendered = null;
@@ -176,14 +182,19 @@ public class EntityView extends LinearLayout {
                      renderedGraphsCache.put(i, new Hashtable<Integer, View>());
                  }
                  if (rendered == null) {
-                     rendered = g.getView((GraphData) field);
+                     try {
+                         rendered = g.getView((GraphData) field);
+                     } catch (InvalidStateException ise) {
+                         rendered = new TextView(context);
+                         ((TextView)rendered).setText(ise.getMessage());
+                     }
                      renderedGraphsCache.get(i).put(orientation, rendered);
                  }
                 ((LinearLayout) view).removeAllViews();
                 ((LinearLayout) view).addView(rendered, g.getLayoutParams());
                 view.setVisibility(VISIBLE);
-            }
-            else { //text to speech
+            } else {
+                //text to speech
                 setupTextAndTTSLayout(view, (String) field, e.getSortField(i));
             }
         }
@@ -296,121 +307,137 @@ public class EntityView extends LinearLayout {
         if (searchTerms == null) {
             return raw;
         }
-        
-        //TOOD: Only do this if we're in strict mode
-        if(strictMode) {
-            if(backgroundString == null) {
-                return raw; 
+
+        try {
+            //TOOD: Only do this if we're in strict mode
+            if(strictMode) {
+                if(backgroundString == null) {
+                    return raw;
+                }
+
+                //make sure that we have the same consistency for our background match
+                backgroundString = StringUtils.normalize(backgroundString).trim();
+            } else {
+                //Otherwise we basically want to treat the "Search" string and the display string
+                //the same way.
+                backgroundString = StringUtils.normalize(raw.toString());
             }
-            
-            //make sure that we have the same consistency for our background match
-            backgroundString = StringUtils.normalize(backgroundString).trim();
-        } else {
-            //Otherwise we basically want to treat the "Search" string and the display string 
-            //the same way.
-            backgroundString = StringUtils.normalize(raw.toString());
+
+            String normalizedDisplayString = StringUtils.normalize(raw.toString());
+
+            removeSpans(raw);
+
+            Vector<int[]> matches = new Vector<int[]>();
+
+            //Highlight direct substring matches
+            for (String searchText : searchTerms) {
+                if ("".equals(searchText)) {
+                    continue;
+                }
+
+                //TODO: Assuming here that our background string exists and
+                //isn't null due to the background string check above
+
+                //check to see where we should start displaying this chunk
+                int offset = TextUtils.indexOf(normalizedDisplayString, backgroundString);
+                if (offset == -1) {
+                    //We can't safely highlight any of this, due to this field not actually
+                    //containing the same string we're searching by.
+                    continue;
+                }
+
+                int index = backgroundString.indexOf(searchText);
+                //int index = TextUtils.indexOf(normalizedDisplayString, searchText);
+
+                while (index >= 0) {
+
+                    //grab the display offset for actually displaying things
+                    int displayIndex = index + offset;
+
+                    raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.yellow)), displayIndex, displayIndex
+                            + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                    matches.add(new int[]{index, index + searchText.length()});
+
+                    //index=TextUtils.indexOf(raw, searchText, index + searchText.length());
+                    index = backgroundString.indexOf(searchText, index + searchText.length());
+
+                    //we have a non-fuzzy match, so make sure we don't fuck with it
+                }
+            }
+
+            //now insert the spans for any fuzzy matches (if enabled)
+            if (fuzzySearchEnabled && backgroundString != null) {
+                backgroundString += " ";
+
+                for (String searchText : searchTerms) {
+
+                    if ("".equals(searchText)) {
+                        continue;
+                    }
+
+
+                    int curStart = 0;
+                    int curEnd = backgroundString.indexOf(" ", curStart);
+
+                    while (curEnd != -1) {
+
+                        boolean skip = matches.size() != 0;
+
+                        //See whether the fuzzy match overlaps at all with the concrete matches
+                        for (int[] textMatch : matches) {
+                            if (curStart < textMatch[0] && curEnd <= textMatch[0]) {
+                                skip = false;
+                            } else if (curStart >= textMatch[1] && curEnd > textMatch[1]) {
+                                skip = false;
+                            } else {
+                                //We're definitely inside of this span, so
+                                //don't do any fuzzy matching!
+                                skip = true;
+                                break;
+                            }
+                        }
+
+                        if (!skip) {
+                            //Walk the string to find words that are fuzzy matched
+                            String currentSpan = backgroundString.substring(curStart, curEnd);
+
+                            //First, figure out where we should be matching (if we don't
+                            //have anywhere to match, that means there's nothing to display
+                            //anyway)
+                            int indexInDisplay = normalizedDisplayString.indexOf(currentSpan);
+                            int length = (curEnd - curStart);
+
+                            if (indexInDisplay != -1 && StringUtils.fuzzyMatch(currentSpan, searchText).first) {
+                                raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.green)), indexInDisplay,
+                                        indexInDisplay + length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                        }
+                        curStart = curEnd + 1;
+                        curEnd = backgroundString.indexOf(" ", curStart);
+                    }
+                }
+            }
+        } catch (Exception excp){
+            removeSpans(raw);
+            Logger.log("search-hl", excp.toString() + " " + ExceptionReportTask.getStackTrace(excp));
         }
-        
-        String normalizedDisplayString = StringUtils.normalize(raw.toString());
-        
+
+        return raw;
+    }
+
+    /**
+     * Removes all background color spans from the Spannable
+     * @param raw Spannable to remove background colors from
+     */
+    private static void removeSpans(Spannable raw) {
         //Zero out the existing spans
         BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
         for (BackgroundColorSpan span : spans) {
             raw.removeSpan(span);
         }
-        
-        Vector<int[]> matches = new Vector<int[]>(); 
-        
-        
-        //Highlight direct substring matches
-        for (String searchText : searchTerms) {
-            if ("".equals(searchText)) { continue;}
-            
-            //TODO: Assuming here that our background string exists and
-            //isn't null due to the background string check above
-            
-            //check to see where we should start displaying this chunk
-            int offset = TextUtils.indexOf(normalizedDisplayString, backgroundString);
-            if(offset == -1) { 
-                //We can't safely highlight any of this, due to this field not actually 
-                //containing the same string we're searching by.
-                continue;
-            }
-    
-            int index = backgroundString.indexOf(searchText);
-            //int index = TextUtils.indexOf(normalizedDisplayString, searchText);
-            
-            while (index >= 0) {
-                
-              //grab the display offset for actually displaying things
-              int displayIndex = index + offset;
-                
-              raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.yellow)), displayIndex, displayIndex
-                  + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-              
-              matches.add(new int[] {index, index + searchText.length() } );
-              
-              //index=TextUtils.indexOf(raw, searchText, index + searchText.length());
-              index = backgroundString.indexOf(searchText, index + searchText.length());  
-              
-              //we have a non-fuzzy match, so make sure we don't fuck with it
-            }
-        }
-
-        //now insert the spans for any fuzzy matches (if enabled)
-        if(fuzzySearchEnabled && backgroundString != null) {
-            backgroundString += " ";
-
-            for (String searchText : searchTerms) {
-                
-                if ("".equals(searchText)) { continue;}
-                
-                
-                int curStart = 0;
-                int curEnd = backgroundString.indexOf(" ", curStart);
-                 
-                while(curEnd != -1) {
-                    
-                    boolean skip = matches.size() != 0;
-                    
-                    //See whether the fuzzy match overlaps at all with the concrete matches
-                    for(int[] textMatch : matches) {
-                        if(curStart < textMatch[0] && curEnd <= textMatch[0]) {
-                            skip = false;
-                        } else if(curStart >= textMatch[1] &&  curEnd > textMatch[1]) {
-                            skip = false;
-                        } else {
-                            //We're definitely inside of this span, so 
-                            //don't do any fuzzy matching!
-                            skip = true;
-                            break;
-                        }
-                    }
-                    
-                    if(!skip) {
-                        //Walk the string to find words that are fuzzy matched
-                        String currentSpan = backgroundString.substring(curStart, curEnd);
-                        
-                        //First, figure out where we should be matching (if we don't
-                        //have anywhere to match, that means there's nothing to display
-                        //anyway)
-                        int indexInDisplay = normalizedDisplayString.indexOf(currentSpan);
-                        int length = (curEnd - curStart);
-                        
-                        if(indexInDisplay != -1 && StringUtils.fuzzyMatch(currentSpan, searchText).first) {
-                            raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.green)), indexInDisplay, 
-                                    indexInDisplay + length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
-                    }
-                    curStart = curEnd + 1;
-                    curEnd = backgroundString.indexOf(" ", curStart);
-                }
-            }
-        }
-        
-        return raw;
     }
-    
+
     private float[] calculateDetailWeights(int[] hints) {
         float[] weights = new float[hints.length];
         int fullSize = 100;

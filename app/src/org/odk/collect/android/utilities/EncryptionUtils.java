@@ -43,13 +43,13 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.commcare.dalvik.odk.provider.FormsProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.odk.collect.android.logic.FormController.InstanceMetadata;
-import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
-import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -296,7 +296,7 @@ public class EncryptionUtils {
 
         Cursor formCursor = null;
         try {
-            if (cr.getType(mUri) == InstanceColumns.CONTENT_ITEM_TYPE) {
+            if (cr.getType(mUri) == InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE) {
                 // chain back to the Form record...
                 String[] selectionArgs = null;
                 Cursor instanceCursor = null;
@@ -307,14 +307,14 @@ public class EncryptionUtils {
                         return null; // save unencrypted.
                     }
                     instanceCursor.moveToFirst();
-                    String jrFormId = instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.JR_FORM_ID));
+                    String jrFormId = instanceCursor.getString(instanceCursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.JR_FORM_ID));
                     selectionArgs = new String[] {jrFormId};
                 } finally {
                     if ( instanceCursor != null ) {
                         instanceCursor.close();
                     }
                 }
-                String selection = FormsColumns.JR_FORM_ID + " like ?";
+                String selection = FormsProviderAPI.FormsColumns.JR_FORM_ID + " like ?";
     
                 formCursor = cr.query(instanceContentUri, null, selection, selectionArgs,
                         null);
@@ -324,7 +324,7 @@ public class EncryptionUtils {
                     return null; // save unencrypted
                 }
                 formCursor.moveToFirst();
-            } else if (cr.getType(mUri) == FormsColumns.CONTENT_ITEM_TYPE) {
+            } else if (cr.getType(mUri) == FormsProviderAPI.FormsColumns.CONTENT_ITEM_TYPE) {
                 formCursor = cr.query(mUri, null, null, null, null);
                 if ( formCursor.getCount() != 1 ) {
                     Log.e(t, "Not exactly one blank form!");
@@ -333,14 +333,14 @@ public class EncryptionUtils {
                 formCursor.moveToFirst();
             }
             
-            formId = formCursor.getString(formCursor.getColumnIndex(FormsColumns.JR_FORM_ID));
+            formId = formCursor.getString(formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.JR_FORM_ID));
             if (formId == null || formId.length() == 0) {
                 Log.e(t, "No FormId specified???");
                 return null;
             }
-            int idxModelVersion = formCursor.getColumnIndex(FormsColumns.MODEL_VERSION);
-            int idxUiVersion = formCursor.getColumnIndex(FormsColumns.UI_VERSION);
-            int idxBase64RsaPublicKey = formCursor.getColumnIndex(FormsColumns.BASE64_RSA_PUBLIC_KEY);
+            int idxModelVersion = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.MODEL_VERSION);
+            int idxUiVersion = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.UI_VERSION);
+            int idxBase64RsaPublicKey = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY);
             modelVersion = formCursor.isNull(idxModelVersion)
                     ? null : formCursor.getInt(idxModelVersion);
             uiVersion = formCursor.isNull(idxUiVersion) 
@@ -553,7 +553,6 @@ public class EncryptionUtils {
      * 
      * @param instanceXml
      * @param submissionXml
-     * @param metadata
      * @param formInfo
      * @return
      */

@@ -1,13 +1,12 @@
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -19,7 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ReportProblemActivity extends Activity implements OnClickListener {
+public class ReportProblemActivity extends CommCareActivity<ReportProblemActivity> implements OnClickListener {
 
     /*
      * (non-Javadoc)
@@ -30,9 +29,9 @@ public class ReportProblemActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_problem);
         Button submitButton = (Button)findViewById(R.id.ReportButton01);
-        submitButton.setText(Localization.get("problem.report.button"));
+        submitButton.setText(this.localize("problem.report.button"));
         submitButton.setOnClickListener(this);
-        ((TextView)findViewById(R.id.ReportPrompt01)).setText(Localization.get("problem.report.prompt"));
+        ((TextView)findViewById(R.id.ReportPrompt01)).setText(this.localize("problem.report.prompt"));
     }
 
     /*

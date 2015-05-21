@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.models;
 
 import java.io.IOException;
@@ -33,8 +30,8 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -63,7 +60,7 @@ public class AndroidSessionWrapper {
     protected int formRecordId = -1;
     protected int sessionStateRecordId = -1;
     
-    //These are only to be used by the local (not recoverable) session 
+    // These are only to be used by the local (not recoverable) session 
     private String instanceUri = null;
     private String instanceStatus = null;
 
@@ -101,7 +98,6 @@ public class AndroidSessionWrapper {
      * Clears out all of the elements of this wrapper which are for an individual traversal.
      * Includes any cached info (since the casedb might have changed) and the individual id's
      * and such.
-     * 
      */
     private void cleanVolatiles() {
         formRecordId = -1;
@@ -117,10 +113,16 @@ public class AndroidSessionWrapper {
         return session;
     }
 
+    /**
+     * Lookup the current form record in database using the form record id
+     *
+     * @return FormRecord or null
+     */
     public FormRecord getFormRecord() {
-        if(formRecordId == -1) {
+        if (formRecordId == -1) {
             return null;
         }
+
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         return storage.read(formRecordId);
     }
@@ -132,45 +134,54 @@ public class AndroidSessionWrapper {
     /**
      * Registers the instance data returned from form entry about this session, and specifies
      * whether the returned data is complete 
-     * 
+     *
+     * @param uri points to the instance we want to register with the session
      * @param c A cursor which points to at least one record of an ODK instance.
      * @return True if the record in question was marked completed, false otherwise
      * @throws IllegalArgumentException If the cursor provided doesn't point to any records,
      * or doesn't point to the appropriate columns
      */
-    public boolean beginRecordTransaction(Uri uri, Cursor c) throws IllegalArgumentException {        
-        if(!c.moveToFirst()) {
+    public boolean beginRecordTransaction(Uri uri, Cursor c) throws IllegalArgumentException {
+        if (!c.moveToFirst()) {
             throw new IllegalArgumentException("Empty query for instance record!");
         }
-        
+
+        // set local state
         instanceUri = uri.toString();
         instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
 
-        if(InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
-            return true;
-        } else {
-            return false;
-        }
+        // was the record marked complete?
+        return InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
     }
 
+    /**
+     * Update the session's form record status and link the record to an instance.
+     */
     public FormRecord commitRecordTransaction() throws InvalidStateException {
         FormRecord current = getFormRecord();
+
+        if (current == null) {
+            throw new InvalidStateException("No form record found when trying to save form.");
+        }
+
         String recordStatus = null;
-        if(InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
+        if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
             recordStatus = FormRecord.STATUS_COMPLETE;
         } else {
             recordStatus = FormRecord.STATUS_INCOMPLETE;
         }
 
-
+        // update the form record to mirror the sessions instance uri and
+        // status.
         current = current.updateStatus(instanceUri, recordStatus);
-        
+
+        // save the updated form record
         try {
             FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(CommCareApplication._(), platform, current, recordStatus);
-            
+
             SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-            storage.write(updated);    
-            
+            storage.write(updated);
+
             return updated;
         } catch (InvalidStructureException e1) {
             e1.printStackTrace();
@@ -190,7 +201,7 @@ public class AndroidSessionWrapper {
     public int getFormRecordId() {
         return formRecordId;
     }
-    
+
     /**
      * A helper method to search for any saved sessions which match this current one
      *  
@@ -352,8 +363,19 @@ public class AndroidSessionWrapper {
         }
     }
     
+    /**
+     * @return The evaluation context for the current state.
+     */
     public EvaluationContext getEvaluationContext() {
         return session.getEvaluationContext(getIIF());
+    }
+    
+    /**
+     * @param commandId The id of the command to evaluate against
+     * @return The evaluation context relevant for the provided command id 
+     */
+    public EvaluationContext getEvaluationContext(String commandId) {
+        return session.getEvaluationContext(getIIF(), commandId);
     }
     
     CommCareInstanceInitializer initializer;
@@ -415,11 +437,13 @@ public class AndroidSessionWrapper {
      * and pop a new frame from the stack, if one exists.
      */
     public boolean terminateSession() {
-        //Possible should re-name this one. We no longer go "home" by default. We might start a new session's frame.
-        
-        //CTS: note, this maybe should just be clearing volitiles either way (rather than cherry picking this one),
-        //but this is necessary to ensure that stack ops don't re-use the case casedb as the form if the form
-        //modified the case database before stack ops fire
+        // Possible should re-name this one. We no longer go "home" by default.
+        // We might start a new session's frame.
+
+        // CTS: note, this maybe should just be clearing volitiles either way
+        // (rather than cherry picking this one), but this is necessary to
+        // ensure that stack ops don't re-use the case casedb as the form if the
+        // form modified the case database before stack ops fire
         initializer = null;
         
         //TODO: should this section get wrapped up in the session, maybe?
@@ -434,7 +458,8 @@ public class AndroidSessionWrapper {
             session.executeStackOperations(ops, ec);
         }
         
-        //Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
+        // Ok, now we just need to figure out if it's time to go home, or time
+        // to fire up a new session from the stack
         if(session.finishAndPop()) {
             //We just built a new session stack into the session, so we want to keep that,
             //clear out the internal state vars, though.

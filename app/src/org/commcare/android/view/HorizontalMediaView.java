@@ -1,15 +1,5 @@
 package org.commcare.android.view;
 
-import java.io.File;
-
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.DisplayUnit;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localizer;
-import org.odk.collect.android.views.media.AudioButton;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -18,6 +8,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.graph.DisplayData;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
+import org.odk.collect.android.views.media.AudioButton;
+
+import java.io.File;
 
 /**
  * This layout for the GenericMenuFormAdapter allows you to load an image, audio, and text
@@ -62,7 +63,8 @@ public class HorizontalMediaView extends RelativeLayout {
     
 
     public void setDisplay(DisplayUnit display) {
-        setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getAudioURI(), display.getImageURI());
+        DisplayData mData = display.evaluate(ec);
+        setAVT(Localizer.processArguments(mData.getName(), new String[] {""}).trim(), mData.getAudioURI(), mData.getImageURI());
     }
     
     public void setAVT(String displayText, String audioURI, String imageURI) {

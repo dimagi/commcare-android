@@ -42,10 +42,11 @@ import android.os.AsyncTask;
 
 
 /**
- * Background task for uploading completed forms.
- * 
+ * Catch exceptions that are going to crash the phone, grab the stack trace,
+ * and upload to developers.
+ *
  * @author csims@dimagi.com
- * 
+ *
  **/
 
 public class ExceptionReportTask extends AsyncTask<Throwable, String, String>  

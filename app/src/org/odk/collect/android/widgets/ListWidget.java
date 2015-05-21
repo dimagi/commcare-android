@@ -1,21 +1,6 @@
 
 package org.odk.collect.android.widgets;
 
-import java.io.File;
-import java.util.Vector;
-
-import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectOneData;
-import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.utilities.FileUtils;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -32,6 +17,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.SelectOneData;
+import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.utilities.FileUtils;
+
+import java.io.File;
+import java.util.Vector;
 
 /**
  * ListWidget handles select-one fields using radio buttons. The radio buttons are aligned
@@ -135,14 +136,14 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                                 // An error hasn't been logged and loading the image failed, so it's
                                 // likely
                                 // a bad file.
-                                errorMsg = Localization.get("odk_file_invalid", imageFile.toString());
+                                errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
 
                             }
                         } else if (errorMsg == null) {
                             // An error hasn't been logged. We should have an image, but the file
                             // doesn't
                             // exist.
-                            errorMsg = Localization.get("odk_file_missing", imageFile.toString());
+                            errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
                         }
 
                         if (errorMsg != null) {
