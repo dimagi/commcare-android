@@ -149,7 +149,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     @Override
     protected Integer doTaskBackground(Void... params) {
         // Don't try to sync if logging out is occuring
-        if (!CommCareSessionService.logout_lock.tryLock()) {
+        if (!CommCareSessionService.sessionAliveLock.tryLock()) {
             // TODO PLM: once this task is refactored into manageable
             // components, it should use the ManagedAsyncTask pattern of
             // checking for isCancelled() and aborting at safe places.
@@ -158,7 +158,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 
 
         // Wrap in a 'try' to enable a 'finally' close that releases the
-        // logout_lock.
+        // sessionAliveLock.
         try {
         publishProgress(PROGRESS_STARTED);
         CommCareApp app = CommCareApplication._().getCurrentApp();
@@ -419,7 +419,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             this.publishProgress(PROGRESS_DONE);
             return responseError;
         } finally {
-            CommCareSessionService.logout_lock.unlock();
+            CommCareSessionService.sessionAliveLock.unlock();
         }
     }
     
