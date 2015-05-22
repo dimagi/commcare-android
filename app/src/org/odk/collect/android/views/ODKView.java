@@ -197,11 +197,17 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     }
     
     public void removeQuestionFromIndex(int i){
-        mView.removeView((View) widgets.get(i));
         int dividerIndex = Math.max(i - 1, 0);
-        mView.removeView(dividers.get(dividerIndex));
-        widgets.remove(i);
-        dividers.remove(dividerIndex);
+
+        if (dividerIndex < dividers.size()) {
+            mView.removeView(dividers.get(dividerIndex));
+            dividers.remove(dividerIndex);
+        }
+
+        if (i < widgets.size()) {
+            mView.removeView((View) widgets.get(i));
+            widgets.remove(i);
+        }
     }
     
     public void removeQuestionsFromIndex(ArrayList<Integer> indexes){
