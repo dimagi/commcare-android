@@ -115,7 +115,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         boolean needToSendLogs = false;
 
         // Don't try to sync if logging out is occuring
-        if (!CommCareSessionService.logout_lock.tryLock()) {
+        if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+            // NOTE: DataPullTask also needs this lock to run, so they
+            // cannot run in parallel.
+            //
             // TODO PLM: once this task is refactored into manageable
             // components, it should use the ManagedAsyncTask pattern of
             // checking for isCancelled() and aborting at safe places.
@@ -336,7 +339,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             if(needToSendLogs) {
                 CommCareApplication._().notifyLogsPending();
             }
-            CommCareSessionService.logout_lock.unlock();
+            CommCareSessionService.sessionAliveLock.unlock();
         }
     }
     

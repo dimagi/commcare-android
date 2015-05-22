@@ -64,7 +64,12 @@ public class CommCareSessionService extends Service  {
      */
     private static long sessionLength = 1000 * 60 * 60 * 24;
 
-    public static final ReentrantLock logout_lock = new ReentrantLock();
+    /**
+     * Lock that must be held to expire the session. Thus if a task holds it,
+     * the session remains alive. Allows server syncing tasks to prevent the
+     * session from expiring and closing the user DB while they are running.
+     */
+    public static final ReentrantLock sessionAliveLock = new ReentrantLock();
 
     private Timer maintenanceTimer;
     private CipherPool pool;
@@ -322,13 +327,13 @@ public class CommCareSessionService extends Service  {
                 currentTime > (logoutStartedAt + LOGOUT_TIMEOUT)) {
             // Try and grab the logout lock, aborting if synchronization is in
             // progress.
-            if (!CommCareSessionService.logout_lock.tryLock()) {
+            if (!CommCareSessionService.sessionAliveLock.tryLock()) {
                 return;
             }
             try {
                 closeSession(true);
             } finally {
-                CommCareSessionService.logout_lock.unlock();
+                CommCareSessionService.sessionAliveLock.unlock();
             }
         } else if (isActive() && logoutStartedAt == -1 &&
                 (currentTime > sessionExpireDate.getTime() ||
@@ -340,7 +345,7 @@ public class CommCareSessionService extends Service  {
 
             // Try and grab the logout lock, aborting if synchronization is in
             // progress.
-            if (!CommCareSessionService.logout_lock.tryLock()) {
+            if (!CommCareSessionService.sessionAliveLock.tryLock()) {
                 return;
             }
 
@@ -348,7 +353,7 @@ public class CommCareSessionService extends Service  {
                 logoutStartedAt = new Date().getTime();
                 saveFormAndCloseSession();
             } finally {
-                CommCareSessionService.logout_lock.unlock();
+                CommCareSessionService.sessionAliveLock.unlock();
             }
 
             showLoggedOutNotification();
