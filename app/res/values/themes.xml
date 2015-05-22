@@ -16,6 +16,11 @@
         <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
     </style>
 
+    <style name="fading_edge" parent="android:Widget.ListView">
+        <item name="android:requiresFadingEdge">vertical</item>
+        <item name="android:fadingEdgeLength">48dp</item>
+    </style>
+
     <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
         <item name="android:button">@drawable/radio_button_modern</item>
     </style>
