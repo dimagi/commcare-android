@@ -259,16 +259,22 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     }
                     return;
                 }
-                
+
                 CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
-                
-                boolean formsToSend = checkAndStartUnsentTask(true);
-                
-                if(!formsToSend) {
-                    //No unsent forms, just sync
+
+                boolean formsSentToServer = false;
+                try {
+                    formsSentToServer = checkAndStartUnsentTask(true);
+                } catch (SessionUnavailableException e) {
+                    // Session is expired, stop using the user DB.
+                    return;
+                }
+
+                if(!formsSentToServer) {
+                    // No forms needed to be sent to the server, so let's just
+                    // trigger a data sync.
                     syncData(false);
                 }
-                
             }
         });
 
@@ -1038,9 +1044,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     
+    /**
+     * @return Were there forms that were sent to the server by this method
+     * invocation?
+     */
     protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) throws SessionUnavailableException {
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
+
         if(records.length > 0) {
             processAndSend(records, syncAfterwards);
             return true;
