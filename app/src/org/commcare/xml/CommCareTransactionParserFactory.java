@@ -103,7 +103,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             //server message;
             //" <message nature=""/>"
         } else if(name != null && name.toLowerCase().equals("sync") && namespace != null && "http://commcarehq.org/sync".equals(namespace)) {
-            return new TransactionParser<String>(parser, namespace, namespace) {
+            return new TransactionParser<String>(parser) {
                 /*
                  * (non-Javadoc)
                  * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
