@@ -70,6 +70,19 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         this.rootInstanceDir = destination;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.data.xml.TransactionParser#parses(java.lang.String, java.lang.String)
+     */
+    @Override
+    public boolean parses(String name, String namespace) {
+        if (namespaceToInstallPath.containsKey(namespace)) {
+            return true;
+        }
+        return false;
+    }
+
+
     public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
         String xmlns = parser.getNamespace();
         //Parse this subdocument into a dom
