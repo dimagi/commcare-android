@@ -14,6 +14,7 @@
         <item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>
         <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
         <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
+        <item name="filter_select_background_color">@color/cc_brand_text</item>
     </style>
 
     <style name="fading_edge" parent="android:Widget.ListView">
