@@ -29,4 +29,5 @@
         <attr name="sbn_img" format="reference" />
     </declare-styleable>
     <attr name="filter_select_background_color" format="reference"></attr>
+    <attr name="filter_select_text_color" format="reference"></attr>
 </resources>

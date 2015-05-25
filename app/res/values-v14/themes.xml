@@ -24,6 +24,7 @@
         <item name="android:listViewStyle">@style/fading_edge</item>
         <item name="android:scrollViewStyle">@style/fading_edge</item>
         <item name="filter_select_background_color">@color/cc_brand_text</item>
+        <item name="filter_select_text_color">@color/cc_light_warm_accent_text</item>
     </style>
 
     <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
