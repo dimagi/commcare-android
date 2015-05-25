@@ -48,9 +48,10 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
     private IStorageUtilityIndexed<FormRecord> storage;
 
     /**
-     * A mapping from an installed form's namespace its install path.
+     * An unmodifiable mapping from an installed form's namespace its install
+     * path.
      */
-    private final Map<String, String> namespaces;
+    private final Map<String, String> namespaceToInstallPath;
 
     private int parseCount = 0;
     private Cipher encrypter;
@@ -60,10 +61,12 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
      */
     private final String rootInstanceDir;
 
-    public FormInstanceXmlParser(KXmlParser parser, Context c, Map<String, String> namespaces, String destination) {
+    public FormInstanceXmlParser(KXmlParser parser, Context c,
+                                 Map<String, String> namespaceToInstallPath,
+                                 String destination) {
         super(parser, null, null);
         this.c = c;
-        this.namespaces = namespaces;
+        this.namespaceToInstallPath = namespaceToInstallPath;
         this.rootInstanceDir = destination;
     }
 
@@ -86,7 +89,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
     
         SecretKey key = CommCareApplication._().createNewSymetricKey();
         
-        String filePath = getInstanceDestination(namespaces.get(xmlns));
+        String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
         
         //Register this instance for inspection
         ContentValues values = new ContentValues();
@@ -147,13 +150,12 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
     }
 
     /**
-     * Builds the path of where a particular form instance should be stored.
-     * Creates a directory using the form's namespace id and the current time
-     * returns a path pointing to an xml file of the same name inside that
-     * directory.
+     * Path for where a particular form instance should be stored. Creates a
+     * directory using the form's namespace id and the current time and returns
+     * a path pointing to an xml file of the same name inside that directory.
      *
      * Path should look something like:
-     * /app/{app-id}/formdata/{form-id}_{time}/{form-id}_time.xml
+     *   /app/{app-id}/formdata/{form-id}_{time}/{form-id}_time.xml
      *
      * @param formPath Path to xml file defining a form.
      * @return Absolute path to file where the instance of a given form should
