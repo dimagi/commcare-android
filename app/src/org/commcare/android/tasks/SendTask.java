@@ -25,15 +25,12 @@ import java.io.FileNotFoundException;
  *
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>{
-
     Context c;
     String url;
     Long[] results;
     
     DataSubmissionListener formSubmissionListener;
-    CommCarePlatform platform;
-    
-    SqlStorage<FormRecord> storage;
+
     File dumpDirectory;
     
     public static String MALFORMED_FILE_CATEGORY = "malformed-file";
@@ -42,13 +39,11 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
     
      // 5MB less 1KB overhead
     
-    public SendTask(Context c, CommCarePlatform platform, String url, File dumpDirectory) throws SessionUnavailableException{
+    public SendTask(Context c, String url, File dumpDirectory) {
         this.c = c;
         this.url = url;
-        storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         this.taskId = SendTask.BULK_SEND_ID;
         this.dumpDirectory = dumpDirectory;
-        platform = this.platform;
     }
     
     /* (non-Javadoc)

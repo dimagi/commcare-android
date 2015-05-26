@@ -676,7 +676,6 @@ public class CommCareApplication extends Application {
                 // cast its IBinder to a concrete class and directly access it.
                 User user = null;
                 synchronized (serviceLock) {
-
                     mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
                     mBoundService = ((CommCareSessionService.LocalBinder) service).getService();
@@ -702,7 +701,7 @@ public class CommCareApplication extends Application {
                     mIsBinding = false;
 
                     if (user != null) {
-                        getSession().startSession(user);
+                        mBoundService.startSession(user);
                         attachCallListener();
                         CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 
