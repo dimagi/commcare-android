@@ -211,7 +211,7 @@ public class AndroidSessionWrapper {
      * null otherwise. 
      */
     public SessionStateDescriptor searchForDuplicates() {
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
         
         //TODO: This is really a join situation. Need a way to outline connections between tables to enable joining

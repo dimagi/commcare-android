@@ -187,7 +187,7 @@ public class CommCareApplication extends Application {
         //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } catch (StorageFullException sfe) {
+        } catch(SessionUnavailableException | StorageFullException sfe) {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!

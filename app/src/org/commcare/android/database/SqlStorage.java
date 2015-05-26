@@ -17,6 +17,7 @@ import net.sqlcipher.database.SQLiteStatement;
 import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -143,10 +144,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     }
     
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
-     */
-    @Override
     public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
@@ -165,6 +162,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
      */
+    @Override
     public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
         
@@ -241,7 +239,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @see org.javarosa.core.services.storage.IStorageUtility#close()
      */
     public void close() {
-        helper.getHandle().close();
+        try {
+            helper.getHandle().close();
+        } catch (SessionUnavailableException e) {
+            // The db isn't available so don't worry about closing it.
+        }
     }
 
     /* (non-Javadoc)
@@ -415,6 +417,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
      */
+    @Override
     public void remove(int id) {
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
@@ -426,9 +429,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }    
     }
     
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
-     */
     public void remove(List<Integer> ids) {
         if(ids.size() == 0 ) { return; }
         SQLiteDatabase db = helper.getHandle();
@@ -447,6 +447,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#remove(org.javarosa.core.services.storage.Persistable)
      */
+    @Override
     public void remove(Persistable p) {
         this.remove(p.getID());
     }
@@ -454,6 +455,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll()
      */
+    @Override
     public void removeAll() {
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
@@ -468,6 +470,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
      */
+    @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         Vector<Integer> removed = new Vector<Integer>();
         for(IStorageIterator iterator = this.iterate() ; iterator.hasMore() ;) {
@@ -506,6 +509,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#repack()
      */
+    @Override
     public void repack() {
         //Unecessary!
     }
@@ -513,13 +517,15 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#repair()
      */
-    public void repair() { 
+    @Override
+    public void repair() {
         //Unecessary!
     }
 
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
      */
+    @Override
     public void update(int id, Externalizable e) throws StorageFullException {
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
@@ -534,6 +540,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
      */
+    @Override
     public void write(Persistable p) throws StorageFullException {
         if(p.getID() != -1) {
             update(p.getID(), p);
@@ -541,7 +548,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
         SQLiteDatabase db = helper.getHandle();
         try {
-        
         db.beginTransaction();
         long ret = db.insertOrThrow(table, DbUtil.DATA_COL, helper.getContentValues(p));
         
@@ -561,19 +567,21 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
+    @Override
     public void setReadOnly() {
         //TODO: Implement (although I doubt there's much useful stuff to do)
     }
 
+    @Override
     public void registerIndex(String filterIndex) {
         // TODO Auto-generated method stub
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws StorageFullException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws StorageFullException, SessionUnavailableException {
         return cleanCopy(from, to, null);
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException, SessionUnavailableException {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
         try{
@@ -600,7 +608,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /**
      * @return An iterator which can provide a list of all of the indices in this table.
      */
-    private SqlStorageIterator<T> getCoveringIndexIterator(int minValue, int maxValue, int countValue) {
+    private SqlStorageIterator<T> getCoveringIndexIterator(int minValue, int maxValue, int countValue) throws SessionUnavailableException {
         SQLiteDatabase db = helper.getHandle();
         
         //So here's what we're doing: 
