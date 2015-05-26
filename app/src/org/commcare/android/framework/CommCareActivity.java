@@ -490,30 +490,25 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         String topLevel = getTopLevelTitleName(c);
         
         String[] stepTitles = new String[0];
-        try {
-            stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
-            
-            //See if we can insert any case hacks
-            int i = 0;
-            for(StackFrameStep step : CommCareApplication._().getCurrentSession().getFrame().getSteps()){
-                try {
-                if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
-                    //Haaack
-                    if(step.getId() != null && step.getId().contains("case_id")) {
-                        ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
-                        stepTitles[i] = Localization.get("title.datum.wrapper", new String[] { foundCase.getName()});
-                    }
+        stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
+
+        //See if we can insert any case hacks
+        int i = 0;
+        for(StackFrameStep step : CommCareApplication._().getCurrentSession().getFrame().getSteps()){
+            try {
+            if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+                //Haaack
+                if(step.getId() != null && step.getId().contains("case_id")) {
+                    ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
+                    stepTitles[i] = Localization.get("title.datum.wrapper", new String[] { foundCase.getName()});
                 }
-                } catch(Exception e) {
-                    //TODO: Your error handling is bad and you should feel bad
-                }
-                ++i;
             }
-            
-        } catch(SessionUnavailableException sue) {
-            
+            } catch(Exception e) {
+                //TODO: Your error handling is bad and you should feel bad
+            }
+            ++i;
         }
-        
+
         String returnValue = topLevel;
         
         for(String title : stepTitles) {

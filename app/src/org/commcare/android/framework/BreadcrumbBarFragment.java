@@ -516,7 +516,7 @@ public class BreadcrumbBarFragment extends Fragment {
                                 }
                                 
                                 activity.finish();
-                            } catch(SessionUnavailableException sue) {
+                            } catch (SessionStateUninitException e) {
                                 
                             }
                         }
@@ -555,8 +555,8 @@ public class BreadcrumbBarFragment extends Fragment {
                 public void onClick(View arg0) {
                     try{
                         CommCareApplication._().getCurrentSession().clearAllState();
-                    } catch(SessionUnavailableException sue) {
-                        
+                    } catch (SessionStateUninitException e) {
+
                     }
                     
                     activity.finish();

@@ -111,7 +111,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      * text data using FormRecordLoaderTask; results will then be re-filtered
      * and displayed via callbacks.
      */
-    public void resetRecords() throws SessionUnavailableException {
+    public void resetRecords() {
         // reload the form records, even if they are currently being loaded
         if (loader.getStatus() == Status.RUNNING) {
             loader.cancel(false);
@@ -120,7 +120,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             loader = loader.spawn();
         }
 
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
 
         // choose a default filter if none set
         if (filter == null) {
@@ -282,7 +282,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         return getCount() > 0;
     }
     
-    public void setFormFilter(FormRecordFilter filter) throws SessionUnavailableException {
+    public void setFormFilter(FormRecordFilter filter) {
         this.filter = filter;
     }
     

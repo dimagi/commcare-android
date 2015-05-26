@@ -12,6 +12,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -156,6 +157,7 @@ public class UserSandboxUtils {
         
         //OK! So we should be all set, here. Mark the new sandbox as ready and the old sandbox as ready for cleanup.
         SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
+
         SQLiteDatabase ukrdb = ukr.getAccessLock();
         ukrdb.beginTransaction();
         try {

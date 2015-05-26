@@ -316,12 +316,8 @@ public class CommCareApplication extends Application {
 
     /**
      * Get the current CommCare session that's being executed
-     *
-     * @return
-     * @throws SessionUnavailableException If there is no session current being
-     *                                     executed
      */
-    public CommCareSession getCurrentSession() throws SessionUnavailableException {
+    public CommCareSession getCurrentSession() {
         return getCurrentSessionWrapper().getSession();
     }
 
@@ -768,7 +764,7 @@ public class CommCareApplication extends Application {
             return;
         }
 
-        LogSubmissionTask task = new LogSubmissionTask(this,
+        LogSubmissionTask task = new LogSubmissionTask(
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
                 dataListener,
                 url);

@@ -68,7 +68,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
             {
                 ConnectionDiagnosticTask<ConnectionDiagnosticActivity> mConnectionDiagnosticTask = 
                 new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(
-                        getApplicationContext(), 
+                        getApplicationContext(),
                         CommCareApplication._().getCurrentApp().getCommCarePlatform())
                 {    
                 /*
@@ -183,7 +183,6 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                     }
                     LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
-                                    CommCareApplication._(),
                                     true,
                                     dataListener, url);
                     reportSubmitter.execute();

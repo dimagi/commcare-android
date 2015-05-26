@@ -297,13 +297,7 @@ public class LegacyInstallUtils {
         //we're done with the old storage now.
         olddb.close();
 
-        SqlStorage<UserKeyRecord> newUserKeyRecords;
-        try {
-            newUserKeyRecords = app.getStorage(UserKeyRecord.class);
-        } catch (SessionUnavailableException sue) {
-            // TODO PLM: figure out a way to fail more gracefully from this.
-            throw new RuntimeException(sue.getMessage());
-        }
+        SqlStorage<UserKeyRecord> newUserKeyRecords = app.getStorage(UserKeyRecord.class);
 
         User preferred = null;
         //go through all of the old users and generate key records for them
@@ -569,13 +563,8 @@ public class LegacyInstallUtils {
             
             //Now we can update this key record to confirm that it is fully installed
             ukr.setType(UserKeyRecord.TYPE_NORMAL);
-            try {
-                app.getStorage(UserKeyRecord.class).write(ukr);
-            } catch (SessionUnavailableException e) {
-                // TODO PLM: figure out a way to fail more gracefully from this.
-                throw new RuntimeException(e.getMessage());
-            }
-            
+            app.getStorage(UserKeyRecord.class).write(ukr);
+
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Eliminating shared data from old install, since new users can't access it");
             
             //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the

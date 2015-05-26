@@ -84,7 +84,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     
     static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
     
-    public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
+    public ProcessAndSendTask(Context c, String url) {
         this(c, url, SEND_PHASE_ID, true);
     }
     

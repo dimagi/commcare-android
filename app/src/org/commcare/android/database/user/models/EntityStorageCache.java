@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
@@ -49,7 +50,14 @@ public class EntityStorageCache {
     //an object for the same cache at once
     
     public EntityStorageCache(String cacheName) {
-        this(cacheName, CommCareApplication._().getUserDbHandle());
+        // TODO PLM: refactor so that error handling occurs by caller and this
+        // method can call 'this'.
+        try {
+            this.db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        this.mCacheName = cacheName;
     }
     
     SQLiteDatabase db;

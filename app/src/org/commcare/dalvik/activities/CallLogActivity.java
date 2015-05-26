@@ -74,24 +74,20 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        try {
-            ListAdapter adapter = null;
-            if(isMessages) {
-                if(messages == null) {
-                    messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
-                }
-                adapter = messages;
-            } else {
-                if(calls == null) {
-                    calls = new CallRecordAdapter(this, managedQuery(android.provider.CallLog.Calls.CONTENT_URI,null, null, null, Calls.DATE + " DESC"));
-                }
-                adapter =calls;
+        ListAdapter adapter = null;
+        if(isMessages) {
+            if(messages == null) {
+                messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
             }
-            
-            this.setListAdapter(adapter);
-        } catch(SessionUnavailableException sue) {
-            //TODO: login and return
+            adapter = messages;
+        } else {
+            if(calls == null) {
+                calls = new CallRecordAdapter(this, managedQuery(android.provider.CallLog.Calls.CONTENT_URI,null, null, null, Calls.DATE + " DESC"));
+            }
+            adapter =calls;
         }
+
+        this.setListAdapter(adapter);
     }
 
     /*

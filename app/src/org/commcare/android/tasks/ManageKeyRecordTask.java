@@ -9,6 +9,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.database.user.models.User;
@@ -155,9 +156,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         userRecordExists = false;
         UserKeyRecord valid = null;
         
-        Date now = new Date();
-        for(UserKeyRecord ukr : app.getStorage(UserKeyRecord.class).getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
-            
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+        for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
             userRecordExists = true;
             
             if(!ukr.isPasswordValid(password)) {
@@ -214,10 +214,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 }
                 
                 continue;
-            }
-            else if(record.getType() == UserKeyRecord.TYPE_NEW) {
+            } else if(record.getType() == UserKeyRecord.TYPE_NEW) {
                 //See if we have another sandbox with this ID that is fully initialized.
-                if(app.getStorage(UserKeyRecord.class).getIDsForValues(new String[] {UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS}, new Object[] {record.getUuid(), UserKeyRecord.TYPE_NORMAL}).size() > 0) {
+                if(storage.getIDsForValues(new String[] {UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS}, new Object[] {record.getUuid(), UserKeyRecord.TYPE_NORMAL}).size() > 0) {
                     
                     Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Marking new sandbox " + record.getUuid() + " as initialized, since it's already in use on this device");
                     //If so, this sandbox _has_ to have already been initialized, and we should treat it as such.
@@ -322,7 +321,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
         
         try {
-            
             Logger.log(AndroidLogger.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
             SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
             //We successfully received and parsed out some key records! Let's update the db
@@ -347,8 +345,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 }
             }
             return true;
-        
-        } catch (StorageFullException e) {
+        } catch (UserStorageClosedException | StorageFullException e) {
             e.printStackTrace();
             return false;
         }
@@ -382,9 +379,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     //Or just leave the old one?
                     
                     
-                    //Switching over to using the old record instead of failing 
+                    //Switching over to using the old record instead of failing
                     current = getInUseSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
-                    
+
                     //Make sure we didn't somehow not get a new sandbox
                     if(current == null ){ 
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
@@ -465,9 +462,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         //(B) Wipe that old record once the migrated record is completed (and see if we should wipe the 
         //sandbox's data).
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
-        
+
         UserKeyRecord oldSandboxToMigrate = getInUseSandbox(newRecord.getUsername(), storage);
-        
 
         //Our new record is completely new. Easy and awesome. Record and move on.
         if(oldSandboxToMigrate == null) {
@@ -479,7 +475,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         
         //Otherwise we should start migrating that data over.
         byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
-        
         
         //First see if the old sandbox is legacy and needs to be transfered over.
         if(oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
@@ -504,12 +499,12 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
     }
 
-    
     //TODO: this shouldn't go here. Where should it go?
     public static UserKeyRecord getCurrentValidRecord(CommCareApp app, String username, String password, boolean acceptExpired) {
-        Date now = new Date();
         UserKeyRecord validIsh = null;
-        for(UserKeyRecord ukr : app.getStorage(UserKeyRecord.class).getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+
+        for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
             if(!ukr.isPasswordValid(password)) {
                 //This record is for a different password
                 continue;

@@ -231,7 +231,7 @@ public class CommCareApp {
         return platform;
     }
 
-    public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) {
         return getStorage(c.getAnnotation(Table.class).value(), c);
     }
 
