@@ -227,7 +227,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         logoutButton.setText(this.localize("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication._().getSession().closeSession(false);
+                try {
+                    CommCareApplication._().getSession().closeSession(false);
+                } catch (SessionUnavailableException e) {
+                    // session expired, so re-login's probably been triggered
+                    return;
+                }
                 returnToLogin(null);
             }
         });
@@ -446,7 +451,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(resultCode == RESULT_RESTART) {
-            startNextFetch();
+            try {
+                startNextFetch();
+            } catch (SessionUnavailableException e) {
+                // session has expired and re-login intent has
+                // probably already been triggered
+            }
             return;
         }
         
@@ -673,7 +683,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * the session to launch. If false then caller should exit or spawn home
      * activity.
      */
-    private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
+    private boolean processReturnFromFormEntry(int resultCode, Intent intent) throws SessionUnavailableException {
         // TODO: We might need to load this from serialized state?
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 
@@ -800,7 +810,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (wasExternal) {
             this.finish();
         }
-        refreshView();
+        try {
+            refreshView();
+        } catch(SessionUnavailableException sue) {
+            returnToLogin(Localization.get("home.logged.out"));
+        }
     }
 
 
@@ -849,8 +863,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     private void startNextFetch() throws SessionUnavailableException {
-        
-        //TODO: feels like this logic should... not be in a big disgusting ifghetti. 
+        //TODO: feels like this logic should... not be in a big disgusting ifghetti.
         //Interface out the transitions, maybe?
         
         final CommCareSession session = CommCareApplication._().getCurrentSession();
@@ -870,7 +883,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         session.stepBack();
-                        CommCareHomeActivity.this.startNextFetch();
+                        try {
+                            CommCareHomeActivity.this.startNextFetch();
+                        } catch (SessionUnavailableException e) {
+                            // session has expired and re-login intent has
+                            // probably already been triggered
+                        }
                     }
                 });
                 return;
@@ -1654,20 +1672,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
         DialogInterface.OnClickListener attemptFixDialog = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
-                try {
-                    switch (i) {
-                    case DialogInterface.BUTTON1: // attempt repair
-                    Intent intent = new Intent(CommCareHomeActivity.this, RecoveryActivity.class);
-                    startActivity(intent);
-                    break;
+                switch (i) {
+                case DialogInterface.BUTTON1: // attempt repair
+                Intent intent = new Intent(CommCareHomeActivity.this, RecoveryActivity.class);
+                startActivity(intent);
+                break;
 
-                    case DialogInterface.BUTTON2: // Shut down
-                        CommCareHomeActivity.this.finish();
-                        break;
-                    }
-                } catch(SessionUnavailableException sue) {
-                    //should be impossible to get here.
-                    throw new RuntimeException("Required session unavailable. Something is seriously wrong");
+                case DialogInterface.BUTTON2: // Shut down
+                    CommCareHomeActivity.this.finish();
+                    break;
                 }
             }
         };

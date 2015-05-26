@@ -44,6 +44,7 @@ import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.MessageActivity;
@@ -115,7 +116,7 @@ public class CommCareApplication extends Application {
     private static CommCareApplication app;
 
     private CommCareApp currentApp;
-    
+
     // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
 
@@ -324,9 +325,11 @@ public class CommCareApplication extends Application {
         return getCurrentSessionWrapper().getSession();
     }
 
-    public AndroidSessionWrapper getCurrentSessionWrapper() throws SessionUnavailableException {
+    public AndroidSessionWrapper getCurrentSessionWrapper() {
         if (sessionWrapper == null) {
-            throw new SessionUnavailableException();
+            // TODO PLM: should be able to init this so it is never null.
+            // Need to find the correct place after the currentApp is set.
+            throw new SessionStateUninitException("CommCare user session isn't available");
         }
         return sessionWrapper;
     }

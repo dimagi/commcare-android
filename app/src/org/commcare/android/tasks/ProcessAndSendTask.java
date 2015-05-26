@@ -23,7 +23,6 @@ import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
-import org.commcare.util.CommCarePlatform;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
@@ -35,7 +34,6 @@ import android.os.AsyncTask;
 
 /**
  * @author ctsims
- *
  */
 public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
 
@@ -80,22 +78,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long PROGRESS_SDCARD_REMOVED = 512;
     
     DataSubmissionListener formSubmissionListener;
-    CommCarePlatform platform;
     private FormRecordProcessor processor;
     
     private static int SUBMISSION_ATTEMPTS = 2;
     
-    
     static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
-    
-    private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
     
     public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
         this(c, url, SEND_PHASE_ID, true);
     }
     
-    public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) 
-            throws SessionUnavailableException{
+    public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) {
         this.c = c;
         this.url = url;
         this.sendTaskId = sendTaskId;

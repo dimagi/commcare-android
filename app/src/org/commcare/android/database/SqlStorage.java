@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database;
 
 import java.io.ByteArrayInputStream;
@@ -35,7 +32,6 @@ import android.util.Pair;
 
 /**
  * @author ctsims
- *
  */
 public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
     
@@ -64,11 +60,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if(e instanceof EncryptedModel) {
                 em = (EncryptedModel)e;
             }
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            // TODO Auto-generated catch block
+        } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
@@ -76,6 +68,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
      */
+    @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         return getIDsForValues(new String[] {fieldName}, new Object[] { value} );
     }
