@@ -53,7 +53,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public Entity<TreeReference> getEntity(TreeReference data) throws SessionUnavailableException {
+    public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         
         mCacheHost = nodeContext.getCacheHost(data);
@@ -80,7 +80,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         return entity;
     }
     
-    public void primeCache() {
+    private void primeCache() {
         if(mTemplateIsCachable == null || mTemplateIsCachable == false || mCacheHost == null ) { return; }
         
         String[][] cachePrimeKeys = mCacheHost.getCachePrimeGuess();
@@ -130,8 +130,15 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
         
         long now = System.currentTimeMillis();
-        
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+
+        SQLiteDatabase db;
+        try {
+            db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            // TODO PLM: not sure how to fail elegantly here, so mimicking
+            // current behaviour by raising a runtime error.
+            throw new RuntimeException(e.getMessage());
+        }
         
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " + whereClause + " AND cache_key IN " + validKeys;
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {

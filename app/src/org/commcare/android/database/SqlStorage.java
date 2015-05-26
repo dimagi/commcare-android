@@ -102,7 +102,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             return indices;
         }
     }
-    
 
     public Vector<T> getRecordsForValue(String fieldName, Object value) {
         return getRecordsForValues(new String[] {fieldName}, new Object[] {value});
@@ -147,6 +146,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
      */
+    @Override
     public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
@@ -212,10 +212,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
         return re;
     }
-    
-    
-    
-    
 
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
@@ -365,11 +361,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                density >= 0.5) {
                 return getCoveringIndexIterator(minValue, maxValue, countValue);
             }
-
         }
-        
-        
-        
+
         String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} : new String[] {DbUtil.ID_COL};
         Cursor c = helper.getHandle().query(table,  projection, null, null, null, null, null);
         return new SqlStorageIterator<T>(c, this);
@@ -607,7 +600,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /**
      * @return An iterator which can provide a list of all of the indices in this table.
      */
-    protected SqlStorageIterator<T> getCoveringIndexIterator(int minValue, int maxValue, int countValue) {
+    private SqlStorageIterator<T> getCoveringIndexIterator(int minValue, int maxValue, int countValue) {
         SQLiteDatabase db = helper.getHandle();
         
         //So here's what we're doing: 
