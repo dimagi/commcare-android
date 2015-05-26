@@ -29,7 +29,7 @@ public class UserXmlParser extends TransactionParser<User> {
         this.wrappedKey = wrappedKey;
     }
 
-    public User parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
+    public User parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("registration");
         
         //parse (with verification) the next tag
@@ -45,8 +45,14 @@ public class UserXmlParser extends TransactionParser<User> {
         this.nextTag("date");
         String dateModified = parser.nextText();
         Date modified = DateUtils.parseDateTime(dateModified);
-        
-        User u = retrieve(uuid);
+
+        User u;
+        try {
+            u = retrieve(uuid);
+        } catch (SessionUnavailableException e) {
+            // User db's closed so escape since saving isn't possible.
+            throw new IOException(e.getMessage());
+        }
         
         if(u == null) {
             u = new User(username, passwordHash, uuid);
@@ -59,8 +65,7 @@ public class UserXmlParser extends TransactionParser<User> {
         }
         
         //Now look for optional components
-        while(this.nextTagInBlock("registration")) {
-            
+        while (this.nextTagInBlock("registration")) {
             String tag = parser.getName().toLowerCase();
             
             if(tag.equals("registering_phone_id")) {
@@ -88,9 +93,12 @@ public class UserXmlParser extends TransactionParser<User> {
         return u;
     }
 
-    public void commit(User parsed) throws IOException, SessionUnavailableException {
+    public void commit(User parsed) throws IOException {
         try {
-            storage().write(parsed);
+            cachedStorage().write(parsed);
+        } catch (SessionUnavailableException e) {
+            e.printStackTrace();
+            throw new IOException("User databse closed while writing case.");
         } catch (StorageFullException e) {
             e.printStackTrace();
             throw new IOException("Storage full while writing case!");
@@ -98,16 +106,15 @@ public class UserXmlParser extends TransactionParser<User> {
     }
 
     public User retrieve(String entityId) throws SessionUnavailableException {
-        IStorageUtilityIndexed storage = storage();
-        try{
-            return (User)storage.getRecordForValue(User.META_UID, entityId);
-        } catch(NoSuchElementException nsee) {
+        try {
+            return (User)cachedStorage().getRecordForValue(User.META_UID, entityId);
+        } catch (NoSuchElementException nsee) {
             return null;
         }
     }
     
-    public IStorageUtilityIndexed storage() throws SessionUnavailableException{
-        if(storage == null) {
+    public IStorageUtilityIndexed cachedStorage() throws SessionUnavailableException{
+        if (storage == null) {
             storage =  CommCareApplication._().getUserStorage(User.class);
         } 
         return storage;

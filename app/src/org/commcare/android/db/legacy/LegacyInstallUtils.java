@@ -284,9 +284,6 @@ public class LegacyInstallUtils {
         //4) Finally, we need to register a new UserKeyRecord which will prepare the user-facing records for transition
         //when the user logs in again
         
-        
-        SqlStorage<UserKeyRecord> newUserKeyRecords = app.getStorage(UserKeyRecord.class);
-        
         //Get legacy user storage
         LegacySqlIndexedStorageUtility<User> legacyUsers = new LegacySqlIndexedStorageUtility<User>("USER", User.class, ldbh);
         
@@ -299,7 +296,15 @@ public class LegacyInstallUtils {
         
         //we're done with the old storage now.
         olddb.close();
-        
+
+        SqlStorage<UserKeyRecord> newUserKeyRecords;
+        try {
+            newUserKeyRecords = app.getStorage(UserKeyRecord.class);
+        } catch (SessionUnavailableException sue) {
+            // TODO PLM: figure out a way to fail more gracefully from this.
+            throw new RuntimeException(sue.getMessage());
+        }
+
         User preferred = null;
         //go through all of the old users and generate key records for them
         for(User u : oldUsers) {
@@ -374,7 +379,7 @@ public class LegacyInstallUtils {
         return filesystemHome + "commcare/";
     }
 
-    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException{
+    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Beginning transition attempt for " + ukr.getUsername());
         
         try {
@@ -416,7 +421,7 @@ public class LegacyInstallUtils {
             
             //get the legacy storage
             final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
-                protected CipherPool getCipherPool() throws SessionUnavailableException {
+                protected CipherPool getCipherPool() {
                     return pool;
                 }
             }).getReadableDatabase();
@@ -564,7 +569,12 @@ public class LegacyInstallUtils {
             
             //Now we can update this key record to confirm that it is fully installed
             ukr.setType(UserKeyRecord.TYPE_NORMAL);
-            app.getStorage(UserKeyRecord.class).write(ukr);
+            try {
+                app.getStorage(UserKeyRecord.class).write(ukr);
+            } catch (SessionUnavailableException e) {
+                // TODO PLM: figure out a way to fail more gracefully from this.
+                throw new RuntimeException(e.getMessage());
+            }
             
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Eliminating shared data from old install, since new users can't access it");
             
@@ -633,5 +643,4 @@ public class LegacyInstallUtils {
         }
         return imei;
     }
-    
 }

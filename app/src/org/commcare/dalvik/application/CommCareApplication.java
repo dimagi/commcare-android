@@ -258,7 +258,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public SecretKey createNewSymetricKey() {
+    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
         return getSession().createNewSymetricKey();
     }
 
@@ -320,11 +320,11 @@ public class CommCareApplication extends Application {
      * @throws SessionUnavailableException If there is no session current being
      *                                     executed
      */
-    public CommCareSession getCurrentSession() {
+    public CommCareSession getCurrentSession() throws SessionUnavailableException {
         return getCurrentSessionWrapper().getSession();
     }
 
-    public AndroidSessionWrapper getCurrentSessionWrapper() {
+    public AndroidSessionWrapper getCurrentSessionWrapper() throws SessionUnavailableException {
         if (sessionWrapper == null) {
             throw new SessionUnavailableException();
         }
@@ -420,7 +420,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public SQLiteDatabase getUserDbHandle() {
+    public SQLiteDatabase getUserDbHandle() throws SessionUnavailableException {
         return this.getSession().getUserDbHandle();
     }
 
@@ -446,29 +446,29 @@ public class CommCareApplication extends Application {
         });
     }
 
-    public <T extends Persistable> SqlStorage<T> getAppStorage(Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getAppStorage(Class<T> c) {
         return getAppStorage(c.getAnnotation(Table.class).value(), c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getAppStorage(String name, Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getAppStorage(String name, Class<T> c) {
         return currentApp.getStorage(name, c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getUserStorage(Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getUserStorage(Class<T> c) {
         return getUserStorage(c.getAnnotation(Table.class).value(), c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
         return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
             /*
              * (non-Javadoc)
              * @see org.commcare.android.database.DbHelper#getHandle()
              */
             @Override
-            public SQLiteDatabase getHandle() {
+            public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
                 if (database == null) {
-                    throw new NullPointerException("Somehow didn't get a database handle!");
+                    throw new SessionUnavailableException("The user database has been closed!");
                 }
                 return database;
             }
@@ -574,7 +574,6 @@ public class CommCareApplication extends Application {
 //        
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
-        // TODO PLM wrap in try/catch for SessionUnavailableException
         final String username = this.getSession().getLoggedInUser().getUsername();
 
         final Set<String> dbIdsToRemove = new HashSet<String>();
@@ -962,12 +961,22 @@ public class CommCareApplication extends Application {
         }
     }
 
-
-    public Pair<Long, int[]> getSyncDisplayParameters() {
+    /**
+     * @return A pair comprised of last sync time and an array with unsent and
+     * incomplete form counts.
+     */
+    public Pair<Long, int[]> getSyncDisplayParameters() throws SessionUnavailableException {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         long lastSync = prefs.getLong("last-succesful-sync", 0);
-        int unsentForms = this.getUserStorage(FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-        int incompleteForms = this.getUserStorage(FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
+
+        SqlStorage<FormRecord> forms = this.getUserStorage(FormRecord.class);
+        if (forms == null) {
+            // The session probably closed down the user database
+            throw new SessionUnavailableException();
+        }
+
+        int unsentForms = forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        int incompleteForms = forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
 
         return new Pair<Long, int[]>(lastSync, new int[]{unsentForms, incompleteForms});
     }

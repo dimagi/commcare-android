@@ -342,7 +342,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 try {
                     receiver.refreshView();
-                } catch(SessionUnavailableException sue) {
+                } catch (SessionUnavailableException sue) {
                     receiver.returnToLogin();
                 }
                 
@@ -653,9 +653,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
 
             startNextFetch();
-            
-        }
-        catch (SessionUnavailableException sue) {
+        } catch (SessionUnavailableException sue) {
             //TODO: Cache current return, login, and try again
             returnToLogin();
         }
@@ -1042,14 +1040,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         startActivityForResult(i, MODEL_RESULT);
     }
-    
-    
+
     /**
-     * @return Were there forms that were sent to the server by this method
-     * invocation?
+     * @return Were forms sent to the server by this method invocation?
      */
     protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) throws SessionUnavailableException {
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
@@ -1237,10 +1233,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
                 refreshView();
                 this.syncData(false);
-            }
-            
-            //Normal Home Screen login time! 
-            else {
+            } else {
+                // Normal Home Screen login time! 
                 refreshView();
             }
         } catch(SessionUnavailableException sue) {
@@ -1355,30 +1349,30 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         syncMessage.setPadding(padding[0],padding[1], padding[2], padding[3]);
     }
-    
+
     private void refreshView() throws SessionUnavailableException{
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
         Pair<Long, int[]> syncDetails = CommCareApplication._().getSyncDisplayParameters();
-        
+
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        
+
         unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY,"5"));
         unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY,"5"));
-        
+
         String syncKey = "home.sync";
         String lastMessageKey = "home.sync.message.last";
         String homeMessageKey = "home.start";
         String logoutMessageKey = "home.logout";
-        
-        if(isDemoUser()) {
+
+        if (isDemoUser()) {
             syncKey="home.sync.demo";
             lastMessageKey="home.sync.message.last";
             homeMessageKey="home.start.demo";
             logoutMessageKey = "home.logout.demo";
         }
-        
+
         // Override default CommCare banner if requested
         String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_HOME, "");
         if (!"".equals(customBannerURI)) {
@@ -1388,14 +1382,18 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 bannerView.setImageBitmap(bitmap);
             }
         }
-        
-        
-        //since these might have changed
+
+        // since these might have changed
         startButton.setText(this.localize(homeMessageKey));
         logoutButton.setText(this.localize(logoutMessageKey));
-        
-        
-        CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
+
+        CharSequence syncTime;
+        if (syncDetails.first == 0) {
+            syncTime = Localization.get("home.sync.message.last.never");
+        } else {
+            syncTime = DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
+        }
+
         //TODO: Localize this all
         String message = "";
         if(syncDetails.second[0] == 1) {
@@ -1408,7 +1406,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
             syncButton.setText(this.localize(syncKey));
         }
-        
+
         if(syncDetails.second[1] > 0) {
             viewIncomplete.setText(this.localize("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
         } else {
@@ -1446,14 +1444,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if((!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled())) {
             formRecordPane.setVisibility(View.GONE);
         } else {
-            
-            /*
-             * Not in sense mode
-             * Form records are visible unless specifically set to be on/off
-             */
-            
+            // Not in sense mode. Form records are visible unless specifically
+            // set to be on/off
             formRecordPane.setVisibility(View.VISIBLE);
-            
+
             if(!CommCarePreferences.isSavedFormsEnabled()){
                 viewOldForms.setVisibility(View.GONE);
             } else {
@@ -1465,9 +1459,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             } else {
                 viewIncomplete.setVisibility(View.VISIBLE);
             }
-
         }
-
     }
 
     //Process and send listeners

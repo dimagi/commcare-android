@@ -18,6 +18,7 @@ import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.references.JavaHttpReference;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -89,16 +90,19 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         //Handle these cases better later.
         try {
             ReferenceManager._().DeriveReference(source).remove();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidReferenceException e) {
+        } catch (InvalidReferenceException | IOException e) {
             e.printStackTrace();
         }
     }
     
     @Override
     public void commit(Case parsed) throws IOException {
-        SQLiteDatabase db = getDbHandle();
+        SQLiteDatabase db;
+        try {
+            db = getDbHandle();
+        } catch (SessionUnavailableException e) {
+            throw new IOException("User database closed while parsing");
+        }
         db.beginTransaction();
         try {
             super.commit(parsed);
@@ -111,7 +115,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         }
     }
     
-    protected SQLiteDatabase getDbHandle() {
+    protected SQLiteDatabase getDbHandle() throws SessionUnavailableException {
         return CommCareApplication._().getUserDbHandle();
     }
     
