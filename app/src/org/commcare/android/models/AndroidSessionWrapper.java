@@ -43,7 +43,6 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathStringLiteral;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
