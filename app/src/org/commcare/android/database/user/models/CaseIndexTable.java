@@ -10,6 +10,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
@@ -55,7 +56,7 @@ public class CaseIndexTable {
             this.db = CommCareApplication._().getUserDbHandle();
         } catch (SessionUnavailableException e) {
             // TODO PLM: find a way to fail elegantly here.
-            throw new RuntimeException(e.getMessage());
+            throw new UserStorageClosedException(e.getMessage());
         }
     }
     

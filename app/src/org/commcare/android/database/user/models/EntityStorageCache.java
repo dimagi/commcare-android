@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -55,7 +56,7 @@ public class EntityStorageCache {
         try {
             this.db = CommCareApplication._().getUserDbHandle();
         } catch (SessionUnavailableException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new UserStorageClosedException(e.getMessage());
         }
         this.mCacheName = cacheName;
     }

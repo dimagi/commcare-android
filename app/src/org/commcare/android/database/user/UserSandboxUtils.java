@@ -12,7 +12,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -27,7 +26,6 @@ import android.net.Uri;
 
 /**
  * @author ctsims
- *
  */
 public class UserSandboxUtils {
 
