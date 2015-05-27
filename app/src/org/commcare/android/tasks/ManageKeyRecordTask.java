@@ -9,7 +9,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.database.user.models.User;
@@ -345,7 +344,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 }
             }
             return true;
-        } catch (UserStorageClosedException | StorageFullException e) {
+        } catch (StorageFullException e) {
             e.printStackTrace();
             return false;
         }

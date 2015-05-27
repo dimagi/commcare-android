@@ -139,13 +139,9 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                     publishProgress(Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}));
                 }
                 counter++;
-            } catch(FileNotFoundException fe){
+            } catch(SessionUnavailableException | FileNotFoundException fe){
                 Log.e("E", Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}), fe);
                 publishProgress(Localization.get("bulk.send.file.error", new String[] {fe.getMessage()}));
-            } catch (SessionUnavailableException | UserStorageClosedException e) {
-                // The session probably expired, so don't send anything and log it.
-                Log.e("E", Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}), e);
-                publishProgress(Localization.get("bulk.send.file.error", new String[] {e.getMessage()}));
             }
         }
         return allSuccessful;

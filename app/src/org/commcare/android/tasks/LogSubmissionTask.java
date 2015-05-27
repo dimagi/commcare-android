@@ -35,9 +35,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInstaller;
 import android.os.AsyncTask;
 
 /**

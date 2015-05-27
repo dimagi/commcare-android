@@ -8,6 +8,7 @@ import java.util.Vector;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -252,7 +253,7 @@ public class AndroidSessionWrapper {
             key = CommCareApplication._().createNewSymetricKey();
         } catch (SessionUnavailableException e) {
             // the user db is closed
-            throw new RuntimeException(e.getMessage());
+            throw new UserStorageClosedException(e.getMessage());
         }
         
         //TODO: this has two components which can fail. be able to roll them back

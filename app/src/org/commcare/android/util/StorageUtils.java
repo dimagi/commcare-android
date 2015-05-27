@@ -12,6 +12,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.services.Logger;
@@ -34,7 +35,7 @@ public class StorageUtils {
         try {
             ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
             ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
-        } catch (NullPointerException e) {
+        } catch (UserStorageClosedException e) {
             // the db was closed down
             return new FormRecord[0];
         }

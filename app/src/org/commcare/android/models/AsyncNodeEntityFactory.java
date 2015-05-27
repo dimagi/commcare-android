@@ -13,6 +13,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
@@ -137,7 +138,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         } catch (SessionUnavailableException e) {
             // TODO PLM: not sure how to fail elegantly here, so mimicking
             // current behaviour by raising a runtime error.
-            throw new RuntimeException(e.getMessage());
+            throw new UserStorageClosedException(e.getMessage());
         }
         
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " + whereClause + " AND cache_key IN " + validKeys;
