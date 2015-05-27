@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -64,8 +65,7 @@ public class FormHierarchyActivity extends ListActivity {
         // We use a static FormEntryController to make jumping faster.
         mStartIndex = FormEntryActivity.mFormController.getFormIndex();
 
-        setTitle(getString(R.string.app_name) + " > "
-                + FormEntryActivity.mFormController.getFormTitle());
+        setTitle(Localization.get("home.menu.saved.forms"));
 
         mPath = (TextView) findViewById(R.id.pathtext);
 

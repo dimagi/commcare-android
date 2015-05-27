@@ -14,11 +14,13 @@
 
 package org.odk.collect.android.views;
 
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.odk.collect.android.logic.HierarchyElement;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.view.Gravity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -33,38 +35,54 @@ public class HierarchyElementView extends RelativeLayout {
     public HierarchyElementView(Context context, HierarchyElement it) {
         super(context);
 
-        setColor(it.getColor());
+        RelativeLayout layout = (RelativeLayout) inflate(context, R.layout.hierarchy_element_view, null);
 
-        mIcon = new ImageView(context);
-        mIcon.setImageDrawable(it.getIcon());
-        mIcon.setId(1);
-        mIcon.setPadding(0, 0, dipToPx(4), 0);
+        layout.setBackgroundColor(it.getColor());
 
-        addView(mIcon, new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
-
-        mPrimaryTextView = new TextView(context);
-        mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
+        mPrimaryTextView = ((TextView)layout.findViewById(R.id.hev_primary_text));
         mPrimaryTextView.setText(it.getPrimaryText());
-        mPrimaryTextView.setId(2);
-        mPrimaryTextView.setGravity(Gravity.CENTER_VERTICAL);
-        LayoutParams l =
-            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        l.addRule(RelativeLayout.RIGHT_OF, mIcon.getId());
-        addView(mPrimaryTextView, l);
-
-        mSecondaryTextView = new TextView(context);
+        mSecondaryTextView = ((TextView)layout.findViewById(R.id.hev_secondary_text));
         mSecondaryTextView.setText(it.getSecondaryText());
-        mSecondaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Small);
-        mSecondaryTextView.setGravity(Gravity.CENTER_VERTICAL);
+        mIcon = ((ImageView)layout.findViewById(R.id.hev_icon));
+        mIcon.setImageDrawable(it.getIcon());
 
-        LayoutParams lp =
-            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        lp.addRule(RelativeLayout.BELOW, mPrimaryTextView.getId());
-        lp.addRule(RelativeLayout.RIGHT_OF, mIcon.getId());
-        addView(mSecondaryTextView, lp);
+        addView(layout);
 
-        setPadding(dipToPx(8), dipToPx(4), dipToPx(8), dipToPx(8));
+        if (BuildConfig.DEBUG) {
+            Log.i("HEVTYPE", "Type of HEV (" + hashCode() + ") is " + it.getType());
+        }
+
+//        setColor(it.getColor());
+//        mIcon = new ImageView(context);
+//        mIcon.setImageDrawable(it.getIcon());
+//        mIcon.setId(1);
+//        mIcon.setPadding(0, 0, dipToPx(4), 0);
+//
+//        addView(mIcon, new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+//                LayoutParams.WRAP_CONTENT));
+//
+//        mPrimaryTextView = new TextView(context);
+//        mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
+//        mPrimaryTextView.setText(it.getPrimaryText());
+//        mPrimaryTextView.setId(2);
+//        mPrimaryTextView.setGravity(Gravity.CENTER_VERTICAL);
+//        LayoutParams l =
+//            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+//        l.addRule(RelativeLayout.RIGHT_OF, mIcon.getId());
+//        addView(mPrimaryTextView, l);
+//
+//        mSecondaryTextView = new TextView(context);
+//        mSecondaryTextView.setText(it.getSecondaryText());
+//        mSecondaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Small);
+//        mSecondaryTextView.setGravity(Gravity.CENTER_VERTICAL);
+//
+//        LayoutParams lp =
+//            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+//        lp.addRule(RelativeLayout.BELOW, mPrimaryTextView.getId());
+//        lp.addRule(RelativeLayout.RIGHT_OF, mIcon.getId());
+//        addView(mSecondaryTextView, lp);
+//
+//        setPadding(dipToPx(8), dipToPx(4), dipToPx(8), dipToPx(8));
 
     }
 
