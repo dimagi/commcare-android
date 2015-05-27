@@ -10,6 +10,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -74,10 +75,10 @@ public class EntityView extends LinearLayout {
         this.rowId = rowId;
         views = new View[e.getNumFields()];
         forms = d.getTemplateForms();
-        float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
+        int[] widths = calculateDetailWidths(d.getTemplateSizeHints());
         
         for (int i = 0; i < views.length; ++i) {
-            if (weights[i] != 0) {
+            if (widths[i] != 0) {
                 Object uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(e.getField(i), forms[i], uniqueId, e.getSortField(i));
                 views[i].setId(i);
@@ -85,7 +86,7 @@ public class EntityView extends LinearLayout {
         }
         refreshViewsForNewEntity(e, false, rowId);
         for (int i = 0; i < views.length; i++) {
-            LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+            LayoutParams l = new LinearLayout.LayoutParams(widths[i], LayoutParams.FILL_PARENT);
             if (views[i] != null) {
                 addView(views[i], l);
             }
@@ -102,12 +103,12 @@ public class EntityView extends LinearLayout {
         this.context = context;
         this.setWeightSum(1);
         views = new View[headerText.length];
-        float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
+        int[] widths = calculateDetailWidths(d.getHeaderSizeHints());
         String[] headerForms = d.getHeaderForms();
         
         for (int i = 0 ; i < views.length ; ++i) {
-            if (lengths[i] != 0) {
-                LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
+            if (widths[i] != 0) {
+                LayoutParams l = new LinearLayout.LayoutParams(widths[i], LayoutParams.FILL_PARENT);
                 ViewId uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(headerText[i], headerForms[i], uniqueId, null);      
                 views[i].setId(i);
@@ -438,26 +439,33 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    private float[] calculateDetailWeights(int[] hints) {
-        float[] weights = new float[hints.length];
-        int fullSize = 100;
+    private int[] calculateDetailWidths(String[] hints) {
+        // Convert any percentages to pixels
+        int screenWidth = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getWidth();
+        for (int i = 0; i < hints.length; i++) {
+            if (hints[i] != null && hints[i].contains("%")) {
+                hints[i] = Integer.valueOf(screenWidth * Integer.parseInt(hints[i].substring(0, hints[i].indexOf("%"))) / 100).toString();
+            }
+        }
+
+        int[] widths = new int[hints.length];
+        double fullSize = screenWidth;
         int sharedBetween = 0;
-        for(int hint : hints) {
-            if(hint != -1) {
-                fullSize -= hint;
+        for(String hint : hints) {
+            if(hint != null && hint != "") {
+                fullSize -= Integer.parseInt(hint);
             } else {
                 sharedBetween ++;
             }
         }
         
-        double average = ((double)fullSize) / (double)sharedBetween;
-        
+        int defaultWidth = (int) (fullSize / sharedBetween);
         for(int i = 0; i < hints.length; ++i) {
-            int hint = hints[i];
-            weights[i] = hint == -1? (float)(average/100.0) :  (float)(((double)hint)/100.0);
+            String hint = hints[i];
+            widths[i] = hint == null ? defaultWidth : Integer.parseInt(hint);
         }
-
-        return weights;
+        
+        return widths;
     }
 
 }
