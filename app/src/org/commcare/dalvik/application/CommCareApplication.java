@@ -608,7 +608,6 @@ public class CommCareApplication extends Application {
             //(Eventually)
             this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
         }
-
     }
 
     public void prepareTemporaryStorage() {
@@ -963,18 +962,14 @@ public class CommCareApplication extends Application {
      * @return A pair comprised of last sync time and an array with unsent and
      * incomplete form counts.
      */
-    public Pair<Long, int[]> getSyncDisplayParameters() throws SessionUnavailableException {
+    public Pair<Long, int[]> getSyncDisplayParameters() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         long lastSync = prefs.getLong("last-succesful-sync", 0);
 
-        SqlStorage<FormRecord> forms = this.getUserStorage(FormRecord.class);
-        if (forms == null) {
-            // The session probably closed down the user database
-            throw new SessionUnavailableException();
-        }
+        SqlStorage<FormRecord> formsStorage = this.getUserStorage(FormRecord.class);
 
-        int unsentForms = forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-        int incompleteForms = forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
+        int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        int incompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
 
         return new Pair<Long, int[]>(lastSync, new int[]{unsentForms, incompleteForms});
     }

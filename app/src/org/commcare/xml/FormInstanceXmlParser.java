@@ -17,6 +17,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -93,7 +94,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         try {
             key = CommCareApplication._().createNewSymetricKey();
         } catch (SessionUnavailableException e) {
-            throw new IOException(e.getMessage());
+            throw new UserStorageClosedException(e.getMessage());
         }
 
         String filePath = getFileDestination(namespaces.get(xmlns), destination);

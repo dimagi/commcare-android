@@ -212,7 +212,6 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
             return;
         }
         
-        
         try {
             CommCareApplication._().getSession();
         } catch(SessionUnavailableException sue) {
@@ -221,8 +220,6 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
         }
 
         SqlStorage<FormRecord> recordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
-        if (recordStorage == null) {
-        }
         try {
             FormRecord[] records = StorageUtils.getUnsentRecords(recordStorage);
             if(records.length == 0) {
@@ -235,6 +232,5 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
             txtUnsentForms.setText("Couldn't read unsent forms. Error : " + e.getMessage());
         }
-
     }
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -51,7 +52,7 @@ public class UserXmlParser extends TransactionParser<User> {
             u = retrieve(uuid);
         } catch (SessionUnavailableException e) {
             // User db's closed so escape since saving isn't possible.
-            throw new IOException(e.getMessage());
+            throw new UserStorageClosedException(e.getMessage());
         }
         
         if(u == null) {
@@ -98,7 +99,7 @@ public class UserXmlParser extends TransactionParser<User> {
             cachedStorage().write(parsed);
         } catch (SessionUnavailableException e) {
             e.printStackTrace();
-            throw new IOException("User databse closed while writing case.");
+            throw new UserStorageClosedException("User databse closed while writing case.");
         } catch (StorageFullException e) {
             e.printStackTrace();
             throw new IOException("Storage full while writing case!");

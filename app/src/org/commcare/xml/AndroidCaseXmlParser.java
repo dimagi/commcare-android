@@ -9,6 +9,7 @@ import javax.crypto.Cipher;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
@@ -99,9 +100,9 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     public void commit(Case parsed) throws IOException {
         SQLiteDatabase db;
         try {
-            db = getDbHandle();
+            db = CommCareApplication._().getUserDbHandle();
         } catch (SessionUnavailableException e) {
-            throw new IOException("User database closed while parsing");
+            throw new UserStorageClosedException("User database closed while parsing");
         }
         db.beginTransaction();
         try {
@@ -114,11 +115,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
             db.endTransaction();
         }
     }
-    
-    protected SQLiteDatabase getDbHandle() throws SessionUnavailableException {
-        return CommCareApplication._().getUserDbHandle();
-    }
-    
+
     /*
      * (non-Javadoc)
      * @see org.commcare.xml.CaseXmlParser#processAttachment(java.lang.String, java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)

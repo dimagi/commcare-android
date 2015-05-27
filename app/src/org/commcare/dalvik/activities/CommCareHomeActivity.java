@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
@@ -345,12 +346,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
              */
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
-                try {
-                    receiver.refreshView();
-                } catch (SessionUnavailableException sue) {
-                    receiver.returnToLogin();
-                }
-                
+                receiver.refreshView();
+
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch(result) {
                 case DataPullTask.AUTH_FAILED:
@@ -810,11 +807,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (wasExternal) {
             this.finish();
         }
-        try {
-            refreshView();
-        } catch(SessionUnavailableException sue) {
-            returnToLogin(Localization.get("home.logged.out"));
-        }
+        refreshView();
     }
 
 
@@ -1099,13 +1092,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     return;
                 }
                  
-                try{
-                    receiver.refreshView();
-                }catch(SessionUnavailableException sue) {
-                    //might have logged out, don't really worry about it.
-                    receiver.returnToLogin(Localization.get("home.logged.out"));
-                }
-                
+                receiver.refreshView();
+
                 int successfulSends = this.getSuccesfulSends();
                 
                 if(result == FormUploadUtil.FULL_SUCCESS) {
@@ -1368,11 +1356,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         syncMessage.setPadding(padding[0],padding[1], padding[2], padding[3]);
     }
 
-    private void refreshView() throws SessionUnavailableException{
+    private void refreshView() {
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
-        Pair<Long, int[]> syncDetails = CommCareApplication._().getSyncDisplayParameters();
+        Pair<Long, int[]> syncDetails;
+        try {
+            syncDetails = CommCareApplication._().getSyncDisplayParameters();
+        } catch (UserStorageClosedException e) {
+            returnToLogin(Localization.get("home.logged.out"));
+            return;
+        }
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
