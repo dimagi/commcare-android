@@ -186,7 +186,7 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_TRIGGER:
-                questionWidget = new TriggerWidget(context, fep, !"minimal".equals(applicable));
+                questionWidget = new TriggerWidget(context, fep, !"minimal".equals(appearance));
                 break;
             default:
                 questionWidget = new StringWidget(context, fep, false);
