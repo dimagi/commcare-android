@@ -159,7 +159,7 @@ public class TriggerWidget extends QuestionWidget {
     @Override
     protected void addQuestionText(final FormEntryPrompt p) {
         super.addQuestionText(p);
-        // Enabl users to copy form display outputs.
+        // Let users to copy form display outputs.
         mQuestionText.setTextIsSelectable(true);
     }
 }
