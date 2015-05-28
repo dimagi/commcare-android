@@ -186,8 +186,7 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_TRIGGER:
-                boolean mInteractive = appearance == null  || !appearance.equals("minimal");
-                questionWidget = new TriggerWidget(context, fep, mInteractive);
+                questionWidget = new TriggerWidget(context, fep, !"minimal".equals(appearance));
                 break;
             default:
                 questionWidget = new StringWidget(context, fep, false);
@@ -195,5 +194,4 @@ public class WidgetFactory {
         }
         return questionWidget;
     }
-    
 }
