@@ -50,6 +50,7 @@ public class HierarchyElementView extends RelativeLayout {
 
         if (BuildConfig.DEBUG) {
             Log.i("HEVTYPE", "Type of HEV (" + hashCode() + ") is " + it.getType());
+            Log.i("HEVTYPE", "Icon of HEV (" + hashCode() + ") is " + (it.getIcon() == null ? "null" : it.getIcon().toString()));
         }
 
 //        setColor(it.getColor());

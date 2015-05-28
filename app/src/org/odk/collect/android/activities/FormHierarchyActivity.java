@@ -17,7 +17,9 @@ package org.odk.collect.android.activities;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
@@ -246,7 +248,8 @@ public class FormHierarchyActivity extends ListActivity {
                     }
 
                     FormEntryPrompt fp = FormEntryActivity.mFormController.getQuestionPrompt();
-                    formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(), null,
+                    int fepIcon = getFormEntryPromptIcon(fp);
+                    formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(), fepIcon == -1 ? null : getResources().getDrawable(fepIcon),
                             Color.WHITE, QUESTION, fp.getIndex()));
                     break;
                 case FormEntryController.EVENT_GROUP:
@@ -318,6 +321,67 @@ public class FormHierarchyActivity extends ListActivity {
 
         // set the controller back to the current index in case the user hits 'back'
         FormEntryActivity.mFormController.jumpToIndex(currentIndex);
+    }
+
+    public int getFormEntryPromptIcon(FormEntryPrompt fep){
+        if (BuildConfig.DEBUG) {
+            Log.i("FEPICON", "FEP (" + fep.hashCode() + ") data type is: " + fep.getDataType() + " | control type is: " + fep.getControlType());
+        }
+        switch(fep.getControlType()){
+            case Constants.CONTROL_SELECT_ONE:
+                return R.drawable.avatar_vellum_single_answer;
+            case Constants.CONTROL_SELECT_MULTI:
+                return R.drawable.avatar_vellum_multi_answer;
+            case Constants.CONTROL_TEXTAREA:
+                return R.drawable.avatar_vellum_text;
+            case Constants.CONTROL_SECRET:
+                return R.drawable.avatar_vellum_password;
+            case Constants.CONTROL_LABEL:
+                return R.drawable.avatar_vellum_label;
+            case Constants.CONTROL_AUDIO_CAPTURE:
+                return R.drawable.avatar_vellum_audio_capture;
+            case Constants.CONTROL_VIDEO_CAPTURE:
+                return R.drawable.avatar_vellum_video;
+            case Constants.CONTROL_TRIGGER:
+                return R.drawable.avatar_vellum_question_list;
+            case Constants.CONTROL_IMAGE_CHOOSE:
+                return R.drawable.avatar_search;
+            //break;
+            case Constants.CONTROL_RANGE:
+                //break;
+            case Constants.CONTROL_UPLOAD:
+                //break;
+            case Constants.CONTROL_SUBMIT:
+                //break;
+            case Constants.CONTROL_INPUT:
+                return getDrawableIDFor(fep);
+                //break;
+        }
+        return -1;
+    }
+
+    public static int getDrawableIDFor(FormEntryPrompt fep){
+        switch(fep.getDataType()){
+            case Constants.DATATYPE_TEXT:
+                return R.drawable.avatar_vellum_text;
+            case Constants.DATATYPE_INTEGER:
+                return R.drawable.avatar_vellum_integer;
+            case Constants.DATATYPE_DECIMAL:
+                return R.drawable.avatar_vellum_decimal;
+            case Constants.DATATYPE_DATE:
+                return R.drawable.avatar_vellum_date;
+            case Constants.DATATYPE_DATE_TIME:
+                return R.drawable.avatar_vellum_datetime;
+            case Constants.DATATYPE_CHOICE:
+                return R.drawable.avatar_vellum_single_answer;
+            case Constants.DATATYPE_CHOICE_LIST:
+                return R.drawable.avatar_vellum_multi_answer;
+            case Constants.DATATYPE_GEOPOINT:
+                return R.drawable.avatar_vellum_gps;
+            case Constants.DATATYPE_BARCODE:
+                return R.drawable.avatar_vellum_barcode;
+        }
+        return -1;
     }
 
 
