@@ -222,10 +222,12 @@ public class FormHierarchyActivity extends ListActivity {
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
             mPath.setVisibility(View.GONE);
             jumpPreviousButton.setEnabled(false);
+            jumpPreviousButton.setTextColor(getResources().getColor(R.color.edit_text_color));
         } else {
             mPath.setVisibility(View.VISIBLE);
             mPath.setText(getCurrentPath());
             jumpPreviousButton.setEnabled(true);
+            jumpPreviousButton.setTextColor(getResources().getColor(R.color.cc_brand_color));
         }
 
         // Refresh the current event in case we did step forward.
