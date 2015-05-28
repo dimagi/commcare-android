@@ -16,42 +16,49 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 /**
+ * Implements xform trigger tags, which are used to display messages on button
+ * presses. This implementation is incomplete, acting like an output tag due to
+ * a lack of message tag handling.
+ *
  * @author wspride
  */
 public class TriggerWidget extends QuestionWidget {
-
     private CheckBox mTriggerButton;
+    /**
+     * Stores the answer value of this question. Trigger elements shouldn't
+     * have values, so this is contrary to the spec.
+     */
     private TextView mStringAnswer;
-    private boolean mInteractive = true; 
+
+    /**
+     * Shows a checkbox when set.
+     */
+    private boolean mInteractive = true;
+
+    /**
+     * Value that this question is set to when in interactive mode and the
+     * checkbox is clicked.
+     */
     private static String mOK = "OK";
 
-    private FormEntryPrompt mPrompt;
-
-    public FormEntryPrompt getPrompt() {
-        return mPrompt;
-    }
-
-    public TriggerWidget(Context context, FormEntryPrompt prompt, boolean interactive) {
+    public TriggerWidget(Context context, FormEntryPrompt prompt,
+                         boolean interactive) {
         super(context, prompt);
-        
-        if(prompt.getAppearanceHint() != null && prompt.getAppearanceHint().startsWith("floating-")) {
+
+        this.mInteractive = interactive;
+
+        if (mPrompt.getAppearanceHint() != null &&
+                mPrompt.getAppearanceHint().startsWith("floating-")) {
             this.setVisibility(View.GONE);
         }
-        
-        mPrompt = prompt;
-        mInteractive = interactive;
-        
-        int padding = (int)Math.floor(context.getResources().getDimension(R.dimen.select_padding));
 
         this.setOrientation(LinearLayout.VERTICAL);
 
         mTriggerButton = new CheckBox(getContext());
-        mTriggerButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.trigger));
-                mTriggerButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        // mActionButton.setPadding(20, 20, 20, 20);
-        mTriggerButton.setEnabled(!prompt.isReadOnly());
-        
-        mTriggerButton.setPadding(mTriggerButton.getPaddingLeft(), padding, mTriggerButton.getPaddingRight(), padding);
+        WidgetUtils.setupButton(mTriggerButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.trigger),
+                mAnswerFontsize,
+                !mPrompt.isReadOnly());
 
         mTriggerButton.setOnClickListener(new View.OnClickListener() {
             /*
@@ -69,23 +76,21 @@ public class TriggerWidget extends QuestionWidget {
             }
         });
 
+        // TODO PLM: This is never shown, but rather used to store the value of
+        // this question, which shouldn't be needed since trigger shouldn't
+        // have values. Figure out if anyone actually uses interactive mode,
+        // and if not, remove.
         mStringAnswer = new TextView(getContext());
         mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mStringAnswer.setGravity(Gravity.CENTER);
 
-        String s = prompt.getAnswerText();
+        String s = mPrompt.getAnswerText();
         if (s != null) {
-            if (s.equals(mOK)) {
-                mTriggerButton.setChecked(true);
-            } else {
-                mTriggerButton.setChecked(false);
-            }
+            mTriggerButton.setChecked(s.equals(mOK));
             mStringAnswer.setText(s);
-
         }
 
-        if(mInteractive) {
-            // finish complex layout
+        if (mInteractive) {
             this.addView(mTriggerButton);
             // this.addView(mStringAnswer);
         }
@@ -107,7 +112,7 @@ public class TriggerWidget extends QuestionWidget {
      */
     @Override
     public IAnswerData getAnswer() {
-        if(!mInteractive) {
+        if (!mInteractive) {
             return new StringData(mOK);
         }
         String s = mStringAnswer.getText().toString();
@@ -126,7 +131,7 @@ public class TriggerWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -149,5 +154,12 @@ public class TriggerWidget extends QuestionWidget {
         super.cancelLongPress();
         mTriggerButton.cancelLongPress();
         mStringAnswer.cancelLongPress();
+    }
+
+    @Override
+    protected void addQuestionText(final FormEntryPrompt p) {
+        super.addQuestionText(p);
+        // Enabl users to copy form display outputs.
+        mQuestionText.setTextIsSelectable(true);
     }
 }
