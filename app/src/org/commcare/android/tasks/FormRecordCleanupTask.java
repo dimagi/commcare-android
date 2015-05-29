@@ -23,7 +23,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -53,8 +52,8 @@ import android.database.Cursor;
  * @author ctsims
  */
 public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer,R> {
-    Context context;
-    CommCarePlatform platform;
+    private final Context context;
+    private final CommCarePlatform platform;
     
     public static final int STATUS_CLEANUP = -1;
     
@@ -113,11 +112,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     private int cleanupRecord(FormRecord r, SqlStorage<FormRecord> storage) {
         try {
             FormRecord updated = getUpdatedRecord(context, platform, r, FormRecord.STATUS_SAVED);
-            if(updated == null) {
-                return DELETE;
-            } else {
-                storage.write(updated);
-            }
+            storage.write(updated);
             return SUCCESS;
         } catch (FileNotFoundException e) {
             // No form, skip and delete the form record;
@@ -142,9 +137,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         } catch (StorageFullException e) {
             // Can't resolve here, skip.
             throw new RuntimeException(e);
-        } catch (InvalidStateException e) {
-            //Bad situation going down, wipe out the record
-            return DELETE;
         }
     }
     
@@ -152,19 +144,9 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Parses out a formrecord and fills in the various parse-able details
      * (UUID, date modified, etc), and updates it to the provided status.
      * 
-     * @param context
-     * @param r
-     * @param newStatus
      * @return The new form record containing relevant details about this form
-     * @throws InvalidKeyException 
-     * @throws NoSuchPaddingException 
-     * @throws NoSuchAlgorithmException 
-     * @throws IOException 
-     * @throws InvalidStructureException 
-     * @throws UnfullfilledRequirementsException 
-     * @throws XmlPullParserException 
      */
-    public static FormRecord getUpdatedRecord(Context context, CommCarePlatform platform, FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    public static FormRecord getUpdatedRecord(Context context, CommCarePlatform platform, FormRecord r, String newStatus) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         //Awful. Just... awful
         final String[] caseIDs = new String[1];
         final Date[] modified = new Date[] {new Date(0)};
@@ -188,7 +170,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             @Override
                             public void commit(Case parsed) throws IOException, SessionUnavailableException{
                                 String incoming = parsed.getCaseId();
-                                if(incoming != null && incoming != "") {
+                                if(incoming != null && !"".equals(incoming)) {
                                     caseIDs[0] = incoming;
                                 }
                             }
@@ -241,16 +223,13 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 }
                 return null;
             }
-            
-            
         };
         
         String path = r.getPath(context);
-        
-        FileInputStream fis;
-        fis = new FileInputStream(path);
-        InputStream is = fis;
-        
+
+        InputStream is;
+
+        FileInputStream fis = new FileInputStream(path);
         try {
             Cipher decrypter = Cipher.getInstance("AES");
             decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));        
@@ -264,13 +243,14 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         } catch (InvalidKeyException e) {
             e.printStackTrace();
             throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
+        } finally {
+            fis.close();
         }
 
         //Construct parser for this form's internal data.
         DataModelPullParser parser = new DataModelPullParser(is, factory);
         parser.parse();
-        
-        
+
         //TODO: We should be committing all changes to form record models via the ASW objects, not manually.
         FormRecord parsed = new FormRecord(r.getInstanceURI().toString(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
         parsed.setID(r.getID());
@@ -386,11 +366,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 
                 //this should take care of the files
                 context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
-                c.close();
             } else{
                 //No instance record for whatever reason, manually wipe files
                 FileUtil.deleteFileOrDir(dataPath);
             }
+            c.close();
         }
     }
 }
