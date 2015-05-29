@@ -54,20 +54,20 @@ import android.database.Cursor;
 public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer,R> {
     private final Context context;
     private final CommCarePlatform platform;
-    
+
     public static final int STATUS_CLEANUP = -1;
-    
+
     private static final int SUCCESS = -1;
     private static final int SKIP = -2;
     private static final int DELETE = -4;
-    
+
     public FormRecordCleanupTask(Context context, CommCarePlatform platform, int taskId) {
         this.context = context;
         this.platform = platform;
         this.taskId = taskId;
     }
-    
-    
+
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
@@ -94,7 +94,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 
         this.publishProgress(STATUS_CLEANUP);
 
-        SqlStorage<SessionStateDescriptor> ssdStorage = 
+        SqlStorage<SessionStateDescriptor> ssdStorage =
             CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
         for(int recordID : recordsToRemove) {
@@ -122,11 +122,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             // Bad form data, skip and delete
             e.printStackTrace();
             return DELETE;
-        } catch (IOException e) {
-            e.printStackTrace();
-            // No idea, might be temporary, Skip
-            return SKIP;
-        } catch (XmlPullParserException e) {
+        } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
             // No idea, might be temporary, Skip
             return SKIP;
@@ -139,30 +135,34 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Parses out a formrecord and fills in the various parse-able details
      * (UUID, date modified, etc), and updates it to the provided status.
-     * 
+     *
      * @return The new form record containing relevant details about this form
      */
-    public static FormRecord getUpdatedRecord(Context context, CommCarePlatform platform, FormRecord r, String newStatus) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    public static FormRecord getUpdatedRecord(Context context,
+                                              CommCarePlatform platform,
+                                              FormRecord r,
+                                              String newStatus)
+            throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         //Awful. Just... awful
         final String[] caseIDs = new String[1];
         final Date[] modified = new Date[] {new Date(0)};
         final String[] uuid = new String[1];
-        
-        //NOTE: This does _not_ parse and process the case data. It's only for getting meta information
-        //about the entry session.
-        TransactionParserFactory factory = new TransactionParserFactory() {
 
+        // NOTE: This does _not_ parse and process the case data. It's only for
+        // getting meta information about the entry session.
+        TransactionParserFactory factory = new TransactionParserFactory() {
             public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
                 if(name == null) { return null;}
                 if("case".equals(name)) {
                     //If we have a proper 2.0 namespace, good.
                     if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
                         return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
-                            
+
                             /*
                              * (non-Javadoc)
                              * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
@@ -174,7 +174,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                     caseIDs[0] = incoming;
                                 }
                             }
-        
+
                             /*
                              * (non-Javadoc)
                              * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
@@ -188,8 +188,9 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             }
                         };
                     }else {
-                    //Otherwise, this gets more tricky. Ideally we'd want to skip this block for compatibility purposes,
-                    //but we can at least try to get a caseID (which is all we want)
+                    // Otherwise, this gets more tricky. Ideally we'd want to
+                    // skip this block for compatibility purposes, but we can
+                    // at least try to get a caseID (which is all we want)
                     return new BestEffortBlockParser(parser, null, null, new String[] {"case_id"}) {
                         /*
                          * (non-Javadoc)
@@ -201,12 +202,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                 caseIDs[0] = values.get("case_id");
                             }
                         }
-                    };}
-                    
-                }
-                else if("meta".equals(name.toLowerCase())) {
+                    };
+                    }
+                } else if("meta".equals(name.toLowerCase())) {
                     return new MetaDataXmlParser(parser) {
-                        
+
                         /*
                          * (non-Javadoc)
                          * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
@@ -218,13 +218,12 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             }
                             uuid[0] = meta[1];
                         }
-
                     };
                 }
                 return null;
             }
         };
-        
+
         String path = r.getPath(context);
 
         InputStream is;
@@ -232,7 +231,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         FileInputStream fis = new FileInputStream(path);
         try {
             Cipher decrypter = Cipher.getInstance("AES");
-            decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));        
+            decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
             is = new CipherInputStream(fis, decrypter);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -251,38 +250,38 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         DataModelPullParser parser = new DataModelPullParser(is, factory);
         parser.parse();
 
-        //TODO: We should be committing all changes to form record models via the ASW objects, not manually.
+        // TODO: We should be committing all changes to form record models via
+        // the ASW objects, not manually.
         FormRecord parsed = new FormRecord(r.getInstanceURI().toString(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
         parsed.setID(r.getID());
-        
-        //TODO: The platform adds a lot of unfortunate coupling here. Should split out the need to parse completely 
+
+        // TODO: The platform adds a lot of unfortunate coupling here. Should
+        // split out the need to parse completely
         //uninitialized form records somewhere else.
-        
+
         if(caseIDs[0] != null && r.getStatus().equals(FormRecord.STATUS_UNINDEXED)) {
             AndroidSessionWrapper asw = AndroidSessionWrapper.mockEasiestRoute(platform, r.getFormNamespace(), caseIDs[0]);
             asw.setFormRecordId(parsed.getID());
-            
+
             SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
-            
+
             //Also bad: this is not synchronous with the parsed record write
             try {
                 ssdStorage.write(asw.getSessionStateDescriptor());
             } catch (StorageFullException e) {
             }
         }
-        
+
         //Make sure that the instance is no longer editable
-        if(!newStatus.equals(FormRecord.STATUS_INCOMPLETE) && !newStatus.equals(FormRecord.STATUS_UNSTARTED)) {
+        if(!newStatus.equals(FormRecord.STATUS_INCOMPLETE) &&
+                !newStatus.equals(FormRecord.STATUS_UNSTARTED)) {
             ContentValues cv = new ContentValues();
             cv.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(false));
             context.getContentResolver().update(r.getInstanceURI(), cv, null, null);
         }
-        
+
         return parsed;
     }
-    
-    
-
 
     public static void wipeRecord(Context c,SessionStateDescriptor existing) {
         int ssid = existing.getID();
@@ -290,65 +289,73 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         wipeRecord(c, ssid, formRecordId);
     }
 
-
     public static void wipeRecord(Context c, AndroidSessionWrapper currentState) {
         int formRecordId = currentState.getFormRecordId();
         int ssdId = currentState.getSessionDescriptorId();
         wipeRecord(c, ssdId, formRecordId);
     }
-    
+
     public static void wipeRecord(Context c, FormRecord record) {
         wipeRecord(c, -1, record.getID());
     }
-    
+
     public static void wipeRecord(Context c, int formRecordId) {
         wipeRecord(c, -1, formRecordId);
     }
-    
-    public static void wipeRecord(Context c, int sessionId, int formRecordId) {
-        wipeRecord(c, sessionId, formRecordId, CommCareApplication._().getUserStorage(FormRecord.class), CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
-    }
-    
-    private static void wipeRecord(Context context, int sessionId, int formRecordId, SqlStorage<FormRecord> frStorage, SqlStorage<SessionStateDescriptor> ssdStorage) {
 
+    public static void wipeRecord(Context c, int sessionId, int formRecordId) {
+        wipeRecord(c, sessionId, formRecordId,
+                CommCareApplication._().getUserStorage(FormRecord.class),
+                CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
+    }
+
+    private static void wipeRecord(Context context, int sessionId,
+                                   int formRecordId,
+                                   SqlStorage<FormRecord> frStorage,
+                                   SqlStorage<SessionStateDescriptor> ssdStorage) {
         if(sessionId != -1) {
             try {
                 SessionStateDescriptor ssd = ssdStorage.read(sessionId);
-                
+
                 int ssdFrid = ssd.getFormRecordId();
                 if(formRecordId == -1) {
                     formRecordId = ssdFrid;
                 } else if(formRecordId != ssdFrid) {
                     //Not good.
-                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Inconsistent formRecordId's in session storage");
+                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                            "Inconsistent formRecordId's in session storage");
                 }
             } catch(Exception e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Session ID exists, but with no record (or broken record)");
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                        "Session ID exists, but with no record (or broken record)");
             }
         }
         String dataPath = null;
-        
+
         if(formRecordId != -1 ) {
             try {
                 FormRecord r = frStorage.read(formRecordId);
                 dataPath = r.getPath(context);
-                
+
                 //See if there is a hanging session ID for this
                 if(sessionId == -1) {
                     Vector<Integer> sessionIds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, formRecordId);
-                    //We really shouldn't be able to end up with sessionId's that point to more than one thing.
+                    // We really shouldn't be able to end up with sessionId's
+                    // that point to more than one thing.
                     if(sessionIds.size() == 1) {
                         sessionId = sessionIds.firstElement();
                     } else if(sessionIds.size() > 1) {
                         sessionId = sessionIds.firstElement();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Multiple session ID's pointing to the same form record");
+                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                                "Multiple session ID's pointing to the same form record");
                     }
                 }
             } catch(Exception e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Session ID exists, but with no record (or broken record)");
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                        "Session ID exists, but with no record (or broken record)");
             }
         }
-        
+
         //Delete 'em if you got 'em
         if(sessionId != -1) {
             ssdStorage.remove(sessionId);
@@ -356,14 +363,14 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         if(formRecordId != -1) {
             frStorage.remove(formRecordId);
         }
-        
+
         if(dataPath != null) {
             String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";
             Cursor c = context.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {dataPath}, null);
             if(c.moveToFirst()) {
                 //There's a cursor for this file, good.
                 long id = c.getLong(0);
-                
+
                 //this should take care of the files
                 context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
             } else{
