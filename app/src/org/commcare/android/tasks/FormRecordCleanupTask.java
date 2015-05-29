@@ -205,9 +205,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         // getting meta information about the entry session.
         TransactionParserFactory factory = new TransactionParserFactory() {
             @Override
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+            public TransactionParser getParser(KXmlParser parser) {
+                String name = parser.getName();
                 if ("case".equals(name)) {
-                    return buildCaseParser(namespace, parser, caseIDs);
+                    return buildCaseParser(parser.getNamespace(), parser, caseIDs);
                 } else if ("meta".equalsIgnoreCase(name)) {
                     return buildMetaParser(uuid, modified, parser);
                 }
