@@ -283,6 +283,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
     }
 
+    /**
+     * Remove form record and associated session state descriptor from storage
+     * and delete form instance files linked to the form record.
+     */
     private static void wipeRecord(Context context, int sessionId,
                                    int formRecordId,
                                    SqlStorage<FormRecord> frStorage,
@@ -355,7 +359,9 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         }
     }
 
-    private static TransactionParser buildCaseParser(String namespace, KXmlParser parser, final String[] caseIDs) {
+    private static TransactionParser buildCaseParser(String namespace,
+                                                     KXmlParser parser,
+                                                     final String[] caseIDs) {
         //If we have a proper 2.0 namespace, good.
         if (CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
             return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
@@ -402,7 +408,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             };
         }
     }
-    private static TransactionParser buildMetaParser(final String[] uuid, final Date[] modified, KXmlParser parser) {
+
+    private static TransactionParser buildMetaParser(final String[] uuid,
+                                                     final Date[] modified,
+                                                     KXmlParser parser) {
         return new MetaDataXmlParser(parser) {
             /*
              * (non-Javadoc)
