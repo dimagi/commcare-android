@@ -953,7 +953,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             platform = CommCareApplication._().getCommCarePlatform();
         }
 
-        //TODO: May need to pass session over manually
         formEntry(platform.getFormContentUri(record.getFormNamespace()),
                 record, CommCareActivity.getTitle(this, null));
     }
@@ -961,44 +960,47 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
         formEntry(formUri, r, null);
     }
-    
-    private void formEntry(Uri formUri, FormRecord r, String headerTitle) throws SessionUnavailableException{
-        Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
-        
-        
-        //TODO: This is... just terrible. Specify where external instance data should come from
-        FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
-        
+
+    private void formEntry(Uri formUri, FormRecord r, String headerTitle) throws SessionUnavailableException {
+        //TODO: This is... just terrible. Specify where external instance data
+        //should come from
+        FormLoaderTask.iif =
+                new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
+
         //Create our form entry activity callout
-        Intent i =new Intent(getApplicationContext(), FormEntryActivity.class);
+        Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra("odk_title_fragment", BreadcrumbBarFragment.class.getName());
-        
-        i.putExtra("instancedestination", CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
-        
+
+        i.putExtra("instancedestination",
+                CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
+
         // See if there's existing form data that we want to continue entering
-        // (note, this should be stored in the form record as a URI link to
-        // the instance provider in the future)
-        if(r.getInstanceURI() != null) {
+        // (note, this should be stored in the form record as a URI link to the
+        // instance provider in the future)
+        if (r.getInstanceURI() != null) {
             i.setData(r.getInstanceURI());
         } else {
             i.setData(formUri);
         }
-        
-        i.putExtra("org.odk.collect.resizing.enabled", CommCarePreferences.getResizeMethod());
-        
-        i.putExtra("org.odk.collect.form.management", CommCarePreferences.isIncompleteFormsEnabled());
-        
-        i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
-        
-        i.putExtra("key_aes_storage", Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
-        
-        i.putExtra("form_content_uri", FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
-        i.putExtra("instance_content_uri", InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
-        if(headerTitle != null) {
+
+        i.putExtra("org.odk.collect.resizing.enabled",
+                CommCarePreferences.getResizeMethod());
+        i.putExtra("org.odk.collect.form.management",
+                CommCarePreferences.isIncompleteFormsEnabled());
+        i.putExtra("readonlyform",
+                FormRecord.STATUS_SAVED.equals(r.getStatus()));
+        i.putExtra("key_aes_storage",
+                Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
+        i.putExtra("form_content_uri",
+                FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
+        i.putExtra("instance_content_uri",
+                InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
+
+        if (headerTitle != null) {
             i.putExtra("form_header", headerTitle);
         }
-        
+
         startActivityForResult(i, MODEL_RESULT);
     }
 
