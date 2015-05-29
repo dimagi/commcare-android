@@ -153,7 +153,7 @@
     <style name="ListViewHeaderV2">
         <item name="android:paddingTop">@dimen/content_start</item>
         <item name="android:paddingBottom">@dimen/content_start</item>
-        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingLeft">@dimen/content_min_margin</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textStyle">bold</item>
         <item name="android:clickable">false</item>
@@ -161,18 +161,18 @@
     </style>
 
     <style name="LoginEditTextV2">
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:drawablePadding">8dp</item>
+        <item name="android:paddingLeft">@dimen/content_start</item>
+        <item name="android:drawablePadding">@dimen/content_start</item>
         <item name="android:textColor">@color/grey</item>
     </style>
 
     <style name="TextViewV2">
-       <item name="android:paddingTop">16dp</item>
-       <item name="android:paddingBottom">16dp</item>
+       <item name="android:paddingTop">@dimen/content_min_margin</item>
+       <item name="android:paddingBottom">@dimen/content_min_margin</item>
        <item name="android:background">@color/cc_brand_color</item>
        <item name="android:textColor">@color/cc_core_bg</item>
-       <item name="android:paddingLeft">8dp</item>
-       <item name="android:paddingRight">8dp</item>
+       <item name="android:paddingLeft">@dimen/content_start</item>
+       <item name="android:paddingRight">@dimen/content_start</item>
     </style>
 
 </resources>
