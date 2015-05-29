@@ -51,7 +51,6 @@ import android.database.Cursor;
 
 /**
  * @author ctsims
- *
  */
 public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer,R> {
     Context context;
@@ -77,37 +76,37 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     @Override
     protected Integer doTaskBackground(Void... params) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        
+
         Vector<Integer> recordsToRemove = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_SAVED });
-        
-        Vector<Integer> unindexedRecords = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_UNINDEXED });
         int oldrecords = recordsToRemove.size();
+
+        Vector<Integer> unindexedRecords = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_UNINDEXED });
         int count = 0;
         for(int recordID : unindexedRecords) {
             FormRecord r = storage.read(recordID);
 
-            switch(cleanupRecord(r, storage)) {
-            case SUCCESS:
-                break;
-            case SKIP:
-                break;
-            case DELETE:
+            if (cleanupRecord(r, storage) == DELETE) {
                 recordsToRemove.add(recordID);
-                break;
             }
+
             count++;
             this.publishProgress(count, unindexedRecords.size());
         }
-        
+
         this.publishProgress(STATUS_CLEANUP);
-        SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
-        
+
+        SqlStorage<SessionStateDescriptor> ssdStorage = 
+            CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+
         for(int recordID : recordsToRemove) {
             //We don't know anything about the session yet, so give it -1 to flag that
             wipeRecord(context, -1, recordID, storage, ssdStorage);
         }
-        
-        System.out.println("Synced: " + unindexedRecords.size() + ". Removed: " + oldrecords + " old records, and " + (recordsToRemove.size() - oldrecords) + " busted new ones");
+
+        System.out.println("Synced: " + unindexedRecords.size() +
+                ". Removed: " + oldrecords + " old records, and " +
+                (recordsToRemove.size() - oldrecords) + " busted new ones");
+
         return SUCCESS;
     }
 
@@ -150,8 +149,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     }
     
     /**
-     * Parses out a formrecord and fills in the various parse-able details (UUID, date modified, etc), and updates
-     * it to the provided status.
+     * Parses out a formrecord and fills in the various parse-able details
+     * (UUID, date modified, etc), and updates it to the provided status.
      * 
      * @param context
      * @param r
