@@ -25,6 +25,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -197,7 +198,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void OnURLChosen(String url) {
-        Log.d("DEBUG-d", "SetupEnterURLFragment returned: " + url);
+        if(BuildConfig.DEBUG) {
+            Log.d("DEBUG-d", "SetupEnterURLFragment returned: " + url);
+        }
         incomingRef = url;
         this.uiState = UiState.ready;
         uiStateScreenTransition();
