@@ -919,9 +919,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     /**
-     * Create a form record and launch form entry activity. If there is an
-     * existing incomplete form that uses the same case, ask the user if they
-     * want to edit or delete that one.
+     * Create (or re-use) a form record and pass it to the form entry activity
+     * launcher. If there is an existing incomplete form that uses the same
+     * case, ask the user if they want to edit or delete that one.
      *
      * @param state Needed for FormRecord manipulations
      */
