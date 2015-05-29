@@ -57,10 +57,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     private final CommCarePlatform platform;
 
     public static final int STATUS_CLEANUP = -1;
-
     private static final int SUCCESS = -1;
-    private static final int SKIP = -2;
-    private static final int DELETE = -4;
 
     public FormRecordCleanupTask(Context context, CommCarePlatform platform, int taskId) {
         this.context = context;
@@ -117,46 +114,17 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     }
 
     /**
-     * Update record and write it to storage.
-     *
-     * @return  SUCCESS if form record updated normally, DELETE if form not
-     * found or has bad data, and SKIP if parser error on updating
      */
-    private int cleanupRecord(FormRecord r, SqlStorage<FormRecord> storage) {
-        try {
-            FormRecord updated = getUpdatedRecord(context, platform, r, FormRecord.STATUS_SAVED);
-            storage.write(updated);
-            return SUCCESS;
-        } catch (FileNotFoundException e) {
-            // No form, skip and delete the form record;
-            e.printStackTrace();
-            return DELETE;
-        } catch (InvalidStructureException e) {
-            // Bad form data, skip and delete
-            e.printStackTrace();
-            return DELETE;
-        } catch (XmlPullParserException | IOException e) {
-            e.printStackTrace();
-            // No idea, might be temporary, Skip
-            return SKIP;
-        } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            // Can't resolve here, skip.
-            return SKIP;
-        } catch (StorageFullException e) {
-            // Can't resolve here, skip.
-            throw new RuntimeException(e);
-        }
-    }
-
     public static FormRecord updateAndWriteRecord(Context context,
-                                     CommCarePlatform platform,
-                                     FormRecord oldRecord,
-                                     String newStatus,
-                                     SqlStorage<FormRecord> storage)
+                                                  CommCarePlatform platform,
+                                                  FormRecord oldRecord,
+                                                  String newStatus,
+                                                  SqlStorage<FormRecord> storage)
             throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
-        Pair<FormRecord, String> recordUpdates = reparseRecord(context, oldRecord, FormRecord.STATUS_SAVED);
+
+        Pair<FormRecord, String> recordUpdates =
+            reparseRecord(context, oldRecord, FormRecord.STATUS_SAVED);
         FormRecord updated = recordUpdates.first;
         String caseId = recordUpdates.second;
 
@@ -183,24 +151,30 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     }
 
     /**
+     * Reparse the saved form instance associated with the form record and
+     * apply any updates found to the form record, such as UUID and date
+     * modified, returning an updated copy.
      *
-     * @param context
-     * @param r
-     * @param newStatus
-     * @return
-     * @throws IOException Problem opening the saved form attached to the record.
-     * @throws InvalidStructureException Occurs during reparsing of the form attached to record.
+     * @param context   Used to get the filepath of the form instance
+     *                  associated with the record.
+     * @param r         Reparse this record and return an updated copy of it
+     * @param newStatus The new form record status
+     * @return The reparsed form record and the associated case id, if present
+     * @throws IOException                       Problem opening the saved form
+     *                                           attached to the record.
+     * @throws InvalidStructureException         Occurs during reparsing of the
+     *                                           form attached to record.
      * @throws XmlPullParserException
-     * @throws UnfullfilledRequirementsException Parsing encountered a platform versioning problem
+     * @throws UnfullfilledRequirementsException Parsing encountered a platform
+     *                                           versioning problem
      */
-    public static Pair<FormRecord, String> reparseRecord(Context context,
+    private static Pair<FormRecord, String> reparseRecord(Context context,
                                                          FormRecord r,
                                                          String newStatus)
             throws IOException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
-        //Awful. Just... awful
         final String[] caseIDs = new String[1];
-        final Date[] modified = new Date[] {new Date(0)};
+        final Date[] modified = new Date[]{new Date(0)};
         final String[] uuid = new String[1];
 
         // NOTE: This does _not_ parse and process the case data. It's only for
@@ -208,68 +182,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         TransactionParserFactory factory = new TransactionParserFactory() {
             @Override
             public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-                if(name == null) { return null;}
-                if("case".equals(name)) {
-                    //If we have a proper 2.0 namespace, good.
-                    if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
-                        return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
-
-                            /*
-                             * (non-Javadoc)
-                             * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
-                             */
-                            @Override
-                            public void commit(Case parsed) throws IOException, SessionUnavailableException{
-                                String incoming = parsed.getCaseId();
-                                if(incoming != null && !"".equals(incoming)) {
-                                    caseIDs[0] = incoming;
-                                }
-                            }
-
-                            /*
-                             * (non-Javadoc)
-                             * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
-                             */
-                            @Override
-                            public ACase retrieve(String entityId) throws SessionUnavailableException{
-                                caseIDs[0] = entityId;
-                                ACase c = new ACase("","");
-                                c.setCaseId(entityId);
-                                return c;
-                            }
-                        };
-                    }else {
-                    // Otherwise, this gets more tricky. Ideally we'd want to
-                    // skip this block for compatibility purposes, but we can
-                    // at least try to get a caseID (which is all we want)
-                    return new BestEffortBlockParser(parser, null, null, new String[] {"case_id"}) {
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.xml.BestEffortBlockParser#commit(java.util.Hashtable)
-                         */
-                        @Override
-                        public void commit(Hashtable<String, String> values) {
-                            if(values.containsKey("case_id")) {
-                                caseIDs[0] = values.get("case_id");
-                            }
-                        }
-                    };
-                    }
-                } else if("meta".equalsIgnoreCase(name)) {
-                    return new MetaDataXmlParser(parser) {
-
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
-                         */
-                        @Override
-                        public void commit(String[] meta) throws IOException, SessionUnavailableException{
-                            if(meta[0] != null) {
-                                modified[0] = DateUtils.parseDateTime(meta[0]);
-                            }
-                            uuid[0] = meta[1];
-                        }
-                    };
+                if ("case".equals(name)) {
+                    return buildCaseParser(namespace, parser, caseIDs);
+                } else if ("meta".equalsIgnoreCase(name)) {
+                    return buildMetaParser(uuid, modified, parser);
                 }
                 return null;
             }
@@ -307,7 +223,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         parsed.setID(r.getID());
 
         // Make sure that the instance is no longer editable
-        if(!newStatus.equals(FormRecord.STATUS_INCOMPLETE) &&
+        if (!newStatus.equals(FormRecord.STATUS_INCOMPLETE) &&
                 !newStatus.equals(FormRecord.STATUS_UNSTARTED)) {
             ContentValues cv = new ContentValues();
             cv.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(false));
@@ -315,154 +231,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         }
 
         return new Pair<>(parsed, caseIDs[0]);
-    }
-
-
-    /**
-     * Parses out a form record, fills in the various parse-able details (UUID,
-     * date modified, etc), and updates it to the provided status.
-     *
-     * @return The new form record containing relevant details about this form
-     */
-    public static FormRecord getUpdatedRecord(Context context,
-                                              CommCarePlatform platform,
-                                              FormRecord r,
-                                              String newStatus)
-            throws InvalidStructureException, IOException,
-            XmlPullParserException, UnfullfilledRequirementsException {
-        //Awful. Just... awful
-        final String[] caseIDs = new String[1];
-        final Date[] modified = new Date[] {new Date(0)};
-        final String[] uuid = new String[1];
-
-        // NOTE: This does _not_ parse and process the case data. It's only for
-        // getting meta information about the entry session.
-        TransactionParserFactory factory = new TransactionParserFactory() {
-            @Override
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-                if(name == null) { return null;}
-                if("case".equals(name)) {
-                    //If we have a proper 2.0 namespace, good.
-                    if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
-                        return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
-
-                            /*
-                             * (non-Javadoc)
-                             * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
-                             */
-                            @Override
-                            public void commit(Case parsed) throws IOException, SessionUnavailableException{
-                                String incoming = parsed.getCaseId();
-                                if(incoming != null && !"".equals(incoming)) {
-                                    caseIDs[0] = incoming;
-                                }
-                            }
-
-                            /*
-                             * (non-Javadoc)
-                             * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
-                             */
-                            @Override
-                            public ACase retrieve(String entityId) throws SessionUnavailableException{
-                                caseIDs[0] = entityId;
-                                ACase c = new ACase("","");
-                                c.setCaseId(entityId);
-                                return c;
-                            }
-                        };
-                    }else {
-                    // Otherwise, this gets more tricky. Ideally we'd want to
-                    // skip this block for compatibility purposes, but we can
-                    // at least try to get a caseID (which is all we want)
-                    return new BestEffortBlockParser(parser, null, null, new String[] {"case_id"}) {
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.xml.BestEffortBlockParser#commit(java.util.Hashtable)
-                         */
-                        @Override
-                        public void commit(Hashtable<String, String> values) {
-                            if(values.containsKey("case_id")) {
-                                caseIDs[0] = values.get("case_id");
-                            }
-                        }
-                    };
-                    }
-                } else if("meta".equalsIgnoreCase(name)) {
-                    return new MetaDataXmlParser(parser) {
-
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
-                         */
-                        @Override
-                        public void commit(String[] meta) throws IOException, SessionUnavailableException{
-                            if(meta[0] != null) {
-                                modified[0] = DateUtils.parseDateTime(meta[0]);
-                            }
-                            uuid[0] = meta[1];
-                        }
-                    };
-                }
-                return null;
-            }
-        };
-
-        String path = r.getPath(context);
-        InputStream is;
-        FileInputStream fis = new FileInputStream(path);
-        try {
-            Cipher decrypter = Cipher.getInstance("AES");
-            decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
-            is = new CipherInputStream(fis, decrypter);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException("No Algorithm while attempting to decode form submission for processing");
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Invalid cipher data while attempting to decode form submission for processing");
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
-        } finally {
-            fis.close();
-        }
-
-        //Construct parser for this form's internal data.
-        DataModelPullParser parser = new DataModelPullParser(is, factory);
-        parser.parse();
-
-        // TODO: We should be committing all changes to form record models via
-        // the ASW objects, not manually.
-        FormRecord parsed = new FormRecord(r.getInstanceURI().toString(),
-                newStatus, r.getFormNamespace(), r.getAesKey(),
-                uuid[0], modified[0]);
-        parsed.setID(r.getID());
-
-        // TODO: The platform adds a lot of unfortunate coupling here. Should
-        // split out the need to parse completely uninitialized form records
-        // somewhere else.
-        if(caseIDs[0] != null && r.getStatus().equals(FormRecord.STATUS_UNINDEXED)) {
-            AndroidSessionWrapper asw = AndroidSessionWrapper.mockEasiestRoute(platform, r.getFormNamespace(), caseIDs[0]);
-            asw.setFormRecordId(parsed.getID());
-
-            SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
-
-            //Also bad: this is not synchronous with the parsed record write
-            try {
-                ssdStorage.write(asw.getSessionStateDescriptor());
-            } catch (StorageFullException e) {
-            }
-        }
-
-        // Make sure that the instance is no longer editable
-        if(!newStatus.equals(FormRecord.STATUS_INCOMPLETE) &&
-                !newStatus.equals(FormRecord.STATUS_UNSTARTED)) {
-            ContentValues cv = new ContentValues();
-            cv.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(false));
-            context.getContentResolver().update(r.getInstanceURI(), cv, null, null);
-        }
-
-        return parsed;
     }
 
     public static void wipeRecord(Context c,SessionStateDescriptor existing) {
@@ -562,4 +330,69 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             c.close();
         }
     }
+
+    private static TransactionParser buildCaseParser(String namespace, KXmlParser parser, final String[] caseIDs) {
+        //If we have a proper 2.0 namespace, good.
+        if (CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
+            return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
+
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
+                 */
+                @Override
+                public void commit(Case parsed) throws IOException, SessionUnavailableException {
+                    String incoming = parsed.getCaseId();
+                    if (incoming != null && !"".equals(incoming)) {
+                        caseIDs[0] = incoming;
+                    }
+                }
+
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
+                 */
+                @Override
+                public ACase retrieve(String entityId) throws SessionUnavailableException {
+                    caseIDs[0] = entityId;
+                    ACase c = new ACase("", "");
+                    c.setCaseId(entityId);
+                    return c;
+                }
+            };
+        } else {
+            // Otherwise, this gets more tricky. Ideally we'd want to
+            // skip this block for compatibility purposes, but we can
+            // at least try to get a caseID (which is all we want)
+            return new BestEffortBlockParser(parser, null, null, new String[]{"case_id"}) {
+                /*
+                 * (non-Javadoc)
+                 * @see org.commcare.xml.BestEffortBlockParser#commit(java.util.Hashtable)
+                 */
+                @Override
+                public void commit(Hashtable<String, String> values) {
+                    if (values.containsKey("case_id")) {
+                        caseIDs[0] = values.get("case_id");
+                    }
+                }
+            };
+        }
+    }
+    private static TransactionParser buildMetaParser(final String[] uuid, final Date[] modified, KXmlParser parser) {
+        return new MetaDataXmlParser(parser) {
+            /*
+             * (non-Javadoc)
+             * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
+             */
+            @Override
+            public void commit(String[] meta) throws IOException, SessionUnavailableException {
+                if (meta[0] != null) {
+                    modified[0] = DateUtils.parseDateTime(meta[0]);
+                }
+                uuid[0] = meta[1];
+            }
+        };
+    }
+
+
 }
