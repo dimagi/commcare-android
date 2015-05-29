@@ -94,13 +94,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
             @Override
             public void afterTextChanged(Editable s) {
-                setLoginBoxesColor(editTextColor);
-                username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
-                password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50),  null, null, null);
-                loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
-                loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
+                setStyleDefault();
             }
         };
+
+    public void setStyleDefault() {
+        setLoginBoxesColor(editTextColor);
+        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
+        password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
+        loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
+        loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
+    }
 
     /*
      * (non-Javadoc)
@@ -474,7 +478,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         //either way
         setLoginBoxesColor(getResources().getColor(R.color.cc_attention_negative_color));
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
-        password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg),  null, null, null);
+        password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
         loginButton.setTextColor(getResources().getColor(R.color.cc_attention_negative_text));
 
