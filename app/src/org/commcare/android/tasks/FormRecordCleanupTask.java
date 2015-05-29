@@ -114,6 +114,25 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     }
 
     /**
+     * Reparse the saved form instance associated with the form record and
+     * apply any updates found to the form record, such as UUID and date
+     * modified, returning an updated copy.  Write the updated record to
+     * storage. If the record is associated with a case id, recompute and write
+     * the SessionStateDescriptor too.
+     *
+     * @param context   Used to get the filepath of the form instance
+     *                  associated with the record.
+     * @param oldRecord Reparse this record and return an updated copy of it
+     * @param newStatus The new form record status
+     * @param storage   User storage where updated FormRecord is written
+     * @return The reparsed form record and the associated case id, if present
+     * @throws IOException                       Problem opening the saved form
+     *                                           attached to the record.
+     * @throws InvalidStructureException         Occurs during reparsing of the
+     *                                           form attached to record.
+     * @throws XmlPullParserException
+     * @throws UnfullfilledRequirementsException Parsing encountered a platform
+     *                                           versioning problem
      */
     public static FormRecord updateAndWriteRecord(Context context,
                                                   CommCarePlatform platform,
@@ -128,9 +147,9 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         FormRecord updated = recordUpdates.first;
         String caseId = recordUpdates.second;
 
-        if (FormRecord.STATUS_UNINDEXED.equals(oldRecord.getStatus()) &&
-                !FormRecord.STATUS_UNINDEXED.equals(newStatus) &&
-                caseId != null) {
+        if (caseId != null &&
+                FormRecord.STATUS_UNINDEXED.equals(oldRecord.getStatus()) &&
+                !FormRecord.STATUS_UNINDEXED.equals(newStatus)) {
             AndroidSessionWrapper asw
                 = AndroidSessionWrapper.mockEasiestRoute(platform,
                         oldRecord.getFormNamespace(), caseId);
