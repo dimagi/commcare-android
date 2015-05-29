@@ -59,7 +59,8 @@ public class SetupEnterURLFragment extends Fragment {
             @Override
             public void onClick(final View v) {
                 getFragmentManager().popBackStack(); // equivalent to pressing the "back" button
-                if(listener != null) listener.OnURLChosen(getURL()); // returns the chosen URL to the parent Activity
+                // no need for a null check because onAttach is called before onCreateView
+                listener.OnURLChosen(getURL()); // returns the chosen URL to the parent Activity
             }
         });
         return view;
