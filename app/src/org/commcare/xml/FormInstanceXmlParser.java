@@ -64,7 +64,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
     public FormInstanceXmlParser(KXmlParser parser, Context c,
                                  Map<String, String> namespaceToInstallPath,
                                  String destination) {
-        super(parser, null, null);
+        super(parser);
         this.c = c;
         this.namespaceToInstallPath = namespaceToInstallPath;
         this.rootInstanceDir = destination;
