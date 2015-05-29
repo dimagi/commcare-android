@@ -13,6 +13,7 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 /**
+ * Fragment to start, update or cancel an app installation.
  * Created by dancluna on 4/10/15.
  */
 public class SetupKeepInstallFragment extends Fragment {

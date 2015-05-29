@@ -19,6 +19,7 @@ import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.javarosa.core.services.locale.Localization;
 
 /**
+ * Fragment for choosing app installation mode (barcode or manual install).
  * Created by dancluna on 3/17/15.
  */
 public class SetupInstallFragment extends Fragment {
