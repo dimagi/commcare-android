@@ -865,10 +865,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 return;
             }
             startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
-        }
-        else if(needed == SessionFrame.STATE_COMMAND_ID) {
+        } else if(needed == SessionFrame.STATE_COMMAND_ID) {
              Intent i;
-             
+
              if(DeveloperPreferences.isGridMenuEnabled()){
                  i = new Intent(getApplicationContext(), MenuGrid.class);
              }
@@ -918,32 +917,30 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             //overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
         }
     }
-    
+
     private void startFormEntry(AndroidSessionWrapper state) throws SessionUnavailableException{
         try {
             //If this is a new record (never saved before), which currently all should be 
-            if(state.getFormRecordId() == -1) {
-                    
+            if (state.getFormRecordId() == -1) {
                 //If form management isn't enabled we can't have these old forms around anyway
-                if(CommCarePreferences.isIncompleteFormsEnabled()) {
-                    //First, see if we've already started this form before
+                if(CommCarePreferences.isIncompleteFormsEnabled() &&
+                        state.getSessionStateDescriptor().getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
                     SessionStateDescriptor existing = state.searchForDuplicates();
-                    
-                    //I'm not proud of the second clause, here. Basically, only ask if we should continue entry if the
-                    //saved state actually involved selecting some data.
-                    if(existing != null && existing.getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
+                    if (existing != null) {
+                        // User is trying to open a form connected to a case,
+                        // and there is an existing incomplete form for the
+                        // same case
                         createAskUseOldDialog(state, existing);
                         return;
                     }
                 }
-                
+
                 //Otherwise, generate a stub record and commit it
                 state.commitStub();
             } else {
                 Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
             }
-            
-            //We should now have a valid record for our state. Time to get to form entry.
+
             FormRecord record = state.getFormRecord();
 
             if (platform == null &&
@@ -953,12 +950,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             //TODO: May need to pass session over manually
             formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
-            
         } catch (StorageFullException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()

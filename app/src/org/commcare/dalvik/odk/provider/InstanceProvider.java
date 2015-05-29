@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2007 The Android Open Source Project
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.dalvik.odk.provider;
 
 import java.io.File;
@@ -44,11 +30,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-/**
- * 
- */
 public class InstanceProvider extends ContentProvider {
-
     private static final String t = "InstancesProvider";
 
     private static final String DATABASE_NAME = "instances.db";
@@ -70,7 +52,6 @@ public class InstanceProvider extends ContentProvider {
         public DatabaseHelper(Context c, String databaseName) {
             super(c, databaseName, null, DATABASE_VERSION);
         }
-
 
         /*
          * (non-Javadoc)
@@ -115,7 +96,7 @@ public class InstanceProvider extends ContentProvider {
         //This is so stupid.
         return true;
     }
-    
+
     /**
      * Setup helper to access database.
      */
@@ -125,7 +106,6 @@ public class InstanceProvider extends ContentProvider {
             mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
         }
     }
-
 
     /*
      * (non-Javadoc)
@@ -161,7 +141,6 @@ public class InstanceProvider extends ContentProvider {
         return c;
     }
 
-
     /*
      * (non-Javadoc)
      * @see android.content.ContentProvider#getType(android.net.Uri)
@@ -179,7 +158,6 @@ public class InstanceProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
     }
-
 
     /**
      * {@inheritDoc}
@@ -240,7 +218,6 @@ public class InstanceProvider extends ContentProvider {
         throw new SQLException("Failed to insert row into " + uri);
     }
 
-
     /**
      * Create display subtext for current date and time
      *
@@ -263,7 +240,7 @@ public class InstanceProvider extends ContentProvider {
             return "Added on " + ts;
         }
     }
-    
+
     private void deleteFileOrDir(String fileName ) {
         File file = new File(fileName);
         if (file.exists()) {
@@ -279,7 +256,6 @@ public class InstanceProvider extends ContentProvider {
             file.delete();
         }
     }
-
 
     /*
      * (non-Javadoc)
@@ -520,7 +496,6 @@ public class InstanceProvider extends ContentProvider {
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                 }
             }
-
         }
     }
 
@@ -553,5 +528,4 @@ public class InstanceProvider extends ContentProvider {
         currentState.reset();
         throw new RuntimeException(loggerText);
     }
-
 }

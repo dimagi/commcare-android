@@ -40,7 +40,6 @@ import android.net.Uri;
 
 /**
  * @author ctsims
- *
  */
 public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
@@ -121,14 +120,12 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             encrypter.init(Cipher.ENCRYPT_MODE, key);
             cos = new CipherOutputStream(o, encrypter);
             bos = new BufferedOutputStream(cos,1024*256);
-            
-        
+
             serializer.setOutput(bos, "UTF-8");
-        
+
             document.write(serializer);
-        
+
             storage.write(r);
-            
         } catch (StorageFullException e) {
             throw new IOException(e.getMessage());
         } 
@@ -149,7 +146,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         }
         return r;
     }
-    
+
     public IStorageUtilityIndexed<FormRecord> storage() throws SessionUnavailableException{
         if(storage == null) {
             storage =  CommCareApplication._().getUserStorage(FormRecord.class);

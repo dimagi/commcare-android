@@ -211,13 +211,12 @@ public class AndroidSessionWrapper {
     public SessionStateDescriptor searchForDuplicates() {
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
-        
+
         //TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
-        
+
         //First, we need to see if this session's unique hash corresponds to any pending forms.
         Vector<Integer> ids = sessionStorage.getIDsForValue(SessionStateDescriptor.META_DESCRIPTOR_HASH, getSessionStateDescriptor().getHash());
-        
-        SessionStateDescriptor ssd = null;
+
         //Filter for forms which have actually been started.
         for(int id : ids) {
             try {
@@ -228,16 +227,14 @@ public class AndroidSessionWrapper {
                     continue;
                 }
                 if(FormRecord.STATUS_INCOMPLETE.equals(storage.getMetaDataFieldForRecord(recordId, FormRecord.META_STATUS))) {
-                    ssd = sessionStorage.read(id);
-                    break;
+                    return sessionStorage.read(id);
                 }
             } catch(NumberFormatException nfe) {
                 //TODO: Clean up this record
                 continue;
             }
         }
-        
-        return ssd;
+        return null;
     }
 
     public void commitStub() throws StorageFullException {
