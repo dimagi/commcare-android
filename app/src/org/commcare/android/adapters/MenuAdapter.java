@@ -294,15 +294,12 @@ public class MenuAdapter implements ListAdapter {
                     mIconView.setImageResource(R.drawable.avatar_form);
                     break;
                 case NONE:
-                    // remove it because we won't need it anymore
-                    if(mIconView != null) {
-                        ((LinearLayout) mIconView.getParent()).removeView(mIconView);
-                    }
+                    mIconView.setVisibility(View.GONE);
                     break;
             }
         } else {
             if(mIconView != null) {
-                ((LinearLayout) mIconView.getParent()).removeView(mIconView);
+                mIconView.setVisibility(View.GONE);
             }
         }
 
