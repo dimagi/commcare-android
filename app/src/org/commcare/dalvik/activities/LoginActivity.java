@@ -122,13 +122,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             }
         }
 
-        final Activity loginAct = this;
-        
         login.setOnClickListener(new OnClickListener() {
 
             public void onClick(View arg0) {
                 errorBox.setVisibility(View.GONE);
-                ViewUtil.hideVirtualKeyboard(loginAct);
+                ViewUtil.hideVirtualKeyboard(LoginActivity.this);
                 //Try logging in locally
                 if(tryLocalLogin(false)) {
                     return;
