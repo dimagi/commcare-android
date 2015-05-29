@@ -73,6 +73,7 @@
                 android:paddingRight="@dimen/login_box_margins" >
 
                 <TextView
+                    android:id="@+id/welcome_msg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Welcome back! Please log in."
