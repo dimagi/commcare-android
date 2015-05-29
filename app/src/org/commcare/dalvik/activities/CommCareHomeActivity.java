@@ -918,6 +918,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
+    /**
+     * Create a form record and launch form entry activity. If there is an
+     * existing incomplete form that uses the same case, ask the user if they
+     * want to edit or delete that one.
+     *
+     * @param state Needed for FormRecord manipulations
+     */
     private void startFormEntry(AndroidSessionWrapper state) throws SessionUnavailableException{
         if (state.getFormRecordId() == -1) {
             if (CommCarePreferences.isIncompleteFormsEnabled() &&
@@ -949,34 +956,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         //TODO: May need to pass session over manually
         formEntry(platform.getFormContentUri(record.getFormNamespace()),
                 record, CommCareActivity.getTitle(this, null));
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
-     */
-    @Override
-    public String getActivityTitle() {
-        String userName = null;
-        
-        try {
-            userName = CommCareApplication._().getSession().getLoggedInUser().getUsername();
-            if(userName != null) {
-                return Localization.get("home.logged.in.message", new String[] {userName});
-            }
-        } catch(Exception e) {
-            //TODO: Better catch, here
-        }
-        return "";
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
-     */
-    @Override 
-    protected boolean isTopNavEnabled() {
-        return false;
     }
 
     private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException{
@@ -1022,7 +1001,34 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         startActivityForResult(i, MODEL_RESULT);
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
+     */
+    @Override
+    public String getActivityTitle() {
+        String userName = null;
+        
+        try {
+            userName = CommCareApplication._().getSession().getLoggedInUser().getUsername();
+            if(userName != null) {
+                return Localization.get("home.logged.in.message", new String[] {userName});
+            }
+        } catch(Exception e) {
+            //TODO: Better catch, here
+        }
+        return "";
+    }
     
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
+     */
+    @Override 
+    protected boolean isTopNavEnabled() {
+        return false;
+    }
     
     protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) throws SessionUnavailableException {
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
