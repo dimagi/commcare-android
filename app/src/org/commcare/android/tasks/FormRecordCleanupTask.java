@@ -150,6 +150,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         if (caseId != null &&
                 FormRecord.STATUS_UNINDEXED.equals(oldRecord.getStatus()) &&
                 !FormRecord.STATUS_UNINDEXED.equals(newStatus)) {
+            // There is a case id associated with an unidexed form record,
+            // calculate the state descripter and write it.
             AndroidSessionWrapper asw
                 = AndroidSessionWrapper.mockEasiestRoute(platform,
                         oldRecord.getFormNamespace(), caseId);
