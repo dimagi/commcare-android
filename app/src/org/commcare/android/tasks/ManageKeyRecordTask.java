@@ -268,10 +268,11 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 
             /*
              * (non-Javadoc)
-             * @see org.commcare.data.xml.TransactionParserFactory#getParser(java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
+             * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
              */
             @Override
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+            public TransactionParser getParser(KXmlParser parser) {
+                String name = parser.getName();
                 if("auth_keys".equals(name)) {
                     return new KeyRecordParser(parser, username, password, keyRecords) {
 
