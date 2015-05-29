@@ -94,8 +94,8 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/icon_wifi_neutral"
                         android:layout_gravity="left"
-                        android:layout_marginLeft="32dp"
-                        android:layout_marginRight="32dp"
+                        android:layout_marginLeft="@dimen/content_start_quadruple"
+                        android:layout_marginRight="@dimen/content_start_quadruple"
                         />
                     <TextView
                         android:id="@+id/net_warn"
