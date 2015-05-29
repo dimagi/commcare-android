@@ -231,13 +231,16 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         } catch (InvalidKeyException e) {
             e.printStackTrace();
             throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
-        } finally {
-            fis.close();
         }
 
-        //Construct parser for this form's internal data.
+        // Construct parser for this form's internal data.
         DataModelPullParser parser = new DataModelPullParser(is, factory);
+
+        // populate uuid, modified, and caseIDs arrays by parsing
         parser.parse();
+
+        fis.close();
+        is.close();
 
         // TODO: We should be committing all changes to form record models via
         // the ASW objects, not manually.
