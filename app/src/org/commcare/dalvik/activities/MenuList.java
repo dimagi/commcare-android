@@ -21,6 +21,7 @@ import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
@@ -119,7 +120,9 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
         Object value = listView.getAdapter().getItem(position);
         // if value is null, probably it means that we clicked on the header view, so we just ignore it
         if(value == null) {
-            Log.d("MenuList", "Null value on position " + position);
+            if(BuildConfig.DEBUG) {
+                Log.d("MenuList", "Null value on position " + position);
+            }
             return;
         }
         if(value instanceof Entry) {
