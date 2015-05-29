@@ -919,40 +919,36 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     private void startFormEntry(AndroidSessionWrapper state) throws SessionUnavailableException{
-        try {
-            //If this is a new record (never saved before), which currently all should be 
-            if (state.getFormRecordId() == -1) {
-                //If form management isn't enabled we can't have these old forms around anyway
-                if(CommCarePreferences.isIncompleteFormsEnabled() &&
-                        state.getSessionStateDescriptor().getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
-                    SessionStateDescriptor existing = state.searchForDuplicates();
-                    if (existing != null) {
-                        // User is trying to open a form connected to a case,
-                        // and there is an existing incomplete form for the
-                        // same case
-                        createAskUseOldDialog(state, existing);
-                        return;
-                    }
+        if (state.getFormRecordId() == -1) {
+            if (CommCarePreferences.isIncompleteFormsEnabled() &&
+                    state.getSessionStateDescriptor().getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
+                // Are existing (incomplete) forms using the same case?
+                SessionStateDescriptor existing = state.searchForDuplicates();
+                if (existing != null) {
+                    // Ask user if they want to just edit existing form
+                    // that uses the same case.
+                    createAskUseOldDialog(state, existing);
+                    return;
                 }
-
-                //Otherwise, generate a stub record and commit it
-                state.commitStub();
-            } else {
-                Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
             }
 
-            FormRecord record = state.getFormRecord();
-
-            if (platform == null &&
-                    CommCareApplication._().getCurrentApp() != null) {
-                platform = CommCareApplication._().getCommCarePlatform();
-            }
-
-            //TODO: May need to pass session over manually
-            formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
-        } catch (StorageFullException e) {
-            throw new RuntimeException(e);
+            // Generate a stub form record and commit it
+            state.commitStub();
+        } else {
+            Logger.log("form-entry",
+                    "Somehow ended up starting form entry with old state?");
         }
+
+        FormRecord record = state.getFormRecord();
+
+        if (platform == null &&
+                CommCareApplication._().getCurrentApp() != null) {
+            platform = CommCareApplication._().getCommCarePlatform();
+        }
+
+        //TODO: May need to pass session over manually
+        formEntry(platform.getFormContentUri(record.getFormNamespace()),
+                record, CommCareActivity.getTitle(this, null));
     }
 
     /*
