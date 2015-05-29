@@ -94,7 +94,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
             @Override
             public void afterTextChanged(Editable s) {
-                setLoginBoxesColor(editTextColor, false);
+                setLoginBoxesColor(editTextColor);
                 username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
                 password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50),  null, null, null);
                 loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
@@ -472,7 +472,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         }
         
         //either way
-        setLoginBoxesColor(R.color.cc_attention_negative_color, true);
+        setLoginBoxesColor(getResources().getColor(R.color.cc_attention_negative_color));
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg),  null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
@@ -486,11 +486,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
     /**
      * Sets the login boxes (user/pass) to the given color.
-     * @param colorIdOrCode Color ID of resource or color code
-     * @param isColorId Calls getResources.getColor if set, uses the given colorIdOrCode as the color code if not
+     * @param color Color code
      */
-    private void setLoginBoxesColor(int colorIdOrCode, boolean isColorId) {
-        int color = isColorId ? getResources().getColor(colorIdOrCode) : colorIdOrCode;
+    private void setLoginBoxesColor(int color) {
         username.setTextColor(color);
         password.setTextColor(color);
     }
