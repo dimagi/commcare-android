@@ -531,10 +531,10 @@ public class InstanceProvider extends ContentProvider {
 
         // update the form record to mirror the sessions instance uri and
         // status.
-        if (InstanceProviderAPI.STATUS_COMPLETE.equals(status)) {
-            current = current.updateStatus(uri, FormRecord.STATUS_COMPLETE);
+        if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
+            record = record.updateInstanceAndStatus(instanceUri, FormRecord.STATUS_COMPLETE);
         } else {
-            current = current.updateStatus(uri, FormRecord.STATUS_INCOMPLETE);
+            record = record.updateInstanceAndStatus(instanceUri, FormRecord.STATUS_INCOMPLETE);
         }
 
         // save the updated form record

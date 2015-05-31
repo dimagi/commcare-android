@@ -101,7 +101,7 @@ public class FormRecordProcessor {
             throws IOException, StorageFullException {
         // update the records to show that the form has been processed and is
         // ready to be sent;
-        record = record.updateStatus(record.getInstanceURI().toString(), newStatus);
+        record = record.updateInstanceAndStatus(record.getInstanceURI().toString(), newStatus);
         storage.write(record);
         return record;
     }
