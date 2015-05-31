@@ -59,10 +59,6 @@ public class AndroidSessionWrapper {
     private CommCarePlatform platform;
     protected int formRecordId = -1;
     protected int sessionStateRecordId = -1;
-    
-    // These are only to be used by the local (not recoverable) session 
-    private String instanceUri = null;
-    private String instanceStatus = null;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
         session = new CommCareSession(platform);
@@ -101,8 +97,6 @@ public class AndroidSessionWrapper {
      */
     private void cleanVolatiles() {
         formRecordId = -1;
-        instanceUri = null;
-        instanceStatus = null;
         sessionStateRecordId = -1;
         //CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly
         //we want to "update" the casedb rather than rebuild it, but this is safest for now.
@@ -131,65 +125,6 @@ public class AndroidSessionWrapper {
         this.formRecordId = formRecordId;
     }
     
-    /**
-     * Registers the instance data returned from form entry about this session, and specifies
-     * whether the returned data is complete 
-     *
-     * @param uri points to the instance we want to register with the session
-     * @param c A cursor which points to at least one record of an ODK instance.
-     * @return True if the record in question was marked completed, false otherwise
-     * @throws IllegalArgumentException If the cursor provided doesn't point to any records,
-     * or doesn't point to the appropriate columns
-     */
-    public boolean beginRecordTransaction(Uri uri, Cursor c) throws IllegalArgumentException {
-        if (!c.moveToFirst()) {
-            throw new IllegalArgumentException("Empty query for instance record!");
-        }
-
-        // set local state
-        instanceUri = uri.toString();
-        instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
-
-        // was the record marked complete?
-        return InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
-    }
-
-    /**
-     * Update the session's form record status and link the record to an instance.
-     */
-    public FormRecord commitRecordTransaction() throws InvalidStateException {
-        FormRecord current = getFormRecord();
-
-        if (current == null) {
-            throw new InvalidStateException("No form record found when trying to save form.");
-        }
-
-        String recordStatus = null;
-        if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus)) {
-            recordStatus = FormRecord.STATUS_COMPLETE;
-        } else {
-            recordStatus = FormRecord.STATUS_INCOMPLETE;
-        }
-
-        // update the form record to mirror the sessions instance uri and
-        // status.
-        current = current.updateStatus(instanceUri, recordStatus);
-
-        // save the updated form record
-        try {
-            return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication._(),
-                    platform, current, recordStatus,
-                    CommCareApplication._().getUserStorage(FormRecord.class));
-        } catch (InvalidStructureException e1) {
-            e1.printStackTrace();
-            throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor.");
-        } catch (XmlPullParserException | IOException e) {
-            e.printStackTrace();
-            throw new InvalidStateException("There was a problem with the local storage and the form could not be read.");
-        } catch (StorageFullException | UnfullfilledRequirementsException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public int getFormRecordId() {
         return formRecordId;
@@ -474,4 +409,7 @@ public class AndroidSessionWrapper {
         cleanVolatiles();
     }
 
+    public CommCarePlatform getPlatform() {
+        return this.platform;
+    }
 }

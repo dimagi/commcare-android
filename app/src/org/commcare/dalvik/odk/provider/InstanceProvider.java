@@ -1,6 +1,7 @@
 package org.commcare.dalvik.odk.provider;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,9 +13,15 @@ import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.util.InvalidStateException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -444,27 +451,30 @@ public class InstanceProvider extends ContentProvider {
 
         if (instanceUri == null) {
             raiseFormEntryError("Form Entry did not return a form", currentState);
-            return;
         }
 
+        String instanceStatus = null;
+
         Cursor c = getContext().getContentResolver().query(instanceUri, null, null, null, null);
-        boolean complete = false;
         try {
-            // register the instance uri and its status with the session
-            complete = currentState.beginRecordTransaction(instanceUri, c);
+            c.moveToFirst();
+            instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
         } catch (IllegalArgumentException iae) {
             iae.printStackTrace();
             // TODO: Fail more hardcore here? Wipe the form record and its ties?
             raiseFormEntryError("Unrecoverable error when trying to read form|" + iae.getMessage(),
                     currentState);
-            return;
         } finally {
             c.close();
         }
 
+        boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
+
         FormRecord current;
         try {
-            current = currentState.commitRecordTransaction();
+            current = attachRecordToSession(currentState.getFormRecord(),
+                    currentState.getPlatform(), instanceUri.toString(),
+                    instanceStatus);
         } catch (Exception e) {
             // Something went wrong with all of the connections which should exist.
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
@@ -484,10 +494,11 @@ public class InstanceProvider extends ContentProvider {
         if (complete) {
             // Form record should now be up to date now and stored correctly.
 
-            // ctsims - App stack workflows require us to have processed _this_ specific form before
-            // we can move on, and that needs to be synchronous. We'll go ahead and try to process just
-            // this form before moving on. We'll catch any errors here and just eat them (since the
-            // task will also try the process and fail if it does.
+            // ctsims - App stack workflows require us to have processed _this_
+            // specific form before we can move on, and that needs to be
+            // synchronous. We'll go ahead and try to process just this form
+            // before moving on. We'll catch any errors here and just eat them
+            // (since the task will also try the process and fail if it does.
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
@@ -496,6 +507,49 @@ public class InstanceProvider extends ContentProvider {
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                 }
             }
+        }
+    }
+
+    /**
+     * Register form instance with session,
+     * Update the session's form record status and link the record to an
+     * instance.
+     *
+     * @param uri    points to the instance we want to register with the session
+     * @param status The form instance's stawtus (in/commplete, submitted,
+     *               failed submission)
+     * @return
+     */
+    private FormRecord attachRecordToSession(FormRecord current,
+                                             CommCarePlatform platform,
+                                             String uri, String status)
+            throws InvalidStateException {
+
+        if (current == null) {
+            throw new InvalidStateException("No form record found when trying to save form.");
+        }
+
+        // update the form record to mirror the sessions instance uri and
+        // status.
+        if (InstanceProviderAPI.STATUS_COMPLETE.equals(status)) {
+            current = current.updateStatus(uri, FormRecord.STATUS_COMPLETE);
+        } else {
+            current = current.updateStatus(uri, FormRecord.STATUS_INCOMPLETE);
+        }
+
+        // save the updated form record
+        try {
+            return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication._(),
+                    platform, current,
+                    CommCareApplication._().getUserStorage(FormRecord.class));
+        } catch (InvalidStructureException e1) {
+            e1.printStackTrace();
+            throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor.");
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
+            throw new InvalidStateException("There was a problem with the local storage and the form could not be read.");
+        } catch (StorageFullException | UnfullfilledRequirementsException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -522,7 +576,7 @@ public class InstanceProvider extends ContentProvider {
      * @param loggerText String sent to javarosa logger
      * @param currentState session to be cleared
      */
-    private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) throws RuntimeException {
+    private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) {
         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, loggerText);
 
         currentState.reset();
