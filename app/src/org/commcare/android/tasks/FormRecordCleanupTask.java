@@ -174,10 +174,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * @throws UnfullfilledRequirementsException Parsing encountered a platform
      *                                           versioning problem
      */
-    private static FormRecord updateAndWriteUnindexedRecord(Context context,
-                                                            CommCarePlatform platform,
-                                                            FormRecord oldRecord,
-                                                            SqlStorage<FormRecord> storage)
+    private static void updateAndWriteUnindexedRecord(Context context,
+                                                      CommCarePlatform platform,
+                                                      FormRecord oldRecord,
+                                                      SqlStorage<FormRecord> storage)
             throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
 
@@ -210,7 +210,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         }
 
         storage.write(updated);
-        return updated;
     }
 
     /**
@@ -255,34 +254,33 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         };
 
         String path = r.getPath(context);
-        InputStream is;
+        InputStream is = null;
         FileInputStream fis = new FileInputStream(path);
         try {
             Cipher decrypter = Cipher.getInstance("AES");
             decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
             is = new CipherInputStream(fis, decrypter);
+
+            // Construct parser for this form's internal data.
+            DataModelPullParser parser = new DataModelPullParser(is, factory);
+
+            // populate uuid, modified, and caseIDs arrays by parsing
+            parser.parse();
         } catch (NoSuchAlgorithmException e) {
-            fis.close();
             e.printStackTrace();
             throw new RuntimeException("No Algorithm while attempting to decode form submission for processing");
         } catch (NoSuchPaddingException e) {
-            fis.close();
             e.printStackTrace();
             throw new RuntimeException("Invalid cipher data while attempting to decode form submission for processing");
         } catch (InvalidKeyException e) {
-            fis.close();
             e.printStackTrace();
             throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
+        } finally {
+            fis.close();
+            if (is != null) {
+                is.close();
+            }
         }
-
-        // Construct parser for this form's internal data.
-        DataModelPullParser parser = new DataModelPullParser(is, factory);
-
-        // populate uuid, modified, and caseIDs arrays by parsing
-        parser.parse();
-
-        fis.close();
-        is.close();
 
         // TODO: We should be committing all changes to form record models via
         // the ASW objects, not manually.
