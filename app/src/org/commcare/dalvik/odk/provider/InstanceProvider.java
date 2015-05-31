@@ -10,14 +10,13 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -37,6 +36,8 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import javax.crypto.SecretKey;
+
 public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
 
@@ -44,7 +45,7 @@ public class InstanceProvider extends ContentProvider {
     private static final int DATABASE_VERSION = 2;
     private static final String INSTANCES_TABLE_NAME = "instances";
 
-    private static HashMap<String, String> sInstancesProjectionMap;
+    private static final HashMap<String, String> sInstancesProjectionMap;
 
     private static final int INSTANCES = 1;
     private static final int INSTANCE_ID = 2;
@@ -107,7 +108,7 @@ public class InstanceProvider extends ContentProvider {
     /**
      * Setup helper to access database.
      */
-    public void init() {
+    void init() {
         //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
         if(mDbHelper == null) {
             mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
@@ -213,10 +214,24 @@ public class InstanceProvider extends ContentProvider {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
 
-            try {
-                linkToSessionFormRecord(instanceUri);
-            } catch (Exception e) {
-                throw new SQLException("Failed to insert row into " + uri);
+            if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
+                // Forms with this flag are being loaded onto the phone
+                // manually and hence shouldn't be attached to the FormRecord
+                // in the current session
+                String xmlns = values.getAsString(InstanceColumns.JR_FORM_ID);
+
+                SecretKey key = CommCareApplication._().createNewSymetricKey();
+                FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED, 
+                        xmlns, key.getEncoded(), null, new Date(0));
+                IStorageUtilityIndexed<FormRecord> storage =
+                    CommCareApplication._().getUserStorage(FormRecord.class);
+                storage.write(r);
+            } else {
+                try {
+                    linkToSessionFormRecord(instanceUri);
+                } catch (Exception e) {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
             }
 
             return instanceUri;
@@ -451,6 +466,7 @@ public class InstanceProvider extends ContentProvider {
 
         if (instanceUri == null) {
             raiseFormEntryError("Form Entry did not return a form", currentState);
+            return;
         }
 
         String instanceStatus = null;
@@ -472,9 +488,8 @@ public class InstanceProvider extends ContentProvider {
 
         FormRecord current;
         try {
-            current = attachRecordToSession(currentState.getFormRecord(),
-                    currentState.getPlatform(), instanceUri.toString(),
-                    instanceStatus);
+            current = syncRecordToInstance(currentState.getFormRecord(),
+                    instanceUri.toString(), instanceStatus);
         } catch (Exception e) {
             // Something went wrong with all of the connections which should exist.
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
@@ -511,21 +526,22 @@ public class InstanceProvider extends ContentProvider {
     }
 
     /**
-     * Register form instance with session,
-     * Update the session's form record status and link the record to an
-     * instance.
+     * Register a record with a form instance, syncing the record's details
+     * with those of the instance and writing it to storage.
      *
-     * @param uri    points to the instance we want to register with the session
-     * @param status The form instance's stawtus (in/commplete, submitted,
-     *               failed submission)
-     * @return
+     * @param record         Attach this record with a form instance, syncing
+     *                       details and writing it to storage.
+     * @param instanceUri    Uri string of the form instance we want to sync
+     *                       with the record.
+     * @param instanceStatus The form instance's status (in/commplete, submitted,
+     *                       failed submission)
+     * @return The updated form record, which has been written to storage.
      */
-    private FormRecord attachRecordToSession(FormRecord current,
-                                             CommCarePlatform platform,
-                                             String uri, String status)
+    private FormRecord syncRecordToInstance(FormRecord record,
+                                            String instanceUri, String instanceStatus)
             throws InvalidStateException {
 
-        if (current == null) {
+        if (record == null) {
             throw new InvalidStateException("No form record found when trying to save form.");
         }
 
