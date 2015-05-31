@@ -262,12 +262,15 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
             is = new CipherInputStream(fis, decrypter);
         } catch (NoSuchAlgorithmException e) {
+            fis.close();
             e.printStackTrace();
             throw new RuntimeException("No Algorithm while attempting to decode form submission for processing");
         } catch (NoSuchPaddingException e) {
+            fis.close();
             e.printStackTrace();
             throw new RuntimeException("Invalid cipher data while attempting to decode form submission for processing");
         } catch (InvalidKeyException e) {
+            fis.close();
             e.printStackTrace();
             throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
         }
@@ -384,17 +387,20 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         if(dataPath != null) {
             String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";
             Cursor c = context.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {dataPath}, null);
-            if(c.moveToFirst()) {
-                //There's a cursor for this file, good.
-                long id = c.getLong(0);
+            try {
+                if (c.moveToFirst()) {
+                    //There's a cursor for this file, good.
+                    long id = c.getLong(0);
 
-                //this should take care of the files
-                context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
-            } else{
-                //No instance record for whatever reason, manually wipe files
-                FileUtil.deleteFileOrDir(dataPath);
+                    //this should take care of the files
+                    context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
+                } else {
+                    //No instance record for whatever reason, manually wipe files
+                    FileUtil.deleteFileOrDir(dataPath);
+                }
+            } finally {
+                c.close();
             }
-            c.close();
         }
     }
 

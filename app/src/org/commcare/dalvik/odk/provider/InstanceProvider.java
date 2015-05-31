@@ -269,10 +269,12 @@ public class InstanceProvider extends ContentProvider {
             if (file.isDirectory()) {
                 // delete all the containing files
                 File[] files = file.listFiles();
-                for (File f : files) {
-                    // should make this recursive if we get worried about
-                    // the media directory containing directories
-                    f.delete();
+                if (files != null) {
+                    for (File f : files) {
+                        // should make this recursive if we get worried about
+                        // the media directory containing directories
+                        f.delete();
+                    }
                 }
             }
             file.delete();
