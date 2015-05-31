@@ -82,7 +82,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             FormRecord r = storage.read(recordID);
 
             try {
-                updateAndWriteRecord(context, platform, r, storage);
+                updateAndWriteUnindexedRecord(context, platform, r, storage);
             } catch (FileNotFoundException | InvalidStructureException e) {
                 // No form or bad form data, mark for deletion
                 recordsToRemove.add(recordID);
@@ -133,9 +133,51 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      *                                           versioning problem
      */
     public static FormRecord updateAndWriteRecord(Context context,
-                                                  CommCarePlatform platform,
                                                   FormRecord oldRecord,
                                                   SqlStorage<FormRecord> storage)
+            throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException {
+
+        Pair<FormRecord, String> recordUpdates = reparseRecord(context, oldRecord);
+
+        FormRecord updated = recordUpdates.first;
+        String caseId = recordUpdates.second;
+
+        if (caseId != null &&
+                FormRecord.STATUS_UNINDEXED.equals(oldRecord.getStatus())) {
+            throw new RuntimeException("Trying to update an unindexed record without performing the indexing");
+        }
+
+        storage.write(updated);
+        return updated;
+    }
+
+    /**
+     * Reparse the saved form instance associated with the form record and
+     * apply any updates found to the form record, such as UUID and date
+     * modified, returning an updated copy with the status set to saved.  Write
+     * the updated record to storage. If the record is associated with a case
+     * id, recompute and write the SessionStateDescriptor too.
+     *
+     * @param context   Used to get the filepath of the form instance
+     *                  associated with the record.
+     * @param platform  Used to generate SessionStateDescriptor for instances
+     *                  that reference a case.
+     * @param oldRecord Reparse this record and return an updated copy of it
+     * @param storage   User storage where updated FormRecord is written
+     * @return The reparsed form record and the associated case id, if present
+     * @throws IOException                       Problem opening the saved form
+     *                                           attached to the record.
+     * @throws InvalidStructureException         Occurs during reparsing of the
+     *                                           form attached to record.
+     * @throws XmlPullParserException
+     * @throws UnfullfilledRequirementsException Parsing encountered a platform
+     *                                           versioning problem
+     */
+    private static FormRecord updateAndWriteUnindexedRecord(Context context,
+                                                            CommCarePlatform platform,
+                                                            FormRecord oldRecord,
+                                                            SqlStorage<FormRecord> storage)
             throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
 

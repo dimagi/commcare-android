@@ -540,8 +540,7 @@ public class InstanceProvider extends ContentProvider {
         // save the updated form record
         try {
             return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication._(),
-                    platform, current,
-                    CommCareApplication._().getUserStorage(FormRecord.class));
+                    record, CommCareApplication._().getUserStorage(FormRecord.class));
         } catch (InvalidStructureException e1) {
             e1.printStackTrace();
             throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor.");

@@ -408,8 +408,4 @@ public class AndroidSessionWrapper {
         //assume our current volatile states are no longer relevant
         cleanVolatiles();
     }
-
-    public CommCarePlatform getPlatform() {
-        return this.platform;
-    }
 }
