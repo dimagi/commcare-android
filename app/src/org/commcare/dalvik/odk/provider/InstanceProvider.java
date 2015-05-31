@@ -206,6 +206,12 @@ public class InstanceProvider extends ContentProvider {
             values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
+        boolean isUnindexed = false;
+        if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
+            values.remove(InstanceProviderAPI.UNINDEXED_SUBMISSION);
+            isUnindexed = true;
+        }
+
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(INSTANCES_TABLE_NAME, null, values);
         db.close();
@@ -214,7 +220,7 @@ public class InstanceProvider extends ContentProvider {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
 
-            if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
+            if (isUnindexed) {
                 // Forms with this flag are being loaded onto the phone
                 // manually and hence shouldn't be attached to the FormRecord
                 // in the current session
