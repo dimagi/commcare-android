@@ -28,8 +28,7 @@ the License.
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-    	android:paddingRight="8dp">
+        style="@style/DefaultHorizontalPadding">
 
             <TextView
                 android:id="@+id/message"
@@ -37,13 +36,9 @@ the License.
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:paddingBottom="16dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="16dp"
                 android:textColor="@color/white"
+                style="@style/DefaultPadding"
                 />
-        <!--android:textSize="@dimen/text_large"-->
 
     </LinearLayout>
 </FrameLayout>

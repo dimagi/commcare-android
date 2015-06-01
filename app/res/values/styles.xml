@@ -167,12 +167,25 @@
         <item name="android:textColor">@color/grey</item>
     </style>
 
-    <style name="TextViewV2">
-       <item name="android:paddingTop">@dimen/content_min_margin</item>
-       <item name="android:paddingBottom">@dimen/content_min_margin</item>
+    <style name="DefaultHorizontalPadding">
+        <item name="android:paddingLeft">@dimen/content_start</item>
+        <item name="android:paddingRight">@dimen/content_start</item>
+    </style>
+
+    <style name="DefaultVerticalPadding">
+        <item name="android:paddingTop">@dimen/content_min_margin</item>
+        <item name="android:paddingBottom">@dimen/content_min_margin</item>
+    </style>
+
+    <style name="DefaultPadding">
+        <item name="android:paddingLeft">@dimen/content_start</item>
+        <item name="android:paddingRight">@dimen/content_start</item>
+        <item name="android:paddingTop">@dimen/content_min_margin</item>
+        <item name="android:paddingBottom">@dimen/content_min_margin</item>
+    </style>
+
+    <style name="TextViewV2" parent="DefaultPadding">
        <item name="android:background">@color/cc_brand_color</item>
        <item name="android:textColor">@color/cc_core_bg</item>
-       <item name="android:paddingLeft">@dimen/content_start</item>
-       <item name="android:paddingRight">@dimen/content_start</item>
     </style>
 </resources>
