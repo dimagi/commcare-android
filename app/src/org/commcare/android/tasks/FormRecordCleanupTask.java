@@ -116,8 +116,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Reparse the saved form instance associated with the form record and
      * apply any updates found to the form record, such as UUID and date
      * modified, returning an updated copy with the status set to saved.  Write
-     * the updated record to storage. If the record is associated with a case
-     * id, recompute and write the SessionStateDescriptor too.
+     * the updated record to storage.
      *
      * @param context   Used to get the filepath of the form instance
      *                  associated with the record.
@@ -156,8 +155,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Reparse the saved form instance associated with the form record and
      * apply any updates found to the form record, such as UUID and date
      * modified, returning an updated copy with the status set to saved.  Write
-     * the updated record to storage. If the record is associated with a case
-     * id, recompute and write the SessionStateDescriptor too.
+     * the updated record to storage. If the record is unindexed and associated
+     * with a case id, recompute and write the SessionStateDescriptor too.
      *
      * @param context   Used to get the filepath of the form instance
      *                  associated with the record.
@@ -236,7 +235,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         final String[] caseIDs = new String[1];
         final Date[] modified = new Date[]{new Date(0)};
         final String[] uuid = new String[1];
-        String newStatus = FormRecord.STATUS_SAVED;
 
         // NOTE: This does _not_ parse and process the case data. It's only for
         // getting meta information about the entry session.
@@ -285,7 +283,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         // TODO: We should be committing all changes to form record models via
         // the ASW objects, not manually.
         FormRecord parsed = new FormRecord(r.getInstanceURI().toString(),
-                newStatus, r.getFormNamespace(), r.getAesKey(),
+                FormRecord.STATUS_SAVED, r.getFormNamespace(), r.getAesKey(),
                 uuid[0], modified[0]);
         parsed.setID(r.getID());
 
