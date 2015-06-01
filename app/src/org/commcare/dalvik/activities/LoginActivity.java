@@ -19,6 +19,7 @@ import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -27,13 +28,17 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -99,11 +104,34 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         };
 
     public void setStyleDefault() {
-        setLoginBoxesColor(editTextColor);
+        LoginBoxesStatus.Normal.setStatus(this);
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
         loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
+    }
+
+    public enum LoginBoxesStatus {
+        Normal(R.color.login_edit_text_color),
+        Error(R.color.login_edit_text_color_error);
+
+        private final int colorAttr;
+
+        LoginBoxesStatus(int colorAttr){
+            this.colorAttr = colorAttr;
+        }
+
+        public int getColor(Context ctx){
+            int color = ctx.getResources().getColor(colorAttr);
+            if (BuildConfig.DEBUG) {
+                Log.d("LoginBoxesStatus", "Color for status " + this.toString() + " is: " + color);
+            }
+            return color;
+        }
+
+        public void setStatus(LoginActivity lact){
+            lact.setLoginBoxesColor(this.getColor(lact));
+        }
     }
 
     /*
@@ -114,7 +142,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        editTextColor = username.getCurrentTextColor();
+        LoginBoxesStatus.Normal.setStatus(this);
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         
         //Only on the initial creation
@@ -476,7 +504,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         }
         
         //either way
-        setLoginBoxesColor(getResources().getColor(R.color.cc_attention_negative_color));
+        LoginBoxesStatus.Error.setStatus(this);
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
