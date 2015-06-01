@@ -85,12 +85,20 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         values.put(InstanceColumns.JR_FORM_ID, xmlns);
         values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
         values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, false);
-        values.put(InstanceProviderAPI.UNINDEXED_SUBMISSION, true);
-        
-        Uri instanceRecord = c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 
+        // Unindexed flag tells content provider to link this instance to a
+        // new, unindexed form record that isn't attached to the
+        // AndroidSessionWrapper
+        values.put(InstanceProviderAPI.UNINDEXED_SUBMISSION, true);
+
+        Uri instanceRecord =
+            c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
+
+        // Find the form record attached to the form instance during insertion
         IStorageUtilityIndexed<FormRecord> storage = storage();
-        FormRecord attachedRecord = storage.getRecordForValue(FormRecord.META_INSTANCE_URI, instanceRecord.toString());
+        FormRecord attachedRecord =
+            storage.getRecordForValue(FormRecord.META_INSTANCE_URI,
+                    instanceRecord.toString());
 
         if (attachedRecord == null) {
             throw new RuntimeException("No FormRecord was attached to the inserted form instance");
@@ -117,9 +125,11 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             document.write(serializer);
 
         } catch (StorageFullException e) {
+            // writing the form instance to xml failed, so remove the record
             storage.remove(attachedRecord);
             throw new IOException(e.getMessage());
         } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
+            // writing the form instance to xml failed, so remove the record
             storage.remove(attachedRecord);
             throw new RuntimeException(e.getMessage());
         } finally {

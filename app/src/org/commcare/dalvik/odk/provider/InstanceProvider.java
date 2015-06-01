@@ -206,10 +206,12 @@ public class InstanceProvider extends ContentProvider {
             values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
-        boolean isUnindexed = false;
+        // Should we link this instance to the session's form record, or create
+        // a new, unindexed one?
+        boolean linkToSession = false;
         if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
             values.remove(InstanceProviderAPI.UNINDEXED_SUBMISSION);
-            isUnindexed = true;
+            linkToSession = true;
         }
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -220,7 +222,7 @@ public class InstanceProvider extends ContentProvider {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
 
-            if (isUnindexed) {
+            if (linkToSession) {
                 // Forms with this flag are being loaded onto the phone
                 // manually and hence shouldn't be attached to the FormRecord
                 // in the current session
