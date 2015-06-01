@@ -275,14 +275,15 @@ public class AndroidSessionWrapper {
         Hashtable<String, Entry> entries = platform.getMenuMap();
         for(StackFrameStep step : session.getFrame().getSteps()) {
             String val = null; 
-            if(step.getType() == SessionFrame.STATE_COMMAND_ID) {
+            if(SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 //Menu or form. 
                 if(menus.containsKey(step.getId())) {
                     val = menus.get(step.getId());
                 } else if(entries.containsKey(step.getId())) {
                     val = entries.get(step.getId()).getText().evaluate();
                 }
-            } else if(step.getType() == SessionFrame.STATE_DATUM_VAL || step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
+            } else if(SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+                    SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
                 //nothing much to be done here...
             }
             if(val != null) {
@@ -300,8 +301,11 @@ public class AndroidSessionWrapper {
         //TODO: This manipulates the state of the session. We should instead grab and make a copy of the frame, and make a new session to 
         //investigate this.
         
-        //Walk backwards until we find something with a long detail
-        while(session.getFrame().getSteps().size() > 0 && (session.getNeededData() != SessionFrame.STATE_DATUM_VAL || session.getNeededDatum().getLongDetail() == null)) {
+        // Walk backwards until we find something with a long detail
+        while (session.getFrame().getSteps().size() > 0 &&
+                (!SessionFrame.STATE_DATUM_VAL.equals(session.getNeededData()) ||
+                        !(session.getNeededDatum() != null &&
+                                session.getNeededDatum().getLongDetail() != null))) {
             session.stepBack();
         }
         if(session.getFrame().getSteps().size() == 0) { return null;}
