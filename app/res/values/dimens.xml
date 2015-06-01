@@ -67,4 +67,6 @@
     <dimen name="new_progressbar_button_minheight">48dp</dimen>
     <dimen name="new_progressbar_button_minwidth">32dp</dimen>
     <dimen name="new_progressbar_button_padding">24dp</dimen>
+
+    <dimen name="form_label_padding">8dp</dimen>
 </resources>
