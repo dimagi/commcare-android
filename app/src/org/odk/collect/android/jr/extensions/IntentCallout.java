@@ -133,8 +133,7 @@ public class IntentCallout implements Externalizable {
                 AbstractTreeElement node = context.resolveReference(ref);
 
                 if (node == null) {
-                    //continue?
-
+                    continue;
                 }
                 int dataType = node.getDataType();
 
