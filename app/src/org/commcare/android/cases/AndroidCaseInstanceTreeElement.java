@@ -1,10 +1,9 @@
-/**
- * 
- */
 package org.commcare.android.cases;
 
 import java.util.Hashtable;
 import java.util.Vector;
+
+import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
@@ -22,9 +21,9 @@ import org.javarosa.core.util.DataUtil;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
+    private static final String TAG = "AndroidCaseInstanceTreeElement";
     SqlStorageIterator<ACase> iter;
     CaseIndexTable mCaseIndexTable;
     
@@ -46,7 +45,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         }
         objectIdMapping = new Hashtable<Integer, Integer>();
         cases = new Vector<CaseChildElement>();
-        System.out.println("Getting Cases!");
+        Log.d(TAG, "Getting Cases!");
         long timeInMillis = System.currentTimeMillis();
 
         int mult = 0;
@@ -59,9 +58,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             mult++;
         }
         long value = System.currentTimeMillis() - timeInMillis;
-        System.out.println("Case iterate took: " + value + "ms");
+        Log.d(TAG, "Case iterate took: " + value + "ms");
     }
-    
     
     /*
      * (non-Javadoc)

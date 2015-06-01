@@ -47,9 +47,9 @@ import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public class HttpRequestGenerator {
+    private static final String TAG = "HttpRequestGenerator";
     
     /** A possible domain that further qualifies the username of any account in use */
     public static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
@@ -98,7 +98,7 @@ public class HttpRequestGenerator {
     public HttpResponse get(String uri) throws ClientProtocolException, IOException {
         HttpClient client = client();
         
-        System.out.println("Fetching from: " + uri);
+        Log.d(TAG, "Fetching from: " + uri);
         HttpGet request = new HttpGet(uri);
         addHeaders(request, "");
         HttpResponse response = execute(client, request);
@@ -145,7 +145,7 @@ public class HttpRequestGenerator {
         serverUri = serverUri.buildUpon().appendQueryParameter("items", "true").build();
         
         String uri = serverUri.toString();
-        System.out.println("Fetching from: " + uri);
+        Log.d(TAG, "Fetching from: " + uri);
         HttpGet request = new HttpGet(uri);
         AndroidHttpClient.modifyRequestToAcceptGzipResponse( request );
         addHeaders(request, syncToken);

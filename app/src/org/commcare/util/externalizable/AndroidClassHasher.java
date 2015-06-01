@@ -1,7 +1,6 @@
-/**
- * 
- */
 package org.commcare.util.externalizable;
+
+import android.util.Log;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,10 +10,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidClassHasher implements Hasher {
-    
+    private static final String TAG = "AndroidClassHasher";
+
     MessageDigest mMessageDigester;
     
     public AndroidClassHasher() {
@@ -44,7 +43,7 @@ public class AndroidClassHasher implements Hasher {
         }
         byte[] badHash = new byte[] {0,4,78,97};
         if(PrototypeFactory.compareHash(badHash, hash)) {
-            System.out.println("BAD CLASS: " + type.getName());
+            Log.d(TAG, "BAD CLASS: " + type.getName());
         }
         
         return hash;

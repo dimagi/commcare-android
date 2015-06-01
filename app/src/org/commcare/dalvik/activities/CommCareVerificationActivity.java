@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +27,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class CommCareVerificationActivity extends CommCareActivity<CommCareVerificationActivity> implements VerificationTaskListener, OnClickListener {
-    
+    private static final String TAG = "CommCareVerificationActivity";
+
     TextView missingMediaPrompt;
     private static final int MENU_UNZIP = Menu.FIRST;
     
@@ -274,8 +276,8 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
             dialog.addProgressBar();
             return dialog;
         }
-        System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
-                + "any valid possibilities in CommCareVerificationActivity");        
+        Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+                + "any valid possibilities in CommCareVerificationActivity");
         return null;
     }
     

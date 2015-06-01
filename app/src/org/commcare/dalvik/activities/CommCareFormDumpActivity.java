@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -36,11 +37,11 @@ import android.widget.TextView;
 
 /**
  * @author wspride
- *
  */
 
 @ManagedUi(R.layout.screen_form_dump)
 public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpActivity> {
+    private static final String TAG = "CommCareFormDumpActivity";
     
     @UiElement(R.id.screen_bulk_image1)
     ImageView banner;
@@ -348,12 +349,10 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
             message = Localization.get("bulk.send.dialog.progress", new String[] {"0"});
         }
         else {
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+            Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in CommCareFormDumpActivity");
             return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
     }
-    
-    
 }

@@ -77,6 +77,7 @@ import android.provider.Settings;
 import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
@@ -89,6 +90,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
+    private static final String TAG = "CommCareHomeActivity";
     
     public static final int LOGIN_USER = 0;
     public static final int GET_COMMAND = 1;
@@ -1670,7 +1672,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             message = Localization.get("sync.progress.purge");
             break;
         default:
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+            Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in CommCareHomeActivity");
             return null;
         }

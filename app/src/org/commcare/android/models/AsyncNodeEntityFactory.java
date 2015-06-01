@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.models;
 
 import java.util.Hashtable;
@@ -9,6 +6,8 @@ import java.util.Vector;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
+
+import android.util.Log;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
@@ -27,9 +26,9 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * @author ctsims
- *
  */
 public class AsyncNodeEntityFactory extends NodeEntityFactory {
+    private static final String TAG = "AsyncNodeEntityFactory";
 
     User current; 
     
@@ -66,7 +65,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             }
         } 
         if(mTemplateIsCachable) {
-            if(mCacheHost == null) { System.out.println("Template is cachable, but there's no cache host for this instance?"); }
+            if(mCacheHost == null) { Log.d(TAG, "Template is cachable, but there's no cache host for this instance?"); }
             else {
                 mCacheIndex = mCacheHost.getCacheIndex(data);
             }
@@ -152,7 +151,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         walker.close();
         
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            System.out.println("Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
+            Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
         }
     }
     

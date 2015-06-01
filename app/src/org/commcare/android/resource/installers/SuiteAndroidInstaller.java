@@ -7,6 +7,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import android.util.Log;
+
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
 import org.commcare.android.util.FileUtil;
@@ -35,9 +37,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- *
  */
 public class SuiteAndroidInstaller extends FileSystemInstaller {
+    private static final String TAG = "SuiteAndroidInstaller";
     
     public SuiteAndroidInstaller() {
         
@@ -207,7 +209,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         }
         catch(Exception e){
             Logger.log("e", "suite validation failed with: " + e.getMessage());
-            System.out.println("Suite validation failed");
+            Log.d(TAG, "Suite validation failed");
             e.printStackTrace();
         }
 
