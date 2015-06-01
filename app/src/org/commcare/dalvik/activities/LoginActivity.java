@@ -480,7 +480,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             dialog.addProgressBar();
             break;
         default:
-            Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in LoginActivity");
             return null;
         }

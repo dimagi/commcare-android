@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 /**
  * @author ctsims
- *
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
@@ -311,7 +310,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             String message = Localization.get("mult.install.progress", new String[] {"0"});
             return CustomProgressDialog.newInstance(title, message, taskId);
         }
-        Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+        Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                 + "any valid possibilities in MultiMediaInflaterActivity");
         return null;
     }

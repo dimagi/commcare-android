@@ -220,7 +220,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
             return dialog;
         }
         else {
-            Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in ConnectionDiagnosticActivity");
             return null;
         }

@@ -604,7 +604,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             message = "Forms downloaded. Processing...";
             break;
         default:
-            Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in FormRecordListActivity");
             return null;
         }

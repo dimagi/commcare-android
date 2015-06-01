@@ -276,7 +276,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
             dialog.addProgressBar();
             return dialog;
         }
-        Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+        Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                 + "any valid possibilities in CommCareVerificationActivity");
         return null;
     }

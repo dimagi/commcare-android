@@ -349,7 +349,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
             message = Localization.get("bulk.send.dialog.progress", new String[] {"0"});
         }
         else {
-            Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in CommCareFormDumpActivity");
             return null;
         }

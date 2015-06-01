@@ -1672,7 +1672,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             message = Localization.get("sync.progress.purge");
             break;
         default:
-            Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in CommCareHomeActivity");
             return null;
         }

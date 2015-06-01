@@ -1126,7 +1126,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             message = "Cleaning up after transfer";
             break;
         default:
-            Log.d(TAG, "WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in CommCareWifiDirectActivity");
             return null;
         }
