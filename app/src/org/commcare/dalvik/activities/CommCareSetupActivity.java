@@ -49,7 +49,7 @@ import org.javarosa.core.util.PropertyUtils;
  *
  */
 @ManagedUi(R.layout.first_start_screen_modern)
-public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity> implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller {
+public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity> implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller, SetupKeepInstallFragment.StartStopInstallCommands {
     
 //    public static final String DATABASE_STATE = "database_state";
     public static final String RESOURCE_STATE = "resource_state";
@@ -60,6 +60,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_AUTO = "is_auto_update";
     public static final String KEY_START_OVER = "start_over_uprgrade";
     public static final String KEY_LAST_INSTALL = "last_install_time";
+
+
 
     /*
      * enum indicating which UI mconfiguration should be shown.
@@ -219,19 +221,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     return;
                 }
 
-                startInstall.setButtonCommands(new SetupKeepInstallFragment.StartStopInstallCommands(){
-                    @Override
-                    public void onStartInstallClicked() {
-                            startResourceInstall();
-                    }
-
-                    @Override
-                    public void onStopInstallClicked() {
-                        incomingRef = null;
-                        uiState = UiState.basic;
-                        uiStateScreenTransition();
-                    }
-                });
+                // the buttonCommands were already set when the fragment was attached, no need to set them here
                 fragment = startInstall;
                 break;
 
@@ -694,4 +684,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return dialog;
     }
 
+    //region StartStopInstallCommands implementation
+
+    @Override
+    public void onStartInstallClicked() {
+        startResourceInstall();
+    }
+
+    @Override
+    public void onStopInstallClicked() {
+        incomingRef = null;
+        uiState = UiState.basic;
+        uiStateScreenTransition();
+    }
+
+    //endregion
 }

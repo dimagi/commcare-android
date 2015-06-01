@@ -1,5 +1,6 @@
 package org.commcare.android.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -32,6 +33,15 @@ public class SetupKeepInstallFragment extends Fragment {
 
     public void setButtonCommands(final StartStopInstallCommands buttonCommands) {
         this.buttonCommands = buttonCommands;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if(!(activity instanceof StartStopInstallCommands)){
+            throw new ClassCastException(activity + " must implemement " + StartStopInstallCommands.class.getName());
+        }
+        setButtonCommands((StartStopInstallCommands) activity);
     }
 
     @Override
