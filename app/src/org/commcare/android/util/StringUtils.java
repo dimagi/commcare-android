@@ -163,6 +163,15 @@ public class StringUtils {
         }
     }
 
+    public static String getStringRobust(Context c, int resId, String[] args) {
+        String resourceName = c.getResources().getResourceEntryName(resId);
+        try {
+            return Localization.get("odk_" + resourceName, args);
+        } catch(NoLocalizedTextException e) {
+            return c.getString(resId, args);
+        }
+    }
+
     public static Spannable getStringSpannableRobust(Context c, int resId) {
         return getStringSpannableRobust(c, resId, "");
     }

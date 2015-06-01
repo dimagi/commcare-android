@@ -222,6 +222,7 @@ public class InstanceProvider extends ContentProvider {
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(INSTANCES_TABLE_NAME, null, values);
+        db.close();
 
         if (rowId > 0) {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
@@ -341,6 +342,7 @@ public class InstanceProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+        db.close();
 
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
@@ -386,6 +388,7 @@ public class InstanceProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+        db.close();
 
         // If we've changed a particular form instance's status, and not
         // created a new entry (hence count > 0 check), we need to mirror the

@@ -102,9 +102,9 @@ public class CaseDataContentProvider extends ContentProvider {
         case CaseDataAPI.MetadataColumns.MATCH_CASE:
             return queryCaseList(uri, projection, selection, selectionArgs, sortOrder);
         case CaseDataAPI.DataColumns.MATCH_DATA:
-            return queryCaseData(uri.getLastPathSegment(), projection, selection, selectionArgs, sortOrder);
+            return queryCaseData(uri.getLastPathSegment());
         case CaseDataAPI.AttachmentColumns.MATCH_ATTACHMENTS:
-            return queryCaseAttachments(uri.getLastPathSegment(), projection, selection, selectionArgs, sortOrder);
+            return queryCaseAttachments(uri.getLastPathSegment());
         case CaseDataAPI.IndexColumns.MATCH_INDEX:
             //Unimplemented
             return null;
@@ -207,7 +207,13 @@ public class CaseDataContentProvider extends ContentProvider {
         return retCursor;
     }
 
-    private Cursor queryCaseAttachments(String caseId, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    /**
+     *
+     * @param caseId the caseId of the pertinent case
+     * @return a Cursor over the multimedia attachments associated with this case
+     */
+
+    private Cursor queryCaseAttachments(String caseId) {
 
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
@@ -254,7 +260,7 @@ public class CaseDataContentProvider extends ContentProvider {
      * 
      * @return
      */
-    private Cursor queryCaseData(String caseId, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    private Cursor queryCaseData(String caseId) {
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
         

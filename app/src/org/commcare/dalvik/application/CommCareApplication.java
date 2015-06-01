@@ -1,6 +1,7 @@
 package org.commcare.dalvik.application;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,7 +16,6 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -47,7 +47,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
@@ -78,8 +77,6 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -119,11 +116,11 @@ public class CommCareApplication extends Application {
     private AndroidSessionWrapper sessionWrapper;
 
     // Generalize
-    private Object globalDbHandleLock = new Object();
+    private final Object globalDbHandleLock = new Object();
     private SQLiteDatabase globalDatabase;
 
     //Kind of an odd way to do this
-    boolean updatePending = false;
+    private boolean updatePending = false;
 
     private ArchiveFileRoot mArchiveFileRoot;
 
@@ -133,12 +130,17 @@ public class CommCareApplication extends Application {
     // it stays in memory.
     private CommCareSessionService mBoundService;
     private ServiceConnection mConnection;
-    private Object serviceLock = new Object();
+    private final Object serviceLock = new Object();
     // Has the CommCareSessionService been bound?
-    boolean mIsBound = false;
+    private boolean mIsBound = false;
     // Has CommCareSessionService initilization finished?
     // Important so we don't use the service before the db is initialized.
-    boolean mIsBinding = false;
+    private boolean mIsBinding = false;
+
+    /**
+     * Handler to receive notifications and show them the user using toast.
+     */
+    private final PopupHandler toaster = new PopupHandler(this);
 
     /*
      * (non-Javadoc)
@@ -193,23 +195,9 @@ public class CommCareApplication extends Application {
             pil.dumpToNewLogger();
         }
 
-//        PreferenceChangeListener listener = new PreferenceChangeListener(this);
-//        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(listener);
-
         intializeDefaultLocalizerData();
 
         //The fallback in case the db isn't installed 
-        resourceState = STATE_UNINSTALLED;
-
-        //We likely want to do this for all of the storage, this is just a way to deal with fixtures
-        //temporarily. 
-        //StorageManager.registerStorage("fixture", this.getStorage("fixture", FormInstance.class));
-
-//        Logger.registerLogger(new AndroidLogger(CommCareApplication._().getStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
-//        
-//        //Dump any logs we've been keeping track of in memory to storage
-//        pil.dumpToNewLogger();
-
         resourceState = initializeAppResources();
     }
 
@@ -272,27 +260,8 @@ public class CommCareApplication extends Application {
         tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
-    private void detachCallListener() {
-        if (listener != null) {
-            TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
-            tManager.listen(listener, PhoneStateListener.LISTEN_NONE);
-            listener = null;
-        }
-    }
-
     public CallInPhoneListener getCallListener() {
         return listener;
-    }
-
-
-    public int versionCode() {
-        try {
-            PackageManager pm = this.getPackageManager();
-            PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);
-            return pi.versionCode;
-        } catch (NameNotFoundException e) {
-            throw new RuntimeException("Android package name not available.");
-        }
     }
 
     public int[] getCommCareVersion() {
@@ -487,65 +456,8 @@ public class CommCareApplication extends Application {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onLowMemory()
-     */
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onTerminate()
-     */
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-    }
-
     public static CommCareApplication _() {
         return app;
-    }
-
-    /**
-     * This method goes through and identifies whether there are elements in the
-     * database which point to/expect files to exist on the file system, and clears
-     * out any records which refer to files that don't exist.
-     */
-    public void cleanUpDatabaseFileLinkages() throws SessionUnavailableException {
-        Vector<Integer> toDelete = new Vector<Integer>();
-
-        SqlStorage<FormRecord> storage = getUserStorage(FormRecord.class);
-
-        //Can't load the records outright, since we'd need to be logged in (The key is encrypted)
-        for (SqlStorageIterator iterator = storage.iterate(); iterator.hasMore(); ) {
-            int id = iterator.nextID();
-            String instanceRecordUri = storage.getMetaDataFieldForRecord(id, FormRecord.META_INSTANCE_URI);
-            if (instanceRecordUri == null) {
-                toDelete.add(id);
-                continue;
-            }
-
-            //otherwise, grab this record and see if the file's around
-
-            Cursor c = this.getContentResolver().query(Uri.parse(instanceRecordUri), new String[]{InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
-            if (!c.moveToFirst()) {
-                toDelete.add(id);
-            } else {
-                String path = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-                if (path == null || !new File(path).exists()) {
-                    toDelete.add(id);
-                }
-            }
-            c.close();
-        }
-
-        for (int recordid : toDelete) {
-            //this should go to the form record wipe cleanup task
-            storage.remove(recordid);
-        }
     }
 
     /**
@@ -632,7 +544,7 @@ public class CommCareApplication extends Application {
         int[] versions = this.getCommCareVersion();
         String ccv = "";
         for (int vn : versions) {
-            if (ccv != "") {
+            if (!"".equals(ccv)) {
                 ccv += ".";
             }
             ccv += vn;
@@ -701,7 +613,7 @@ public class CommCareApplication extends Application {
                     mIsBinding = false;
 
                     if (user != null) {
-                        getSession().logIn(user);
+                        getSession().startSession(user);
                         attachCallListener();
                         CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 
@@ -716,7 +628,7 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
-                            performArchivedFormPurge(getCurrentApp(), user);
+                            performArchivedFormPurge(getCurrentApp());
                         }
                     }
                 }
@@ -777,7 +689,7 @@ public class CommCareApplication extends Application {
         if (!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
             long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
 
-            long duration = (24 * 60 * 60 * 100) * (autoUpdateFreq == CommCarePreferences.FREQUENCY_DAILY ? 1 : 7);
+            long duration = (24 * 60 * 60 * 100) * (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq) ? 1 : 7);
 
             return isPending(lastUpdateCheck, duration);
         }
@@ -785,13 +697,12 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Check through user storage and identify whether there are any forms which can be purged
-     * from the device.
+     * Check through user storage and identify whether there are any forms
+     * which can be purged from the device.
      *
      * @param app  The current app
-     * @param user The user who's storage we're reviewing
      */
-    private void performArchivedFormPurge(CommCareApp app, User user) {
+    private void performArchivedFormPurge(CommCareApp app) {
         int daysForReview = -1;
         String daysToPurge = app.getAppPreferences().getString("cc-days-form-retain", "-1");
         try {
@@ -878,28 +789,29 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Whether automated stuff like autoupdates/syncing are valid and should be triggered.
+     * Whether automated stuff like auto-updates/syncing are valid and should
+     * be triggered.
      *
      * @return
      */
-    private boolean areAutomatedActionsValid() {
+    private boolean areAutomatedActionsInvalid() {
         try {
             if (User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType())) {
-                return false;
+                return true;
             }
         } catch (SessionUnavailableException sue) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public boolean isUpdatePending() {
-        if (!areAutomatedActionsValid()) {
+        if (areAutomatedActionsInvalid()) {
             return false;
         }
-        //We only set this to true occasionally, but in theory it could be set to false 
-        //from other factors, so turn it off if it is.
-        if (getPendingUpdateStatus() == false) {
+        // We only set this to true occasionally, but in theory it could be set
+        // to false from other factors, so turn it off if it is.
+        if (!getPendingUpdateStatus()) {
             updatePending = false;
         }
         return updatePending;
@@ -957,23 +869,9 @@ public class CommCareApplication extends Application {
 
     // Start - Error message Hooks
 
-    private int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
+    private final int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
 
-    ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
-
-    Handler toaster = new Handler() {
-        /*
-         * (non-Javadoc)
-         * @see android.os.Handler#handleMessage(android.os.Message)
-         */
-        @Override
-        public void handleMessage(Message m) {
-            NotificationMessage message = m.getData().getParcelable("message");
-            Toast.makeText(CommCareApplication.this,
-                    Localization.get("notification.for.details.wrapper", new String[]{message.getTitle()}),
-                    Toast.LENGTH_LONG).show();
-        }
-    };
+    private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
 
     public void reportNotificationMessage(NotificationMessage message) {
         reportNotificationMessage(message, false);
@@ -1047,7 +945,7 @@ public class CommCareApplication extends Application {
             NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             Vector<NotificationMessage> toRemove = new Vector<NotificationMessage>();
             for (NotificationMessage message : pendingMessages) {
-                if (category == null || message.getCategory() == category) {
+                if (category == null || category.equals(message.getCategory())) {
                     toRemove.add(message);
                 }
             }
@@ -1095,19 +993,16 @@ public class CommCareApplication extends Application {
 
         long lastRestore = prefs.getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
 
-        if (isPending(lastRestore, period)) {
-            return true;
-        }
-        return false;
+        return (isPending(lastRestore, period));
     }
 
     public synchronized boolean isSyncPending(boolean clearFlag) {
-        if (!areAutomatedActionsValid()) {
+        if (areAutomatedActionsInvalid()) {
             return false;
         }
         //We only set this to true occasionally, but in theory it could be set to false 
         //from other factors, so turn it off if it is.
-        if (getPendingSyncStatus() == false) {
+        if (!getPendingSyncStatus()) {
             syncPending = false;
         }
         if (!syncPending) {
@@ -1145,10 +1040,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * the
-     *
-     * @return a path to a file location that can be used to store a file temporarily and will be cleaned up as part of
-     * CommCare's application lifecycle
+     * @return a path to a file location that can be used to store a file
+     * temporarily and will be cleaned up as part of CommCare's application
+     * lifecycle
      */
     public String getTempFilePath() {
         return getAndroidFsTemp() + PropertyUtils.genUUID();
@@ -1157,4 +1051,42 @@ public class CommCareApplication extends Application {
     public ArchiveFileRoot getArchiveFileRoot() {
         return mArchiveFileRoot;
     }
+
+    /**
+     * Message handler that pops-up notifications to the user via toast.
+     */
+    private static class PopupHandler extends Handler {
+        /**
+         * Reference to the context used to show pop-ups (the parent class).
+         * Reference is weak to avoid memory leaks.
+         */
+        private final WeakReference<CommCareApplication> mActivity;
+
+        /**
+         * @param activity Is the context used to pop-up the toast message.
+         */
+        public PopupHandler(CommCareApplication activity) {
+            mActivity = new WeakReference<CommCareApplication>(activity);
+        }
+
+        /**
+         * Pops up the message to the user by way of toast
+         *
+         * @param m Has a 'message' parcel storing pop-up message text
+         */
+        @Override
+        public void handleMessage(Message m) {
+            NotificationMessage message = m.getData().getParcelable("message");
+
+            CommCareApplication activity = mActivity.get();
+
+            if (activity != null) {
+                Toast.makeText(activity,
+                        Localization.get("notification.for.details.wrapper",
+                            new String[]{message.getTitle()}),
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 }

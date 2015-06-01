@@ -27,6 +27,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
@@ -48,7 +49,6 @@ import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.logic.FileReferenceFactory;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
 import org.odk.collect.android.utilities.ApkUtils;
 import org.odk.collect.android.utilities.FileUtils;
 
@@ -127,9 +127,9 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         Uri theForm = form[0];
         
         //TODO: Selection=? helper
-        Cursor c = context.getContentResolver().query(theForm, new String[] {FormsColumns.FORM_FILE_PATH, FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+        Cursor c = context.getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
         if(!c.moveToFirst()) {throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString()); }
-        String formPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+        String formPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
 
         File formXml = new File(formPath);
         String formHash = FileUtils.getMd5Hash(formXml);
@@ -223,7 +223,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         // Remove previous forms
         ReferenceManager._().clearSession();
         
-        String formMediaPath = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
+        String formMediaPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
         
         if(formMediaPath != null) {
             ReferenceManager._().addSessionRootTranslator(

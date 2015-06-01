@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -42,9 +43,10 @@ import org.odk.collect.android.jr.extensions.IntentCallout;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class IntentWidget extends QuestionWidget implements IBinaryWidget {
+
     protected Button launchIntentButton;
     protected TextView mStringAnswer;
-    private boolean mWaitingForData;
+    protected boolean mWaitingForData;
     private Intent intent;
     protected IntentCallout ic;
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
@@ -54,13 +56,13 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         this.calloutId = calloutId;
     }
 
-
-    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic) {
+    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in,
+                        IntentCallout ic) {
         super(context, prompt);
-        
+
         this.intent = in;
         this.ic = ic;
-        
+
         mWaitingForData = false;
 
         makeTextView(prompt);
@@ -76,18 +78,22 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button_update));
+            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(),
+                    R.string.intent_callout_button_update));
             mStringAnswer.setText(s);
         }
+
         // finish complex layout
         addView(launchIntentButton);
         addView(mStringAnswer);
 
+
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
         if(s == null && "quick".equals(ic.getAppearance()) && !ic.getCancelled()){
+
             performCallout();
-        } else if(ic.getCancelled()){
-            //reset the cancelled flag
+        } else if (ic.getCancelled()) {
+            // reset the cancelled flag
             ic.setCancelled(false);
         }
     }
@@ -98,18 +104,20 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
         params.setMargins(7, 5, 7, 5);
 
-        // set button formatting
         launchIntentButton = new Button(getContext());
-        setButtonLabel();
-        launchIntentButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        launchIntentButton.setPadding(20, 20, 20, 20);
-        launchIntentButton.setEnabled(!prompt.isReadOnly());
-        launchIntentButton.setLayoutParams(params);
 
         String s = prompt.getAnswerText();
+        Spannable label;
         if (s != null) {
-            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button_update));
+            label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button_update);
+        } else{
+            label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button);
         }
+
+        WidgetUtils.setupButton(launchIntentButton,
+                label,
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // launch barcode capture intent on click
         launchIntentButton.setOnClickListener(new View.OnClickListener() {
@@ -125,31 +133,36 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         addView(launchIntentButton);
     }
 
-    public void performCallout(){
-        
+    public void performCallout() {
+
         mWaitingForData = true;
         try {
             //Set Data
             String data = mStringAnswer.getText().toString();
-            if(data != null && data != "") {
+            if (data != null && !"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
             
             ((Activity) getContext()).startActivityForResult(intent,
                 calloutId);
+
+
+            ((Activity)getContext()).startActivityForResult(intent,
+                    FormEntryActivity.INTENT_CALLOUT);
+
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
-                "Couldn't find intent for callout!", Toast.LENGTH_SHORT)
-                    .show();
+                    "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
             mWaitingForData = false;
         }
     }
-    
-    public void setButtonLabel(){
+
+    private void setButtonLabel(){
         if(ic.getButtonLabel() != null){
             launchIntentButton.setText(ic.getButtonLabel());
         } else{
-            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button));
+            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(),
+                        R.string.intent_callout_button));
         }
     }
 

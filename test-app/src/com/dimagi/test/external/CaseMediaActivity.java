@@ -1,7 +1,6 @@
 package com.dimagi.test.external;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,9 +14,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
+/**
+ * Test class used for testing the multimedia content provider of CommCareODK
+ */
+
 public class CaseMediaActivity extends Activity {
-    
-    public static final int KEY_REQUEST_CODE = 1;
+
+    public String CASE_URI_ROOT = "content://org.commcare.dalvik.case/casedb/";
 
     /*
      * (non-Javadoc)
@@ -29,12 +32,18 @@ public class CaseMediaActivity extends Activity {
         setContentView(R.layout.media_page);
         showCaseData(null, null);
     }
-    
-    
-    
-    protected void showCaseData(String selection, String[] selectionArgs) {
+
+
+    /**
+     *
+     * Queries CommCare ODK and displays a list of the currently loaded cases
+     *
+     * @param selection
+     * @param selectionArgs
+     */
+    private void showCaseData(String selection, String[] selectionArgs) {
         ListView la = (ListView)this.findViewById(R.id.list_view);
-        Cursor c = this.managedQuery(Uri.parse("content://org.commcare.dalvik.case/casedb/case"), null, selection, selectionArgs, null);
+        Cursor c = this.managedQuery(Uri.parse(CASE_URI_ROOT + "case"), null, selection, selectionArgs, null);
         
         final SimpleCursorAdapter sca = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item, c, new String[] {"case_name", "case_id"}, new int[] { android.R.id.text1, android.R.id.text2});
         
@@ -63,12 +72,17 @@ public class CaseMediaActivity extends Activity {
             
         });
     }
-    
-    protected void moveToMediaAdapter(String caseId) {
-        Cursor cursor = this.managedQuery(Uri.parse("content://org.commcare.dalvik.case/casedb/attachment/" + caseId), null, null, null, null);
+
+    /**
+     * Queries CommCareODK for the multimedia associate with this case and displays
+     * @param caseId
+     */
+
+    private void moveToMediaAdapter(String caseId) {
+        Cursor cursor = this.managedQuery(Uri.parse(CASE_URI_ROOT + "attachment/" + caseId), null, null, null, null);
 
         cursor.moveToFirst();
-        while (cursor.isAfterLast() == false) {
+        while (!cursor.isAfterLast()) {
 
             String filePath = cursor.getString(cursor.getColumnIndex("file-source"));
 
@@ -84,12 +98,5 @@ public class CaseMediaActivity extends Activity {
             cursor.moveToNext();
         }
 
-    }
-    /* (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 }
