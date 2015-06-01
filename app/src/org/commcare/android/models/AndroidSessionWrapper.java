@@ -304,8 +304,7 @@ public class AndroidSessionWrapper {
         // Walk backwards until we find something with a long detail
         while (session.getFrame().getSteps().size() > 0 &&
                 (!SessionFrame.STATE_DATUM_VAL.equals(session.getNeededData()) ||
-                        !(session.getNeededDatum() != null &&
-                                session.getNeededDatum().getLongDetail() != null))) {
+                        session.getNeededDatum().getLongDetail() == null)) {
             session.stepBack();
         }
         if(session.getFrame().getSteps().size() == 0) { return null;}
