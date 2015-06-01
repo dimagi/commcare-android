@@ -43,10 +43,10 @@ public class DeveloperPreferences extends PreferenceActivity {
      * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
      */
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final PreferenceManager prefMgr = getPreferenceManager();
+        PreferenceManager prefMgr = getPreferenceManager();
 
         prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
 
@@ -64,12 +64,12 @@ public class DeveloperPreferences extends PreferenceActivity {
      * @param matchingValue compare this to key lookup or defaultValue
      * @return boolean
      */
-    private static boolean doesPropertyMatch(final String key, final String defaultValue, final String matchingValue) {
-        final CommCareApp app = CommCareApplication._().getCurrentApp();
+    private static boolean doesPropertyMatch(String key, String defaultValue, String matchingValue) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
         if (app == null) {
             return defaultValue.equals(matchingValue);
         }
-        final SharedPreferences properties = app.getAppPreferences();
+        SharedPreferences properties = app.getAppPreferences();
         return properties.getString(key, defaultValue).equals(matchingValue);
     }
 
@@ -88,12 +88,12 @@ public class DeveloperPreferences extends PreferenceActivity {
     }
 
     public static boolean isGridMenuEnabled() {
-        final SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean isNewNavEnabled() {
-        final SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NAV_UI_ENABLED, CommCarePreferences.YES).equals(CommCarePreferences.YES);
     }
     
@@ -102,7 +102,7 @@ public class DeveloperPreferences extends PreferenceActivity {
     }
 
     public static boolean isListRefreshEnabled() {
-        final SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
@@ -113,7 +113,7 @@ public class DeveloperPreferences extends PreferenceActivity {
      * app version will be downloaed on upgrade.
      */
     public static boolean isNewestAppVersionEnabled() {
-        final SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 

@@ -96,7 +96,7 @@ public class PreferencesActivity extends PreferenceActivity implements
      * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
      */
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         mContext = this;
@@ -137,7 +137,7 @@ public class PreferencesActivity extends PreferenceActivity implements
             mSplashPathPreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
                 private void launchImageChooser() {
-                    final Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                     i.setType("image/*");
                     startActivityForResult(i, PreferencesActivity.IMAGE_CHOOSER);
                 }
@@ -148,9 +148,9 @@ public class PreferencesActivity extends PreferenceActivity implements
                  * @see android.preference.Preference.OnPreferenceClickListener#onPreferenceClick(android.preference.Preference)
                  */
                 @Override
-                public boolean onPreferenceClick(final Preference preference) {
+                public boolean onPreferenceClick(Preference preference) {
                     // if you have a value, you can clear it or select new.
-                    final CharSequence cs = mSplashPathPreference.getSummary();
+                    CharSequence cs = mSplashPathPreference.getSummary();
                     if (cs != null && cs.toString().contains("/")) {
 
                         final CharSequence[] items =
@@ -159,7 +159,7 @@ public class PreferencesActivity extends PreferenceActivity implements
                                     getString(R.string.use_odk_default)
                             };
 
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                         builder.setTitle(getString(R.string.change_splash_path));
                         builder.setNeutralButton(getString(R.string.cancel),
                             new DialogInterface.OnClickListener() {
@@ -168,7 +168,7 @@ public class PreferencesActivity extends PreferenceActivity implements
                         		 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
                         		 */
                                 @Override
-                                public void onClick(final DialogInterface dialog, final int id) {
+                                public void onClick(DialogInterface dialog, int id) {
                                     dialog.dismiss();
                                 }
                             });
@@ -178,7 +178,7 @@ public class PreferencesActivity extends PreferenceActivity implements
                         	 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
                         	 */
                             @Override
-                            public void onClick(final DialogInterface dialog, final int item) {
+                            public void onClick(DialogInterface dialog, int item) {
                                 if (items[item].equals(getString(R.string.select_another_image))) {
                                     launchImageChooser();
                                 } else {
@@ -187,7 +187,7 @@ public class PreferencesActivity extends PreferenceActivity implements
                                 }
                             }
                         });
-                        final AlertDialog alert = builder.create();
+                        AlertDialog alert = builder.create();
                         alert.show();
 
                     } else {
@@ -201,9 +201,9 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
-    private void setSplashPath(final String path) {
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        final Editor editor = sharedPreferences.edit();
+    private void setSplashPath(String path) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Editor editor = sharedPreferences.edit();
         editor.putString(KEY_SPLASH_PATH, path);
         editor.commit();
     }
@@ -256,7 +256,7 @@ public class PreferencesActivity extends PreferenceActivity implements
      * @see android.preference.PreferenceActivity#onActivityResult(int, int, android.content.Intent)
      */
     @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (resultCode == RESULT_CANCELED) {
             // request was canceled, so do nothing
@@ -268,16 +268,16 @@ public class PreferencesActivity extends PreferenceActivity implements
                 String sourceImagePath = null;
 
                 // get gp of chosen file
-                final Uri uri = intent.getData();
+                Uri uri = intent.getData();
                 if (uri.toString().startsWith("file")) {
                     sourceImagePath = uri.toString().substring(6);
                 } else {
-                    final String[] projection = {
+                    String[] projection = {
                         Images.Media.DATA
                     };
-                    final Cursor c = managedQuery(uri, projection, null, null, null);
+                    Cursor c = managedQuery(uri, projection, null, null, null);
                     startManagingCursor(c);
-                    final int i = c.getColumnIndexOrThrow(Images.Media.DATA);
+                    int i = c.getColumnIndexOrThrow(Images.Media.DATA);
                     c.moveToFirst();
                     sourceImagePath = c.getString(i);
                 }
@@ -433,7 +433,7 @@ public class PreferencesActivity extends PreferenceActivity implements
 
 
     private void updateFontSize() {
-        final ListPreference lp = (ListPreference) findPreference(KEY_FONT_SIZE);
+        ListPreference lp = (ListPreference) findPreference(KEY_FONT_SIZE);
         lp.setSummary(lp.getEntry());
     }
     
@@ -459,7 +459,7 @@ public class PreferencesActivity extends PreferenceActivity implements
 
         // We have a fixed URL for using Google's service.
         if (((ListPreference) findPreference(KEY_PROTOCOL)).getValue().equals("google")) {
-            final String submissionId =
+            String submissionId =
                 ((EditTextPreference) findPreference(KEY_GOOGLE_SUBMISSION)).getText();
             mServerUrlPreference.setText(googleServerBaseUrl + submissionId);
             updateServerUrl();
@@ -586,9 +586,9 @@ public class PreferencesActivity extends PreferenceActivity implements
 
 
     private InputFilter getReturnFilter() {
-        final InputFilter returnFilter = new InputFilter() {
-            public CharSequence filter(final CharSequence source, final int start, final int end, final Spanned dest,
-                    final int dstart, final int dend) {
+        InputFilter returnFilter = new InputFilter() {
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
+                    int dstart, int dend) {
                 for (int i = start; i < end; i++) {
                     if (Character.getType((source.charAt(i))) == Character.CONTROL) {
                         return "";
@@ -610,16 +610,16 @@ public class PreferencesActivity extends PreferenceActivity implements
         boolean progress = false;
         boolean nav = false;
         
-        private ProgressBarMode(final boolean progress, final boolean nav) { this.progress = progress; this.nav = nav; }
+        private ProgressBarMode(boolean progress, boolean nav) { this.progress = progress; this.nav = nav; }
         
         public boolean useNavigationBar() { return nav;} 
         public boolean useProgressBar() { return progress; }
     }
     
-    public static ProgressBarMode getProgressBarMode(final Context context) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        final boolean navBar = prefs.getBoolean(KEY_NAVIGATION_BAR, true);
-        final boolean progressBar = prefs.getBoolean(KEY_PROGRESS_BAR, true);
+    public static ProgressBarMode getProgressBarMode(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean navBar = prefs.getBoolean(KEY_NAVIGATION_BAR, true);
+        boolean progressBar = prefs.getBoolean(KEY_PROGRESS_BAR, true);
         if(!navBar && !progressBar) { return ProgressBarMode.None;}
         else if(!navBar && progressBar) { return ProgressBarMode.ProgressOnly;}
         else if(navBar && !progressBar) { return ProgressBarMode.NavBarNoProgress;}
@@ -627,7 +627,7 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
-    public static boolean showFirstScreen(final Context context) {
+    public static boolean showFirstScreen(Context context) {
         return !PreferencesActivity.getProgressBarMode(context).useNavigationBar() && 
                 PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PreferencesActivity.KEY_SHOW_START_SCREEN, true);
     }

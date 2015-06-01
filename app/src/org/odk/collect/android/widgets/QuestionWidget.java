@@ -49,7 +49,7 @@ public abstract class QuestionWidget extends LinearLayout {
     @SuppressWarnings("unused")
     private final static String t = "QuestionWidget";
 
-    private final LinearLayout.LayoutParams mLayout;
+    private LinearLayout.LayoutParams mLayout;
     protected FormEntryPrompt mPrompt;
 
     protected final int mQuestionFontsize;
@@ -77,11 +77,11 @@ public abstract class QuestionWidget extends LinearLayout {
     protected WidgetChangedListener widgetChangedListener;
 
 
-    public QuestionWidget(final Context context, final FormEntryPrompt p) {
+    public QuestionWidget(Context context, FormEntryPrompt p) {
         this(context, p, null);
     }
 
-    public QuestionWidget(final Context context, final FormEntryPrompt p, final WidgetChangedListener w){
+    public QuestionWidget(Context context, FormEntryPrompt p, WidgetChangedListener w){
         super(context);
 
         //this is pretty sketch but is the only way to make the required background to work trivially for now
@@ -94,7 +94,7 @@ public abstract class QuestionWidget extends LinearLayout {
         this.setOnClickListener(new OnClickListener() {
 
             @Override
-            public void onClick(final View v) {
+            public void onClick(View v) {
                 QuestionWidget.this.acceptFocus();
             }
 
@@ -103,11 +103,11 @@ public abstract class QuestionWidget extends LinearLayout {
         hasListener = (w != null);
 
 
-        final SharedPreferences settings =
+        SharedPreferences settings =
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-        final String question_font =
+        String question_font =
                 settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
-        mQuestionFontsize = Integer.valueOf(question_font).intValue();
+        mQuestionFontsize = new Integer(question_font).intValue();
         mAnswerFontsize = mQuestionFontsize + 2;
 
         mPrompt = p;
@@ -116,7 +116,7 @@ public abstract class QuestionWidget extends LinearLayout {
         setGravity(Gravity.TOP);
         
         //TODO: This whole view should probably be inflated somehow 
-        final int padding = this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
+        int padding = this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
         setPadding(padding, 8, padding, 8);
 
         mLayout =
@@ -136,7 +136,7 @@ public abstract class QuestionWidget extends LinearLayout {
     }
 
 
-    private void addHelpPlaceholder(final FormEntryPrompt p) {
+    private void addHelpPlaceholder(FormEntryPrompt p) {
         if (!p.hasHelp()) {
             return;
         }
@@ -152,7 +152,7 @@ public abstract class QuestionWidget extends LinearLayout {
         final FormEntryPrompt prompt = p;
         trigger.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(final View v) {
+            public void onClick(View v) {
                 trigger.setImageResource(R.drawable.icon_info_fill_lightcool);
                 fireHelpText(prompt, new Runnable() {
                     @Override
@@ -164,13 +164,13 @@ public abstract class QuestionWidget extends LinearLayout {
             }
         });
         trigger.setId(847294011);
-        final LinearLayout triggerLayout = new LinearLayout(getContext());
+        LinearLayout triggerLayout = new LinearLayout(getContext());
         triggerLayout.setOrientation(LinearLayout.HORIZONTAL);
         triggerLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         triggerLayout.setGravity(Gravity.RIGHT);
         triggerLayout.addView(trigger);
 
-        final MediaLayout helpLayout = createHelpLayout(p);
+        MediaLayout helpLayout = createHelpLayout(p);
         helpLayout.setBackgroundResource(R.color.very_light_blue);
         helpPlaceholder.addView(helpLayout);
 
@@ -198,20 +198,20 @@ public abstract class QuestionWidget extends LinearLayout {
 
 
     private class URLSpanNoUnderline extends URLSpan {
-        public URLSpanNoUnderline(final String url) {
+        public URLSpanNoUnderline(String url) {
             super(url);
         }
         /*
          * (non-Javadoc)
          * @see android.text.style.ClickableSpan#updateDrawState(android.text.TextPaint)
          */
-        @Override public void updateDrawState(final TextPaint ds) {
+        @Override public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
         }
     }
 
-    public void notifyOnScreen(final String text, final boolean strong){
+    public void notifyOnScreen(String text, boolean strong){
         notifyOnScreen(text, strong, true);
     }
     
@@ -222,7 +222,7 @@ public abstract class QuestionWidget extends LinearLayout {
      * @param requestFocus If true, bring focus to this question.
      */
     @SuppressLint("NewApi")
-    public void notifyOnScreen(final String text, final boolean strong, final boolean requestFocus){
+    public void notifyOnScreen(String text, boolean strong, boolean requestFocus){
         if(strong){
             ViewUtil.setBackgroundRetainPadding(this, this.getContext().getResources().getDrawable(R.drawable.bubble_invalid_modern));
         } else{
@@ -242,7 +242,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 focusPending = requestFocus;
             }
         }
-        final TextView messageView = (TextView)this.toastView.findViewById(R.id.message);
+        TextView messageView = (TextView)this.toastView.findViewById(R.id.message);
         messageView.setText(text);
 
         //If the toastView already exists, we can just scroll to it right now
@@ -252,15 +252,15 @@ public abstract class QuestionWidget extends LinearLayout {
         }
     }
 
-    public void notifyWarning(final String text) {
+    public void notifyWarning(String text) {
         notifyOnScreen(text, false);
     }
 
-    public void notifyInvalid(final String text) {
+    public void notifyInvalid(String text) {
         notifyOnScreen(text, true);
     }
     
-    public void notifyInvalid(final String text, final boolean requestFocus) {
+    public void notifyInvalid(String text, boolean requestFocus) {
         notifyOnScreen(text, true, requestFocus);
     }
 
@@ -271,21 +271,21 @@ public abstract class QuestionWidget extends LinearLayout {
      * on the screen. If this view is smaller than the viewable area available, it
      * will be fully visible in addition to the subview.
      */
-    private void requestChildViewOnScreen(final View child) {
+    private void requestChildViewOnScreen(View child) {
         //Take focus so the user can be prepared to interact with this question, since
         //they will need to be fixing the input
         acceptFocus();
 
         //Get the rectangle that wants to put itself on the screen
-        final Rect vitalPortion = new Rect();
+        Rect vitalPortion = new Rect();
         child.getDrawingRect(vitalPortion);
 
         //Save a reference to it in case we have to manipulate it later.
-        final Rect vitalPortionSaved = new Rect();
+        Rect vitalPortionSaved = new Rect();
         child.getDrawingRect(vitalPortionSaved);
 
         //Then get the bounding rectangle for this whole view.
-        final Rect wholeView = new Rect();
+        Rect wholeView = new Rect();
         this.getDrawingRect(wholeView);
 
         //If we don't know enough about the screen, just default to asking to see the
@@ -306,8 +306,8 @@ public abstract class QuestionWidget extends LinearLayout {
         //but the base case is just to see if we can get the view onto the screen from
         //the bottom or the top
 
-        final int topY = wholeView.top;
-        final int bottomY = wholeView.bottom;
+        int topY = wholeView.top;
+        int bottomY = wholeView.bottom;
 
         //shrink the view to contain only the current frame size.
         wholeView.inset(0, (wholeView.height() - mFrameHeight) / 2);
@@ -338,7 +338,7 @@ public abstract class QuestionWidget extends LinearLayout {
         child.requestRectangleOnScreen(vitalPortionSaved);
     }
 
-    protected void onLayout(final boolean changed, final int l, final int t, final int r, final int b) {
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
         //If we're coming back in after we just laid out adding a new element that needs
@@ -350,18 +350,18 @@ public abstract class QuestionWidget extends LinearLayout {
                 //we don't wanna crash. Look here if focus isn't getting grabbed
                 //for some reason (there's no other negative consequence)
             } else {
-                final TextView messageView = (TextView)this.toastView.findViewById(R.id.message);
+                TextView messageView = (TextView)this.toastView.findViewById(R.id.message);
                 requestChildViewOnScreen(messageView);
             }
         }
     }
 
-    private void stripUnderlines(final TextView textView) {
-        final Spannable s = (Spannable)textView.getText();
-        final URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
+    private void stripUnderlines(TextView textView) {
+        Spannable s = (Spannable)textView.getText();
+        URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
         for (URLSpan span: spans) {
-            final int start = s.getSpanStart(span);
-            final int end = s.getSpanEnd(span);
+            int start = s.getSpanStart(span);
+            int end = s.getSpanEnd(span);
             s.removeSpan(span);
             span = new URLSpanNoUnderline(span.getURL());
             s.setSpan(span, start, end, 0);
@@ -376,15 +376,15 @@ public abstract class QuestionWidget extends LinearLayout {
      * TextView to fit the rest of the space, then the image if applicable.
      */
     protected void addQuestionText(final FormEntryPrompt p) {
-        final String imageURI = p.getImageText();
-        final String audioURI = p.getAudioText();
-        final String videoURI = p.getSpecialFormQuestionText("video");
-        final String qrCodeContent = p.getSpecialFormQuestionText("qrcode");
-        final String markdownText = p.getMarkdownText();
+        String imageURI = p.getImageText();
+        String audioURI = p.getAudioText();
+        String videoURI = p.getSpecialFormQuestionText("video");
+        String qrCodeContent = p.getSpecialFormQuestionText("qrcode");
+        String markdownText = p.getMarkdownText();
 
 
         // shown when image is clicked
-        final String bigImageURI = p.getSpecialFormQuestionText("big-image");
+        String bigImageURI = p.getSpecialFormQuestionText("big-image");
 
         
         mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
@@ -420,14 +420,14 @@ public abstract class QuestionWidget extends LinearLayout {
         }
 
         // Create the layout for audio, image, text
-        final MediaLayout mediaLayout = new MediaLayout(getContext());
+        MediaLayout mediaLayout = new MediaLayout(getContext());
 
         mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent);
 
         addView(mediaLayout, mLayout);
     }
 
-    private void fireHelpText(final FormEntryPrompt prompt) {
+    private void fireHelpText(FormEntryPrompt prompt) {
         fireHelpText(prompt, null);
     }
 
@@ -435,7 +435,7 @@ public abstract class QuestionWidget extends LinearLayout {
     * Display extra help, triggered by user request.
     * @param prompt
     */
-    private void fireHelpText(final FormEntryPrompt prompt, final Runnable r) {
+    private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
         if (!prompt.hasHelp()) {
             return;
         }                               
@@ -446,17 +446,17 @@ public abstract class QuestionWidget extends LinearLayout {
         if(!PreferenceManager.getDefaultSharedPreferences(this.getContext().getApplicationContext()).
                 getBoolean(PreferencesActivity.KEY_HELP_MODE_TRAY, false)) {
 
-            final AlertDialog mAlertDialog = new AlertDialog.Builder(this.getContext()).create();
+            AlertDialog mAlertDialog = new AlertDialog.Builder(this.getContext()).create();
             mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
             mAlertDialog.setTitle("");
 
-            final ScrollView scrollView = new ScrollView(this.getContext());
+            ScrollView scrollView = new ScrollView(this.getContext());
             scrollView.addView(createHelpLayout(prompt));
             mAlertDialog.setView(scrollView);
             
-            final DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+            DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(final DialogInterface dialog, final int i) {
+                public void onClick(DialogInterface dialog, int i) {
                     switch (i) {
                     case DialogInterface.BUTTON1:
                         dialog.cancel();
@@ -483,10 +483,10 @@ public abstract class QuestionWidget extends LinearLayout {
      * @param prompt
      * @return
      */
-    private MediaLayout createHelpLayout(final FormEntryPrompt prompt) {
-        final TextView text = new TextView(getContext());
+    private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
+        TextView text = new TextView(getContext());
 
-        final String markdownText =  prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
+        String markdownText =  prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
 
         if (markdownText != null) {
             text.setText(forceMarkdown(markdownText));
@@ -495,17 +495,17 @@ public abstract class QuestionWidget extends LinearLayout {
             text.setText(prompt.getHelpText());
         }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
-        final int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
+        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
         
-        final MediaLayout helpLayout = new MediaLayout(getContext());
+        MediaLayout helpLayout = new MediaLayout(getContext());
         helpLayout.setAVT(
-                text,
-                prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_AUDIO),
-                prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_IMAGE),
-                prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
-                null
+            text, 
+            prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_AUDIO),
+            prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_IMAGE),
+            prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
+            null
         );
         helpLayout.setPadding(padding, padding, padding, padding);
 
@@ -518,10 +518,10 @@ public abstract class QuestionWidget extends LinearLayout {
 
         v.getLayoutParams().height = 0;
         v.setVisibility(View.VISIBLE);
-        final Animation a = new Animation()
+        Animation a = new Animation()
         {
             @Override
-            protected void applyTransformation(final float interpolatedTime, final Transformation t) {
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
                 v.getLayoutParams().height = interpolatedTime == 1
                         ? LayoutParams.WRAP_CONTENT
                                 : (int)(targetHeight * interpolatedTime);
@@ -542,10 +542,10 @@ public abstract class QuestionWidget extends LinearLayout {
     public static void collapse(final View v) {
         final int initialHeight = v.getMeasuredHeight();
 
-        final Animation a = new Animation()
+        Animation a = new Animation()
         {
             @Override
-            protected void applyTransformation(final float interpolatedTime, final Transformation t) {
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
                 if(interpolatedTime == 1){
                     v.setVisibility(View.GONE);
                 }else{
@@ -565,8 +565,8 @@ public abstract class QuestionWidget extends LinearLayout {
         v.startAnimation(a);
     }
 
-    public void updateFrameSize(final int width, final int height) {
-        final int maxHintHeight = height / 4;
+    public void updateFrameSize(int width, int height) {
+        int maxHintHeight = height / 4;
         if(mHintText != null) {
             mHintText.updateMaxHeight(maxHintHeight);
         }
@@ -576,8 +576,8 @@ public abstract class QuestionWidget extends LinearLayout {
     /**
      * Add a TextView containing the help text.
      */
-    private void addHintText(final FormEntryPrompt p) {
-        final String s = p.getHintText();
+    private void addHintText(FormEntryPrompt p) {
+        String s = p.getHintText();
 
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(),this.getMaxHintHeight());
@@ -612,7 +612,7 @@ public abstract class QuestionWidget extends LinearLayout {
     }
 
     protected IAnswerData getCurrentAnswer() {
-        final IAnswerData current = mPrompt.getAnswerValue();
+        IAnswerData current = mPrompt.getAnswerValue();
         if(current == null) { return null; }
         return getTemplate().cast(current.uncast());
     }
@@ -630,7 +630,7 @@ public abstract class QuestionWidget extends LinearLayout {
         return mPrompt.getIndex();
     }
 
-    public void setChangedListener(final WidgetChangedListener wcl){
+    public void setChangedListener(WidgetChangedListener wcl){
         widgetChangedListener = wcl;
         hasListener = true;
     }
@@ -645,13 +645,13 @@ public abstract class QuestionWidget extends LinearLayout {
         }
     }
 
-    public void checkFileSize(final File file){
+    public void checkFileSize(File file){
         if(FileUtils.isFileOversized(file)){
             this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file) + ""));
         }
     }
 
-    public void checkFileSize(final String filepath){
+    public void checkFileSize(String filepath){
         checkFileSize(new File(filepath));
     }
 
@@ -660,11 +660,11 @@ public abstract class QuestionWidget extends LinearLayout {
      * copied from CommCareActivity
      */
 
-    public Spannable forceMarkdown(final String text){
+    public Spannable forceMarkdown(String text){
         return MarkupUtil.returnMarkdown(getContext(), text);
     }
 
-    public Spannable stylize(final String text){
+    public Spannable stylize(String text){
         return MarkupUtil.styleSpannable(getContext(), text);
     }
 }

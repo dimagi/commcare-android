@@ -43,11 +43,11 @@ public class MediaLayout extends RelativeLayout {
     private ResizingImageView mImageView;
     private TextView mMissingImage;
     
-    private final int minimumHeight =-1;
-    private final int maximumHeight =-1;
+    private int minimumHeight =-1;
+    private int maximumHeight =-1;
 
 
-    public MediaLayout(final Context c) {
+    public MediaLayout(Context c) {
         super(c);
 
         mView_Text = null;
@@ -57,26 +57,26 @@ public class MediaLayout extends RelativeLayout {
         mVideoButton = null;
     }
     
-    public void setAVT(final TextView text, final String audioURI, final String imageURI, final String videoURI, final String bigImageURI) {
+    public void setAVT(TextView text, String audioURI, String imageURI, final String videoURI, final String bigImageURI) {
         setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null);
     }
 
-    public void setAVT(final TextView text, final String audioURI, final String imageURI, final String videoURI, final String bigImageURI, final String qrCodeContent) {
+    public void setAVT(TextView text, String audioURI, String imageURI, final String videoURI, final String bigImageURI, final String qrCodeContent) {
         mView_Text = text;
 
         // Layout configurations for our elements in the relative layout
-        final RelativeLayout.LayoutParams textParams =
+        RelativeLayout.LayoutParams textParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        final RelativeLayout.LayoutParams audioParams =
+        RelativeLayout.LayoutParams audioParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        final RelativeLayout.LayoutParams imageParams =
+        RelativeLayout.LayoutParams imageParams =
             new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         imageParams.addRule(CENTER_IN_PARENT);
-        final RelativeLayout.LayoutParams videoParams =
+        RelativeLayout.LayoutParams videoParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         
-        final RelativeLayout.LayoutParams topPaneParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        final RelativeLayout topPane = new RelativeLayout(this.getContext());
+        RelativeLayout.LayoutParams topPaneParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        RelativeLayout topPane = new RelativeLayout(this.getContext());
         topPane.setId(2342134);
         
         this.addView(topPane, topPaneParams);
@@ -97,36 +97,36 @@ public class MediaLayout extends RelativeLayout {
             mVideoButton.setOnClickListener(new OnClickListener() {
 
                 @Override
-                public void onClick(final View v) {
+                public void onClick(View v) {
                     String videoFilename = "";
                     try {
                         videoFilename =
                             ReferenceManager._().DeriveReference(videoURI).getLocalURI();
-                    } catch (final InvalidReferenceException e) {
+                    } catch (InvalidReferenceException e) {
                         Log.e(t, "Invalid reference exception");
                         e.printStackTrace();
                     }
 
-                    final File videoFile = new File(videoFilename);
+                    File videoFile = new File(videoFilename);
                     if (!videoFile.exists()) {
                         // We should have a video clip, but the file doesn't exist.
-                        final String errorMsg =
+                        String errorMsg =
                             getContext().getString(R.string.file_missing, videoFilename);
                         Log.e(t, errorMsg);
                         Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                         return;
                     }
 
-                    final Intent i = new Intent("android.intent.action.VIEW");
+                    Intent i = new Intent("android.intent.action.VIEW");
                     i.setDataAndType(Uri.fromFile(videoFile), "video/*");
                     try {
-                        final String uri = Uri.fromFile(videoFile).getPath().replaceAll("^.*\\/", "");
+                        String uri = Uri.fromFile(videoFile).getPath().replaceAll("^.*\\/", "");
                         Logger.log("media", "start " + uri);
                         ((Activity) getContext()).startActivity(i);
-                    } catch (final ActivityNotFoundException e) {
+                    } catch (ActivityNotFoundException e) {
                         Toast.makeText(getContext(),
                             getContext().getString(R.string.activity_not_found, "view video"),
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT);
                     }
                 }
 
@@ -154,7 +154,7 @@ public class MediaLayout extends RelativeLayout {
             topPane.addView(mAudioButton, audioParams);
             topPane.addView(mVideoButton, videoParams);
         }
-        final boolean textVisible = (mView_Text.getVisibility() != GONE);
+        boolean textVisible = (mView_Text.getVisibility() != GONE);
         if (textVisible) {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             topPane.addView(mView_Text, textParams);
@@ -165,21 +165,21 @@ public class MediaLayout extends RelativeLayout {
         
         View imageView= null;
         if(qrCodeContent != null ) {
-            final Bitmap image;
-            final Display display =
+            Bitmap image;
+            Display display =
                     ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
                             .getDefaultDisplay();
 
             
             //see if we're doing a new QR code display
             if(qrCodeContent != null) {
-                final int screenWidth = display.getWidth();
-                final int screenHeight = display.getHeight();
+                int screenWidth = display.getWidth();
+                int screenHeight = display.getHeight();
                 
-                final int minimumDim = Math.min(screenWidth,  screenHeight);
+                int minimumDim = Math.min(screenWidth,  screenHeight);
 
                 try {
-                    final QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrCodeContent,minimumDim);
+                    QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrCodeContent,minimumDim);
                 
                     image = qrCodeEncoder.encodeAsBitmap();
                     
@@ -192,7 +192,7 @@ public class MediaLayout extends RelativeLayout {
                     //mImageView.resizeMaxMin(minimumHeight, maximumHeight);
                     
                     imageView = mImageView;
-                } catch(final Exception e) {
+                } catch(Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -200,8 +200,8 @@ public class MediaLayout extends RelativeLayout {
         } else if (imageURI != null) {
             try {
                 
-                final DisplayMetrics metrics = this.getContext().getResources().getDisplayMetrics();
-                final int maxWidth = metrics.widthPixels;
+                DisplayMetrics metrics = this.getContext().getResources().getDisplayMetrics();
+                int maxWidth = metrics.widthPixels;
                 int maxHeight = metrics.heightPixels;
                 
                 // subtract height for textviewa and buttons, if present
@@ -226,17 +226,17 @@ public class MediaLayout extends RelativeLayout {
                 if (imageFile.exists()) {
                     Bitmap b = null;
                     try {
-                        final Display display =
+                        Display display =
                                 ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
                                         .getDefaultDisplay();
 
 
-                        final int screenWidth = display.getWidth();
-                        final int screenHeight = display.getHeight();
+                        int screenWidth = display.getWidth();
+                        int screenHeight = display.getHeight();
                         b =
                             FileUtils
                                     .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
-                    } catch (final OutOfMemoryError e) {
+                    } catch (OutOfMemoryError e) {
                         errorMsg = "ERROR: " + e.getMessage();
                     }
 
@@ -274,7 +274,7 @@ public class MediaLayout extends RelativeLayout {
                     mMissingImage.setId(234873453);
                     imageView = mMissingImage;
                 }
-            } catch (final InvalidReferenceException e) {
+            } catch (InvalidReferenceException e) {
                 Log.e(t, "image invalid reference exception");
                 e.printStackTrace();
             }
@@ -306,8 +306,8 @@ public class MediaLayout extends RelativeLayout {
      * 
      * @param v
      */
-    public void addDivider(final ImageView v) {
-        final RelativeLayout.LayoutParams dividerParams =
+    public void addDivider(ImageView v) {
+        RelativeLayout.LayoutParams dividerParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         if (mImageView != null) {
             dividerParams.addRule(RelativeLayout.BELOW, mImageView.getId());
@@ -329,7 +329,7 @@ public class MediaLayout extends RelativeLayout {
 
 
     @Override
-    protected void onWindowVisibilityChanged(final int visibility) {
+    protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
         if (visibility != View.VISIBLE) {
             if (mAudioButton != null) {
