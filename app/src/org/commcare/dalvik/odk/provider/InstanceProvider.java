@@ -208,10 +208,10 @@ public class InstanceProvider extends ContentProvider {
 
         // Should we link this instance to the session's form record, or create
         // a new, unindexed one?
-        boolean linkToSession = false;
+        boolean linkToSession = true;
         if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
             values.remove(InstanceProviderAPI.UNINDEXED_SUBMISSION);
-            linkToSession = true;
+            linkToSession = false;
         }
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -223,23 +223,23 @@ public class InstanceProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(instanceUri, null);
 
             if (linkToSession) {
+                try {
+                    linkToSessionFormRecord(instanceUri);
+                } catch (Exception e) {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            } else {
                 // Forms with this flag are being loaded onto the phone
                 // manually and hence shouldn't be attached to the FormRecord
                 // in the current session
                 String xmlns = values.getAsString(InstanceColumns.JR_FORM_ID);
 
                 SecretKey key = CommCareApplication._().createNewSymetricKey();
-                FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED, 
+                FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
                         xmlns, key.getEncoded(), null, new Date(0));
                 IStorageUtilityIndexed<FormRecord> storage =
-                    CommCareApplication._().getUserStorage(FormRecord.class);
+                        CommCareApplication._().getUserStorage(FormRecord.class);
                 storage.write(r);
-            } else {
-                try {
-                    linkToSessionFormRecord(instanceUri);
-                } catch (Exception e) {
-                    throw new SQLException("Failed to insert row into " + uri);
-                }
             }
 
             return instanceUri;
@@ -467,7 +467,7 @@ public class InstanceProvider extends ContentProvider {
      * @param instanceUri points to a concrete instance we want to register
      */
     private void linkToSessionFormRecord(Uri instanceUri) {
-        if (getType(instanceUri) != InstanceColumns.CONTENT_ITEM_TYPE) {
+        if (!InstanceColumns.CONTENT_ITEM_TYPE.equals(getType(instanceUri))) {
             Log.w(t, "Tried to link a FormRecord to a URI that doesn't point " +
                     "to a concrete instance.");
             return;
