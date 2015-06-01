@@ -551,41 +551,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-    /**
-     * Debug method to toast a view's ID whenever it is clicked.
-     */
-    private void setClickListenersForEverything() {
-        if (BuildConfig.DEBUG) {
-            final ViewGroup layout = (ViewGroup) findViewById(android.R.id.content);
-            final LinkedList<View> views = new LinkedList<View>();
-            views.add(layout);
-            for (int i = 0; !views.isEmpty(); i++) {
-                final View child = views.getFirst();
-                views.removeFirst();
-                Log.i("GetID", "Adding onClickListener to view " + child);
-                child.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        String vid;
-                        try {
-                            vid = "View id is: " + v.getResources().getResourceName(v.getId()) + " ( " + v.getId() + " )";
-                        } catch (final Resources.NotFoundException excp) {
-                            vid = "View id is: " + v.getId();
-                        }
-                        Log.i("CLK", vid);
-                    }
-                });
-                if(child instanceof ViewGroup) {
-                    final ViewGroup vg = (ViewGroup) child;
-                    for (int j = 0; j < vg.getChildCount(); j++) {
-                        final View gchild = vg.getChildAt(j);
-                        if (!views.contains(gchild)) views.add(gchild);
-                    }
-                }
-            }
-        }
-    }
-
     public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
 
     /*

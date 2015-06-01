@@ -4,6 +4,8 @@
 package org.commcare.android.view;
 
 import java.io.File;
+
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -13,6 +15,7 @@ import org.odk.collect.android.utilities.FileUtils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -22,6 +25,7 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
@@ -32,6 +36,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
+import java.util.LinkedList;
 
 /**
  * Utilities for converting CommCare UI diplsay details into Android objects 
@@ -123,5 +128,40 @@ public final class ViewUtil {
             v.setBackgroundDrawable(background);
         }
         v.setPadding(padding[0],padding[1], padding[2], padding[3]);
+    }
+
+    /**
+     * Debug method to toast a view's ID whenever it is clicked.
+     */
+    public static void setClickListenersForEverything(Activity act) {
+        if (BuildConfig.DEBUG) {
+            final ViewGroup layout = (ViewGroup) act.findViewById(android.R.id.content);
+            final LinkedList<View> views = new LinkedList<View>();
+            views.add(layout);
+            for (int i = 0; !views.isEmpty(); i++) {
+                final View child = views.getFirst();
+                views.removeFirst();
+                Log.i("GetID", "Adding onClickListener to view " + child);
+                child.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(final View v) {
+                        String vid;
+                        try {
+                            vid = "View id is: " + v.getResources().getResourceName(v.getId()) + " ( " + v.getId() + " )";
+                        } catch (final Resources.NotFoundException excp) {
+                            vid = "View id is: " + v.getId();
+                        }
+                        Log.i("CLK", vid);
+                    }
+                });
+                if(child instanceof ViewGroup) {
+                    final ViewGroup vg = (ViewGroup) child;
+                    for (int j = 0; j < vg.getChildCount(); j++) {
+                        final View gchild = vg.getChildAt(j);
+                        if (!views.contains(gchild)) views.add(gchild);
+                    }
+                }
+            }
+        }
     }
 }
