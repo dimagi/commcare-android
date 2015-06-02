@@ -7,7 +7,6 @@
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
     >
-    <!--android:background="@drawable/grey_bordered_box"-->
 
     <TextView
         android:id="@+id/detail_type_text"
@@ -35,7 +34,6 @@
             android:text="Value really big here so it must fit in more than one line"
             android:scrollHorizontally="false"
             android:visibility="visible" />
-        <!--android:textAppearance="@style/EntityItemText"-->
 
         <Button
             android:id="@+id/detail_value_phone"

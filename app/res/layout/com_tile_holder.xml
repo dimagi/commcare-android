@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:background="@color/cc_brand_text"
         >
-        <!--android:background="@drawable/border_bottom_black"-->
 
         <FrameLayout
             android:id="@+id/com_tile_holder_frame"
