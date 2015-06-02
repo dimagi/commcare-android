@@ -77,7 +77,6 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
@@ -2829,10 +2828,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return status as determined in FormEntryController
      */
     public int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
-
-        ACRAUtil.addCustomData(ACRAUtil.LAST_ANSWER_DATA_TEXT, (answer == null ? "null" : answer.getDisplayText()));
-        ACRAUtil.addCustomData(ACRAUtil.LAST_ANSWER_DATA_VALUE, (answer == null || answer.getValue() == null ? "null" : answer.getValue().toString()));
-        ACRAUtil.addCustomData(ACRAUtil.LAST_INDEX, (index == null ? "null" : index.toString()));
 
         try {
             if (evaluateConstraints) {
