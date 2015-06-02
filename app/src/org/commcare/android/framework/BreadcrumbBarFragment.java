@@ -63,7 +63,7 @@ public class BreadcrumbBarFragment extends Fragment {
      * Fragment is first created.
      */
       @Override
-      public void onCreate(final Bundle savedInstanceState) {
+      public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
      
         // Retain this fragment across configuration changes.
@@ -82,12 +82,12 @@ public class BreadcrumbBarFragment extends Fragment {
      * reference to the newly created Activity after each configuration change.
      */
     @Override
-    public void onAttach(final Activity activity) {
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
         
         breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
 
-        final ActionBar actionBar = activity.getActionBar();
+        ActionBar actionBar = activity.getActionBar();
 
         if(!breadCrumbsEnabled) {
             configureSimpleNav(activity, actionBar);
@@ -98,7 +98,7 @@ public class BreadcrumbBarFragment extends Fragment {
         this.tile = findAndLoadCaseTile(activity);
     }     
         
-    private void configureSimpleNav(final Activity activity, final ActionBar actionBar) {
+    private void configureSimpleNav(Activity activity, ActionBar actionBar) {
         String title = null;
         String local = null;
         if(activity instanceof CommCareActivity) {
@@ -125,7 +125,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
 
 
-    private void attachBreadcrumbBar(final Activity activity, final ActionBar actionBar) {
+    private void attachBreadcrumbBar(Activity activity, ActionBar actionBar) {
         String title = null;
         
         //make sure we're in the right mode
@@ -140,32 +140,32 @@ public class BreadcrumbBarFragment extends Fragment {
         //We need to get the amount that each item should "bleed" over to the left, and move the whole widget that
         //many pixels. This replicates the "overlap" space that each piece of the bar has on the next piece for
         //the left-most element.
-        final int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_bleed));
-        final LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+        int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_bleed));
+        LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
         p.leftMargin = buffer;
 
         activity.setTitle("");
         actionBar.setDisplayShowHomeEnabled(false);
     }
     
-    public static void expand(final Activity activity, final View v) {
-        final Display display = activity.getWindowManager().getDefaultDisplay();
+    public static void expand(Activity activity, final View v) {
+        Display display = activity.getWindowManager().getDefaultDisplay();
         
-        final int specHeight = MeasureSpec.makeMeasureSpec(display.getHeight(), MeasureSpec.AT_MOST);
+        int specHeight = MeasureSpec.makeMeasureSpec(display.getHeight(), MeasureSpec.AT_MOST);
 
         
         v.measure(LayoutParams.MATCH_PARENT, specHeight);
         final int targetHeight = v.getMeasuredHeight();
 
         v.getLayoutParams().height = 0;
-        final RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
         v.setVisibility(View.VISIBLE);
-        final Animation a = new Animation()
+        Animation a = new Animation()
         {
             @Override
-            protected void applyTransformation(final float interpolatedTime, final Transformation t) {
-                final RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
                 
                 if(interpolatedTime == 1) {
                     lp.height = 0;
@@ -191,17 +191,17 @@ public class BreadcrumbBarFragment extends Fragment {
     public static void collapse(final View v, final Runnable postExecuteLambda) {
         final int initialHeight = v.getMeasuredHeight();
         
-        final RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
         lp.height = initialHeight;
 
-        final Animation a = new Animation()
+        Animation a = new Animation()
         {
             @Override
-            protected void applyTransformation(final float interpolatedTime, final Transformation t) {
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
                 if(interpolatedTime == 1){
                     v.setVisibility(View.GONE);
-                    final RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
+                    RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
                     lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
                     lp.height = 0;
                     postExecuteLambda.run();
@@ -227,7 +227,7 @@ public class BreadcrumbBarFragment extends Fragment {
     private View findAndLoadCaseTile(final Activity activity) {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
-        final View tile = tileData == null ? null : tileData.first;
+        View tile = tileData == null ? null : tileData.first;
         if(tile == null) { return null;}
         
         final ImageButton openButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
@@ -242,30 +242,30 @@ public class BreadcrumbBarFragment extends Fragment {
         ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open)).setOnClickListener(new OnClickListener() {
 
             @Override
-            public void onClick(final View v) {
-                if (mInternalDetailView == null) {
+            public void onClick(View v) {
+                if(mInternalDetailView == null ) {
                     mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
-                    mInternalDetailView.setRoot((ViewGroup)holder.findViewById(R.id.com_tile_holder_detail_frame));
-
-                    final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-                    final CommCareSession session = asw.getSession();
-
-                    final NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
-                    final Detail detail = factory.getDetail();
+                    mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
+    
+                    AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                    CommCareSession session = asw.getSession();
+    
+                    NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
+                    Detail detail = factory.getDetail();
                     mInternalDetailView.setDetail(detail);
-
-                    mInternalDetailView.refresh(factory.getDetail(), tileData.second, 0, false);
+    
+                    mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
                 }
                 openButton.setVisibility(View.INVISIBLE);
                 expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
             }
-
+            
         });
         
         ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_close)).setOnClickListener(new OnClickListener() {
 
             @Override
-            public void onClick(final View v) {
+            public void onClick(View v) {
                 collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
                     @Override
                     public void run() {
@@ -282,18 +282,18 @@ public class BreadcrumbBarFragment extends Fragment {
     }
 
 
-    private Pair<View, TreeReference> loadTile(final Activity activity) {
+    private Pair<View, TreeReference> loadTile(Activity activity) {
         try {
-            final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-            final CommCareSession session = asw.getSession();
+            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            CommCareSession session = asw.getSession();
     
             StackFrameStep stepToFrame = null;
-            final Vector<StackFrameStep> v = session.getFrame().getSteps();
+            Vector<StackFrameStep> v = session.getFrame().getSteps();
             
             //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
             //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
             for(int i = v.size() -1 ; i >= 0; i--){
-                final StackFrameStep step = v.elementAt(i);
+                StackFrameStep step = v.elementAt(i);
     
                 if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                     stepToFrame = step;
@@ -303,13 +303,13 @@ public class BreadcrumbBarFragment extends Fragment {
             Pair<View, TreeReference> tile = buildContextTile(activity, stepToFrame, asw);
             //some contexts may provide a tile that isn't really part of the current session's stack
             if(tile == null && activity instanceof CommCareActivity) {
-                final Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
+                Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
                 if(entityContext != null) {
                     tile = buildContextTile(activity, entityContext.first, entityContext.second, asw);
                 }
             }
             return tile;
-        }catch(final SessionUnavailableException sue) {
+        }catch(SessionUnavailableException sue) {
             
         }
         return null;
@@ -324,7 +324,7 @@ public class BreadcrumbBarFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if(tile != null) {
-            final ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
+            ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
             //Check whether the view group is available. If so, this activity is a frame tile host 
             if(vg != null) {
                 if(((ViewGroup) tile.getParent()) != null) {
@@ -336,14 +336,14 @@ public class BreadcrumbBarFragment extends Fragment {
             }
         }
         if(this.getActivity() instanceof CommCareActivity) {
-            final String title = ((CommCareActivity)this.getActivity()).getActivityTitle();
+            String title = ((CommCareActivity)this.getActivity()).getActivityTitle();
             
             if(title != null) {
             
                 if(breadCrumbsEnabled) {
                     //This part can change more dynamically
                     if(localIdPart != -1 ) {
-                        final TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
+                        TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
                         if(text != null) {
                             text.setText(title);
                         }
@@ -353,28 +353,28 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
     
-    public String getBestTitle(final Activity activity) {
+    public String getBestTitle(Activity activity) {
         String bestTitle = null;
 
         try {
-            final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-            final CommCareSession session = asw.getSession();
+            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            CommCareSession session = asw.getSession();
     
-            final String[] stepTitles = session.getHeaderTitles();
+            String[] stepTitles = session.getHeaderTitles();
             
-            final Vector<StackFrameStep> v = session.getFrame().getSteps();
+            Vector<StackFrameStep> v = session.getFrame().getSteps();
             
             //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
             //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
             for(int i = v.size() -1 ; i >= 0; i--){
                 if(bestTitle != null) { break;}
-                final StackFrameStep step = v.elementAt(i);
+                StackFrameStep step = v.elementAt(i);
     
                 if(!SessionFrame.STATE_DATUM_VAL.equals(step.getType()) && bestTitle == null) {
                     bestTitle = stepTitles[i];
                 }
             }
-        } catch(final SessionUnavailableException sue) {
+        } catch(SessionUnavailableException sue) {
             
         }
         
@@ -395,16 +395,16 @@ public class BreadcrumbBarFragment extends Fragment {
      * @param local
      * @return
      */
-        public View getTitleView(final Activity activity, final String local) {
+        public View getTitleView(final Activity activity, String local) {
             
-            final RelativeLayout layout = new RelativeLayout(activity);
-            final HorizontalScrollView scroller = new HorizontalScrollView(activity) {
+            RelativeLayout layout = new RelativeLayout(activity);
+            HorizontalScrollView scroller = new HorizontalScrollView(activity) {
                 /*
                  * (non-Javadoc)
                  * @see android.widget.HorizontalScrollView#onLayout(boolean, int, int, int, int)
                  */
                 @Override
-                protected void onLayout(final boolean changed, final int l, final int t, final int r, final int b) {
+                protected void onLayout(boolean changed, int l, int t, int r, int b) {
                     super.onLayout(changed, l, t, r, b);
                     this.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
                 }
@@ -413,8 +413,8 @@ public class BreadcrumbBarFragment extends Fragment {
             scroller.addView(layout, new HorizontalScrollView.LayoutParams(LayoutParams.WRAP_CONTENT,HorizontalScrollView.LayoutParams.MATCH_PARENT));
             scroller.setFillViewport(true);
             
-            final RelativeLayout fullTopBar = new RelativeLayout(activity);
-            final RelativeLayout.LayoutParams topBarParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+            RelativeLayout fullTopBar = new RelativeLayout(activity);
+            RelativeLayout.LayoutParams topBarParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
             topBarParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             
             
@@ -422,25 +422,25 @@ public class BreadcrumbBarFragment extends Fragment {
             
             // we have to do this walk backwards, actually
             
-            final String topLevel = CommCareActivity.getTopLevelTitleName(activity);
-            final LayoutInflater li = activity.getLayoutInflater();
+            String topLevel = CommCareActivity.getTopLevelTitleName(activity);
+            LayoutInflater li = activity.getLayoutInflater();
             
             int currentId = -1;
-            final View tile = null;
+            View tile = null;
             
             //We don't actually want this one to look the same
             int newId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + layout.getChildCount() + 1;            
             if(local != null) {
                 localIdPart = newId;
-                final View titleBreadcrumb = li.inflate(org.commcare.dalvik.R.layout.component_title_uncrumb, fullTopBar, true);
+                View titleBreadcrumb = li.inflate(org.commcare.dalvik.R.layout.component_title_uncrumb, fullTopBar, true);
                 
-                final TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);
+                TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);
                 
                 text.setText(local);
                 //Is there a "random ID" or something we can use for this?
                 text.setId(newId);
                 //RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams)peerView.getLayoutParams();
-                final RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)text.getLayoutParams();
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)text.getLayoutParams();
                 params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 params.addRule(RelativeLayout.CENTER_VERTICAL);
                 text.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
@@ -455,17 +455,17 @@ public class BreadcrumbBarFragment extends Fragment {
             
             String[] stepTitles = new String[0];
             try {
-                final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-                final CommCareSession session = asw.getSession();
+                AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                CommCareSession session = asw.getSession();
 
                 stepTitles = session.getHeaderTitles();
                 
-                final Vector<StackFrameStep> v = session.getFrame().getSteps();
+                Vector<StackFrameStep> v = session.getFrame().getSteps();
                 
                 //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
                 //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
                 for(int i = v.size() -1 ; i >= 0; i--){
-                    final StackFrameStep step = v.elementAt(i);
+                    StackFrameStep step = v.elementAt(i);
                     
                     //Keep track of how many "steps" (or choices made by the user/platform) have happened.
                     final int currentStep = i;
@@ -473,16 +473,16 @@ public class BreadcrumbBarFragment extends Fragment {
                     //How many "steps" have already been made to get to the step we're making a view for?
                     final int currentStepSize = v.size();
                 
-                    final OnClickListener stepBackListener = new OnClickListener() {
+                    OnClickListener stepBackListener = new OnClickListener() {
 
                         /*
                          * (non-Javadoc)
                          * @see android.view.View.OnClickListener#onClick(android.view.View)
                          */
                         @Override
-                        public void onClick(final View arg0) {
+                        public void onClick(View arg0) {
                             
-                            final int stepsToTake = currentStepSize - currentStep - 1;
+                            int stepsToTake = currentStepSize - currentStep - 1;
                             
                             try{
                                 //Try to take stepsToTake steps "Back" 
@@ -491,7 +491,7 @@ public class BreadcrumbBarFragment extends Fragment {
                                     
                                     //We need to check the current size, because sometimes a step back will end up taking
                                     //two (if a value is computed instead of selected)
-                                    final int currentStepSize = CommCareApplication._().getCurrentSession().getFrame().getSteps().size();
+                                    int currentStepSize = CommCareApplication._().getCurrentSession().getFrame().getSteps().size();
                                     
                                     //Take at _most_ currentSteps back, or stop when we've reached
                                     //current step minus 1
@@ -501,7 +501,7 @@ public class BreadcrumbBarFragment extends Fragment {
                                 }
                                 
                                 activity.finish();
-                            } catch(final SessionUnavailableException sue) {
+                            } catch(SessionUnavailableException sue) {
                                 
                             }
                         }
@@ -517,21 +517,21 @@ public class BreadcrumbBarFragment extends Fragment {
                         
                         //Haaack. We should replace this with a generalizable "What do you refer to your detail by", but for now this is 90% of cases
                         if(step.getId() != null && step.getId().contains("case_id")) {
-                            final ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
+                            ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
                             stepTitles[i] = foundCase.getName();
                             newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb_case, currentId, stepBackListener);
                             if(newId != -1) { currentId = newId;}
                             continue;
                         }
                     }
-                    } catch(final Exception e) {
+                    } catch(Exception e) {
                         //TODO: Your error handling is bad and you should feel bad
                     }
                     newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, stepBackListener);
                     if(newId != -1) { currentId = newId;}
                 }
                 
-            } catch(final SessionUnavailableException sue) {
+            } catch(SessionUnavailableException sue) {
                 
             }
             
@@ -543,10 +543,10 @@ public class BreadcrumbBarFragment extends Fragment {
                  * @see android.view.View.OnClickListener#onClick(android.view.View)
                  */
                 @Override
-                public void onClick(final View arg0) {
+                public void onClick(View arg0) {
                     try{
                         CommCareApplication._().getCurrentSession().clearAllState();
-                    } catch(final SessionUnavailableException sue) {
+                    } catch(SessionUnavailableException sue) {
                         
                     }
                     
@@ -556,7 +556,7 @@ public class BreadcrumbBarFragment extends Fragment {
             });
             
             //Add the app icon
-            final TextView iconBearer = ((TextView)layout.getChildAt(layout.getChildCount() - 1));
+            TextView iconBearer = ((TextView)layout.getChildAt(layout.getChildCount() - 1));
             
             iconBearer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_app_white,0,0,0);
             iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
@@ -565,13 +565,13 @@ public class BreadcrumbBarFragment extends Fragment {
             //there's a view that isn't relative to the other views. The anchor is explicitly relative to
             //only the parent layout.
             currentId = currentId + 2343241;            
-            final View anchor = new FrameLayout(activity);
+            View anchor = new FrameLayout(activity);
             anchor.setId(currentId);
             
             // The Anchor should be as wide as the bleed off the screen. This is necessary, because otherwise the layout 
             // starts _off_ the screen to the left (due to the margin on the last item here). We'll shift the parent 
             // layout itself back over so it doesn't look awkward.
-            final int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_depth));
+            int buffer = Math.round(activity.getResources().getDimension(R.dimen.title_round_depth));
             layout.addView(anchor, buffer, LayoutParams.MATCH_PARENT);            
             ((RelativeLayout.LayoutParams)iconBearer.getLayoutParams()).addRule(RelativeLayout.RIGHT_OF, currentId);
             
@@ -580,42 +580,42 @@ public class BreadcrumbBarFragment extends Fragment {
         
         View tile;
         
-        private Pair<View, TreeReference> buildContextTile(final Activity activity, final StackFrameStep stepToFrame, final AndroidSessionWrapper asw) {
+        private Pair<View, TreeReference> buildContextTile(Activity activity, StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
             
             //check to make sure we can look up this child
-            final SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame.getId());
+            SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame.getId());
             if(d == null || d.getPersistentDetail() == null) { return null; }
             
             //Make sure there is a valid reference to the entity we can build 
-            final Detail detail = asw.getSession().getDetail(d.getPersistentDetail());
+            Detail detail = asw.getSession().getDetail(d.getPersistentDetail());
             
-            final EvaluationContext ec = asw.getEvaluationContext();
+            EvaluationContext ec = asw.getEvaluationContext();
             
-            final TreeReference ref = d.getEntityFromID(ec, stepToFrame.getValue());
+            TreeReference ref = d.getEntityFromID(ec, stepToFrame.getValue());
             if(ref == null) { return null; }
             
-            final Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);
+            Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);
             r.first.setTag(d.getInlineDetail());
             return r;
         }
 
-        private Pair<View, TreeReference> buildContextTile(final Activity activity, final Detail detail, final TreeReference ref, final AndroidSessionWrapper asw) {
-            final NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
+        private Pair<View, TreeReference> buildContextTile(Activity activity, Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+            NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
             
-            final Entity entity = nef.getEntity(ref);
+            Entity entity = nef.getEntity(ref);
             
-            final View tile = new GridEntityView(this.getActivity(), detail, entity, null);
+            View tile = new GridEntityView(this.getActivity(), detail, entity, null);
             return Pair.create(tile, ref);
         }
 
 
-        private int addElementToTitle(final LayoutInflater inflater, final RelativeLayout title, final String element, final int type, final int peer, final OnClickListener action) {
-            final int newViewId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + title.getChildCount() + 1;
+        private int addElementToTitle(LayoutInflater inflater, RelativeLayout title, String element, int type, int peer, OnClickListener action) {
+            int newViewId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + title.getChildCount() + 1;
             if(element != null) {
-                final View titleBreadcrumb = inflater.inflate(type, title, true);
+                View titleBreadcrumb = inflater.inflate(type, title, true);
                 
-                final TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);
+                TextView text = (TextView)titleBreadcrumb.findViewById(org.commcare.dalvik.R.id.component_title_breadcrumb_text);
                 
                 if(action != null && isTopNavEnabled) {
                     text.setOnClickListener(action);
@@ -628,9 +628,9 @@ public class BreadcrumbBarFragment extends Fragment {
                 text.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
                 
                 if(peer != -1) {
-                    final View peerView = title.findViewById(peer);
+                    View peerView = title.findViewById(peer);
                     
-                    final RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams)peerView.getLayoutParams();
+                    RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams)peerView.getLayoutParams();
                     layout.addRule(RelativeLayout.RIGHT_OF, newViewId);
                 }
                 return newViewId;

@@ -32,7 +32,7 @@ public class EntityDetailFragment extends Fragment {
     public static final String DETAIL_INDEX = "edf_detail_index";
     public static final String CHILD_REFERENCE = "edf_detail_reference";
     
-    private final AndroidSessionWrapper asw;
+    private AndroidSessionWrapper asw;
     private NodeEntityFactory factory;
     private EntityDetailAdapter adapter;
 
@@ -46,23 +46,23 @@ public class EntityDetailFragment extends Fragment {
      * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
      */
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Note that some of this setup could be moved into onAttach if it would help performance
-        final Bundle args = getArguments();
+        Bundle args = getArguments();
 
-        final Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
+        Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
         Detail childDetail = detail;
         if (args.getInt(CHILD_DETAIL_INDEX, -1) != -1) {
             childDetail = detail.getDetails()[args.getInt(CHILD_DETAIL_INDEX)];
         }
 
         factory = new NodeEntityFactory(childDetail, asw.getEvaluationContext());
-        final Entity entity = factory.getEntity(SerializationUtil.deserializeFromBundle(
+        Entity entity = factory.getEntity(SerializationUtil.deserializeFromBundle(
             args, CHILD_REFERENCE, TreeReference.class)
         );
 
-        final View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
-        final Activity thisActivity = getActivity();
+        View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
+        Activity thisActivity = getActivity();
         AudioController audioController  = null;
         DetailCalloutListener detailCalloutListener = null;
         if(thisActivity instanceof AudioController) {

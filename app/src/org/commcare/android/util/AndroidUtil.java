@@ -26,7 +26,7 @@ import android.view.ViewGroup;
  * @author ctsims
  *
  */
-public final class AndroidUtil {
+public class AndroidUtil {
     private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
 
     /**
@@ -62,14 +62,14 @@ public final class AndroidUtil {
     }
     
     public static class AndroidUnionLambda extends UnionLambda {
-        public <T> Vector<T> union(final Vector<T> a, final Vector<T> b) {
+        public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
             //This is kind of (ok, so really) awkward looking, but we can't use sets in 
             //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
             //j2me (thanks Sun!) so this is what we get.
-            final HashSet<T> joined = new HashSet<T>(a);
+            HashSet<T> joined = new HashSet<T>(a);
             joined.addAll(a);
             
-            final HashSet<T> other = new HashSet<T>();
+            HashSet<T> other = new HashSet<T>();
             other.addAll(b);
             
             joined.retainAll(other);
@@ -80,31 +80,31 @@ public final class AndroidUtil {
         }
     }
 
-    public static void setClickListenersForEverything(final Activity activity, final ViewGroup v) {
+    public static void setClickListenersForEverything(Activity activity, ViewGroup v) {
         if (BuildConfig.DEBUG) {
-            final ViewGroup layout = v != null ? v : (ViewGroup) activity.findViewById(android.R.id.content);
-            final LinkedList<View> views = new LinkedList<View>();
+            ViewGroup layout = v != null ? v : (ViewGroup) activity.findViewById(android.R.id.content);
+            LinkedList<View> views = new LinkedList<View>();
             views.add(layout);
             for (int i = 0; !views.isEmpty(); i++) {
-                final View child = views.getFirst();
+                View child = views.getFirst();
                 views.removeFirst();
                 Log.i("GetID", "Adding onClickListener to view " + child);
                 child.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(final View v) {
+                    public void onClick(View v) {
                         String vid;
                         try {
                             vid = "View id is: " + v.getResources().getResourceName(v.getId()) + " ( " + v.getId() + " )";
-                        } catch (final Resources.NotFoundException excp) {
+                        } catch (Resources.NotFoundException excp) {
                             vid = "View id is: " + v.getId();
                         }
                         Log.i("CLK", vid);
                     }
                 });
                 if(child instanceof ViewGroup) {
-                    final ViewGroup vg = (ViewGroup) child;
+                    ViewGroup vg = (ViewGroup) child;
                     for (int j = 0; j < vg.getChildCount(); j++) {
-                        final View gchild = vg.getChildAt(j);
+                        View gchild = vg.getChildAt(j);
                         if (!views.contains(gchild)) views.add(gchild);
                     }
                 }
@@ -112,15 +112,15 @@ public final class AndroidUtil {
         }
     }
 
-    public static void setClickListenersForEverything(final Activity act){
+    public static void setClickListenersForEverything(Activity act){
         setClickListenersForEverything(act, (ViewGroup) act.findViewById(android.R.id.content));
     }
 
-    public static int[] getThemeColorIDs(final Context context, final int[] attrs){
-        final int[] colors = new int[attrs.length];
-        final Resources.Theme theme = context.getTheme();
+    public static int[] getThemeColorIDs(Context context, int[] attrs){
+        int[] colors = new int[attrs.length];
+        Resources.Theme theme = context.getTheme();
         for (int i = 0; i < attrs.length; i++) {
-            final TypedValue typedValue = new TypedValue();
+            TypedValue typedValue = new TypedValue();
             theme.resolveAttribute(attrs[i], typedValue, true);
             colors[i] = typedValue.data;
         }
