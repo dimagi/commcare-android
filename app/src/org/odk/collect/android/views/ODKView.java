@@ -15,7 +15,6 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.commcare.android.util.ACRAUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -33,7 +32,6 @@ import org.odk.collect.android.widgets.WidgetFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * @author carlhartung
@@ -178,8 +176,6 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             qw.setLongClickable(true);
             qw.setOnLongClickListener(this);
             qw.setId(VIEW_ID + widgetIdCount++);
-
-            ACRAUtil.addCustomData(ACRAUtil.LAST_QUESTION_PROMPT_ADDED, p.getLongText());
             
             //Suppress the hint text if we bubbled it
             if(hintText != null) {

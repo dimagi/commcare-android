@@ -41,7 +41,6 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -67,11 +66,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -914,7 +909,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         // create intent for return and store path
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-        ACRAUtil.addCustomData(ACRAUtil.CURRENT_CASE, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
         finish();
     }
