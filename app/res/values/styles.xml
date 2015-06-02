@@ -30,7 +30,7 @@
     <style name="MainPane">
         <item name="android:paddingRight">15dp</item>
     </style>
-    <dimen name="entity_padding">15dp</dimen>
+    <dimen name="entity_padding">@dimen/content_min_margin</dimen>
     <dimen name="grid_entity_padding">3dp</dimen>
     
     <style name="EntityItemTextView">
@@ -48,7 +48,6 @@
     </style>
     
    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
-       
    </style>
        
    <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium">
