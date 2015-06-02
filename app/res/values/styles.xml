@@ -173,4 +173,9 @@
        <item name="android:paddingRight">8dp</item>
     </style>
 
+    <style name="TileButton">
+        <item name="android:minHeight">32dp</item>
+        <item name="android:minWidth">32dp</item>
+    </style>
+
 </resources>
