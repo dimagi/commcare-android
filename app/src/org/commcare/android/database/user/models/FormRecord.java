@@ -95,6 +95,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
         if(lastModified == null) { lastModified = new Date(); } ;
     }
     
+    /**
+     * Create a copy of the current form record, with an updated instance uri
+     * and status.
+     */
     public FormRecord updateStatus(String instanceURI, String newStatus) {
         FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified);
         fr.recordId = this.recordId;

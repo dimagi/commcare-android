@@ -47,10 +47,15 @@ public class EntityStorageCache {
     
     //TODO: We should do some synchronization to make it the case that nothing can hold
     //an object for the same cache at once
+    
+    public EntityStorageCache(String cacheName) {
+        this(cacheName, CommCareApplication._().getUserDbHandle());
+    }
+    
     SQLiteDatabase db;
     String mCacheName;
-    public EntityStorageCache(String cacheName) {
-        db = CommCareApplication._().getUserDbHandle();
+    public EntityStorageCache(String cacheName, SQLiteDatabase db) {
+        this.db = db;
         this.mCacheName = cacheName;
     }
     

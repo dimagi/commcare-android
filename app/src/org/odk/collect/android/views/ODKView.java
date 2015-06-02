@@ -36,8 +36,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * This class is
- * 
  * @author carlhartung
  */
 public class ODKView extends ScrollView implements OnLongClickListener, WidgetChangedListener {
@@ -252,13 +250,9 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      */
     public HashMap<FormIndex, IAnswerData> getAnswers() {
         HashMap<FormIndex, IAnswerData> answers = new HashMap<FormIndex, IAnswerData>();
-        Iterator<QuestionWidget> i = widgets.iterator();
-        while (i.hasNext()) {
-            /*
-             * The FormEntryPrompt has the FormIndex, which is where the answer gets stored. The
-             * QuestionWidget has the answer the user has entered.
-             */
-            QuestionWidget q = i.next();
+        for (QuestionWidget q : widgets) {
+            // The FormEntryPrompt has the FormIndex, which is where the answer gets stored. The
+            // QuestionWidget has the answer the user has entered.
             FormEntryPrompt p = q.getPrompt();
             answers.put(p.getIndex(), q.getAnswer());
         }

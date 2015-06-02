@@ -15,12 +15,10 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DumpTask;
-import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
@@ -58,6 +56,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.tasks.FormLoaderTask;
+import org.odk.collect.android.activities.FormEntryActivity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -76,6 +75,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -100,12 +100,24 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public static final int GET_REFERRAL = 32;
     public static final int UPGRADE_APP = 64;
     public static final int REPORT_PROBLEM_ACTIVITY = 128;
+
+    /**
+     * Request code for automatically validating media from home dispatch.
+     * Should signal a return from CommCareVerificationActivity.
+     */
     public static final int MISSING_MEDIA_ACTIVITY=256;
     public static final int DUMP_FORMS_ACTIVITY=512;
     public static final int WIFI_DIRECT_ACTIVITY=1024;
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     public static final int PREFERENCES_ACTIVITY=4096;
-    
+
+    /**
+     * Request code for launching media validator manually (Settings ->
+     * Validate Media). Should signal a return from
+     * CommCareVerificationActivity.
+     */
+    public static final int MEDIA_VALIDATOR_ACTIVITY=8192;
+
     public static final int USE_OLD_DIALOG = 1;
     public static final int DIALOG_CORRUPTED = 4;
     public static final int DIALOG_NO_STORAGE = 8;
@@ -136,6 +148,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
     
+    // The API allows for external calls. When this occurs, redispatch to their
+    // activity instead of commcare.
     boolean wasExternal = false;
     
     View homeScreen;
@@ -185,13 +199,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         configUi();
     }
     
+    @SuppressLint("NewApi")
     private void configUi() {
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
                 
         // enter data button. expects a result.
         startButton = (Button) findViewById(R.id.home_start);
-        startButton.setText(Localization.get("home.start"));
+        Spannable startSpan = this.localize("home.start");
+        startButton.setText(startSpan);
         startButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent i;
@@ -206,7 +222,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
      // enter data button. expects a result.
         viewIncomplete = (Button) findViewById(R.id.home_forms_incomplete);
-        viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+        viewIncomplete.setText(this.localize("home.forms.incomplete"));
         viewIncomplete.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(true);
@@ -214,20 +230,20 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         });
         
         logoutButton = (Button) findViewById(R.id.home_logout);
-        logoutButton.setText(Localization.get("home.logout"));
+        logoutButton.setText(this.localize("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication._().logout();
+                CommCareApplication._().getSession().closeSession(false);
                 returnToLogin(null);
             }
         });
         
         
         TextView formGroupLabel = (TextView) findViewById(R.id.home_formrecords_label);
-        formGroupLabel.setText(Localization.get("home.forms"));
+        formGroupLabel.setText(this.localize("home.forms"));
         
         viewOldForms = (Button) findViewById(R.id.home_forms_old);
-        viewOldForms.setText(Localization.get("home.forms.saved"));
+        viewOldForms.setText(this.localize("home.forms.saved"));
         viewOldForms.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(false);
@@ -235,7 +251,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         });
         
         syncButton  = (Button) findViewById(R.id.home_sync);
-        syncButton.setText(Localization.get("home.sync"));
+        syncButton.setText(this.localize("home.sync"));
         syncButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!isOnline()) {
@@ -263,7 +279,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         });
 
         // CommCare-159047: this method call rebuilds the options menu
-        supportInvalidateOptionsMenu();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            invalidateOptionsMenu();
+        }
+        else {
+            supportInvalidateOptionsMenu();
+        }
     }
 
     private boolean isOnline() {
@@ -423,7 +444,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             return;
         }
         
-        
         try {
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
@@ -447,24 +467,32 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().getSession().logout();
+                        try {
+                            CommCareApplication._().getSession().closeSession(false);
+                        } catch (SessionUnavailableException e) {
+                            // if the session isn't available, we don't need to logout
+                        }
                     }
-                    //set flag that we should autoupdate on next login
-                    SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
-                    preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true);
-                    //The onResume() will take us to the screen
                     return;
                 }
                 break;
             case PREFERENCES_ACTIVITY:
                 configUi();
                 return;
-            case MISSING_MEDIA_ACTIVITY:
+            case MEDIA_VALIDATOR_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){
-                    this.finish();
+                    return;
+                } else if (resultCode == RESULT_OK){
+                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
-                else if(resultCode == RESULT_OK){
+            case MISSING_MEDIA_ACTIVITY:
+                if(resultCode == RESULT_CANCELED){
+                    // exit the app if media wasn't validated on automatic
+                    // validation check.
+                    this.finish();
+                    return;
+                } else if(resultCode == RESULT_OK){
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -567,7 +595,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    
+                    if (platform == null &&
+                            CommCareApplication._().getCurrentApp() != null) {
+                        platform = CommCareApplication._().getCommCarePlatform();
+                    }
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
                     return;
                 }
@@ -607,191 +638,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     break;
                 }
             case MODEL_RESULT:
-                //TODO: We might need to load this from serialized state?
-                currentState = CommCareApplication._().getCurrentSessionWrapper();
-                if(resultCode == 1) {
-                    //Exception in form entry!
-                    
-                    if(intent.hasExtra("odk_exception")) {
-                        Throwable ex = (Throwable)intent.getSerializableExtra("odk_exception");
-                        ExceptionReportTask task = new ExceptionReportTask();
-                        task.execute(ex);
-                    } else {
-                        RuntimeException ex = new RuntimeException("Unspecified exception from form entry engine");
-                        ExceptionReportTask task = new ExceptionReportTask();
-                        task.execute(ex);
-                    }
-                    
-                    //TODO: Notification?
-                    Toast.makeText(this, Localization.get("form.entry.segfault"), Toast.LENGTH_LONG);
-                    
-                    
-                    currentState.reset();
-                    refreshView();
-                    break;
-                }
-                
-                //This is the state we were in when we _Started_ form entry
-                FormRecord current = currentState.getFormRecord();
-                
-                //See if we were viewing an old form, in which case we don't want to change the historical record
-                //regardless of the exit code
-                //TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-                if(FormRecord.STATUS_COMPLETE.equals(current.getStatus()) || FormRecord.STATUS_SAVED.equals(current.getStatus()) || FormRecord.STATUS_UNSENT.equals(current.getStatus())) {
-                    currentState.reset();
-                    if(wasExternal) {
-                        this.finish();
-                    } else {
-                        //Return to where we started
-                        goToFormArchive(false, current);
-                    }
+                boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
+                if (!fetchNext) {
                     return;
                 }
-                
-                
-                if(resultCode == RESULT_OK) {
-                    Uri resultInstanceURI = intent.getData();
-                    
-                    //TODO: encapsulate this pattern somewhere?
-                    if(resultInstanceURI == null) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Form Entry Did not Return a Form");
-                        
-                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-                        Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
-                        
-                        currentState.reset();
-                        if(wasExternal) {
-                            this.finish();
-                        }
-                        refreshView();
-                        return;
-                    }
-                    
-                    Cursor c = getContentResolver().query(resultInstanceURI, null,null,null, null);
-                    boolean complete = false;
-                    try {
-                        complete = currentState.beginRecordTransaction(resultInstanceURI, c);
-                    } catch(IllegalArgumentException iae) {
-                        
-                        iae.printStackTrace();
-                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-                        Toast.makeText(this, "Error while trying to read the form! See the notification", Toast.LENGTH_LONG);
-                        
-                        //TODO: Fail more hardcore here? Wipe the form record and its ties?
-                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Unrecoverable error when trying to read form|" + iae.getMessage());
-                        
-                        currentState.reset();
-                        if(wasExternal) {
-                            this.finish();
-                        }
-                        refreshView();
-                        return;
-                    } finally {
-                        c.close();
-                    }
-                     
-                    //TODO: Move this logic into the process task?
-                    try {
-                        current = currentState.commitRecordTransaction();
-                    } catch (Exception e) {
-                        
-                        //Something went wrong with all of the connections which should exist. Tell
-                        //the user, 
-                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
-                        
-                        Toast.makeText(this, "An error occurred: " + e.getMessage() + " and your data could not be saved.", Toast.LENGTH_LONG);
-                        
-                        FormRecordCleanupTask.wipeRecord(this, currentState);
-                        
-                        //Notify the server of this problem (since we aren't going to crash) 
-                        ExceptionReportTask ert = new ExceptionReportTask();
-                        ert.execute(e);
-                        
-                        currentState.reset();
-                        if(wasExternal) {
-                            this.finish();
-                        }
-                        refreshView();
-                        return;
-                    }
-                    
-                    Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Completed");
+                break;
+            }
 
-                                         
-                    //The form is either ready for processing, or not, depending on how it was saved
-                    if(complete) {
-                        //Form record should now be up to date now and stored correctly.
-                        
-                        //ctsims - App stack workflows require us to have processed _this_ specific form before 
-                        //we can move on, and that needs to be synchronous. We'll go ahead and try to process just
-                        //this form before moving on. We'll catch any errors here and just eat them (since the 
-                        //task will also try the process and fail if it does. 
-                        if(FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
-                            try {
-                                new FormRecordProcessor(this).process(current);
-                            } catch(Exception e) {
-                                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error processing form. Should be recaptured during async processing: " + e.getMessage());
-                            }
-                        }
-
-                        //We're honoring in order submissions, now, so trigger a full submission
-                        //cycle
-                        checkAndStartUnsentTask(false);
-
-                        refreshView();
-                        if(wasExternal) {
-                            this.finish();
-                        }
-                        
-                        //Before we can terminate the session, we need to know that the form has been processed
-                        //in case there is state that depends on it. 
-                        
-                        if(!currentState.terminateSession()) {
-                            //If we didn't find somewhere to go,
-                            //we're gonna stay here
-                            return;
-                        }
-                        //Otherwise, we want to keep proceeding in order 
-                        //to keep running the workflow
-                    } else {
-                        //Form record is now stored. 
-                        currentState.reset();
-                        if(wasExternal) {
-                            this.finish();
-                        }
-                        refreshView();
-                        return;
-                    }
-                } else {
-                    Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
-                    
-                    //If the form was unstarted, we want to wipe the record. 
-                    if(current.getStatus() == FormRecord.STATUS_UNSTARTED) {
-                        //Entry was cancelled.
-                        FormRecordCleanupTask.wipeRecord(this, currentState);
-                    }
-
-                    if(wasExternal) {
-                        this.finish();
-                        currentState.reset();
-                        return;
-                    } else {
-                        if(current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
-                            //We should head back to the incomplete forms screen
-                            currentState.reset();
-                            goToFormArchive(true, current);
-                            return;
-                        } else {
-                            //If we cancelled form entry from a normal menu entry 
-                            //we want to go back to where were were right before we started 
-                            //entering the form.
-                            currentState.getSession().stepBack();
-                            currentState.setFormRecordId(-1);
-                        }
-                    }
-                }
-            }             
-            
             startNextFetch();
             
         }
@@ -802,6 +655,149 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         super.onActivityResult(requestCode, resultCode, intent);
 
     }
+
+    /**
+     * Process user returning home from the form entry activity.
+     * Triggers form submission cycle, cleans up some session state.
+     *
+     * @param resultCode exit code of form entry activity
+     * @param intent     The intent of the returning activity, with the
+     *                   saved form provided as the intent URI data. Null if
+     *                   the form didn't exit cleanly
+     * @return Flag signifying that caller should fetch the next activity in
+     * the session to launch. If false then caller should exit or spawn home
+     * activity.
+     */
+    private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
+        // TODO: We might need to load this from serialized state?
+        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+
+        // This is the state we were in when we _Started_ form entry
+        FormRecord current = currentState.getFormRecord();
+
+        if (current == null) {
+            // somehow we lost the form record for the current session
+            // TODO: how should this be handled? -- PLM
+            Toast.makeText(this,
+                    "Error while trying to save the form!",
+                    Toast.LENGTH_LONG).show();
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    "Form Entry couldn't save because of corrupt state.");
+            clearSessionAndExit(currentState);
+            return false;
+        }
+
+        // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
+        if ((intent != null && intent.getBooleanExtra(FormEntryActivity.IS_ARCHIVED_FORM, false)) ||
+                FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
+                FormRecord.STATUS_SAVED.equals(current.getStatus())) {
+            // Viewing an old form, so don't change the historical record
+            // regardless of the exit code
+            currentState.reset();
+            if (wasExternal) {
+                this.finish();
+            } else {
+                // Return to where we started
+                goToFormArchive(false, current);
+            }
+            return false;
+        }
+
+        if (resultCode == RESULT_OK) {
+            // Determine if the form instance is complete
+            // TODO: refactor this into a method -- PLM
+            Uri resultInstanceURI = intent.getData();
+            if (resultInstanceURI == null) {
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+                Toast.makeText(this,
+                        "Error while trying to read the form! See the notification",
+                        Toast.LENGTH_LONG).show();
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "Form Entry did not return a form");
+                clearSessionAndExit(currentState);
+                return false;
+            }
+
+            Cursor c = getContentResolver().query(resultInstanceURI, null, null, null, null);
+            if (!c.moveToFirst()) {
+                throw new IllegalArgumentException("Empty query for instance record!");
+            }
+            String instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
+            // was the record marked complete?
+            boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
+
+            // The form is either ready for processing, or not, depending on how it was saved
+            if (complete) {
+                // We're honoring in order submissions, now, so trigger a full
+                // submission cycle
+                checkAndStartUnsentTask(false);
+
+                refreshView();
+
+                if (wasExternal) {
+                    this.finish();
+                    return false;
+                }
+
+                // XXX: probably refactor part of this logic into InstanceProvider -- PLM
+                // Before we can terminate the session, we need to know that the form has been processed
+                // in case there is state that depends on it.
+                if (!currentState.terminateSession()) {
+                    // If we didn't find somewhere to go, we're gonna stay here
+                    return false;
+                }
+                // Otherwise, we want to keep proceeding in order
+                // to keep running the workflow
+            } else {
+                // Form record is now stored.
+                // TODO: session state clearing might be something we want to
+                // do in InstanceProvider.bindToFormRecord.
+                clearSessionAndExit(currentState);
+                return false;
+            }
+        } else if (resultCode == RESULT_CANCELED) {
+            // Nothing was saved during the form entry activity
+
+            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
+
+            // If the form was unstarted, we want to wipe the record.
+            if (current.getStatus() == FormRecord.STATUS_UNSTARTED) {
+                // Entry was cancelled.
+                FormRecordCleanupTask.wipeRecord(this, currentState);
+            }
+
+            if (wasExternal) {
+                currentState.reset();
+                this.finish();
+                return false;
+            } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
+                currentState.reset();
+                // We should head back to the incomplete forms screen
+                goToFormArchive(true, current);
+                return false;
+            } else {
+                // If we cancelled form entry from a normal menu entry
+                // we want to go back to where were were right before we started
+                // entering the form.
+                currentState.getSession().stepBack();
+                currentState.setFormRecordId(-1);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * clear local state in session session, and finish if was external is set,
+     * otherwise refesh the view.
+     */
+    private void clearSessionAndExit(AndroidSessionWrapper currentState) {
+        currentState.reset();
+        if (wasExternal) {
+            this.finish();
+        }
+        refreshView();
+    }
+
 
     private void showDemoModeWarning() {
         //TODO: How do we style this to "light"?
@@ -955,11 +951,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             
             //We should now have a valid record for our state. Time to get to form entry.
             FormRecord record = state.getFormRecord();
-            
-            if(platform == null) {
-                platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+
+            if (platform == null &&
+                    CommCareApplication._().getCurrentApp() != null) {
+                platform = CommCareApplication._().getCommCarePlatform();
             }
-            
+
             //TODO: May need to pass session over manually
             formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
             
@@ -1008,14 +1005,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
         
         //Create our form entry activity callout
-        Intent i =new Intent(getApplicationContext(), org.odk.collect.android.activities.FormEntryActivity.class);
+        Intent i =new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra("odk_title_fragment", BreadcrumbBarFragment.class.getName());
         
         i.putExtra("instancedestination", CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
         
-        //See if there's existing form data that we want to continue entering (note, this should be stored in the form
-        ///record as a URI link to the instance provider in the future)
+        // See if there's existing form data that we want to continue entering
+        // (note, this should be stored in the form record as a URI link to
+        // the instance provider in the future)
         if(r.getInstanceURI() != null) {
             i.setData(r.getInstanceURI());
         } else {
@@ -1143,7 +1141,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onResume() {
         super.onResume();
-        platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+        if (platform == null && CommCareApplication._().getCurrentApp() != null) {
+            platform = CommCareApplication._().getCommCarePlatform();
+        }
         dispatchHomeScreen();
     }
     
@@ -1173,12 +1173,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                      Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
                      
                      this.startActivityForResult(i, INIT_APP);
-            } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()){
+            } else if(!CommCareApplication._().getCurrentApp().areResourcesValidated()
+                    // if superuser is enabled, we won't need to validate multimedia, just launch the home screen directly
+                    && !DeveloperPreferences.isSuperuserEnabled()){
                 
                 Intent i = new Intent(this, CommCareVerificationActivity.class);
                 this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
                 
-            } else if(!CommCareApplication._().getSession().isLoggedIn()) {
+            } else if(!CommCareApplication._().getSession().isActive()) {
                 //We got brought back to this point despite 
                 returnToLogin();
             } else if(this.getIntent().hasExtra(SESSION_REQUEST)) {
@@ -1250,26 +1252,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));        
     }
 
-
-    /*
-     * NOTE: This is probably not valid anymore
-     */
-    private boolean testBotchedUpgrade() {
-        //If the install folder is empty, we know that commcare wiped out our stuff.
-        File install = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_INSTALL));
-        File[] installed = install.listFiles();
-        if(installed == null || installed.length == 0) {
-            return true;
-        }
-        //there's another failure mode where the files somehow end up empty.
-        for(File f : installed) {
-            if(f.length() != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         mAskOldDialog = new AlertDialog.Builder(this).create();
         mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));
@@ -1374,8 +1356,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         
         
         //since these might have changed
-        startButton.setText(Localization.get(homeMessageKey));
-        logoutButton.setText(Localization.get(logoutMessageKey));
+        startButton.setText(this.localize(homeMessageKey));
+        logoutButton.setText(this.localize(logoutMessageKey));
         
         
         CharSequence syncTime = syncDetails.first == 0? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
@@ -1387,15 +1369,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             message += Localization.get("home.sync.message.unsent.plural", new String[] {String.valueOf(syncDetails.second[0])}) + "\n";
         }
         if(syncDetails.second[0] > 0) {
-            syncButton.setText(Localization.get("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
+            syncButton.setText(this.localize("home.sync.indicator", new String[] {String.valueOf(syncDetails.second[0]), Localization.get(syncKey)}));
         } else {
-            syncButton.setText(Localization.get(syncKey));
+            syncButton.setText(this.localize(syncKey));
         }
         
         if(syncDetails.second[1] > 0) {
-            viewIncomplete.setText(Localization.get("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
+            viewIncomplete.setText(this.localize("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
         } else {
-            viewIncomplete.setText(Localization.get("home.forms.incomplete"));
+            viewIncomplete.setText(this.localize("home.forms.incomplete"));
         }
         
         if(syncDetails.second[0] > unsentFormNumberLimit){
@@ -1590,7 +1572,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     
     private void startValidationActivity(){
         Intent i = new Intent(this, CommCareVerificationActivity.class);
-        CommCareHomeActivity.this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+        CommCareHomeActivity.this.startActivityForResult(i, MEDIA_VALIDATOR_ACTIVITY);
     }
     
     private void startFormDumpActivity(){

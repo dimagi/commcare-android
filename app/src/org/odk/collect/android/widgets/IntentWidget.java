@@ -14,13 +14,6 @@
 
 package org.odk.collect.android.widgets;
 
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.jr.extensions.IntentCallout;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -31,9 +24,16 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -41,38 +41,33 @@ import android.widget.Toast;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class IntentWidget extends QuestionWidget implements IBinaryWidget {
-    private Button launchIntentButton;
-    private TextView mStringAnswer;
+    private final Button launchIntentButton;
+    private final TextView mStringAnswer;
     private boolean mWaitingForData;
-    private Intent intent;
-    private IntentCallout ic;
+    private final Intent intent;
+    private final IntentCallout ic;
 
-    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic) {
+    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in,
+                        IntentCallout ic) {
         super(context, prompt);
-        
+
         this.intent = in;
         this.ic = ic;
-        
+
         mWaitingForData = false;
         setOrientation(LinearLayout.VERTICAL);
 
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-        
         // set button formatting
         launchIntentButton = new Button(getContext());
+        WidgetUtils.setupButton(launchIntentButton,
+                StringUtils.getStringSpannableRobust(getContext(),
+                        R.string.intent_callout_button),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
         setButtonLabel();
-        launchIntentButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        launchIntentButton.setPadding(20, 20, 20, 20);
-        launchIntentButton.setEnabled(!prompt.isReadOnly());
-        launchIntentButton.setLayoutParams(params);
 
         // launch barcode capture intent on click
         launchIntentButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 performCallout();
@@ -86,47 +81,49 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            launchIntentButton.setText(Localization.get("odk_intent_callout_button_update"));
+            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(),
+                    R.string.intent_callout_button_update));
             mStringAnswer.setText(s);
         }
+
         // finish complex layout
         addView(launchIntentButton);
         addView(mStringAnswer);
-        
-        //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
-        if(s == null && ic.isQuickAppearance() && !ic.getCancelled()){
+
+        // only auto advance if 1) we have no data 2) its quick 3) we weren't
+        // just cancelled
+        if (s == null && ic.isQuickAppearance() && !ic.getCancelled()) {
             performCallout();
-        } else if(ic.getCancelled()){
-            //reset the cancelled flag
+        } else if (ic.getCancelled()) {
+            // reset the cancelled flag
             ic.setCancelled(false);
         }
     }
 
-    public void performCallout(){
-        
+    private void performCallout() {
         mWaitingForData = true;
         try {
             //Set Data
             String data = mStringAnswer.getText().toString();
-            if(data != null && data != "") {
+            if (data != null && !"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
-            
-            ((Activity) getContext()).startActivityForResult(intent,
-                FormEntryActivity.INTENT_CALLOUT);
+
+            ((Activity)getContext()).startActivityForResult(intent,
+                    FormEntryActivity.INTENT_CALLOUT);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
-                "Couldn't find intent for callout!", Toast.LENGTH_SHORT)
-                    .show();
+                    "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
             mWaitingForData = false;
         }
     }
-    
-    public void setButtonLabel(){
+
+    private void setButtonLabel(){
         if(ic.getButtonLabel() != null){
             launchIntentButton.setText(ic.getButtonLabel());
         } else{
-            launchIntentButton.setText(Localization.get("odk_intent_callout_button"));
+            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(),
+                        R.string.intent_callout_button));
         }
     }
 

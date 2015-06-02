@@ -14,17 +14,6 @@
 
 package org.odk.collect.android.widgets;
 
-import java.io.File;
-
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.utilities.UrlUtils;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -33,7 +22,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -41,9 +29,20 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.utilities.UrlUtils;
+
+import java.io.File;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
@@ -54,16 +53,16 @@ import android.widget.Toast;
 public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "MediaWidget";
 
-    private Button mCaptureButton;
-    private Button mChooseButton;
+    private final Button mCaptureButton;
+    private final Button mChooseButton;
     private ImageView mImageView;
 
     private String mBinaryName;
 
-    private String mInstanceFolder;
+    private final String mInstanceFolder;
     private boolean mWaitingForData;
 
-    private TextView mErrorTextView;
+    private final TextView mErrorTextView;
 
 
     public ImageWidget(Context context, FormEntryPrompt prompt) {
@@ -71,31 +70,23 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
         mWaitingForData = false;
         mInstanceFolder =
-            FormEntryActivity.mInstancePath.substring(0,
-                FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryActivity.mInstancePath.substring(0,
+                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
 
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-        
         mErrorTextView = new TextView(context);
         mErrorTextView.setText("Selected file is not a valid image");
 
         // setup capture button
         mCaptureButton = new Button(getContext());
-        mCaptureButton.setText(Localization.get("odk_capture_image"));
-        mCaptureButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mCaptureButton.setPadding(20, 20, 20, 20);
-        mCaptureButton.setEnabled(!prompt.isReadOnly());
-        mCaptureButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mCaptureButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 mErrorTextView.setVisibility(View.GONE);
@@ -111,34 +102,29 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 // if this gets modified, the onActivityResult in
                 // FormEntyActivity will also need to be updated.
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                    Uri.fromFile(new File(Collect.TMPFILE_PATH)));
+                        Uri.fromFile(new File(Collect.TMPFILE_PATH)));
                 try {
-                    ((Activity) getContext()).startActivityForResult(i,
-                        FormEntryActivity.IMAGE_CAPTURE);
+                    ((Activity)getContext()).startActivityForResult(i,
+                            FormEntryActivity.IMAGE_CAPTURE);
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        Localization.get("odk_activity_not_found", "image capture"),
-                        Toast.LENGTH_SHORT);
+                            StringUtils.getStringSpannableRobust(getContext(),
+                                    R.string.activity_not_found, "image capture"),
+                            Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
         // setup chooser button
         mChooseButton = new Button(getContext());
-        mChooseButton.setText(Localization.get("odk_choose_image"));
-        mChooseButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mChooseButton.setPadding(20, 20, 20, 20);
-        mChooseButton.setEnabled(!prompt.isReadOnly());
-        mChooseButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mChooseButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 mErrorTextView.setVisibility(View.GONE);
@@ -146,24 +132,25 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 i.setType("image/*");
 
                 try {
-                    ((Activity) getContext()).startActivityForResult(i,
-                        FormEntryActivity.IMAGE_CHOOSER);
+                    ((Activity)getContext()).startActivityForResult(i,
+                            FormEntryActivity.IMAGE_CHOOSER);
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        Localization.get("odk_activity_not_found", "choose image"),
-                        Toast.LENGTH_SHORT);
+                            StringUtils.getStringSpannableRobust(getContext(),
+                                    R.string.activity_not_found, "choose image"),
+                            Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
-        
+
         // finish complex layout
         //
         addView(mCaptureButton);
         addView(mChooseButton);
+
         String acq = prompt.getAppearanceHint();
-        if((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))){
+        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
             mChooseButton.setVisibility(View.GONE);
         }
         addView(mErrorTextView);
@@ -176,17 +163,18 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         if (mBinaryName != null) {
             mImageView = new ImageView(getContext());
             Display display =
-                ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                        .getDefaultDisplay();
+                    ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                            .getDefaultDisplay();
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
             File f = new File(mInstanceFolder + "/" + mBinaryName);
-            
+
             checkFileSize(f);
-            
+
             if (f.exists()) {
-                Bitmap bmp = FileUtils.getBitmapScaledToDisplay(f, screenHeight, screenWidth);
+                Bitmap bmp = FileUtils.getBitmapScaledToDisplay(f,
+                        screenHeight, screenWidth);
                 if (bmp == null) {
                     mErrorTextView.setVisibility(View.VISIBLE);
                 }
@@ -198,46 +186,39 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
             mImageView.setOnClickListener(new View.OnClickListener() {
-            	/*
-            	 * (non-Javadoc)
-            	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-            	 */
                 @Override
                 public void onClick(View v) {
                     Intent i = new Intent("android.intent.action.VIEW");
                     String[] projection = {
-                        "_id"
+                            "_id"
                     };
                     Cursor c = null;
                     try {
                         c = getContext().getContentResolver().query(
-                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                    projection, "_data='" + mInstanceFolder + mBinaryName + "'",
-                                    null, null);
+                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                projection, "_data='" + mInstanceFolder + mBinaryName + "'",
+                                null, null);
                         if (c.getCount() > 0) {
                             c.moveToFirst();
                             String id = c.getString(c.getColumnIndex("_id"));
-    
-                            Log.i(
-                                t,
-                                "setting view path to: "
-                                        + Uri.withAppendedPath(
-                                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                            id));
-    
+
+                            Log.i(t, "setting view path to: " +
+                                    Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
+
                             i.setDataAndType(Uri.withAppendedPath(
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
-                                "image/*");
+                                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
+                                    "image/*");
                             try {
                                 getContext().startActivity(i);
                             } catch (ActivityNotFoundException e) {
                                 Toast.makeText(getContext(),
-                                    Localization.get("odk_activity_not_found", "view image"),
-                                    Toast.LENGTH_SHORT);
+                                        StringUtils.getStringSpannableRobust(getContext(),
+                                            R.string.activity_not_found, "view image"),
+                                        Toast.LENGTH_SHORT).show();
                             }
                         }
                     } finally {
-                        if ( c != null ) {
+                        if (c != null) {
                             c.close();
                         }
                     }
@@ -247,7 +228,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
             addView(mImageView);
         }
     }
-
 
     private void deleteMedia() {
         // get the file path and delete the file
@@ -265,7 +245,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mBinaryName = null;*/
     }
 
-
     /*
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
@@ -278,9 +257,8 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mErrorTextView.setVisibility(View.GONE);
 
         // reset buttons
-        mCaptureButton.setText(Localization.get("odk_capture_image"));
+        mCaptureButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image));
     }
-
 
     /*
      * (non-Javadoc)
@@ -289,12 +267,11 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
-            return new StringData(mBinaryName.toString());
+            return new StringData(mBinaryName);
         } else {
             return null;
         }
     }
-
 
     /*
      * (non-Javadoc)
@@ -315,7 +292,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mWaitingForData = false;
     }
 
-
     /*
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
@@ -328,7 +304,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-
     /*
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.IBinaryWidget#isWaitingForBinaryData()
@@ -337,7 +312,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     public boolean isWaitingForBinaryData() {
         return mWaitingForData;
     }
-
 
     /*
      * (non-Javadoc)
@@ -352,7 +326,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-
     /*
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
@@ -366,5 +339,4 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
             mImageView.cancelLongPress();
         }
     }
-
 }

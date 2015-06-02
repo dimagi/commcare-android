@@ -83,10 +83,14 @@ public class NodeEntityFactory {
                 xpe.printStackTrace();
                 details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
                 backgroundDetails[count] = "";
+                // assume that if there's an error, user should see it
+                relevancyDetails[count] = true;
             } catch (XPathSyntaxException e) {
                 e.printStackTrace();
                 details[count] = "<invalid xpath: " + e.getMessage() + ">";
                 backgroundDetails[count] = "";
+                // assume that if there's an error, user should see it
+                relevancyDetails[count] = true;
             }
             count++;
         }

@@ -21,15 +21,20 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
@@ -44,7 +49,6 @@ import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.logic.FileReferenceFactory;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
 import org.odk.collect.android.utilities.ApkUtils;
 import org.odk.collect.android.utilities.FileUtils;
 
@@ -123,9 +127,9 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         Uri theForm = form[0];
         
         //TODO: Selection=? helper
-        Cursor c = context.getContentResolver().query(theForm, new String[] {FormsColumns.FORM_FILE_PATH, FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+        Cursor c = context.getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
         if(!c.moveToFirst()) {throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString()); }
-        String formPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+        String formPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
 
         File formXml = new File(formPath);
         String formHash = FileUtils.getMd5Hash(formXml);
@@ -146,6 +150,8 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 formBin.delete();
             }
         }
+        
+        // If we couldn't find a cached version, load the form from the XML
         if (fd == null) {
             // no binary, read from xml
             try {
@@ -156,8 +162,6 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 fd = XFormUtils.getFormFromInputStream(fis);
                 if (fd == null) {
                     mErrorMsg = "Error reading XForm file";
-                } else {
-                    serializeFormDef(fd, formPath);
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -171,8 +175,19 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             }
         }
 
+        //If we errored out, report back the issue
         if (mErrorMsg != null) {
             return null;
+        }
+        
+        // Try to write the form definition to a cached location
+        try {
+            serializeFormDef(fd, formPath);
+        } catch(Exception e) {
+            // The cache is a bonus, so if we can't write it, don't crash, but log 
+            // it so we can clean up whatever is preventing the cached version from
+            // working
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReportTask.getStackTrace(e));
         }
 
         fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler(context));
@@ -208,7 +223,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         // Remove previous forms
         ReferenceManager._().clearSession();
         
-        String formMediaPath = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
+        String formMediaPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
         
         if(formMediaPath != null) {
             ReferenceManager._().addSessionRootTranslator(
@@ -329,28 +344,38 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
 
     /**
-     * Write the FormDef to the file system as a binary blog.
+     * Write the FormDef to the file system as a binary blob.
      * 
      * @param filepath path to the form file
+     * @throws IOException 
      */
-    public void serializeFormDef(FormDef fd, String filepath) {
-        // calculate unique md5 identifier
+    @SuppressWarnings("resource")
+    public void serializeFormDef(FormDef fd, String filepath) throws IOException {
+        // calculate unique md5 identifier for this form
         String hash = FileUtils.getMd5Hash(new File(filepath));
         File formDef = new File(Collect.CACHE_PATH + "/" + hash + ".formdef");
 
-        // formdef does not exist, create one.
+        // create a serialized form file if there isn't already one at this hash
         if (!formDef.exists()) {
-            FileOutputStream fos;
+            OutputStream outputStream = null;
             try {
-                fos = new FileOutputStream(formDef);
-                DataOutputStream dos = new DataOutputStream(fos);
+                outputStream = new FileOutputStream(formDef);
+                DataOutputStream dos;
+                outputStream = dos = new DataOutputStream(outputStream);
                 fd.writeExternal(dos);
                 dos.flush();
-                dos.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } finally {
+                //make sure we clean up the stream
+                if(outputStream != null) {
+                    try {
+                        outputStream.close();
+                    } catch (IOException e){
+                        // Swallow this. If we threw an exception from inside the 
+                        // try, this close exception will trump it on the return 
+                        // path, and we care a lot more about that exception
+                        // than this one.
+                    }
+                }
             }
         }
     }
