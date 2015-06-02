@@ -731,7 +731,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
 
             final View bottomSearchWidget = findViewById(R.id.searchfooter);
-            if(bottomSearchWidget != null) bottomSearchWidget.setVisibility(View.GONE);
+            bottomSearchWidget.setVisibility(View.GONE);
         }
 
         return true;
