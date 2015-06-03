@@ -119,7 +119,7 @@ public class EntityDetailAdapter implements ListAdapter {
         if(modifier != null){
             modifier.modifyEntityDetailView(dv);
         }
-        dv.setLineColor(position % 2 != 0);
+        dv.setLineColor((position % 2) != 0);
         return dv;
     }
 
