@@ -1,8 +1,13 @@
 package org.commcare.android.view;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
+import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.util.AndroidUtil;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
+import org.javarosa.core.model.instance.TreeReference;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,7 +37,7 @@ import org.javarosa.core.model.instance.TreeReference;
  *
  */
 public class TabbedDetailView extends RelativeLayout {
-    private final FragmentActivity mContext;
+    private FragmentActivity mContext;
     
     private LinearLayout mMenu;
     private EntityDetailPagerAdapter mEntityDetailPagerAdapter;
@@ -41,7 +46,7 @@ public class TabbedDetailView extends RelativeLayout {
     
     private int mAlternateId = -1;
     
-    public TabbedDetailView(final Context context) {
+    public TabbedDetailView(Context context) {
         this(context, -1);
     }
     
@@ -53,19 +58,19 @@ public class TabbedDetailView extends RelativeLayout {
      * @param context
      * @param alternateId
      */
-    public TabbedDetailView(final Context context, final int alternateId) {
+    public TabbedDetailView(Context context, int alternateId) {
         super(context);
         mContext = (FragmentActivity) context;
         this.mAlternateId = alternateId;
     }
 
-    public TabbedDetailView(final Context context, final AttributeSet attrs) {
+    public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = (FragmentActivity) context;
     }
     
     @SuppressLint("NewApi")
-    public TabbedDetailView(final Context context, final AttributeSet attrs, final int defStyle) {
+    public TabbedDetailView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mContext = (FragmentActivity) context;
     }
@@ -73,8 +78,8 @@ public class TabbedDetailView extends RelativeLayout {
     /*
      * Attach this view to a layout.
      */
-    public void setRoot(final ViewGroup root) {
-        final LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public void setRoot(ViewGroup root) {
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         
         inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
@@ -88,13 +93,13 @@ public class TabbedDetailView extends RelativeLayout {
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             
             @Override
-            public void onPageSelected(final int position) { markSelectedTab(position); }
+            public void onPageSelected(int position) { markSelectedTab(position); }
             
             @Override
-            public void onPageScrolled(final int arg0, final float arg1, final int arg2) { }
+            public void onPageScrolled(int arg0, float arg1, int arg2) { }
             
             @Override
-            public void onPageScrollStateChanged(final int arg0) { }
+            public void onPageScrollStateChanged(int arg0) { }
 
         });
     }
@@ -102,38 +107,38 @@ public class TabbedDetailView extends RelativeLayout {
     /*
      * Populate view with content from given Detail.
      */
-    public void setDetail(final Detail detail) {
-        final Detail[] details = detail.getDetails();
+    public void setDetail(Detail detail) {
+        Detail[] details = detail.getDetails();
 
-        final LinearLayout.LayoutParams pagerLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams pagerLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         int margin = 0;
         int menuVisibility = View.GONE;
         int backgroundColor = Color.TRANSPARENT;
 
         if (details.length > 0) {
             mMenu.setWeightSum(details.length);
-            final LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, 
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1
             );
 
-            for (final Detail d : details) {
-                final OnClickListener listener = new OnClickListener() {
+            for (Detail d : details) {
+                OnClickListener listener = new OnClickListener() {
                     @Override
-                    public void onClick(final View v) {
-                        final int index = ((ViewGroup) v.getParent()).indexOfChild(v);
+                    public void onClick(View v) {
+                        int index = ((ViewGroup) v.getParent()).indexOfChild(v);
                         mViewPager.setCurrentItem(index, true);
                         markSelectedTab(index);
                     }
                 };
                 
                 // Create MenuListEntryView for tab
-                final HorizontalMediaView view = new HorizontalMediaView(mContext);
-                final DisplayUnit title = d.getTitle();
-                final Text text = title.getText();
-                final Text audio = title.getAudioURI();
-                final Text image = title.getImageURI();
+                HorizontalMediaView view = new HorizontalMediaView(mContext);
+                DisplayUnit title = d.getTitle();
+                Text text = title.getText();
+                Text audio = title.getAudioURI();
+                Text image = title.getImageURI();
                 view.setAVT(text == null ? null : text.evaluate(),
                         audio == null ? null : audio.evaluate(),
                         image == null ? null : image.evaluate());
@@ -159,7 +164,7 @@ public class TabbedDetailView extends RelativeLayout {
     /*
      * Get form list from database and insert into view.
      */
-    public void refresh(final Detail detail, final TreeReference reference, final int index, final boolean hasDetailCalloutListener) {
+    public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
                 hasDetailCalloutListener, new DefaultEDVModifier()
         );
@@ -170,7 +175,7 @@ public class TabbedDetailView extends RelativeLayout {
     /*
      * Style one tab as "selected".
      */
-    private void markSelectedTab(final int position) {
+    private void markSelectedTab(int position) {
         if (mMenu.getChildCount() <= position) {
             return;
         }
@@ -207,7 +212,7 @@ public class TabbedDetailView extends RelativeLayout {
         }
 
         @Override
-        public void modifyEntityDetailView(final EntityDetailView edv) {
+        public void modifyEntityDetailView(EntityDetailView edv) {
             edv.setOddEvenRowColors(rowColors[0], rowColors[1]);
         }
 
@@ -217,7 +222,7 @@ public class TabbedDetailView extends RelativeLayout {
         }
 
         @Override
-        public void writeToParcel(final Parcel dest, final int flags) {
+        public void writeToParcel(Parcel dest, int flags) {
         }
     }
 

@@ -85,8 +85,8 @@ public class GridEntityView extends GridLayout {
 	public double screenHeight;
 	public double rowHeight;
 	public double rowWidth;
-	private final CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
-	private final AudioController controller;
+	private CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
+	private AudioController controller;
 	
 	/**
 	 * Used to create a entity view tile outside of a managed context (like 
@@ -96,7 +96,7 @@ public class GridEntityView extends GridLayout {
 	 * @param detail
 	 * @param entity
 	 */
-	public GridEntityView(final Context context, final Detail detail, final Entity entity, final AudioController controller) {
+	public GridEntityView(Context context, Detail detail, Entity entity, AudioController controller) {
 	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), controller, false);
 	}
 	
@@ -112,7 +112,7 @@ public class GridEntityView extends GridLayout {
 	 * @param controller
 	 * @param fuzzySearchEnabled
 	 */
-	public GridEntityView(final Context context, final Detail detail, final Entity entity, final String[] searchTerms, final CachingAsyncImageLoader mLoader, final AudioController controller, final boolean fuzzySearchEnabled) {
+	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, AudioController controller, boolean fuzzySearchEnabled) {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.controller = controller;
@@ -185,7 +185,7 @@ public class GridEntityView extends GridLayout {
 	 * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
 	 * @param context
 	 */
-	public void addBuffers(final Context context){
+	public void addBuffers(Context context){
 		
 		for(int i=0; i<NUMBER_ROWS_PER_GRID;i++){
 			
@@ -219,7 +219,7 @@ public class GridEntityView extends GridLayout {
 	
 	// get the maximum height of this grid
 	
-	public int getMaxRows(final Detail detail){
+	public int getMaxRows(Detail detail){
 	    
 	    GridCoordinate[] coordinates = detail.getGridCoordinates();
 	    int currentMaxHeight = 0;
@@ -242,7 +242,7 @@ public class GridEntityView extends GridLayout {
 	 * @param detail - the Detail describing how to display each entry
 	 * @param entity - the Entity describing the actual data of each entry
 	 */
-	public void setViews(final Context context, final Detail detail, final Entity entity){
+	public void setViews(Context context, Detail detail, Entity entity){
 		
 		// clear all previous entries in this grid
 		this.removeAllViews();
@@ -349,7 +349,7 @@ public class GridEntityView extends GridLayout {
 	 * @param rowData The actual data to display, either an XPath to media or a String to display
 	 * @return
 	 */
-	private View getView(final Context context, final String multimediaType, final GridLayout.LayoutParams mGridParams,  final String horzAlign, final String vertAlign, final String textsize, final String rowData, final ViewId uniqueId, final String cssid, final String searchField) {
+	private View getView(Context context, String multimediaType, GridLayout.LayoutParams mGridParams,  String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
 		View retVal;
         switch (multimediaType) {
             case EntityView.FORM_IMAGE:
@@ -404,44 +404,43 @@ public class GridEntityView extends GridLayout {
                     ((TextView)retVal).setText(mSpannable);
                 }
 
-                // handle horizontal alignments
-                if (horzAlign.equals("center")) {
-                    ((TextView)retVal).setGravity(Gravity.CENTER_HORIZONTAL);
-                } else if (horzAlign.equals("left")) {
-                    ((TextView)retVal).setGravity(Gravity.TOP);
-                } else if (horzAlign.equals("right")) {
-                    ((TextView)retVal).setGravity(Gravity.RIGHT);
-                }
-                // handle vertical alignment
-                if (vertAlign.equals("center")) {
-                    ((TextView)retVal).setGravity(Gravity.CENTER_VERTICAL);
-                } else if (vertAlign.equals("top")) {
-                    ((TextView)retVal).setGravity(Gravity.TOP);
-                } else if (vertAlign.equals("bottom")) {
-                    ((TextView)retVal).setGravity(Gravity.BOTTOM);
-                }
-
-                // handle text resizing
-                if (textsize.equals("large")) {
-                    ((TextView)retVal).setTextSize(LARGE_FONT / DENSITY);
-                } else if (textsize.equals("small")) {
-                    ((TextView)retVal).setTextSize(SMALL_FONT / DENSITY);
-                } else if (textsize.equals("medium")) {
-                    ((TextView)retVal).setTextSize(MEDIUM_FONT / DENSITY);
-                } else if (textsize.equals("xlarge")) {
-                    ((TextView)retVal).setTextSize(XLARGE_FONT / DENSITY);
-                }
-                break;
-        }
+			// handle horizontal alignments
+			if(horzAlign.equals("center")){
+				((TextView)retVal).setGravity(Gravity.CENTER_HORIZONTAL);
+			} else if(horzAlign.equals("left")) {
+				((TextView)retVal).setGravity(Gravity.TOP);
+			} else if(horzAlign.equals("right")) {
+				((TextView)retVal).setGravity(Gravity.RIGHT);
+			}  
+			// handle vertical alignment
+			if(vertAlign.equals("center")){
+				((TextView)retVal).setGravity(Gravity.CENTER_VERTICAL);
+			} else if(vertAlign.equals("top")) {
+				((TextView)retVal).setGravity(Gravity.TOP);
+			} else if(vertAlign.equals("bottom")) {
+				((TextView)retVal).setGravity(Gravity.BOTTOM);
+			}
+			
+			// handle text resizing
+			if(textsize.equals("large")){
+				((TextView)retVal).setTextSize(LARGE_FONT/DENSITY);
+			} else if(textsize.equals("small")){
+				((TextView)retVal).setTextSize(SMALL_FONT/DENSITY);
+			} else if(textsize.equals("medium")){
+				((TextView)retVal).setTextSize(MEDIUM_FONT/DENSITY);
+			} else if(textsize.equals("xlarge")){
+				((TextView)retVal).setTextSize(XLARGE_FONT/DENSITY);
+			} 
+		}
 		
 		return retVal;
 	}
-    public void setSearchTerms(final String[] currentSearchTerms) {
+    public void setSearchTerms(String[] currentSearchTerms) {
         this.searchTerms = currentSearchTerms;
         
     }
 
-    public void setTextColor(final int color){
+    public void setTextColor(int color){
         for (int i = 0; i < mRowViews.length; i++) {
             View v = mRowViews[i];
             if (v == null) continue;
@@ -451,7 +450,7 @@ public class GridEntityView extends GridLayout {
         }
     }
 
-    public void setTitleTextColor(final int color){
+    public void setTitleTextColor(int color){
         for (int i = 0; i < mRowViews.length; i++) {
             View v = mRowViews[i];
             if (v == null) continue;

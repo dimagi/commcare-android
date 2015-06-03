@@ -17,12 +17,12 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 
     private EntityDetailAdapter.EntityDetailViewModifier modifier;
-    final Detail detail;
-    final int detailIndex;
-    final boolean hasDetailCalloutListener;
-    final TreeReference mEntityReference;
+    Detail detail;
+    int detailIndex;
+    boolean hasDetailCalloutListener;
+    TreeReference mEntityReference;
 
-    public EntityDetailPagerAdapter(final FragmentManager fm, final Detail detail, final int detailIndex, final TreeReference reference, final boolean hasDetailCalloutListener) {
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener) {    
         super(fm);
         this.detail = detail;
         this.detailIndex = detailIndex;
@@ -30,7 +30,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.mEntityReference = reference;
     }
 
-    public EntityDetailPagerAdapter(final FragmentManager fm, final Detail detail, final int detailIndex, final TreeReference reference, final boolean hasDetailCalloutListener, final EntityDetailAdapter.EntityDetailViewModifier modifier) {
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, EntityDetailAdapter.EntityDetailViewModifier modifier) {
         this(fm, detail, detailIndex, reference, hasDetailCalloutListener);
         this.modifier = modifier;
     }
@@ -40,10 +40,10 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
      * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
      */
     @Override
-    public Fragment getItem(final int i) {
-        final EntityDetailFragment fragment = new EntityDetailFragment();
+    public Fragment getItem(int i) {
+        EntityDetailFragment fragment = new EntityDetailFragment();
         fragment.setEntityDetailModifier(modifier);
-        final Bundle args = new Bundle();
+        Bundle args = new Bundle();
         args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
         if (detail.isCompound()) {
             args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
