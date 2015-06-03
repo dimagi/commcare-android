@@ -31,7 +31,7 @@ public class SetupKeepInstallFragment extends Fragment {
 
     StartStopInstallCommands buttonCommands;
 
-    public void setButtonCommands(final StartStopInstallCommands buttonCommands) {
+    public void setButtonCommands(StartStopInstallCommands buttonCommands) {
         this.buttonCommands = buttonCommands;
     }
 
@@ -45,25 +45,25 @@ public class SetupKeepInstallFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.setup_keepinstall, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.setup_keepinstall, container, false);
         btnStartInstall = (SquareButtonWithText) view.findViewById(R.id.btn_start_install);
         btnStartInstall.setText(Localization.get("install.button.start"));
         btnStopInstall = (SquareButtonWithText) view.findViewById(R.id.btn_stop_install);
         btnStopInstall.setText(Localization.get("install.button.startover"));
-        final TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
+        TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.ready"));
-        final TextView netWarn = (TextView) view.findViewById(R.id.net_warn);
+        TextView netWarn = (TextView) view.findViewById(R.id.net_warn);
         netWarn.setText(Localization.get("install.netwarn"));
         btnStartInstall.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(final View v) {
+            public void onClick(View v) {
                 if(buttonCommands != null) buttonCommands.onStartInstallClicked();
             }
         });
         btnStopInstall.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(final View v) {
+            public void onClick(View v) {
                 if(buttonCommands != null) buttonCommands.onStopInstallClicked();
             }
         });

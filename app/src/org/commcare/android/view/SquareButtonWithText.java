@@ -29,17 +29,17 @@ public class SquareButtonWithText extends RelativeLayout {
 
     //region Constructors
 
-    public SquareButtonWithText(final Context context) {
+    public SquareButtonWithText(Context context) {
         super(context);
     }
 
-    public SquareButtonWithText(final Context context, final AttributeSet attrs) {
+    public SquareButtonWithText(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         inflateAndExtractCustomParams(context, attrs);
     }
 
-    public SquareButtonWithText(final Context context, final AttributeSet attrs, final int defStyleAttr) {
+    public SquareButtonWithText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         inflateAndExtractCustomParams(context, attrs);
@@ -49,10 +49,10 @@ public class SquareButtonWithText extends RelativeLayout {
 
     //region Custom parameter processing
 
-    private void inflateAndExtractCustomParams(final Context context, final AttributeSet attrs) {
+    private void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
         inflate(context, R.layout.square_button_text, this);
 
-        final TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareButtonWithText);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareButtonWithText);
 
         backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
         backgroundColor = typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent);
@@ -71,7 +71,7 @@ public class SquareButtonWithText extends RelativeLayout {
         setUI(backgroundColor, backgroundImg, text, colorButtonText);
     }
 
-    private void setUI(final int backgroundColor, final Drawable backgroundImg, final String text, final int colorButtonText) {
+    private void setUI(int backgroundColor, Drawable backgroundImg, String text, int colorButtonText) {
         setColor(backgroundColor);
         setImage(backgroundImg);
         setText(text);
@@ -82,28 +82,28 @@ public class SquareButtonWithText extends RelativeLayout {
 
     //region Compatibility methods
 
-    public void setText(final String text) {
+    public void setText(String text) {
         if (textView != null) {
             textView.setText(text);
         }
     }
 
-    public void setImage(final Drawable backgroundImg) {
+    public void setImage(Drawable backgroundImg) {
         squareButton.setImageDrawable(backgroundImg);
     }
 
-    public void setColor(final int backgroundColor) {
+    public void setColor(int backgroundColor) {
         squareButton.setBackgroundResource(backgroundColor);
     }
 
-    public void setTextColor(final int textColor) {
+    public void setTextColor(int textColor) {
         textView.setTextColor(getResources().getColor(textColor));
     }
 
     //endregion
 
     @Override
-    public void setOnClickListener(final OnClickListener l) {
+    public void setOnClickListener(OnClickListener l) {
         // attach the listener to the squareButton instead of the layout
         squareButton.setOnClickListener(l);
     }

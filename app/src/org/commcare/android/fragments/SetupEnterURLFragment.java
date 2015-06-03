@@ -46,13 +46,13 @@ public class SetupEnterURLFragment extends Fragment {
     EditText profileLocation;
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.setup_enter_url, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.setup_enter_url, container, false);
         installButton = (Button) view.findViewById(R.id.start_install);
         installButton.setText(Localization.get("install.button.start"));
         prefixURLSpinner = (Spinner) view.findViewById(R.id.url_spinner);
         profileLocation = (EditText) view.findViewById(R.id.edit_profile_location);
-        final TextView appProfile = (TextView) view.findViewById(R.id.app_profile_txt_view);
+        TextView appProfile = (TextView) view.findViewById(R.id.app_profile_txt_view);
         appProfile.setText(Localization.get("install.appprofile"));
 
         installButton.setOnClickListener(new View.OnClickListener() {
@@ -67,7 +67,7 @@ public class SetupEnterURLFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(final Activity activity) {
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
         if(!(activity instanceof URLInstaller)){
             throw new ClassCastException(activity + " must implemement " + interfaceName);
@@ -81,7 +81,7 @@ public class SetupEnterURLFragment extends Fragment {
      * @return The current URL
      */
     public String getURL(){
-        final int selectedPrefix = prefixURLSpinner.getSelectedItemPosition();
+        int selectedPrefix = prefixURLSpinner.getSelectedItemPosition();
         String url = profileLocation.getText().toString();
         if (url == null || url.length() == 0) {
             return url;
