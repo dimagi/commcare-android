@@ -181,10 +181,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     ImageView topBannerImageView;
     int gridViewMargin;
 
-    private boolean isUsingNewUI(){
-        return true;
-    }
-
     /*
          * (non-Javadoc)
          * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -211,7 +207,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
 
-        if(isUsingNewUI()) {
             setContentView(R.layout.mainnew_modern);
             adapter = new HomeScreenAdapter(this);
             View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
@@ -236,10 +231,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     configUi();
                 }
             });
-        } else {
-            setContentView(R.layout.mainnew);
-            configUi();
-        }
+
     }
     
     @SuppressLint("NewApi")
@@ -249,14 +241,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         // enter data button. expects a result.
 
-        if(isUsingNewUI()) {
             startButton = adapter.getButton(R.layout.home_start_button, false);
             if (startButton == null) {
                 Log.d("buttons", "startButton is null! Crashing!");
             }
-        } else {
-//            startButton = (Button)findViewById(R.id.home_start);
-        }
+
         if (startButton != null) {
             startButton.setText(Localization.get("home.start"));
         }
@@ -271,18 +260,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 startActivityForResult(i, GET_COMMAND);
             }
         };
-        if(isUsingNewUI()){
             adapter.setOnClickListenerForButton(R.layout.home_start_button, false, startListener);
-        } else {
-            startButton.setOnClickListener(startListener);
-        }
+
 
         // enter data button. expects a result.
-        if(isUsingNewUI()) {
             viewIncomplete = adapter.getButton(R.layout.home_incompleteforms_button, false);
-        } else {
-//            viewIncomplete = (Button)findViewById(R.id.home_forms_incomplete);
-        }
+
         if(viewIncomplete != null) {
             setIncompleteFormsText(CommCareApplication._().getSyncDisplayParameters());
         }
@@ -291,20 +274,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 goToFormArchive(true);
             }
         };
-        if(isUsingNewUI()){
             adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, false, viewIncompleteListener);
-        } else {
-            viewIncomplete.setOnClickListener(viewIncompleteListener);
-        }
 
-        if(isUsingNewUI()){
+
             logoutButton = adapter.getButton(R.layout.home_disconnect_button, false);
             if(logoutButton == null){
                 Log.d("buttons", "logoutButton is null! Crashing!");
             }
-        } else {
-//            logoutButton = (Button)findViewById(R.id.home_logout);
-        }
+
         if (logoutButton != null) {
             logoutButton.setText(Localization.get("home.logout"));
         }
@@ -314,12 +291,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 returnToLogin(null);
             }
         };
-        if(isUsingNewUI()){
             adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, false, logoutButtonListener);
             if (logoutButton != null) { logoutButton.setNotificationText(getActivityTitle()); adapter.notifyDataSetChanged();}
-        } else {
-            logoutButton.setOnClickListener(logoutButtonListener);
-        }
+
 
 
         TextView formGroupLabel = (TextView) findViewById(R.id.home_formrecords_label);
@@ -327,14 +301,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             formGroupLabel.setText(Localization.get("home.forms"));
         }
 
-        if(isUsingNewUI()){
             viewOldForms = adapter.getButton(R.layout.home_savedforms_button, false);
             if(viewOldForms == null){
                 Log.d("buttons", "viewOldForms is null! Crashing!");
             }
-        } else {
-//            viewOldForms = (Button)findViewById(R.id.home_forms_old);
-        }
+
         if (viewOldForms != null) {
             viewOldForms.setText(Localization.get("home.forms.saved"));
         }
@@ -343,21 +314,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 goToFormArchive(false);
             }
         };
-        if(isUsingNewUI()){
             adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, false, viewOldFormsListener);
-        } else {
-            viewOldForms.setOnClickListener(viewOldFormsListener);
-        }
 
 
-        if(isUsingNewUI()){
+
             syncButton = adapter.getButton(R.layout.home_sync_button, false);
             if(syncButton == null){
                 Log.d("buttons", "syncButton is null! Crashing!");
             }
-        } else {
-//            syncButton = (Button)findViewById(R.id.home_sync);
-        }
+
         if(syncButton != null) setSyncText(CommCareApplication._().getSyncDisplayParameters(), null);
         View.OnClickListener syncButtonListener = new OnClickListener() {
             public void onClick(View v) {
@@ -384,11 +349,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             }
         };
-        if(isUsingNewUI()){
             adapter.setOnClickListenerForButton(R.layout.home_sync_button, false, syncButtonListener);
-        } else {
-            syncButton.setOnClickListener(syncButtonListener);
-        }
+
 
         // CommCare-159047: this method call rebuilds the options menu
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -1433,25 +1395,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }
 
-        if(isUsingNewUI()) {
             adapter.setNotificationTextForButton(R.layout.home_sync_button, false, message);
-        } else {
-            TextView syncMessage = (TextView)findViewById(R.id.home_sync_message);
-            syncMessage.setText(message);
-            //Need to transplant the padding due to background affecting it
-            int[] padding = {syncMessage.getPaddingLeft(), syncMessage.getPaddingTop(), syncMessage.getPaddingRight(),syncMessage.getPaddingBottom() };
-            if(bad){
-                syncMessage.setTextColor(getResources().getColor(R.color.red));
-                syncMessage.setTypeface(null, Typeface.BOLD);
-                syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble_danger));
-            }
-            else{
-                syncMessage.setTextColor(getResources().getColor(R.color.black));
-                syncMessage.setTypeface(null, Typeface.NORMAL);
-                syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble));
-            }
-            syncMessage.setPadding(padding[0],padding[1], padding[2], padding[3]);
-        }
+
     }
     
     private void refreshView() throws SessionUnavailableException{
@@ -1483,13 +1428,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (!"".equals(customBannerURI)) {
             Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
             if (bitmap != null) {
-                if(isUsingNewUI()){
                     if(topBannerImageView != null) topBannerImageView.setImageBitmap(bitmap);
                     else Log.i("TopBanner","TopBanner is null!");
-                } else {
-                    ImageView bannerView = (ImageView) findViewById(R.id.main_top_banner);
-                    bannerView.setImageBitmap(bitmap);
-                }
+
             }
         }
         
@@ -1533,15 +1474,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         //Make sure that the review button is properly enabled.
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         if(p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-            if(isUsingNewUI()){
                 adapter.setButtonVisibility(R.layout.home_savedforms_button, false, false);
-            } else {
-                viewOldForms.setVisibility(Button.VISIBLE);
-            }
+
         }
 
 
-        if(isUsingNewUI()){
             // set adapter to hide the buttons...
             boolean showSavedForms = CommCarePreferences.isSavedFormsEnabled();
             boolean showIncompleteForms = CommCarePreferences.isIncompleteFormsEnabled();
@@ -1552,37 +1489,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             adapter.setButtonVisibility(R.layout.home_incompleteforms_button, false, !showIncompleteForms);
 
             adapter.notifyDataSetChanged();
-        } else {
-            View formRecordPane = this.findViewById(R.id.home_formspanel);
 
-            if ((!CommCarePreferences.isIncompleteFormsEnabled() && !CommCarePreferences.isSavedFormsEnabled())) {
-                formRecordPane.setVisibility(View.GONE);
-            } else {
-            
-            /*
-             * Not in sense mode
-             * Form records are visible unless specifically set to be on/off
-             */
-
-                formRecordPane.setVisibility(View.VISIBLE);
-                if(viewOldForms != null) {
-                    if (!CommCarePreferences.isSavedFormsEnabled()) {
-                        viewOldForms.setVisibility(View.GONE);
-                    } else {
-                        viewOldForms.setVisibility(View.VISIBLE);
-                    }
-                }
-
-                if(viewIncomplete != null) {
-                    if (!CommCarePreferences.isIncompleteFormsEnabled()) {
-                        viewIncomplete.setVisibility(View.GONE);
-                    } else {
-                        viewIncomplete.setVisibility(View.VISIBLE);
-                    }
-                }
-
-            }
-        }
     }
 
     private void setSyncText(Pair<Long, int[]> syncDetails, String syncTextKey) {
@@ -1591,12 +1498,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         if(syncDetails.second[0] > 0) {
             Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncTextKey)}));
-            if(isUsingNewUI() && syncButton != null) {
                 syncButton.setNotificationText(syncIndicator);
                 adapter.notifyDataSetChanged();
-            } else {
-                if(syncButton != null) syncButton.setText(syncIndicator);
-            }
+
         } else {
             if(syncButton != null) syncButton.setText(this.localize(syncTextKey));
         }
@@ -1606,11 +1510,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if(syncDetails.second[1] > 0) {
             Log.i("syncDetails", "SyncDetails has count " + syncDetails.second[1]);
             Spannable incompleteIndicator = (this.localize("home.forms.incomplete.indicator", new String[] {String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
-            if(isUsingNewUI()) {
                 if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
-            } else {
-                if(viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
-            }
+
         } else {
             Log.i("syncDetails","SyncDetails has no count");
             if(viewIncomplete != null) viewIncomplete.setText(this.localize("home.forms.incomplete"));
