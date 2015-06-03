@@ -6,21 +6,10 @@
               android:layout_height="match_parent"
               android:background="@color/cc_core_bg"
     >
-    <!--<ImageView-->
-        <!--android:id="@+id/main_top_banner"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:scaleType="fitCenter"-->
-        <!--android:src="@drawable/ccbanner_hms"-->
-        <!--android:visibility="visible"-->
-        <!--android:adjustViewBounds="true"-->
-        <!--android:paddingTop="10dp"/>-->
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-    <!--<com.origamilabs.library.views.StaggeredGridView-->
-        <!--<GridView-->
     <!-- the top banner is going to be added as a header view to this element -->
     <in.srain.cube.views.GridViewWithHeaderAndFooter
         android:id="@+id/home_gridview_buttons"
@@ -33,8 +22,6 @@
         android:paddingBottom="8dp"
         android:scrollbars="none"
         />
-        <!--android:layout_margin="8dp"-->
-        <!--app:itemMargin="8dp"-->
     <TextView
         android:id="@+id/str_version"
         android:layout_width="wrap_content"
