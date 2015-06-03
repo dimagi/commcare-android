@@ -570,7 +570,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         //The onResume() will take us to the screen
                     } else {
                         refreshView();
-                        checkAndStartUnsentTask(false);
+                        
+                        //Unless we're about to sync (which will handle this
+                        //in a blocking fashion), trigger off a regular unsent
+                        //task processor
+                        if(!CommCareApplication._().isSyncPending(false)) {
+                            checkAndStartUnsentTask(false);
+                        }
                         
                         if(isDemoUser()) {
                             showDemoModeWarning();
