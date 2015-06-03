@@ -18,6 +18,8 @@ import java.util.LinkedList;
  * Created by dancluna on 3/19/15.
  */
 public class HomeScreenAdapter extends BaseAdapter {
+    public static final String TAG = "HomeScrnAdpt";
+
     //region Buttons
 
     static final int[] buttonsResources = new int[]{
@@ -55,7 +57,30 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     //region Constructors
 
-    public HomeScreenAdapter(Context c) { this.context = c; }
+    public HomeScreenAdapter(Context c) {
+        this.context = c;
+        visibleButtons = new LinkedList<SquareButtonWithNotification>();
+        for (int i = 0; i < buttons.length; i++) {
+            if (buttons[i] != null) {
+                continue;
+            }
+            SquareButtonWithNotification button = (SquareButtonWithNotification)LayoutInflater.from(context)
+                    .inflate(buttonsResources[i], null, false);
+            buttons[i] = button;
+            Log.i(TAG, "Added button " + button + "to position " + i);
+
+            View.OnClickListener listener = buttonListeners[i];
+            // creating now, but set a clickListener before, so we'll add it to this button...
+            if (listener != null) {
+                button.setOnClickListener(listener);
+                Log.i(TAG, "Added onClickListener " + listener + " to button in position " + i);
+            }
+            if (!hiddenButtons[i]) {
+                visibleButtons.add(button);
+            }
+        }
+        isInitialized = true;
+    }
 
     //endregion
 
@@ -90,8 +115,7 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-//        return buttonsResources.length;
-        return visibleButtons == null ? buttonsResources.length : visibleButtons.size();
+        return visibleButtons.size();
     }
 
     @Override
@@ -106,34 +130,16 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(!isInitialized){
-            visibleButtons = new LinkedList<SquareButtonWithNotification>();
-            Log.i("HomeScrnAdpt","Creating all buttons because got a null in position " + position);
-            for (int i = 0; i < buttons.length; i++) {
-                if (buttons[i] != null) continue;
-                SquareButtonWithNotification button = (SquareButtonWithNotification) LayoutInflater.from(context)
-                        .inflate(buttonsResources[i], parent, false);
-                buttons[i] = button;
-                Log.i("HomeScrnAdpt","Added button " + button + "to position " + i);
-
-                View.OnClickListener listener = buttonListeners[i];
-                // creating now, but set a clickListener before, so we'll add it to this button...
-                if(listener != null) {
-                    button.setOnClickListener(listener);
-                    Log.i("HomeScrnAdpt","Added onClickListener " + listener + " to button in position " + i);
-                }
-                if(!hiddenButtons[i]) visibleButtons.add(button);
-            }
-            isInitialized = true;
+        if (position < 0 || position >= getCount()) {
+            return null;
         }
-        if(position < 0 || position >= getCount()) return null;
         if(convertView != null) {
             return convertView;
         } else {
             SquareButtonWithNotification btn = visibleButtons.get(position);
 
             if(btn == null) {
-                Log.i("HomeScrnAdpt","Unexpected null button");
+                Log.i(TAG,"Unexpected null button");
             }
 
             return btn;
@@ -150,13 +156,13 @@ public class HomeScreenAdapter extends BaseAdapter {
         int index = getButtonIndex(resourceCode, lookupID);
         boolean toggled = isButtonHidden ^ hiddenButtons[index]; // checking if the button visibility was changed in this call
         hiddenButtons[index] = isButtonHidden;
-        if (visibleButtons != null) {
-            if(!toggled) return; // if the visibility was not changed, we don't need to do anything
-            if(isButtonHidden) { // if the visibility was changed, we add/remove the button from the visible buttons' list
-                visibleButtons.remove(buttons[index]);
-            } else {
-                visibleButtons.add(index, buttons[index]);
-            }
+        if (!toggled) {
+            return;
+        } // if the visibility was not changed, we don't need to do anything
+        if (isButtonHidden) { // if the visibility was changed, we add/remove the button from the visible buttons' list
+            visibleButtons.remove(buttons[index]);
+        } else {
+            visibleButtons.add(index, buttons[index]);
         }
     }
 
@@ -188,7 +194,9 @@ public class HomeScreenAdapter extends BaseAdapter {
                 break;
             }
         }
-        if(buttonIndex == null) throw new IllegalArgumentException("Layout code not found: " + code);
+        if (buttonIndex == null) {
+            throw new IllegalArgumentException("Layout code not found: " + code);
+        }
         return buttonIndex;
     }
 
