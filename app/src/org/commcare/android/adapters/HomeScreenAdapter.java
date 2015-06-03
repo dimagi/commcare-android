@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.commcare.android.view.SquareButtonWithNotification;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 
 import java.util.HashMap;
@@ -42,8 +43,6 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     //region Private variables
 
-    final View.OnClickListener[] buttonListeners = new View.OnClickListener[buttonsResources.length];
-
     final SquareButtonWithNotification[] buttons = new SquareButtonWithNotification[buttonsResources.length];
 
     private Context context;
@@ -69,12 +68,6 @@ public class HomeScreenAdapter extends BaseAdapter {
             buttons[i] = button;
             Log.i(TAG, "Added button " + button + "to position " + i);
 
-            View.OnClickListener listener = buttonListeners[i];
-            // creating now, but set a clickListener before, so we'll add it to this button...
-            if (listener != null) {
-                button.setOnClickListener(listener);
-                Log.i(TAG, "Added onClickListener " + listener + " to button in position " + i);
-            }
             if (!hiddenButtons[i]) {
                 visibleButtons.add(button);
             }
@@ -94,10 +87,16 @@ public class HomeScreenAdapter extends BaseAdapter {
      */
     public void setOnClickListenerForButton(int resourceCode, boolean lookupID, View.OnClickListener listener){
         int buttonIndex = getButtonIndex(resourceCode, lookupID);
-        buttonListeners[buttonIndex] = listener;
         SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
         if(button != null){
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Preexisting button when calling setOnClickListenerForButton");
+            }
             button.setOnClickListener(listener);
+        } else {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Button did not exist when calling setOnClickListenerForButton!");
+            }
         }
     }
 
