@@ -323,7 +323,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     }
 
     /**
-     * // * Add a TextView containing the hierarchy of groups to which the question belongs. //
+     * Returns the hierarchy of groups to which the question belongs.
      */
     private String deriveGroupText(FormEntryCaption[] groups) {
         StringBuffer s = new StringBuffer("");
