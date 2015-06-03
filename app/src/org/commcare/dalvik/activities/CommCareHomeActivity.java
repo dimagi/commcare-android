@@ -257,7 +257,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            startButton = (Button)findViewById(R.id.home_start);
         }
-        if(startButton != null) startButton.setText(Localization.get("home.start"));
+        if (startButton != null) {
+            startButton.setText(Localization.get("home.start"));
+        }
         View.OnClickListener startListener = new OnClickListener() {
             public void onClick(View v) {
                 Intent i;
@@ -303,7 +305,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            logoutButton = (Button)findViewById(R.id.home_logout);
         }
-        if(logoutButton != null) logoutButton.setText(Localization.get("home.logout"));
+        if (logoutButton != null) {
+            logoutButton.setText(Localization.get("home.logout"));
+        }
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().logout();
@@ -331,7 +335,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else {
 //            viewOldForms = (Button)findViewById(R.id.home_forms_old);
         }
-        if(viewOldForms != null) viewOldForms.setText(Localization.get("home.forms.saved"));
+        if (viewOldForms != null) {
+            viewOldForms.setText(Localization.get("home.forms.saved"));
+        }
         View.OnClickListener viewOldFormsListener = new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(false);
