@@ -12,8 +12,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:paddingLeft="@dimen/content_start"
+        android:paddingRight="@dimen/content_start"
         style="@style/MainPane">
 
         <!-- adding top banner as dependency -->
@@ -24,11 +24,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/str_version"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:horizontalSpacing="8dp"
-            android:verticalSpacing="8dp"
-            android:paddingBottom="8dp"
+            android:layout_marginStart="@dimen/content_start"
+            android:layout_marginEnd="@dimen/content_start"
+            android:horizontalSpacing="@dimen/content_start"
+            android:verticalSpacing="@dimen/content_start"
+            android:paddingBottom="@dimen/content_start"
             android:scrollbars="none"
             />
         <TextView
