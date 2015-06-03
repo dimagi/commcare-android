@@ -69,7 +69,10 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     
     String mGroupLabel;
 
-    private static boolean SEPERATORS_ENABLED = false;
+    /**
+     * If enabled, we use dividers between question prompts
+     */
+    private static final boolean SEPERATORS_ENABLED = false;
 
     public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory) {
         this(context, new FormEntryPrompt[] {
