@@ -19,12 +19,6 @@
     android:textAppearance="@style/VersionIdText"
     android:visibility="gone" />
 
-    <!--<Button-->
-    <!--android:id="@+id/login_button"-->
-    <!--android:layout_width="fill_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom"-->
-    <!--android:nextFocusUp="@+id/edit_password" />-->
     </LinearLayout>
 
     <LinearLayout
@@ -59,10 +53,6 @@
             android:layout_weight=".8"
             android:gravity="center_vertical"
             android:orientation="vertical">
-
-            <!--<ScrollView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content">-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -143,8 +133,6 @@
                     android:nextFocusUp="@+id/edit_password"
                     />
             </LinearLayout>
-
-            <!--</ScrollView>-->
 
         </LinearLayout>
 
