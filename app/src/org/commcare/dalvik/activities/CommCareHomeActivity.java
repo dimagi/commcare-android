@@ -1237,7 +1237,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
                 startActivityForResult(i,UPGRADE_APP);
                 return;
-            } else if(CommCareApplication._().isSyncPending(false)) {
+            } else if(CommCareApplication._().isSyncPending(true)) {
                 long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
                 String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
                 Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
