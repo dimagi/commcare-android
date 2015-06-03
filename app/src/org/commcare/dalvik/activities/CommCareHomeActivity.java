@@ -1236,7 +1236,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
                 Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
                 refreshView();
-                this.syncData(false);
+                
+                //Send unsent forms first. If the process detects unsent forms
+                //it will sync after the are submitted
+                if(!this.checkAndStartUnsentTask(true)) {
+                    //If there were no unsent forms to be sent, we should immediately
+                    //trigger a sync
+                    this.syncData(false);
+                }
             }
             
             //Normal Home Screen login time! 
