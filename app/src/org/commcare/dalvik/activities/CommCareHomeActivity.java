@@ -1,5 +1,10 @@
 package org.commcare.dalvik.activities;
 
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Vector;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,6 +15,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -27,6 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -1604,6 +1611,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    private void createPreferencesMenu() {
+        createPreferencesMenu(this);
     }
 
     public static void createPreferencesMenu(Activity activity) {
