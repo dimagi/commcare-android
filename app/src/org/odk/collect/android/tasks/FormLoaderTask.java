@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.tasks;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -319,7 +320,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             // create new form def
             fd = new FormDef();
             fis = new FileInputStream(formDef);
-            DataInputStream dis = new DataInputStream(fis);
+            DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
             fd.readExternal(dis, ApkUtils.getPrototypeFactory(context));
