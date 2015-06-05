@@ -15,7 +15,7 @@
         android:layout_height="fill_parent"
         android:gravity="left|center_vertical"
         android:text="Text"
-        android:textAppearance="@style/EntityItemText"
+        android:textStyle="bold"
         android:typeface="normal" android:layout_weight="4" android:visibility="visible"/>
 
     <FrameLayout
@@ -30,7 +30,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="right|center_vertical"
             android:gravity="left|center_vertical"
-            android:padding="15dp"
+            android:padding="@dimen/content_min_margin"
             android:text="Value really big here so it must fit in more than one line"
             android:scrollHorizontally="false"
             android:visibility="visible" />
@@ -43,7 +43,7 @@
             android:layout_marginLeft="11dp"
             android:layout_marginRight="4dp"
             android:drawableLeft="@drawable/sym_action_call"
-            android:drawablePadding="15dp"
+            android:drawablePadding="@dimen/content_min_margin"
             android:inputType="phone"
             android:text="555-555-5555"
             android:typeface="monospace"
@@ -65,7 +65,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="right|center_vertical"
             android:gravity="left|center_vertical"
-            android:padding="15dp"
+            android:padding="@dimen/content_min_margin"
             android:scaleType="fitCenter"
             android:visibility="visible" />
 
@@ -86,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:drawablePadding="15dp"
+                android:drawablePadding="@dimen/content_min_margin"
                 android:text="Callout" />
 
             <Button
@@ -94,7 +94,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:drawablePadding="15dp"
+                android:drawablePadding="@dimen/content_min_margin"
                 android:text="Callout" />
 
             <TextView
@@ -133,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:drawableLeft="@drawable/sym_action_lookup"
-                android:drawablePadding="15dp"
+                android:drawablePadding="@dimen/content_min_margin"
                 android:text="Show Address" />
 
             <TextView

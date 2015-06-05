@@ -30,7 +30,7 @@
     <style name="MainPane">
         <item name="android:paddingRight">15dp</item>
     </style>
-    <dimen name="entity_padding">15dp</dimen>
+    <dimen name="entity_padding">@dimen/content_min_margin</dimen>
     <dimen name="grid_entity_padding">3dp</dimen>
     
     <style name="EntityItemTextView">
@@ -48,7 +48,6 @@
     </style>
     
    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
-       
    </style>
        
    <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium">
@@ -130,6 +129,9 @@
  -->
     <dimen name="badge_overlap">7dp</dimen>
     <dimen name="badge_offset_side">10dp</dimen>
+    
+    <!-- This is the value that needs to be used to pull the lower view back up over the badge -->
+    <dimen name="badge_overlap_offset">-5dp</dimen>
 
 
     <style name="FloatingLabel" parent="@android:style/TextAppearance">
@@ -164,13 +166,26 @@
         <item name="android:textColor">@color/grey</item>
     </style>
 
-    <style name="TextViewV2">
-       <item name="android:paddingTop">16dp</item>
-       <item name="android:paddingBottom">16dp</item>
+    <style name="DefaultHorizontalPadding">
+        <item name="android:paddingLeft">@dimen/content_start</item>
+        <item name="android:paddingRight">@dimen/content_start</item>
+    </style>
+
+    <style name="DefaultVerticalPadding">
+        <item name="android:paddingTop">@dimen/content_min_margin</item>
+        <item name="android:paddingBottom">@dimen/content_min_margin</item>
+    </style>
+
+    <style name="DefaultPadding">
+        <item name="android:paddingLeft">@dimen/content_start</item>
+        <item name="android:paddingRight">@dimen/content_start</item>
+        <item name="android:paddingTop">@dimen/content_min_margin</item>
+        <item name="android:paddingBottom">@dimen/content_min_margin</item>
+    </style>
+
+    <style name="TextViewV2" parent="DefaultPadding">
        <item name="android:background">@color/cc_brand_color</item>
        <item name="android:textColor">@color/cc_core_bg</item>
-       <item name="android:paddingLeft">8dp</item>
-       <item name="android:paddingRight">8dp</item>
     </style>
 
     <style name="TileButton">
@@ -178,4 +193,6 @@
         <item name="android:minWidth">32dp</item>
     </style>
 
+    <color name="login_edit_text_color">@color/cc_core_text</color>
+    <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
 </resources>

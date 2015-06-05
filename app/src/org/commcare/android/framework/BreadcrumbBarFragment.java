@@ -119,7 +119,6 @@ public class BreadcrumbBarFragment extends Fragment {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setSubtitle(local);
         
         actionBar.setTitle(title);
                 
@@ -146,7 +145,6 @@ public class BreadcrumbBarFragment extends Fragment {
         LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
         p.leftMargin = buffer;
 
-        actionBar.setCustomView(getTitleView(activity, title), p);
         activity.setTitle("");
         actionBar.setDisplayShowHomeEnabled(false);
     }
@@ -339,10 +337,7 @@ public class BreadcrumbBarFragment extends Fragment {
             
             if(title != null) {
             
-                if(!breadCrumbsEnabled) {
-                    ActionBar actionBar = this.getActivity().getActionBar();
-                    actionBar.setSubtitle(title);
-                } else {
+                if(breadCrumbsEnabled) {
                     //This part can change more dynamically
                     if(localIdPart != -1 ) {
                         TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
@@ -355,7 +350,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
     
-    public String getBestTitle(Activity activity) {
+    public static String getBestTitle(Activity activity) {
         String bestTitle = null;
 
         try {
@@ -560,7 +555,7 @@ public class BreadcrumbBarFragment extends Fragment {
             //Add the app icon
             TextView iconBearer = ((TextView)layout.getChildAt(layout.getChildCount() - 1));
             
-            iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.ab_icon,0,0,0);
+            iconBearer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_app_white,0,0,0);
             iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
             
             //Add an "Anchor" view to the left hand side of the bar. The relative layout doesn't work unless

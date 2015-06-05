@@ -18,23 +18,18 @@
     <item android:id="@android:id/background">
         <shape>
             <gradient
-                android:startColor="@color/grey_grad_start"
-                android:endColor="@color/grey_grad_end"
-                android:angle="270"
-
+                android:startColor="@color/cc_neutral_bg"
+                android:endColor="@color/cc_neutral_bg"
             />
-            <corners android:radius="10dp" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
         <clip>
             <shape>
                 <gradient
-                    android:startColor="@color/bright_green_grad_start"
-                    android:endColor="@color/bright_green_grad_end"
-                    android:angle="270"
+                    android:startColor="@color/cc_attention_positive_color"
+                    android:endColor="@color/cc_attention_positive_color"
                 />
-                <corners android:radius="10dp" />
             </shape>
         </clip>
     </item>
