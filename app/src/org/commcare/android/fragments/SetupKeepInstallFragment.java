@@ -46,7 +46,7 @@ public class SetupKeepInstallFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.setup_keepinstall, container, false);
+        View view = inflater.inflate(R.layout.fragment_setup_keepinstall, container, false);
         btnStartInstall = (SquareButtonWithText) view.findViewById(R.id.btn_start_install);
         btnStartInstall.setText(Localization.get("install.button.start"));
         btnStopInstall = (SquareButtonWithText) view.findViewById(R.id.btn_stop_install);

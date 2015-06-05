@@ -20,7 +20,7 @@ import org.javarosa.core.services.locale.Localization;
  * Fragment for inputting app installation URL, "returned" through the URLInstaller interface.
  * Created by dancluna on 3/17/15.
  */
-@ManagedUi(R.layout.setup_enter_url)
+@ManagedUi(R.layout.fragment_setup_enter_url)
 public class SetupEnterURLFragment extends Fragment {
 
     public interface URLInstaller {
@@ -47,7 +47,7 @@ public class SetupEnterURLFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.setup_enter_url, container, false);
+        View view = inflater.inflate(R.layout.fragment_setup_enter_url, container, false);
         installButton = (Button) view.findViewById(R.id.start_install);
         installButton.setText(Localization.get("install.button.start"));
         prefixURLSpinner = (Spinner) view.findViewById(R.id.url_spinner);

@@ -32,7 +32,7 @@ public class SetupInstallFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.setup_install, container, false);
+        View view = inflater.inflate(R.layout.fragment_setup_install, container, false);
         TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.barcode"));
         scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
