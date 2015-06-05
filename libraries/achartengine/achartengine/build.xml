@@ -26,6 +26,7 @@
          application and should be checked into Version Control Systems.
 
          -->
+    <property environment="env"/>
     <property file="ant.properties" />
 
     <!-- The project.properties file is created and updated by the 'android'
