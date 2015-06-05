@@ -157,10 +157,10 @@ public class MediaLayout extends RelativeLayout {
             //Audio and Video are both null, let text bleed to right
             textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         }
-        boolean textVisible = (text.getVisibility() != GONE);
+        boolean textVisible = (mView_Text.getVisibility() != GONE);
         if (textVisible) {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            topPane.addView(text, textParams);
+            topPane.addView(mView_Text, textParams);
         }
 
         // Now set up the image view

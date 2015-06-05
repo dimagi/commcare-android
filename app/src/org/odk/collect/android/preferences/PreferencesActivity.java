@@ -49,36 +49,36 @@ public class PreferencesActivity extends PreferenceActivity implements
 
     protected static final int IMAGE_CHOOSER = 0;
 
-    public static String KEY_LAST_VERSION = "lastVersion";
-    public static String KEY_FIRST_RUN = "firstRun";
-    public static String KEY_SHOW_SPLASH = "showSplash";
-    public static String KEY_SPLASH_PATH = "splashPath";
-    public static String KEY_FONT_SIZE = "font_size";
-    public static String KEY_SELECTED_GOOGLE_ACCOUNT = "selected_google_account";
-    public static String KEY_GOOGLE_SUBMISSION = "google_submission_id";
+    public static final String KEY_LAST_VERSION = "lastVersion";
+    public static final String KEY_FIRST_RUN = "firstRun";
+    public static final String KEY_SHOW_SPLASH = "showSplash";
+    public static final String KEY_SPLASH_PATH = "splashPath";
+    public static final String KEY_FONT_SIZE = "font_size";
+    public static final String KEY_SELECTED_GOOGLE_ACCOUNT = "selected_google_account";
+    public static final String KEY_GOOGLE_SUBMISSION = "google_submission_id";
 
-    public static String KEY_SERVER_URL = "server_url";
-    public static String KEY_USERNAME = "username";
-    public static String KEY_PASSWORD = "password";
+    public static final String KEY_SERVER_URL = "server_url";
+    public static final String KEY_USERNAME = "username";
+    public static final String KEY_PASSWORD = "password";
 
-    public static String KEY_PROTOCOL = "protocol";
-    public static String KEY_FORMLIST_URL = "formlist_url";
-    public static String KEY_SUBMISSION_URL = "submission_url";
+    public static final String KEY_PROTOCOL = "protocol";
+    public static final String KEY_FORMLIST_URL = "formlist_url";
+    public static final String KEY_SUBMISSION_URL = "submission_url";
 
-    public static String KEY_COMPLETED_DEFAULT = "default_completed";
+    public static final String KEY_COMPLETED_DEFAULT = "default_completed";
     
-    public static String KEY_SHOW_START_SCREEN = "odk_show_entry_screen";
-    public static String KEY_HELP_MODE_TRAY = "help_mode_tray";
-    public static String KEY_PROGRESS_BAR = "progress_bar";
-    public static String KEY_NAVIGATION_BAR = "pref_nav_bar";
+    public static final String KEY_SHOW_START_SCREEN = "odk_show_entry_screen";
+    public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
+    public static final String KEY_PROGRESS_BAR = "progress_bar";
+    public static final String KEY_NAVIGATION_BAR = "pref_nav_bar";
     
 
-    public static String KEY_AUTH = "auth";
-    public static String KEY_ACCOUNT = "account";
+    public static final String KEY_AUTH = "auth";
+    public static final String KEY_ACCOUNT = "account";
     
-    public static String KEY_SERVER_PREFS = "serverprefs";
+    public static final String KEY_SERVER_PREFS = "serverprefs";
 
-    public static String googleServerBaseUrl = "https://gather.apis.google.com/odk/n/";
+    public static final String googleServerBaseUrl = "https://gather.apis.google.com/odk/n/";
     
     private PreferenceScreen mSplashPathPreference;
     private EditTextPreference mSubmissionUrlPreference;
@@ -295,47 +295,59 @@ public class PreferencesActivity extends PreferenceActivity implements
      * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
      */
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(KEY_PROTOCOL)) {
-            updateProtocol();
-            updateSelectedGoogleAccount();
-            updateGoogleCollectionEffort();
-            updateServerUrl();
-            updateUsername();
-            updatePassword();
-            updateFormListUrl();
-            updateSubmissionUrl();
-        } else if (key.equals(KEY_SELECTED_GOOGLE_ACCOUNT)) {
-            updateSelectedGoogleAccount();
-            updateGoogleCollectionEffort();
-            updateServerUrl();
-        } else if (key.equals(KEY_GOOGLE_SUBMISSION)) {
-            updateSelectedGoogleAccount();
-            updateGoogleCollectionEffort();
-            updateServerUrl();
-        } else if (key.equals(KEY_SERVER_URL)) {
-            updateServerUrl();
-        } else if (key.equals(KEY_FORMLIST_URL)) {
-            updateFormListUrl();
-        } else if (key.equals(KEY_SUBMISSION_URL)) {
-            updateSubmissionUrl();
-        } else if (key.equals(KEY_USERNAME)) {
-            updateUsername();
-        } else if (key.equals(KEY_PASSWORD)) {
-            updatePassword();
-        } else if (key.equals(KEY_SPLASH_PATH)) {
-            updateSplashPath();
-        } else if (key.equals(KEY_FONT_SIZE)) {
-            updateFontSize();
-        } else if(key.equals(KEY_SHOW_START_SCREEN)) {
-            updateShowStart();
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
+        switch (key) {
+            case KEY_PROTOCOL:
+                updateProtocol();
+                updateSelectedGoogleAccount();
+                updateGoogleCollectionEffort();
+                updateServerUrl();
+                updateUsername();
+                updatePassword();
+                updateFormListUrl();
+                updateSubmissionUrl();
+                break;
+            case KEY_SELECTED_GOOGLE_ACCOUNT:
+                updateSelectedGoogleAccount();
+                updateGoogleCollectionEffort();
+                updateServerUrl();
+                break;
+            case KEY_GOOGLE_SUBMISSION:
+                updateSelectedGoogleAccount();
+                updateGoogleCollectionEffort();
+                updateServerUrl();
+                break;
+            case KEY_SERVER_URL:
+                updateServerUrl();
+                break;
+            case KEY_FORMLIST_URL:
+                updateFormListUrl();
+                break;
+            case KEY_SUBMISSION_URL:
+                updateSubmissionUrl();
+                break;
+            case KEY_USERNAME:
+                updateUsername();
+                break;
+            case KEY_PASSWORD:
+                updatePassword();
+                break;
+            case KEY_SPLASH_PATH:
+                updateSplashPath();
+                break;
+            case KEY_FONT_SIZE:
+                updateFontSize();
+                break;
+            case KEY_SHOW_START_SCREEN:
+                updateShowStart();
+                break;
         }
     }
 
 
-    private void validateUrl(EditTextPreference preference) {
+    private void validateUrl(final EditTextPreference preference) {
         if (preference != null) {
-            String url = preference.getText();
+            final String url = preference.getText();
             if (UrlUtils.isValidUrl(url)) {
                 preference.setText(url);
                 preference.setSummary(url);
@@ -469,94 +481,98 @@ public class PreferencesActivity extends PreferenceActivity implements
 
 
     private void updateProtocol() {
-        ListPreference lp = (ListPreference) findPreference(KEY_PROTOCOL);
+        final ListPreference lp = (ListPreference) findPreference(KEY_PROTOCOL);
         lp.setSummary(lp.getEntry());
 
-        String protocol = lp.getValue();
-        if (protocol.equals("odk_default")) {
-            if (mGoogleCollectionEffortPreference != null) {
-                mGoogleCollectionEffortPreference.setEnabled(false);
-            }
-            if (mSelectedGoogleAccountPreference != null) {
-                mSelectedGoogleAccountPreference.setEnabled(false);
-            }
-            if (mServerUrlPreference != null) {
-                mServerUrlPreference.setEnabled(true);
-            }
-            if (mUsernamePreference != null) {
-                mUsernamePreference.setEnabled(true);
-            }
-            if (mPasswordPreference != null) {
-                mPasswordPreference.setEnabled(true);
-            }
-            if (mFormListUrlPreference != null) {
-                mFormListUrlPreference.setText(getText(R.string.default_odk_formlist).toString());
-                mFormListUrlPreference.setEnabled(false);
-            }
-            if (mSubmissionUrlPreference != null) {
-                mSubmissionUrlPreference.setText(getText(R.string.default_odk_submission)
-                        .toString());
-                mSubmissionUrlPreference.setEnabled(false);
-            }
+        final String protocol = lp.getValue();
+        switch (protocol) {
+            case "odk_default":
+                if (mGoogleCollectionEffortPreference != null) {
+                    mGoogleCollectionEffortPreference.setEnabled(false);
+                }
+                if (mSelectedGoogleAccountPreference != null) {
+                    mSelectedGoogleAccountPreference.setEnabled(false);
+                }
+                if (mServerUrlPreference != null) {
+                    mServerUrlPreference.setEnabled(true);
+                }
+                if (mUsernamePreference != null) {
+                    mUsernamePreference.setEnabled(true);
+                }
+                if (mPasswordPreference != null) {
+                    mPasswordPreference.setEnabled(true);
+                }
+                if (mFormListUrlPreference != null) {
+                    mFormListUrlPreference.setText(getText(R.string.default_odk_formlist).toString());
+                    mFormListUrlPreference.setEnabled(false);
+                }
+                if (mSubmissionUrlPreference != null) {
+                    mSubmissionUrlPreference.setText(getText(R.string.default_odk_submission)
+                            .toString());
+                    mSubmissionUrlPreference.setEnabled(false);
+                }
 
-        } else if (protocol.equals("google")) {
-            if (mGoogleCollectionEffortPreference != null) {
-                mGoogleCollectionEffortPreference.setEnabled(true);
-            }
-            if (mSelectedGoogleAccountPreference != null) {
-                mSelectedGoogleAccountPreference.setEnabled(true);
-            }
-            if (mServerUrlPreference != null) {
-                mServerUrlPreference.setEnabled(false);
-            }
-            if (mUsernamePreference != null) {
-                mUsernamePreference.setEnabled(false);
-            }
-            if (mPasswordPreference != null) {
-                mPasswordPreference.setEnabled(false);
-            }
-            if (mFormListUrlPreference != null) {
-                mFormListUrlPreference.setEnabled(false);
-            }
-            if (mSubmissionUrlPreference != null) {
-                mSubmissionUrlPreference.setEnabled(false);
-            }
+                break;
+            case "google":
+                if (mGoogleCollectionEffortPreference != null) {
+                    mGoogleCollectionEffortPreference.setEnabled(true);
+                }
+                if (mSelectedGoogleAccountPreference != null) {
+                    mSelectedGoogleAccountPreference.setEnabled(true);
+                }
+                if (mServerUrlPreference != null) {
+                    mServerUrlPreference.setEnabled(false);
+                }
+                if (mUsernamePreference != null) {
+                    mUsernamePreference.setEnabled(false);
+                }
+                if (mPasswordPreference != null) {
+                    mPasswordPreference.setEnabled(false);
+                }
+                if (mFormListUrlPreference != null) {
+                    mFormListUrlPreference.setEnabled(false);
+                }
+                if (mSubmissionUrlPreference != null) {
+                    mSubmissionUrlPreference.setEnabled(false);
+                }
 
-            updateSelectedGoogleAccount();
-            updateGoogleCollectionEffort();
+                updateSelectedGoogleAccount();
+                updateGoogleCollectionEffort();
 
-        } else {
-            if (mGoogleCollectionEffortPreference != null) {
-                mGoogleCollectionEffortPreference.setEnabled(false);
-            }
-            if (mSelectedGoogleAccountPreference != null) {
-                mSelectedGoogleAccountPreference.setEnabled(false);
-            }
-            if (mServerUrlPreference != null) {
-                mServerUrlPreference.setEnabled(true);
-            }
-            if (mUsernamePreference != null) {
-                mUsernamePreference.setEnabled(true);
-            }
-            if (mPasswordPreference != null) {
-                mPasswordPreference.setEnabled(true);
-            }
-            if (mFormListUrlPreference != null) {
-                mFormListUrlPreference.setEnabled(true);
-            }
-            if (mSubmissionUrlPreference != null) {
-                mSubmissionUrlPreference.setEnabled(true);
-            }
+                break;
+            default:
+                if (mGoogleCollectionEffortPreference != null) {
+                    mGoogleCollectionEffortPreference.setEnabled(false);
+                }
+                if (mSelectedGoogleAccountPreference != null) {
+                    mSelectedGoogleAccountPreference.setEnabled(false);
+                }
+                if (mServerUrlPreference != null) {
+                    mServerUrlPreference.setEnabled(true);
+                }
+                if (mUsernamePreference != null) {
+                    mUsernamePreference.setEnabled(true);
+                }
+                if (mPasswordPreference != null) {
+                    mPasswordPreference.setEnabled(true);
+                }
+                if (mFormListUrlPreference != null) {
+                    mFormListUrlPreference.setEnabled(true);
+                }
+                if (mSubmissionUrlPreference != null) {
+                    mSubmissionUrlPreference.setEnabled(true);
+                }
 
+                break;
         }
 
     }
 
 
     private InputFilter getWhitespaceFilter() {
-        InputFilter whitespaceFilter = new InputFilter() {
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
-                    int dstart, int dend) {
+        final InputFilter whitespaceFilter = new InputFilter() {
+            public CharSequence filter(final CharSequence source, final int start, final int end, final Spanned dest,
+                    final int dstart, final int dend) {
                 for (int i = start; i < end; i++) {
                     if (Character.isWhitespace(source.charAt(i))) {
                         return "";
@@ -602,7 +618,7 @@ public class PreferencesActivity extends PreferenceActivity implements
     
     public static ProgressBarMode getProgressBarMode(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean navBar = prefs.getBoolean(KEY_NAVIGATION_BAR, false);
+        boolean navBar = prefs.getBoolean(KEY_NAVIGATION_BAR, true);
         boolean progressBar = prefs.getBoolean(KEY_PROGRESS_BAR, true);
         if(!navBar && !progressBar) { return ProgressBarMode.None;}
         else if(!navBar && progressBar) { return ProgressBarMode.ProgressOnly;}

@@ -104,6 +104,6 @@
 			android:title="@string/splash_path"
 			android:dependency="showSplash"
 			android:layout="?android:attr/preferenceLayoutChild" />
-		<CheckBoxPreference android:summary="@string/pref_nav_bar" android:key="pref_nav_bar"/>
+		<CheckBoxPreference android:summary="@string/pref_nav_bar" android:key="pref_nav_bar" android:defaultValue="true"/>
 	</PreferenceCategory>
 </PreferenceScreen>
