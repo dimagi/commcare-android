@@ -41,7 +41,10 @@
     <dimen name="graph_y_margin">0dp</dimen>
     <dimen name="graph_text_margin">35dp</dimen>
     
-    <!-- Start collect dimens -->
+    <!-- Form Entry -->
+    
+    <dimen name="question_widget_side_padding">16dp</dimen>
+    <dimen name="question_widget_side_inv">-16dp</dimen>
     
     <!--  Text sizes -->
 
@@ -70,8 +73,18 @@
     <dimen name="list_soundicon_padding">15dp</dimen>
     <dimen name="list_soundicon_margin">5dp</dimen>
     <dimen name="content_start">16dp</dimen>
+    <dimen name="content_start_quadruple">32dp</dimen>
     <dimen name="list_height">48dp</dimen>
 
     <dimen name="divider_left_margin">64dp</dimen>
+    <dimen name="help_text_padding">16dp</dimen>
+
+    <!-- New progressbar dimensions -->
+    <dimen name="new_progressbar_minheight">56dp</dimen>
+    <dimen name="new_progressbar_button_minheight">48dp</dimen>
+    <dimen name="new_progressbar_button_minwidth">32dp</dimen>
+    <dimen name="new_progressbar_button_padding">24dp</dimen>
+
+    <dimen name="form_label_padding">8dp</dimen>
 
 </resources>

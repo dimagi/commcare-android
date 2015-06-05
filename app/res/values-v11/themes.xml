@@ -13,6 +13,11 @@
         <item name="android:actionBarStyle">@style/ActionBar</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowButton</item>
         <item name="searchbox_action_bar_color">@color/white</item>
+        <item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+    <style name="AppTheme.Widget.TextView" parent="android:Widget.Holo.Light.TextView">
+        <item name="android:textSize">@dimen/text_medium</item>
     </style>
 
     <style name="ActionBar" parent="android:Widget.Holo.Light.ActionBar">

@@ -8,4 +8,19 @@
     <attr name="entity_view_header_background_color" format="reference"></attr>
     <attr name="entity_view_header_text_color" format="reference"></attr>
     <attr name="searchbox_action_bar_color" format="reference"></attr>
+    <declare-styleable name="SquareButtonWithText">
+        <attr name="backgroundcolor" format="reference|color" />
+        <attr name="subtitle" format="string" />
+        <attr name="img" format="reference" />
+        <attr name="colorText" format="reference|color" />
+    </declare-styleable>
+    <declare-styleable name="SquareButtonWithNotification">
+        <attr name="colorButtonText" format="reference|color" />
+        <attr name="colorNotificationText" format="reference|color" />
+        <attr name="backgroundcolorButton" format="reference|color" />
+        <attr name="backgroundcolorNotification" format="reference|color" />
+        <attr name="sbn_subtitle" format="string" />
+        <attr name="notificationText" format="string" />
+        <attr name="sbn_img" format="reference" />
+    </declare-styleable>
 </resources>
