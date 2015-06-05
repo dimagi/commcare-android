@@ -5,8 +5,13 @@
     -->
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
         <!-- API 11 theme customizations can go here. -->
+        <item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+        <item name="android:colorBackground">@color/cc_neutral_bg</item>
     </style>
-    
+    <style name="AppTheme.Widget.TextView" parent="android:Widget.Holo.Light.TextView">
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
     <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
     <style name="TextAppearance.Custom.WindowTitle.Case" parent="style/TextAppearance.Custom.WindowTitle">
     </style>

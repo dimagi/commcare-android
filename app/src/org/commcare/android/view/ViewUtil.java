@@ -3,6 +3,15 @@
  */
 package org.commcare.android.view;
 
+import java.io.File;
+
+import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
+import org.odk.collect.android.utilities.FileUtils;
+
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -10,7 +19,9 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import org.commcare.suite.model.DisplayUnit;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -26,7 +37,7 @@ import java.io.File;
  * @author ctsims
  *
  */
-public class ViewUtil {
+public final class ViewUtil {
 
     //This is silly and isn't really what we want here, but it's a start. (We'd like to be able to add
     //a displayunit to a menu in a super easy/straightforward way.
@@ -80,5 +91,15 @@ public class ViewUtil {
             }
         }
         return null;
+    }
+
+    public static void hideVirtualKeyboard(Activity activity){
+        InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        View focus = activity.getCurrentFocus();
+        if(focus != null) {
+            inputManager.hideSoftInputFromWindow(focus.getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 }
