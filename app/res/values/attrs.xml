@@ -8,6 +8,10 @@
     <attr name="entity_view_header_background_color" format="reference"></attr>
     <attr name="entity_view_header_text_color" format="reference"></attr>
     <attr name="searchbox_action_bar_color" format="reference"></attr>
+    <attr name="drawer_pulldown_text_color" format="reference"></attr>
+    <attr name="drawer_pulldown_even_row_color" format="reference"></attr>
+    <attr name="drawer_pulldown_odd_row_color" format="reference"></attr>
+    <attr name="menu_tile_title_text_color" format="reference"></attr>
     <declare-styleable name="SquareButtonWithText">
         <attr name="backgroundcolor" format="reference|color" />
         <attr name="subtitle" format="string" />

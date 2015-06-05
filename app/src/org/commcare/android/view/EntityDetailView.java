@@ -160,7 +160,12 @@ public class EntityDetailView extends FrameLayout {
             detailRow.setBackgroundColor(evenRowColor);
         }
     }
-    
+
+    public void setOddEvenRowColors(int oddRowColor, int evenRowColor){
+        this.oddRowColor = oddRowColor;
+        this.evenRowColor = evenRowColor;
+    }
+
     public void setCallListener(final DetailCalloutListener listener) {
         this.listener = listener;
     }

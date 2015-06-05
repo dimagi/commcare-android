@@ -1,8 +1,19 @@
 package org.commcare.android.view;
 
+import org.commcare.android.adapters.EntityDetailAdapter;
+import org.commcare.android.adapters.EntityDetailPagerAdapter;
+import org.commcare.android.util.AndroidUtil;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.Text;
+import org.javarosa.core.model.instance.TreeReference;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -125,7 +136,12 @@ public class TabbedDetailView extends RelativeLayout {
                 // Create MenuListEntryView for tab
                 HorizontalMediaView view = new HorizontalMediaView(mContext);
                 DisplayUnit title = d.getTitle();
-                view.setAVT(title.getText().evaluate(), title.getAudioURI().evaluate(), title.getImageURI().evaluate());
+                Text text = title.getText();
+                Text audio = title.getAudioURI();
+                Text image = title.getImageURI();
+                view.setAVT(text == null ? null : text.evaluate(),
+                        audio == null ? null : audio.evaluate(),
+                        image == null ? null : image.evaluate());
                 view.setGravity(Gravity.CENTER);
                 view.setClickable(true);
                 view.setOnClickListener(listener);
@@ -149,7 +165,9 @@ public class TabbedDetailView extends RelativeLayout {
      * Get form list from database and insert into view.
      */
     public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
-        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference, hasDetailCalloutListener);
+        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
+                hasDetailCalloutListener, new DefaultEDVModifier()
+        );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         markSelectedTab(0);
     }
@@ -183,5 +201,30 @@ public class TabbedDetailView extends RelativeLayout {
     public int getTabCount() {
         return mViewPager.getAdapter().getCount();
     }
-    
+
+    //region Private classes
+
+    private class DefaultEDVModifier implements EntityDetailAdapter.EntityDetailViewModifier, Parcelable {
+        final int[] rowColors = AndroidUtil.getThemeColorIDs(getContext(),
+                new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
+
+        public DefaultEDVModifier() {
+        }
+
+        @Override
+        public void modifyEntityDetailView(EntityDetailView edv) {
+            edv.setOddEvenRowColors(rowColors[0], rowColors[1]);
+        }
+
+        @Override
+        public int describeContents() {
+            return rowColors[0] ^ rowColors[1];
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+        }
+    }
+
+    //endregion
 }
