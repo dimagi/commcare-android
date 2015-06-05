@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                >
+<org.commcare.android.view.SquareButton
+    android:id="@+id/square_button"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    />
+<TextView
+    android:id="@+id/text_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBottom="@+id/square_button"
+    android:gravity="center"
+    android:layout_margin="@dimen/content_min_margin"
+    android:textSize="@dimen/text_large"
+    android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
+</merge>

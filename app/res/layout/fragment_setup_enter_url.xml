@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <TextView
+            android:id="@+id/app_profile_txt_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="Application Profile"
+            />
+
+
+        <LinearLayout
+            android:id="@+id/advanced_panel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center"
+            >
+
+            <Spinner
+                android:id="@+id/url_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/url_list"
+                android:prompt="@string/url_prompt"
+                android:layout_weight="1"
+                />
+
+            <EditText
+                android:id="@+id/edit_profile_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Enter URL here"
+                android:layout_weight="1"
+                >
+            </EditText>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/start_install"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:text="Start Install" />
+</RelativeLayout>
