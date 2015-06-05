@@ -153,6 +153,9 @@ public class MediaLayout extends RelativeLayout {
             videoParams.addRule(RelativeLayout.BELOW, mAudioButton.getId());
             topPane.addView(mAudioButton, audioParams);
             topPane.addView(mVideoButton, videoParams);
+        } else {
+            //Audio and Video are both null, let text bleed to right
+            textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         }
         boolean textVisible = (text.getVisibility() != GONE);
         if (textVisible) {
