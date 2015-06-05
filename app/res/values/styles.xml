@@ -168,4 +168,14 @@
 
     <color name="login_edit_text_color">@color/cc_core_text</color>
     <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
+
+    <style name="TextViewV2">
+       <item name="android:paddingTop">@dimen/content_min_margin</item>
+       <item name="android:paddingBottom">@dimen/content_min_margin</item>
+       <item name="android:background">@color/cc_brand_color</item>
+       <item name="android:textColor">@color/cc_core_bg</item>
+       <item name="android:paddingLeft">@dimen/content_start</item>
+       <item name="android:paddingRight">@dimen/content_start</item>
+    </style>
+
 </resources>
