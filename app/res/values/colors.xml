@@ -62,6 +62,8 @@
     <color name="solid_dark_red">#BF3D3D</color>
     <color name="solid_dark_orange">#F57E20</color>
 
+    <color name="dark_brown">#5C4033</color>
+
     <!-- COMMCARE OFFICIAL COLOR PALETTE -->
     <!-- Best Practices and Usage Notes (more HQ-specific at the moment) can be found at commcarehq.org/styleguide/colors/ -->
     <!-- Text vs. Background are suggested labels. Invert if you want the darker background, but the two colors

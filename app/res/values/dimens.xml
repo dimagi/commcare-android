@@ -56,6 +56,7 @@
     <dimen name="content_min_margin">16dp</dimen>
 
     <dimen name="content_start">8dp</dimen>
+    <dimen name="content_start_quadruple">32dp</dimen>
     <dimen name="list_height">48dp</dimen>
 
     <dimen name="divider_left_margin">64dp</dimen>

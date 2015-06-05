@@ -719,6 +719,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             case MENU_ACTION:
                 triggerDetailAction();
                 return true;
+            // this is needed because superclasses do not implement the menu_settings click
+            case R.id.menu_settings:
+                CommCareHomeActivity.createPreferencesMenu(this);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

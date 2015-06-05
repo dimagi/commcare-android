@@ -44,7 +44,7 @@ import java.util.LinkedList;
  * @author ctsims
  *
  */
-public class ViewUtil {
+public final class ViewUtil {
 
     //This is silly and isn't really what we want here, but it's a start. (We'd like to be able to add
     //a displayunit to a menu in a super easy/straightforward way.

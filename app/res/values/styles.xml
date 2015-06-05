@@ -188,4 +188,7 @@
        <item name="android:background">@color/cc_brand_color</item>
        <item name="android:textColor">@color/cc_core_bg</item>
     </style>
+
+    <color name="login_edit_text_color">@color/cc_core_text</color>
+    <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
 </resources>
