@@ -26,6 +26,8 @@
          application and should be checked into Version Control Systems.
 
          -->
+    <!-- setting environment variable so we can access it in our ant.properties file -->
+    <property environment="env"/>
     <property file="ant.properties" />
 
     <!-- The project.properties file is created and updated by the 'android'
