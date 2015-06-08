@@ -272,7 +272,8 @@
 
         <activity android:name=".activities.MultimediaInflaterActivity" >
         </activity>
-        <activity android:name=".activities.CommCareFormDumpActivity" >
+        <activity android:name=".activities.CommCareFormDumpActivity"
+                  android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity android:name=".activities.ConnectionDiagnosticActivity" >
         </activity>
