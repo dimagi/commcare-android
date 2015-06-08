@@ -12,10 +12,10 @@
             android:id="@+id/ImageView01"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="20px"
-            android:paddingBottom="20px"
-            android:paddingLeft="20px"
-            android:paddingTop="20px"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:paddingBottom="@dimen/content_min_margin"
+            android:paddingLeft="@dimen/content_min_margin"
+            android:paddingTop="@dimen/content_min_margin"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
             android:src="@drawable/commcare_logo"></ImageView>
@@ -27,7 +27,7 @@
             android:layout_below="@+id/ImageView01"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:padding="20dp"
+            android:padding="@dimen/content_min_margin"
             android:text="@string/hello_world"
             tools:context=".ReportProblemActivity" />
 
