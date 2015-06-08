@@ -87,7 +87,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MODE_ARCHIVE = Menu.FIRST + 2;
     
     public static final int BARCODE_CAPTURE = 1;
-    public static final int MISSING_MEDIA_ACTIVITY=2;
     public static final int ARCHIVE_INSTALL = 3;
     public static final int DIALOG_INSTALL_PROGRESS = 4; 
 
@@ -606,8 +605,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
              * it starts, set based on whether we are currently in keep trying mode */
             boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
             
-            ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, 
-                    inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep) {
+            ResourceEngineTask<CommCareSetupActivity> task =
+                new ResourceEngineTask<CommCareSetupActivity>(inUpgradeMode,
+                        partialMode, app, startOverUpgrade,
+                        DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                 /*
                  * (non-Javadoc)

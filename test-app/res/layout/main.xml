@@ -38,6 +38,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="View Case Data" />
+
+    <Button
+        android:id="@+id/button_media"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Case Multimedia" />
     
     <Button
         android:id="@+id/button_fixture"

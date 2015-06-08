@@ -273,7 +273,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (currentEntity != null) attemptSetStateToPauseForRenewal();
+        if (currentEntity != null) {
+            attemptSetStateToPauseForRenewal();
+        }
     }
 
     /* (non-Javadoc)
@@ -552,8 +554,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      * @see org.odk.collect.android.views.media.AudioController#refreshCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
      */
     @Override
-    public void refreshCurrentAudioButton(AudioButton clicked) {
-        if (currentButton != null && currentButton != clicked) {
+    public void refreshCurrentAudioButton(AudioButton clickedButton) {
+        if (currentButton != null && currentButton != clickedButton) {
             currentButton.setStateToReady();
         }
     }
@@ -624,7 +626,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public void pauseCurrentMediaEntity() {
         if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
             MediaPlayer mp = currentEntity.getPlayer();
-            mp.pause();    
+            mp.pause();
             currentEntity.setState(MediaState.Paused);
         }
     }

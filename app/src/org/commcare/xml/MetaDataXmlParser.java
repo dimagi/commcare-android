@@ -15,7 +15,7 @@ import org.xmlpull.v1.XmlPullParserException;
 public class MetaDataXmlParser extends TransactionParser<String[]> {
 
     public MetaDataXmlParser(KXmlParser parser) {
-        super(parser, "meta", null);
+        super(parser);
     }
 
     /*

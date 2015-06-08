@@ -14,15 +14,17 @@
 
 package org.odk.collect.android.widgets;
 
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.jr.extensions.AndroidXFormExtensions;
 import org.odk.collect.android.jr.extensions.IntentCallout;
-
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 
 /**
  * Convenience class that handles creation of widgets.
@@ -90,7 +92,11 @@ public class WidgetFactory {
                         questionWidget = new GeoPointWidget(context, fep);
                         break;
                     case Constants.DATATYPE_BARCODE:
-                        questionWidget = new BarcodeWidget(context, fep);
+
+                        IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
+                                null, null , null, StringUtils.getStringRobust(context, R.string.get_barcode), appearance);
+                        Intent mIntent = mIntentCallout.generate(form.getEvaluationContext());
+                        questionWidget = new BarcodeWidget(context, fep, mIntent, mIntentCallout);
                         break;
                     case Constants.DATATYPE_TEXT:
                         if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
@@ -186,8 +192,7 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_TRIGGER:
-                boolean mInteractive = appearance == null  || !appearance.equals("minimal");
-                questionWidget = new TriggerWidget(context, fep, mInteractive);
+                questionWidget = new TriggerWidget(context, fep, !"minimal".equals(appearance));
                 break;
             default:
                 questionWidget = new StringWidget(context, fep, false);
@@ -195,5 +200,4 @@ public class WidgetFactory {
         }
         return questionWidget;
     }
-    
 }
