@@ -27,7 +27,7 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<FormRecord, ArrayList<String>>, Integer> {
+public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<FormRecord, ArrayList<String>>, Integer> {
 
     private Hashtable<String,String> descriptorCache;
     private SqlStorage<SessionStateDescriptor> descriptorStorage;
