@@ -21,6 +21,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -112,6 +113,18 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
      */
     protected Integer doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
+
+        // Don't try to sync if logging out is occuring
+        if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+            // NOTE: DataPullTask also needs this lock to run, so they
+            // cannot run in parallel.
+            //
+            // TODO PLM: once this task is refactored into manageable
+            // components, it should use the ManagedAsyncTask pattern of
+            // checking for isCancelled() and aborting at safe places.
+            return (int)PROGRESS_LOGGED_OUT;
+        }
+
         try {
         results = new Long[records.length];
         for(int i = 0; i < records.length ; ++i ) {
@@ -322,9 +335,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             synchronized(processTasks) {
                 processTasks.remove(this);
             }
+
             if(needToSendLogs) {
                 CommCareApplication._().notifyLogsPending();
             }
+            CommCareSessionService.sessionAliveLock.unlock();
         }
     }
     

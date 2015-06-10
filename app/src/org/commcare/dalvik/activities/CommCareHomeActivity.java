@@ -259,16 +259,22 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     }
                     return;
                 }
-                
+
                 CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
-                
-                boolean formsToSend = checkAndStartUnsentTask(true);
-                
-                if(!formsToSend) {
-                    //No unsent forms, just sync
+
+                boolean formsSentToServer = false;
+                try {
+                    formsSentToServer = checkAndStartUnsentTask(true);
+                } catch (SessionUnavailableException e) {
+                    // Session is expired, stop using the user DB.
+                    return;
+                }
+
+                if(!formsSentToServer) {
+                    // No forms needed to be sent to the server, so let's just
+                    // trigger a data sync.
                     syncData(false);
                 }
-                
             }
         });
 
@@ -306,7 +312,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void syncData(boolean formsToSend) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
+        User u;
+        try {
+            u = CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException sue) {
+            // abort since it looks like the session expired
+            return;
+        }
         
         if(User.TYPE_DEMO.equals(u.getUserType())) {
             //Remind the user that there's no syncing in demo mode.0
@@ -554,7 +566,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         //The onResume() will take us to the screen
                     } else {
                         refreshView();
-                        checkAndStartUnsentTask(false);
+                        
+                        //Unless we're about to sync (which will handle this
+                        //in a blocking fashion), trigger off a regular unsent
+                        //task processor
+                        if(!CommCareApplication._().isSyncPending(false)) {
+                            checkAndStartUnsentTask(false);
+                        }
                         
                         if(isDemoUser()) {
                             showDemoModeWarning();
@@ -1032,9 +1050,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     
+    /**
+     * @return Were there forms that were sent to the server by this method
+     * invocation?
+     */
     protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) throws SessionUnavailableException {
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
+
         if(records.length > 0) {
             processAndSend(records, syncAfterwards);
             return true;
@@ -1115,7 +1138,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
             
         };
-        mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+
+        try {
+            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+        } catch (SessionUnavailableException sue) {
+            // abort since it looks like the session expired
+            return;
+        }
         mProcess.connect(this);
         
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
@@ -1210,12 +1239,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
                 startActivityForResult(i,UPGRADE_APP);
                 return;
-            } else if(CommCareApplication._().isSyncPending(false)) {
+            } else if(CommCareApplication._().isSyncPending(true)) {
                 long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
                 String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
                 Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
                 refreshView();
-                this.syncData(false);
+                
+                //Send unsent forms first. If the process detects unsent forms
+                //it will sync after the are submitted
+                if(!this.checkAndStartUnsentTask(true)) {
+                    //If there were no unsent forms to be sent, we should immediately
+                    //trigger a sync
+                    this.syncData(false);
+                }
             }
             
             //Normal Home Screen login time! 
