@@ -882,7 +882,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 });
                 return;
             }
-            startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            // COMMCARE-167204 by dcluna on 06/10/2015:
+            // only try to start form entry if there is an actual form behind this
+            if(asw.getSession().getForm() != null) {
+                startFormEntry(asw);
+            }
         }
         else if(needed == SessionFrame.STATE_COMMAND_ID) {
              Intent i;
