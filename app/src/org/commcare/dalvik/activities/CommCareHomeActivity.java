@@ -486,10 +486,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                             // if the session isn't available, we don't need to logout
                         }
                     }
-                    //set flag that we should autoupdate on next login
-                    SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
-                    preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true);
-                    //The onResume() will take us to the screen
                     return;
                 }
                 break;
@@ -577,7 +573,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         //The onResume() will take us to the screen
                     } else {
                         refreshView();
-                        checkAndStartUnsentTask(false);
+                        
+                        //Unless we're about to sync (which will handle this
+                        //in a blocking fashion), trigger off a regular unsent
+                        //task processor
+                        if(!CommCareApplication._().isSyncPending(false)) {
+                            checkAndStartUnsentTask(false);
+                        }
                         
                         if(isDemoUser()) {
                             showDemoModeWarning();
@@ -612,7 +614,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    
+                    if (platform == null &&
+                            CommCareApplication._().getCurrentApp() != null) {
+                        platform = CommCareApplication._().getCommCarePlatform();
+                    }
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
                     return;
                 }
@@ -967,11 +972,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             
             //We should now have a valid record for our state. Time to get to form entry.
             FormRecord record = state.getFormRecord();
-            
-            if(platform == null) {
-                platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+
+            if (platform == null &&
+                    CommCareApplication._().getCurrentApp() != null) {
+                platform = CommCareApplication._().getCommCarePlatform();
             }
-            
+
             //TODO: May need to pass session over manually
             formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
             
@@ -1160,7 +1166,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onResume() {
         super.onResume();
-        platform = CommCareApplication._().getCurrentApp() == null ? null : CommCareApplication._().getCurrentApp().getCommCarePlatform();
+        if (platform == null && CommCareApplication._().getCurrentApp() != null) {
+            platform = CommCareApplication._().getCommCarePlatform();
+        }
         dispatchHomeScreen();
     }
     
@@ -1233,14 +1241,21 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
                 startActivityForResult(i,UPGRADE_APP);
                 return;
-            } else if(CommCareApplication._().isSyncPending(false)) {
+            } else if(CommCareApplication._().isSyncPending(true)) {
                 long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
                 String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
                 Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
                 refreshView();
-                this.syncData(false);
+
+                //Send unsent forms first. If the process detects unsent forms
+                //it will sync after the are submitted
+                if(!this.checkAndStartUnsentTask(true)) {
+                    //If there were no unsent forms to be sent, we should immediately
+                    //trigger a sync
+                    this.syncData(false);
+                }
             } else {
-                // Normal Home Screen login time! 
+                 //Normal Home Screen login time!
                 refreshView();
             }
         } catch(SessionUnavailableException sue) {
@@ -1267,26 +1282,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));        
     }
 
-
-    /*
-     * NOTE: This is probably not valid anymore
-     */
-    private boolean testBotchedUpgrade() {
-        //If the install folder is empty, we know that commcare wiped out our stuff.
-        File install = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_INSTALL));
-        File[] installed = install.listFiles();
-        if(installed == null || installed.length == 0) {
-            return true;
-        }
-        //there's another failure mode where the files somehow end up empty.
-        for(File f : installed) {
-            if(f.length() != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         mAskOldDialog = new AlertDialog.Builder(this).create();
         mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));

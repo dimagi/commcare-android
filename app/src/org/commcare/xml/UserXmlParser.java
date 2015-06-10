@@ -25,7 +25,7 @@ public class UserXmlParser extends TransactionParser<User> {
     byte[] wrappedKey;
     
     public UserXmlParser(KXmlParser parser, Context context, byte[] wrappedKey) {
-        super(parser, "registration", null);
+        super(parser);
         this.context = context;
         this.wrappedKey = wrappedKey;
     }

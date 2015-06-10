@@ -22,6 +22,9 @@
 		<copy todir="${custom.dir.resource}">
 			<fileset dir="res"/>
 		</copy>
+		<echo>Today: ${TODAY_TIMESTAMP}</echo>
+		<echo>Version: ${version.code}</echo>
+		<echo>Key: ${maps.api.key}</echo>
 		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
 		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${version.code}"/>
     	<replace file="${custom.dir.resource}/values/external_strings.xml" token="MAPS_KEY" value="${maps.api.key}"/>

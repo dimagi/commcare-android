@@ -80,8 +80,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String YES = "yes";
     public final static String NO = "no";
 
-    public final static String AUTO_TRIGGER_UPDATE = "auto-trigger-update";
-
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
 
 

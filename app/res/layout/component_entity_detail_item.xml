@@ -110,9 +110,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical" 
-            android:visibility="gone"
-            customViews:ratio_width="2.0"
-            customViews:ratio_height="1.0" />
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/detail_address_view"
