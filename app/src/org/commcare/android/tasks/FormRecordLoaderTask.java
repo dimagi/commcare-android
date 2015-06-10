@@ -11,11 +11,11 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.suite.model.Text;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Pair;
 
 /**
@@ -27,7 +27,7 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, ArrayList<String>>, Integer> {
+public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<FormRecord, ArrayList<String>>, Integer> {
 
     private Hashtable<String,String> descriptorCache;
     private SqlStorage<SessionStateDescriptor> descriptorStorage;
@@ -194,7 +194,7 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
 
             // Copy data into search task and notify anything waiting on this
             // record.
-            this.publishProgress(new Pair<Integer, ArrayList<String>>(current.getID(), recordTextDesc));
+            this.publishProgress(new Pair<FormRecord, ArrayList<String>>(current, recordTextDesc));
         }
         return 1;
     }
@@ -238,7 +238,7 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
      * @see android.os.AsyncTask#onProgressUpdate(Progress[])
      */
     @Override
-    protected void onProgressUpdate(Pair<Integer, ArrayList<String>>... values) {
+    protected void onProgressUpdate(Pair<FormRecord, ArrayList<String>>... values) {
         super.onProgressUpdate(values);
 
         // copy a single form record's data out of method arguments
@@ -249,14 +249,14 @@ public class FormRecordLoaderTask extends AsyncTask<FormRecord, Pair<Integer, Ar
         }
 
         // store the loaded data in the search cache
-        this.searchCache.put(values[0].first, vals);
+        this.searchCache.put(values[0].first.getID(), vals);
 
         for (FormRecordLoadListener listener : this.listeners) {
             if (listener != null) {
-                // XXX: PLM: pretty sure loaded.contains(values[0].first) is always true at this point.
-                // Should really refactor the following line so that this is
-                // only called if we pulled the value from the priority queue
-                listener.notifyPriorityLoaded(values[0].first, loaded.contains(values[0].first));
+                // XXX: PLM: pretty sure loaded.contains(values[0].first) is
+                // always true at this point.
+                listener.notifyPriorityLoaded(values[0].first,
+                        loaded.contains(values[0].first.getID()));
             }
         }
     }

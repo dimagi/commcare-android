@@ -275,6 +275,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
+
         // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
@@ -304,7 +305,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             Collect.createODKDirs();
         } catch (RuntimeException e) {
             Logger.exception(e);
-            createErrorDialog(e.getMessage(), EXIT);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
             return;
         }
 
@@ -365,7 +366,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // If a parse error message is showing then nothing else is loaded
         // Dialogs mid form just disappear on rotation.
         if (mErrorMessage != null) {
-            createErrorDialog(mErrorMessage, EXIT);
+            CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
             return;
         }
 
@@ -442,7 +443,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if (contentType.equals(InstanceColumns.CONTENT_ITEM_TYPE)) {
                     Cursor instanceCursor = this.managedQuery(uri, null, null, null, null);
                     if (instanceCursor.getCount() != 1) {
-                        this.createErrorDialog("Bad URI: " + uri, EXIT);
+                        CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
                         return;
                     } else {
                         instanceCursor.moveToFirst();
@@ -477,10 +478,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                         .getColumnIndex(FormsColumns.FORM_FILE_PATH));
                             formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
                         } else if (formCursor.getCount() < 1) {
-                            this.createErrorDialog("Parent form does not exist", EXIT);
+                            CommCareActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
                             return;
                         } else if (formCursor.getCount() > 1) {
-                            this.createErrorDialog("More than one possible parent form", EXIT);
+                            CommCareActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
                             return;
                         }
 
@@ -489,7 +490,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 } else if (contentType.equals(FormsColumns.CONTENT_ITEM_TYPE)) {
                     Cursor c = this.managedQuery(uri, null, null, null, null);
                     if (c.getCount() != 1) {
-                        this.createErrorDialog("Bad URI: " + uri, EXIT);
+                        CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
                         return;
                     } else {
                         c.moveToFirst();
@@ -498,12 +499,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     }
                 } else {
                     Log.e(t, "unrecognized URI");
-                    this.createErrorDialog("unrecognized URI: " + uri, EXIT);
+                    CommCareActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
                     return;
                 }
                 if(formUri == null) {
                     Log.e(t, "unrecognized URI");
-                    this.createErrorDialog("couldn't locate FormDB entry for the item at: " + uri, EXIT);
+                    CommCareActivity.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
                     return;
                 }
 
@@ -514,6 +515,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
+    @Override
     public void formSaveCallback() {
         // note that we have started saving the form
         savingFormOnKeySessionExpiration = true;
@@ -566,7 +568,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if (!"done".equals(v.getTag())) {
                     FormEntryActivity.this.showNextView();
                 } else {
-                    FormEntryActivity.this.triggerUserFormComplete();
+                    triggerUserFormComplete();
                 }
             }
         });
@@ -794,7 +796,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             //get the original intent callout
             IntentCallout ic = bestMatch.getIntentCallout();
             
-            quick = ic.isQuickAppearance();
+            quick = "quick".equals(ic.getAppearance());
             
             //And process it 
             advance = ic.processResponse(response, (ODKView)mCurrentView, mFormController.getInstance(), new File(destination));
@@ -982,7 +984,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
-            FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
         }
 
         // Set form back to correct state
@@ -1311,61 +1313,75 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 .getEvent() == FormEntryController.EVENT_GROUP);
     }
 
-    
     private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints) {
-        return saveAnswersForCurrentScreen(evaluateConstraints, true);
+        return saveAnswersForCurrentScreen(evaluateConstraints, true, false);
     }
 
     /**
      * Attempt to save the answer(s) in the current screen to into the data model.
-     * 
+     *
      * @param evaluateConstraints
-     * @param failOnRequired Whether or not the constraint evaluation should return false if the question
-     * is only required. (this is helpful for incomplete saves)
-     * @return false if any error occurs while saving (constraint violated, etc...), true otherwise.
+     * @param failOnRequired      Whether or not the constraint evaluation
+     *                            should return false if the question is only
+     *                            required. (this is helpful for incomplete
+     *                            saves)
+     * @param headless            running in a process that can't display graphics
+     * @return false if any error occurs while saving (constraint violated,
+     * etc...), true otherwise.
      */
-    private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints, boolean failOnRequired) {
-        // only try to save if the current event is a question or a field-list group
+    private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints,
+                                                boolean failOnRequired,
+                                                boolean headless) {
+        // only try to save if the current event is a question or a field-list
+        // group
         boolean success = true;
-        if (mFormController.getEvent() == FormEntryController.EVENT_QUESTION
-                || (mFormController.getEvent() == FormEntryController.EVENT_GROUP && mFormController
-                        .indexIsInFieldList())) {
-            if(mCurrentView instanceof ODKView) {
-                HashMap<FormIndex, IAnswerData> answers = ((ODKView) mCurrentView).getAnswers();
-                
-                // Sort the answers so if there are multiple errors, we can bring focus to the first one
+        if ((mFormController.getEvent() == FormEntryController.EVENT_QUESTION)
+                || ((mFormController.getEvent() == FormEntryController.EVENT_GROUP) &&
+                mFormController.indexIsInFieldList())) {
+            if (mCurrentView instanceof ODKView) {
+                HashMap<FormIndex, IAnswerData> answers =
+                        ((ODKView)mCurrentView).getAnswers();
+
+                // Sort the answers so if there are multiple errors, we can
+                // bring focus to the first one
                 List<FormIndex> indexKeys = new ArrayList<FormIndex>();
                 indexKeys.addAll(answers.keySet());
                 Collections.sort(indexKeys, new Comparator<FormIndex>() {
-                   @Override
-                   public int compare(FormIndex arg0, FormIndex arg1) {
-                       return arg0.compareTo(arg1);
-                   }
+                    @Override
+                    public int compare(FormIndex arg0, FormIndex arg1) {
+                        return arg0.compareTo(arg1);
+                    }
                 });
-                
+
                 for (FormIndex index : indexKeys) {
                     // Within a group, you can only save for question events
                     if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
-                        int saveStatus = saveAnswer(answers.get(index), index, evaluateConstraints);
-                        if (evaluateConstraints && (saveStatus != FormEntryController.ANSWER_OK &&
-                                                    (failOnRequired || saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                            createConstraintToast(index, mFormController.getQuestionPrompt(index) .getConstraintText(), saveStatus, success);
+                        int saveStatus = saveAnswer(answers.get(index),
+                                index, evaluateConstraints);
+                        if (evaluateConstraints &&
+                                ((saveStatus != FormEntryController.ANSWER_OK) &&
+                                        (failOnRequired ||
+                                                saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
+                            if (!headless) {
+                                createConstraintToast(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+                            }
                             success = false;
                         }
                     } else {
                         Log.w(t,
-                            "Attempted to save an index referencing something other than a question: "
-                                    + index.getReference());
+                                "Attempted to save an index referencing something other than a question: "
+                                        + index.getReference());
                     }
                 }
             } else {
-                String viewClass = "null";
-                if (mCurrentView != null) {
-                    viewClass = mCurrentView.getClass().toString();
+                String viewType;
+                if (mCurrentView == null || mCurrentView.getClass() == null) {
+                   viewType = "null";
+                } else {
+                    viewType = mCurrentView.getClass().toString();
                 }
-                Log.w(t, "Unknown view type rendered while current event was question or group! View type: " +
-                        viewClass);
-            }    
+                Log.w(t, "Unknown view type rendered while current event was question or group! View type: " + viewType);
+            }
         }
         return success;
     }
@@ -1479,7 +1495,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         null);
                 String mediaDir = null;
                 if (c.getCount() < 1) {
-                    createErrorDialog("form Doesn't exist", true);
+                    CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
                     return new View(this);
                 } else {
                     c.moveToFirst();
@@ -1579,8 +1595,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                         Toast.makeText(FormEntryActivity.this, StringUtils.getStringSpannableRobust(FormEntryActivity.this, R.string.save_as_error),
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
-                                        saveDataToDisk(EXIT, instanceComplete.isChecked(), saveAs
-                                                .getText().toString(), false);
+                                        saveDataToDisk(EXIT,
+                                                       instanceComplete.isChecked(),
+                                                       saveAs.getText().toString(),
+                                                       false);
                                     }
                                 }
                             });
@@ -1602,7 +1620,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     Log.i(t, "created view for group");
                 } catch (RuntimeException e) {
                     Logger.exception(e);
-                    createErrorDialog(e.getMessage(), EXIT);
+                    CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
                     // this is badness to avoid a crash.
                     // really a next view should increment the formcontroller, create the view
                     // if the view is null, then keep the current view and pop an error.
@@ -1741,7 +1759,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             } while (event != FormEntryController.EVENT_END_OF_FORM);
             }catch(XPathTypeMismatchException e){
                 Logger.exception(e);
-                FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
+                CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
             }
 
         } else {
@@ -1981,7 +1999,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 mFormController.newRepeat();
                             } catch (XPathTypeMismatchException e) {
                                 Logger.exception(e);
-                                FormEntryActivity.this.createErrorDialog(e.getMessage(), EXIT);
+                                CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
                                 return;
                             }
                             showNextView();				
@@ -1998,7 +2016,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             	if(!nextExitsForm) {
             		showNextView();
             	} else {
-            		FormEntryActivity.this.triggerUserFormComplete();
+                    triggerUserFormComplete();
             	}
 			}
         	
@@ -2054,67 +2072,48 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mBeenSwiped = false;
     }
 
-
-    /**
-     * Creates and displays dialog with the given errorMsg.
-     */
-    private void createErrorDialog(String errorMsg, final boolean shouldExit) {
-        mErrorMessage = errorMsg;
-        mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.error_occured));
-                mAlertDialog.setMessage(errorMsg);
-        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-             */
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON1:
-                        if (shouldExit) {
-                            setResult(RESULT_CANCELED);
-                            finish();
-                        }
-                        break;
-                }
-            }
-        };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.ok), errorListener);
-                mAlertDialog.show();
-    }
-
-
     /**
      * Saves form data to disk.
      *
-     * @param exit if set, will exit program after save.
-     * @param complete has the user marked the instances as complete?
-     * @param updatedSaveName set name of the instance's content provider, if non-null
-     * @param headless is this running as a GUI-less service
-     *
+     * @param exit            If set, will exit program after save.
+     * @param complete        Has the user marked the instances as complete?
+     * @param updatedSaveName Set name of the instance's content provider, if
+     *                        non-null
+     * @param headless        Disables GUI warnings and lets answers that
+     *                        violate constraints be saved.
      * @return Did the data save successfully?
      */
-    private boolean saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
-        // save current answer
-        if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete)) {
-            if (!headless) {
-                Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
-            }
-            return false;
+    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+        if (!formHasLoaded()) {
+            return;
+        }
+
+        // save current answer; if headless, don't evaluate the constraints
+        // before doing so.
+        if (headless &&
+                (!saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS, complete, headless))) {
+            return;
+        } else if (!headless &&
+                !saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete, headless)) {
+            Toast.makeText(this,
+                    StringUtils.getStringSpannableRobust(this, R.string.data_saved_error),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // If a save task is already running, just let it do its thing
+        if ((mSaveToDiskTask != null) &&
+                (mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED)) {
+            return;
         }
 
         mSaveToDiskTask =
-            new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
+                new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
         mSaveToDiskTask.setFormSavedListener(this);
         mSaveToDiskTask.execute();
         if (!headless) {
             showDialog(SAVING_DIALOG);
         }
-
-        return true;
     }
 
 
@@ -2529,10 +2528,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             mSaveToDiskTask.setFormSavedListener(this);
         }
         if (mErrorMessage != null && (mAlertDialog != null && !mAlertDialog.isShowing())) {
-            createErrorDialog(mErrorMessage, EXIT);
+            CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
             return;
         }
-        
+
         //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
         //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
         //on screen rotation. We need to re-do any setAnswers that we perform on them after
@@ -2590,14 +2589,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
         return saveName;
     }
-    
+
     /**
      * Call when the user is ready to save and return the current form as complete 
      */
     private void triggerUserFormComplete() {
         saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
     }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -2734,7 +2733,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
-        
+
         //mFormController.setLanguage(mFormController.getLanguage());
         
         /* here was code that loaded cached language preferences fin the
@@ -2757,9 +2756,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public void loadingError(String errorMsg) {
         dismissDialog(PROGRESS_DIALOG);
         if (errorMsg != null) {
-            createErrorDialog(errorMsg, EXIT);
+            CommCareActivity.createErrorDialog(this, errorMsg, EXIT);
         } else {
-            createErrorDialog(StringUtils.getStringRobust(this, R.string.parse_error), EXIT);
+            CommCareActivity.createErrorDialog(this, StringUtils.getStringRobust(this, R.string.parse_error), EXIT);
         }
     }
 
@@ -2839,7 +2838,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         } catch(XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
-            createErrorDialog("There is a bug in one of your form's XPath Expressions \n" + e.getMessage(), EXIT);
+            CommCareActivity.createErrorDialog(this, "There is a bug in one of your form's XPath Expressions \n" + e.getMessage(), EXIT);
             //We're exiting anyway
             return FormEntryController.ANSWER_OK;
         }
@@ -2931,7 +2930,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         }
 
-        CommCareApplication._().getSession().unregisterFormSaveCallback();
+        try {
+            CommCareApplication._().getSession().unregisterFormSaveCallback();
+        } catch (SessionUnavailableException sue) {
+            // looks like the session expired
+        }
+
         this.dismissDialogs();
         finish();
     }
@@ -3027,5 +3031,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         updateFormRelevencies();
         updateNavigationCues(this.mCurrentView);
         
+    }
+    /**
+     * Has form loading (via FormLoaderTask) completed?
+     */
+    private boolean formHasLoaded() {
+        return mFormController != null;
     }
 }
