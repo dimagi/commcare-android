@@ -31,7 +31,7 @@ import android.os.Environment;
 import android.util.Log;
 
 public class FormUploadUtil {
-    private static final String TAG = "FormUploadUtil";
+    private static final String TAG = FormUploadUtil.class.getSimpleName();
     
     /** Everything worked great! **/
     public static final long FULL_SUCCESS = 0;

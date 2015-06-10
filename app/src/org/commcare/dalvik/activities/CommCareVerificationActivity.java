@@ -27,7 +27,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class CommCareVerificationActivity extends CommCareActivity<CommCareVerificationActivity> implements VerificationTaskListener, OnClickListener {
-    private static final String TAG = "CommCareVerificationActivity";
+    private static final String TAG = CommCareVerificationActivity.class.getSimpleName();
 
     TextView missingMediaPrompt;
     private static final int MENU_UNZIP = Menu.FIRST;

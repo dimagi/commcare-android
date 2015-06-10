@@ -39,7 +39,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * @author ctsims
  */
 public class SuiteAndroidInstaller extends FileSystemInstaller {
-    private static final String TAG = "SuiteAndroidInstaller";
+    private static final String TAG = SuiteAndroidInstaller.class.getSimpleName();
     
     public SuiteAndroidInstaller() {
         

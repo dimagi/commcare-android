@@ -18,7 +18,7 @@ import org.kxml2.kdom.Element;
  */
 public class IntentExtensionParser implements IElementHandler {
 
-    private static final String TAG = "IntentExtensionParser";
+    private static final String TAG = IntentExtensionParser.class.getSimpleName();
     private static String RESPONSE = "response";
     private static String EXTRA = "extra";
 

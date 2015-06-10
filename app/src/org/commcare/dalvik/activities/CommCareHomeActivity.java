@@ -90,7 +90,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
-    private static final String TAG = "CommCareHomeActivity";
+    private static final String TAG = CommCareHomeActivity.class.getSimpleName();
     
     public static final int LOGIN_USER = 0;
     public static final int GET_COMMAND = 1;

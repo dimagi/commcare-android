@@ -42,7 +42,7 @@ import android.util.Log;
  * @author ctsims
  */
 public abstract class ZipTask extends CommCareTask<String, String, FormRecord[], CommCareWiFiDirectActivity>{
-    private static final String TAG = "ZipTask";
+    private static final String TAG = ZipTask.class.getSimpleName();
 
     Context c;
     Long[] results;

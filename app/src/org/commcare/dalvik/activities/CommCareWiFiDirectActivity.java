@@ -64,7 +64,7 @@ import java.util.Vector;
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
 
-    public static final String TAG = "cc-wifidirect";
+    public static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
 
     public static final String KEY_NUMBER_DUMPED ="wd_num_dumped";
 

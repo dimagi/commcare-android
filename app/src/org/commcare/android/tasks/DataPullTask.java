@@ -70,7 +70,7 @@ import android.util.Log;
  * @author ctsims
  */
 public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
-    private static final String TAG = "DataPullTask";
+    private static final String TAG = DataPullTask.class.getSimpleName();
 
     String server;
     String keyProvider;

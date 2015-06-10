@@ -55,7 +55,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     boolean done = false;
 
-    public static String TAG = "InstallArchiveActivity";
+    public static String TAG = InstallArchiveActivity.class.getSimpleName();
     
     public static String ARCHIVE_REFERENCE = "archive-ref";
 

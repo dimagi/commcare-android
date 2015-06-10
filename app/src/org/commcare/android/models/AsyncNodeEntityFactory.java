@@ -28,7 +28,7 @@ import org.javarosa.xpath.expr.XPathExpression;
  * @author ctsims
  */
 public class AsyncNodeEntityFactory extends NodeEntityFactory {
-    private static final String TAG = "AsyncNodeEntityFactory";
+    private static final String TAG = AsyncNodeEntityFactory.class.getSimpleName();
 
     User current; 
     

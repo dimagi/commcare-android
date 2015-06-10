@@ -12,7 +12,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  */
 public class AndroidClassHasher implements Hasher {
-    private static final String TAG = "AndroidClassHasher";
+    private static final String TAG = AndroidClassHasher.class.getSimpleName();
 
     MessageDigest mMessageDigester;
     

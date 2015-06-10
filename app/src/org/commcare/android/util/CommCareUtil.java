@@ -26,7 +26,7 @@ import android.widget.Toast;
  * @author ctsims
  */
 public class CommCareUtil {
-    private static final String TAG = "CommCareUtil";
+    private static final String TAG = CommCareUtil.class.getSimpleName();
 
     public static FormInstance loadFixture(String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);

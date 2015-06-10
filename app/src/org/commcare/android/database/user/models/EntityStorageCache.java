@@ -15,7 +15,7 @@ import android.util.Log;
  * @author ctsims
  */
 public class EntityStorageCache {
-    private static final String TAG = "EntityStorageCache";
+    private static final String TAG = EntityStorageCache.class.getSimpleName();
     public static final String TABLE_NAME = "entity_cache";
     
     public static final String COL_CACHE_NAME = "cache_name";

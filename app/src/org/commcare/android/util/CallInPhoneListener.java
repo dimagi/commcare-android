@@ -37,7 +37,7 @@ import android.widget.Toast;
  * @author ctsims
  */
 public class CallInPhoneListener extends PhoneStateListener {
-    private static final String TAG = "CallInPhoneListener";
+    private static final String TAG = CallInPhoneListener.class.getSimpleName();
 
     private Context context;
     private AndroidCommCarePlatform platform;

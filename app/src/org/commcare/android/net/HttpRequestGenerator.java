@@ -49,7 +49,7 @@ import android.util.Log;
  * @author ctsims
  */
 public class HttpRequestGenerator {
-    private static final String TAG = "HttpRequestGenerator";
+    private static final String TAG = HttpRequestGenerator.class.getSimpleName();
     
     /** A possible domain that further qualifies the username of any account in use */
     public static final String USER_DOMAIN_SUFFIX = "cc_user_domain";

@@ -54,7 +54,7 @@ import android.util.Log;
  * @author ctsims
  */
 public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer,R> {
-    private static final String TAG = "FormRecordCleanupTask";
+    private static final String TAG = FormRecordCleanupTask.class.getSimpleName();
     Context context;
     CommCarePlatform platform;
     

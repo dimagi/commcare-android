@@ -47,7 +47,7 @@ import com.google.android.maps.OverlayItem;
  *
  */
 public class EntityMapActivity extends MapActivity {
-    private static final String TAG = "EntityMapActivity";
+    private static final String TAG = EntityMapActivity.class.getSimpleName();
 
     MapView map;
     MyLocationOverlay mMyLocationOverlay;

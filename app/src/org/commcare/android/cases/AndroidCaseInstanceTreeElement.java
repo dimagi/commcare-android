@@ -23,7 +23,7 @@ import org.javarosa.core.util.DataUtil;
  * @author ctsims
  */
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
-    private static final String TAG = "AndroidCaseInstanceTreeElement";
+    private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
     SqlStorageIterator<ACase> iter;
     CaseIndexTable mCaseIndexTable;
     

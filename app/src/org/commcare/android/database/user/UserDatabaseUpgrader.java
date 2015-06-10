@@ -22,7 +22,7 @@ import android.util.Log;
  * @author ctsims
  */
 public class UserDatabaseUpgrader {
-    private static final String TAG = "UserDatabaseUpgrader";
+    private static final String TAG = UserDatabaseUpgrader.class.getSimpleName();
     
     boolean inSenseMode = false;
     Context c;

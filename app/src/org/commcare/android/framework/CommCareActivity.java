@@ -56,7 +56,7 @@ import android.widget.Toast;
  */
 public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
     AudioController, DialogController, OnGestureListener {
-    private static final String TAG = "CommCareActivity";
+    private static final String TAG = CommCareActivity.class.getSimpleName();
     
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";

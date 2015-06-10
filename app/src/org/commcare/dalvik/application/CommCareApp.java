@@ -42,7 +42,7 @@ public class CommCareApp {
     JavaFileRoot fileRoot;
     AndroidCommCarePlatform platform;
 
-    private static final String TAG = "CommCareApp";
+    private static final String TAG = CommCareApp.class.getSimpleName();
 
     public static Object lock = new Object();
 

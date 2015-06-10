@@ -35,7 +35,7 @@ import android.widget.Toast;
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
-    private static final String TAG = "MultimediaInflaterActivity";
+    private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
     
     private static final String LOG_TAG = "CommCare-MultimediaInflator";
 

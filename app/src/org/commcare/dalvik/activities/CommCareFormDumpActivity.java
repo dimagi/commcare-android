@@ -41,7 +41,7 @@ import android.widget.TextView;
 
 @ManagedUi(R.layout.screen_form_dump)
 public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpActivity> {
-    private static final String TAG = "CommCareFormDumpActivity";
+    private static final String TAG = CommCareFormDumpActivity.class.getSimpleName();
      
     @UiElement(value = R.id.screen_bulk_form_prompt, locale="bulk.form.prompt")
     TextView txtDisplayPrompt;

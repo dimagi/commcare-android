@@ -55,7 +55,7 @@ import java.io.IOException;
 
 
 public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
-    private static final String TAG = "FormRecordListActivity";
+    private static final String TAG = FormRecordListActivity.class.getSimpleName();
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST  + 1;
     private static final int RESTORE_RECORD = Menu.FIRST  + 2;

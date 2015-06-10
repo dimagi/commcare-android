@@ -54,7 +54,7 @@ import android.util.Log;
  * @author ctsims
  */
 public class AndroidSessionWrapper {
-    private static final String TAG = "AndroidSessionWrapper";
+    private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
     protected CommCareSession session;
     private CommCarePlatform platform;

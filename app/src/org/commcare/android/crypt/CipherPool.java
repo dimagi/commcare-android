@@ -11,7 +11,7 @@ import android.util.Log;
  * @author ctsims
  */
 public abstract class CipherPool {
-    private static final String TAG = "CipherPool";
+    private static final String TAG = CipherPool.class.getSimpleName();
     
     private static final int GROWTH_FACTOR = 5;
     

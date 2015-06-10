@@ -48,7 +48,7 @@ import android.util.Log;
  * @author ctsims
  */
 public class XFormAndroidInstaller extends FileSystemInstaller {
-    private static final String TAG = "XFormAndroidInstaller";
+    private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
     String namespace;
     

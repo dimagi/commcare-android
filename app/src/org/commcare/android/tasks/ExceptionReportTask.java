@@ -33,7 +33,7 @@ import android.util.Log;
  * @author csims@dimagi.com
  **/
 public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
-    private static final String TAG = "ExceptionReportTask";
+    private static final String TAG = ExceptionReportTask.class.getSimpleName();
     /*
      * (non-Javadoc)
      * @see android.os.AsyncTask#doInBackground(java.lang.Object[])

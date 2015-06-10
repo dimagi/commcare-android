@@ -22,7 +22,7 @@ import android.widget.TimePicker.OnTimeChangedListener;
 public class TimeWidget extends QuestionWidget implements OnTimeChangedListener {
 
     private TimePicker mTimePicker;
-    private static final String TAG = "TimeWidget";
+    private static final String TAG = TimeWidget.class.getSimpleName();
 
 
     public TimeWidget(Context context, final FormEntryPrompt prompt) {

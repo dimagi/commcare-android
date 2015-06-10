@@ -42,7 +42,7 @@ import org.odk.collect.android.views.media.MediaLayout;
 import java.io.File;
 
 public abstract class QuestionWidget extends LinearLayout {
-    private final static String TAG = "QuestionWidget";
+    private final static String TAG = QuestionWidget.class.getSimpleName();
 
     private LinearLayout.LayoutParams mLayout;
     protected FormEntryPrompt mPrompt;
