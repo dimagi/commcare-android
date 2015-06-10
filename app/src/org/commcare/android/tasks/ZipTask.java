@@ -29,7 +29,6 @@ import org.commcare.android.util.ReflectionUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -40,7 +39,6 @@ import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public abstract class ZipTask extends CommCareTask<String, String, FormRecord[], CommCareWiFiDirectActivity>{
 
@@ -65,17 +63,10 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     public static final int ZIP_TASK_ID = 72135;
     
     DataSubmissionListener formSubmissionListener;
-    CommCarePlatform platform;
-    
-    SqlStorage<FormRecord> storage;
-    
-    private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
-    
-    public ZipTask(Context c, CommCarePlatform platform) throws SessionUnavailableException{
+
+    public ZipTask(Context c) {
         this.c = c;
-        storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         taskId = ZIP_TASK_ID;
-        platform = this.platform;
     }
     
     /* (non-Javadoc)
@@ -103,8 +94,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
     
-    private long dumpInstance(int submissionNumber, File folder, SecretKeySpec key) throws FileNotFoundException {
-        
+    private long dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException {
         File[] files = folder.listFiles();
         
         File myDir = new File(dumpFolder, folder.getName());
@@ -136,13 +126,10 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
             
             bytes += files[j].length();
         }
-        
-        //this.startSubmission(submissionNumber, bytes);
-        
+
         final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
         
         for(int j=0;j<files.length;j++){
-            
             File f = files[j];
             // This is not the ideal long term solution for determining whether we need decryption, but works
             if (f.getName().endsWith(".xml")) {
@@ -178,9 +165,8 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
         
         try{
-        
             if(!targetFilePath.isDirectory()){
-                System.out.println("827: target was not folder, bad");
+                // target was not folder
             }
         
             File[] fileArray = targetFilePath.listFiles();
@@ -197,9 +183,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     }
     
     private boolean zipFolder(File[] files, String zipFile, ZipOutputStream zos) throws IOException {
-        
-        System.out.println("827 zipping folder with files: " +files[0]+ ", zipFile: " + zipFile);
-        
         int BUFFER_SIZE = 1024;
         BufferedInputStream origin = null;
         
@@ -212,16 +195,12 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                     
                     String tempPath = files[i].getPath();
                     
-                    System.out.println("827 zipping folder with path: " + tempPath);
-                    
                     String[] pathParts = tempPath.split("/");
                     
                     int pathPartsLength = pathParts.length;
                     
                     String fileName = pathParts[pathPartsLength-1];
                     String fileFolder = pathParts[pathPartsLength-2];
-                    
-                    System.out.println("827 zipping folder with path: " + fileFolder + "/" + fileName);
                     
                     ZipEntry entry = new ZipEntry(fileFolder + "/" + fileName);
                     zos.putNextEntry(entry);
@@ -309,8 +288,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
             dumpFolder = sourceDirectory;
 
-            try{
-                
                 results = new Long[records.length];
                 for(int i = 0; i < records.length ; ++i ) {
                     //Assume failure
@@ -335,8 +312,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                             //Good!
                             //Time to Send!
                             try {
-                                results[i] = dumpInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"));
-                                
+                                results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
                             } catch (FileNotFoundException e) {
                                 if(CommCareApplication._().isStorageAvailable()) {
                                     //If storage is available generally, this is a bug in the app design
@@ -348,7 +324,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                                 }
                                 continue;
                             }
-                        
+
                             //Check for success
                             if(results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
                                 //FormRecordCleanupTask.wipeRecord(c, platform, record);
@@ -360,18 +336,16 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                              return null;    
                             }
                         }
-                        
-                        
                     } catch (StorageFullException e) {
                         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
                         throw new RuntimeException(e);
                     } catch(SessionUnavailableException sue) {
-                        throw sue;
+                        this.cancel(false);
+                        return null;
                     } catch (Exception e) {
                         //Just try to skip for now. Hopefully this doesn't wreck the model :/
                         Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
-                        continue;
-                    }  
+                    }
                 }
                 
                 long result = 0;
@@ -383,8 +357,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                 
                 if(result == 0){
                     try{
-                        System.out.println("827 trying zip");
-                        
                         String zipPath = CommCareWiFiDirectActivity.sourceDirectory;
                         
                         File nf = new File(zipPath);
@@ -395,20 +367,8 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                         zipTargetFolder(nf, CommCareWiFiDirectActivity.sourceZipDirectory);
                         sourceDirectory.delete();
                     }catch( IOException ioe){
-                        System.out.println("827 IOException: " + ioe.getMessage());
                     }
                 }
-                
-                //this.endSubmissionProcess();
-                
-                } 
-                catch(SessionUnavailableException sue) {
-                    this.cancel(false);
-                    return null;
-                }
-            
-            //
-            //
             return records;
         } else {
             publishProgress("No forms to send.");

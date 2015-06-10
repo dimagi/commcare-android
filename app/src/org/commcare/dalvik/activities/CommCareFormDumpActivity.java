@@ -95,9 +95,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                 }
                 
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-                SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
-                        settings.getString("PostURL", url), getFolderPath()){
-                                        
+                SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(), settings.getString("PostURL", url), getFolderPath()){
                     /*
                      * (non-Javadoc)
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
@@ -160,10 +158,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                     return;
                 }
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-                DumpTask mDumpTask = new DumpTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), txtInteractiveMessages){
-
-                    protected int taskId = BULK_DUMP_ID;
-                    
+                DumpTask mDumpTask = new DumpTask(getApplicationContext(), txtInteractiveMessages){
                     /*
                      * (non-Javadoc)
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
@@ -175,7 +170,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                             i.putExtra(KEY_NUMBER_DUMPED, formsOnPhone);
                             receiver.setResult(BULK_DUMP_ID, i);
                             receiver.finish();
-                            return;
                         } else {
                             //assume that we've already set the error message, but make it look scary
                             receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
@@ -204,9 +198,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                 };
                 mDumpTask.connect(CommCareFormDumpActivity.this);
                 mDumpTask.execute();
-                
             }
-            
         });
         
         mAlertDialog = popupWarningMessage();
@@ -214,7 +206,6 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
         if(!acknowledgedRisk){
             mAlertDialog.show();
         }
-            
     }
 
     /*

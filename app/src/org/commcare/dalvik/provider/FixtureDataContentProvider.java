@@ -41,21 +41,12 @@ public class FixtureDataContentProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
-
         return true;
     }
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
-
-        IStorageUtilityIndexed<FormInstance> userFixtureStorage;
-
-        try{
-            userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
-        } catch(SessionUnavailableException sue){
-            return null;
-        }
 
         //Standard dispatcher following Android best practices
         int match = FixtureDataAPI.UriMatch(uri);

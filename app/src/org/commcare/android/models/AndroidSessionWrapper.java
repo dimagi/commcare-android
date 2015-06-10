@@ -8,6 +8,7 @@ import java.util.Vector;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -16,6 +17,7 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -209,7 +211,7 @@ public class AndroidSessionWrapper {
      * null otherwise. 
      */
     public SessionStateDescriptor searchForDuplicates() {
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
         
         //TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
@@ -245,7 +247,13 @@ public class AndroidSessionWrapper {
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
-        SecretKey key = CommCareApplication._().createNewSymetricKey();
+        SecretKey  key;
+        try {
+            key = CommCareApplication._().createNewSymetricKey();
+        } catch (SessionUnavailableException e) {
+            // the user db is closed
+            throw new UserStorageClosedException(e.getMessage());
+        }
         
         //TODO: this has two components which can fail. be able to roll them back
         

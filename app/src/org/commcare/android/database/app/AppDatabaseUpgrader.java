@@ -102,18 +102,4 @@ public class AppDatabaseUpgrader {
             db.endTransaction();
         }
     }
-    
-    /**
-     * Reads and rewrites all of the records in a table, generally to adapt an old serialization format to a new
-     * format
-     *  
-     * @param db
-     * @param storage
-     * @return
-     */
-    private <T extends Persistable> void updateModels(SqlStorage<T> storage) {
-        for(T t : storage) {
-            storage.write(t);
-        }
-    }
 }

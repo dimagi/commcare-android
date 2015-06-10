@@ -45,6 +45,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.IncompleteFormListAdapter;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
@@ -330,9 +331,8 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
               Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
               createFormRecordScanResultDialog(result);
           }
-          
           return true;
-        } catch(SessionUnavailableException sue) {
+        } catch(UserStorageClosedException e) {
             //TODO: Login and try again
             return true;
         }

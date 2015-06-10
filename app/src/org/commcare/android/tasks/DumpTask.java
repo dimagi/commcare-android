@@ -26,7 +26,6 @@ import org.commcare.android.util.ReflectionUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareFormDumpActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -57,19 +56,15 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     public static final int BULK_DUMP_ID = 23456;
     
     DataSubmissionListener formSubmissionListener;
-    CommCarePlatform platform;
-    
-    SqlStorage<FormRecord> storage;
+
     TextView outputTextView;
     
     private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
     
-    public DumpTask(Context c, CommCarePlatform platform, TextView outputTextView) throws SessionUnavailableException{
+    public DumpTask(Context c, TextView outputTextView) {
         this.c = c;
-        storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         this.outputTextView = outputTextView;
         taskId = DumpTask.BULK_DUMP_ID;
-        platform = this.platform;
     }
     
     /* (non-Javadoc)
@@ -97,8 +92,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
     
-    private long dumpInstance(int submissionNumber, File folder, SecretKeySpec key) throws FileNotFoundException {
-        
+    private long dumpInstance(int submissionNumber, File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException{
         File[] files = folder.listFiles();
         
         File myDir = new File(dumpFolder, folder.getName());
@@ -222,7 +216,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         
         dumpDirectory.mkdirs();
         
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         
         //Get all forms which are either unsent or unprocessed
         Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
@@ -282,8 +276,6 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                                 publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
                             }
                         }
-                        
-                        
                     } catch (StorageFullException e) {
                         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
                         throw new RuntimeException(e);
@@ -292,8 +284,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                     } catch (Exception e) {
                         //Just try to skip for now. Hopefully this doesn't wreck the model :/
                         Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
-                        continue;
-                    }  
+                    }
                 }
                 
                 long result = 0;

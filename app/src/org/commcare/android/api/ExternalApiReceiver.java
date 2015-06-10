@@ -149,18 +149,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             tryLocalLogin(context, username, password);
         } else if(b.getString("commcareaction").equals("sync")) {
             
-            boolean formsToSend = checkAndStartUnsentTask(context, new ProcessTaskListener() {
+            boolean formsToSend = checkAndStartUnsentTask(context);
 
-                public void processTaskAllProcessed() {
-                    //Don't cancel the dialog, we need it to stay in the foreground to ensure things are set
-                }
-                
-                public void processAndSendFinished(int result, int successfulSends) {
-
-                }
-
-            });
-            
             if(!formsToSend) {
                 //No unsent forms, just sync
                 syncData(context);
@@ -171,8 +161,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
     
     
-    protected boolean checkAndStartUnsentTask(final Context context, ProcessTaskListener listener) throws SessionUnavailableException {
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+    protected boolean checkAndStartUnsentTask(final Context context) {
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         
         //Get all forms which are either unsent or unprocessed
         Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
