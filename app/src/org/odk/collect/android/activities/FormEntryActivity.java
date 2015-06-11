@@ -81,11 +81,9 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -101,8 +99,8 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
 import org.odk.collect.android.listeners.FormLoaderListener;
-import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.FormSaveCallback;
+import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
@@ -2829,6 +2827,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return status as determined in FormEntryController
      */
     public int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
+
         try {
             if (evaluateConstraints) {
                 return mFormController.answerQuestion(index, answer);

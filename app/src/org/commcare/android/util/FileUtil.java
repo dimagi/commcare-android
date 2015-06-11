@@ -1,5 +1,16 @@
 package org.commcare.android.util;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.util.Log;
+
+import org.commcare.resources.model.MissingMediaException;
+import org.commcare.resources.model.Resource;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.util.PropertyUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,22 +23,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
-
-import org.commcare.resources.model.MissingMediaException;
-import org.commcare.resources.model.Resource;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.util.PropertyUtils;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.util.Log;
 
 /**
  * @author ctsims
@@ -395,4 +396,20 @@ public class FileUtil {
                 return null;
             }
         }
+
+    public static Properties loadProperties(Context c) throws IOException {
+        String[] fileList = { "local.properties" };
+        Properties prop = new Properties();
+        for (int i = fileList.length - 1; i >= 0; i--) {
+            String file = fileList[i];
+            try {
+                InputStream fileStream = c.getAssets().open(file);
+                prop.load(fileStream);
+                fileStream.close();
+            }  catch (FileNotFoundException e) {
+                //
+            }
+        }
+        return prop;
+    }
 }
