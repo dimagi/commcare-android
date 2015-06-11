@@ -49,7 +49,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     @UiElement(R.id.screen_suite_menu_list)
     private ListView list;
 
-    @UiElement(R.id.menu_list_header)
+    // removed the UiElement annotation here because it was causing a crash @ loadFields() in CommCareActivity
     private TextView header;
 
     /*

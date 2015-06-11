@@ -9,6 +9,7 @@ import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
@@ -37,6 +38,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -194,6 +196,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                             if(oldView != null) {
                                 if(v instanceof TextView) {
                                     ((TextView)v).setText(((TextView)oldView).getText());
+                                }
+                                if(v == null || oldView == null) {
+                                    Log.d("loadFields", "NullPointerException when trying to find view with id: " +
+                                            + element.value() + " (" + getResources().getResourceEntryName(element.value()) + ") "
+                                            + "v is " + v + ", oldView is " + oldView + " for activity " + oldActivity +
+                                            ", element is: " + f + " (" + f.getName() + ")");
                                 }
                                 v.setVisibility(oldView.getVisibility());
                                 v.setEnabled(oldView.isEnabled());
