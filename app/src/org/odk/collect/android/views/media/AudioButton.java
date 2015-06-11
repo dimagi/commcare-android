@@ -30,9 +30,14 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private AudioController controller;
     private Object residingViewId;
 
+    public AudioButton(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.controller = buildAudioControllerInstance();
+    }
+
     /*
-     * Constructor for if not explicitly using an AudioController
-     */
+         * Constructor for if not explicitly using an AudioController
+         */
     public AudioButton(Context context, final String URI, boolean visible) {
         this(context, URI, null, null, visible);
     }
