@@ -207,8 +207,15 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         //signal that it's time to start submitting the file
         this.startSubmission(index, f.length());
         HttpRequestGenerator generator;
-        User user = CommCareApplication._().getSession().getLoggedInUser();
-        if(user.getUserType().equals(User.TYPE_DEMO)) {
+        User user;
+        try {
+            user = CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException e) {
+            // lost the session, so report failed submission
+            return false;
+        }
+
+        if (User.TYPE_DEMO.equals(user.getUserType())) {
             generator = new HttpRequestGenerator();
         } else {
             generator = new HttpRequestGenerator(user);

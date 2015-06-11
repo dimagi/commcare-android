@@ -19,11 +19,9 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore.Video;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -33,6 +31,8 @@ import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -50,13 +50,13 @@ import java.io.File;
 public class VideoWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "MediaWidget";
 
-    private Button mCaptureButton;
-    private Button mPlayButton;
-    private Button mChooseButton;
+    private final Button mCaptureButton;
+    private final Button mPlayButton;
+    private final Button mChooseButton;
 
     private String mBinaryName;
 
-    private String mInstanceFolder;
+    private final String mInstanceFolder;
 
     private boolean mWaitingForData;
 
@@ -65,8 +65,8 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
 
         mWaitingForData = false;
         mInstanceFolder =
-            FormEntryActivity.mInstancePath.substring(0,
-                FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryActivity.mInstancePath.substring(0,
+                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
 
@@ -74,50 +74,40 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         params.setMargins(7, 5, 7, 5);
         // setup capture button
         mCaptureButton = new Button(getContext());
-        mCaptureButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.capture_video));
-        mCaptureButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mCaptureButton.setPadding(20, 20, 20, 20);
-        mCaptureButton.setEnabled(!prompt.isReadOnly());
-        mCaptureButton.setLayoutParams(params);
-        
+        WidgetUtils.setupButton(mCaptureButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.capture_video),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
+
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                    Video.Media.EXTERNAL_CONTENT_URI.toString());
+                        Video.Media.EXTERNAL_CONTENT_URI.toString());
                 try {
-                    ((Activity) getContext()).startActivityForResult(i,
-                        FormEntryActivity.VIDEO_CAPTURE);
+                    ((Activity)getContext()).startActivityForResult(i,
+                            FormEntryActivity.VIDEO_CAPTURE);
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "capture video"),
-                            Toast.LENGTH_SHORT);
+                            StringUtils.getStringSpannableRobust(getContext(),
+                                    R.string.activity_not_found, "capture video"),
+                            Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
         // setup capture button
         mChooseButton = new Button(getContext());
-        mChooseButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.choose_video));
-        mChooseButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mChooseButton.setPadding(20, 20, 20, 20);
-        mChooseButton.setEnabled(!prompt.isReadOnly());
-        mChooseButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mChooseButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.choose_video),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
@@ -127,41 +117,38 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 // android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 mWaitingForData = true;
                 try {
-                    ((Activity) getContext()).startActivityForResult(i,
-                        FormEntryActivity.VIDEO_CHOOSER);
+                    ((Activity)getContext()).startActivityForResult(i,
+                            FormEntryActivity.VIDEO_CHOOSER);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "choose video "),
-                            Toast.LENGTH_SHORT);
+                            StringUtils.getStringSpannableRobust(getContext(),
+                                    R.string.activity_not_found, "choose video "),
+                            Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
         // setup play button
         mPlayButton = new Button(getContext());
-        mPlayButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.play_video));
-        mPlayButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mPlayButton.setPadding(20, 20, 20, 20);
-        mPlayButton.setLayoutParams(params);
+        WidgetUtils.setupButton(mPlayButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.play_video),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
 
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             public void onClick(View v) {
                 Intent i = new Intent("android.intent.action.VIEW");
                 File f = new File(mInstanceFolder + "/" + mBinaryName);
                 i.setDataAndType(Uri.fromFile(f), "video/*");
                 try {
-                    ((Activity) getContext()).startActivity(i);
+                    getContext().startActivity(i);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                        StringUtils.getStringSpannableRobust(getContext(), R.string.activity_not_found, "video video"),
-                            Toast.LENGTH_SHORT);
+                            StringUtils.getStringSpannableRobust(getContext(),
+                                    R.string.activity_not_found, "video video"),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -170,11 +157,10 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         mBinaryName = prompt.getAnswerText();
         if (mBinaryName != null) {
             mPlayButton.setEnabled(true);
-            
+
             File f = new File(mInstanceFolder + "/" + mBinaryName);
-            
+
             checkFileSize(f);
-            
         } else {
             mPlayButton.setEnabled(false);
         }
@@ -183,11 +169,10 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         addView(mCaptureButton);
         addView(mChooseButton);
         String acq = prompt.getAppearanceHint();
-        if((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))){
+        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
             mChooseButton.setVisibility(View.GONE);
         }
         addView(mPlayButton);
-
     }
 
 
@@ -224,33 +209,11 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
-            return new StringData(mBinaryName.toString());
+            return new StringData(mBinaryName);
         } else {
             return null;
         }
     }
-
-
-    private String getPathFromUri(Uri uri) {
-        if (uri.toString().startsWith("file")) {
-            return uri.toString().substring(6);
-        } else {
-            String[] videoProjection = {
-                Video.Media.DATA
-            };
-            Cursor c =
-                ((Activity) getContext()).managedQuery(uri, videoProjection, null, null, null);
-            ((Activity) getContext()).startManagingCursor(c);
-            int column_index = c.getColumnIndexOrThrow(Video.Media.DATA);
-            String videoPath = null;
-            if (c.getCount() > 0) {
-                c.moveToFirst();
-                videoPath = c.getString(column_index);
-            }
-            return videoPath;
-        }
-    }
-
 
     /*
      * (non-Javadoc)
@@ -264,7 +227,8 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         }
 
         // get the file path and create a copy in the instance folder
-        String binaryPath = getPathFromUri((Uri) binaryuri);
+        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                (Uri)binaryuri);
         String extension = binaryPath.substring(binaryPath.lastIndexOf("."));
         String destVideoPath = mInstanceFolder + "/" + System.currentTimeMillis() + extension;
 

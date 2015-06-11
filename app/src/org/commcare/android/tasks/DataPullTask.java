@@ -39,6 +39,7 @@ import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.xml.CommCareTransactionParserFactory;
@@ -133,7 +134,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     protected void onCancelled() {
         super.onCancelled();
         if(wasKeyLoggedIn) {
-            CommCareApplication._().logout();
+            try {
+                CommCareApplication._().getSession().closeSession(false);
+            } catch (SessionUnavailableException e) {
+                // if the session isn't available, we don't need to logout
+            }
         }
     }
     
@@ -143,6 +148,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
      */
     @Override
     protected Integer doTaskBackground(Void... params) {
+        // Don't try to sync if logging out is occuring
+        if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+            // TODO PLM: once this task is refactored into manageable
+            // components, it should use the ManagedAsyncTask pattern of
+            // checking for isCancelled() and aborting at safe places.
+            return UNKNOWN_FAILURE;
+        }
+
+
+        // Wrap in a 'try' to enable a 'finally' close that releases the
+        // sessionAliveLock.
+        try {
         publishProgress(PROGRESS_STARTED);
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
@@ -158,7 +175,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         boolean loginNeeded = true;
         boolean useRequestFlags = false;
         try {
-            loginNeeded = !CommCareApplication._().getSession().isLoggedIn();
+            loginNeeded = !CommCareApplication._().getSession().isActive();
         } catch(SessionUnavailableException sue) {
             //expected if we aren't initialized.
         }
@@ -245,7 +262,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 if(responseCode == 401) {
                     //If we logged in, we need to drop those credentials
                     if(loginNeeded) {
-                        CommCareApplication._().logout();
+                        try {
+                            CommCareApplication._().getSession().closeSession(false);
+                        } catch (SessionUnavailableException e) {
+                            // if the session isn't available, we don't need to logout
+                        }
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
                     return AUTH_FAILED;
@@ -320,7 +341,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //wipe our login if one happened
                         if(loginNeeded) {
-                            CommCareApplication._().logout();
+                            try {
+                                CommCareApplication._().getSession().closeSession(false);
+                            } catch (SessionUnavailableException e) {
+                                // if the session isn't available, we don't need to logout
+                            }
                         }
                         this.publishProgress(PROGRESS_DONE);
                         return UNKNOWN_FAILURE;
@@ -330,18 +355,30 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //wipe our login if one happened
                         if(loginNeeded) {
-                            CommCareApplication._().logout();
+                            try {
+                                CommCareApplication._().getSession().closeSession(false);
+                            } catch (SessionUnavailableException e) {
+                                // if the session isn't available, we don't need to logout
+                            }
                         }
                         this.publishProgress(PROGRESS_DONE);
                         return UNKNOWN_FAILURE;
                     }
                     
                     if(loginNeeded) {
-                        CommCareApplication._().logout();
+                        try {
+                            CommCareApplication._().getSession().closeSession(false);
+                        } catch (SessionUnavailableException e) {
+                            // if the session isn't available, we don't need to logout
+                        }
                     }
                 } else if(responseCode == 500) {
                     if(loginNeeded) {
-                        CommCareApplication._().logout();
+                        try {
+                            CommCareApplication._().getSession().closeSession(false);
+                        } catch (SessionUnavailableException e) {
+                            // if the session isn't available, we don't need to logout
+                        }
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return SERVER_ERROR;
@@ -366,29 +403,32 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-            }catch (SessionUnavailableException sue) {
+            } catch (SessionUnavailableException sue) {
+                // TODO PLM: eventually take out this catch. These should be
+                // checked locally
                 //TODO: Keys were lost somehow.
                 sue.printStackTrace();
-                
-                //Make sure that we are logged out. We can get into a funny state
-                //here
-                CommCareApplication._().logout();
             }
             if(loginNeeded) {
-                CommCareApplication._().logout();
+                try {
+                    CommCareApplication._().getSession().closeSession(false);
+                } catch (SessionUnavailableException e) {
+                    // if the session isn't available, we don't need to logout
+                }
             }
             this.publishProgress(PROGRESS_DONE);
             return responseError;
-            
+        } finally {
+            CommCareSessionService.sessionAliveLock.unlock();
+        }
     }
     
     /**
-     * Retrieves the HttpResponse stream and writes it to an initialized safe local cache. Notifies
-     * listeners of progress through the download if its size is available.
-     * 
+     * Retrieves the HttpResponse stream and writes it to an initialized safe
+     * local cache. Notifies listeners of progress through the download if its
+     * size is available.
+     *
      * @param response
-     * @param cache
-     * @param dataSizeGuess An estimation of how large the provided response is. -1 for unknown. 
      * @throws IOException If there is an issue reading or writing the response.
      */
     private BitCache writeResponseToCache(HttpResponse response) throws IOException {
@@ -422,7 +462,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     
                     //We always wanna notify when we get our first bytes
                     if(lastOutput == 0) {
-                        Log.i("commcare-network", "First"  + bytesRead + " bytes recieved from network: ");
+                        Log.i("commcare-network", "First"  + bytesRead + " bytes received from network: ");
                         notify = true;
                     }
                     //After, if we don't know how much data to expect, we can't do
@@ -460,6 +500,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
     }
 
+    /**
+     * Get an estimation of how large the provided response is.
+     * @return -1 for unknown.
+     */
     private long guessDataSize(HttpResponse response) {
         if(DEBUG_LOAD_FROM_LOCAL) {
             try {

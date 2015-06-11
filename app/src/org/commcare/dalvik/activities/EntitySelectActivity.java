@@ -80,7 +80,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 /**
  * 
@@ -248,6 +247,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         Callout callout = shortSelect.getCallout();
 
+        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+
         if (callout == null) {
             // Default to barcode scanning if no callout defined in the detail
             barcodeButton.setOnClickListener((barcodeScanOnClickListener = new OnClickListener() {
@@ -257,11 +258,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     try {
                         startActivityForResult(i, BARCODE_FETCH);
                     } catch (ActivityNotFoundException anfe) {
-                        Toast noReader = Toast.makeText(EntitySelectActivity.this,
+                        Toast.makeText(EntitySelectActivity.this,
                                 "No barcode reader available! You can install one " +
-                                        "from the android market.",
-                                Toast.LENGTH_LONG);
-                        noReader.show();
+                                "from the android market.",
+                                Toast.LENGTH_LONG).show();
                     }
                 }
             }));
@@ -286,8 +286,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     try {
                         startActivityForResult(i, CALLOUT);
                     } catch (ActivityNotFoundException anfe) {
-                        Toast noReader = Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG);
-                        noReader.show();
+                        Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG).show();
                     }
                 }
             }));
@@ -473,6 +472,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             
         } catch(SessionUnavailableException sue) {
             //TODO: login and return
+        } catch(RuntimeException re) {
+            createErrorDialog(re.getMessage(), true);
         }
     }
     
@@ -578,20 +579,23 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             break;
         case CALLOUT:
             if (resultCode == Activity.RESULT_OK) {
+                boolean resultSet = false;
                 String result = intent.getStringExtra("odk_intent_data");
                 if (result != null) {
                     this.searchbox.setText(result);
-                    break;
+                    resultSet = true;
                 }
                 Callout callout = shortSelect.getCallout();
                 for (String key : callout.getResponses()) {
-                    result = intent.getStringExtra(key);
-                    if (result != null) {
+                    result = intent.getExtras().getString(key);
+                    if (result != null && !resultSet) {
+                        resultSet = true;
                         this.searchbox.setText(result);
                         break;
                     }
                 }
             }
+            break;
         case CONFIRM_SELECT:
             resuming = true;
             if(resultCode == RESULT_OK && !mViewMode) {
@@ -697,7 +701,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         Action action = shortSelect.getCustomAction();
         if(action != null) {
-            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION, action.getDisplay());
+            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
+                    action.getDisplay().evaluate());
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -1090,7 +1095,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             theloader.execute(selectDatum.getNodeset());
         }
     }
-    
+
     private Timer myTimer;
     private Object timerLock = new Object();
     boolean cancelled;

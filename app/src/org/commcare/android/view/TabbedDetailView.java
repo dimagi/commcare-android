@@ -27,7 +27,7 @@ import android.widget.RelativeLayout;
 import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.graph.DisplayData;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
@@ -136,13 +136,8 @@ public class TabbedDetailView extends RelativeLayout {
                 
                 // Create MenuListEntryView for tab
                 HorizontalMediaView view = new HorizontalMediaView(mContext);
-                DisplayUnit title = d.getTitle();
-                Text text = title.getText();
-                Text audio = title.getAudioURI();
-                Text image = title.getImageURI();
-                view.setAVT(text == null ? null : text.evaluate(),
-                        audio == null ? null : audio.evaluate(),
-                        image == null ? null : image.evaluate());
+                DisplayData title = d.getTitle().evaluate();
+                view.setAVT(title.getName(), title.getAudioURI(), title.getImageURI());
                 view.setGravity(Gravity.CENTER);
                 view.setClickable(true);
                 view.setOnClickListener(listener);

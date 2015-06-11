@@ -28,6 +28,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -38,15 +39,15 @@ import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.provider.FormsProviderAPI.FormsColumns;
-import org.odk.collect.android.provider.InstanceProviderAPI;
-import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.utilities.EncryptionUtils;
 import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformation;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -60,13 +61,21 @@ import android.util.Log;
 public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     private final static String t = "SaveToDiskTask";
 
+    // callback to run upon saving
     private FormSavedListener mSavedListener;
     private Boolean mSave;
     private Boolean mMarkCompleted;
+    // URI to the thing we are saving
     private Uri mUri;
+    // The name of the form we are saving
     private String mInstanceName;
     private Context context;
+    // URI to the table we are saving to
     private Uri instanceContentUri;
+
+    // Should this save task tell its save-complete callback to run without any
+    // GUI calls?
+    private boolean headless;
     
     SecretKeySpec symetricKey;
 
@@ -77,7 +86,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     public static final int SAVED_AND_EXIT = 504;
 
 
-    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey) {
+    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey, boolean headless) {
         this.mUri = mUri;
         mSave = saveAndExit;
         mMarkCompleted = markCompleted;
@@ -85,6 +94,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         this.context = context;
         this.instanceContentUri = instanceContentUri;
         this.symetricKey = symetricKey;
+        this.headless = headless;
     }
 
 
@@ -111,79 +121,67 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         }
 
         return SAVE_ERROR;
-
     }
 
+    /**
+     * Update or create a new entry in the form table for the
+     * @param incomplete
+     * @param canEditAfterCompleted
+     */
     private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted) {
-        
-        // Update the instance database...
-        // If FormEntryActivity was started with an Instance, just update that instance
+        ContentValues values = new ContentValues();
+        if (mInstanceName != null) {
+            values.put(InstanceColumns.DISPLAY_NAME, mInstanceName);
+        }
+
+        if (incomplete || !mMarkCompleted) {
+            values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
+        } else {
+            values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
+        }
+        // update this whether or not the status is complete.
+        values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(canEditAfterCompleted));
+
+        // Insert or update the form instance into the database.
         if (context.getContentResolver().getType(mUri) == InstanceColumns.CONTENT_ITEM_TYPE) {
-            ContentValues values = new ContentValues();
-            if (mInstanceName != null) {
-                values.put(InstanceColumns.DISPLAY_NAME, mInstanceName);
-            } 
-            if (incomplete || !mMarkCompleted) {
-                values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
-            } else {
-                values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
-            }
-            // update this whether or not the status is complete...
-            values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(canEditAfterCompleted));
+            // Started with a concrete instance (e.i. by editing an existing
+            // form), so just update it.
             context.getContentResolver().update(mUri, values, null, null);
         } else if (context.getContentResolver().getType(mUri) == FormsColumns.CONTENT_ITEM_TYPE) {
-            // If FormEntryActivity was started with a form, then it's likely the first time we're
-            // saving.
-            // However, it could be a not-first time saving if the user has been using the manual
-            // 'save data' option from the menu. So try to update first, then make a new one if that
-            // fails.
-            ContentValues values = new ContentValues();
-            if (mInstanceName != null) {
-                values.put(InstanceColumns.DISPLAY_NAME, mInstanceName);
-            }
-            if (incomplete || !mMarkCompleted) {
-                values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
-            } else {
-                values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
-            }
-            // update this whether or not the status is complete...
-            values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(canEditAfterCompleted));
-
-            String where = InstanceColumns.INSTANCE_FILE_PATH + "=?";
-            String[] whereArgs = {
-                FormEntryActivity.mInstancePath
-            };
-            int updated = context.getContentResolver().update(instanceContentUri, values, where, whereArgs);
-            if (updated > 1) {
-                Log.w(t, "Updated more than one entry, that's not good");
-            } else if (updated == 1) {
-                Log.i(t, "Instance already exists, updating");
-                // already existed and updated just fine
-            } else {
+            // Started with an empty form or possibly a manually saved form.
+            // Try updating, and create a new instance if that fails.
+            String[] whereArgs = {FormEntryActivity.mInstancePath};
+            int rowsUpdated = context.getContentResolver().update(instanceContentUri, values,
+                    InstanceColumns.INSTANCE_FILE_PATH + "=?", whereArgs);
+            if (rowsUpdated == 0) {
+                // Form instance didn't exist in the table, so create it.
                 Log.e(t, "No instance found, creating");
-                // Entry didn't exist, so create it.
                 Cursor c = null;
                 try {
+                    // grab the first entry in the instance table for the form
                     c = context.getContentResolver().query(mUri, null, null, null, null);
                     c.moveToFirst();
-                    String jrformid = c.getString(c.getColumnIndex(FormsColumns.JR_FORM_ID));
-                    String formname = c.getString(c.getColumnIndex(FormsColumns.DISPLAY_NAME));
-                    String submissionUri = c.getString(c.getColumnIndex(FormsColumns.SUBMISSION_URI));
-    
-                    values.put(InstanceColumns.INSTANCE_FILE_PATH, FormEntryActivity.mInstancePath);
-                    values.put(InstanceColumns.SUBMISSION_URI, submissionUri);
-                    if (mInstanceName != null) {
-                        values.put(InstanceColumns.DISPLAY_NAME, mInstanceName);
-                    } else {
-                        values.put(InstanceColumns.DISPLAY_NAME, formname);
+                    // copy data out of that entry, into the entry we are creating
+                    values.put(InstanceColumns.JR_FORM_ID,
+                            c.getString(c.getColumnIndex(FormsColumns.JR_FORM_ID)));
+                    values.put(InstanceColumns.SUBMISSION_URI,
+                            c.getString(c.getColumnIndex(FormsColumns.SUBMISSION_URI)));
+
+                    if (mInstanceName == null) {
+                        values.put(InstanceColumns.DISPLAY_NAME,
+                                c.getString(c.getColumnIndex(FormsColumns.DISPLAY_NAME)));
                     }
-                    values.put(InstanceColumns.JR_FORM_ID, jrformid);
                 } finally {
-                    if ( c != null ) {
+                    if (c != null) {
                         c.close();
                     }
                 }
+                values.put(InstanceColumns.INSTANCE_FILE_PATH, FormEntryActivity.mInstancePath);
                 mUri = context.getContentResolver().insert(instanceContentUri, values);
+            } else if (rowsUpdated == 1) {
+                Log.i(t, "Instance already exists, updating");
+            } else{
+                Log.w(t, "Updated more than one entry, that's not good");
             }
         }
     }
@@ -193,7 +191,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
      * In theory we don't have to write to disk, and this is where you'd add
      * other methods.
      * @param markCompleted
-     * @return
+     * @return was writing of data successful?
      */
     private boolean exportData(boolean markCompleted) {
         ByteArrayPayload payload;
@@ -214,7 +212,14 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         }
 
         // update the mUri. We've saved the reloadable instance, so update status...
-        updateInstanceDatabase(true, true);
+
+        try {
+            updateInstanceDatabase(true, true);
+        } catch (SQLException e) {
+            Log.e(t, "Error creating database entries for form.");
+            e.printStackTrace();
+            return false;
+        }
         
         if ( markCompleted ) {
             // now see if it is to be finalized and perhaps update everything...
@@ -266,7 +271,13 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
             // 2. Overwrite the instanceXml with the submission.xml 
             //    and remove the plaintext attachments if encrypting
             
-            updateInstanceDatabase(false, canEditAfterCompleted);
+            try {
+                updateInstanceDatabase(false, canEditAfterCompleted);
+            } catch (SQLException e) {
+                Log.e(t, "Error creating database entries for form.");
+                e.printStackTrace();
+                return false;
+            }
 
             if (  !canEditAfterCompleted ) {
                 // AT THIS POINT, there is no going back.  We are committed
@@ -336,7 +347,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     /**
      * This method actually writes the xml to disk.
      * @param payload
-     * @param path
+     * @param output
      * @return
      */
     private boolean exportXmlFile(ByteArrayPayload payload, OutputStream output) {
@@ -362,7 +373,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     protected void onPostExecute(Integer result) {
         synchronized (this) {
             if (mSavedListener != null)
-                mSavedListener.savingComplete(result);
+                mSavedListener.savingComplete(result, headless);
         }
     }
 

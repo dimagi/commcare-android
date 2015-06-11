@@ -21,9 +21,11 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.odk.collect.android.listeners.FormSaveCallback;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -31,6 +33,7 @@ import org.javarosa.core.services.Logger;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -50,31 +53,55 @@ import javax.crypto.spec.SecretKeySpec;
 public class CommCareSessionService extends Service  {
 
     private NotificationManager mNM;
-    
-    private static long MAINTENANCE_PERIOD = 1000;
 
-    // session length in MS
+    /**
+     * Milliseconds to wait before rechecking if the session is still fresh.
+     */
+    private static final long MAINTENANCE_PERIOD = 1000;
+
+    /**
+     * Session length in MS
+     */
     private static long sessionLength = 1000 * 60 * 60 * 24;
-    
+
+    /**
+     * Lock that must be held to expire the session. Thus if a task holds it,
+     * the session remains alive. Allows server syncing tasks to prevent the
+     * session from expiring and closing the user DB while they are running.
+     */
+    public static final ReentrantLock sessionAliveLock = new ReentrantLock();
+
     private Timer maintenanceTimer;
     private CipherPool pool;
 
     private byte[] key = null;
-    
+
     private boolean multimediaIsVerified=false;
-    
+
     private Date sessionExpireDate;
-    
-    private Object lock = new Object();
-    
+
+    private final Object lock = new Object();
+
     private User user;
-    
-    private SQLiteDatabase userDatabase; 
-    
+
+    private SQLiteDatabase userDatabase;
+
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
-    private int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
-    private int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
+    private final int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
+    private final int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
+
+    // How long to wait until we force the session to finish logging out. Set
+    // at 90 seconds to make sure huge forms on slow phones actually get saved
+    private static final long LOGOUT_TIMEOUT = 1000 * 90;
+
+    // The logout process start time, used to wrap up logging out if
+    // the saving of incomplete forms takes too long
+    private long logoutStartedAt = -1;
+
+    // Once key expiration process starts, we want to call this function to
+    // save the current form if it exists.
+    private FormSaveCallback formSaver;
     
     
     /**
@@ -230,6 +257,9 @@ public class CommCareSessionService extends Service  {
         }
     }
 
+    /**
+     * (Re-)open user database
+     */
     public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
         synchronized(lock){
             this.key = symetricKey;
@@ -240,8 +270,14 @@ public class CommCareSessionService extends Service  {
             userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
-    
-    public void logIn(User user) {
+
+    /**
+     * Register a user with a session and start the session expiration timer.
+     * Assumes user database and key pool have already been setup .
+     *
+     * @param user attach this user to the session
+     */
+    public void startSession(User user) {
         synchronized(lock){
             if(user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
@@ -267,66 +303,185 @@ public class CommCareSessionService extends Service  {
                  */
                 @Override
                 public void run() {
-                    maintenance();
+                    timeToExpireSession();
                 }
                 
             }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
         }
     }
-    
-    private void maintenance() {
-        boolean logout = false;
-        long time = new Date().getTime();
-        // If we're either past the session expire time, or the session expires more than its period in the future, 
-        // we need to log the user out
-        if(time > sessionExpireDate.getTime() || (sessionExpireDate.getTime() - time  > sessionLength )) { 
-            logout = true;
-        }
-        
-        if(logout) {
-            logout();
+
+    /**
+     * If the session has been alive for longer than its specified duration
+     * then save any open forms and close it down. If data syncing is in
+     * progess then don't do anything.
+     */
+    private void timeToExpireSession() {
+
+        long currentTime = new Date().getTime();
+
+        // If logout process started and has taken longer than the logout
+        // timeout then wrap-up the process. This is especially necessary since
+        // if the FormEntryActivity  isn't active then it will never launch
+        // closeSession upon receiving the KEY_SESSION_ENDING broadcast
+        if (logoutStartedAt != -1 &&
+                currentTime > (logoutStartedAt + LOGOUT_TIMEOUT)) {
+            // Try and grab the logout lock, aborting if synchronization is in
+            // progress.
+            if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+                return;
+            }
+            try {
+                closeSession(true);
+            } finally {
+                CommCareSessionService.sessionAliveLock.unlock();
+            }
+        } else if (isActive() && logoutStartedAt == -1 &&
+                (currentTime > sessionExpireDate.getTime() ||
+                 (sessionExpireDate.getTime() - currentTime  > sessionLength))) {
+            // If we haven't started closing the session and we're either past
+            // the session expire time, or the session expires more than its
+            // period in the future, we need to log the user out. The second
+            // case occurs if the system's clock is altered.
+
+            // Try and grab the logout lock, aborting if synchronization is in
+            // progress.
+            if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+                return;
+            }
+
+            try {
+                logoutStartedAt = new Date().getTime();
+                saveFormAndCloseSession();
+            } finally {
+                CommCareSessionService.sessionAliveLock.unlock();
+            }
+
             showLoggedOutNotification();
         }
     }
-    
-    public void logout() {
+
+    /**
+     * Notify any open form that it needs to save, then close the key session
+     * after waiting for the form save to complete/timeout.
+     */
+    private void saveFormAndCloseSession() {
+        // Remember when we started so that if form saving takes too long, the
+        // maintenance timer will launch closeSession
+        logoutStartedAt = new Date().getTime();
+
+        // save form progress, if any
+        synchronized(lock) {
+            if (formSaver != null) {
+                formSaver.formSaveCallback();
+            } else {
+                closeSession(true);
+            }
+        }
+    }
+
+    /**
+     * Allow for the form entry engine to register a method that can be used to
+     * save any forms being editted when key expiration begins.
+     *
+     * @param callbackObj object with a method for saving the current form
+     * being edited
+     */
+    public void registerFormSaveCallback(FormSaveCallback callbackObj) {
+        this.formSaver = callbackObj;
+    }
+
+    /**
+     * Unregister the form save callback; should occur when there is no longer
+     * a form open that might need to be saved if the session expires.
+     */
+    public void unregisterFormSaveCallback() {
+        synchronized(lock) {
+            this.formSaver = null;
+        }
+    }
+
+
+    /**
+     * Closes the key pool and user database. Performs CommCareApplication
+     * logout to unbind its connection to this object.
+     *
+     * @param sessionExpired should the user be redirected to the login screen
+     *                       upon closing this session?
+     */
+    public void closeSession(boolean sessionExpired) {
         synchronized(lock){
+            if (!isActive()) {
+                // Since both the FormSaveCallback callback and the maintenance
+                // timer might call this, only run if it hasn't been called
+                // before.
+                return;
+            }
+
+            // Cancel any running tasks before closing down the user databse.
+            ManagedAsyncTask.cancelTasks();
+
             key = null;
-            
-            String username = null; 
-            
-            if(user != null) {
-                username = user.getUsername();
-                
-                //Let anyone who is listening know!
-                Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
-                this.sendBroadcast(i);
-            }
-            
-            String msg = username != null ? "Logging out user " + username  : "Logging out service login";
+            String msg = "Logging out service login";
+
+            // Let anyone who is listening know!
+            Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
+            this.sendBroadcast(i);
+
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
-            
-            if(userDatabase != null && userDatabase.isOpen()) {
-                userDatabase.close();
+
+            if (user != null) {
+                if (user.getUsername() != null) {
+                    msg = "Logging out user " + user.getUsername();
+                }
+                user = null;
             }
-            userDatabase = null;
-            user = null;
-            //this is null if we aren't actually in the foreground
-            if(maintenanceTimer != null) {
+
+            if (userDatabase != null) {
+                if (userDatabase.isOpen()) {
+                    userDatabase.close();
+                }
+                userDatabase = null;
+            }
+
+            // timer is null if we aren't actually in the foreground
+            if (maintenanceTimer != null) {
                 maintenanceTimer.cancel();
             }
+            logoutStartedAt = -1;
+
+            CommCareApplication._().logout();
+
             pool.expire();
             this.stopForeground(true);
+
+            if (sessionExpired) {
+                // Re-direct to the home screen
+                Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
+                // TODO: instead of launching here, which will pop-up the login
+                // screen even if CommCare isn't in the foreground, we should
+                // broadcast an intent, which CommCareActivity can receive if
+                // in focus and dispatch the login activity. Will also need to
+                // extend CommCareActivity's onResume to check if we need to
+                // re-login when we bring CommCare back into the foreground, so
+                // that the user can't just continue doing work while logged
+                // out. -- PLM
+                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(loginIntent);
+            }
         }
     }
-    
-    public boolean isLoggedIn() {
+
+    /**
+     * Is the session active? Active sessions have an open key pool and user
+     * database.
+     */
+    public boolean isActive() {
         synchronized(lock){
-            if(key == null) { return false;}
-            return true;
+            return (key != null);
         }
     }
-    
+
     public Cipher getEncrypter() throws SessionUnavailableException {
         synchronized(lock){
             if(key == null) {
@@ -506,7 +661,7 @@ public class CommCareSessionService extends Service  {
      * Read the login session duration from app preferences and set the session
      * length accordingly.
      */
-    public void setSessionLength(){
+    private void setSessionLength(){
         sessionLength = CommCarePreferences.getLoginDuration() * 1000;
     }
 
@@ -517,5 +672,4 @@ public class CommCareSessionService extends Service  {
     public void setMultiMediaVerified(boolean toggle){
         multimediaIsVerified = toggle;
     }
-
 }

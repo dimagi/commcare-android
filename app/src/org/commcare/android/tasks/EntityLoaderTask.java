@@ -7,13 +7,13 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
-import android.os.AsyncTask;
 import android.util.Pair;
 
 
@@ -21,7 +21,7 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
+public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
     
     private static EntityLoaderTask pending[] = {null};
     

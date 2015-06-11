@@ -35,8 +35,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
- * This class is
- * 
  * @author carlhartung
  */
 public class ODKView extends ScrollView implements OnLongClickListener, WidgetChangedListener {
@@ -206,11 +204,17 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     }
     
     public void removeQuestionFromIndex(int i){
-        mView.removeView((View) widgets.get(i));
         int dividerIndex = Math.max(i - 1, 0);
-        mView.removeView(dividers.get(dividerIndex));
-        widgets.remove(i);
-        dividers.remove(dividerIndex);
+
+        if (dividerIndex < dividers.size()) {
+            mView.removeView(dividers.get(dividerIndex));
+            dividers.remove(dividerIndex);
+        }
+
+        if (i < widgets.size()) {
+            mView.removeView((View) widgets.get(i));
+            widgets.remove(i);
+        }
     }
     
     public void removeQuestionsFromIndex(ArrayList<Integer> indexes){
@@ -262,13 +266,9 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      */
     public HashMap<FormIndex, IAnswerData> getAnswers() {
         HashMap<FormIndex, IAnswerData> answers = new HashMap<FormIndex, IAnswerData>();
-        Iterator<QuestionWidget> i = widgets.iterator();
-        while (i.hasNext()) {
-            /*
-             * The FormEntryPrompt has the FormIndex, which is where the answer gets stored. The
-             * QuestionWidget has the answer the user has entered.
-             */
-            QuestionWidget q = i.next();
+        for (QuestionWidget q : widgets) {
+            // The FormEntryPrompt has the FormIndex, which is where the answer gets stored. The
+            // QuestionWidget has the answer the user has entered.
             FormEntryPrompt p = q.getPrompt();
             answers.put(p.getIndex(), q.getAnswer());
         }

@@ -324,7 +324,7 @@ public class GridEntityView extends GridLayout {
 			String textsize = mStyle.getFontSize();
 			String CssID = mStyle.getCssID();			
 			
-			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i));
+			mView = getView(context, multimediaType, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i));
 			if(!(mView instanceof ImageView)) {
 			    mGridParams.height = LayoutParams.WRAP_CONTENT;
 			}
@@ -339,17 +339,19 @@ public class GridEntityView extends GridLayout {
 	
 	/**
 	 * Get the correct View for this particular activity.
+     *
 	 * @param context
 	 * @param multimediaType either "image", "audio", or default text. Describes how this XPath result should be displayed.
-	 * @param width the width, in number of cells, this entity should occupy in the grid
-	 * @param height the height, in number of cells, this entity should occupy in the grid
 	 * @param horzAlign How the text should be aligned horizontally - left, center, or right ONE OF horzAlign or vertAlign
 	 * @param vertAlign How the text should be aligned vertically - top, center, or bottom ONE OF horzAlign or vertAlign
 	 * @param textsize The font size, scaled for screen size. small, medium, large, xlarge accepted.
-	 * @param rowData The actual data to display, either an XPath to media or a String to display
+	 * @param rowData The actual data to display, either an XPath to media or a String to display.
+     * @param uniqueId
+     * @param cssid
+     * @param searchField
 	 * @return
 	 */
-	private View getView(Context context, String multimediaType, GridLayout.LayoutParams mGridParams,  String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
+	private View getView(Context context, String multimediaType, String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
 		View retVal;
         switch (multimediaType) {
             case EntityView.FORM_IMAGE:
@@ -437,7 +439,6 @@ public class GridEntityView extends GridLayout {
 	}
     public void setSearchTerms(String[] currentSearchTerms) {
         this.searchTerms = currentSearchTerms;
-        
     }
 
     public void setTextColor(int color){

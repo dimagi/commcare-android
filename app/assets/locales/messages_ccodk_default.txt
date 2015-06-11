@@ -41,7 +41,7 @@ menu.basic=Basic Install
 menu.advanced=Advanced Install
 menu.archive=Offline Install
 
-profile.found=Application found. ${0} resources loaded, of ${1} total
+profile.found=Application found. ${0} resources loaded, of ${1} total.
 
 app.workflow.login.lost=You were logged out of CommCare, please log back in
 app.workflow.incomplete.continue.title=Continue Form

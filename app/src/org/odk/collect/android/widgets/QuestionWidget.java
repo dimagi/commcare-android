@@ -63,7 +63,7 @@ public abstract class QuestionWidget extends LinearLayout {
     //drawn for now.
     protected int mFrameHeight = -1;
 
-    private TextView mQuestionText;
+    protected TextView mQuestionText;
     private FrameLayout helpPlaceholder;
     private ShrinkingTextView mHintText;
     protected boolean hasListener;
@@ -127,14 +127,10 @@ public abstract class QuestionWidget extends LinearLayout {
         addQuestionText(p);
         addHelpPlaceholder(p);
         addHintText(p);
-
     }
-
 
     protected void acceptFocus() {
-
     }
-
 
     private void addHelpPlaceholder(FormEntryPrompt p) {
         if (!p.hasHelp()) {
@@ -183,19 +179,14 @@ public abstract class QuestionWidget extends LinearLayout {
         return mPrompt;
     }
 
-
     // Abstract methods
     public abstract IAnswerData getAnswer();
 
-
     public abstract void clearAnswer();
-
 
     public abstract void setFocus(Context context);
 
-
     public abstract void setOnLongClickListener(OnLongClickListener l);
-
 
     private class URLSpanNoUnderline extends URLSpan {
         public URLSpanNoUnderline(String url) {
@@ -214,7 +205,7 @@ public abstract class QuestionWidget extends LinearLayout {
     public void notifyOnScreen(String text, boolean strong){
         notifyOnScreen(text, strong, true);
     }
-    
+
     /**
      * Add notification (e.g., validation error) to this question.
      * @param text Text of message.
@@ -368,7 +359,6 @@ public abstract class QuestionWidget extends LinearLayout {
         }
         textView.setText(s);
     }    
-
 
     /**
      * Add a Views containing the question text, audio (if applicable), and image (if applicable).
@@ -595,7 +585,6 @@ public abstract class QuestionWidget extends LinearLayout {
     protected int getMaxHintHeight() {
         return -1;
     }
-
 
     /**
      * Every subclassed widget should override this, adding any views they may contain, and calling

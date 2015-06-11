@@ -8,9 +8,11 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
@@ -271,7 +273,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (currentEntity != null) attemptSetStateToPauseForRenewal();
+        if (currentEntity != null) {
+            attemptSetStateToPauseForRenewal();
+        }
     }
 
     /* (non-Javadoc)
@@ -550,8 +554,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      * @see org.odk.collect.android.views.media.AudioController#refreshCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
      */
     @Override
-    public void refreshCurrentAudioButton(AudioButton clicked) {
-        if (currentButton != null && currentButton != clicked) {
+    public void refreshCurrentAudioButton(AudioButton clickedButton) {
+        if (currentButton != null && currentButton != clickedButton) {
             currentButton.setStateToReady();
         }
     }
@@ -622,7 +626,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public void pauseCurrentMediaEntity() {
         if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
             MediaPlayer mp = currentEntity.getPlayer();
-            mp.pause();    
+            mp.pause();
             currentEntity.setState(MediaState.Paused);
         }
     }
@@ -700,6 +704,43 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             return mp.getCurrentPosition();
         }
         return null;
+    }
+
+    protected void createErrorDialog(String errorMsg, boolean shouldExit) {
+        createErrorDialog(this, errorMsg, shouldExit);
+    }
+    
+    /**
+     * Pop up a semi-friendly error dialog rather than crashing outright.
+     * @param activity Activity to which to attach the dialog.
+     * @param errorMsg
+     * @param shouldExit If true, cancel activity when user exits dialog.
+     */
+    public static void createErrorDialog(final Activity activity, String errorMsg, final boolean shouldExit) {
+        AlertDialog dialog = new AlertDialog.Builder(activity).create();
+        dialog.setIcon(android.R.drawable.ic_dialog_info);
+        dialog.setTitle(StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured));
+        dialog.setMessage(errorMsg);
+        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+            /*
+             * (non-Javadoc)
+             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+             */
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        if (shouldExit) {
+                            activity.setResult(RESULT_CANCELED);
+                            activity.finish();
+                        }
+                        break;
+                }
+            }
+        };
+        dialog.setCancelable(false);
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok), errorListener);
+        dialog.show();
     }
     
     /** All methods for implementation of DialogController **/

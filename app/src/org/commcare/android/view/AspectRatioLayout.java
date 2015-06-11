@@ -26,6 +26,16 @@ public class AspectRatioLayout extends FrameLayout {
         initializeRatio(context, attrs);
     }
     
+    /**
+     * Set layout's aspect ratio.
+     * @param ratioWidth
+     * @param ratioHeight
+     */
+    public void setRatio(float ratioWidth, float ratioHeight) {
+        mRatioWidth = ratioWidth;
+        mRatioHeight = ratioHeight;
+    }
+    
     private void initializeRatio(Context context, AttributeSet attrs) {
         if(!isInEditMode()) {
             String namespace = "http://schemas.android.com/apk/lib/" + this.getClass().getPackage().getName();

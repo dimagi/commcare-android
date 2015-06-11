@@ -68,8 +68,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         this.platform = platform;
         this.taskId = taskId;
     }
-    
-    
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
@@ -174,14 +173,17 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         //NOTE: This does _not_ parse and process the case data. It's only for getting meta information
         //about the entry session.
         TransactionParserFactory factory = new TransactionParserFactory() {
+            public TransactionParser getParser(KXmlParser parser) {
+                String name = parser.getName();
 
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-                if(name == null) { return null;}
-                if("case".equals(name)) {
+                if (name == null) {
+                    return null;
+                }
+
+                if ("case".equals(name)) {
                     //If we have a proper 2.0 namespace, good.
-                    if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
+                    if (CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace())) {
                         return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
-                            
                             /*
                              * (non-Javadoc)
                              * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
@@ -206,7 +208,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                 return c;
                             }
                         };
-                    }else {
+                    } else {
                     //Otherwise, this gets more tricky. Ideally we'd want to skip this block for compatibility purposes,
                     //but we can at least try to get a caseID (which is all we want)
                     return new BestEffortBlockParser(parser, null, null, new String[] {"case_id"}) {
@@ -221,11 +223,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             }
                         }
                     };}
-                    
-                }
-                else if("meta".equals(name.toLowerCase())) {
+                } else if("meta".equalsIgnoreCase(name)) {
                     return new MetaDataXmlParser(parser) {
-                        
                         /*
                          * (non-Javadoc)
                          * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
@@ -237,13 +236,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             }
                             uuid[0] = meta[1];
                         }
-
                     };
                 }
                 return null;
             }
-            
-            
         };
         
         String path = r.getPath(context);
@@ -270,8 +266,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         //Construct parser for this form's internal data.
         DataModelPullParser parser = new DataModelPullParser(is, factory);
         parser.parse();
-        
-        
+
         //TODO: We should be committing all changes to form record models via the ASW objects, not manually.
         FormRecord parsed = new FormRecord(r.getInstanceURI().toString(), newStatus, r.getFormNamespace(), r.getAesKey(),uuid[0], modified[0]);
         parsed.setID(r.getID());
@@ -301,16 +296,12 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         
         return parsed;
     }
-    
-    
-
 
     public static void wipeRecord(Context c,SessionStateDescriptor existing) {
         int ssid = existing.getID();
         int formRecordId = existing.getFormRecordId();
         wipeRecord(c, ssid, formRecordId);
     }
-
 
     public static void wipeRecord(Context c, AndroidSessionWrapper currentState) {
         int formRecordId = currentState.getFormRecordId();
@@ -331,7 +322,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     }
     
     private static void wipeRecord(Context context, int sessionId, int formRecordId, SqlStorage<FormRecord> frStorage, SqlStorage<SessionStateDescriptor> ssdStorage) {
-
         if(sessionId != -1) {
             try {
                 SessionStateDescriptor ssd = ssdStorage.read(sessionId);

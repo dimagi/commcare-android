@@ -241,6 +241,8 @@ public class FormsProvider extends ContentProvider {
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(FORMS_TABLE_NAME, null, values);
+        db.close();
+
         if (rowId > 0) {
             Uri formUri = ContentUris.withAppendedId(FormsColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(formUri, null);
@@ -316,6 +318,8 @@ public class FormsProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
+        db.close();
 
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
@@ -434,6 +438,8 @@ public class FormsProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
+        db.close();
 
         getContext().getContentResolver().notifyChange(uri, null);
         return count;

@@ -126,7 +126,7 @@ public class MediaLayout extends RelativeLayout {
                     } catch (ActivityNotFoundException e) {
                         Toast.makeText(getContext(),
                             getContext().getString(R.string.activity_not_found, "view video"),
-                            Toast.LENGTH_SHORT);
+                            Toast.LENGTH_SHORT).show();
                     }
                 }
 

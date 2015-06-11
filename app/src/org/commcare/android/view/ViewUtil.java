@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.graph.DisplayData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localizer;
@@ -46,13 +46,18 @@ import java.util.LinkedList;
  */
 public final class ViewUtil {
 
-    //This is silly and isn't really what we want here, but it's a start. (We'd like to be able to add
-    //a displayunit to a menu in a super easy/straightforward way.
-    public static void addDisplayToMenu(Context context, Menu menu, int menuId, DisplayUnit display) {
-        Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI().evaluate());
-        MenuItem item = menu.add(0, menuId, menuId, Localizer.clearArguments(display.getText().evaluate()).trim());
-        if(b != null) {
-            item.setIcon(new BitmapDrawable(context.getResources(),b));
+    // This is silly and isn't really what we want here, but it's a start.
+    // (We'd like to be able to add a displayunit to a menu in a super
+    // easy/straightforward way.
+    public static void addDisplayToMenu(Context context, Menu menu,
+                                        int menuId, DisplayData display) {
+        MenuItem item = menu.add(0, menuId, menuId,
+                Localizer.clearArguments(display.getName()).trim());
+        if (display.getImageURI() != null) {
+            Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI());
+            if (b != null) {
+                item.setIcon(new BitmapDrawable(context.getResources(), b));
+            }
         }
     }
 
