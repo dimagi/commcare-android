@@ -1,11 +1,34 @@
 package org.commcare.android.framework;
 
-import java.lang.reflect.Field;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.media.MediaPlayer;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.text.Spannable;
+import android.util.DisplayMetrics;
+import android.util.Pair;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -23,26 +46,7 @@ import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.MediaEntity;
 import org.odk.collect.android.views.media.MediaState;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.media.MediaPlayer;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.text.Spannable;
-import android.util.DisplayMetrics;
-import android.util.Pair;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.lang.reflect.Field;
 
 /**
  * Base class for CommCareActivities to simplify 
@@ -788,6 +792,44 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     }
     public Pair<Detail, TreeReference> requestEntityContext() {
         return null;
+    }
+
+    /**
+     * Interface to perform additional setup code when adding an ActionBar using the {@link #tryToAddActionSearchBar(android.app.Activity, android.view.Menu, org.commcare.android.framework.CommCareActivity.ActionBarInstantiator)}  tryToAddActionSearchBar} method.
+     */
+    public interface ActionBarInstantiator {
+        void onActionBarFound(SearchView searchView);
+    }
+
+    /**
+     * Tries to add actionBar to current Activity and hides the current search widget and runs ActionBarInstantiator if it exists.
+     * Used in EntitySelectActivity and FormRecordListActivity.
+     * @param act Current activity
+     * @param menu Menu passed through onCreateOptionsMenu
+     * @param instantiator Optional ActionBarInstantiator for additional setup code
+     */
+    public void tryToAddActionSearchBar(Activity act, Menu menu, ActionBarInstantiator instantiator) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuInflater inflater = act.getMenuInflater();
+            inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
+
+            SearchView searchView =
+                    (SearchView)menu.findItem(org.commcare.dalvik.R.id.search_action_bar).getActionView();
+            if (searchView != null) {
+                int[] searchViewStyle = AndroidUtil.getThemeColorIDs(this, new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
+                int id = searchView.getContext()
+                        .getResources()
+                        .getIdentifier("android:id/search_src_text", null, null);
+                TextView textView = (TextView) searchView.findViewById(id);
+                textView.setTextColor(searchViewStyle[0]);
+                if(instantiator != null) {
+                    instantiator.onActionBarFound(searchView);
+                }
+            }
+
+            View bottomSearchWidget = act.findViewById(org.commcare.dalvik.R.id.searchfooter);
+            if(bottomSearchWidget != null) bottomSearchWidget.setVisibility(View.GONE);
+        }
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package org.commcare.dalvik.activities;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,7 +31,6 @@ import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -58,7 +58,6 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
@@ -380,14 +379,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.activity_report_problem, menu);
-
-            searchView =
-                    (SearchView)menu.findItem(R.id.search_action_bar).getActionView();
-            if (searchView != null) {
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+            // this should be unnecessary...
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public void onActionBarFound(SearchView searchView) {
+                FormRecordListActivity.this.searchView = searchView;
+                FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
                         return true;
@@ -399,17 +397,8 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                         return false;
                     }
                 });
-                int[] searchViewStyle = AndroidUtil.getThemeColorIDs(this, new int[]{R.attr.searchbox_action_bar_color});
-                int id = searchView.getContext()
-                        .getResources()
-                        .getIdentifier("android:id/search_src_text", null, null);
-                TextView textView = (TextView) searchView.findViewById(id);
-                textView.setTextColor(searchViewStyle[0]);
             }
-
-            View bottomSearchWidget = findViewById(R.id.searchfooter);
-            if(bottomSearchWidget != null) bottomSearchWidget.setVisibility(View.GONE);
-        }
+        });
         if(!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
             SharedPreferences prefs =CommCareApplication._().getCurrentApp().getAppPreferences();
             String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
@@ -423,7 +412,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         }
         return parent;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)

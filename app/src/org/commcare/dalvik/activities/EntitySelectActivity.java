@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -18,7 +19,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -61,7 +61,6 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
@@ -76,11 +75,9 @@ import org.javarosa.model.xform.XPathReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 /**
  * 
@@ -700,14 +697,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION, action.getDisplay());
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.activity_report_problem, menu);
-
-            searchView =
-                    (SearchView)menu.findItem(R.id.search_action_bar).getActionView();
-            if (searchView != null) {
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+            // again, this should be unnecessary...
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public void onActionBarFound(SearchView searchView) {
+                EntitySelectActivity.this.searchView = searchView;
+                EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
                         return true;
@@ -721,17 +717,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                         return false;
                     }
                 });
-                int[] searchViewStyle = AndroidUtil.getThemeColorIDs(this, new int[]{R.attr.searchbox_action_bar_color});
-                int id = searchView.getContext()
-                        .getResources()
-                        .getIdentifier("android:id/search_src_text", null, null);
-                TextView textView = (TextView) searchView.findViewById(id);
-                textView.setTextColor(searchViewStyle[0]);
             }
-
-            View bottomSearchWidget = findViewById(R.id.searchfooter);
-            bottomSearchWidget.setVisibility(View.GONE);
-        }
+        });
 
         return true;
     }
