@@ -30,6 +30,7 @@ import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,6 +41,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +58,7 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
@@ -93,7 +96,8 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     private ImageButton barcodeButton;
     private Spinner filterSelect;
     private ListView listView;
-    
+    private SearchView searchView;
+
     public enum FormRecordFilter {
         
         /** Processed and Pending **/ 
@@ -376,6 +380,36 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.activity_report_problem, menu);
+
+            searchView =
+                    (SearchView)menu.findItem(R.id.search_action_bar).getActionView();
+            if (searchView != null) {
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        adapter.applyTextFilter(newText);
+                        return false;
+                    }
+                });
+                int[] searchViewStyle = AndroidUtil.getThemeColorIDs(this, new int[]{R.attr.searchbox_action_bar_color});
+                int id = searchView.getContext()
+                        .getResources()
+                        .getIdentifier("android:id/search_src_text", null, null);
+                TextView textView = (TextView) searchView.findViewById(id);
+                textView.setTextColor(searchViewStyle[0]);
+            }
+
+            View bottomSearchWidget = findViewById(R.id.searchfooter);
+            if(bottomSearchWidget != null) bottomSearchWidget.setVisibility(View.GONE);
+        }
         if(!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
             SharedPreferences prefs =CommCareApplication._().getCurrentApp().getAppPreferences();
             String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
@@ -531,6 +565,9 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
+                return true;
+            case R.id.menu_settings:
+                CommCareHomeActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
