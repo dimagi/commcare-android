@@ -795,20 +795,28 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     }
 
     /**
-     * Interface to perform additional setup code when adding an ActionBar using the {@link #tryToAddActionSearchBar(android.app.Activity, android.view.Menu, org.commcare.android.framework.CommCareActivity.ActionBarInstantiator)}  tryToAddActionSearchBar} method.
+     * Interface to perform additional setup code when adding an ActionBar
+     * using the {@link #tryToAddActionSearchBar(android.app.Activity,
+     * android.view.Menu,
+     * org.commcare.android.framework.CommCareActivity.ActionBarInstantiator)}
+     * tryToAddActionSearchBar} method.
      */
     public interface ActionBarInstantiator {
         void onActionBarFound(SearchView searchView);
     }
 
     /**
-     * Tries to add actionBar to current Activity and hides the current search widget and runs ActionBarInstantiator if it exists.
-     * Used in EntitySelectActivity and FormRecordListActivity.
-     * @param act Current activity
-     * @param menu Menu passed through onCreateOptionsMenu
-     * @param instantiator Optional ActionBarInstantiator for additional setup code
+     * Tries to add actionBar to current Activity and hides the current search
+     * widget and runs ActionBarInstantiator if it exists. Used in
+     * EntitySelectActivity and FormRecordListActivity.
+     *
+     * @param act          Current activity
+     * @param menu         Menu passed through onCreateOptionsMenu
+     * @param instantiator Optional ActionBarInstantiator for additional setup
+     *                     code.
      */
-    public void tryToAddActionSearchBar(Activity act, Menu menu, ActionBarInstantiator instantiator) {
+    public void tryToAddActionSearchBar(Activity act, Menu menu,
+                                        ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuInflater inflater = act.getMenuInflater();
             inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
@@ -816,19 +824,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             SearchView searchView =
                     (SearchView)menu.findItem(org.commcare.dalvik.R.id.search_action_bar).getActionView();
             if (searchView != null) {
-                int[] searchViewStyle = AndroidUtil.getThemeColorIDs(this, new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
+                int[] searchViewStyle =
+                        AndroidUtil.getThemeColorIDs(this,
+                                new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
                 int id = searchView.getContext()
                         .getResources()
                         .getIdentifier("android:id/search_src_text", null, null);
-                TextView textView = (TextView) searchView.findViewById(id);
+                TextView textView = (TextView)searchView.findViewById(id);
                 textView.setTextColor(searchViewStyle[0]);
-                if(instantiator != null) {
+                if (instantiator != null) {
                     instantiator.onActionBarFound(searchView);
                 }
             }
 
             View bottomSearchWidget = act.findViewById(org.commcare.dalvik.R.id.searchfooter);
-            if(bottomSearchWidget != null) bottomSearchWidget.setVisibility(View.GONE);
+            if (bottomSearchWidget != null) {
+                bottomSearchWidget.setVisibility(View.GONE);
+            }
         }
     }
 
