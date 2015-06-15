@@ -71,6 +71,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Field;
+
 /**
  * Base class for CommCareActivities to simplify 
  * common localization and workflow tasks
