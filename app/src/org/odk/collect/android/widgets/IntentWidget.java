@@ -84,7 +84,6 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         }
 
         // finish complex layout
-        addView(launchIntentButton);
         addView(mStringAnswer);
 
 
