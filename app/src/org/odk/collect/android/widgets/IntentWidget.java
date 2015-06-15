@@ -64,10 +64,8 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         this.ic = ic;
 
         mWaitingForData = false;
-
-        makeTextView(prompt);
         makeButton(prompt);
-
+        makeTextView(prompt);
     }
 
     public void makeTextView(FormEntryPrompt prompt) {
@@ -84,7 +82,6 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         }
 
         // finish complex layout
-        addView(launchIntentButton);
         addView(mStringAnswer);
 
 
