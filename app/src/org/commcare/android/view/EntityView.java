@@ -45,7 +45,6 @@ public class EntityView extends LinearLayout {
     private String[] forms;
     private TextToSpeech tts; 
     private String[] searchTerms;
-    private String[] mHints;
     private Context context;
     private AudioController controller;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
@@ -70,14 +69,16 @@ public class EntityView extends LinearLayout {
         this.searchTerms = searchTerms;
         this.tts = tts;
         this.controller = controller;
+        this.setWeightSum(1);
         this.renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         this.rowId = rowId;
         this.views = new View[e.getNumFields()];
-        this.forms = d.getTemplateForms();
-        this.mHints = d.getTemplateSizeHints();
+        views = new View[e.getNumFields()];
+        forms = d.getTemplateForms();
+        float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
         
         for (int i = 0; i < views.length; ++i) {
-            if (mHints[i] == null || !mHints[i].startsWith("0")) {
+            if (weights[i] != 0) {
                 Object uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(e.getField(i), forms[i], uniqueId, e.getSortField(i));
                 views[i].setId(i);
@@ -85,7 +86,7 @@ public class EntityView extends LinearLayout {
         }
         refreshViewsForNewEntity(e, false, rowId);
         for (int i = 0; i < views.length; i++) {
-            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+            LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
             if (views[i] != null) {
                 addView(views[i], l);
             }
@@ -100,13 +101,14 @@ public class EntityView extends LinearLayout {
     public EntityView(Context context, Detail d, String[] headerText) {
         super(context);
         this.context = context;
-        this.views = new View[headerText.length];
-        this.mHints = d.getHeaderSizeHints();
+        this.setWeightSum(1);
+        views = new View[headerText.length];
+        float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
         String[] headerForms = d.getHeaderForms();
         
         for (int i = 0 ; i < views.length ; ++i) {
-            if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+            if (lengths[i] != 0) {
+                LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
                 ViewId uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(headerText[i], headerForms[i], uniqueId, null);      
                 views[i].setId(i);
@@ -437,22 +439,9 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    private int[] calculateDetailWidths(int fullSize) {
-        // Convert any percentages to pixels
-        int[] hints = new int[mHints.length];
-        for (int i = 0; i < mHints.length; i++) {
-            if (mHints[i] == null) {
-                hints[i] = -1;
-            } else if (mHints[i].contains("%")) {
-                hints[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
-            }
-            else {
-                hints[i] = Integer.parseInt(mHints[i]);
-            }
-        }
-
-        // Determine how wide to make columns without a specified width
-        int[] widths = new int[hints.length];
+    private float[] calculateDetailWeights(int[] hints) {
+        float[] weights = new float[hints.length];
+        int fullSize = 100;
         int sharedBetween = 0;
         for(int hint : hints) {
             if(hint != -1) {
@@ -461,31 +450,17 @@ public class EntityView extends LinearLayout {
                 sharedBetween++;
             }
         }
+
+        double average = ((double)fullSize) / (double)sharedBetween;
         
         // Set column widths
         int defaultWidth = sharedBetween == 0 ? 0 : fullSize / sharedBetween;
         for(int i = 0; i < hints.length; ++i) {
-            widths[i] = hints[i] == -1 ? defaultWidth : hints[i];
+            int hint = hints[i];
+            weights[i] = hint == -1? (float)(average/100.0) :  (float)(((double)hint)/100.0);
         }
         
-        return widths;
+        return weights;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.LinearLayout#onMeasure(int, int)
-     */
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        
-        int[] widths = calculateDetailWidths(getMeasuredWidth());
-        for (int i = 0; i < views.length; i++) {
-            if (views[i] != null) {
-                LayoutParams params = (LinearLayout.LayoutParams) views[i].getLayoutParams();
-                params.width = widths[i];
-                views[i].setLayoutParams(params);
-            }
-        }
-    }
 }

@@ -44,7 +44,7 @@ public class EntityOverlayItemFactory {
             if("image".equals(form)) {
                 imageIndex = i;
             }
-            if("".equals(form) && (fields[i].getTemplateWidthHint() == null  || !fields[i].getTemplateWidthHint().startsWith("0"))) {
+            if("".equals(form) && (fields[i].getTemplateHint() == -1  || fields[i].getTemplateHint() > 0)) {
                 if(bigTextIndex == -1) {
                     bigTextIndex = i;
                 } else if(smallTextIndex == -1) {
