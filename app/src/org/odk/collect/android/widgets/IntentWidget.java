@@ -78,13 +78,10 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
         String s = prompt.getAnswerText();
         if (s != null) {
-            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(),
-                    R.string.intent_callout_button_update));
             mStringAnswer.setText(s);
         }
 
         // finish complex layout
-        addView(launchIntentButton);
         addView(mStringAnswer);
 
 
