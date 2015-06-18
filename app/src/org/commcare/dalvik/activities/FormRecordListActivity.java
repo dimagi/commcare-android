@@ -234,6 +234,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      */
     private void refreshView() {
         disableSearch();
+        adapter.resetRecords();
         listView.setAdapter(adapter);
     }
     
