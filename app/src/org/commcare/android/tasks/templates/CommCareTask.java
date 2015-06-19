@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tasks.templates;
 
 import android.os.AsyncTask;
@@ -9,7 +6,7 @@ import android.os.AsyncTask;
  * @author ctsims
  *
  */
-public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
+public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C> {
     
     public static final int GENERIC_TASK_ID = 32;
     
@@ -22,7 +19,6 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
     protected int taskId = GENERIC_TASK_ID;
     
     public CommCareTask() {
-        
     }
 
     /* (non-Javadoc)
@@ -39,7 +35,11 @@ public abstract class CommCareTask<A, B, C, R> extends AsyncTask<A, B, C> {
             return null;
         }
     }
-    
+
+    /**
+     * Catch-wrapped computation to be performed in background thread.
+     * Dispatched by doInBackground
+     */
     protected abstract C doTaskBackground(A... params);
 
     /* (non-Javadoc)

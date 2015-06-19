@@ -1,5 +1,24 @@
 package org.odk.collect.android.widgets;
 
+import java.io.File;
+
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.StringUtils;
+import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.data.AnswerDataFactory;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.views.ShrinkingTextView;
+import org.odk.collect.android.views.media.MediaLayout;
+
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,31 +33,16 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ShrinkingTextView;
-import org.odk.collect.android.views.media.MediaLayout;
-
-import java.io.File;
 
 public abstract class QuestionWidget extends LinearLayout {
 
@@ -80,6 +84,9 @@ public abstract class QuestionWidget extends LinearLayout {
     public QuestionWidget(Context context, FormEntryPrompt p, WidgetChangedListener w){
         super(context);
 
+        //this is pretty sketch but is the only way to make the required background to work trivially for now
+        this.setClipToPadding(false);
+        
         if(w!=null){
             hasListener = false;
             widgetChangedListener = w;
@@ -107,12 +114,15 @@ public abstract class QuestionWidget extends LinearLayout {
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
-        setPadding(0, 7, 0, 0);
+        
+        //TODO: This whole view should probably be inflated somehow 
+        int padding = this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
+        setPadding(padding, 8, padding, 8);
 
         mLayout =
                 new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-        mLayout.setMargins(10, 0, 10, 0);
+        //mLayout.setMargins(10, 0, 10, 0);
 
         addQuestionText(p);
         addHelpPlaceholder(p);
@@ -131,13 +141,22 @@ public abstract class QuestionWidget extends LinearLayout {
         helpPlaceholder.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT));
 
-        ImageButton trigger = new ImageButton(getContext());
-        trigger.setImageResource(android.R.drawable.ic_menu_help);
+        final ImageButton trigger = new ImageButton(getContext());
+        trigger.setScaleType(ScaleType.FIT_CENTER);
+        trigger.setImageResource(R.drawable.icon_info_outline_lightcool);
+        trigger.setBackgroundDrawable(null);
         final FormEntryPrompt prompt = p;
         trigger.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                fireHelpText(prompt);
+                trigger.setImageResource(R.drawable.icon_info_fill_lightcool);
+                fireHelpText(prompt, new Runnable() {
+                    @Override
+                    public void run() {
+                        // back to the old icon
+                        trigger.setImageResource(R.drawable.icon_info_outline_lightcool);
+                    }
+                });
             }
         });
         trigger.setId(847294011);
@@ -193,15 +212,20 @@ public abstract class QuestionWidget extends LinearLayout {
      * @param strong If true, display a visually stronger, negative background.
      * @param requestFocus If true, bring focus to this question.
      */
+    @SuppressLint("NewApi")
     public void notifyOnScreen(String text, boolean strong, boolean requestFocus){
         if(strong){
-            this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_invalid));
+            ViewUtil.setBackgroundRetainPadding(this, this.getContext().getResources().getDrawable(R.drawable.bubble_invalid_modern));
         } else{
-            this.setBackgroundDrawable(this.getContext().getResources().getDrawable(R.drawable.bubble_warn));
+            ViewUtil.setBackgroundRetainPadding(this, this.getContext().getResources().getDrawable(R.drawable.bubble_warn));
         }
 
         if(this.toastView == null) {
-            this.toastView = View.inflate(this.getContext(), R.layout.toast_view, this).findViewById(R.id.toast_view_root);
+            // note: this is lame, but we bleed out the margins on the left and right here to make this overlap.
+            // We could accomplish the same thing by having two backgrounds, one for the widget as a whole, and 
+            // one for the internals (or splitting up the layout), but this'll do for now 
+            this.toastView = View.inflate(this.getContext(), R.layout.toast_view_modern, this).findViewById(R.id.toast_view_root);
+
             focusPending = requestFocus;
         } else {
             if(this.toastView.getVisibility() != View.VISIBLE) {
@@ -352,9 +376,10 @@ public abstract class QuestionWidget extends LinearLayout {
         // shown when image is clicked
         String bigImageURI = p.getSpecialFormQuestionText("big-image");
 
-        // Add the text view. Textview always exists, regardless of whether there's text.
-        mQuestionText = new TextView(getContext());
-
+        
+        mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
+        mQuestionText.setText(p.getLongText());
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         mQuestionText.setId(38475483); // assign random id
 
         // if we have markdown, use that.
@@ -367,8 +392,6 @@ public abstract class QuestionWidget extends LinearLayout {
         } else {
             mQuestionText.setText(p.getLongText());
             mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
-            mQuestionText.setTypeface(null, Typeface.BOLD);
-            mQuestionText.setPadding(0, 0, 0, 7);
         }
 
         if(p.getLongText()!= null){
@@ -381,8 +404,6 @@ public abstract class QuestionWidget extends LinearLayout {
                 }
             }
         }
-        // Wrap to the size of the parent view
-        mQuestionText.setHorizontallyScrolling(false);
 
         if (p.getLongText() == null) {
             mQuestionText.setVisibility(GONE);
@@ -396,11 +417,15 @@ public abstract class QuestionWidget extends LinearLayout {
         addView(mediaLayout, mLayout);
     }
 
+    private void fireHelpText(FormEntryPrompt prompt) {
+        fireHelpText(prompt, null);
+    }
+
     /**
     * Display extra help, triggered by user request.
     * @param prompt
     */
-    private void fireHelpText(FormEntryPrompt prompt) {
+    private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
         if (!prompt.hasHelp()) {
             return;
         }                               
@@ -425,6 +450,7 @@ public abstract class QuestionWidget extends LinearLayout {
                     switch (i) {
                     case DialogInterface.BUTTON1:
                         dialog.cancel();
+                        if(r != null) r.run();
                         break;
                     }
                 }
@@ -459,6 +485,7 @@ public abstract class QuestionWidget extends LinearLayout {
             text.setText(prompt.getHelpText());
         }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
         
@@ -470,8 +497,8 @@ public abstract class QuestionWidget extends LinearLayout {
             prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
             null
         );
-        helpLayout.setPadding(15, 15, 15, 15);
-        
+        helpLayout.setPadding(padding, padding, padding, padding);
+
         return helpLayout;
     }
 
@@ -600,7 +627,7 @@ public abstract class QuestionWidget extends LinearLayout {
     public void widgetEntryChanged(){
         if(this.toastView != null) {
             this.toastView.setVisibility(View.GONE);
-            this.setBackgroundDrawable(null);
+            ViewUtil.setBackgroundRetainPadding(this, null);
         }
         if(hasListener){
             widgetChangedListener.widgetEntryChanged();

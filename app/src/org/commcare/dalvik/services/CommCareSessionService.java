@@ -21,6 +21,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
@@ -32,6 +33,7 @@ import org.javarosa.core.services.Logger;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,33 +53,47 @@ import javax.crypto.spec.SecretKeySpec;
 public class CommCareSessionService extends Service  {
 
     private NotificationManager mNM;
-    
+
+    /**
+     * Milliseconds to wait before rechecking if the session is still fresh.
+     */
     private static final long MAINTENANCE_PERIOD = 1000;
-    // session length in MS
+
+    /**
+     * Session length in MS
+     */
     private static long sessionLength = 1000 * 60 * 60 * 24;
-    
+
+    /**
+     * Lock that must be held to expire the session. Thus if a task holds it,
+     * the session remains alive. Allows server syncing tasks to prevent the
+     * session from expiring and closing the user DB while they are running.
+     */
+    public static final ReentrantLock sessionAliveLock = new ReentrantLock();
+
     private Timer maintenanceTimer;
     private CipherPool pool;
 
     private byte[] key = null;
-    
+
     private boolean multimediaIsVerified=false;
-    
+
     private Date sessionExpireDate;
-    
+
     private final Object lock = new Object();
-    
+
     private User user;
-    
-    private SQLiteDatabase userDatabase; 
-    
+
+    private SQLiteDatabase userDatabase;
+
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
     private final int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
     private final int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
 
-    // How long to wait until we force the session to finish logging out
-    private static final long LOGOUT_TIMEOUT = 1000;
+    // How long to wait until we force the session to finish logging out. Set
+    // at 90 seconds to make sure huge forms on slow phones actually get saved
+    private static final long LOGOUT_TIMEOUT = 1000 * 90;
 
     // The logout process start time, used to wrap up logging out if
     // the saving of incomplete forms takes too long
@@ -287,34 +303,58 @@ public class CommCareSessionService extends Service  {
                  */
                 @Override
                 public void run() {
-                    maintenance();
+                    timeToExpireSession();
                 }
                 
             }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
         }
     }
-    
-    private void maintenance() {
-        long time = new Date().getTime();
+
+    /**
+     * If the session has been alive for longer than its specified duration
+     * then save any open forms and close it down. If data syncing is in
+     * progess then don't do anything.
+     */
+    private void timeToExpireSession() {
+
+        long currentTime = new Date().getTime();
+
         // If logout process started and has taken longer than the logout
         // timeout then wrap-up the process. This is especially necessary since
         // if the FormEntryActivity  isn't active then it will never launch
         // closeSession upon receiving the KEY_SESSION_ENDING broadcast
         if (logoutStartedAt != -1 &&
-                time > (logoutStartedAt + LOGOUT_TIMEOUT)) {
-            closeSession(true);
-        }
+                currentTime > (logoutStartedAt + LOGOUT_TIMEOUT)) {
+            // Try and grab the logout lock, aborting if synchronization is in
+            // progress.
+            if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+                return;
+            }
+            try {
+                closeSession(true);
+            } finally {
+                CommCareSessionService.sessionAliveLock.unlock();
+            }
+        } else if (isActive() && logoutStartedAt == -1 &&
+                (currentTime > sessionExpireDate.getTime() ||
+                 (sessionExpireDate.getTime() - currentTime  > sessionLength))) {
+            // If we haven't started closing the session and we're either past
+            // the session expire time, or the session expires more than its
+            // period in the future, we need to log the user out. The second
+            // case occurs if the system's clock is altered.
 
-        // If we haven't started closing the session and we're either past the
-        // session expire time, or the session expires more than its period in
-        // the future, we need to log the user out. The second case occurs if
-        // the system's clock is altered.
-        if (isActive() &&
-                logoutStartedAt == -1 &&
-                (time > sessionExpireDate.getTime() || 
-                 (sessionExpireDate.getTime() - time  > sessionLength))) {
-            logoutStartedAt = new Date().getTime();
-            saveFormAndCloseSession();
+            // Try and grab the logout lock, aborting if synchronization is in
+            // progress.
+            if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+                return;
+            }
+
+            try {
+                logoutStartedAt = new Date().getTime();
+                saveFormAndCloseSession();
+            } finally {
+                CommCareSessionService.sessionAliveLock.unlock();
+            }
 
             showLoggedOutNotification();
         }
@@ -376,6 +416,10 @@ public class CommCareSessionService extends Service  {
                 // before.
                 return;
             }
+
+            // Cancel any running tasks before closing down the user databse.
+            ManagedAsyncTask.cancelTasks();
+
             key = null;
             String msg = "Logging out service login";
 

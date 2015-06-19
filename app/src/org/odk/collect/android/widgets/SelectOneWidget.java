@@ -72,6 +72,8 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                 rb.setId(i + buttonIdBase);
                 rb.setEnabled(!prompt.isReadOnly());
                 rb.setFocusable(!prompt.isReadOnly());
+
+                rb.setBackgroundResource(R.drawable.selector_button_press);
                 
                 buttons.add(rb);
 

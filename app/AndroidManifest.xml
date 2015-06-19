@@ -31,7 +31,7 @@
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/application_name"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
@@ -272,7 +272,8 @@
 
         <activity android:name=".activities.MultimediaInflaterActivity" >
         </activity>
-        <activity android:name=".activities.CommCareFormDumpActivity" >
+        <activity android:name=".activities.CommCareFormDumpActivity"
+                  android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity android:name=".activities.ConnectionDiagnosticActivity" >
         </activity>
