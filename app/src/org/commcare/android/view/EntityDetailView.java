@@ -5,7 +5,9 @@ package org.commcare.android.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -91,12 +93,14 @@ public class EntityDetailView extends FrameLayout {
     private static final int CALLOUT = 7;
     
     int current = TEXT;
-    
+
     DetailCalloutListener listener;
+    private int oddRowColor;
+    private int evenRowColor;
 
     public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
             AudioController controller, int detailNumber) {
-        super(context);        
+        super(context);
         this.controller = controller;
         
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
@@ -134,8 +138,34 @@ public class EntityDetailView extends FrameLayout {
         fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         setParams(session, d, e, index, detailNumber);
+
+        int[] colorAttr = new int[] {
+                R.attr.entity_detail_odd_row_color,
+                R.attr.entity_detail_even_row_color
+        };
+        Resources.Theme theme = context.getTheme();
+        for (int i = 0; i < colorAttr.length; i++) {
+            TypedValue typedValue = new TypedValue();
+            theme.resolveAttribute(colorAttr[i], typedValue, true);
+            int color = typedValue.data;
+            if(i == 0) { oddRowColor = color; }
+            else { evenRowColor = color; }
+        }
     }
-    
+
+    public void setLineColor(boolean isOddRow){
+        if(isOddRow){
+            detailRow.setBackgroundColor(oddRowColor);
+        } else {
+            detailRow.setBackgroundColor(evenRowColor);
+        }
+    }
+
+    public void setOddEvenRowColors(int oddRowColor, int evenRowColor){
+        this.oddRowColor = oddRowColor;
+        this.evenRowColor = evenRowColor;
+    }
+
     public void setCallListener(final DetailCalloutListener listener) {
         this.listener = listener;
     }

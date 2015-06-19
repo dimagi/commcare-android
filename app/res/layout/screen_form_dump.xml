@@ -1,54 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    
-    <ImageView android:id="@+id/screen_bulk_image1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="0px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical" >
 
-    <RelativeLayout
-        android:id="@+id/screen_bulk_form_frame_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp" >
-        
+        <ImageView android:id="@+id/screen_bulk_image1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="0px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
+
+        <RelativeLayout
+            android:id="@+id/screen_bulk_form_frame_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp" >
+
+            <TextView
+                android:id="@+id/screen_bulk_form_prompt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:layout_below="@+id/screen_multimedia_inflater_filefetch"
+                android:text="From here you can dump your forms to an SD card or submit the forms on your SD card" />
+
+            <Button
+                android:id="@+id/screen_bulk_form_dump"
+                style="@style/ButtonBottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/screen_bulk_form_prompt"
+                android:text="Dump Forms" />
+            <Button
+                android:id="@+id/screen_bulk_form_submit"
+                style="@style/ButtonBottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/screen_bulk_form_dump"
+                android:text="Submit Forms" />
+
+        </RelativeLayout>
+
         <TextView
-        	android:id="@+id/screen_bulk_form_prompt"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:layout_alignParentTop="true"
-       	 	android:layout_centerHorizontal="true"
-        	android:layout_margin="10dp"
-        	android:gravity="center"
-        	android:layout_below="@+id/screen_multimedia_inflater_filefetch"
-        	android:text="From here you can dump your forms to an SD card or submit the forms on your SD card" />
+            android:id="@+id/screen_bulk_form_messages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/screen_bulk_form_frame_location"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="Output Message" />
 
-        <Button
-        	android:id="@+id/screen_bulk_form_dump"
-        	style="@style/ButtonBottom"
-        	android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_below="@+id/screen_bulk_form_prompt"
-        	android:text="Dump Forms" />
-        <Button
-        	android:id="@+id/screen_bulk_form_submit"
-        	style="@style/ButtonBottom"
-        	android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_below="@+id/screen_bulk_form_dump"
-        	android:text="Submit Forms" />
-
-    </RelativeLayout>
-
-    <TextView
-        android:id="@+id/screen_bulk_form_messages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/screen_bulk_form_frame_location"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:text="Output Message" />
-
-</RelativeLayout>
+    </LinearLayout>
+</ScrollView>

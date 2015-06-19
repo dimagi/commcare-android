@@ -18,7 +18,8 @@
     android:layout_height="fill_parent"
     android:layout_alignParentBottom="true"
     android:layout_below="@id/universal_frame_tile"
-    android:listSelector="@drawable/selector" >
+    android:listSelector="@drawable/selector"
+    style="@style/ListViewV2" >
 
 </ListView>
 
