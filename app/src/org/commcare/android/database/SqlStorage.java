@@ -117,7 +117,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
 
-
         Cursor c;
         try {
             c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);

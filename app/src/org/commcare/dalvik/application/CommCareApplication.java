@@ -16,6 +16,7 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -866,7 +867,8 @@ public class CommCareApplication extends Application {
 
     /**
      * @return A pair comprised of last sync time and an array with unsent and
-     * incomplete form counts.
+     * incomplete form counts. If the user storage isn't open, return 0 vals
+     * for unsent/incomplete forms.
      */
     public Pair<Long, int[]> getSyncDisplayParameters() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -874,10 +876,14 @@ public class CommCareApplication extends Application {
 
         SqlStorage<FormRecord> formsStorage = this.getUserStorage(FormRecord.class);
 
-        int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-        int incompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
+        try {
+            int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+            int incompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
 
-        return new Pair<Long, int[]>(lastSync, new int[]{unsentForms, incompleteForms});
+            return new Pair<>(lastSync, new int[]{unsentForms, incompleteForms});
+        } catch (UserStorageClosedException e) {
+            return new Pair<>(lastSync, new int[]{0, 0});
+        }
     }
 
 
