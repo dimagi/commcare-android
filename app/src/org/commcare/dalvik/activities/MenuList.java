@@ -17,9 +17,11 @@
 package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.MenuAdapter;
+import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
@@ -29,10 +31,12 @@ import org.commcare.util.SessionFrame;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 @ManagedUi(R.layout.screen_suite_menu)
@@ -44,7 +48,10 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     
     @UiElement(R.id.screen_suite_menu_list)
     private ListView list;
-    
+
+    // removed the UiElement annotation here because it was causing a crash @ loadFields() in CommCareActivity
+    private TextView header;
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -53,12 +60,18 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         platform = CommCareApplication._().getCommCarePlatform();
-        
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         
        if(menuId==null){
            menuId="root";
        }
+
+       if(header == null) {
+           header = (TextView) getLayoutInflater().inflate(R.layout.menu_list_header, null);
+       }
+       header.setText(BreadcrumbBarFragment.getBestTitle(this));
+       // header must not be clickable
+       list.addHeaderView(header, null, false);
        
        adapter = new MenuAdapter(this,platform,menuId);
        refreshView();
@@ -105,6 +118,13 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
     public void onItemClick(AdapterView listView, View view, int position, long id) {
         String commandId;
         Object value = listView.getAdapter().getItem(position);
+        // if value is null, probably it means that we clicked on the header view, so we just ignore it
+        if(value == null) {
+            if(BuildConfig.DEBUG) {
+                Log.d("MenuList", "Null value on position " + position);
+            }
+            return;
+        }
         if(value instanceof Entry) {
             commandId = ((Entry)value).getCommandId();
         } else {

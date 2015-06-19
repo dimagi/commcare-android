@@ -62,6 +62,8 @@
     <color name="solid_dark_red">#BF3D3D</color>
     <color name="solid_dark_orange">#F57E20</color>
 
+    <color name="dark_brown">#5C4033</color>
+
     <!-- COMMCARE OFFICIAL COLOR PALETTE -->
     <!-- Best Practices and Usage Notes (more HQ-specific at the moment) can be found at commcarehq.org/styleguide/colors/ -->
     <!-- Text vs. Background are suggested labels. Invert if you want the darker background, but the two colors
@@ -112,5 +114,11 @@
     <color name="cc_light_warm_accent_color">#F9C700</color>
     <color name="cc_light_warm_accent_bg">#F8ECBD</color>
     <color name="cc_light_warm_accent_text">#685300</color>
+
+    <!-- EditText color -->
+    <color name="edit_text_color">#D0D0D0</color>
+
+    <!-- Drawer pulldown odd row color -->
+    <color name="drawer_pulldown_odd_row_color">#D0E8FF</color>
 
 </resources>

@@ -32,20 +32,59 @@
     <dimen name="font_size_large">18sp</dimen>
 	<dimen name="font_size_xlarge">21sp</dimen>
 	
-	<dimen name="cell_padding_vertical">5sp</dimen>
-	<dimen name="cell_padding_horizontal">5sp</dimen>
-	<dimen name="row_padding_vertical">5sp</dimen>
-	<dimen name="row_padding_horizontal">5sp</dimen>
+	<dimen name="cell_padding_vertical">8dp</dimen>
+	<dimen name="cell_padding_horizontal">8dp</dimen>
+	<dimen name="row_padding_vertical">8dp</dimen>
+	<dimen name="row_padding_horizontal">8dp</dimen>
 	
     <dimen name="graph_x_margin">40dp</dimen>
     <dimen name="graph_y_margin">0dp</dimen>
     <dimen name="graph_text_margin">35dp</dimen>
     
-    <!-- Start collect dimens -->
+    <!-- Form Entry -->
+    
+    <dimen name="question_widget_side_padding">16dp</dimen>
+    <dimen name="question_widget_side_inv">-16dp</dimen>
     
     <!--  Text sizes -->
 
     <dimen name="text_larger">28dp</dimen>
     <dimen name="text_largest">40dp</dimen>
-    
+
+    <!-- Menu list row dimensions -->
+
+    <dimen name="content_min_margin">16dp</dimen>
+
+    <dimen name="list_img_width">50dp</dimen>
+    <dimen name="list_img_height">50dp</dimen>
+
+    <dimen name="list_img_padding">15dp</dimen>
+    <dimen name="list_img_margin">5dp</dimen>
+
+    <dimen name="list_txt_width">75dp</dimen>
+    <dimen name="list_txt_height">35dp</dimen>
+
+    <dimen name="list_txt_padding">15dp</dimen>
+    <dimen name="list_txt_margin">5dp</dimen>
+
+    <dimen name="list_soundicon_width">40dp</dimen>
+    <dimen name="list_soundicon_height">40dp</dimen>
+
+    <dimen name="list_soundicon_padding">15dp</dimen>
+    <dimen name="list_soundicon_margin">5dp</dimen>
+    <dimen name="content_start">16dp</dimen>
+    <dimen name="content_start_quadruple">32dp</dimen>
+    <dimen name="list_height">48dp</dimen>
+
+    <dimen name="divider_left_margin">64dp</dimen>
+    <dimen name="help_text_padding">16dp</dimen>
+
+    <!-- New progressbar dimensions -->
+    <dimen name="new_progressbar_minheight">56dp</dimen>
+    <dimen name="new_progressbar_button_minheight">48dp</dimen>
+    <dimen name="new_progressbar_button_minwidth">32dp</dimen>
+    <dimen name="new_progressbar_button_padding">24dp</dimen>
+
+    <dimen name="form_label_padding">8dp</dimen>
+
 </resources>

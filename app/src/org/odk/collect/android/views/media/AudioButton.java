@@ -11,6 +11,7 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,6 +30,14 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private AudioController controller;
     private Object residingViewId;
 
+    public AudioButton(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.controller = buildAudioControllerInstance();
+    }
+
+    /*
+         * Constructor for if not explicitly using an AudioController
+         */
     public AudioButton(Context context, final String URI, boolean visible) {
         this(context, URI, null, null, visible);
     }
@@ -51,10 +60,8 @@ public class AudioButton extends ImageButton implements OnClickListener {
     public void resetButton(String URI, boolean visible) {
         this.URI = URI;
         this.currentState = MediaState.Ready;
-        this.setImageResource(R.drawable.ic_media_btn_play);
-
-        this.setOnClickListener(this);
-
+        // sets the correct icon for this MediaState
+        refreshAppearance();
         setFocusable(false);
         setFocusableInTouchMode(false);
 
@@ -138,15 +145,15 @@ public class AudioButton extends ImageButton implements OnClickListener {
 
     public void refreshAppearance() {
         switch(currentState) {
-            case Ready:
-                this.setImageResource(R.drawable.ic_media_btn_play);
-                break;
-            case Playing:
-                this.setImageResource(R.drawable.ic_media_pause);
-                break;
-            case Paused:
-            case PausedForRenewal:
-                this.setImageResource(R.drawable.ic_media_btn_continue);
+        case Ready:
+            this.setImageResource(R.drawable.icon_audioplay_lightcool);
+            break;
+        case Playing:
+            this.setImageResource(R.drawable.icon_audiostop_darkwarm);
+            break;
+        case Paused:
+        case PausedForRenewal:
+            this.setImageResource(R.drawable.icon_audioplay_lightcool);
         }
     }
 

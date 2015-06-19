@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,7 +81,8 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     private ImageButton barcodeButton;
     private Spinner filterSelect;
     private ListView listView;
-    
+    private SearchView searchView;
+
     public enum FormRecordFilter {
         
         /** Processed and Pending **/ 
@@ -217,6 +220,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      */
     private void refreshView() {
         disableSearch();
+        adapter.resetRecords();
         listView.setAdapter(adapter);
     }
     
@@ -355,6 +359,26 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
+        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+            // this should be unnecessary...
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public void onActionBarFound(SearchView searchView) {
+                FormRecordListActivity.this.searchView = searchView;
+                FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        adapter.applyTextFilter(newText);
+                        return false;
+                    }
+                });
+            }
+        });
         if(!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
             SharedPreferences prefs =CommCareApplication._().getCurrentApp().getAppPreferences();
             String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
@@ -368,7 +392,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         }
         return parent;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
@@ -519,6 +543,9 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
+                return true;
+            case R.id.menu_settings:
+                CommCareHomeActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
