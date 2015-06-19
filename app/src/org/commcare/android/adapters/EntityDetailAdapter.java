@@ -24,6 +24,10 @@ import android.widget.ListAdapter;
  *
  */
 public class EntityDetailAdapter implements ListAdapter {
+
+    public interface EntityDetailViewModifier {
+        void modifyEntityDetailView(EntityDetailView edv);
+    }
     
     Context context;
     CommCareSession session;
@@ -33,7 +37,13 @@ public class EntityDetailAdapter implements ListAdapter {
     List<Integer> valid;
     AudioController controller;
     int detailIndex;
-    
+
+    public void setModifier(EntityDetailViewModifier modifier) {
+        this.modifier = modifier;
+    }
+
+    EntityDetailViewModifier modifier;
+
     public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
             DetailCalloutListener listener, AudioController controller, int detailIndex) {    
         this.context = context;
@@ -50,7 +60,7 @@ public class EntityDetailAdapter implements ListAdapter {
         }
         this.detailIndex = detailIndex;
     }
-    
+
     /* (non-Javadoc)
      * @see android.widget.ListAdapter#areAllItemsEnabled()
      */
@@ -106,6 +116,10 @@ public class EntityDetailAdapter implements ListAdapter {
             dv.setParams(session, detail, entity, valid.get(position), detailIndex);
             dv.setCallListener(listener);
         }
+        if(modifier != null){
+            modifier.modifyEntityDetailView(dv);
+        }
+        dv.setLineColor((position % 2) != 0);
         return dv;
     }
 

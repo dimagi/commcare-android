@@ -15,7 +15,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
  * @author jschweers
  */
 public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
-    
+
+    private EntityDetailAdapter.EntityDetailViewModifier modifier;
     Detail detail;
     int detailIndex;
     boolean hasDetailCalloutListener;
@@ -29,13 +30,19 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.mEntityReference = reference;
     }
 
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, EntityDetailAdapter.EntityDetailViewModifier modifier) {
+        this(fm, detail, detailIndex, reference, hasDetailCalloutListener);
+        this.modifier = modifier;
+    }
+
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
      */
     @Override
     public Fragment getItem(int i) {
-        Fragment fragment = new EntityDetailFragment();
+        EntityDetailFragment fragment = new EntityDetailFragment();
+        fragment.setEntityDetailModifier(modifier);
         Bundle args = new Bundle();
         args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
         if (detail.isCompound()) {

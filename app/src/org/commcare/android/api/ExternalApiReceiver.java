@@ -184,8 +184,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             }
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
-
-
                 /*
                  * (non-Javadoc)
                  * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
@@ -224,7 +222,13 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
                 
             };
-            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+
+            try {
+                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+            } catch (SessionUnavailableException e) {
+                // if the session expired don't launch the process
+                return false;
+            }
             mProcess.connect(dummyconnector);
             mProcess.execute(records);
             return true;
@@ -233,10 +237,16 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             return false;
         }
     }
-    
+
     private void syncData(final Context c) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        
+        User u;
+        try {
+            u = CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException e) {
+            // if the session expired don't launch the process
+            return;
+        }
+
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",c.getString(R.string.ota_restore_url)), "", c) {

@@ -75,8 +75,15 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     public void onCreate(Bundle savedInstanceState) {        
         Intent i = getIntent();
         
-        asw = CommCareApplication._().getCurrentSessionWrapper();
-        session = asw.getSession();            
+        try {
+            asw = CommCareApplication._().getCurrentSessionWrapper();
+            session = asw.getSession();
+        } catch(SessionUnavailableException sue){
+            // The user isn't logged in! bounce this back to where we came from
+            this.setResult(RESULT_CANCELED, this.getIntent());
+            this.finish();
+            return;
+        }
         String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
 
         if (passedCommand != null) {

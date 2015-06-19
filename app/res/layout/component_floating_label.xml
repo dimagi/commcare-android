@@ -6,6 +6,7 @@
     android:gravity="center"
     android:paddingBottom="1dp"
     android:paddingTop="1dp"
+    android:textSize="@dimen/font_size_large"
     android:text="" >
 
 </TextView>
