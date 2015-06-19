@@ -7,7 +7,9 @@
 	<LinearLayout 
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-    	android:orientation="horizontal" >
+    	android:orientation="horizontal"
+        android:layout_weight="1"
+        android:layout_marginBottom="5dp">
     	
 	    <ProgressBar
 	        android:id="@+id/geoProgressBar"
@@ -22,21 +24,21 @@
     	<TextView
         	android:id="@+id/geoText"
         	android:layout_width="fill_parent"
-        	android:layout_height="fill_parent"
+        	android:layout_height="wrap_content"
             android:textColor="@color/black"
         	android:gravity="center" />
     </LinearLayout>
  	<LinearLayout 
     	android:layout_width="fill_parent"
    	 	android:layout_height="wrap_content"
-    	android:orientation="horizontal" >
+    	android:orientation="horizontal"
+        android:layout_weight="1">
      	<Button
         	android:id="@+id/geoOK"
         	android:layout_width="fill_parent"
         	android:layout_height="wrap_content"
         	android:layout_weight="1"
         	android:text="Record Location"
-        	android:layout_marginTop="5dp"
         	android:layout_marginRight="5dp"/>
      
      	<Button
@@ -45,7 +47,6 @@
         	android:layout_height="wrap_content"
         	android:layout_weight="1.5"
         	android:text="Cancel"
-        	android:layout_marginTop="5dp"
         	android:layout_marginRight="5dp"/>
      </LinearLayout>
 </LinearLayout>

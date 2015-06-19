@@ -30,6 +30,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.Gravity;
@@ -119,7 +120,6 @@ public class BreadcrumbBarFragment extends Fragment {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setSubtitle(local);
         
         actionBar.setTitle(title);
                 
@@ -146,7 +146,6 @@ public class BreadcrumbBarFragment extends Fragment {
         LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
         p.leftMargin = buffer;
 
-        actionBar.setCustomView(getTitleView(activity, title), p);
         activity.setTitle("");
         actionBar.setDisplayShowHomeEnabled(false);
     }
@@ -233,53 +232,49 @@ public class BreadcrumbBarFragment extends Fragment {
         View tile = tileData == null ? null : tileData.first;
         if(tile == null) { return null;}
         
-        final ImageButton openButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
-        
         final String inlineDetail = (String)tile.getTag();
-        if(inlineDetail == null) {
-            openButton.setVisibility(View.GONE);
-        }
-        
+
         ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        
-        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open)).setOnClickListener(new OnClickListener() {
+
+        final ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
+
+        OnClickListener toggleButtonClickListener = new OnClickListener() {
+
+            private boolean isClosed = true;
 
             @Override
             public void onClick(View v) {
-                if(mInternalDetailView == null ) {
-                    mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
-                    mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
-    
-                    AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-                    CommCareSession session = asw.getSession();
-    
-                    NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
-                    Detail detail = factory.getDetail();
-                    mInternalDetailView.setDetail(detail);
-    
-                    mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
-                }
-                openButton.setVisibility(View.INVISIBLE);
-                expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
-            }
-            
-        });
-        
-        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_close)).setOnClickListener(new OnClickListener() {
+                if(isClosed){
+                    if(mInternalDetailView == null ) {
+                        mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
+                        mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
 
-            @Override
-            public void onClick(View v) {
-                collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
-                    @Override
-                    public void run() {
-                        openButton.setVisibility(View.VISIBLE);
+                        AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                        CommCareSession session = asw.getSession();
+
+                        NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
+                        Detail detail = factory.getDetail();
+                        mInternalDetailView.setDetail(detail);
+
+                        mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
                     }
-                });
+                    infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
+                    expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
+                    isClosed = false;
+                } else {
+                    //collapses view
+                    infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
+                    collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
+                        @Override
+                        public void run() {
+                        }
+                    });
+                    isClosed = true;
+                }
             }
-            
-        });
-        
-        
+        };
+
+        infoButton.setOnClickListener(toggleButtonClickListener);
         
         return holder;
     }
@@ -343,10 +338,7 @@ public class BreadcrumbBarFragment extends Fragment {
             
             if(title != null) {
             
-                if(!breadCrumbsEnabled) {
-                    ActionBar actionBar = this.getActivity().getActionBar();
-                    actionBar.setSubtitle(title);
-                } else {
+                if(breadCrumbsEnabled) {
                     //This part can change more dynamically
                     if(localIdPart != -1 ) {
                         TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
@@ -359,7 +351,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
     
-    public String getBestTitle(Activity activity) {
+    public static String getBestTitle(Activity activity) {
         String bestTitle = null;
         AndroidSessionWrapper asw;
 
@@ -567,7 +559,7 @@ public class BreadcrumbBarFragment extends Fragment {
             //Add the app icon
             TextView iconBearer = ((TextView)layout.getChildAt(layout.getChildCount() - 1));
             
-            iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.ab_icon,0,0,0);
+            iconBearer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_app_white,0,0,0);
             iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
             
             //Add an "Anchor" view to the left hand side of the bar. The relative layout doesn't work unless
@@ -613,9 +605,13 @@ public class BreadcrumbBarFragment extends Fragment {
             NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
             
             Entity entity = nef.getEntity(ref);
-            
-            View tile = new GridEntityView(this.getActivity(), detail, entity, null);
-            return Pair.create(tile, ref);
+
+            Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
+            GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity, null);
+            int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(), new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
+            tile.setTextColor(textColor[0]);
+            tile.setTitleTextColor(textColor[1]);
+            return Pair.create(((View)tile), ref);
         }
 
 

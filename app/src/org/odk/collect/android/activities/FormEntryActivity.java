@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -45,6 +46,7 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
@@ -67,6 +69,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -79,6 +82,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
@@ -130,6 +134,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Set;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -278,9 +283,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
+            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
             if(fragmentClass != null) {
-                FragmentManager fm = this.getSupportFragmentManager();
+                final FragmentManager fm = this.getSupportFragmentManager();
 
                 //Add breadcrumb bar                
                 Fragment bar = (Fragment) fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
@@ -436,71 +441,74 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 //Since these are parceled across the content resolver, there's no guarantee of reference equality.
                 //We need to manually check value equality on the type 
                 
-                String contentType = getContentResolver().getType(uri);
+                final String contentType = getContentResolver().getType(uri);
                 
                 Uri formUri = null;
 
-                if (contentType.equals(InstanceColumns.CONTENT_ITEM_TYPE)) {
-                    Cursor instanceCursor = this.managedQuery(uri, null, null, null, null);
-                    if (instanceCursor.getCount() != 1) {
-                        CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
-                        return;
-                    } else {
-                        instanceCursor.moveToFirst();
-                        mInstancePath =
-                            instanceCursor.getString(instanceCursor
-                                    .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                switch (contentType) {
+                    case InstanceColumns.CONTENT_ITEM_TYPE:
+                        final Cursor instanceCursor = this.managedQuery(uri, null, null, null, null);
+                        if (instanceCursor.getCount() != 1) {
+                            CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                            return;
+                        } else {
+                            instanceCursor.moveToFirst();
+                            mInstancePath =
+                                    instanceCursor.getString(instanceCursor
+                                            .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
 
-                        String jrFormId =
-                            instanceCursor.getString(instanceCursor
-                                    .getColumnIndex(InstanceColumns.JR_FORM_ID));
-                        
-                        
-                        //If this form is both already completed 
-                        if(InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
-                            if(!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
-                                readOnly = true;
+                            final String jrFormId =
+                                    instanceCursor.getString(instanceCursor
+                                            .getColumnIndex(InstanceColumns.JR_FORM_ID));
+
+
+                            //If this form is both already completed
+                            if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
+                                if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
+                                    readOnly = true;
+                                }
                             }
+
+
+                            final String[] selectionArgs = {
+                                    jrFormId
+                            };
+                            final String selection = FormsColumns.JR_FORM_ID + " like ?";
+
+                            final Cursor formCursor =
+                                    managedQuery(formProviderContentURI, null, selection, selectionArgs, null);
+                            if (formCursor.getCount() == 1) {
+                                formCursor.moveToFirst();
+                                mFormPath =
+                                        formCursor.getString(formCursor
+                                                .getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                                formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
+                            } else if (formCursor.getCount() < 1) {
+                                CommCareHomeActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
+                                return;
+                            } else if (formCursor.getCount() > 1) {
+                                CommCareHomeActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
+                                return;
+                            }
+
                         }
-                        
 
-                        String[] selectionArgs = {
-                            jrFormId
-                        };
-                        String selection = FormsColumns.JR_FORM_ID + " like ?";
-
-                        Cursor formCursor =
-                            managedQuery(formProviderContentURI, null, selection, selectionArgs,null);
-                        if (formCursor.getCount() == 1) {
-                            formCursor.moveToFirst();
-                            mFormPath =
-                                formCursor.getString(formCursor
-                                        .getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                            formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
-                        } else if (formCursor.getCount() < 1) {
-                            CommCareActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
+                        break;
+                    case FormsColumns.CONTENT_ITEM_TYPE:
+                        final Cursor c = this.managedQuery(uri, null, null, null, null);
+                        if (c.getCount() != 1) {
+                            CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
                             return;
-                        } else if (formCursor.getCount() > 1) {
-                            CommCareActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
-                            return;
+                        } else {
+                            c.moveToFirst();
+                            mFormPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                            formUri = uri;
                         }
-
-                    }
-
-                } else if (contentType.equals(FormsColumns.CONTENT_ITEM_TYPE)) {
-                    Cursor c = this.managedQuery(uri, null, null, null, null);
-                    if (c.getCount() != 1) {
-                        CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                        break;
+                    default:
+                        Log.e(t, "unrecognized URI");
+                        CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
                         return;
-                    } else {
-                        c.moveToFirst();
-                        mFormPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                        formUri = uri;
-                    }
-                } else {
-                    Log.e(t, "unrecognized URI");
-                    CommCareActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
-                    return;
                 }
                 if(formUri == null) {
                     Log.e(t, "unrecognized URI");
@@ -861,7 +869,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 	
-	private class NavigationDetails {
+	private static class NavigationDetails {
 		public int totalQuestions = 0;
 		public int completedQuestions = 0;
         public boolean relevantBeforeCurrentScreen = false;
@@ -1021,10 +1029,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
         
         if(!details.relevantBeforeCurrentScreen) {
-        	prevButton.setImageResource(R.drawable.icon_exit);
+        	prevButton.setImageResource(R.drawable.icon_close_darkwarm);
         	prevButton.setTag("quit");
         } else {
-        	prevButton.setImageResource(R.drawable.icon_back);
+        	prevButton.setImageResource(R.drawable.icon_chevron_left_brand);
         	prevButton.setTag("back");
         }
         
@@ -1033,28 +1041,34 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         //is to invalidate the view, though.
         Rect bounds = progressBar.getProgressDrawable().getBounds(); //Save the drawable bound
 
+        Log.i("Questions","Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
+
+        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
+
+        progressBar.setMax(details.totalQuestions);
+
         if(details.relevantAfterCurrentScreen == 0 && (details.requiredOnScreen == details.answeredOnScreen || details.requiredOnScreen < 1)) {
-        	nextButton.setImageResource(R.drawable.icon_done);
-        	
+        	nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
+
         	//TODO: _really_? This doesn't seem right
             nextButton.setTag("done");
-        	
+
         	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar_full));
+
+            Log.i("Questions","Form complete");
+            // if we get here, it means we don't have any more relevant questions after this one, so we mark it as complete
+            progressBar.setProgress(details.totalQuestions); // completely fills the progressbar
         } else {
-        	nextButton.setImageResource(R.drawable.icon_next);
-        	
+        	nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
+
         	//TODO: _really_? This doesn't seem right
             nextButton.setTag("next");
-        	
-        	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar));
+
+        	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar_modern));
+
+            progressBar.setProgress(details.completedQuestions);
         }
-        
-        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
-        
-        progressBar.setMax(details.totalQuestions);
-        progressBar.setProgress(details.completedQuestions);
-        
-        
+
         //We should probably be doing this based on the widgets, maybe, not the model? Hard to call.
         updateBadgeInfo(details.requiredOnScreen, details.answeredOnScreen);
     }
@@ -1070,19 +1084,22 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
     enum FloatingLabel {
-        good ("floating-good", R.drawable.label_floating_good),
-        caution ("floating-caution", R.drawable.label_floating_caution),
-        bad ("floating-bad", R.drawable.label_floating_bad);
+        good ("floating-good", R.drawable.label_floating_good, R.color.cc_attention_positive_text),
+        caution ("floating-caution", R.drawable.label_floating_caution, R.color.cc_light_warm_accent_color),
+        bad ("floating-bad", R.drawable.label_floating_bad, R.color.cc_attention_negative_color);
         
         String label;
         int resourceId;
-        FloatingLabel(String label, int resourceId) {
+        int colorId;
+        FloatingLabel(String label, int resourceId, int colorId) {
             this.label = label;
             this.resourceId = resourceId;
+            this.colorId = colorId;
         }
         
         public String getAppearance() { return label;}
         public int getBackgroundDrawable() { return resourceId; }
+        public int getColorId() { return colorId; }
     };
     
     private void updateFloatingLabels(View currentView) {
@@ -1110,46 +1127,45 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     
         
-        ViewGroup parent = (ViewGroup)this.findViewById(R.id.form_entry_label_layout);
+        final ViewGroup parent = (ViewGroup)this.findViewById(R.id.form_entry_label_layout);
         parent.removeAllViews();
-        
+
+        int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+
+        int minHeight = 7 * pixels;
+
         //Ok, now go ahead and add all of the small labels
         for(int i = 0 ; i < smallLabels.size(); i = i + 2 ) {
             if(i + 1 < smallLabels.size()) {
                 LinearLayout.LayoutParams lpp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-                lpp.setMargins(0, 1, 0, 0);
-                LinearLayout layout = new LinearLayout(this);
+                final LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
                 layout.setLayoutParams(lpp);
-                layout.setWeightSum(2);
-                
+
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
-                
                 TextView left = (TextView)View.inflate(this, R.layout.component_floating_label, null);
                 left.setLayoutParams(lp);
-                left.setText(smallLabels.get(i).first);
+                left.setText(smallLabels.get(i).first + "; " + smallLabels.get(i + 1).first);
                 left.setBackgroundResource(smallLabels.get(i).second.resourceId);
+                left.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
+                left.setTextColor(smallLabels.get(i).second.colorId);
+                left.setMinimumHeight(minHeight);
                 layout.addView(left);
-                
-                lp.setMargins(1, 0,0,0);
-                
-                TextView right = (TextView)View.inflate(this, R.layout.component_floating_label, null);
-                right.setLayoutParams(lp);
-                right.setText(smallLabels.get(i+1).first);
-                right.setBackgroundResource(smallLabels.get(i+1).second.resourceId);
-                layout.addView(right);
+
                 parent.addView(layout);
             } else {
                 largeLabels.add(smallLabels.get(i));
             }
         }
         for(int i = 0 ; i < largeLabels.size(); ++i ) {
-            TextView view = (TextView)View.inflate(this, R.layout.component_floating_label, null);
+            final TextView view = (TextView)View.inflate(this, R.layout.component_floating_label, null);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 1, 0, 0);
             view.setLayoutParams(lp);
+            view.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
             view.setText(largeLabels.get(i).first);
             view.setBackgroundResource(largeLabels.get(i).second.resourceId);
+            view.setTextColor(largeLabels.get(i).second.colorId);
+            view.setMinimumHeight(minHeight);
             parent.addView(view);
         }
     }
@@ -1868,9 +1884,25 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mViewPane.addView(mCurrentView, lp);
 
         mCurrentView.startAnimation(mInAnimation);
-        if (mCurrentView instanceof ODKView) 
+        
+        if (mCurrentView instanceof ODKView) {
             ((ODKView) mCurrentView).setFocus(this);
-        else {
+
+            FrameLayout header = (FrameLayout)mCurrentView.findViewById(R.id.form_entry_header);
+
+            TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+            header.setVisibility(View.GONE);
+            groupLabel.setVisibility(View.GONE);
+
+            String groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
+
+            if(!"".equals(groupLabelText)) {
+                groupLabel.setText(groupLabelText);
+                header.setVisibility(View.VISIBLE);
+                groupLabel.setVisibility(View.VISIBLE);
+            }
+        } else {
             InputMethodManager inputManager =
                 (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(mCurrentView.getWindowToken(), 0);
@@ -1961,17 +1993,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         mRepeatDialog.setIcon(android.R.drawable.ic_dialog_info);
         
-        boolean navBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
+        boolean hasNavBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
         
         //this is super gross...
         NavigationDetails details = null;
-        if(navBar) {
+        if(hasNavBar) {
             details = calculateNavigationStatus();
         }
         
-        final boolean backExitsForm = navBar && !details.relevantBeforeCurrentScreen;
+        final boolean backExitsForm = hasNavBar && !details.relevantBeforeCurrentScreen;
         
-        final boolean nextExitsForm = navBar && details.relevantAfterCurrentScreen == 0;
+        final boolean nextExitsForm = hasNavBar && details.relevantAfterCurrentScreen == 0;
         
         Button back = (Button)view.findViewById(R.id.component_repeat_back);
         
@@ -2962,7 +2994,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             if (velocityX > 0) {
                 showPreviousView();
             } else {
-                showNextView();
+                int event = mFormController.getEvent(mFormController.getNextFormIndex(mFormController.getFormIndex(), true));
+                boolean navBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
+                if(!navBar || (navBar && event != FormEntryController.EVENT_END_OF_FORM)) {
+                    showNextView();
+                }
             }
             return true;
         }

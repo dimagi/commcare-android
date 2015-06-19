@@ -97,7 +97,7 @@ public class EntityView extends LinearLayout {
     /*
      * Constructor for row/column headers
      */
-    public EntityView(Context context, Detail d, String[] headerText) {
+    public EntityView(Context context, Detail d, String[] headerText, Integer textColor) {
         super(context);
         this.context = context;
         this.views = new View[headerText.length];
@@ -110,6 +110,10 @@ public class EntityView extends LinearLayout {
                 ViewId uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(headerText[i], headerForms[i], uniqueId, null);      
                 views[i].setId(i);
+                if(textColor != null) {
+                    TextView tv = (TextView) views[i].findViewById(R.id.component_audio_text_txt);
+                    if(tv != null) tv.setTextColor(textColor);
+                }
                 addView(views[i], l);
             }
         }

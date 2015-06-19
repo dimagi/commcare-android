@@ -20,6 +20,7 @@ import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -27,11 +28,18 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,16 +60,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public static String ALREADY_LOGGED_IN = "la_loggedin";
-    
+    public static final String ALREADY_LOGGED_IN = "la_loggedin";
+
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
     
-    @UiElement(value=R.id.text_username, locale="login.username")
-    TextView userLabel;
-    @UiElement(value=R.id.text_password, locale="login.password")
-    TextView passLabel;
-    @UiElement(R.id.screen_login_bad_password)
+    @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
     TextView errorBox;
     
     @UiElement(R.id.edit_username)
@@ -75,11 +79,62 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     
     @UiElement(R.id.str_version)
     TextView versionDisplay;
+
+    @UiElement(R.id.login_button)
+    Button loginButton;
     
     public static final int TASK_KEY_EXCHANGE = 1;
     
     SqlStorage<UserKeyRecord> storage;
-    
+
+    private int editTextColor;
+    private View.OnKeyListener l;
+    private final TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                setStyleDefault();
+            }
+        };
+
+    public void setStyleDefault() {
+        LoginBoxesStatus.Normal.setStatus(this);
+        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
+        password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
+        loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
+        loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
+    }
+
+    public enum LoginBoxesStatus {
+        Normal(R.color.login_edit_text_color),
+        Error(R.color.login_edit_text_color_error);
+
+        private final int colorAttr;
+
+        LoginBoxesStatus(int colorAttr){
+            this.colorAttr = colorAttr;
+        }
+
+        public int getColor(Context ctx){
+            int color = ctx.getResources().getColor(colorAttr);
+            if (BuildConfig.DEBUG) {
+                Log.d("LoginBoxesStatus", "Color for status " + this.toString() + " is: " + color);
+            }
+            return color;
+        }
+
+        public void setStatus(LoginActivity lact){
+            lact.setLoginBoxesColor(this.getColor(lact));
+        }
+    }
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -88,6 +143,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        LoginBoxesStatus.Normal.setStatus(this);
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         
         //Only on the initial creation
@@ -98,11 +154,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                 password.requestFocus();
             }
         }
-        
+
         login.setOnClickListener(new OnClickListener() {
 
             public void onClick(View arg0) {
                 errorBox.setVisibility(View.GONE);
+                ViewUtil.hideVirtualKeyboard(LoginActivity.this);
                 //Try logging in locally
                 if(tryLocalLogin(false)) {
                     return;
@@ -111,10 +168,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                 startOta();
             }
         });
-        
+
+        username.addTextChangedListener(textWatcher);
+        password.addTextChangedListener(textWatcher);
+
         versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
-        
-        
+        username.setHint(Localization.get("login.username"));
+        password.setHint(Localization.get("login.password"));
+
         final View activityRootView = findViewById(R.id.screen_login_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             /*
@@ -131,11 +192,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     versionDisplay.setVisibility(View.GONE);
                     banner.setVisibility(View.GONE);
                 } else if(height < hideBanner) {
-                    versionDisplay.setVisibility(View.VISIBLE);
                     banner.setVisibility(View.GONE);
                 }  else {
-                    versionDisplay.setVisibility(View.VISIBLE);
-                    
                     // Override default CommCare banner if requested
                     String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_LOGIN, "");
                     if (!"".equals(customBannerURI)) {
@@ -449,11 +507,27 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             toastText = Localization.get("notification.for.details.wrapper",
                     new String[] {toastText});
         }
+        
+        //either way
+        LoginBoxesStatus.Error.setStatus(this);
+        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
+        password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
+        loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
+        loginButton.setTextColor(getResources().getColor(R.color.cc_attention_negative_text));
 
         errorBox.setVisibility(View.VISIBLE);
         errorBox.setText(toastText);
 
         Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Sets the login boxes (user/pass) to the given color.
+     * @param color Color code
+     */
+    private void setLoginBoxesColor(int color) {
+        username.setTextColor(color);
+        password.setTextColor(color);
     }
 
 
