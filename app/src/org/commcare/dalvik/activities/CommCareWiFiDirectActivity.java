@@ -447,7 +447,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             @Override
             protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
                 receiver.myStatusText.setText("Error wiping forms: " + e.getMessage());
-                receiver.TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+                receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             }
         };
 
@@ -484,7 +484,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
         if (files == null){
             myStatusText.setText("Phone has received no forms via Wi-fi direct for Submitting; did you mean to Send forms?");
-            TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+            transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             return;
         }
 
@@ -493,7 +493,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         //if there're no forms to dump, just return
         if(formsOnSD == 0){
             myStatusText.setText(Localization.get("bulk.form.no.unsynced"));
-            TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+            transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             return;
         }
 
@@ -516,7 +516,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
                     return;
                 } else {
                     //assume that we've already set the error message, but make it look scary
-                    receiver.TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+                    receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
                 }
             }
 
@@ -538,7 +538,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
                 Logger.log(TAG, "Error submitting forms in wi-fi direct");
                 receiver.myStatusText.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
-                receiver.TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+                receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             }
         };
         mSendTask.connect(CommCareWiFiDirectActivity.this);
@@ -587,7 +587,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
                     return;
                 } else {
                     //assume that we've already set the error message, but make it look scary
-                    receiver.TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+                    receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
                 }
             }
 
@@ -610,7 +610,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
                 Log.d(TAG, "unzip deliver error: " + e.getMessage());
                 receiver.myStatusText.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
-                receiver.TransplantStyle(myStatusText, R.layout.template_text_notification_problem);
+                receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             }
         };
 
@@ -893,7 +893,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             @Override
             protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
                 receiver.myStatusText.setText("Error zipping files");
-                receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+                receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
             }
 
             /*
@@ -907,7 +907,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
                     return;
                 } else {
                     receiver.onZipError();
-                    receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+                    receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
                     return;
                 }
             }
@@ -941,7 +941,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
                     return;
                 } else {
                     receiver.onSendFail();
-                    receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+                    receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
                     return;
                 }
 
@@ -966,7 +966,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             protected void deliverError(CommCareWiFiDirectActivity receiver,
                     Exception e) {
                 receiver.myStatusText.setText("Error sending files with exception: " + e.getMessage());
-                receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+                receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
 
             }
 

@@ -432,7 +432,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     
     //Graphical stuff below, needs to get modularized
     
-    public void TransplantStyle(TextView target, int resource) {
+    public void transplantStyle(TextView target, int resource) {
         //get styles from here
         TextView tv = (TextView)View.inflate(this, resource, null);
         int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(),target.getPaddingBottom() };
@@ -490,18 +490,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             
         }
         
-        String returnValue = topLevel;
-        
+        StringBuffer titleBuf = new StringBuffer(topLevel);
         for(String title : stepTitles) {
             if(title != null) {
-                returnValue += " > " + title;
+                titleBuf.append(" > " + title);
             }
         }
         
         if(local != null) {
-            returnValue += " > " + local;
+            titleBuf.append(" > " + local);
         }
-        return returnValue;
+        return titleBuf.toString();
     }
     
     /*
