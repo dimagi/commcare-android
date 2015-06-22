@@ -36,9 +36,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
         setOnClickListener(this);
     }
 
-    /*
-         * Constructor for if not explicitly using an AudioController
-         */
     public AudioButton(Context context, final String URI, boolean visible) {
         this(context, URI, null, null, visible);
     }
@@ -89,11 +86,11 @@ public class AudioButton extends ImageButton implements OnClickListener {
         attachToMedia();
     }
 
+    /**
+     * Check if the button in this view had media assigned to
+     * it in a previously-existing app (before rotation, etc.)
+     */
     private void attachToMedia() {
-        /*
-         * Check if the button in this view had media assigned to
-         * it in a previously-existing app (before rotation, etc.)
-         */
         MediaEntity currEntity = controller.getCurrMedia();
         if (currEntity != null) {
             Object oldId = currEntity.getId();
