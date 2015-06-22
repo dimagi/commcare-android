@@ -31,11 +31,11 @@ import android.widget.Toast;
 
 /**
  * @author ctsims
- *
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
+    private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
     
     private static final String LOG_TAG = "CommCare-MultimediaInflator";
 
@@ -310,7 +310,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             String message = Localization.get("mult.install.progress", new String[] {"0"});
             return CustomProgressDialog.newInstance(title, message, taskId);
         }
-        System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+        Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                 + "any valid possibilities in MultiMediaInflaterActivity");
         return null;
     }

@@ -63,6 +63,7 @@ import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MenuItem;
@@ -82,6 +83,7 @@ import java.lang.reflect.Field;
  */
 public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
     AudioController, DialogController, OnGestureListener {
+    private static final String TAG = CommCareActivity.class.getSimpleName();
     
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";
@@ -165,7 +167,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             break;
         case Playing:
         case Ready:
-            System.out.println("WARNING: state in loadPreviousAudio is invalid");
+            Log.w(TAG, "State in loadPreviousAudio is invalid");
         }
     }
     

@@ -48,12 +48,13 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer,R> {
+    private static final String TAG = FormRecordCleanupTask.class.getSimpleName();
     Context context;
     CommCarePlatform platform;
     
@@ -105,8 +106,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             //We don't know anything about the session yet, so give it -1 to flag that
             wipeRecord(context, -1, recordID, storage, ssdStorage);
         }
-        
-        System.out.println("Synced: " + unindexedRecords.size() + ". Removed: " + oldrecords + " old records, and " + (recordsToRemove.size() - oldrecords) + " busted new ones");
+
+        Log.d(TAG, "Synced: " + unindexedRecords.size() +
+                ". Removed: " + oldrecords + " old records, and " +
+                (recordsToRemove.size() - oldrecords) + " busted new ones");
         return SUCCESS;
     }
 
