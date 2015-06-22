@@ -40,6 +40,7 @@ public class EntityDetailFragment extends Fragment {
     private EntityDetailAdapter.EntityDetailViewModifier modifier;
 
     private boolean tabbedDetailHeader = true;
+    private boolean useHeader = false;
 
 
     View.OnClickListener onLeftClick;
@@ -115,7 +116,7 @@ public class EntityDetailFragment extends Fragment {
         }
         int[] color = AndroidUtil.getThemeColorIDs(this.getActivity(), new int[]{ R.attr.drawer_pulldown_even_row_color});
         headerView.setBackgroundColor(color[0]);
-        listView.addHeaderView(headerView);
+        if(useHeader) listView.addHeaderView(headerView);
         listView.setAdapter(adapter);
         return rootView;
     }

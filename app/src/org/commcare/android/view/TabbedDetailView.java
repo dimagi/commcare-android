@@ -108,6 +108,7 @@ public class TabbedDetailView extends RelativeLayout {
         {
             this.actionBar =  mContext.getActionBar();
             if(this.actionBar != null) {
+                this.actionBar.setDisplayHomeAsUpEnabled(true);
                 this.actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
             }
         }
@@ -173,11 +174,15 @@ public class TabbedDetailView extends RelativeLayout {
         pagerLayout.setMargins(0, margin, margin, margin);
         mViewPager.setLayoutParams(pagerLayout);
     }
-    
+
+
+    public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
+        refresh(detail, reference, index, hasDetailCalloutListener, false);
+    }
     /*
      * Get form list from database and insert into view.
      */
-    public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
+    public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener, boolean isInnerDetailView) {
         final int[] rowColors = AndroidUtil.getThemeColorIDs(getContext(),
                 new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
@@ -191,7 +196,7 @@ public class TabbedDetailView extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 int prevIndex = Math.max(0, mViewPager.getCurrentItem() - 1);
-                Log.i("DEBUG-i","Previous index is: " + prevIndex);
+                Log.i("DEBUG-i","Previous index is: " + prevIndex +  ", item count is: " + mEntityDetailPagerAdapter.getCount());
                 mViewPager.setCurrentItem(prevIndex);
             }
         });
@@ -199,14 +204,19 @@ public class TabbedDetailView extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 int nextIndex = Math.min(mEntityDetailPagerAdapter.getCount(), mViewPager.getCurrentItem() + 1);
-                Log.i("DEBUG-i","Next index is: " + nextIndex);
+                Log.i("DEBUG-i","Next index is: " + nextIndex + ", item count is: " + mEntityDetailPagerAdapter.getCount());
                 mViewPager.setCurrentItem(nextIndex);
             }
         });
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         if(!useNewTabStyle) markSelectedTab(0);
+        if(isInnerDetailView) return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
         {
+            this.actionBar.removeAllTabs();
+            if (BuildConfig.DEBUG) {
+                Log.v(TabbedDetailView.class.getSimpleName(), "Removed all tabs");
+            }
             Detail[] childDetailsOrCurrentDetail = detail.isCompound() ? detail.getDetails() : new Detail[]{ detail };
             for(Detail d : childDetailsOrCurrentDetail) {
                 ActionBar.Tab currentTab =

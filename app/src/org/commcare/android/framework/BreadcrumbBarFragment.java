@@ -253,9 +253,12 @@ public class BreadcrumbBarFragment extends Fragment {
 
                         NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
                         Detail detail = factory.getDetail();
+                        if (BuildConfig.DEBUG) {
+                            Log.v(BreadcrumbBarFragment.class.getSimpleName(), "Detail is: " + detail + " (title: " + detail.getTitle().getText().evaluate() + ")");
+                        }
                         mInternalDetailView.setDetail(detail);
 
-                        mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
+                        mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false, true);
                     }
                     infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
                     expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
