@@ -81,7 +81,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 return root;
                 
             } catch(IllegalStateException ise){
-                throw new RuntimeException("Could not load fixture for src: " + ref);
+                throw new RuntimeException("Could not load fixture for src: " + ref + ". This is possibly due " +
+                        "to the size of the fixture.");
                 
             }
             
