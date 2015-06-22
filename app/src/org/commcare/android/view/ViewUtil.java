@@ -36,7 +36,7 @@ public class ViewUtil {
     //This is silly and isn't really what we want here, but it's a start. (We'd like to be able to add
     //a displayunit to a menu in a super easy/straightforward way.
     public static void addDisplayToMenu(Context context, Menu menu, int menuId, DisplayUnit display) {
-        Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI());
+        Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI().evaluate());
         MenuItem item = menu.add(0, menuId, menuId, Localizer.clearArguments(display.getText().evaluate()).trim());
         if(b != null) {
             item.setIcon(new BitmapDrawable(context.getResources(),b));

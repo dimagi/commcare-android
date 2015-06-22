@@ -62,7 +62,7 @@ public class HorizontalMediaView extends RelativeLayout {
     
 
     public void setDisplay(DisplayUnit display) {
-        setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getAudioURI(), display.getImageURI());
+        setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getAudioURI().evaluate(ec), display.getImageURI().evaluate(ec));
     }
     
     public void setAVT(String displayText, String audioURI, String imageURI) {

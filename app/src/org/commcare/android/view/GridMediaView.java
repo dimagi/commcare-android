@@ -48,7 +48,7 @@ public class GridMediaView extends RelativeLayout {
 
 
     public void setDisplay(DisplayUnit display) {
-        setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getImageURI());
+        setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), display.getImageURI().evaluate(ec));
     }
 
     //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
