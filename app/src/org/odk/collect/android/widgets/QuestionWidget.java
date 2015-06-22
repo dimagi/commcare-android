@@ -31,6 +31,7 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -45,9 +46,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 public abstract class QuestionWidget extends LinearLayout {
-
-    @SuppressWarnings("unused")
-    private final static String t = "QuestionWidget";
+    private final static String TAG = QuestionWidget.class.getSimpleName();
 
     private LinearLayout.LayoutParams mLayout;
     protected FormEntryPrompt mPrompt;
@@ -400,7 +399,7 @@ public abstract class QuestionWidget extends LinearLayout {
                     stripUnderlines(mQuestionText);
                 }
                 else{
-                    System.out.println("this should be an error I'm thinking?");
+                    Log.d(TAG, "this should be an error I'm thinking?");
                 }
             }
         }

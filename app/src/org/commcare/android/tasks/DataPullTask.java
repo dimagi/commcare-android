@@ -68,10 +68,9 @@ import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
-
+    private static final String TAG = DataPullTask.class.getSimpleName();
 
     String server;
     String keyProvider;
@@ -622,7 +621,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         try{
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             AndroidStreamUtil.writeFromInputToOutput(cache.retrieveCache(), baos);
-            System.out.println(new String(baos.toByteArray()));
+            Log.d(TAG, new String(baos.toByteArray()));
         } catch(IOException e) {
             e.printStackTrace();
         }

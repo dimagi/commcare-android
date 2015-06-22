@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.android.tasks;
 
 import java.io.ByteArrayOutputStream;
@@ -39,6 +23,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 
 /**
@@ -46,11 +31,9 @@ import android.os.AsyncTask;
  * and upload to developers.
  *
  * @author csims@dimagi.com
- *
  **/
-
-public class ExceptionReportTask extends AsyncTask<Throwable, String, String>  
-{
+public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
+    private static final String TAG = ExceptionReportTask.class.getSimpleName();
     /*
      * (non-Javadoc)
      * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
@@ -102,7 +85,7 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
         
         //TODO: Send this with the standard logging subsystem
         String payload = new String(data);
-        System.out.println("Outgoing payload: " + payload);
+        Log.d(TAG, "Outgoing payload: " + payload);
         
         MultipartEntity entity = new MultipartEntity();
         try {
@@ -144,7 +127,7 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String>
             HttpResponse response = generator.postData(URI, entity);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             response.getEntity().writeTo(bos);
-            System.out.println("Response: " + new String(bos.toByteArray()));
+            Log.d(TAG, "Response: " + new String(bos.toByteArray()));
         } catch (ClientProtocolException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

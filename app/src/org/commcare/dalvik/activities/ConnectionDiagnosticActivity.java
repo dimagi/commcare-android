@@ -3,6 +3,7 @@ package org.commcare.dalvik.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -32,6 +33,7 @@ import org.javarosa.core.services.locale.Localization;
 
 @ManagedUi(R.layout.connection_diagnostic)
 public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
+    private static final String TAG = ConnectionDiagnosticActivity.class.getSimpleName();
 
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
 
@@ -218,7 +220,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
             return dialog;
         }
         else {
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in ConnectionDiagnosticActivity");
             return null;
         }

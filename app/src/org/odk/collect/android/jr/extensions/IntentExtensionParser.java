@@ -1,6 +1,7 @@
 package org.odk.collect.android.jr.extensions;
 
 import java.util.Hashtable;
+import android.util.Log;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.TreeReference;
@@ -17,6 +18,7 @@ import org.kxml2.kdom.Element;
  */
 public class IntentExtensionParser implements IElementHandler {
 
+    private static final String TAG = IntentExtensionParser.class.getSimpleName();
     private static String RESPONSE = "response";
     private static String EXTRA = "extra";
 
@@ -39,7 +41,7 @@ public class IntentExtensionParser implements IElementHandler {
         String data = e.getAttributeValue(null, "data");
         String appearance = e.getAttributeValue(null, "appearance");
         
-        System.out.println("0123 extention parser appearance is: " + appearance);
+        Log.d(TAG, "0123 extention parser appearance is: " + appearance);
         
         String label = e.getAttributeValue(null, "button-label");
 
