@@ -1,4 +1,3 @@
-
 package org.odk.collect.android.views.media;
 
 import java.io.File;
@@ -11,7 +10,6 @@ import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.QRCodeEncoder;
 import org.odk.collect.android.views.ResizingImageView;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -29,9 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * This layout is used anywhere we can have image/audio/video/text. TODO: It would probably be nice
- * to put this in a layout.xml file of some sort at some point.
- * 
+ * This layout is used anywhere we can have image/audio/video/text. TODO: It
+ * would probably be nice to put this in a layout.xml file of some sort at some
+ * point.
+ *
  * @author carlhartung
  */
 public class MediaLayout extends RelativeLayout {
@@ -42,10 +41,6 @@ public class MediaLayout extends RelativeLayout {
     private ImageButton mVideoButton;
     private ResizingImageView mImageView;
     private TextView mMissingImage;
-    
-    private int minimumHeight =-1;
-    private int maximumHeight =-1;
-
 
     public MediaLayout(Context c) {
         super(c);
@@ -56,12 +51,15 @@ public class MediaLayout extends RelativeLayout {
         mMissingImage = null;
         mVideoButton = null;
     }
-    
-    public void setAVT(TextView text, String audioURI, String imageURI, final String videoURI, final String bigImageURI) {
+
+    public void setAVT(TextView text, String audioURI, String imageURI,
+                       final String videoURI, final String bigImageURI) {
         setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null);
     }
 
-    public void setAVT(TextView text, String audioURI, String imageURI, final String videoURI, final String bigImageURI, final String qrCodeContent) {
+    public void setAVT(TextView text, String audioURI, String imageURI,
+                       final String videoURI, final String bigImageURI,
+                       final String qrCodeContent) {
         mView_Text = text;
 
         // Layout configurations for our elements in the relative layout
@@ -74,28 +72,25 @@ public class MediaLayout extends RelativeLayout {
         imageParams.addRule(CENTER_IN_PARENT);
         RelativeLayout.LayoutParams videoParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        
-        RelativeLayout.LayoutParams topPaneParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+        RelativeLayout.LayoutParams topPaneParams =
+            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         RelativeLayout topPane = new RelativeLayout(this.getContext());
         topPane.setId(2342134);
-        
+
         this.addView(topPane, topPaneParams);
 
-        // First set up the audio button
         if (audioURI != null) {
-            // An audio file is specified
             mAudioButton = new AudioButton(getContext(), audioURI, true);
-            mAudioButton.setId(3245345); // random ID to be used by the relative layout.
-        } else {
-            // No audio file specified, so ignore.
+             // random ID to be used by the relative layout.
+            mAudioButton.setId(3245345);
         }
-        
+
         // Then set up the video button
         if (videoURI != null) {
             mVideoButton = new ImageButton(getContext());
             mVideoButton.setImageResource(android.R.drawable.ic_media_play);
             mVideoButton.setOnClickListener(new OnClickListener() {
-
                 @Override
                 public void onClick(View v) {
                     String videoFilename = "";
@@ -122,22 +117,19 @@ public class MediaLayout extends RelativeLayout {
                     try {
                         String uri = Uri.fromFile(videoFile).getPath().replaceAll("^.*\\/", "");
                         Logger.log("media", "start " + uri);
-                        ((Activity) getContext()).startActivity(i);
+                        getContext().startActivity(i);
                     } catch (ActivityNotFoundException e) {
                         Toast.makeText(getContext(),
                             getContext().getString(R.string.activity_not_found, "view video"),
                             Toast.LENGTH_SHORT).show();
                     }
                 }
-
             });
             mVideoButton.setId(234982340);
-        } else {
-            // No video file specified, so ignore.
         }
 
-        // Add the audioButton and videoButton (if applicable) and view (containing text) to the
-        // relative layout.
+        // Add the audioButton and videoButton (if applicable) and view
+        // (containing text) to the relative layout.
         if (mAudioButton != null && mVideoButton == null) {
             audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
@@ -165,7 +157,7 @@ public class MediaLayout extends RelativeLayout {
 
         // Now set up the image view
         String errorMsg = null;
-        
+
         View imageView= null;
         if(qrCodeContent != null ) {
             Bitmap image;
@@ -173,42 +165,35 @@ public class MediaLayout extends RelativeLayout {
                     ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
                             .getDefaultDisplay();
 
-            
             //see if we're doing a new QR code display
-            if(qrCodeContent != null) {
-                int screenWidth = display.getWidth();
-                int screenHeight = display.getHeight();
-                
-                int minimumDim = Math.min(screenWidth,  screenHeight);
+            int screenWidth = display.getWidth();
+            int screenHeight = display.getHeight();
 
-                try {
-                    QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrCodeContent,minimumDim);
-                
-                    image = qrCodeEncoder.encodeAsBitmap();
-                    
-                    mImageView = new ResizingImageView(getContext());
-                    mImageView.setPadding(10, 10, 10, 10);
-                    mImageView.setAdjustViewBounds(true);
-                    mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    mImageView.setImageBitmap(image);
-                    mImageView.setId(23423534);
-                    //mImageView.resizeMaxMin(minimumHeight, maximumHeight);
-                    
-                    imageView = mImageView;
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
+            int minimumDim = Math.min(screenWidth,  screenHeight);
+
+            try {
+                QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrCodeContent,minimumDim);
+
+                image = qrCodeEncoder.encodeAsBitmap();
+
+                mImageView = new ResizingImageView(getContext());
+                mImageView.setPadding(10, 10, 10, 10);
+                mImageView.setAdjustViewBounds(true);
+                mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                mImageView.setImageBitmap(image);
+                mImageView.setId(23423534);
+
+                imageView = mImageView;
+            } catch(Exception e) {
+                e.printStackTrace();
             }
-            
         } else if (imageURI != null) {
             try {
-                
                 DisplayMetrics metrics = this.getContext().getResources().getDisplayMetrics();
                 int maxWidth = metrics.widthPixels;
                 int maxHeight = metrics.heightPixels;
-                
+
                 // subtract height for textviewa and buttons, if present
-                
                 if(mView_Text != null){
                     maxHeight = maxHeight - mView_Text.getHeight();
                 } if(mVideoButton != null){
@@ -216,14 +201,11 @@ public class MediaLayout extends RelativeLayout {
                 } else if(mAudioButton != null){
                     maxHeight = maxHeight - mAudioButton.getHeight();
                 }
-                
-                // reduce by third for safety
-                
-                maxHeight = (2 * maxHeight)/3;
-                
-                
-                //If we didn't get an image yet, try for a norm
 
+                // reduce by third for safety
+                maxHeight = (2 * maxHeight)/3;
+
+                //If we didn't get an image yet, try for a norm
                 final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
@@ -247,12 +229,12 @@ public class MediaLayout extends RelativeLayout {
                         mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
                         mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setAdjustViewBounds(true);
-                        
+
                         if(ResizingImageView.resizeMethod.equals("full") || ResizingImageView.resizeMethod.equals("half")){
                             mImageView.setMaxHeight(maxHeight);
                             mImageView.setMaxWidth(maxWidth);
                         }
-                       
+
                         mImageView.setImageBitmap(b);
                         mImageView.setId(23423534);
                         imageView = mImageView;
@@ -262,7 +244,7 @@ public class MediaLayout extends RelativeLayout {
                         errorMsg = getContext().getString(R.string.file_invalid, imageFile);
 
                     }
-                } else if (errorMsg == null) {
+                } else {
                     // An error hasn't been logged. We should have an image, but the file doesn't
                     // exist.
                     errorMsg = getContext().getString(R.string.file_missing, imageFile);
@@ -282,7 +264,7 @@ public class MediaLayout extends RelativeLayout {
                 e.printStackTrace();
             }
         }
-        
+
         if(imageView != null) {
             RelativeLayout parent = this;
             imageParams.addRule(RelativeLayout.BELOW, topPane.getId());
@@ -300,14 +282,11 @@ public class MediaLayout extends RelativeLayout {
             }
             parent.addView(imageView, imageParams);
         }
-        
-        
     }
-    
+
     /**
-     * This adds a divider at the bottom of this layout. Used to separate fields in lists.
-     * 
-     * @param v
+     * This adds a divider at the bottom of this layout. Used to separate
+     * fields in lists.
      */
     public void addDivider(ImageView v) {
         RelativeLayout.LayoutParams dividerParams =
@@ -330,7 +309,6 @@ public class MediaLayout extends RelativeLayout {
         addView(v, dividerParams);
     }
 
-
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
@@ -340,5 +318,4 @@ public class MediaLayout extends RelativeLayout {
             }
         }
     }
-
 }
