@@ -175,10 +175,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                                 if(v instanceof TextView) {
                                     ((TextView)v).setText(((TextView)oldView).getText());
                                 }
-                                if(v == null || oldView == null) {
+                                if (v == null) {
                                     Log.d("loadFields", "NullPointerException when trying to find view with id: " +
                                             + element.value() + " (" + getResources().getResourceEntryName(element.value()) + ") "
-                                            + "v is " + v + ", oldView is " + oldView + " for activity " + oldActivity +
+                                            + " oldView is " + oldView + " for activity " + oldActivity +
                                             ", element is: " + f + " (" + f.getName() + ")");
                                 }
                                 v.setVisibility(oldView.getVisibility());
@@ -490,15 +490,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             
         }
         
-        StringBuffer titleBuf = new StringBuffer(topLevel);
+        StringBuilder titleBuf = new StringBuilder(topLevel);
         for(String title : stepTitles) {
             if(title != null) {
-                titleBuf.append(" > " + title);
+                titleBuf.append(" > ").append(title);
             }
         }
         
         if(local != null) {
-            titleBuf.append(" > " + local);
+            titleBuf.append(" > ").append(local);
         }
         return titleBuf.toString();
     }
