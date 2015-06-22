@@ -502,22 +502,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
         return titleBuf.toString();
     }
-    
+
     /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#getCurrMedia()
-     * 
-     * All methods for implementation of AudioController
+     * AudioController interface implementation
      */
     @Override
     public MediaEntity getCurrMedia() {
         return currentEntity;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#refreshCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
-     */
+
     @Override
     public void refreshCurrentAudioButton(AudioButton clickedButton) {
         if (currentButton != null && currentButton != clickedButton) {
@@ -525,68 +518,43 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setCurrent(org.odk.collect.android.views.media.MediaEntity, org.odk.collect.android.views.media.AudioButton)
-     */
     @Override
     public void setCurrent(MediaEntity e, AudioButton b) {
         refreshCurrentAudioButton(b);
         setCurrent(e);
         setCurrentAudioButton(b);
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setCurrent(org.odk.collect.android.views.media.MediaEntity)
-     */
+
     @Override
     public void setCurrent(MediaEntity e) {
         releaseCurrentMediaEntity();
         currentEntity = e;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
-     */
+
     @Override
     public void setCurrentAudioButton(AudioButton b) {
         currentButton = b;
     }
-    
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#releaseCurrentMediaEntity()
-     */
+
     @Override
     public void releaseCurrentMediaEntity() {
         if (currentEntity != null) {
             MediaPlayer mp = currentEntity.getPlayer();
             mp.reset();
-            mp.release();    
+            mp.release();
         }
         currentEntity = null;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#playCurrentMediaEntity()
-     */
+
     @Override
     public void playCurrentMediaEntity() {
         if (currentEntity != null) {
             MediaPlayer mp = currentEntity.getPlayer();
-            mp.start();            
+            mp.start();
             currentEntity.setState(MediaState.Playing);
         }
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#pauseCurrentMediaEntity()
-     */
+
     @Override
     public void pauseCurrentMediaEntity() {
         if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
@@ -595,60 +563,36 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             currentEntity.setState(MediaState.Paused);
         }
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#getMediaEntityId()
-     */
+
     @Override
     public Object getMediaEntityId() {
         return currentEntity.getId();
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#attemptSetStateToPauseForRenewal()
-     */
+
     @Override
     public void attemptSetStateToPauseForRenewal() {
         if (stateBeforePause != null && stateBeforePause.equals(MediaState.Playing)) {
             currentEntity.setState(MediaState.PausedForRenewal);
         }
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#saveEntityStateAndClear()
-     */
+
     @Override
     public void saveEntityStateAndClear() {
         stateBeforePause = currentEntity.getState();
         pauseCurrentMediaEntity();
         refreshCurrentAudioButton(null);
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setMediaEntityState(org.odk.collect.android.views.media.MediaState)
-     */
+
     @Override
     public void setMediaEntityState(MediaState state) {
         currentEntity.setState(state);
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#removeCurrentMediaEntity()
-     */
+
     @Override
     public void removeCurrentMediaEntity() {
         currentEntity = null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#getDuration()
-     */
     @Override
     public Integer getDuration() {
         if (currentEntity != null) {
@@ -658,10 +602,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#getProgress()
-     */
     @Override
     public Integer getProgress() {
         if (currentEntity != null) {

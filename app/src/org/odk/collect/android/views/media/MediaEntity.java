@@ -12,9 +12,9 @@ import android.media.MediaPlayer;
 
 public class MediaEntity {
     
-    private String source;
-    private Object idOfOriginView;
-    private MediaPlayer player;
+    private final String source;
+    private final Object idOfOriginView;
+    private final MediaPlayer player;
     private MediaState MediaState;
     
     public MediaEntity(String source, MediaPlayer player, Object id, MediaState state) {
@@ -24,20 +24,12 @@ public class MediaEntity {
         this.MediaState = state;
     }
     
-    public MediaEntity() {
-        
-    }
-    
     public Object getId() {
         return idOfOriginView;
     }
     
     public MediaState getState() {
         return MediaState;
-    }
-    
-    public void setPlayer(MediaPlayer mp) {
-        this.player = mp;
     }
     
     public void setState(MediaState state) {
@@ -51,5 +43,4 @@ public class MediaEntity {
     public String getSource() {
         return source;
     }
-    
 }
