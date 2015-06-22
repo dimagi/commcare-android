@@ -21,6 +21,7 @@ import org.odk.collect.android.utilities.WebUtils;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +29,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -275,8 +277,14 @@ public class PreferencesActivity extends PreferenceActivity implements
                     String[] projection = {
                         Images.Media.DATA
                     };
-                    Cursor c = managedQuery(uri, projection, null, null, null);
-                    startManagingCursor(c);
+
+                    Cursor c;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        c = new CursorLoader(this, uri, projection, null, null, null).loadInBackground();
+                    } else {
+                        c = managedQuery(uri, projection, null, null, null);
+                        startManagingCursor(c);
+                    }
                     int i = c.getColumnIndexOrThrow(Images.Media.DATA);
                     c.moveToFirst();
                     sourceImagePath = c.getString(i);

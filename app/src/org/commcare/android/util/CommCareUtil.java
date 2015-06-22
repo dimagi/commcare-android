@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import java.io.ByteArrayOutputStream;
@@ -20,15 +17,16 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
  * Basically Copy+Paste code from CCJ2ME that needs to be unified or re-indexed to somewhere more reasonable.
  * 
  * @author ctsims
- *
  */
 public class CommCareUtil {
+    private static final String TAG = CommCareUtil.class.getSimpleName();
 
     public static FormInstance loadFixture(String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
@@ -98,7 +96,7 @@ public class CommCareUtil {
             DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(null));
             
             s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
-            System.out.println(new String(bos.toByteArray()));
+            Log.d(TAG, new String(bos.toByteArray()));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

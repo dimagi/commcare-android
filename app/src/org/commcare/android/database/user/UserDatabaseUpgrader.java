@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.user;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -19,12 +16,13 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.content.Context;
+import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public class UserDatabaseUpgrader {
+    private static final String TAG = UserDatabaseUpgrader.class.getSimpleName();
     
     boolean inSenseMode = false;
     Context c;
@@ -165,7 +163,7 @@ public class UserDatabaseUpgrader {
             return true;
         } finally {
             db.endTransaction();
-            System.out.println("Case model update complete in " + (System.currentTimeMillis() - start) + "ms");
+            Log.d(TAG, "Case model update complete in " + (System.currentTimeMillis() - start) + "ms");
         }
     }
     

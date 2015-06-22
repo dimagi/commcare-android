@@ -20,9 +20,11 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.util.Log;
 import dalvik.system.DexFile;
 
 public class DbUtil {
+    private static final String TAG = DbUtil.class.getSimpleName();
     
     public static String ID_COL = "commcare_sql_id";
     public static String DATA_COL = "commcare_sql_record";
@@ -232,7 +234,7 @@ public class DbUtil {
 
     public static void explainSql(SQLiteDatabase handle, String sql, String[] args) {
         Cursor explain = handle.rawQuery("EXPLAIN QUERY PLAN " + sql, args);
-        System.out.println("SQL: " + sql);
+        Log.d(TAG, "SQL: " + sql);
         DatabaseUtils.dumpCursor((net.sqlcipher.Cursor)explain);
         explain.close();
     }

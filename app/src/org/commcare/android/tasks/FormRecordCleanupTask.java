@@ -47,12 +47,15 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.util.Pair;
 
 /**
  * @author ctsims
  */
 public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer,R> {
+    private static final String TAG = FormRecordCleanupTask.class.getSimpleName();
+
     private final Context context;
     private final CommCarePlatform platform;
 
@@ -105,10 +108,9 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             wipeRecord(context, -1, recordID, storage, ssdStorage);
         }
 
-        System.out.println("Synced: " + unindexedRecords.size() +
+        Log.d(TAG, "Synced: " + unindexedRecords.size() +
                 ". Removed: " + oldrecords + " old records, and " +
                 (recordsToRemove.size() - oldrecords) + " busted new ones");
-
         return SUCCESS;
     }
 
