@@ -1,11 +1,5 @@
 package org.odk.collect.android.views;
 
-import java.io.File;
-
-import org.commcare.dalvik.R;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -20,6 +14,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import org.commcare.dalvik.R;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+
+import java.io.File;
 
 /**
  * @author wspride
@@ -104,6 +104,7 @@ public class ResizingImageView extends ImageView {
          */
         @Override
         public boolean onDoubleTap(MotionEvent e) {
+            getSuggestedMinimumHeight();
             setFullScreen();
             return true;
         }
@@ -193,7 +194,7 @@ public class ResizingImageView extends ImageView {
 
             Drawable drawable = getDrawable();
             if (drawable != null) {
-                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, drawable, 1);
+                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, 1);
                 setMeasuredDimension(mPair.first, mPair.second);
             }
         }
@@ -201,7 +202,7 @@ public class ResizingImageView extends ImageView {
 
             Drawable drawable = getDrawable();
             if (drawable != null) {
-                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, drawable, .5);
+                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, .5);
                 setMeasuredDimension(mPair.first, mPair.second);
             }
         }
