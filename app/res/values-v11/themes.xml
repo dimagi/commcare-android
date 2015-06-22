@@ -23,6 +23,7 @@
         <item name="android:textSize">@dimen/text_medium</item>
         <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
         <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
+        <item name="android:actionBarTabTextStyle">@style/ActionBarTabTextStyle</item>
     </style>
     
         <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
@@ -41,6 +42,9 @@
         <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
     </style>
 
+    <style name="ActionBarTabTextStyle">
+        <item name="android:textColor">@color/cc_core_bg</item>
+    </style>
     <style name="ActionBar.TitleTextStyle">
         <item name="android:textColor">@color/white</item>
         <item name="android:paddingLeft">8dp</item>
