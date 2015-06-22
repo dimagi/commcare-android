@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -137,7 +136,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                     protected void deliverError(ConnectionDiagnosticActivity receiver, Exception e)
                     {
                         receiver.txtInteractiveMessages.setText(Localization.get("connection.test.error.message"));
-                        receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                        receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
                 };
                 
