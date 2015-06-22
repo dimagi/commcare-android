@@ -3,6 +3,7 @@ package org.commcare.android.view;
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.util.AndroidUtil;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DisplayUnit;
@@ -10,8 +11,12 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.instance.TreeReference;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -40,7 +45,8 @@ public class TabbedDetailView extends RelativeLayout {
     private int mAlternateId = -1;
 
     private boolean useNewTabStyle = true;
-    
+    private ActionBar actionBar;
+
     public TabbedDetailView(Context context) {
         this(context, -1);
     }
@@ -98,6 +104,13 @@ public class TabbedDetailView extends RelativeLayout {
             public void onPageScrollStateChanged(int arg0) { }
 
         });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        {
+            this.actionBar =  mContext.getActionBar();
+            if(this.actionBar != null) {
+                this.actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            }
+        }
     }
     
     /*
@@ -192,6 +205,37 @@ public class TabbedDetailView extends RelativeLayout {
         });
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         if(!useNewTabStyle) markSelectedTab(0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        {
+            Detail[] childDetailsOrCurrentDetail = detail.isCompound() ? detail.getDetails() : new Detail[]{ detail };
+            for(Detail d : childDetailsOrCurrentDetail) {
+                ActionBar.Tab currentTab =
+                        this.actionBar.newTab().setText(d.getTitle().getText().evaluate()).setTabListener(new ActionBar.TabListener() {
+                            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+                            @Override
+                            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+                                if (BuildConfig.DEBUG) {
+                                    Log.v(TabbedDetailView.class.getSimpleName(), "Selected tab: " + tab);
+                                }
+                                mViewPager.setCurrentItem(tab.getPosition());
+                            }
+
+                            @Override
+                            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+                            }
+
+                            @Override
+                            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+                            }
+                        });
+                if (BuildConfig.DEBUG) {
+                    Log.v(TabbedDetailView.class.getSimpleName(), "Added tab: " + currentTab + " (title: " + d.getTitle().getText().evaluate() + ")");
+                }
+                this.actionBar.addTab(currentTab);
+            }
+        }
     }
 
     /*
