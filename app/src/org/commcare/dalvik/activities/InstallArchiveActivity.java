@@ -30,7 +30,6 @@ import android.widget.Toast;
 
 /**
  * @author wspride
- *
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
@@ -56,7 +55,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     boolean done = false;
 
-    public static String TAG = "install-archive";
+    public static String TAG = InstallArchiveActivity.class.getSimpleName();
     
     public static String ARCHIVE_REFERENCE = "archive-ref";
 
@@ -275,7 +274,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return CustomProgressDialog.newInstance(title, message, taskId);
         }
         else {
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in InstallArchiveActivity");
             return null;
         }

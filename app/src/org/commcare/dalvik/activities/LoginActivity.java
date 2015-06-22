@@ -53,10 +53,10 @@ import android.widget.Toast;
 
 /**
  * @author ctsims
- *
  */
 @ManagedUi(R.layout.screen_login)
 public class LoginActivity extends CommCareActivity<LoginActivity> {
+    private static final String TAG = LoginActivity.class.getSimpleName();
     
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
@@ -553,7 +553,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             dialog.addProgressBar();
             break;
         default:
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in LoginActivity");
             return null;
         }

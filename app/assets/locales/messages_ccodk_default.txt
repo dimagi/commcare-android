@@ -100,7 +100,7 @@ sync.progress.downloading=Server contacted, downloading data.
 sync.process.downloading.progress=Download Progress: ${0}%
 sync.process.processing=Processing server data: ${0}/${1}
 
-sync.recover.needed=Phone and server have inconsistent data! Starting recovery...
+sync.recover.needed=Updating phone data from server.
 sync.recover.started=Recovering local DB State. Please do not turn off the app!
 
 form.entry.segfault=There was an unrecoverable error during form entry! If the problem persists, seek technical support
