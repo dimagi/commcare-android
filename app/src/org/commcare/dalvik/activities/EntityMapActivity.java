@@ -35,6 +35,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -47,6 +48,7 @@ import com.google.android.maps.OverlayItem;
  *
  */
 public class EntityMapActivity extends MapActivity {
+    private static final String TAG = EntityMapActivity.class.getSimpleName();
 
     MapView map;
     MyLocationOverlay mMyLocationOverlay;
@@ -95,7 +97,7 @@ public class EntityMapActivity extends MapActivity {
             entities.add(factory.getEntity(ref));
         }
 
-        System.out.println("Entities generated");
+        Log.d(TAG, "Entities generated");
         
         map.displayZoomControls(true);
         mMyLocationOverlay = new MyLocationOverlay(this, map);
@@ -142,7 +144,7 @@ public class EntityMapActivity extends MapActivity {
                 EntityMapActivity.this.finish();                
             }
         };
-        System.out.println("Loading addresses...");
+        Log.d(TAG, "Loading addresses...");
         
         int legit = 0;
         int bogus = 0;
@@ -227,7 +229,7 @@ public class EntityMapActivity extends MapActivity {
             }
         }
         
-        System.out.println("Loaded. " + legit +" addresses discovered, " + bogus + " could not be located");
+        Log.d(TAG, "Loaded. " + legit +" addresses discovered, " + bogus + " could not be located");
 
         if(legit != 0 && mEntityOverlay.getCenter() != null) {
             map.getController().animateTo(mEntityOverlay.getCenter());
@@ -247,7 +249,7 @@ public class EntityMapActivity extends MapActivity {
         map.getController().setZoom(18);
         map.setClickable(true);
         map.setEnabled(true);
-        System.out.println("Done loading");
+        Log.d(TAG, "Done loading");
     }
     
     private String getLicenseKey() {

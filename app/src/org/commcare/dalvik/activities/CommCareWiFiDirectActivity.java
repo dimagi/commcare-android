@@ -54,22 +54,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Vector;
 
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /**
  * An activity that uses WiFi Direct APIs to discover and connect with available
  * devices. WiFi Direct APIs are asynchronous and rely on callback mechanism
@@ -80,7 +64,7 @@ import java.util.Vector;
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
 
-    public static final String TAG = "cc-wifidirect";
+    public static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
 
     public static final String KEY_NUMBER_DUMPED ="wd_num_dumped";
 
@@ -634,7 +618,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
      * received in WiFiDirectBroadcastReceiver class
      */
     public void discoverPeers(){
-
         Logger.log(TAG, "Discovering Wi-fi direct peers");
         Log.d(TAG, "discoverPeers");
 
@@ -706,7 +689,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
      */
     @Override
     public void showDetails(WifiP2pDevice device) {
-
         Log.d(TAG, "showDetails");
 
         DeviceDetailFragment fragment = (DeviceDetailFragment) getSupportFragmentManager()
@@ -720,7 +702,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
      */
     @Override
     public void connect(WifiP2pConfig config) {
-
         Logger.log(TAG,"connecting to wi-fi peer");
 
         Log.d(TAG, "connect in activity");
@@ -789,12 +770,9 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
      */
     @Override
     public void cancelDisconnect() {
-
-        /*
-         * A cancel abort request by user. Disconnect i.e. removeGroup if
-         * already connected. Else, request WifiP2pManager to abort the ongoing
-         * request
-         */
+        //  A cancel abort request by user. Disconnect i.e. removeGroup if
+        //  already connected. Else, request WifiP2pManager to abort the
+        //  ongoing request
         if (mManager != null) {
             final DeviceListFragment fragment = (DeviceListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.frag_list);
@@ -829,7 +807,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
                 });
             }
         }
-
     }
 
     public static void deleteIfExists(String filePath){
@@ -840,7 +817,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
 
     public void prepareFileTransfer(){
-
         Logger.log(TAG, "Preparing File Transfer");
 
         CommCareWiFiDirectActivity.deleteIfExists(sourceZipDirectory);
@@ -867,7 +843,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
 
     public void onZipError(){
-
         FileUtil.deleteFile(new File(sourceDirectory));
 
         Logger.log(TAG, "Error zipping files");
@@ -877,7 +852,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
 
     public void onUnzipSuccessful(Integer result){
-
         Logger.log(TAG, "Successfully unzipped files");
 
         Toast.makeText(CommCareWiFiDirectActivity.this, "Received " + result.toString() + " Files Successfully!",
@@ -890,7 +864,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         }
 
         updateStatusText();
-
     }
 
     public void zipFiles(){
@@ -931,9 +904,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
                     receiver.TransplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
                     return;
                 }
-
             }
-
         };
         mZipTask.connect(CommCareWiFiDirectActivity.this);
         mZipTask.execute();
@@ -1049,7 +1020,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             stateStatusText.setText("This mode will allow you to submit forms to the CommCare Server if you have an internet connection.");
             formCountText.setText("SD Card has " + numUnsubmittedForms + " unsubmitted forms.");
         }
-
     }
 
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
@@ -1150,12 +1120,11 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
             message = "Cleaning up after transfer";
             break;
         default:
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareWifiDirectActivity");        
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
+                    + "any valid possibilities in CommCareWifiDirectActivity");
             return null;
         }
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         return dialog;
     }
-
 }

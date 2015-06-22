@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
@@ -27,6 +11,7 @@ import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -73,6 +58,7 @@ import java.io.IOException;
 
 
 public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
+    private static final String TAG = FormRecordListActivity.class.getSimpleName();
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST  + 1;
     private static final int RESTORE_RECORD = Menu.FIRST  + 2;
@@ -644,8 +630,8 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             message = "Forms downloaded. Processing...";
             break;
         default:
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in FormRecordListActivity");    
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
+                    + "any valid possibilities in FormRecordListActivity");
             return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);

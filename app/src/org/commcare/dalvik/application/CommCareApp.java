@@ -27,6 +27,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 /**
  * This (awkwardly named!) container is responsible for keeping track of a single
@@ -40,6 +41,8 @@ public class CommCareApp {
 
     JavaFileRoot fileRoot;
     AndroidCommCarePlatform platform;
+
+    private static final String TAG = CommCareApp.class.getSimpleName();
 
     public static Object lock = new Object();
 
@@ -153,26 +156,21 @@ public class CommCareApp {
         ResourceTable upgrade = platform.getUpgradeResourceTable();
         ResourceTable recovery = platform.getRecoveryTable();
 
-        System.out.println("Global");
-        System.out.println(global.toString());
+        Log.d(TAG, "Global\n" + global.toString());
 
-        System.out.println("upgrade");
-        System.out.println(upgrade.toString());
+        Log.d(TAG, "Upgrade\n" + upgrade.toString());
 
-        System.out.println("recovery");
-        System.out.println(recovery.toString());
+        Log.d(TAG, "Recovery\n" + recovery.toString());
 
 
         // See if any of our tables got left in a weird state
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             global.rollbackCommits();
-            System.out.println("Global after rollback");
-            System.out.println(global.toString());
+            Log.d(TAG, "Global after rollback\n" + global.toString());
         }
         if (upgrade.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             upgrade.rollbackCommits();
-            System.out.println("upgrade after rollback");
-            System.out.println(upgrade.toString());
+            Log.d(TAG, "upgrade after rollback\n" + upgrade.toString());
         }
 
         // See if we got left in the middle of an update

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.user.models;
 
 import net.sqlcipher.Cursor;
@@ -14,12 +11,13 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 import android.content.ContentValues;
+import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public class EntityStorageCache {
+    private static final String TAG = EntityStorageCache.class.getSimpleName();
     public static final String TABLE_NAME = "entity_cache";
     
     public static final String COL_CACHE_NAME = "cache_name";
@@ -27,7 +25,6 @@ public class EntityStorageCache {
     public static final String COL_CACHE_KEY = "cache_key";
     public static final String COL_VALUE = "value";
     public static final String COL_TIMESTAMP= "timestamp";
-    
     
     public static String getTableDefinition() {
         String tableCreate = "CREATE TABLE " + TABLE_NAME + "(" +
@@ -85,7 +82,7 @@ public class EntityStorageCache {
         db.insert(TABLE_NAME, null, cv);
         
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            System.out.println("Cached value|" + entityKey + "|" + cacheKey);
+            Log.d(TAG, "Cached value|" + entityKey + "|" + cacheKey);
         }
     }
     
@@ -112,7 +109,7 @@ public class EntityStorageCache {
     public void invalidateCache(String recordId) {
         int removed = db.delete(TABLE_NAME, COL_CACHE_NAME + " = ? AND " + COL_ENTITY_KEY + " = ?", new String[] {this.mCacheName, recordId});
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            System.out.println("Invalidated " + removed + " cached values for entity " + recordId);
+            Log.d(TAG, "Invalidated " + removed + " cached values for entity " + recordId);
         }
     }
     

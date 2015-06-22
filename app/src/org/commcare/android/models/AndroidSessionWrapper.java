@@ -46,6 +46,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * This is a container class which maintains all of the appropriate hooks for managing the details
@@ -53,9 +54,9 @@ import android.net.Uri;
  * manipulating them in a single place.
  * 
  * @author ctsims
- *
  */
 public class AndroidSessionWrapper {
+    private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
     protected CommCareSession session;
     private CommCarePlatform platform;
@@ -226,7 +227,7 @@ public class AndroidSessionWrapper {
                 int recordId = Integer.valueOf(sessionStorage.getMetaDataFieldForRecord(id, SessionStateDescriptor.META_FORM_RECORD_ID));
                 if(!storage.exists(recordId)) {
                     sessionStorage.remove(id);
-                    System.out.println("Removing stale ssd record: " + id);
+                    Log.d(TAG, "Removing stale ssd record: " + id);
                     continue;
                 }
                 if(FormRecord.STATUS_INCOMPLETE.equals(storage.getMetaDataFieldForRecord(recordId, FormRecord.META_STATUS))) {

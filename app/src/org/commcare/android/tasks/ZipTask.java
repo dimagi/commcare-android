@@ -41,6 +41,7 @@ import android.util.Log;
  * @author ctsims
  */
 public abstract class ZipTask extends CommCareTask<String, String, FormRecord[], CommCareWiFiDirectActivity>{
+    private static final String TAG = ZipTask.class.getSimpleName();
 
     Context c;
     Long[] results;
@@ -166,7 +167,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         
         try{
             if(!targetFilePath.isDirectory()){
-                // target was not folder
+                Log.d(TAG, "827: target was not folder, bad");
             }
         
             File[] fileArray = targetFilePath.listFiles();
@@ -183,6 +184,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     }
     
     private boolean zipFolder(File[] files, String zipFile, ZipOutputStream zos) throws IOException {
+        Log.d(TAG, "827 zipping folder with files: " +files[0]+ ", zipFile: " + zipFile);
         int BUFFER_SIZE = 1024;
         BufferedInputStream origin = null;
         
@@ -195,12 +197,16 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                     
                     String tempPath = files[i].getPath();
                     
+                    Log.d(TAG, "827 zipping folder with path: " + tempPath);
+                    
                     String[] pathParts = tempPath.split("/");
                     
                     int pathPartsLength = pathParts.length;
                     
                     String fileName = pathParts[pathPartsLength-1];
                     String fileFolder = pathParts[pathPartsLength-2];
+                    
+                    Log.d(TAG, "827 zipping folder with path: " + fileFolder + "/" + fileName);
                     
                     ZipEntry entry = new ZipEntry(fileFolder + "/" + fileName);
                     zos.putNextEntry(entry);
@@ -357,6 +363,8 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                 
                 if(result == 0){
                     try{
+                        Log.d(TAG, "827 trying zip");
+
                         String zipPath = CommCareWiFiDirectActivity.sourceDirectory;
                         
                         File nf = new File(zipPath);
@@ -367,6 +375,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                         zipTargetFolder(nf, CommCareWiFiDirectActivity.sourceZipDirectory);
                         sourceDirectory.delete();
                     }catch( IOException ioe){
+                        Log.d(TAG, "827 IOException: " + ioe.getMessage());
                     }
                 }
             return records;

@@ -103,6 +103,7 @@ import android.text.Spannable;
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
+    private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
     public static final int LOGIN_USER = 0;
     public static final int GET_COMMAND = 1;
@@ -1780,7 +1781,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 message = Localization.get("sync.progress.purge");
                 break;
             default:
-                System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                         + "any valid possibilities in CommCareHomeActivity");
                 return null;
         }
