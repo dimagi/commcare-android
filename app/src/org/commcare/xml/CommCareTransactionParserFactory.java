@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Hashtable;
 
 import org.commcare.android.database.user.models.ACase;
@@ -45,10 +46,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     private TransactionParserFactory stockParser;
     private TransactionParserFactory formInstanceParser;
     private TransactionParserFactory fixtureParser;
-    
+
+    /**
+     * A mapping from an installed form's namespace its install path.
+     */
     private Hashtable<String, String> formInstanceNamespaces;
+
     HttpRequestGenerator generator;
-    
+
     int requests = 0;
     String syncToken;
     
@@ -195,19 +200,25 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
         };
     }
-    
+
+    /**
+     * @param namespaces A mapping from an installed form's namespace its install path.
+     */
     public void initFormInstanceParser(Hashtable<String, String> namespaces) {
         this.formInstanceNamespaces = namespaces;
+
         formInstanceParser = new TransactionParserFactory() {
             FormInstanceXmlParser created = null;
 
             @Override
             public TransactionParser getParser(KXmlParser parser) {
-                if(created == null) {
+                if (created == null) {
                     //TODO: We really don't wanna keep using fsPath eventually
-                    created = new FormInstanceXmlParser(parser, context, formInstanceNamespaces, CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
+                    created = new FormInstanceXmlParser(parser, context,
+                            Collections.unmodifiableMap(formInstanceNamespaces),
+                            CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 }
-                
+
                 return created;
             }
         };
