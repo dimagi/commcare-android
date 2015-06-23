@@ -45,10 +45,12 @@ public class TriggerWidget extends QuestionWidget {
     /**
      * @param context    Used to get font settings
      * @param prompt     Contains question data
-     * @param appearance When 'minimal' just show text label, 'selectable' show
-     *                   a selectable text label useful for copy/pasting
-     *                   output, otherwise display interactively, showing a
-     *                   checkbox with text
+     * @param appearance Hint from form builder, when set to:
+     *                   - 'minimal' show text label
+     *                   - 'selectable' show a selectable text label useful for
+     *                     copy/pasting output
+     *                   - otherwise display interactively, showing a checkbox
+     *                     with text
      */
     public TriggerWidget(Context context, FormEntryPrompt prompt,
                          String appearance) {
