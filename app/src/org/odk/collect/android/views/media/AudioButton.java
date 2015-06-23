@@ -318,10 +318,31 @@ public class AudioButton extends ImageButton implements OnClickListener {
             }
 
             @Override
+            public void refreshCurrentAudioButton(AudioButton clicked) { }
+
+            @Override
+            public void saveEntityStateAndClear() { }
+
+            @Override
+            public void setMediaEntityState(MediaState state) { }
+
+            @Override
             public void playCurrentMediaEntity() {
                 alive = true;
                 mp.start();
             }
+
+            @Override
+            public void pauseCurrentMediaEntity() { }
+
+            @Override
+            public void setCurrentAudioButton(AudioButton b) { }
+
+            @Override
+            public void removeCurrentMediaEntity() { }
+
+            @Override
+            public void attemptSetStateToPauseForRenewal() { }
 
             @Override
             public Integer getDuration() {
