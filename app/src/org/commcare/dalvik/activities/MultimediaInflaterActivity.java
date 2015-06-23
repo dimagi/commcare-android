@@ -112,7 +112,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                             return;
                         } else {
                             //assume that we've already set the error message, but make it look scary
-                            receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                            receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                         }
                     }
 
@@ -133,7 +133,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                     @Override
                     protected void deliverError(MultimediaInflaterActivity receiver, Exception e) {
                         receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
-                        receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                        receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
                 };
                 
@@ -188,7 +188,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     private void evalState() {
         if(done) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.done"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(false);
             return;
         }
@@ -197,21 +197,21 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 
         if("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.empty"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(false);
             return;
         }
         
         if(!(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);
             return;
         }
         
         else {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.ready"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(true);
             return;
         }
@@ -223,7 +223,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     @Override
     public void taskCancelled(int id) {
         txtInteractiveMessages.setText(Localization.get("mult.install.cancelled"));
-        this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+        this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
     
 

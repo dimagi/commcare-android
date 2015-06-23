@@ -1646,8 +1646,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             case FormEntryController.EVENT_GROUP:
                 isGroup = true;
             case FormEntryController.EVENT_QUESTION:
-            
-                ODKView odkv = null;
+                ODKView odkv;
                 // should only be a group here if the event_group is a field-list
                 try {
                     odkv =
