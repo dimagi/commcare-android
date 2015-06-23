@@ -243,7 +243,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         mView.addView(divider, getViewIndex(dividerIndex));
         dividers.add(Math.max(0, i - 1), divider);
         
-        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());;
+        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());
         qw.setLongClickable(true);
         qw.setOnLongClickListener(this);
         qw.setId(VIEW_ID + widgetIdCount++);

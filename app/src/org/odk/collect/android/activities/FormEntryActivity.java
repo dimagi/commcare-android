@@ -1113,8 +1113,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         public String getAppearance() { return label;}
         public int getBackgroundDrawable() { return resourceId; }
         public int getColorId() { return colorId; }
-    };
-    
+    }
+
     private void updateFloatingLabels(View currentView) {
         //TODO: this should actually be set up to scale per screen size.
         ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<Pair<String, FloatingLabel>>();
