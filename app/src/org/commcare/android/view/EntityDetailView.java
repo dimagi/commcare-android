@@ -69,7 +69,6 @@ public class EntityDetailView extends FrameLayout {
     private AudioButton audioButton;
     private View valuePane;
     private View currentView;
-    private AudioController controller;
     private LinearLayout detailRow;
     private LinearLayout.LayoutParams origValue;
     private LinearLayout.LayoutParams origLabel;
@@ -101,8 +100,7 @@ public class EntityDetailView extends FrameLayout {
     public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
             AudioController controller, int detailNumber) {
         super(context);
-        this.controller = controller;
-        
+
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
         spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer); 

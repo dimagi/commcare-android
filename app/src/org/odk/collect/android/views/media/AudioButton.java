@@ -48,8 +48,10 @@ public class AudioButton extends ImageButton implements OnClickListener {
         resetButton(URI, visible);
 
         if (controller == null) {
+            // build audio controller for questions during form entry
             this.controller = buildAudioControllerInstance();
         } else {
+            // audio controller for entity listings
             this.controller = controller;
         }
 
