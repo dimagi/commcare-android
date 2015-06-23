@@ -35,7 +35,6 @@ public class EntityDetailAdapter implements ListAdapter {
     Entity entity;
     DetailCalloutListener listener;
     List<Integer> valid;
-    AudioController controller;
     int detailIndex;
 
     public void setModifier(EntityDetailViewModifier modifier) {
@@ -45,14 +44,13 @@ public class EntityDetailAdapter implements ListAdapter {
     EntityDetailViewModifier modifier;
 
     public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
-            DetailCalloutListener listener, AudioController controller, int detailIndex) {    
+            DetailCalloutListener listener, int detailIndex) {
         this.context = context;
         this.session = session;
         this.detail = detail;
         this.entity = entity;
         this.listener = listener;
-        this.controller = controller;
-        valid = new ArrayList<Integer>(); 
+        valid = new ArrayList<Integer>();
         for(int i = 0 ; i < entity.getNumFields() ; ++i ) {
             if(entity.isValidField(i)) {
                 valid.add(i);
@@ -109,8 +107,8 @@ public class EntityDetailAdapter implements ListAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         EntityDetailView dv =(EntityDetailView)convertView;
         if (dv == null) {
-            dv = new EntityDetailView(context, session, detail, entity, valid.get(position), controller, 
-                    detailIndex);
+            dv = new EntityDetailView(context, session, detail, entity,
+                    valid.get(position), detailIndex);
             dv.setCallListener(listener);
         } else{
             dv.setParams(session, detail, entity, valid.get(position), detailIndex);

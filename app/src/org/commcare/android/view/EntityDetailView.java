@@ -97,8 +97,8 @@ public class EntityDetailView extends FrameLayout {
     private int oddRowColor;
     private int evenRowColor;
 
-    public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
-            AudioController controller, int detailNumber) {
+    public EntityDetailView(Context context, CommCareSession session, Detail d,
+                            Entity e, int index, int detailNumber) {
         super(context);
 
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
@@ -111,7 +111,7 @@ public class EntityDetailView extends FrameLayout {
         
         ViewId uniqueId = new ViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
-        audioButton = new AudioButton(context, audioText, uniqueId, controller, false);
+        audioButton = new AudioButton(context, audioText, uniqueId, false);
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
         

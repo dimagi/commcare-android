@@ -47,7 +47,6 @@ public class EntityView extends LinearLayout {
     private String[] searchTerms;
     private String[] mHints;
     private Context context;
-    private AudioController controller;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
     public static final String FORM_AUDIO = "audio";
@@ -62,14 +61,13 @@ public class EntityView extends LinearLayout {
      * Constructor for row/column contents
      */
     public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
-            String[] searchTerms, AudioController controller, long rowId, boolean mFuzzySearchEnabled) {
+            String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
         this.context = context;
         //this is bad :(
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
         this.tts = tts;
-        this.controller = controller;
         this.renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         this.rowId = rowId;
         this.views = new View[e.getNumFields()];
@@ -133,10 +131,10 @@ public class EntityView extends LinearLayout {
             String text = (String) data;
             AudioButton b;
             if (text != null & text.length() > 0) {
-                b = new AudioButton(context, text, uniqueId, controller, true);
+                b = new AudioButton(context, text, uniqueId, true);
             }
             else {
-                b = new AudioButton(context, text, uniqueId, controller, false);
+                b = new AudioButton(context, text, uniqueId, false);
             }
             retVal = b;
         } 

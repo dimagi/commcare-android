@@ -297,7 +297,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             adapter = oldActivity.adapter;
             //not sure how this happens, but seem plausible.
             if(adapter != null) {
-                adapter.setController(this);
+                // TODO PLM !!!! adapter.setController(this);
                 ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
                 
@@ -901,7 +901,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this, factory);
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);

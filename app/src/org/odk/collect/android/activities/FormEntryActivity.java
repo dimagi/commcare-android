@@ -281,8 +281,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
-
-        // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
             if(fragmentClass != null) {

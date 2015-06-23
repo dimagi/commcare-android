@@ -11,7 +11,6 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,33 +26,17 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private final static String t = "AudioButton";
     private String URI;
     private MediaState currentState;
-    private final AudioController controller;
     private Object residingViewId;
 
-    public AudioButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        this.controller = buildAudioControllerInstance();
-        setOnClickListener(this);
-    }
-
     public AudioButton(Context context, final String URI, boolean visible) {
-        this(context, URI, null, null, visible);
+        this(context, URI, null, visible);
     }
 
-    public AudioButton(Context context, String URI, Object id,
-            AudioController controller, boolean visible) {
+    public AudioButton(Context context, String URI, Object id, boolean visible) {
         super(context);
         setOnClickListener(this);
 
         resetButton(URI, visible);
-
-        if (controller == null) {
-            // build audio controller for questions during form entry
-            this.controller = buildAudioControllerInstance();
-        } else {
-            // audio controller for entity listings
-            this.controller = controller;
-        }
 
         this.residingViewId = id;
     }
@@ -93,11 +76,11 @@ public class AudioButton extends ImageButton implements OnClickListener {
      * it in a previously-existing app (before rotation, etc.)
      */
     private void attachToMedia() {
-        MediaEntity currEntity = controller.getCurrMedia();
-        if (currEntity != null) {
+        if (!AudioControllerSingleton.INSTANCE.isInFormEntry()) {
+            MediaEntity currEntity = AudioControllerSingleton.INSTANCE.getCurrMedia();
             Object oldId = currEntity.getId();
             if (oldId.equals(residingViewId)) {
-                controller.setCurrentAudioButton(this);
+                AudioControllerSingleton.INSTANCE.setCurrentAudioButton(this);
                 restoreButtonFromEntity(currEntity);
             }
         }
@@ -115,17 +98,16 @@ public class AudioButton extends ImageButton implements OnClickListener {
     }
 
     public void modifyButtonForNewView(Object newViewId, String audioResource, boolean visible) {
-        MediaEntity currentEntity = controller.getCurrMedia();
-        if (currentEntity == null) {
+        if (AudioControllerSingleton.INSTANCE.isInFormEntry()) {
             resetButton(audioResource, newViewId, visible);
-            return;
-        }
-        Object activeId = currentEntity.getId();
-        if (activeId.equals(newViewId)) {
-            restoreButtonFromEntity(currentEntity);
-        }
-        else {
-            resetButton(audioResource, newViewId, visible);
+        } else {
+            MediaEntity currentEntity = AudioControllerSingleton.INSTANCE.getCurrMedia();
+            Object activeId = currentEntity.getId();
+            if (activeId.equals(newViewId)) {
+                restoreButtonFromEntity(currentEntity);
+            } else {
+                resetButton(audioResource, newViewId, visible);
+            }
         }
     }
 
@@ -213,7 +195,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
                         }
 
                     });
-                    controller.setCurrent(new MediaEntity(URI, player, residingViewId, currentState), this);
+                    AudioControllerSingleton.INSTANCE.setCurrent(new MediaEntity(URI, player, residingViewId, currentState), this);
                     startPlaying();
                 } catch (IOException e) {
                     String errorMsg = getContext().getString(R.string.audio_file_invalid);
@@ -234,27 +216,27 @@ public class AudioButton extends ImageButton implements OnClickListener {
 
     void startPlaying() {
         logAction("start");
-        controller.playCurrentMediaEntity();
+        AudioControllerSingleton.INSTANCE.playCurrentMediaEntity();
         setStateToPlaying();
     }
 
     public void endPlaying() {
         logAction("stop");
-        controller.releaseCurrentMediaEntity();
+        AudioControllerSingleton.INSTANCE.releaseCurrentMediaEntity();
         setStateToReady();
     }
 
     void pausePlaying() {
         logAction("pause");
-        controller.pauseCurrentMediaEntity();
+        AudioControllerSingleton.INSTANCE.pauseCurrentMediaEntity();
         setStateToPaused();
     }
 
 
     private void logAction(String action) {
         String message = action + " " + URI;
-        Integer progress = controller.getProgress();
-        Integer duration = controller.getDuration();
+        Integer progress = AudioControllerSingleton.INSTANCE.getProgress();
+        Integer duration = AudioControllerSingleton.INSTANCE.getDuration();
         if (progress != null && duration != null) {
             message += " " + formatTime(progress) + "/" + formatTime(duration);
         }
@@ -282,85 +264,5 @@ public class AudioButton extends ImageButton implements OnClickListener {
             returnValue += hours + ":" + returnValue;
         }
         return returnValue;
-    }
-
-    AudioController buildAudioControllerInstance() {
-        return new AudioController() {
-            private MediaPlayer mp;
-            boolean alive = false;
-
-            @Override
-            public MediaEntity getCurrMedia() {
-                return null;
-            }
-
-            @Override
-            public void setCurrent(MediaEntity newEntity) {
-                this.mp = newEntity.getPlayer();
-            }
-
-            @Override
-            public void setCurrent(MediaEntity newEntity, AudioButton newButton) {
-                setCurrent(newEntity);
-            }
-
-            @Override
-            public void releaseCurrentMediaEntity() {
-                if (mp != null) {
-                    mp.reset();
-                    mp.release();
-                    mp = null;
-                    alive = false;
-                }
-            }
-
-            @Override
-            public Object getMediaEntityId() {
-                return residingViewId;
-            }
-
-            @Override
-            public void refreshCurrentAudioButton(AudioButton clicked) { }
-
-            @Override
-            public void saveEntityStateAndClear() { }
-
-            @Override
-            public void setMediaEntityState(MediaState state) { }
-
-            @Override
-            public void playCurrentMediaEntity() {
-                alive = true;
-                mp.start();
-            }
-
-            @Override
-            public void pauseCurrentMediaEntity() { }
-
-            @Override
-            public void setCurrentAudioButton(AudioButton b) { }
-
-            @Override
-            public void removeCurrentMediaEntity() { }
-
-            @Override
-            public void attemptSetStateToPauseForRenewal() { }
-
-            @Override
-            public Integer getDuration() {
-                if (!alive) {
-                    return null;
-                }
-                return mp.getDuration();
-            }
-
-            @Override
-            public Integer getProgress() {
-                if (!alive) {
-                    return null;
-                }
-                return mp.getCurrentPosition();
-            }
-        };
     }
 }

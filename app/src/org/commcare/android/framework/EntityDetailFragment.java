@@ -89,20 +89,13 @@ public class EntityDetailFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         Activity thisActivity = getActivity();
-        AudioController audioController  = null;
         DetailCalloutListener detailCalloutListener = null;
-        if(thisActivity instanceof AudioController) {
-            audioController = (AudioController)thisActivity;
-        } 
         if(thisActivity instanceof DetailCalloutListener) {
             detailCalloutListener = (DetailCalloutListener)thisActivity;
         } 
 
-        
-        adapter = new EntityDetailAdapter(
-            thisActivity, asw.getSession(), childDetail, entity, 
-            detailCalloutListener, audioController, args.getInt(DETAIL_INDEX)
-        );
+        adapter = new EntityDetailAdapter(thisActivity, asw.getSession(),
+                childDetail, entity, detailCalloutListener, args.getInt(DETAIL_INDEX));
         adapter.setModifier(modifier);
         final TextView header = (TextView) inflater.inflate(R.layout.entity_detail_header, null);
         final ListView listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
