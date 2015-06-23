@@ -4,7 +4,6 @@ package org.odk.collect.android.views;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
