@@ -1644,16 +1644,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                 return endView;
             case FormEntryController.EVENT_GROUP:
-                isGroup = true;
             case FormEntryController.EVENT_QUESTION:
-            
-                ODKView odkv = null;
+                ODKView odkv;
                 // should only be a group here if the event_group is a field-list
                 try {
                     odkv =
                         new ODKView(this, mFormController.getQuestionPrompts(),
                                 mFormController.getGroupsForCurrentIndex(),
-                                mFormController.getWidgetFactory(), this, isGroup);
+                                mFormController.getWidgetFactory(), this);
                     Log.i(t, "created view for group");
                 } catch (RuntimeException e) {
                     Logger.exception(e);
