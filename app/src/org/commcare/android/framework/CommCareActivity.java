@@ -42,6 +42,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.AudioControllerSingleton;
+import org.odk.collect.android.views.media.MediaEntity;
 
 import android.annotation.TargetApi;
 import android.util.Log;
@@ -54,8 +55,8 @@ import java.lang.reflect.Field;
  * 
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
-    AudioController, DialogController, OnGestureListener {
+public abstract class CommCareActivity<R> extends FragmentActivity
+        implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
@@ -65,9 +66,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     //fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
     private boolean shouldDismissDialog = true;
-    
+
+    /**
+     * Media that is currently being played. Restore-able throughout activity
+     * life-cycle.
+     */
+    private MediaEntity currentMediaEntity;
+
     private GestureDetector mGestureDetector;
-    
+
+    protected void saveAudioState() {
+        currentMediaEntity = AudioControllerSingleton.INSTANCE.getCurrMedia();
+    }
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -84,10 +94,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         if (stateHolder == null) {
             stateHolder = new StateFragment();
             fm.beginTransaction().add(stateHolder, "state").commit();
-        } else {
-            if (stateHolder.getPreviousState() != null) {
-                AudioControllerSingleton.INSTANCE.loadPreviousAudio(stateHolder.getPreviousState());
-            }
+        } else if (stateHolder.getPreviousState() != null) {
+            // point the controller to whatever media was loaded/playing in the
+            // last state.
+            currentMediaEntity = stateHolder.getPreviousState().currentMediaEntity;
+            AudioControllerSingleton.INSTANCE.setCurrent(currentMediaEntity);
         }
         
         if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
@@ -109,8 +120,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         
         mGestureDetector = new GestureDetector(this, this);
     }
-    
-    
+
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
@@ -185,9 +195,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         return false;
     }
     
-    private boolean visible = false;
-    
-
     /* (non-Javadoc)
      * @see android.app.Activity#onResume()
      */
@@ -201,7 +208,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             this.setTitle(getTitle(this, getActivityTitle()));
         }
 
-        visible = true;
         AudioControllerSingleton.INSTANCE.playPreviousAudio();
     }
     
@@ -211,14 +217,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     @Override
     protected void onPause() {
         super.onPause();
-        visible = false;
         if (AudioControllerSingleton.INSTANCE.isMediaLoaded()) {
-            AudioControllerSingleton.INSTANCE.saveEntityStateAndClear();
+            AudioControllerSingleton.INSTANCE.pauseCurrentMediaEntity();
         }
-    }
-    
-    protected boolean isInVisibleState() {
-        return visible;
     }
 
     /* (non-Javadoc)
@@ -228,7 +229,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     protected void onDestroy() {
         super.onDestroy();
         if (AudioControllerSingleton.INSTANCE.isMediaLoaded()) {
-            AudioControllerSingleton.INSTANCE.attemptSetStateToPauseForRenewal();
+            AudioControllerSingleton.INSTANCE.setPauseForRenewal();
         }
     }
 
@@ -367,9 +368,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         
     }
     
-    /**
-     * 
-     */
     public void cancelCurrentTask() {
         stateHolder.cancelTask();
     }

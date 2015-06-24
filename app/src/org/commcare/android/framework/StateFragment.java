@@ -76,6 +76,7 @@ public class StateFragment extends Fragment {
         super.onDetach();
         if(this.boundActivity != null) {
             lastActivity = boundActivity;
+            lastActivity.saveAudioState();
         }
         if(currentTask != null) {
             Log.i("CommCareUI", "Detaching activity from current task: " + this.currentTask);

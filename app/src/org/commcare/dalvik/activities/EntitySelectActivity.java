@@ -71,6 +71,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
+import org.odk.collect.android.views.media.AudioControllerSingleton;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -619,7 +620,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
                         updateSelectedItem(r, true);
                     }
-                    releaseCurrentMediaEntity();
+                    AudioControllerSingleton.INSTANCE.releaseCurrentMediaEntity();
                 }
                 return;
             }
