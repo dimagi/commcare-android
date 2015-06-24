@@ -158,22 +158,18 @@ public class ResizingImageView extends ImageView {
         }
     }
 
-    public Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double scaleFactor){
+    private Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor){
 
-        int wMode = MeasureSpec.getMode(widthMeasureSpec);
-        int hMode = MeasureSpec.getMode(heightMeasureSpec);
+        int maxWidth = mMaxWidth;
+        int maxHeight = mMaxHeight;
 
-        int maxWidth = wMode == MeasureSpec.AT_MOST
-                ? Math.min(MeasureSpec.getSize(widthMeasureSpec), mMaxWidth)
-                    : mMaxWidth;
-
-        int maxHeight = hMode == MeasureSpec.AT_MOST
-                ? Math.min(MeasureSpec.getSize(heightMeasureSpec), mMaxHeight)
-                    : mMaxHeight;
-
-        Pair<Integer,Integer> mPair = new Pair<Integer,Integer>(new Double(maxWidth * scaleFactor).intValue(), new Double(maxHeight * scaleFactor).intValue());
-
-        return mPair;
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
+            maxWidth = Math.min(MeasureSpec.getSize(widthMeasureSpec), mMaxWidth);
+        }
+        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
+            maxHeight = Math.min(MeasureSpec.getSize(heightMeasureSpec), mMaxHeight);
+        }
+        return new Pair<Integer,Integer>(new Double(maxWidth * imageScaleFactor).intValue(), new Double(maxHeight * imageScaleFactor).intValue());
     }
 
     /*
