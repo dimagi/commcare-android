@@ -46,7 +46,7 @@ public class WidgetFactory {
      * @param context Android context
      */
     public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context) {
-        QuestionWidget questionWidget = null;
+        QuestionWidget questionWidget;
         String appearance = fep.getAppearanceHint();
         switch (fep.getControlType()) {
             case Constants.CONTROL_INPUT:
@@ -166,8 +166,6 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_SELECT_MULTI:
-                appearance = fep.getAppearanceHint();
-
                 if (appearance != null && appearance.contains("compact")) {
                     int numColumns = -1;
                     try {
@@ -192,7 +190,7 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_TRIGGER:
-                questionWidget = new TriggerWidget(context, fep, !"minimal".equals(appearance));
+                questionWidget = new TriggerWidget(context, fep, appearance);
                 break;
             default:
                 questionWidget = new StringWidget(context, fep, false);
