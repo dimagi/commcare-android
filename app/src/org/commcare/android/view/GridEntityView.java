@@ -14,7 +14,6 @@ import org.commcare.util.GridStyle;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 
 import android.annotation.SuppressLint;

@@ -11,7 +11,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
-import org.odk.collect.android.views.media.AudioController;
 
 import android.app.Activity;
 import android.os.Bundle;

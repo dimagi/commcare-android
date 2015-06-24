@@ -36,7 +36,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 
 import java.util.HashSet;

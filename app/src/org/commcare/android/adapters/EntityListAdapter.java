@@ -31,7 +31,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.odk.collect.android.views.media.AudioController;
 
 import android.app.Activity;
 import android.database.DataSetObserver;

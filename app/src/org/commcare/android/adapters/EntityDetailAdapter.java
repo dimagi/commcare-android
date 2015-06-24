@@ -11,7 +11,6 @@ import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.view.EntityDetailView;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
-import org.odk.collect.android.views.media.AudioController;
 
 import android.content.Context;
 import android.database.DataSetObserver;
