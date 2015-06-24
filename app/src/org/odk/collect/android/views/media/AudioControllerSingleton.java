@@ -15,6 +15,7 @@ public enum AudioControllerSingleton {
     private static final String TAG = AudioControllerSingleton.class.getSimpleName();
 
     private MediaEntity currentEntity;
+    private AudioButton currentButton;
     private MediaState stateBeforePause;
 
     public void playPreviousAudio() {
@@ -43,6 +44,16 @@ public enum AudioControllerSingleton {
     public void setCurrent(MediaEntity e) {
         releaseCurrentMediaEntity();
         currentEntity = e;
+    }
+
+    public void setCurrentMediaAndButton(MediaEntity media,
+                                         AudioButton clickedButton) {
+        if (currentButton != null && currentButton != clickedButton) {
+            // reset the old button to not be playing
+            currentButton.setStateToReady();
+        }
+        currentButton = clickedButton;
+        setCurrent(media);
     }
 
     public void releaseCurrentMediaEntity() {

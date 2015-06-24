@@ -82,8 +82,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         // previously-existing app (before rotation, etc.)
         if (residingViewId != null) {
             MediaEntity currEntity = AudioControllerSingleton.INSTANCE.getCurrMedia();
-            Object oldId = currEntity.getId();
-            if (oldId.equals(residingViewId)) {
+            if (currEntity != null && residingViewId.equals(currEntity.getId())) {
                 restoreButtonFromEntity(currEntity);
             }
         }
@@ -107,12 +106,16 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
 
         MediaEntity currentEntity = AudioControllerSingleton.INSTANCE.getCurrMedia();
-        Object activeId = currentEntity.getId();
-        if (activeId.equals(newViewId)) {
+        if (currentEntity != null && currentEntity.getId().equals(newViewId)) {
             restoreButtonFromEntity(currentEntity);
         } else {
             resetButton(audioResource, newViewId, visible);
         }
+    }
+
+    public void setStateToReady() {
+        currentState = MediaState.Ready;
+        refreshAppearance();
     }
 
     void refreshAppearance() {
@@ -184,7 +187,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
                         }
 
                     });
-                    AudioControllerSingleton.INSTANCE.setCurrent(new MediaEntity(URI, player, residingViewId, currentState));
+                    AudioControllerSingleton.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), this);
                     startPlaying();
                 } catch (IOException e) {
                     String errorMsg = getContext().getString(R.string.audio_file_invalid);
