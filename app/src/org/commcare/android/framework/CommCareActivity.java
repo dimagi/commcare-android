@@ -40,7 +40,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.AudioControllerSingleton;
 import org.odk.collect.android.views.media.MediaEntity;
 
@@ -219,6 +218,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         super.onPause();
         if (AudioControllerSingleton.INSTANCE.isMediaLoaded()) {
             AudioControllerSingleton.INSTANCE.pauseCurrentMediaEntity();
+            AudioControllerSingleton.INSTANCE.setPauseForRenewal();
         }
     }
 
@@ -228,9 +228,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (AudioControllerSingleton.INSTANCE.isMediaLoaded()) {
-            AudioControllerSingleton.INSTANCE.setPauseForRenewal();
-        }
+
+        AudioControllerSingleton.INSTANCE.releaseCurrentMediaEntity();
     }
 
     /* (non-Javadoc)
