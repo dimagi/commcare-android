@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,7 +14,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -33,7 +31,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -91,12 +88,6 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
-
-import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Vector;
 
 import android.text.Spannable;
 
@@ -332,7 +323,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         if (syncButton != null)
-            setSyncText(CommCareApplication._().getSyncDisplayParameters(), null);
+            setSyncButtonText(CommCareApplication._().getSyncDisplayParameters(), null);
         View.OnClickListener syncButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 if (!isOnline()) {
@@ -1451,16 +1442,21 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
         }
 
-        //since these might have changed
-        if (startButton != null) startButton.setText(Localization.get(homeMessageKey));
-        if (logoutButton != null) logoutButton.setText(Localization.get(logoutMessageKey));
+        if (startButton != null) {
+            startButton.setText(Localization.get(homeMessageKey));
+        }
+        if (logoutButton != null) {
+            logoutButton.setText(Localization.get(logoutMessageKey));
+        }
+        if (syncButton != null) {
+            setSyncButtonText(syncDetails, syncKey);
+        }
 
         CharSequence syncTime;
         if (syncDetails.first == 0) {
             syncTime = Localization.get("home.sync.message.last.never");
         } else {
             syncTime = DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
-        }
 
         //TODO: Localize this all
         String message = "";
@@ -1469,7 +1465,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else if (syncDetails.second[0] > 1) {
             message += Localization.get("home.sync.message.unsent.plural", new String[]{String.valueOf(syncDetails.second[0])}) + "\n";
         }
-        setSyncText(syncDetails, syncKey);
 
         setIncompleteFormsText(syncDetails);
 
@@ -1512,7 +1507,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     }
 
-    private void setSyncText(Pair<Long, int[]> syncDetails, String syncTextKey) {
+    private void setSyncButtonText(Pair<Long, int[]> syncDetails, String syncTextKey) {
         if (syncTextKey == null) {
             syncTextKey = isDemoUser() ? "home.sync.demo" : "home.sync";
         }
@@ -1520,9 +1515,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncTextKey)}));
             syncButton.setNotificationText(syncIndicator);
             adapter.notifyDataSetChanged();
-
         } else {
-            if (syncButton != null) syncButton.setText(this.localize(syncTextKey));
+            syncButton.setText(this.localize(syncTextKey));
         }
     }
 
