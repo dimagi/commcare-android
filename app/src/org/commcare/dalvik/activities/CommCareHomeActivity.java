@@ -318,7 +318,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         if (syncButton != null)
-            setSyncText(CommCareApplication._().getSyncDisplayParameters(), null);
+            setSyncButtonText(CommCareApplication._().getSyncDisplayParameters(), null);
         View.OnClickListener syncButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 if (!isOnline()) {
@@ -1437,11 +1437,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
         }
 
-
-        //since these might have changed
-        if (startButton != null) startButton.setText(Localization.get(homeMessageKey));
-        if (logoutButton != null) logoutButton.setText(Localization.get(logoutMessageKey));
-
+        if (startButton != null) {
+            startButton.setText(Localization.get(homeMessageKey));
+        }
+        if (logoutButton != null) {
+            logoutButton.setText(Localization.get(logoutMessageKey));
+        }
+        if (syncButton != null) {
+            setSyncButtonText(syncDetails, syncKey);
+        }
 
         CharSequence syncTime = syncDetails.first == 0 ? Localization.get("home.sync.message.last.never") : DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
         //TODO: Localize this all
@@ -1451,7 +1455,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else if (syncDetails.second[0] > 1) {
             message += Localization.get("home.sync.message.unsent.plural", new String[]{String.valueOf(syncDetails.second[0])}) + "\n";
         }
-        setSyncText(syncDetails, syncKey);
 
         setIncompleteFormsText(syncDetails);
 
@@ -1495,7 +1498,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     }
 
-    private void setSyncText(Pair<Long, int[]> syncDetails, String syncTextKey) {
+    private void setSyncButtonText(Pair<Long, int[]> syncDetails, String syncTextKey) {
         if (syncTextKey == null) {
             syncTextKey = isDemoUser() ? "home.sync.demo" : "home.sync";
         }
@@ -1503,9 +1506,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncTextKey)}));
             syncButton.setNotificationText(syncIndicator);
             adapter.notifyDataSetChanged();
-
         } else {
-            if (syncButton != null) syncButton.setText(this.localize(syncTextKey));
+            syncButton.setText(this.localize(syncTextKey));
         }
     }
 
