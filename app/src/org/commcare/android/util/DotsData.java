@@ -36,7 +36,7 @@ public class DotsData {
         unchecked,
         full,
         empty,
-        partial;
+        partial
     }
     
     public static enum ReportType {
