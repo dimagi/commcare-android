@@ -26,8 +26,20 @@ import android.widget.Toast;
 public class AudioButton extends ImageButton implements OnClickListener {
     private final static String TAG = AudioController.class.getSimpleName();
 
+    /**
+     * Audio to load when play button pressed.
+     */
     private String URI;
+
+    /**
+     * Audio playback state, used for correctly displaying the button and
+     * dispatching playback logic on button presses.
+     */
     private MediaState currentState;
+
+    /**
+     * The id of the ListAdapter view that contains this button
+     */
     private ViewId residingViewId;
 
     /**
@@ -38,19 +50,32 @@ public class AudioButton extends ImageButton implements OnClickListener {
         setOnClickListener(this);
     }
 
+    /**
+     * @param URI audio to load when play button pressed
+     */
     public AudioButton(Context context, final String URI, boolean visible) {
         this(context, URI, null, visible);
     }
 
-    public AudioButton(Context context, String URI, ViewId id, boolean visible) {
+    /**
+     * @param URI     audio to load when play button pressed
+     * @param viewId  Id for the ListAdapter view that contains this button
+     * @param visible Should the button be visible?
+     */
+    public AudioButton(Context context, String URI,
+                       ViewId viewId, boolean visible) {
         super(context);
         setOnClickListener(this);
 
-        resetButton(URI, visible);
-
-        this.residingViewId = id;
+        resetButton(URI, viewId, visible);
     }
 
+    /**
+     * Set playback and display state to ready and update media URI.
+     *
+     * @param URI     audio to load when play button pressed
+     * @param visible Should the button be visible?
+     */
     public void resetButton(String URI, boolean visible) {
         this.URI = URI;
         this.currentState = MediaState.Ready;
@@ -66,25 +91,45 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
     }
 
-    void resetButton(String URI, ViewId id, boolean visible) {
+    /**
+     * Set playback and display state to ready and update media URI and the id
+     * of the button's containing view.
+     *
+     * @param URI     audio to load when play button pressed
+     * @param viewId  Set button's residing view id to this ListAdapter view id.
+     * @param visible Should the button be visible?
+     */
+    void resetButton(String URI, ViewId viewId, boolean visible) {
         resetButton(URI, visible);
-        this.residingViewId = id;
+        this.residingViewId = viewId;
     }
 
-    public void modifyButtonForNewView(ViewId newViewId, String audioResource,
+    /**
+     * Setup button using the AudioController's state if containing view ids
+     * match-up between the button and the controller. Otherwise, setup the
+     * button using the provided arguments.
+     *
+     * @param viewId  Set button's residing view id to this ListAdapter view id.
+     * @param URI     audio to load when play button pressed
+     * @param visible Should the button be visible?
+     */
+    public void modifyButtonForNewView(ViewId viewId, String URI,
                                        boolean visible) {
         if (AudioController.INSTANCE.isMediaLoaded() &&
-                AudioController.INSTANCE.getMediaViewId().equals(newViewId)) {
-            // The view id of this button and that of the audio being played by
-            // the controller match. Hence, load media info from the controller
-            // into this button.
+                AudioController.INSTANCE.getMediaViewId().equals(viewId)) {
+            // The containing view's id of this button and that of the audio
+            // being played by the controller match. Hence, load media info
+            // from the controller into this button.
             this.URI = AudioController.INSTANCE.getMediaUri();
             this.residingViewId = AudioController.INSTANCE.getMediaViewId();
             this.currentState = AudioController.INSTANCE.getMediaState();
             AudioController.INSTANCE.registerPlaybackButton(this);
             refreshAppearance();
         } else {
-            resetButton(audioResource, newViewId, visible);
+            // the containing view's id of the button doesn't match the audio
+            // controller, so just setup the button normally using the provided
+            // arguments
+            resetButton(URI, viewId, visible);
         }
     }
 
@@ -133,7 +178,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         String audioFilename;
         try {
             audioFilename =
-                ReferenceManager._().DeriveReference(URI).getLocalURI();
+                    ReferenceManager._().DeriveReference(URI).getLocalURI();
         } catch (InvalidReferenceException e) {
             Log.e(TAG, "Invalid reference exception");
             e.printStackTrace();
@@ -144,7 +189,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         if (!audioFile.exists()) {
             // We should have an audio clip, but the file doesn't exist.
             String errorMsg =
-                getContext().getString(R.string.file_missing, audioFile);
+                    getContext().getString(R.string.file_missing, audioFile);
             Log.e(TAG, errorMsg);
             Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
             return "";
@@ -159,7 +204,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
             return;
         }
 
-        switch(currentState) {
+        switch (currentState) {
             case Ready:
                 MediaPlayer player = new MediaPlayer();
                 try {
@@ -176,7 +221,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
                     startPlaying();
                 } catch (IOException e) {
                     String errorMsg =
-                        getContext().getString(R.string.audio_file_invalid);
+                            getContext().getString(R.string.audio_file_invalid);
                     Log.e(TAG, errorMsg);
                     Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
