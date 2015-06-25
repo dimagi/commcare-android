@@ -34,7 +34,6 @@ import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 /*
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.

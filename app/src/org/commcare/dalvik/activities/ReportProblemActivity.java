@@ -60,9 +60,9 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
             username = "unknown_username";
         }
         String version = CommCareApplication._().getCurrentVersionString();
+
         String domain = prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
         String postURL = prefs.getString("PostURL", null);
-
         return "Problem reported via CommCareODK. " +
                 "\n User: " + username +
                 "\n Domain: " + domain +

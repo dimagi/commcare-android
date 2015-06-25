@@ -76,7 +76,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
     IntentFilter mIntentFilter;
 
-    public enum wdState{send,receive,submit};
+    public enum wdState{send,receive,submit}
 
     Button discoverButton;
     Button sendButton;
