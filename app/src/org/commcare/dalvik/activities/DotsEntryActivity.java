@@ -493,8 +493,8 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
                 empty = false;
             }
         }
-        if(empty) { return null; };
-        
+        if(empty) { return null; }
+
         Calendar c = Calendar.getInstance();
         c.setTime(dotsData.anchor());
         c.roll(Calendar.DATE, dotsData.days().length - dayIndex + 1);

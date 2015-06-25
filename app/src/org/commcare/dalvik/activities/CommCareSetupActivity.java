@@ -73,7 +73,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * error: Installation or Upgrade has failed, offer to retry or restart. upgrade/install differentiated with inUpgradeMode boolean
      */
     
-    public enum UiState { advanced, basic, ready, error, upgrade};
+    public enum UiState { advanced, basic, ready, error, upgrade}
+
     public UiState uiState = UiState.basic;
     
     public static final int MODE_BASIC = Menu.FIRST;
@@ -683,7 +684,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
-        String checkboxText = Localization.get("updates.keep.trying");;
+        String checkboxText = Localization.get("updates.keep.trying");
         CustomProgressDialog lastDialog = getCurrentDialog();
         boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
         dialog.addCheckbox(checkboxText, isChecked);

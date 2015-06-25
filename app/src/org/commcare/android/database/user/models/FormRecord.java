@@ -92,7 +92,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         
         this.uuid = uuid;
         this.lastModified = lastModified;
-        if(lastModified == null) { lastModified = new Date(); } ;
+        if(lastModified == null) { lastModified = new Date(); }
     }
     
     /**

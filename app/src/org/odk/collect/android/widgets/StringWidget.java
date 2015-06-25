@@ -15,11 +15,6 @@
 package org.odk.collect.android.widgets;
 
 import org.commcare.dalvik.R;
-import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
-import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
-import org.javarosa.form.api.FormEntryPrompt;
 
 import android.content.Context;
 import android.text.Editable;
@@ -37,7 +32,6 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TableLayout;
 
 import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
