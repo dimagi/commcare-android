@@ -21,15 +21,17 @@ import android.widget.Toast;
  * @author ctsims
  * @author carlhartung
  * @author amstone326
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 public class AudioButton extends ImageButton implements OnClickListener {
-    private final static String t = "AudioButton";
+    private final static String TAG = AudioController.class.getSimpleName();
+
     private String URI;
     private MediaState currentState;
-    private Object residingViewId;
+    private ViewId residingViewId;
 
     /**
-     * Used by inflater.
+     * Used by media inflater.
      */
     public AudioButton(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -40,7 +42,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         this(context, URI, null, visible);
     }
 
-    public AudioButton(Context context, String URI, Object id, boolean visible) {
+    public AudioButton(Context context, String URI, ViewId id, boolean visible) {
         super(context);
         setOnClickListener(this);
 
@@ -64,19 +66,18 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
     }
 
-    void resetButton(String URI, Object id, boolean visible) {
+    void resetButton(String URI, ViewId id, boolean visible) {
         resetButton(URI, visible);
         this.residingViewId = id;
     }
 
-    public String getSource() {
-        return URI;
-    }
-
-    public void modifyButtonForNewView(Object newViewId, String audioResource,
+    public void modifyButtonForNewView(ViewId newViewId, String audioResource,
                                        boolean visible) {
         if (AudioController.INSTANCE.isMediaLoaded() &&
                 AudioController.INSTANCE.getMediaViewId().equals(newViewId)) {
+            // The view id of this button and that of the audio being played by
+            // the controller match. Hence, load media info from the controller
+            // into this button.
             this.URI = AudioController.INSTANCE.getMediaUri();
             this.residingViewId = AudioController.INSTANCE.getMediaViewId();
             this.currentState = AudioController.INSTANCE.getMediaState();
@@ -87,11 +88,18 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
     }
 
+    /**
+     * Set button appearance and playback state to 'ready'. Used when another
+     * button is pressed and this one is reset.
+     */
     public void setStateToReady() {
         currentState = MediaState.Ready;
         refreshAppearance();
     }
 
+    /**
+     * Change button appearance to match the playback state.
+     */
     void refreshAppearance() {
         switch (currentState) {
             case Ready:
@@ -115,17 +123,19 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private String getAudioFilename() {
         if (URI == null) {
             // No audio file specified
-            Log.e(t, "No audio file was specified");
-            Toast.makeText(getContext(), getContext().getString(R.string.audio_file_error),
-                       Toast.LENGTH_LONG).show();
+            Log.e(TAG, "No audio file was specified");
+            Toast.makeText(getContext(),
+                    getContext().getString(R.string.audio_file_error),
+                    Toast.LENGTH_LONG).show();
             return "";
         }
 
         String audioFilename;
         try {
-            audioFilename = ReferenceManager._().DeriveReference(URI).getLocalURI();
+            audioFilename =
+                ReferenceManager._().DeriveReference(URI).getLocalURI();
         } catch (InvalidReferenceException e) {
-            Log.e(t, "Invalid reference exception");
+            Log.e(TAG, "Invalid reference exception");
             e.printStackTrace();
             return "";
         }
@@ -133,8 +143,9 @@ public class AudioButton extends ImageButton implements OnClickListener {
         File audioFile = new File(audioFilename);
         if (!audioFile.exists()) {
             // We should have an audio clip, but the file doesn't exist.
-            String errorMsg = getContext().getString(R.string.file_missing, audioFile);
-            Log.e(t, errorMsg);
+            String errorMsg =
+                getContext().getString(R.string.file_missing, audioFile);
+            Log.e(TAG, errorMsg);
             Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
             return "";
         }
@@ -164,8 +175,9 @@ public class AudioButton extends ImageButton implements OnClickListener {
                     AudioController.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), this);
                     startPlaying();
                 } catch (IOException e) {
-                    String errorMsg = getContext().getString(R.string.audio_file_invalid);
-                    Log.e(t, errorMsg);
+                    String errorMsg =
+                        getContext().getString(R.string.audio_file_invalid);
+                    Log.e(TAG, errorMsg);
                     Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
@@ -177,10 +189,12 @@ public class AudioButton extends ImageButton implements OnClickListener {
             case Playing:
                 pausePlaying();
                 break;
+            default:
+                Log.w(TAG, "Current playback state set to unexpected value");
         }
     }
 
-    void startPlaying() {
+    private void startPlaying() {
         AudioController.INSTANCE.playCurrentMediaEntity();
 
         currentState = MediaState.Playing;
@@ -194,7 +208,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         refreshAppearance();
     }
 
-    void pausePlaying() {
+    private void pausePlaying() {
         AudioController.INSTANCE.pauseCurrentMediaEntity();
 
         currentState = MediaState.Paused;

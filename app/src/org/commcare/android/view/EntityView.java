@@ -75,8 +75,7 @@ public class EntityView extends LinearLayout {
         
         for (int i = 0; i < views.length; ++i) {
             if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                Object uniqueId = new ViewId(rowId, i, false);
-                views[i] = initView(e.getField(i), forms[i], uniqueId, e.getSortField(i));
+                views[i] = initView(e.getField(i), forms[i], new ViewId(rowId, i, false), e.getSortField(i));
                 views[i].setId(i);
             }
         }
@@ -120,7 +119,7 @@ public class EntityView extends LinearLayout {
      * Creates up a new view in the view with ID uniqueid, based upon
      * the entity's text and form
      */
-    private View initView(Object data, String form, Object uniqueId, String sortField) {
+    private View initView(Object data, String form, ViewId uniqueId, String sortField) {
         View retVal;
         if (FORM_IMAGE.equals(form)) {
             ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);

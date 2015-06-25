@@ -13,18 +13,18 @@ import android.media.MediaPlayer;
 public class MediaEntity {
 
     private final String source;
-    private final Object idOfOriginView;
+    private final ViewId idOfOriginView;
     private final MediaPlayer player;
     private MediaState MediaState;
 
-    public MediaEntity(String source, MediaPlayer player, Object id, MediaState state) {
+    public MediaEntity(String source, MediaPlayer player, ViewId id, MediaState state) {
         this.player = player;
         this.source = source;
         this.idOfOriginView = id;
         this.MediaState = state;
     }
 
-    public Object getId() {
+    public ViewId getId() {
         return idOfOriginView;
     }
 

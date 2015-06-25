@@ -139,7 +139,7 @@ public enum AudioController {
         return currentEntity != null;
     }
 
-    protected Object getMediaViewId() {
+    protected ViewId getMediaViewId() {
         return currentEntity.getId();
     }
 
