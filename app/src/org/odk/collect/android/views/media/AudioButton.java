@@ -38,7 +38,8 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private MediaState currentState;
 
     /**
-     * The id of the ListAdapter view that contains this button
+     * The id of the ListAdapter view that contains this button. Should be null
+     * if the button resides in a form entry question.
      */
     private ViewId residingViewId;
 
