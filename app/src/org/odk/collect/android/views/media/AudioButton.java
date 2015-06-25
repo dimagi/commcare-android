@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -74,7 +73,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         this.URI = currentEntity.getSource();
         this.residingViewId = currentEntity.getId();
         this.currentState = currentEntity.getState();
-        AudioControllerSingleton.INSTANCE.setButton(this);
+        AudioController.INSTANCE.setButton(this);
         refreshAppearance();
     }
 
@@ -88,7 +87,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
             throw new RuntimeException("shouldn't happen");
         }
 
-        MediaEntity currentEntity = AudioControllerSingleton.INSTANCE.getCurrMedia();
+        MediaEntity currentEntity = AudioController.INSTANCE.getCurrMedia();
         if (currentEntity != null && currentEntity.getId().equals(newViewId)) {
             restoreButtonFromEntity(currentEntity);
         } else {
@@ -170,7 +169,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
                         }
 
                     });
-                    AudioControllerSingleton.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), this);
+                    AudioController.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), this);
                     startPlaying();
                 } catch (IOException e) {
                     String errorMsg = getContext().getString(R.string.audio_file_invalid);
@@ -190,21 +189,21 @@ public class AudioButton extends ImageButton implements OnClickListener {
     }
 
     void startPlaying() {
-        AudioControllerSingleton.INSTANCE.playCurrentMediaEntity();
+        AudioController.INSTANCE.playCurrentMediaEntity();
 
         currentState = MediaState.Playing;
         refreshAppearance();
     }
 
     public void endPlaying() {
-        AudioControllerSingleton.INSTANCE.releaseCurrentMediaEntity();
+        AudioController.INSTANCE.releaseCurrentMediaEntity();
 
         currentState = MediaState.Ready;
         refreshAppearance();
     }
 
     void pausePlaying() {
-        AudioControllerSingleton.INSTANCE.pauseCurrentMediaEntity();
+        AudioController.INSTANCE.pauseCurrentMediaEntity();
 
         currentState = MediaState.Paused;
         refreshAppearance();

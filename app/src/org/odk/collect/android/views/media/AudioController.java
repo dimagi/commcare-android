@@ -9,10 +9,10 @@ import android.util.Log;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public enum AudioControllerSingleton {
+public enum AudioController {
     INSTANCE;
 
-    private static final String TAG = AudioControllerSingleton.class.getSimpleName();
+    private static final String TAG = AudioController.class.getSimpleName();
 
     private MediaEntity currentEntity;
     private AudioButton currentButton;

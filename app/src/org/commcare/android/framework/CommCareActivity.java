@@ -40,8 +40,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.odk.collect.android.views.media.AudioControllerSingleton;
-import org.odk.collect.android.views.media.MediaEntity;
+import org.odk.collect.android.views.media.AudioController;
 
 import android.annotation.TargetApi;
 import android.util.Log;
@@ -87,7 +86,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             fm.beginTransaction().add(stateHolder, "state").commit();
             // entering new activity, not just rotating one, so release old
             // media
-            AudioControllerSingleton.INSTANCE.releaseCurrentMediaEntity();
+            AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
 
         if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
@@ -197,7 +196,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             this.setTitle(getTitle(this, getActivityTitle()));
         }
 
-        AudioControllerSingleton.INSTANCE.playPreviousAudio();
+        AudioController.INSTANCE.playPreviousAudio();
     }
     
     /* (non-Javadoc)
@@ -206,9 +205,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onPause() {
         super.onPause();
-        if (AudioControllerSingleton.INSTANCE.isMediaLoaded()) {
-            AudioControllerSingleton.INSTANCE.pauseCurrentMediaEntity();
-            AudioControllerSingleton.INSTANCE.setPauseForRenewal();
+        if (AudioController.INSTANCE.isMediaLoaded()) {
+            AudioController.INSTANCE.pauseCurrentMediaEntity();
+            AudioController.INSTANCE.setPauseForRenewal();
         }
     }
 
