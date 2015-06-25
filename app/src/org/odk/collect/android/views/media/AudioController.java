@@ -5,7 +5,9 @@ import android.util.Log;
 
 /**
  * Audio playback is delegated through this singleton class since only one
- * track should play at a time.
+ * track should play at a time. Audio buttons invoke this controller on button
+ * presses. When activities that are playing audio are paused or unloaded they
+ * pause or release the audio through this controller.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
