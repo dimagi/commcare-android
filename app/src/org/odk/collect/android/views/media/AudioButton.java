@@ -69,27 +69,19 @@ public class AudioButton extends ImageButton implements OnClickListener {
         this.residingViewId = id;
     }
 
-    void restoreButtonFromEntity(MediaEntity currentEntity) {
-        this.URI = currentEntity.getSource();
-        this.residingViewId = currentEntity.getId();
-        this.currentState = currentEntity.getState();
-        AudioController.INSTANCE.setButton(this);
-        refreshAppearance();
-    }
-
     public String getSource() {
         return URI;
     }
 
     public void modifyButtonForNewView(Object newViewId, String audioResource,
                                        boolean visible) {
-        if (residingViewId == null) {
-            throw new RuntimeException("shouldn't happen");
-        }
-
-        MediaEntity currentEntity = AudioController.INSTANCE.getCurrMedia();
-        if (currentEntity != null && currentEntity.getId().equals(newViewId)) {
-            restoreButtonFromEntity(currentEntity);
+        if (AudioController.INSTANCE.isMediaLoaded() &&
+                AudioController.INSTANCE.getMediaViewId().equals(newViewId)) {
+            this.URI = AudioController.INSTANCE.getMediaUri();
+            this.residingViewId = AudioController.INSTANCE.getMediaViewId();
+            this.currentState = AudioController.INSTANCE.getMediaState();
+            AudioController.INSTANCE.registerPlaybackButton(this);
+            refreshAppearance();
         } else {
             resetButton(audioResource, newViewId, visible);
         }

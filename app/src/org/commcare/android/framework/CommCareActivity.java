@@ -205,18 +205,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onPause() {
         super.onPause();
-        if (AudioController.INSTANCE.isMediaLoaded()) {
-            AudioController.INSTANCE.pauseCurrentMediaEntity();
-            AudioController.INSTANCE.setPauseForRenewal();
-        }
-    }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onDestroy()
-     */
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+        AudioController.INSTANCE.systemInducedPause();
     }
 
     /* (non-Javadoc)
