@@ -49,6 +49,10 @@ public enum AudioControllerSingleton {
         currentEntity = e;
     }
 
+    public void setButton(AudioButton b) {
+        currentButton = b;
+    }
+
     public void setCurrentMediaAndButton(MediaEntity media,
                                          AudioButton clickedButton) {
         if (currentButton != null && currentButton != clickedButton) {

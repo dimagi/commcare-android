@@ -31,7 +31,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
 
     /**
      * Used by inflater.
-     * TODO PLM: unclear what type of logic should be here
      */
     public AudioButton(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -71,27 +70,11 @@ public class AudioButton extends ImageButton implements OnClickListener {
         this.residingViewId = id;
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        /*As soon as this button is attached to the Window we want it to "grab" the handle
-        to the currently playing media. This will have the side effect of dropping the handle
-        from anything else that was currently holding it. Only one View at a time should
-        be in control of the media handle.*/
-        // Check if the button in this view had media assigned to it in a
-        // previously-existing app (before rotation, etc.)
-        if (residingViewId != null) {
-            MediaEntity currEntity = AudioControllerSingleton.INSTANCE.getCurrMedia();
-            if (currEntity != null && residingViewId.equals(currEntity.getId())) {
-                restoreButtonFromEntity(currEntity);
-            }
-        }
-    }
-
     void restoreButtonFromEntity(MediaEntity currentEntity) {
         this.URI = currentEntity.getSource();
         this.residingViewId = currentEntity.getId();
         this.currentState = currentEntity.getState();
+        AudioControllerSingleton.INSTANCE.setButton(this);
         refreshAppearance();
     }
 
