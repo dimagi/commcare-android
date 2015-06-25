@@ -1502,10 +1502,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             syncTextKey = isDemoUser() ? "home.sync.demo" : "home.sync";
         }
         if (syncDetails.second[0] > 0) {
-            if (syncButton != null) {
-                Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncTextKey)}));
-                syncButton.setNotificationText(syncIndicator);
-            }
+            Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncTextKey)}));
+            syncButton.setNotificationText(syncIndicator);
             adapter.notifyDataSetChanged();
         } else {
             syncButton.setText(this.localize(syncTextKey));
