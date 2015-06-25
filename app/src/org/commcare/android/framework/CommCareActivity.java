@@ -66,17 +66,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private boolean inTaskTransition;
     private boolean shouldDismissDialog = true;
 
-    /**
-     * Media that is currently being played. Restore-able throughout activity
-     * life-cycle.
-     */
-    private MediaEntity currentMediaEntity;
-
     private GestureDetector mGestureDetector;
 
-    protected void saveAudioState() {
-        currentMediaEntity = AudioControllerSingleton.INSTANCE.getCurrMedia();
-    }
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -89,17 +80,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         
         stateHolder = (StateFragment) fm.findFragmentByTag("state");
         
-        // If the state holder is null, create a new one for this activity
+        // stateHolder and its previous state aren't null if the activity is
+        // being created due to an orientation change.
         if (stateHolder == null) {
             stateHolder = new StateFragment();
             fm.beginTransaction().add(stateHolder, "state").commit();
-        } else if (stateHolder.getPreviousState() != null) {
-            // point the controller to whatever media was loaded/playing in the
-            // last state.
-            currentMediaEntity = stateHolder.getPreviousState().currentMediaEntity;
-            AudioControllerSingleton.INSTANCE.setCurrent(currentMediaEntity);
+            // entering new activity, not just rotating one, so release old
+            // media
+            AudioControllerSingleton.INSTANCE.releaseCurrentMediaEntity();
         }
-        
+
         if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
             this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
             loadFields();
@@ -228,8 +218,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        AudioControllerSingleton.INSTANCE.releaseCurrentMediaEntity();
     }
 
     /* (non-Javadoc)

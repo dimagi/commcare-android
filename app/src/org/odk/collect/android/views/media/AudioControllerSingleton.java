@@ -42,6 +42,9 @@ public enum AudioControllerSingleton {
     }
 
     public void setCurrent(MediaEntity e) {
+        if (e == currentEntity) {
+            return;
+        }
         releaseCurrentMediaEntity();
         currentEntity = e;
     }

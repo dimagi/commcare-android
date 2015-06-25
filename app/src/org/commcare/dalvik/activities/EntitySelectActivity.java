@@ -298,7 +298,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             adapter = oldActivity.adapter;
             // on orientation change
             if(adapter != null) {
-                // TODO PLM !!!! adapter.setController(this);
                 ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
                 
