@@ -190,7 +190,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
     }
 
     void startPlaying() {
-        AudioDebugUtils.logAction("start", URI);
         AudioControllerSingleton.INSTANCE.playCurrentMediaEntity();
 
         currentState = MediaState.Playing;
@@ -198,7 +197,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
     }
 
     public void endPlaying() {
-        AudioDebugUtils.logAction("stop", URI);
         AudioControllerSingleton.INSTANCE.releaseCurrentMediaEntity();
 
         currentState = MediaState.Ready;
@@ -206,7 +204,6 @@ public class AudioButton extends ImageButton implements OnClickListener {
     }
 
     void pausePlaying() {
-        AudioDebugUtils.logAction("pause", URI);
         AudioControllerSingleton.INSTANCE.pauseCurrentMediaEntity();
 
         currentState = MediaState.Paused;
