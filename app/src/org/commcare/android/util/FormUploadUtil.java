@@ -354,7 +354,7 @@ public class FormUploadUtil {
     }
 
     /**
-     * Use the file extension or contents to determine if it has an audio,
+     * Use the file's extension to determine if it has an audio,
      * video, or image mimetype.
      *
      * @return true if the file has an audio, image, or video mimetype
@@ -362,32 +362,16 @@ public class FormUploadUtil {
     private static boolean isAudioVisualMimeType(File file) {
         MimeTypeMap mtm = MimeTypeMap.getSingleton();
         String[] filenameSegments = file.getName().split("\\.");
-        String mimeType;
         if (filenameSegments.length > 1) {
             // use the file extension to determine the mimetype
             String ext = filenameSegments[filenameSegments.length - 1];
-            mimeType = mtm.getMimeTypeFromExtension(ext);
-        } else {
-            // try to guess the mimetype from the file contents
-            InputStream in = null;
-            try {
-                try {
-                    in = new BufferedInputStream(new FileInputStream(file));
-                    mimeType = URLConnection.guessContentTypeFromStream(in);
-                } catch (FileNotFoundException e) {
-                    return false;
-                } finally {
-                    if (in != null) {
-                        in.close();
-                    }
-                }
-            } catch (IOException e) {
-                return false;
-            }
+            String mimeType = mtm.getMimeTypeFromExtension(ext);
+
+            return (mimeType.startsWith("audio") ||
+                    mimeType.startsWith("image") ||
+                    mimeType.startsWith("video"));
         }
 
-        return (mimeType.startsWith("audio") ||
-                mimeType.startsWith("image") ||
-                mimeType.startsWith("video"));
+        return false;
     }
 }
