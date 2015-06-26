@@ -419,7 +419,7 @@ public class AndroidSessionWrapper {
                     }
                     
                     wrapper = new AndroidSessionWrapper(platform);
-                    wrapper.session.setCommand(key);
+                    wrapper.session.setCommand(platform.getModuleNameForEntry(e));
                     wrapper.session.setCommand(e.getCommandId());
                     wrapper.session.setDatum(datum.getDataId(), selectedValue);
                 }
