@@ -367,9 +367,10 @@ public class FormUploadUtil {
             String ext = filenameSegments[filenameSegments.length - 1];
             String mimeType = mtm.getMimeTypeFromExtension(ext);
 
-            return (mimeType.startsWith("audio") ||
-                    mimeType.startsWith("image") ||
-                    mimeType.startsWith("video"));
+            return (mimeType != null) &&
+                    (mimeType.startsWith("audio") ||
+                            mimeType.startsWith("image") ||
+                            mimeType.startsWith("video"));
         }
 
         return false;
