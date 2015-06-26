@@ -27,6 +27,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.webkit.MimeTypeMap;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
@@ -49,7 +50,7 @@ import java.io.File;
  */
 
 public class AudioWidget extends QuestionWidget implements IBinaryWidget {
-    private final static String t = "MediaWidget";
+    private static final String TAG = AudioWidget.class.getSimpleName();
 
     private final Button mCaptureButton;
     private final Button mPlayButton;
@@ -98,19 +99,27 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
             }
         });
 
-        // setup capture button
+        // setup audio filechooser button
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
                 mAnswerFontsize,
                 !prompt.isReadOnly());
 
-        // launch capture intent on click
+        // launch audio filechooser intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MimeTypeMap mtm = MimeTypeMap.getSingleton();
+                String [] extraMimes =
+                    new String[] {
+                            // mtm.getMimeTypeFromExtension("mp3"),
+                            mtm.getMimeTypeFromExtension("flac")
+                        };
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
+                i.putExtra(Intent.EXTRA_MIME_TYPES, extraMimes);
+                // i.setType("audio/mpeg3|audio/wav|audio/mpeg|audio/ogg|audio/flac");
                 mWaitingForData = true;
                 try {
                     ((Activity)getContext())
@@ -176,7 +185,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         // get the file path and delete the file
         File f = new File(mInstanceFolder + "/" + mBinaryName);
         if (!f.delete()) {
-            Log.i(t, "Failed to delete " + f);
+            Log.i(TAG, "Failed to delete " + f);
         }
 
         // clean up variables
@@ -234,9 +243,9 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
             Uri AudioURI =
                     getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(t, "Inserting AUDIO returned uri = " + AudioURI.toString());
+            Log.i(TAG, "Inserting AUDIO returned uri = " + AudioURI.toString());
         } else {
-            Log.e(t, "Inserting Audio file FAILED");
+            Log.e(TAG, "Inserting Audio file FAILED");
         }
 
         mBinaryName = newAudio.getName();
