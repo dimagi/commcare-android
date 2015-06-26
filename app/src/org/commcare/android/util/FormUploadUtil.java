@@ -1,9 +1,13 @@
 package org.commcare.android.util;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLConnection;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -28,6 +32,7 @@ import org.javarosa.core.services.Logger;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
@@ -54,9 +59,9 @@ public class FormUploadUtil {
 
     private static long MAX_BYTES = (5 * 1048576) - 1024;
     private static final String[] SUPPORTED_FILE_EXTS =
-            {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3", ".wav",
-                    ".amr", ".mp4", ".3gp2", ".mpg4", ".mpeg4", ".m4v", ".mpg", ".mpeg",
-                    ".qcp"};
+            {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3",
+                    ".wav", ".amr", ".mp4", ".3gp2", ".mpg4", ".mpeg4",
+                    ".m4v", ".mpg", ".mpeg", ".qcp"};
 
     public static Cipher getDecryptCipher(SecretKeySpec key) {
         Cipher cipher;
@@ -65,18 +70,48 @@ public class FormUploadUtil {
             cipher.init(Cipher.DECRYPT_MODE, key);
             return cipher;
             //TODO: Something smart here;
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException |
+                NoSuchPaddingException | InvalidKeyException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    /**
+     * Send unencrypted data to the server without user facing progress
+     * reporting.
+     *
+     * @param submissionNumber For progress reporting
+     * @param folder           All supported files in this folder will be
+     *                         attached to the submission
+     * @param url              Submission server url
+     * @param user             Used to build the http post
+     * @return Submission status code
+     * @throws FileNotFoundException Is raised if xml file isn't found on the
+     *                               file-system
+     */
     public static long sendInstance(int submissionNumber, File folder,
                                     String url, User user)
             throws FileNotFoundException {
-        return FormUploadUtil.sendInstance(submissionNumber, folder, null, url, null, user);
+        return FormUploadUtil.sendInstance(submissionNumber, folder, null,
+                url, null, user);
     }
 
+    /**
+     * Send data to the server, encrypting xml files and reporting progress
+     * along the way.
+     *
+     * @param submissionNumber For progress reporting
+     * @param folder           All supported files in this folder will be
+     *                         attached to the submission
+     * @param key              For encrypting xml files
+     * @param url              Submission server url
+     * @param listener         Used to report progress to the calling task
+     * @param user             Used to build the http post
+     * @return Submission status code
+     * @throws FileNotFoundException Is raised if xml file isn't found on the
+     *                               file-system
+     */
     public static long sendInstance(int submissionNumber, File folder,
                                     SecretKeySpec key, String url,
                                     AsyncTask listener, User user)
@@ -116,7 +151,8 @@ public class FormUploadUtil {
         }
 
         // mime post
-        MultipartEntity entity = new DataSubmissionEntity(myListener, submissionNumber);
+        MultipartEntity entity =
+                new DataSubmissionEntity(myListener, submissionNumber);
         if (!buildMultipartEntity(entity, key, files)) {
             return RECORD_FAILURE;
         }
@@ -185,16 +221,17 @@ public class FormUploadUtil {
     /**
      * Validate the content body of the XML submission file.
      *
-     * TODO: this should really be the responsibility of the form record, not of the
-     * submission process, persay.
+     * TODO: this should really be the responsibility of the form record, not
+     * of the submission process, persay.
      *
-     * NOTE: this is a shallow validation (everything should be more or else constant time).
-     * Throws an exception if the file is gone because that's a common issue that gets caught
-     * to check if storage got removed
+     * NOTE: this is a shallow validation (everything should be more or else
+     * constant time).  Throws an exception if the file is gone because that's
+     * a common issue that gets caught to check if storage got removed
      *
-     * @param f
-     * @return
-     * @throws FileNotFoundException
+     * @param f xml file to check
+     * @return false if the file is empty; otherwise true
+     * @throws FileNotFoundException file in question isn't found on the
+     *                               file-system
      */
     private static boolean validateSubmissionFile(File f)
             throws FileNotFoundException {
@@ -202,7 +239,8 @@ public class FormUploadUtil {
             throw new FileNotFoundException("Submission file: " +
                     f.getAbsolutePath());
         }
-        //Gotta check f exists here since f.length returns 0 if the file isn't there for some reason.
+        // Gotta check f exists here since f.length returns 0 if the file isn't
+        // there for some reason.
         if (f.length() == 0 && f.exists()) {
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
                     "Submission body has no content at: " + f.getAbsolutePath());
@@ -212,13 +250,17 @@ public class FormUploadUtil {
         return true;
     }
 
+    /**
+     * @return The aggregated size in bytes the files of supported extension
+     * type.
+     */
     private static long estimateUploadBytes(File[] files) {
         long bytes = 0;
         for (File file : files) {
             //Make sure we'll be sending it
             boolean supported = false;
             for (String ext : SUPPORTED_FILE_EXTS) {
-                if (file.getName().endsWith(ext)) {
+                if (file.getName().endsWith(ext) || isAudioVisualMimeType(file)) {
                     supported = true;
                     break;
                 }
@@ -228,17 +270,22 @@ public class FormUploadUtil {
             }
 
             bytes += file.length();
-            Log.d(TAG, "Added file: " + file.getName() + ". Bytes to send: " + bytes);
+            Log.d(TAG, "Added file: " + file.getName() +
+                    ". Bytes to send: " + bytes);
         }
         return bytes;
     }
 
     /**
-     * @param entity
-     * @param key
-     * @param files
-     * @return
-     * @throws FileNotFoundException
+     * Add files of supported type to the multipart entity, encrypting xml
+     * files.
+     *
+     * @param entity Add files to this
+     * @param key    Used to encrypt xml files
+     * @param files  The files to be added to the entity,
+     * @return false if invalid xml files are found; otherwise true.
+     * @throws FileNotFoundException Is raised when an xml doesn't exist on the
+     *                               file-system
      */
     private static boolean buildMultipartEntity(MultipartEntity entity,
                                                 SecretKeySpec key,
@@ -290,7 +337,7 @@ public class FormUploadUtil {
                 } else {
                     Log.i(TAG, "file " + f.getName() + " is too big");
                 }
-            } else if (supported) {
+            } else if (supported || isAudioVisualMimeType(f)) {
                 fb = new FileBody(f, "application/octet-stream");
                 if (fb.getContentLength() <= MAX_BYTES) {
                     entity.addPart(f.getName(), fb);
@@ -304,5 +351,43 @@ public class FormUploadUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * Use the file extension or contents to determine if it has an audio,
+     * video, or image mimetype.
+     *
+     * @return true if the file has an audio, image, or video mimetype
+     */
+    private static boolean isAudioVisualMimeType(File file) {
+        MimeTypeMap mtm = MimeTypeMap.getSingleton();
+        String[] filenameSegments = file.getName().split("\\.");
+        String mimeType;
+        if (filenameSegments.length > 1) {
+            // use the file extension to determine the mimetype
+            String ext = filenameSegments[filenameSegments.length - 1];
+            mimeType = mtm.getMimeTypeFromExtension(ext);
+        } else {
+            // try to guess the mimetype from the file contents
+            InputStream in = null;
+            try {
+                try {
+                    in = new BufferedInputStream(new FileInputStream(file));
+                    mimeType = URLConnection.guessContentTypeFromStream(in);
+                } catch (FileNotFoundException e) {
+                    return false;
+                } finally {
+                    if (in != null) {
+                        in.close();
+                    }
+                }
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        return (mimeType.startsWith("audio") ||
+                mimeType.startsWith("image") ||
+                mimeType.startsWith("video"));
     }
 }
