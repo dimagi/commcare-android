@@ -376,7 +376,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             // this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
-            public void onActionBarFound(SearchView searchView) {
+            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
                 FormRecordListActivity.this.searchView = searchView;
                 FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
