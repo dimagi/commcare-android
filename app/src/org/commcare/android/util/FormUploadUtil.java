@@ -32,23 +32,31 @@ import android.util.Log;
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
 
-    /** Everything worked great! **/
+    /**
+     * Everything worked great!
+     */
     public static final long FULL_SUCCESS = 0;
 
-    /** There was a problem with the server's response **/
+    /**
+     * There was a problem with the server's response
+     */
     public static final long FAILURE = 2;
 
-    /** There was a problem with the transport layer during transit **/
+    /**
+     * There was a problem with the transport layer during transit
+     */
     public static final long TRANSPORT_FAILURE = 4;
 
-    /** There is a problem with this record that prevented submission success **/
+    /**
+     * There is a problem with this record that prevented submission success
+     */
     public static final long RECORD_FAILURE = 8;
 
-    private static long MAX_BYTES = (5 * 1048576)-1024;
+    private static long MAX_BYTES = (5 * 1048576) - 1024;
     private static final String[] SUPPORTED_FILE_EXTS =
-    {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3", ".wav",
-        ".amr",".mp4", ".3gp2", ".mpg4", ".mpeg4", ".m4v", ".mpg", ".mpeg",
-        ".qcp"};
+            {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3", ".wav",
+                    ".amr", ".mp4", ".3gp2", ".mpg4", ".mpeg4", ".m4v", ".mpg", ".mpeg",
+                    ".qcp"};
 
     public static Cipher getDecryptCipher(SecretKeySpec key) {
         Cipher cipher;
@@ -76,18 +84,18 @@ public class FormUploadUtil {
         boolean hasListener = false;
         DataSubmissionListener myListener = null;
 
-        if(listener instanceof DataSubmissionListener){
+        if (listener instanceof DataSubmissionListener) {
             hasListener = true;
             myListener = (DataSubmissionListener)listener;
         }
 
         File[] files = folder.listFiles();
 
-        if(files == null) {
-            //make sure external storage is available to begin with.
+        if (files == null) {
+            // make sure external storage is available to begin with.
             String state = Environment.getExternalStorageState();
             if (!Environment.MEDIA_MOUNTED.equals(state)) {
-                //If so, just bail as if the user had logged out.
+                // If so, just bail as if the user had logged out.
                 throw new SessionUnavailableException("External Storage Removed");
             } else {
                 throw new FileNotFoundException("No directory found at: " +
@@ -95,18 +103,11 @@ public class FormUploadUtil {
             }
         }
 
-        //If we're listening, figure out how much (roughly) we have to send
+        // If we're listening, figure out how much (roughly) we have to send
         long bytes = estimateUploadBytes(files);
 
-        if(hasListener){
+        if (hasListener) {
             myListener.startSubmission(submissionNumber, bytes);
-        }
-
-        HttpRequestGenerator generator;
-        if(user.getUserType().equals(User.TYPE_DEMO)) {
-            generator = new HttpRequestGenerator();
-        } else {
-            generator = new HttpRequestGenerator(user);
         }
 
         if (files.length == 0) {
@@ -120,35 +121,49 @@ public class FormUploadUtil {
             return RECORD_FAILURE;
         }
 
-        // prepare response and return uploaded
+        HttpRequestGenerator generator;
+        if (user.getUserType().equals(User.TYPE_DEMO)) {
+            generator = new HttpRequestGenerator();
+        } else {
+            generator = new HttpRequestGenerator(user);
+        }
+        return submitEntity(entity, url, generator);
+    }
+
+    /**
+     * Submit multipart entity with plenty of logging
+     *
+     * @return submission status of multipart entity post
+     */
+    private static long submitEntity(MultipartEntity entity, String url,
+                                     HttpRequestGenerator generator) {
         HttpResponse response;
+
         try {
             response = generator.postData(url, entity);
-        } catch (InputIOException ioe ){
-            //This implies that there was a problem with the _source_ of the
-            //transmission, not the processing or receiving end.
+        } catch (InputIOException ioe) {
+            // This implies that there was a problem with the _source_ of the
+            // transmission, not the processing or receiving end.
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
                     "Internal error reading form record during submission: " +
-                    ioe.getWrapped().getMessage());
+                            ioe.getWrapped().getMessage());
             return RECORD_FAILURE;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
             return TRANSPORT_FAILURE;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return TRANSPORT_FAILURE;
-        } catch (IllegalStateException e) {
+        } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
             return TRANSPORT_FAILURE;
         }
 
         int responseCode = response.getStatusLine().getStatusCode();
         Log.e(TAG, "Response code:" + responseCode);
-        //If this response code wasn't legit
-        if(!(responseCode >= 200 && responseCode < 300)) {
-            //Log that so we can figure out what's up!
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Response Code: " + responseCode);
+
+        if (!(responseCode >= 200 && responseCode < 300)) {
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+                    "Response Code: " + responseCode);
         }
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         try {
@@ -160,13 +175,12 @@ public class FormUploadUtil {
         String responseString = new String(bos.toByteArray());
         Log.d(TAG, responseString);
 
-        if(responseCode >= 200 && responseCode < 300) {
+        if (responseCode >= 200 && responseCode < 300) {
             return FULL_SUCCESS;
         } else {
             return FAILURE;
         }
     }
-
 
     /**
      * Validate the content body of the XML submission file.
@@ -182,13 +196,16 @@ public class FormUploadUtil {
      * @return
      * @throws FileNotFoundException
      */
-    private static boolean validateSubmissionFile(File f) throws FileNotFoundException {
-        if(!f.exists()) {
-            throw new FileNotFoundException("Submission file: " + f.getAbsolutePath());
+    private static boolean validateSubmissionFile(File f)
+            throws FileNotFoundException {
+        if (!f.exists()) {
+            throw new FileNotFoundException("Submission file: " +
+                    f.getAbsolutePath());
         }
         //Gotta check f exists here since f.length returns 0 if the file isn't there for some reason.
-        if(f.length() == 0 && f.exists()) {
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Submission body has no content at: " + f.getAbsolutePath());
+        if (f.length() == 0 && f.exists()) {
+            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+                    "Submission body has no content at: " + f.getAbsolutePath());
             return false;
         }
 
@@ -282,7 +299,8 @@ public class FormUploadUtil {
                     Log.i(TAG, "file " + f.getName() + " is too big");
                 }
             } else {
-                Log.w(TAG, "unsupported file type, not adding file: " + f.getName());
+                Log.w(TAG, "unsupported file type, not adding file: " +
+                        f.getName());
             }
         }
         return true;
