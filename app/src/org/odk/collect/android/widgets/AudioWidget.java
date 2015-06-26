@@ -27,7 +27,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.webkit.MimeTypeMap;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
@@ -110,16 +109,8 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         mChooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MimeTypeMap mtm = MimeTypeMap.getSingleton();
-                String [] extraMimes =
-                    new String[] {
-                            // mtm.getMimeTypeFromExtension("mp3"),
-                            mtm.getMimeTypeFromExtension("flac")
-                        };
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
-                i.putExtra(Intent.EXTRA_MIME_TYPES, extraMimes);
-                // i.setType("audio/mpeg3|audio/wav|audio/mpeg|audio/ogg|audio/flac");
                 mWaitingForData = true;
                 try {
                     ((Activity)getContext())
