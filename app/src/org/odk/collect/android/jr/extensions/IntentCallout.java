@@ -111,6 +111,10 @@ public class IntentCallout implements Externalizable {
         //see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
         
+        if(response == null){
+            return false;
+        }
+        
         //Load all of the data from the incoming bundle
         if(responses != null) {
             for (String key : responses.keySet()) {
