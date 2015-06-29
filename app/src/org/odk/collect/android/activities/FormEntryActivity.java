@@ -277,8 +277,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
-
-        // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
             if(fragmentClass != null) {
@@ -1565,8 +1563,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 final CheckBox instanceComplete = ((CheckBox) endView.findViewById(R.id.mark_finished));
                 instanceComplete.setText(StringUtils.getStringSpannableRobust(this, R.string.mark_finished));
 
-                        //If incomplete is not enabled, make sure this box is checked.
-                        instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
+                //If incomplete is not enabled, make sure this box is checked.
+                instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
                 
                 if(mFormController.isFormReadOnly() || !mIncompleteEnabled) {
                     instanceComplete.setVisibility(View.GONE);
@@ -2927,10 +2925,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String[] selectionArgs = {
             mInstancePath
         };
-        Cursor c =
-            getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs,
-                null);
-        startManagingCursor(c);
+
+        Cursor c;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            c = new CursorLoader(this, instanceProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
+        } else {
+            c = this.managedQuery(instanceProviderContentURI, null, selection, selectionArgs, null);
+        }
         if (c != null && c.getCount() > 0) {
             c.moveToFirst();
             String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
