@@ -2904,7 +2904,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             c = new CursorLoader(this, instanceProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
         } else {
-            c = FormEntryActivity.this.managedQuery(instanceProviderContentURI, null, selection, selectionArgs, null);
+            c = this.managedQuery(instanceProviderContentURI, null, selection, selectionArgs, null);
         }
         if (c != null && c.getCount() > 0) {
             c.moveToFirst();
