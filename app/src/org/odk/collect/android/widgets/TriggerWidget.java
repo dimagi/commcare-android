@@ -41,31 +41,11 @@ public class TriggerWidget extends QuestionWidget {
      */
     private static String mOK = "OK";
 
-
-    /**
-     * @param context    Used to get font settings
-     * @param prompt     Contains question data
-     * @param appearance Hint from form builder, when set to:
-     *                   - 'minimal' show text label
-     *                   - 'selectable' show a selectable text label useful for
-     *                     copy/pasting output
-     *                   - otherwise display interactively, showing a checkbox
-     *                     with text
-     */
     public TriggerWidget(Context context, FormEntryPrompt prompt,
-                         String appearance) {
+                         boolean interactive) {
         super(context, prompt);
 
-        // enable interactive mode if 'appearance' is an unrecognized string
-        mInteractive = !("minimal".equals(appearance) ||
-                "selectable".equals(appearance));
-
-        if ("selectable".equals(appearance)) {
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                // Let users to copy form display outputs.
-                mQuestionText.setTextIsSelectable(true);
-            }
-        }
+        this.mInteractive = interactive;
 
         if (mPrompt.getAppearanceHint() != null &&
                 mPrompt.getAppearanceHint().startsWith("floating-")) {
