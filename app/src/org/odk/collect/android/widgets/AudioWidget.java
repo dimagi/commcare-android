@@ -49,7 +49,7 @@ import java.io.File;
  */
 
 public class AudioWidget extends QuestionWidget implements IBinaryWidget {
-    private final static String t = "MediaWidget";
+    private static final String TAG = AudioWidget.class.getSimpleName();
 
     private final Button mCaptureButton;
     private final Button mPlayButton;
@@ -98,14 +98,14 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
             }
         });
 
-        // setup capture button
+        // setup audio filechooser button
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
                 mAnswerFontsize,
                 !prompt.isReadOnly());
 
-        // launch capture intent on click
+        // launch audio filechooser intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,7 +137,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent("android.intent.action.VIEW");
-                File f = new File(mInstanceFolder + "/" + mBinaryName);
+                File f = new File(mInstanceFolder + mBinaryName);
                 i.setDataAndType(Uri.fromFile(f), "audio/*");
                 try {
                     ((Activity)getContext()).startActivity(i);
@@ -155,7 +155,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         mBinaryName = prompt.getAnswerText();
         if (mBinaryName != null) {
             mPlayButton.setEnabled(true);
-            File f = new File(mInstanceFolder + "/" + mBinaryName);
+            File f = new File(mInstanceFolder + mBinaryName);
 
             checkFileSize(f);
         } else {
@@ -174,9 +174,9 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
     private void deleteMedia() {
         // get the file path and delete the file
-        File f = new File(mInstanceFolder + "/" + mBinaryName);
+        File f = new File(mInstanceFolder + mBinaryName);
         if (!f.delete()) {
-            Log.i(t, "Failed to delete " + f);
+            Log.i(TAG, "Failed to delete " + f);
         }
 
         // clean up variables
@@ -215,8 +215,14 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         // get the file path and create a copy in the instance folder
         String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
                 (Uri)binaryuri);
-        String extension = binaryPath.substring(binaryPath.lastIndexOf("."));
-        String destAudioPath = mInstanceFolder + "/" + System.currentTimeMillis() + extension;
+
+        String[] filenameSegments = binaryPath.split("\\.");
+        String extension = "";
+        if (filenameSegments.length > 1) {
+            extension = "." + filenameSegments[filenameSegments.length - 1];
+        }
+
+        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + extension;
 
         File source = new File(binaryPath);
         File newAudio = new File(destAudioPath);
@@ -234,9 +240,9 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
 
             Uri AudioURI =
                     getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(t, "Inserting AUDIO returned uri = " + AudioURI.toString());
+            Log.i(TAG, "Inserting AUDIO returned uri = " + AudioURI.toString());
         } else {
-            Log.e(t, "Inserting Audio file FAILED");
+            Log.e(TAG, "Inserting Audio file FAILED");
         }
 
         mBinaryName = newAudio.getName();
