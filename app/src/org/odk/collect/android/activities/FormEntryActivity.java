@@ -22,6 +22,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -447,7 +448,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                 switch (contentType) {
                     case InstanceColumns.CONTENT_ITEM_TYPE:
-                        final Cursor instanceCursor = this.managedQuery(uri, null, null, null, null);
+
+                        final Cursor instanceCursor;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                            instanceCursor = new CursorLoader(this, uri, null, null, null, null).loadInBackground();
+                        } else {
+                            instanceCursor = this.managedQuery(uri, null, null, null, null);
+                        }
                         if (instanceCursor.getCount() != 1) {
                             CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
                             return;
@@ -475,8 +482,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                             };
                             final String selection = FormsColumns.JR_FORM_ID + " like ?";
 
-                            final Cursor formCursor =
-                                    managedQuery(formProviderContentURI, null, selection, selectionArgs, null);
+
+                            final Cursor formCursor;
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                formCursor = new CursorLoader(this, formProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
+                            } else {
+                                formCursor = managedQuery(formProviderContentURI, null, selection, selectionArgs, null);
+                            }
                             if (formCursor.getCount() == 1) {
                                 formCursor.moveToFirst();
                                 mFormPath =
@@ -495,7 +507,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                         break;
                     case FormsColumns.CONTENT_ITEM_TYPE:
-                        final Cursor c = this.managedQuery(uri, null, null, null, null);
+                        final Cursor c;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                            c = new CursorLoader(this, uri, null, null, null, null).loadInBackground();
+                        } else {
+                            c = this.managedQuery(uri, null, null, null, null);
+                        }
                         if (c.getCount() != 1) {
                             CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
                             return;
@@ -1506,9 +1523,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 String[] selectionArgs = {
                     mFormPath
                 };
-                Cursor c =
-                    managedQuery(formProviderContentURI, projection, selection, selectionArgs,
-                        null);
+
+                Cursor c;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    c = new CursorLoader(this, formProviderContentURI, projection, selection, selectionArgs, null).loadInBackground();
+                } else {
+                    c = managedQuery(formProviderContentURI, projection, selection, selectionArgs, null);
+                }
                 String mediaDir = null;
                 if (c.getCount() < 1) {
                     CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
@@ -2208,10 +2229,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String selection =
             InstanceColumns.INSTANCE_FILE_PATH + " like '"
                     + mInstancePath + "'";
-        Cursor c =
-            FormEntryActivity.this.managedQuery(
-                instanceProviderContentURI, null, selection, null,
-                null);
+
+        Cursor c;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            c = new CursorLoader(this, instanceProviderContentURI, null, selection, null, null).loadInBackground();
+        } else {
+            c = FormEntryActivity.this.managedQuery(instanceProviderContentURI, null, selection, null, null);
+        }
 
         // if it's not already saved, erase everything
         if (c.getCount() < 1) {
@@ -2611,7 +2635,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String saveName = mFormController.getFormTitle();
         if (getContentResolver().getType(getIntent().getData()) == InstanceColumns.CONTENT_ITEM_TYPE) {
             Uri instanceUri = getIntent().getData();
-            Cursor instance = managedQuery(instanceUri, null, null, null, null);
+
+            Cursor instance;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                instance = new CursorLoader(this, instanceUri, null, null, null, null).loadInBackground();
+            } else {
+                instance = managedQuery(instanceUri, null, null, null, null);
+            }
             if (instance.getCount() == 1) {
                 instance.moveToFirst();
                 saveName =
@@ -2943,8 +2973,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             String[] selectionArgs = {
                 mInstancePath
             };
-            Cursor c =
-                managedQuery(instanceProviderContentURI, null, selection, selectionArgs, null);
+
+            Cursor c;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                c = new CursorLoader(this, instanceProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
+            } else {
+                c = managedQuery(instanceProviderContentURI, null, selection, selectionArgs, null);
+            }
             if (c.getCount() > 0) {
                 // should only be one...
                 c.moveToFirst();
