@@ -155,4 +155,11 @@ public class TriggerWidget extends QuestionWidget {
         mTriggerButton.cancelLongPress();
         mStringAnswer.cancelLongPress();
     }
+
+    @Override
+    protected void addQuestionText(final FormEntryPrompt p) {
+        super.addQuestionText(p);
+        // Let users to copy form display outputs.
+        mQuestionText.setTextIsSelectable(true);
+    }
 }
