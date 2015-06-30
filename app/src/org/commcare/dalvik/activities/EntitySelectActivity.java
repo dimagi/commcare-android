@@ -313,7 +313,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
-        restoreLastQueryString();
+        restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
     }
 
     /**
@@ -491,7 +491,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void onStop() {
         super.onStop();
         stopTimer();
-        saveLastQueryString();
+        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
     }
     
 

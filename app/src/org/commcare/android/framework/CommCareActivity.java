@@ -153,9 +153,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         mGestureDetector = new GestureDetector(this, this);
     }
 
-    protected void restoreLastQueryString() {
+    protected void restoreLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
-        lastQueryString = settings.getString(KEY_LAST_QUERY_STRING, null);
+        lastQueryString = settings.getString(key, null);
         if (BuildConfig.DEBUG) {
             Log.v(TAG, "Recovered lastQueryString: (" + lastQueryString + ")");
         }
@@ -478,10 +478,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         super.onStop();
     }
 
-    protected void saveLastQueryString() {
+    protected void saveLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(KEY_LAST_QUERY_STRING, lastQueryString);
+        editor.putString(key, lastQueryString);
         editor.commit();
 
         if (BuildConfig.DEBUG) {
