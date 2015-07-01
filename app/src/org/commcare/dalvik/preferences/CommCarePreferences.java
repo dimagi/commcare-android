@@ -22,22 +22,29 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+
+import java.io.File;
 
 public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
@@ -96,6 +103,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
     private static final int RECOVERY_MODE = Menu.FIRST + 3;
     private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
+    private static final int REQUEST_TEMPLATE = 0;
 
     /*
      * (non-Javadoc)
@@ -120,6 +128,43 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         this.getPreferenceScreen().addPreference(lp);
         updatePreferencesText();
         setTitle("CommCare" + " > " + "Application Preferences");
+
+        //Set an OnPreferenceClickListener for Print doc location
+        Preference pref = prefMgr.findPreference("print-doc-location");
+        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                if (preference.getKey().equals("print-doc-location")) {
+                    startFileBrowser();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == REQUEST_TEMPLATE) {
+
+            if (resultCode == RESULT_OK
+                    && data != null) {
+
+                String filePath = data.getData().toString();
+                Log.i("7/1/15", filePath);
+                SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
+                editor.putString("printDocLocation", filePath);
+                editor.commit();
+
+            } else {
+                // No template file selected
+                finish();
+            }
+
+        }
+
     }
 
     /*
@@ -302,6 +347,18 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
             }
         }
+    }
+
+    private void startFileBrowser() {
+
+        Intent chooseTemplateIntent = new Intent()
+                .setAction(Intent.ACTION_GET_CONTENT)
+                .setType("file/*")
+                .addCategory(Intent.CATEGORY_OPENABLE);
+
+        startActivityForResult(
+                chooseTemplateIntent, REQUEST_TEMPLATE);
+
     }
 
 }
