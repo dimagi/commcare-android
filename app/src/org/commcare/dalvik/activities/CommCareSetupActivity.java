@@ -1,7 +1,6 @@
 package org.commcare.dalvik.activities;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -50,78 +49,84 @@ import org.javarosa.core.util.PropertyUtils;
  *
  */
 @ManagedUi(R.layout.first_start_screen_modern)
-public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity> implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller, SetupKeepInstallFragment.StartStopInstallCommands {
-    
-//    public static final String DATABASE_STATE = "database_state";
+public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
+        implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
+        SetupKeepInstallFragment.StartStopInstallCommands {
     public static final String RESOURCE_STATE = "resource_state";
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
     public static final String KEY_REQUIRE_REFRESH = "require_referesh";
     public static final String KEY_AUTO = "is_auto_update";
-    public static final String KEY_START_OVER = "start_over_uprgrade";
-    public static final String KEY_LAST_INSTALL = "last_install_time";
+    private static final String KEY_START_OVER = "start_over_uprgrade";
+    private static final String KEY_LAST_INSTALL = "last_install_time";
 
-
-
-    /*
-     * enum indicating which UI mconfiguration should be shown.
-     * basic: First install, user can scan barcode and move to ready mode or select advanced mode
-     * advanced: First install, user can enter bit.ly or URL directly, or return to basic mode
-     * ready: First install, barcode has been scanned. Can move to advanced mode to inspect URL, or proceed to install
-     * upgrade: App installed already. Buttons aren't shown, trying to update app with no user input
-     * error: Installation or Upgrade has failed, offer to retry or restart. upgrade/install differentiated with inUpgradeMode boolean
+    /**
+     * UI configuration states.
      */
-    
-    public enum UiState { advanced, basic, ready, error, upgrade}
+    public enum UiState {
+        /**
+         * First install, user can enter bit.ly or URL directly, or return to
+         * basic mode
+         */
+        advanced,
 
-    public UiState uiState = UiState.basic;
+        /**
+         * First install, user can scan barcode and move to ready mode or
+         * select advanced mode
+         */
+        basic,
+
+        /**
+         * First install, barcode has been scanned. Can move to advanced mode
+         * to inspect URL, or proceed to install
+         */
+        ready,
+
+        /**
+         * Installation or Upgrade has failed, offer to retry or restart.
+         * upgrade/install differentiated with inUpgradeMode boolean
+         */
+        error,
+
+        /**
+         * App installed already. Buttons aren't shown, trying to update app
+         * with no user input
+         */
+        upgrade
+    }
+
+    private UiState uiState = UiState.basic;
     
     public static final int MODE_BASIC = Menu.FIRST;
     public static final int MODE_ADVANCED = Menu.FIRST + 1;
-    public static final int MODE_ARCHIVE = Menu.FIRST + 2;
+    private static final int MODE_ARCHIVE = Menu.FIRST + 2;
     
     public static final int BARCODE_CAPTURE = 1;
-    public static final int ARCHIVE_INSTALL = 3;
-    public static final int DIALOG_INSTALL_PROGRESS = 4; 
+    private static final int ARCHIVE_INSTALL = 3;
+    private static final int DIALOG_INSTALL_PROGRESS = 4;
 
+    private boolean startAllowed = true;
+    private boolean inUpgradeMode = false;
     
-    public static final int RETRY_LIMIT = 20;
-    
-    boolean startAllowed = true;
-    boolean inUpgradeMode = false;
-    
-    int dbState;
-    int resourceState;
-    int retryCount=0;
+    private String incomingRef;
 
-    public String incomingRef;
-    public boolean canRetry;
-    public String displayMessage;
-    
-    String [] urlVals;
-    int previousUrlPosition=0;
-     
-    boolean partialMode = false;
-    
-    CommCareApp ccApp;
+    private CommCareApp ccApp;
     
     //Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
-    boolean isAuto = false;
+    private boolean isAuto = false;
     
     /* used to keep track of whether or not the previous resource table was in a 
      * 'fresh' (empty or installed) state before the last install ran
      */
-    boolean resourceTableWasFresh;
-    static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
+    private boolean resourceTableWasFresh;
+    private static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
     
-    private BroadcastReceiver purgeNotificationReceiver = null;
-
     //region UIState fragments
 
-    final FragmentManager fm = getSupportFragmentManager();
-    final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
-    final SetupInstallFragment installFragment = new SetupInstallFragment();
+    private final FragmentManager fm = getSupportFragmentManager();
+    private final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
+    private final SetupInstallFragment installFragment = new SetupInstallFragment();
 
     //endregion
     
@@ -155,17 +160,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     }
                     else{
                         // currently down allow other locations like http://
-                        fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true, false);
+                        fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true);
                     }
-                }
-                else{
-                    this.uiState=uiState.ready;
+                } else {
+                    this.uiState = UiState.ready;
                     //Now just start up normally.
                 }
             } else{
-
                 incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
-
             }
             inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
             isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
@@ -243,9 +245,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (purgeNotificationReceiver != null) {
-            unregisterReceiver(purgeNotificationReceiver);
-        }
     }
     
     /*
@@ -319,7 +318,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         try {
             ReferenceManager._().DeriveReference(incomingRef);
         } catch (InvalidReferenceException ire) {
-            return;
         }
     }
 
@@ -328,24 +326,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     private CommCareApp getCommCareApp(){
-        CommCareApp app = null;
+        CommCareApp app;
         
         // we are in upgrade mode, just send back current app
-        
         if(inUpgradeMode){
             app = CommCareApplication._().getCurrentApp();
             return app;
         }
-        
-        //we have a clean slate, create a new app
-        if(partialMode){
-            return ccApp;
-        }
-        else{
-            ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
-            app = new CommCareApp(newRecord);
-            return app;
-        }
+
+        ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
+        app = new CommCareApp(newRecord);
+        return app;
     }
 
     private void startResourceInstall() {
@@ -411,11 +402,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             CustomProgressDialog lastDialog = getCurrentDialog();
             /* used to tell the ResourceEngineTask whether or not it should sleep before
              * it starts, set based on whether we are currently in keep trying mode */
-            boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
+            boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
             
             ResourceEngineTask<CommCareSetupActivity> task =
                 new ResourceEngineTask<CommCareSetupActivity>(inUpgradeMode,
-                        partialMode, app, startOverUpgrade,
+                        app, startOverUpgrade,
                         DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                 /*
@@ -434,7 +425,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     } else if (result == ResourceEngineOutcomes.StatusMissing || result == ResourceEngineOutcomes.StatusMissingDetails){
                         startOverInstall = false;
                         CustomProgressDialog lastDialog = receiver.getCurrentDialog();
-                        boolean inKeepTryingMode = (lastDialog == null) ? false : lastDialog.isChecked();
+                        boolean inKeepTryingMode = (lastDialog != null) && lastDialog.isChecked();
                         if (inKeepTryingMode) {
                             receiver.startResourceInstall(false);
                         } else {
@@ -540,7 +531,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
     
-    public void done(boolean requireRefresh) {
+    void done(boolean requireRefresh) {
         //TODO: We might have gotten here due to being called from the outside, in which
         //case we should manually start up the home activity
         
@@ -550,58 +541,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             startActivity(i);
             finish();
-            
-            return;
         } else {
             //Good to go
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             setResult(RESULT_OK, i);
             finish();
-            return;
         }
     }
 
-    public void fail(NotificationMessage message) {
-        fail(message, false);
-    }
-    
-    public void fail(NotificationMessage message, boolean alwaysNotify) {    
-        fail(message, alwaysNotify, true);
-    }
-    
-    public void fail(NotificationMessage message, boolean alwaysNotify, boolean canRetry){
-
+    void fail(NotificationMessage message, boolean alwaysNotify) {
         Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
         
-        retryCount++;
-        
-        if(retryCount > RETRY_LIMIT){
-            canRetry = false;
-        }
-        
-        if(isAuto || alwaysNotify) {
+        if (isAuto || alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
-        }
-        if(isAuto) {
             done(false);
-        } else {
-            if(alwaysNotify) {
-                this.displayMessage= Localization.get("notification.for.details.setup.wrapper", new String[] {message.getDetails()});
-                this.canRetry = canRetry;
-            } else {
-                
-                this.displayMessage= message.getDetails();
-                this.canRetry = canRetry;
-                
-                String fullErrorMessage = message.getDetails();
-                
-                if(alwaysNotify){
-                    fullErrorMessage = fullErrorMessage + message.getAction();
-                }
-            }
         }
-
     }
     
     // All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
@@ -626,11 +581,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
         String versionMismatch = Localization.get("install.version.mismatch", new String[] {vRequired,vAvailable});
         
-        String error = "";
-        if(majorIsProblem){
+        String error;
+        if (majorIsProblem){
             error=Localization.get("install.major.mismatch");
-        }
-        else{
+        } else {
             error=Localization.get("install.minor.mismatch");
         }
         
@@ -638,7 +592,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     public void failUnknown(ResourceEngineOutcomes unknown) {
-        fail(NotificationMessageFactory.message(unknown));
+        fail(NotificationMessageFactory.message(unknown), false);
     }
     
     public void updateProgress(int done, int total, int phase) {
@@ -686,7 +640,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         dialog.setCancelable(false);
         String checkboxText = Localization.get("updates.keep.trying");
         CustomProgressDialog lastDialog = getCurrentDialog();
-        boolean isChecked = (lastDialog == null) ? false : lastDialog.isChecked();
+        boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
         dialog.addCheckbox(checkboxText, isChecked);
         dialog.addProgressBar();
         return dialog;

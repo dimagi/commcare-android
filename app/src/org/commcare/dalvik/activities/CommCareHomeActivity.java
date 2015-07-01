@@ -1282,9 +1282,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 ssd.fromBundle(sessionRequest);
                 CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
                 this.startNextFetch();
-                return;
             } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-
                 //We were launched in shortcut mode. Get the command and load us up.
                 CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
                 startNextFetch();
@@ -1292,7 +1290,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
             } else if (CommCareApplication._().isUpdatePending()) {
                 //We've got an update pending that we need to check on.
-
                 Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
                 //Create the update intent
@@ -1305,7 +1302,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
 
                 startActivityForResult(i, UPGRADE_APP);
-                return;
             } else if(CommCareApplication._().isSyncPending(true)) {
                 long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
                 String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
@@ -1319,10 +1315,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     //trigger a sync
                     this.syncData(false);
                 }
-            }
-
-            //Normal Home Screen login time! 
-            else {
+            } else {
+                //Normal Home Screen login time!
                 refreshView();
             }
         } catch (SessionUnavailableException sue) {
