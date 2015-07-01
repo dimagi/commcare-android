@@ -1,11 +1,20 @@
 package org.commcare.dalvik.activities;
 
-import java.util.Vector;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.util.Pair;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -15,22 +24,11 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
-
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Pair;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 
 /**
  * @author ctsims
@@ -41,13 +39,12 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;
-    private static final int CALL_OUT = 0;
-    public static final String IS_DEAD_END = "eda_ide";
+
+    // reference id of selected element being detailed
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
-        
-    Entry prototype;
+
     Entity<TreeReference> entity;
     EntityDetailAdapter adapter;
     NodeEntityFactory factory;
@@ -56,6 +53,10 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     TreeReference mTreeReference;
     
     private int detailIndex;
+
+    // Is the detail screen for showing entities, without option for moving
+    // forward on to form manipulation?
+    private boolean mViewMode = false;
     
     @UiElement(value=R.id.entity_detail)
     RelativeLayout container;
@@ -74,13 +75,23 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     public void onCreate(Bundle savedInstanceState) {        
         Intent i = getIntent();
         
-        asw = CommCareApplication._().getCurrentSessionWrapper();
-        session = asw.getSession();            
+        try {
+            asw = CommCareApplication._().getCurrentSessionWrapper();
+            session = asw.getSession();
+        } catch(SessionUnavailableException sue){
+            // The user isn't logged in! bounce this back to where we came from
+            this.setResult(RESULT_CANCELED, this.getIntent());
+            this.finish();
+            return;
+        }
         String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
-        
-        Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
-        prototype = entries.elementAt(0);
-        
+
+        if (passedCommand != null) {
+            mViewMode = session.isViewCommand(passedCommand);
+        } else {
+            mViewMode = session.isViewCommand(session.getCommand());
+        }
+
         factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
         
         mTreeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
@@ -114,21 +125,15 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      
         try {
             next.setOnClickListener(new OnClickListener() {
-    
                 public void onClick(View v) {
-                    Intent i = new Intent(EntityDetailActivity.this.getIntent());
-                    loadOutgoingIntent(i);
-                    setResult(RESULT_OK, i);
-    
-                    finish();
+                    select();
                 }
-                
             });
-            
-            if(getIntent().getBooleanExtra(IS_DEAD_END, false)) {
+
+            if (mViewMode) {
                 next.setText("Done");
             }
-            
+
             mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
             mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
         } catch(SessionUnavailableException sue) {
@@ -183,7 +188,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode) {
-        case CALL_OUT:
+        case DetailCalloutListenerDefaultImpl.CALL_OUT:
             if(resultCode == RESULT_CANCELED) {
                 mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
                 return;
@@ -205,22 +210,56 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
 
 
     public void callRequested(String phoneNumber) {
-        Intent intent = new Intent(getApplicationContext(), CallOutActivity.class);
-        intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
-        this.startActivityForResult(intent, CALL_OUT);
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
 
-
     public void addressRequested(String address) {
-        Intent call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
-        startActivity(call);
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
     
     public void playVideo(String videoRef) {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse(videoRef), "video/*");
-        startActivity(intent);
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
+    public void performCallout(CalloutData callout, int id){
+        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
+     */
+    @Override
+    protected boolean onForwardSwipe() {
+        // Move along, provided we're on the last tab of tabbed case details
+        if (mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
+            select();
+            return true;
+        }
+        return false;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
+     */
+    @Override
+    protected boolean onBackwardSwipe() {
+        // Move back, provided we're on the first screen of tabbed case details
+        if (mDetailView.getCurrentTab() < 1) {
+            finish();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Move along to form entry.
+     */
+    private void select() {
+        Intent i = new Intent(EntityDetailActivity.this.getIntent());
+        loadOutgoingIntent(i);
+        setResult(RESULT_OK, i);
+        finish();
+    }
 }

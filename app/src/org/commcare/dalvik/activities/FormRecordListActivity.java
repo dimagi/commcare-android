@@ -16,30 +16,6 @@
 
 package org.commcare.dalvik.activities;
 
-import java.io.IOException;
-
-import org.commcare.android.adapters.IncompleteFormListAdapter;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.database.user.models.User;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.FormRecordLoadListener;
-import org.commcare.android.tasks.FormRecordLoaderTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.CommCareUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.view.IncompleteFormRecordView;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -67,6 +43,30 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.adapters.IncompleteFormListAdapter;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.User;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.logic.FormRecordProcessor;
+import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.tasks.FormRecordLoadListener;
+import org.commcare.android.tasks.FormRecordLoaderTask;
+import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.IncompleteFormRecordView;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.StorageFullException;
+
+import java.io.IOException;
 
 
 public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
@@ -147,27 +147,23 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             barcodeButton.setVisibility(View.GONE);
             
             TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-            searchLabel.setText(Localization.get("select.search.label"));
+            searchLabel.setText(this.localize("select.search.label"));
             
             searchbox.addTextChangedListener(this);
             FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
-            task.setListener(this);
+            task.addListener(this);
     
             adapter = new IncompleteFormListAdapter(this, platform, task);
-            
-            FormRecordFilter filter = null;
-            
+
             initialSelection = this.getIntent().getIntExtra(KEY_INITIAL_RECORD_ID, -1);
             
             if(this.getIntent().hasExtra(FormRecord.META_STATUS)) {
                 String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
                 if(incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
                     //special case, no special filtering options
-                    filter = FormRecordFilter.Incomplete;
+                    adapter.setFormFilter(FormRecordFilter.Incomplete);
                 }
             } else {
-                filter = FormRecordFilter.SubmittedAndPending; 
-
                 FormRecordFilter[] filters = FormRecordFilter.values();
                 String[] names = new String[filters.length];
                 for(int i = 0 ; i < filters.length; ++i ) {
@@ -177,17 +173,18 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 filterSelect.setAdapter(spinneritems);
                 spinneritems.setDropDownViewResource(R.layout.form_filter_item);
                 filterSelect.setOnItemSelectedListener(new OnItemSelectedListener() {
-                    
                     /*
                      * (non-Javadoc)
                      * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
                      */
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long id) {
-                        adapter.setFormFilter(FormRecordFilter.values()[index]);
-                        adapter.resetRecords();
-                        adapter.notifyDataSetChanged();
-                        
+                        // NOTE: This gets called every time a spinner gets
+                        // set-up and also every time spinner state is restored
+                        // on scree-rotation. Hence we defer onCreate record
+                        // loading until this gets triggered automatically.
+                        adapter.setFilterAndResetRecords(FormRecordFilter.values()[index]);
+
                         //This is only relevant with the new menu format, old menus have a hard
                         //button and don't need their menu to be rebuilt
                         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -207,10 +204,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 });
                 filterSelect.setVisibility(View.VISIBLE);
             }
-            
-            if(filter != null) {
-                adapter.setFormFilter(filter);
-            }
+
             this.registerForContextMenu(listView);
             refreshView();
         } catch(SessionUnavailableException sue) {
@@ -237,7 +231,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      */
     private void refreshView() {
         disableSearch();
-        adapter.resetRecords();
         listView.setAdapter(adapter);
     }
     
@@ -420,9 +413,18 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                User u = CommCareApplication._().getSession().getLoggedInUser();
+
+                User u;
+                try {
+                    u = CommCareApplication._().getSession().getLoggedInUser();
+                } catch (SessionUnavailableException sue) {
+                    // abort and let default processing happen, since it looks
+                    // like the session expired.
+                    return false;
+                }
+
                 String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
-                
+
                 //We should go digest auth this user on the server and see whether to pull them
                 //down.
                 DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),u.getCachedPwd(), source, "", this) {
@@ -569,7 +571,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
     
     public void afterTextChanged(Editable s) {
-        if(searchbox.getText() == s) {
+        if (searchbox.getText() == s) {
             adapter.applyTextFilter(s.toString());
         }
     }
@@ -586,18 +588,15 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
 
 
-    public void notifyPriorityLoaded(Integer record, boolean priority) {
-        if(priority) {
-            adapter.notifyDataSetChanged();
-        }
+    @Override
+    public void notifyPriorityLoaded(FormRecord record, boolean priority) {
     }
 
-
+    @Override
     public void notifyLoaded() {
         enableSearch();
     }
-    
-    
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)

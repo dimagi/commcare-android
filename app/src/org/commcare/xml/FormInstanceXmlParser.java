@@ -24,7 +24,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.data.xml.TransactionParser;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
@@ -53,24 +53,11 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
     private String destination;
     
     public FormInstanceXmlParser(KXmlParser parser, Context c, Hashtable<String, String> namespaces, String destination) {
-        super(parser, null, null);
+        super(parser);
         this.c = c;
         this.namespaces = namespaces;
         this.destination = destination;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParser#parses(java.lang.String, java.lang.String)
-     */
-    @Override
-    public boolean parses(String name, String namespace) {
-        if(namespaces.containsKey(namespace)) {
-            return true;
-        }
-        return false;
-    }
-
 
     public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
         String xmlns = parser.getNamespace();

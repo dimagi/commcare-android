@@ -3,13 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.io.File;
-
-import org.commcare.suite.model.DisplayUnit;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.odk.collect.android.utilities.FileUtils;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +12,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import org.commcare.suite.model.graph.DisplayData;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
+import org.odk.collect.android.utilities.FileUtils;
+
+import java.io.File;
+
 /**
  * Utilities for converting CommCare UI diplsay details into Android objects 
  * 
@@ -27,13 +28,18 @@ import android.view.WindowManager;
  */
 public class ViewUtil {
 
-    //This is silly and isn't really what we want here, but it's a start. (We'd like to be able to add
-    //a displayunit to a menu in a super easy/straightforward way.
-    public static void addDisplayToMenu(Context context, Menu menu, int menuId, DisplayUnit display) {
-        Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI());
-        MenuItem item = menu.add(0, menuId, menuId, display.getText().evaluate());
-        if(b != null) {
-            item.setIcon(new BitmapDrawable(context.getResources(),b));
+    // This is silly and isn't really what we want here, but it's a start.
+    // (We'd like to be able to add a displayunit to a menu in a super
+    // easy/straightforward way.
+    public static void addDisplayToMenu(Context context, Menu menu,
+                                        int menuId, DisplayData display) {
+        MenuItem item = menu.add(0, menuId, menuId,
+                Localizer.clearArguments(display.getName()).trim());
+        if (display.getImageURI() != null) {
+            Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI());
+            if (b != null) {
+                item.setIcon(new BitmapDrawable(context.getResources(), b));
+            }
         }
     }
 

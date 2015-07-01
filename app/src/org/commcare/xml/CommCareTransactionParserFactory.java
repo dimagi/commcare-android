@@ -11,8 +11,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.kxml2.io.KXmlParser;
@@ -21,9 +21,22 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 
 /**
- * @author ctsims
+ * The CommCare Transaction Parser Factory wraps all of the current
+ * transactions that CommCare knows about, and provides the appropriate hooks
+ * for parsing through XML and dispatching the right handler for each
+ * transaction.
  *
+ * It should be the central point of processing for transactions (eliminating
+ * the use of the old datamodel based processors) and should be used in any
+ * situation where a transaction is expected to be present.
+ *
+ * It is expected to behave more or less as a black box, in that it directly
+ * creates/modifies the data models on the system, rather than producing them
+ * for another layer or processing.
+ *
+ * @author ctsims
  */
+
 public class CommCareTransactionParserFactory implements TransactionParserFactory {
 
     private Context context;
@@ -44,8 +57,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.generator = generator;
         fixtureParser = new TransactionParserFactory() {
             FixtureXmlParser created = null;
-            
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
                 if(created == null) {
                     created = new FixtureXmlParser(parser) {
                         //TODO: store these on the file system instead of in DB?
@@ -72,38 +86,40 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     
     
     /* (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParserFactory#getParser(java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
+     * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
      */
-    public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-        if(namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
+    public TransactionParser getParser(KXmlParser parser) {
+        String name = parser.getName();
+        String namespace = parser.getNamespace();
+        if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
             req();
-            return formInstanceParser.getParser(name, namespace, parser);
+            return formInstanceParser.getParser(parser);
         } else if(LedgerXmlParsers.STOCK_XML_NAMESPACE.matches(namespace)) {
             if(stockParser == null) {
                 throw new RuntimeException("Couldn't process Stock transaction without initialization!");
             }
             req();
-            return stockParser.getParser(name, namespace, parser);
-        } else if(name != null && name.toLowerCase().equals("case")) {
+            return stockParser.getParser(parser);
+        } else if("case".equalsIgnoreCase(name)) {
             if(caseParser == null) {
                 throw new RuntimeException("Couldn't receive Case transaction without initialization!");
             }
             req();
-            return caseParser.getParser(name, namespace, parser);
-        } else if(name != null && name.toLowerCase().equals("registration")) {
+            return caseParser.getParser(parser);
+        } else if ("registration".equalsIgnoreCase(name)) {
             if(userParser == null) {
                 throw new RuntimeException("Couldn't receive User transaction without initialization!");
             }
             req();
-            return userParser.getParser(name, namespace, parser);
-        } else if(name != null && name.toLowerCase().equals("fixture")) {
+            return userParser.getParser(parser);
+        } else if ("fixture".equalsIgnoreCase(name)) {
             req();
-            return fixtureParser.getParser(name, namespace, parser);
-        }else if(name != null && name.toLowerCase().equals("message")) {
+            return fixtureParser.getParser(parser);
+        } else if ("message".equalsIgnoreCase(name)) {
             //server message;
             //" <message nature=""/>"
-        } else if(name != null && name.toLowerCase().equals("sync") && namespace != null && "http://commcarehq.org/sync".equals(namespace)) {
-            return new TransactionParser<String>(parser, namespace, namespace) {
+        } else if("sync".equalsIgnoreCase(name) && "http://commcarehq.org/sync".equals(namespace)) {
+            return new TransactionParser<String>(parser) {
                 /*
                  * (non-Javadoc)
                  * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
@@ -113,7 +129,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
                 /*
                  * (non-Javadoc)
-                 * @see org.commcare.xml.ElementParser#parse()
+                 * @see org.javarosa.xml.ElementParser#parse()
                  */
                 @Override
                 public String parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
@@ -126,7 +142,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                     syncToken = syncToken.trim();
                     return syncToken;
                 }
-                
             };
         }
         return null;
@@ -144,8 +159,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public void initUserParser(final byte[] wrappedKey) {
         userParser = new TransactionParserFactory() {
             UserXmlParser created = null;
-            
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
                 if(created == null) {
                     created = new UserXmlParser(parser, context, wrappedKey);
                 }
@@ -159,8 +175,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         final int[] tallies = new int[3];
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
-            
-            public TransactionParser<Case> getParser(String name, String namespace, KXmlParser parser) {
+
+            @Override
+            public TransactionParser<Case> getParser(KXmlParser parser) {
                 if(created == null) {
                     created = new AndroidCaseXmlParser(parser, tallies, true, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class), generator);
                 }
@@ -173,7 +190,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public void initStockParser() {
         stockParser = new TransactionParserFactory() {
             
-            public TransactionParser<Ledger[]> getParser(String name, String namespace, KXmlParser parser) {
+            public TransactionParser<Ledger[]> getParser(KXmlParser parser) {
                 return new LedgerXmlParsers(parser, CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class));
             }
         };
@@ -183,8 +200,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.formInstanceNamespaces = namespaces;
         formInstanceParser = new TransactionParserFactory() {
             FormInstanceXmlParser created = null;
-            
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
+
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
                 if(created == null) {
                     //TODO: We really don't wanna keep using fsPath eventually
                     created = new FormInstanceXmlParser(parser, context, formInstanceNamespaces, CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));

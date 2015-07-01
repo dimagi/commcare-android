@@ -6,6 +6,7 @@
 
     <uses-sdk android:minSdkVersion="7"  android:targetSdkVersion="10"/>
     <uses-permission android:name="org.commcare.dalvik.provider.cases.read"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -24,6 +25,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity android:name="CaseMediaActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         
         <activity android:name="CaseContentActivity">
             <intent-filter>
@@ -32,9 +40,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="FixtureContentActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
         <activity android:name="IntentReceiverTest"></activity>
     </application>
-        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
 
 </manifest>

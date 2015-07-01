@@ -118,6 +118,10 @@ public class UserDatabaseUpgrader {
     }
     
     private boolean upgradeFiveSix(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //On some devices this process takes a significant amount of time (sorry!) we should
+        //tell the service to wait longer to make sure this can finish.
+        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        
         db.beginTransaction();
         try {
             db.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
@@ -128,7 +132,7 @@ public class UserDatabaseUpgrader {
             
             db.execSQL(CaseIndexTable.getTableDefinition());
             CaseIndexTable.createIndexes(db);
-            CaseIndexTable cit = new CaseIndexTable();
+            CaseIndexTable cit = new CaseIndexTable(db);
             
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
@@ -147,6 +151,10 @@ public class UserDatabaseUpgrader {
     }
     
     private boolean upgradeSixSeven(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //On some devices this process takes a significant amount of time (sorry!) we should
+        //tell the service to wait longer to make sure this can finish.
+        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {

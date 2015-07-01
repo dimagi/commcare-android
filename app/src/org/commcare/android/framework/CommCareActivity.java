@@ -6,10 +6,13 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
@@ -23,6 +26,7 @@ import org.odk.collect.android.views.media.MediaEntity;
 import org.odk.collect.android.views.media.MediaState;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,8 +35,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.Spannable;
+import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +54,7 @@ import android.widget.Toast;
  *
  */
 public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
-    AudioController, DialogController {
+    AudioController, DialogController, OnGestureListener {
     
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";
@@ -62,6 +71,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     //fields for implementing task transitions for CommCareTaskConnector
     boolean inTaskTransition;
     boolean shouldDismissDialog = true;
+    
+    private GestureDetector mGestureDetector;
     
     /*
      * (non-Javadoc)
@@ -105,6 +116,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                 fm.beginTransaction().add(bar, "breadcrumbs").commit();
             }
         }
+        
+        mGestureDetector = new GestureDetector(this, this);
     }
     
     private void loadPreviousAudio(AudioController oldController) {
@@ -260,7 +273,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (currentEntity != null) attemptSetStateToPauseForRenewal();
+        if (currentEntity != null) {
+            attemptSetStateToPauseForRenewal();
+        }
     }
 
     /* (non-Javadoc)
@@ -539,8 +554,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      * @see org.odk.collect.android.views.media.AudioController#refreshCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
      */
     @Override
-    public void refreshCurrentAudioButton(AudioButton clicked) {
-        if (currentButton != null && currentButton != clicked) {
+    public void refreshCurrentAudioButton(AudioButton clickedButton) {
+        if (currentButton != null && currentButton != clickedButton) {
             currentButton.setStateToReady();
         }
     }
@@ -611,7 +626,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public void pauseCurrentMediaEntity() {
         if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
             MediaPlayer mp = currentEntity.getPlayer();
-            mp.pause();    
+            mp.pause();
             currentEntity.setState(MediaState.Paused);
         }
     }
@@ -689,6 +704,43 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             return mp.getCurrentPosition();
         }
         return null;
+    }
+
+    protected void createErrorDialog(String errorMsg, boolean shouldExit) {
+        createErrorDialog(this, errorMsg, shouldExit);
+    }
+    
+    /**
+     * Pop up a semi-friendly error dialog rather than crashing outright.
+     * @param activity Activity to which to attach the dialog.
+     * @param errorMsg
+     * @param shouldExit If true, cancel activity when user exits dialog.
+     */
+    public static void createErrorDialog(final Activity activity, String errorMsg, final boolean shouldExit) {
+        AlertDialog dialog = new AlertDialog.Builder(activity).create();
+        dialog.setIcon(android.R.drawable.ic_dialog_info);
+        dialog.setTitle(StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured));
+        dialog.setMessage(errorMsg);
+        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+            /*
+             * (non-Javadoc)
+             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+             */
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        if (shouldExit) {
+                            activity.setResult(RESULT_CANCELED);
+                            activity.finish();
+                        }
+                        break;
+                }
+            }
+        };
+        dialog.setCancelable(false);
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok), errorListener);
+        dialog.show();
     }
     
     /** All methods for implementation of DialogController **/
@@ -787,6 +839,156 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      */
     public boolean isBackEnabled() {
         return true;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see android.app.Activity#dispatchTouchEvent(android.view.MotionEvent)
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent mv) {
+        boolean handled = mGestureDetector == null ? false : mGestureDetector.onTouchEvent(mv);
+        if (!handled) {
+            return super.dispatchTouchEvent(mv);
+        }
+        return handled;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.OnGestureListener#onDown(android.view.MotionEvent)
+     */
+    @Override
+    public boolean onDown(MotionEvent arg0) {
+        return false;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.OnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
+     */
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if (isHorizontalSwipe(this, e1, e2)) {
+            if (velocityX <= 0) {
+                return onForwardSwipe();
+            }
+            return onBackwardSwipe();
+        }
+                
+        return false;
+    }
+    
+    /**
+     * Action to take when user swipes forward during activity.
+     * @return Whether or not the swipe was handled
+     */
+    protected boolean onForwardSwipe() {
+        return false;
+    }
+    
+    /**
+     * Action to take when user swipes backward during activity.
+     * @return Whether or not the swipe was handled
+     */
+    protected boolean onBackwardSwipe() {
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.OnGestureListener#onLongPress(android.view.MotionEvent)
+     */
+    @Override
+    public void onLongPress(MotionEvent arg0) {
+        // ignore
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.OnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
+     */
+    @Override
+    public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.OnGestureListener#onShowPress(android.view.MotionEvent)
+     */
+    @Override
+    public void onShowPress(MotionEvent arg0) {
+        // ignore
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.OnGestureListener#onSingleTapUp(android.view.MotionEvent)
+     */
+    @Override
+    public boolean onSingleTapUp(MotionEvent arg0) {
+        return false;
+    }
+
+    /**
+     * Decide if two given MotionEvents represent a swipe.
+     * @param activity
+     * @param e1 First MotionEvent
+     * @param e2 Second MotionEvent
+     * @return True iff the movement is a definitive horizontal swipe.
+     */
+    public static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
+        DisplayMetrics dm = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+
+        //screen width and height in inches.
+        double sw = dm.xdpi * dm.widthPixels;
+        double sh = dm.ydpi * dm.heightPixels;
+        
+        //relative metrics for what constitutes a swipe (to adjust per screen size)
+        double swipeX = 0.25;
+        double swipeY = 0.25;
+        
+        //details of the motion itself
+        float xMov = Math.abs(e1.getX() - e2.getX());
+        float yMov = Math.abs(e1.getY() - e2.getY());
+        
+        double angleOfMotion = ((Math.atan(yMov / xMov) / Math.PI) * 180);
+        
+        //large screen (tablet style 
+        if( sw > 5 || sh > 5) {
+            swipeX = 0.5;
+        }
+        
+
+        // for all screens a swipe is left/right of at least .25" and at an angle of no more than 30
+        //degrees
+        int xPixelLimit = (int) (dm.xdpi * .25);
+        //int yPixelLimit = (int) (dm.ydpi * .25);
+
+        return xMov > xPixelLimit && angleOfMotion < 30;
+    }
+
+    /*
+     * Methods to make localization and styling easier for devs
+     * copied from CommCareActivity
+     */
+    
+    public Spannable stylize(String text){
+        return MarkupUtil.styleSpannable(this, text);
+    }
+    
+    public Spannable localize(String key){
+        return MarkupUtil.localizeStyleSpannable(this, key);
+    }
+    
+    public Spannable localize(String key, String arg){
+        return MarkupUtil.localizeStyleSpannable(this, key, arg);
+    }
+    
+    public Spannable localize(String key, String[] args){
+        return MarkupUtil.localizeStyleSpannable(this, key, args);
     }
     
 }

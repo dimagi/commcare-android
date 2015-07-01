@@ -12,24 +12,53 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 -->
-<PreferenceScreen
-        xmlns:android="http://schemas.android.com/apk/res/android">
-<ListPreference 
-    android:key="cc-superuser-enabled" 
-    android:enabled="true" 
-    android:title="Developer Mode Enabled" 
-    android:entryValues="@array/pref_enabled_vals" 
-    android:entries="@array/pref_enabled_lables"/>
-<ListPreference 
-    android:key="cc-grid-menus" 
-    android:enabled="true" 
-    android:title="Grid Menus Enables" 
-    android:entryValues="@array/pref_enabled_vals" 
-    android:entries="@array/pref_enabled_lables"/>
-<ListPreference 
-	android:key="cc-nav-ui-enabled" 
-	android:enabled="true" 
-	android:title="Navigation UI" 
-	android:entryValues="@array/pref_enabled_vals" 
-	android:entries="@array/pref_enabled_lables"/>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-superuser-enabled"
+        android:title="Developer Mode Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-action-nav-enabled"
+        android:title="Action Bar Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-grid-menus"
+        android:title="Grid Menus Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-nav-ui-enabled"
+        android:title="Navigation UI" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-list-refresh"
+        android:title="Entity List Screen Auto-Refresh" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-newest-version-from-hq"
+        android:title="Use Newest App Version From HQ" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-css-enabled"
+        android:title="CSS Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-markdown-enabled"
+        android:title="Markdown Enabled" />
 </PreferenceScreen>

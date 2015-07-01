@@ -1,19 +1,5 @@
 package com.dimagi.test.external;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.SecureRandom;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.KeySpec;
-import java.security.spec.X509EncodedKeySpec;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,12 +10,25 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.SecureRandom;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.KeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
 public class ExternalAppActivity extends Activity {
     
     Button login;
     Button sync;
     Button content;
+    Button media;
     Button receiver;
+    Button fixtureButton;
     
     byte[] publicKey;
     String keyId;
@@ -108,11 +107,33 @@ public class ExternalAppActivity extends Activity {
             
         });
         
+        media = (Button)this.findViewById(R.id.button_media);
+        media.setOnClickListener(new OnClickListener() {
+
+            public void onClick(View v) {
+                Intent i = new Intent(ExternalAppActivity.this, CaseMediaActivity.class);
+                
+                ExternalAppActivity.this.startActivity(i);
+                }
+            
+        });
+
         content = (Button)this.findViewById(R.id.button_content);
         content.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
                 Intent i = new Intent(ExternalAppActivity.this, CaseContentActivity.class);
+
+                ExternalAppActivity.this.startActivity(i);
+            }
+
+        });
+        
+        fixtureButton = (Button)this.findViewById(R.id.button_fixture);
+        fixtureButton.setOnClickListener(new OnClickListener() {
+
+            public void onClick(View v) {
+                Intent i = new Intent(ExternalAppActivity.this, FixtureContentActivity.class);
                 
                 ExternalAppActivity.this.startActivity(i);
                 }
@@ -147,8 +168,7 @@ public class ExternalAppActivity extends Activity {
                  keyId = data.getStringExtra("commcare_sharing_key_id");
                  publicKey = data.getByteArrayExtra("commcare_sharing_key_payload");
             } else {
-                Toast t = Toast.makeText(this, "Key Request Denied!", Toast.LENGTH_LONG);
-                t.show();
+                Toast.makeText(this, "Key Request Denied!", Toast.LENGTH_LONG).show();
             }
         }
     }

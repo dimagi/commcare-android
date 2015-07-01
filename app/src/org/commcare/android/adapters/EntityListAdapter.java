@@ -93,9 +93,10 @@ public class EntityListAdapter implements ListAdapter {
     public EntityListAdapter(Activity activity, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
             int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) throws SessionUnavailableException {
         this.detail = detail;
+        actionEnabled = detail.getCustomAction() != null;
 
         this.full = full;
-        current = new ArrayList<Entity<TreeReference>>();
+        setCurrent(new ArrayList<Entity<TreeReference>>()); 
         this.references = references;
 
         this.context = activity;
@@ -114,8 +115,7 @@ public class EntityListAdapter implements ListAdapter {
             }
             filterValues("");
         } else {
-            current = new ArrayList<Entity<TreeReference>>(full);
-            actionPosition = current.size();
+            setCurrent(new ArrayList<Entity<TreeReference>>(full));
         }
         
         this.tts = tts;
@@ -129,11 +129,21 @@ public class EntityListAdapter implements ListAdapter {
         if(detail.getCustomAction() != null) {
         }
         usesGridView = detail.usesGridView();
-        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
-        
-        actionEnabled = detail.getCustomAction() != null;
+        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();        
     }
     
+    /**
+     * Set the current display set for this adapter
+     * 
+     * @param arrayList
+     */
+    private void setCurrent(List<Entity<TreeReference>> arrayList) {
+        current = arrayList;
+        if(actionEnabled) {
+            actionPosition = current.size();
+        }
+    }
+
     private void filterValues(String filterRaw) {
         this.filterValues(filterRaw, false);
     }
@@ -293,10 +303,7 @@ public class EntityListAdapter implements ListAdapter {
 
                 @Override
                 public void run() {
-                    current = matchList;
-                    if(actionEnabled) {
-                        actionPosition = current.size(); 
-                    }
+                    setCurrent(matchList);
                     currentSearchTerms = searchTerms;
                     update();
                 }
@@ -332,13 +339,15 @@ public class EntityListAdapter implements ListAdapter {
 
             private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
 
-                int i = detail.getFields()[index].getSortType();
+                int sortType = detail.getFields()[index].getSortType();
 
                 String a1 = object1.getSortField(index);
                 String a2 = object2.getSortField(index);
 
-                if(a1 == null) { a1 = object1.getFieldString(i); }
-                if(a2 == null) { a2 = object2.getFieldString(i); }
+                // COMMCARE-161205: Problem with search functionality
+                // If one of these is null, we need to get the field in the same index, not the field in SortType
+                if(a1 == null) { a1 = object1.getFieldString(index); }
+                if(a2 == null) { a2 = object2.getFieldString(index); }
 
                 //TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
                 //For now, regardless of typing, blanks are always smaller than non-blanks
@@ -349,8 +358,8 @@ public class EntityListAdapter implements ListAdapter {
                     return 1;
                 }
 
-                Comparable c1 = applyType(i, a1);
-                Comparable c2 = applyType(i, a2);
+                Comparable c1 = applyType(sortType, a1);
+                Comparable c2 = applyType(sortType, a2);
 
                 if(c1 == null || c2 == null) {
                     //Don't do something smart here, just bail.

@@ -1,5 +1,29 @@
 package org.commcare.dalvik.activities;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.PowerManager;
+import android.text.InputType;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -22,29 +46,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
-
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
-import android.os.PowerManager;
-import android.text.InputType;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 /**
  * The CommCareStartupActivity is purely responsible for identifying
  * the state of the application (uninstalled, installed) and performing
@@ -86,7 +87,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MODE_ARCHIVE = Menu.FIRST + 2;
     
     public static final int BARCODE_CAPTURE = 1;
-    public static final int MISSING_MEDIA_ACTIVITY=2;
     public static final int ARCHIVE_INSTALL = 3;
     public static final int DIALOG_INSTALL_PROGRESS = 4; 
 
@@ -99,6 +99,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     int dbState;
     int resourceState;
     int retryCount=0;
+    
+    public final boolean doStyle = true;
     
     
     public String incomingRef;
@@ -276,7 +278,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
             
         });
-        addressEntryButton.setText(Localization.get("install.button.enter"));
+        addressEntryButton.setText(this.localize("install.button.enter"));
         
         startOverButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -426,7 +428,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //NOTE: May need to do so elsewhere as well
         if(uiState == UiState.upgrade) {
             refreshView();
-            mainMessage.setText(Localization.get("updates.check"));
+            //mainMessage.setText(Localization.get("updates.check"));
+            mainMessage.setText("updates.check");
             startResourceInstall();
         }
     }
@@ -602,8 +605,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
              * it starts, set based on whether we are currently in keep trying mode */
             boolean shouldSleep = (lastDialog == null) ? false : lastDialog.isChecked();
             
-            ResourceEngineTask<CommCareSetupActivity> task = new ResourceEngineTask<CommCareSetupActivity>(this, 
-                    inUpgradeMode, partialMode, app, startOverUpgrade, DIALOG_INSTALL_PROGRESS, shouldSleep) {
+            ResourceEngineTask<CommCareSetupActivity> task =
+                new ResourceEngineTask<CommCareSetupActivity>(inUpgradeMode,
+                        partialMode, app, startOverUpgrade,
+                        DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                 /*
                  * (non-Javadoc)
@@ -698,7 +703,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MODE_BASIC, 0, Localization.get("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
+        menu.add(0, MODE_BASIC, 0, this.localize("menu.basic")).setIcon(android.R.drawable.ic_menu_help);
         menu.add(0, MODE_ADVANCED, 0, Localization.get("menu.advanced")).setIcon(android.R.drawable.ic_menu_edit);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         return true;
@@ -733,19 +738,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     public void setModeToAutoUpgrade(){
-        retryButton.setText(Localization.get("upgrade.button.retry"));
-        startOverButton.setText(Localization.get("upgrade.button.startover"));
+        retryButton.setText(this.localize("upgrade.button.retry"));
+        startOverButton.setText(this.localize("upgrade.button.startover"));
         buttonView.setVisibility(View.INVISIBLE);
     }
     
     public void setModeToReady(String incomingRef) {
         buttonView.setVisibility(View.VISIBLE);
-        mainMessage.setText(Localization.get("install.ready"));
+        
+        mainMessage.setText(this.localize("install.ready"));
+        mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
+        
         editProfileRef.setText(incomingRef);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
-        startOverButton.setText(Localization.get("install.button.startover"));
+        startOverButton.setText(this.localize("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
         addressEntryButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
@@ -787,9 +795,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void setModeToBasic(String message){
         loginButton.setVisibility(View.GONE);
         buttonView.setVisibility(View.VISIBLE);
-        editProfileRef.setText("");    
+        editProfileRef.setText("");
         this.incomingRef = null;
-        mainMessage.setText(message);
+
+        mainMessage.setText(this.localize("install.barcode"));
+        mainMessage.setMovementMethod(LinkMovementMethod.getInstance());
+        
         addressEntryButton.setVisibility(View.VISIBLE);
         advancedView.setVisibility(View.GONE);
         mScanBarcodeButton.setVisibility(View.VISIBLE);
@@ -797,8 +808,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startOverButton.setVisibility(View.GONE);
         installButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
-        retryButton.setText(Localization.get("install.button.retry"));
-        startOverButton.setText(Localization.get("install.button.startover"));
+        retryButton.setText(this.localize("install.button.retry"));
+        startOverButton.setText(this.localize("install.button.startover"));
     }
 
     public void setModeToAdvanced(){
@@ -808,13 +819,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         mScanBarcodeButton.setVisibility(View.GONE);
         addressEntryButton.setVisibility(View.GONE);
         installButton.setVisibility(View.VISIBLE);
-        startOverButton.setText(Localization.get("install.button.startover"));
+        startOverButton.setText(this.localize("install.button.startover"));
         startOverButton.setVisibility(View.VISIBLE);
         installButton.setEnabled(true);
         viewNotificationButton.setVisibility(View.GONE);
         retryButton.setVisibility(View.GONE);
-        retryButton.setText(Localization.get("install.button.retry"));
-        startOverButton.setText(Localization.get("install.button.startover"));
+		retryButton.setText(this.localize("install.button.retry"));
+        startOverButton.setText(this.localize("install.button.startover"));
         loginButton.setVisibility(View.GONE);
     }
 
@@ -905,7 +916,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     fullErrorMessage = fullErrorMessage + message.getAction();
                 }
                 
-                mainMessage.setText(fullErrorMessage);
             }
         }
         

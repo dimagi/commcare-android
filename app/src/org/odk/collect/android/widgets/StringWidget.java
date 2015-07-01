@@ -14,12 +14,6 @@
 
 package org.odk.collect.android.widgets;
 
-import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
-import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
-import org.javarosa.form.api.FormEntryPrompt;
-
 import android.content.Context;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -36,6 +30,12 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TableLayout;
+
+import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
+import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
+import org.javarosa.form.api.FormEntryPrompt;
 
 /**
  * The most basic widget that allows for entry of any text.
@@ -84,13 +84,13 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
 
         if (prompt != null) {
             mReadOnly = prompt.isReadOnly();
-            String s = prompt.getAnswerText();
-            if (s != null) {
-                mAnswer.setText(s);
+            IAnswerData value = prompt.getAnswerValue();
+            if (value != null) {
+                mAnswer.setText(value.getDisplayText());
             }
 
             if (mReadOnly) {
-                if (s == null) {
+                if (value == null) {
                     mAnswer.setText("---");
                 }
                 mAnswer.setBackgroundDrawable(null);

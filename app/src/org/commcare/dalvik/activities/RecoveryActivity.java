@@ -8,6 +8,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.FormUploadUtil;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
@@ -135,7 +136,15 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                     }
                     
                 };
-                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+
+                try {
+                    mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+                } catch (SessionUnavailableException sue) {
+                    // abort since it looks like the session expired
+                    displayMessage("CommCare session is no longer available.");
+                    return;
+                }
+
                 mProcess.connect(RecoveryActivity.this);
                 
                 //Execute on a true multithreaded chain. We should probably replace all of our calls with this
@@ -165,7 +174,7 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
     }
 
     protected void displayMessage(String text) {
-        txtUserMessage.setText(text);
+        txtUserMessage.setText(this.localize(text));
     }
 
     /* (non-Javadoc)

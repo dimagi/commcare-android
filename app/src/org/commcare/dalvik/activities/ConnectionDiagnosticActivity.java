@@ -1,16 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.tasks.ConnectionDiagnosticTask;
-import org.commcare.android.tasks.LogSubmissionTask;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,6 +10,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.ConnectionDiagnosticTask;
+import org.commcare.android.tasks.DataSubmissionListener;
+import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+
 /**
  * Activity that will diagnose various connection problems that a user may be facing.
  * @author srengesh
@@ -29,17 +32,9 @@ import android.widget.Toast;
 
 @ManagedUi(R.layout.connection_diagnostic)
 public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
-    
 
-    
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
-    
-    @UiElement(R.id.screen_bulk_image1)
-    ImageView banner;
-    
-    @UiElement(value = R.id.connection_test_prompt, locale="connection.test.prompt")
-    TextView connectionPrompt;
-    
+
     @UiElement(value = R.id.run_connection_test, locale="connection.test.run")
     Button btnRunTest;
     
@@ -176,25 +171,30 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                         CommCareApplication._().getCurrentApp().getAppPreferences();
                 String url = settings.getString("PostURL", null);
                 
-                if(url != null) 
-                {
-                    LogSubmissionTask reportSubmitter = 
+                if(url != null) {
+                    DataSubmissionListener dataListener;
+
+                    try {
+                        dataListener =
+                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
+                    } catch (SessionUnavailableException sue) {
+                        // abort since it looks like the session expired
+                        return;
+                    }
+                    LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
-                                    CommCareApplication._(), 
-                                    true, 
-                                    CommCareApplication._().getSession().startDataSubmissionListener(
-                                            R.string.submission_logs_title), url);
+                                    CommCareApplication._(),
+                                    true,
+                                    dataListener, url);
                     reportSubmitter.execute();
                     ConnectionDiagnosticActivity.this.finish();
                     Toast.makeText(
                             CommCareApplication._(), 
                             Localization.get("connection.task.report.commcare.popup"), 
                             Toast.LENGTH_LONG).show();
-                } 
-                else 
-                {
+                } else {
                     Logger.log(ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
-                    ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(Localization.get("connection.task.unset.posturl"));
+                    ConnectionDiagnosticActivity.this.txtInteractiveMessages.setText(MarkupUtil.localizeStyleSpannable(ConnectionDiagnosticActivity.this, "connection.task.unset.posturl"));
                     ConnectionDiagnosticActivity.this.txtInteractiveMessages.setVisibility(View.VISIBLE);
                 }
             }

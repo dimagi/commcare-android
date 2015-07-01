@@ -26,8 +26,8 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -69,17 +69,16 @@ public class FormRecordProcessor {
     public FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         String form = record.getPath(c);
         
-        DataModelPullParser parser;
         final File f = new File(form);
 
         final Cipher decrypter = FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
         InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
-        parser = new DataModelPullParser(is, new TransactionParserFactory() {
-            
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-                if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+
+        DataModelPullParser parser = new DataModelPullParser(is, new TransactionParserFactory() {
+            public TransactionParser getParser(KXmlParser parser) {
+                if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
                     return new LedgerXmlParsers(parser, CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class));
-                }else if(name.toLowerCase().equals("case")) {
+                } else if("case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class), decrypter, null, f.getParentFile());
                 } 
                 return null;
