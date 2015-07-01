@@ -37,21 +37,23 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
+
 /**
- * The CommCareStartupActivity is purely responsible for identifying
- * the state of the application (uninstalled, installed) and performing
- * any necessary setup to get to a place where CommCare can load normally.
+ * Responsible for identifying the state of the application (uninstalled,
+ * installed) and performing any necessary setup to get to a place where
+ * CommCare can load normally.
  * 
- * If the startup activity identifies that the app is installed properly
- * it should not ever require interaction or be visible to the user. 
+ * If the startup activity identifies that the app is installed properly it
+ * should not ever require interaction or be visible to the user. 
  * 
  * @author ctsims
- *
  */
 @ManagedUi(R.layout.first_start_screen_modern)
 public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
         SetupKeepInstallFragment.StartStopInstallCommands {
+    private static final String TAG = CommCareSetupActivity.class.getSimpleName();
+
     public static final String RESOURCE_STATE = "resource_state";
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
@@ -130,10 +132,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     //endregion
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -192,7 +190,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             this.ccApp = oldActivity.ccApp;
         }
 
-        Log.v("UIState","Current vars: " +
+        Log.v("UiState","Current vars: " +
                         "UIState is: " + this.uiState + " " +
                         "incomingRef is: " + incomingRef + " " +
                         "startAllowed is: " + startAllowed + " "
@@ -202,9 +200,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void OnURLChosen(String url) {
+    public void onURLChosen(String url) {
         if(BuildConfig.DEBUG) {
-            Log.d("DEBUG-d", "SetupEnterURLFragment returned: " + url);
+            Log.d(TAG, "SetupEnterURLFragment returned: " + url);
         }
         incomingRef = url;
         this.uiState = UiState.ready;
@@ -219,7 +217,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case upgrade:
             case ready:
                 if(incomingRef == null || incomingRef.length() == 0){
-                    Log.e("Install","IncomingRef is empty!");
+                    Log.e(TAG,"During install: IncomingRef is empty!");
                     Toast.makeText(getApplicationContext(), "Invalid URL: '" + incomingRef + "'", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -238,19 +236,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         ft.commit();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onDestroy()
-     */
     @Override
     public void onDestroy() {
         super.onDestroy();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onStart()
-     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -265,20 +255,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
         }
     }
-    
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#getWakeLockingLevel()
-     */
+
     @Override
     protected int getWakeLockingLevel() {
         return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
     }
     
-    
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -290,9 +272,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         Log.v("UiState","Saving instance state: " + outState);
     }
     
-    /* (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -302,7 +281,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 if (resultCode == Activity.RESULT_OK) {
                     result = data.getStringExtra("SCAN_RESULT");
                     String dbg = "Got url from barcode scanner: " + result;
-                    Log.i("DEBUG-i",dbg);
+                    Log.i(TAG, dbg);
                 }
                 break;
             case ARCHIVE_INSTALL:
@@ -360,18 +339,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask()
-     */
     @Override
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
         this.startAllowed = false;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopBlockingForTask()
-     */
     @Override
     public void stopBlockingForTask(int id) {
         super.stopBlockingForTask(id);
@@ -409,10 +382,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         app, startOverUpgrade,
                         DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                 */
                 @Override
                 protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
                     boolean startOverInstall;
@@ -466,19 +435,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     }
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                 */
                 @Override
                 protected void deliverUpdate(CommCareSetupActivity receiver, int[]... update) {
                     receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                 */
                 @Override
                 protected void deliverError(CommCareSetupActivity receiver, Exception e) {
                     receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
@@ -489,25 +450,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             task.connect(this);
             task.execute(ref);
         } else {
-            Log.i("commcare-install", "Blocked a resource install press since a task was already running");
+            Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         return true;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
-     */
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -515,10 +468,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -613,19 +562,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         fail(NotificationMessageFactory.message(statusfailstate), true);
     }
     
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
-     * 
-     * implementation of generateProgressDialog() for DialogController --
+    /**
+     * {@inheritDoc}
+     *
+     * Implementation of generateProgressDialog() for DialogController --
      * all other methods handled entirely in CommCareActivity
      */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId != DIALOG_INSTALL_PROGRESS) {
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareSetupActivity");        
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
+                    + "any valid possibilities in CommCareSetupActivity");
             return null;
         }
         String title, message;
