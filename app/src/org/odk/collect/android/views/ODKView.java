@@ -4,7 +4,6 @@ package org.odk.collect.android.views;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
@@ -64,7 +63,13 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     private int mViewBannerCount = 0;
 
     private boolean mProgressEnabled;
+    
+    String mGroupLabel;
 
+    /**
+     * If enabled, we use dividers between question prompts
+     */
+    private static final boolean SEPERATORS_ENABLED = false;
 
     public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory) {
         this(context, new FormEntryPrompt[] {
@@ -104,10 +109,9 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         widgets = new ArrayList<QuestionWidget>();
         dividers = new ArrayList<View>();
 
-        mView = new LinearLayout(getContext());
-        mView.setOrientation(LinearLayout.VERTICAL);
-        mView.setGravity(Gravity.TOP);
-        mView.setPadding(0, 7, 0, 0);
+        View layout = inflate(getContext(), R.layout.odkview_layout, null);
+
+        mView = (LinearLayout) layout.findViewById(R.id.odkview_layout);
         
         if(PreferencesActivity.getProgressBarMode(mContext) == ProgressBarMode.ProgressOnly) {
             this.mProgressEnabled = true;
@@ -134,7 +138,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         mLayout =
             new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
-        mLayout.setMargins(10, 0, 10, 0);
+        //mLayout.setMargins(10, 0, 10, 0);
 
         //Figure out if we share hint text between questions
         String hintText = null;
@@ -154,7 +158,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
 
         // display which group you are in as well as the question
-        addGroupText(groups);
+        mGroupLabel = deriveGroupText(groups);
         
         addHintText(hintText);
         
@@ -164,8 +168,12 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             
             if (!first) {
                 View divider = new View(getContext());
-                divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
-                divider.setMinimumHeight(3);
+                if(SEPERATORS_ENABLED) {
+                    divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+                    divider.setMinimumHeight(3);
+                } else {
+                    divider.setMinimumHeight(0);
+                }
                 dividers.add(divider);
                 mView.addView(divider);
             } else {
@@ -190,8 +198,8 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
         
         updateLastQuestion();
-        
-        addView(mView);
+
+        addView(layout);
     }
     
     public void removeQuestionFromIndex(int i){
@@ -222,8 +230,12 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     public void addQuestionToIndex(FormEntryPrompt fep, WidgetFactory factory, int i){
 
         View divider = new View(getContext());
-        divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
-        divider.setMinimumHeight(3);
+        if(SEPERATORS_ENABLED) {
+            divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+            divider.setMinimumHeight(3);
+        } else {
+            divider.setMinimumHeight(0);
+        }
         int dividerIndex = mViewBannerCount;
         if(i > 0) {
             dividerIndex += 2 * i - 1;
@@ -231,7 +243,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         mView.addView(divider, getViewIndex(dividerIndex));
         dividers.add(Math.max(0, i - 1), divider);
         
-        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());;
+        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());
         qw.setLongClickable(true);
         qw.setOnLongClickListener(this);
         qw.setId(VIEW_ID + widgetIdCount++);
@@ -310,9 +322,9 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     }
 
     /**
-     * // * Add a TextView containing the hierarchy of groups to which the question belongs. //
+     * Returns the hierarchy of groups to which the question belongs.
      */
-    private void addGroupText(FormEntryCaption[] groups) {
+    private String deriveGroupText(FormEntryCaption[] groups) {
         StringBuffer s = new StringBuffer("");
         String t = "";
         int i;
@@ -328,16 +340,24 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
                 s.append(" > ");
             }
         }
-
-        // build view
-        if (s.length() > 0) {
-            TextView tv = new TextView(getContext());
-            tv.setText(s.substring(0, s.length() - 3));
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE - 4);
-            tv.setPadding(0, 0, 0, 5);
-            mView.addView(tv, mLayout);
-            mViewBannerCount ++;
+        
+        //remove the trailing " > "
+        if(s.length() > 0) {
+            s.delete(s.length() - 2, s.length());
         }
+        
+        return s.toString();
+    }
+    
+    
+    /**
+     * Ugh, the coupling here sucks, but this returns the group label
+     * to be used for this odk view. 
+     * 
+     * @return
+     */
+    public String getGroupLabel() {
+        return mGroupLabel;
     }
     
     private void addHintText(String hintText) {

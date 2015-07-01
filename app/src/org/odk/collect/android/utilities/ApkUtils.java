@@ -35,7 +35,6 @@ public class ApkUtils {
         try {
         List<String> classes = getClasses("org.javarosa", c);
         for(String cl : classes) {
-            //Log.i("CLASS", cl);
             tree.addString(cl);
         }
         
@@ -43,14 +42,12 @@ public class ApkUtils {
         //way to extend this utility
         classes = getClasses("org.commcare", c);
         for(String cl : classes) {
-            //Log.i("CLASS", cl);
             tree.addString(cl);
         }
         
         
         classes = getClasses("org.odk.collect", c);
         for(String cl : classes) {
-            //Log.i("CLASS", cl);
             tree.addString(cl);
         }
         } catch(Exception e) {

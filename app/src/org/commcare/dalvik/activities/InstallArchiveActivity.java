@@ -30,7 +30,6 @@ import android.widget.Toast;
 
 /**
  * @author wspride
- *
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
@@ -56,7 +55,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     boolean done = false;
 
-    public static String TAG = "install-archive";
+    public static String TAG = InstallArchiveActivity.class.getSimpleName();
     
     public static String ARCHIVE_REFERENCE = "archive-ref";
 
@@ -128,7 +127,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                     return;
                 } else {
                     //assume that we've already set the error message, but make it look scary
-                    receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                    receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                 }
             }
 
@@ -152,7 +151,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             protected void deliverError(InstallArchiveActivity receiver, Exception e) {
                 Log.d(TAG, "unzip deliver error: " + e.getMessage());
                 receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[] {e.getMessage()}));
-                receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             }
         };
 
@@ -213,7 +212,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     private void evalState() {
         if(done) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.done"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(false);
             return;
         }
@@ -221,21 +220,21 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         String location = editFileLocation.getText().toString();
         if("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.empty"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(false);
             return;
         }
 
         if(!(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallArchive.setEnabled(false);
             return;
         }
 
         else {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.ready"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(true);
             return;
         }
@@ -247,7 +246,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @Override
     public void taskCancelled(int id) {
         txtInteractiveMessages.setText(Localization.get("archive.install.cancelled"));
-        this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+        this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
     public String getTargetFolder(){
@@ -275,7 +274,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return CustomProgressDialog.newInstance(title, message, taskId);
         }
         else {
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in InstallArchiveActivity");
             return null;
         }

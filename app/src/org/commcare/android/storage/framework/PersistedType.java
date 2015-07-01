@@ -9,5 +9,5 @@ package org.commcare.android.storage.framework;
  *
  */
 public enum PersistedType {
-    normal;
+    normal
 }

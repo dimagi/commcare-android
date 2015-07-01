@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -11,10 +12,13 @@ import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +34,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +46,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -48,6 +54,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
@@ -82,6 +89,8 @@ import java.util.TimerTask;
  *
  */
 public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
+    public static final String TAG = EntitySelectActivity.class.getSimpleName();
+
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -101,7 +110,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     TextView searchResultStatus;
     EntityListAdapter adapter;
     LinearLayout header;
-    ImageButton calloutButton;
+    ImageButton barcodeButton;
+    SearchView searchView;
     
     TextToSpeech tts;
     
@@ -133,7 +143,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private Detail shortSelect;
     
     private DataSetObserver mListStateObserver;
-    
+    private OnClickListener barcodeScanOnClickListener;
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -232,17 +243,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchResultStatus = (TextView) findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
 
+        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+
         mViewMode = session.isViewCommand(session.getCommand());
 
         Callout callout = shortSelect.getCallout();
 
-        calloutButton = (ImageButton)findViewById(R.id.barcodeButton);
+        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
         if (callout == null) {
             // Default to barcode scanning if no callout defined in the detail
-
-            calloutButton.setOnClickListener(new OnClickListener() {
+            barcodeButton.setOnClickListener((barcodeScanOnClickListener = new OnClickListener() {
                 public void onClick(View v) {
+                    Log.i("SCAN","Using default barcode scan");
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                     try {
                         startActivityForResult(i, BARCODE_FETCH);
@@ -253,19 +266,20 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                                 Toast.LENGTH_LONG).show();
                     }
                 }
-            });
+            }));
         } else {
             CalloutData calloutData = callout.evaluate();
 
             if (calloutData.getImage() != null) {
-                setupImageLayout(calloutButton, calloutData.getImage());
+                setupImageLayout(barcodeButton, calloutData.getImage());
             }
 
             final String actionName = calloutData.getActionName();
             final Hashtable<String, String> extras = calloutData.getExtras();
 
-            calloutButton.setOnClickListener(new OnClickListener() {
+            barcodeButton.setOnClickListener((barcodeScanOnClickListener = new OnClickListener() {
                 public void onClick(View v) {
+                    Log.i("SCAN","Using barcode scan with action: " + actionName);
                     Intent i = new Intent(actionName);
 
                     for(String key: extras.keySet()){
@@ -277,7 +291,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                         Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG).show();
                     }
                 }
-            });
+            }));
         }
 
         searchbox.addTextChangedListener(this);
@@ -299,6 +313,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
+        restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
     }
 
     /**
@@ -339,7 +354,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             public void onChanged() {
                 super.onChanged();
                 //update the search results box
-                String query = searchbox.getText().toString();
+                String query = getSearchText().toString();
                 if (!"".equals(query)) {
                     searchResultStatus.setText(Localization.get("select.search.status", new String[] {
                         ""+adapter.getCount(true, false), 
@@ -436,11 +451,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 }
             }
             
-            //Hm, sadly we possibly need to rebuild this each time. 
-            EntityView v = new EntityView(this, shortSelect, headers);
+            //Hm, sadly we possibly need to rebuild this each time.
+            int[] colors = AndroidUtil.getThemeColorIDs(this, new int[]{ R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color });
+            Log.i("DEBUG-i","Background color is: " + colors[0] + ", text color is: " + colors[1]);
+            EntityView v = new EntityView(this, shortSelect, headers, colors[1]);
             header.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            v.setBackgroundResource(R.drawable.blue_tabbed_box);
+            v.setBackgroundColor(colors[0]);
 
             // only add headers if we're not using grid mode
             if(!shortSelect.usesGridView()){
@@ -474,6 +491,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void onStop() {
         super.onStop();
         stopTimer();
+        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
     }
     
 
@@ -691,7 +709,57 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     action.getDisplay().evaluate());
         }
 
+        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+            // again, this should be unnecessary...
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
+                EntitySelectActivity.this.searchView = searchView;
+                // restore last query string in the searchView if there is one
+                if (lastQueryString != null && lastQueryString.length() > 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    {
+                        searchItem.expandActionView();
+                    }
+                    searchView.setQuery(lastQueryString, false);
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
+                    }
+                    if (adapter != null) {
+                        adapter.applyFilter(lastQueryString == null ? "" : lastQueryString);
+                    }
+                }
+                EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        lastQueryString = newText;
+                        if (BuildConfig.DEBUG) {
+                            Log.v(TAG, "Setting lastQueryString to (" + newText + ")");
+                        }
+                        if(newText != null && newText.length() > 0){
+                        }
+                        if (adapter != null) {
+                            adapter.applyFilter(newText);
+                        }
+                        return false;
+                    }
+                });
+            }
+        });
+
         return true;
+    }
+
+    @SuppressWarnings("NewApi")
+    private CharSequence getSearchText(){
+        // not checking for build version because searchview will be null if not supported
+        if(searchView != null) return searchView.getQuery();
+        return searchbox.getText();
     }
     
     /* (non-Javadoc)
@@ -723,6 +791,15 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 return true;
             case MENU_ACTION:
                 triggerDetailAction();
+                return true;
+            // handling click on the barcode scanner's actionbar
+            // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
+            case R.id.barcode_scan_action_bar:
+                barcodeScanOnClickListener.onClick(null);
+                return true;
+            // this is needed because superclasses do not implement the menu_settings click
+            case R.id.menu_settings:
+                CommCareHomeActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);

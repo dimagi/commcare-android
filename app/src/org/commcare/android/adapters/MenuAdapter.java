@@ -3,15 +3,14 @@
  */
 package org.commcare.android.adapters;
 
-import android.content.Context;
-import android.database.DataSetObserver;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import java.io.File;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.view.HorizontalMediaView;
+import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.MenuDisplayable;
@@ -21,6 +20,8 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
@@ -29,9 +30,19 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.odk.collect.android.views.media.AudioButton;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import android.content.Context;
+import android.database.DataSetObserver;
+import android.graphics.Bitmap;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
 /**
  * Adapter class to handle both Menu and Entry items
@@ -195,42 +206,111 @@ public class MenuAdapter implements ListAdapter {
         return 0;
     }
 
+    private enum NavIconState {
+        NONE
+       ,NEXT
+       ,JUMP
+    }
+
     /* (non-Javadoc)
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
     public View getView(int i, View v, ViewGroup vg) {
-
+        
         MenuDisplayable mObject = displayableData[i];
-        
-        HorizontalMediaView emv = (HorizontalMediaView)v;
+
+        // inflate view
+        View menuListItem = v;
+
+        if(menuListItem == null) {
+            // inflate it and do not attach to parent, or we will get the 'addView not supported' exception
+            menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_list_item_modern, vg, false);
+        }
+
+        // set up text
         String mQuestionText = textViewHelper(mObject);
-        if(emv == null) {
-            emv = new HorizontalMediaView(context);
-        }
-        
-        int iconChoice = HorizontalMediaView.NAVIGATION_NEXT;
-        
-        //figure out some icons
-        if(mObject instanceof Entry) {
-            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
-            if(datum == null) {
-                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
-            }
-            else if(datum.getNodeset() == null) {
-                iconChoice = HorizontalMediaView.NAVIGATION_JUMP;
-            } 
-        }
-        if(!DeveloperPreferences.isNewNavEnabled()) {
-            iconChoice = HorizontalMediaView.NAVIGATION_NONE;
-        }
-        
-        //Final change, remove any numeric context requests. J2ME uses these to 
+
+        //Final change, remove any numeric context requests. J2ME uses these to
         //help with numeric navigation.
         if(mQuestionText != null) {
             mQuestionText = Localizer.processArguments(mQuestionText, new String[] {""}).trim();
         }
-        emv.setAVT(mQuestionText, mObject.getAudioURI(), mObject.getImageURI(), iconChoice);
-        return emv;
+
+        TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
+        rowText.setText(mQuestionText);
+
+        // set up audio
+        final String audioURI = mObject.getAudioURI();
+        String audioFilename = "";
+        if(audioURI != null && !audioURI.equals("")) {
+            try {
+                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+            } catch (InvalidReferenceException e) {
+                Log.e("AVTLayout", "Invalid reference exception");
+                e.printStackTrace();
+            }
+        }
+
+        File audioFile = new File(audioFilename);
+
+        // First set up the audio button
+        AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
+        if (audioFilename != "" && audioFile.exists()) {
+            // Set not focusable so that list onclick will work
+            mAudioButton.setFocusable(false);
+            mAudioButton.setFocusableInTouchMode(false);
+
+            mAudioButton.resetButton(audioURI, true);
+        } else {
+            if(mAudioButton != null) {
+                mAudioButton.resetButton(audioURI, false);
+                ((LinearLayout) mAudioButton.getParent()).removeView(mAudioButton);
+            }
+        }
+
+        // set up the image, if available
+        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+
+        NavIconState iconChoice = NavIconState.NEXT;
+
+        //figure out some icons
+        if(mObject instanceof Entry) {
+            SessionDatum datum = asw.getSession().getNeededDatum((Entry)mObject);
+            if(datum == null || datum.getNodeset() == null) {
+                iconChoice = NavIconState.JUMP;
+            }
+        }
+        if(!DeveloperPreferences.isNewNavEnabled()) {
+            iconChoice = NavIconState.NONE;
+        }
+
+        if(mIconView != null) {
+            switch (iconChoice) {
+                case NEXT:
+                    mIconView.setImageResource(R.drawable.avatar_module);
+                    break;
+                case JUMP:
+                    mIconView.setImageResource(R.drawable.avatar_form);
+                    break;
+                case NONE:
+                    mIconView.setVisibility(View.GONE);
+                    break;
+            }
+        } else {
+            if(mIconView != null) {
+                mIconView.setVisibility(View.GONE);
+            }
+        }
+
+        String imageURI = mObject.getImageURI();
+
+        Bitmap image = ViewUtil.inflateDisplayImage(context, imageURI);
+        if(image != null && mIconView != null) {
+            mIconView.setImageBitmap(image);
+            mIconView.setAdjustViewBounds(true);
+        }
+
+        return menuListItem;
     }
 
     /*

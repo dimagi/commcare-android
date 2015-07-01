@@ -13,12 +13,12 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.GridEntityView;
-import org.commcare.android.view.GridMediaView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -516,6 +516,8 @@ public class EntityListAdapter implements ListAdapter {
 
             if(emv == null) {
                 emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller, mFuzzySearchEnabled);
+                int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
+                emv.setTitleTextColor(titleColor[0]);
             } else{
                emv.setSearchTerms(currentSearchTerms);
                 emv.setViews(context, detail, entity);

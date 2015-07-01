@@ -44,6 +44,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * This is a container class which maintains all of the appropriate hooks for managing the details
@@ -51,9 +52,9 @@ import android.net.Uri;
  * manipulating them in a single place.
  * 
  * @author ctsims
- *
  */
 public class AndroidSessionWrapper {
+    private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
     protected CommCareSession session;
     private CommCarePlatform platform;
@@ -224,7 +225,7 @@ public class AndroidSessionWrapper {
                 int recordId = Integer.valueOf(sessionStorage.getMetaDataFieldForRecord(id, SessionStateDescriptor.META_FORM_RECORD_ID));
                 if(!storage.exists(recordId)) {
                     sessionStorage.remove(id);
-                    System.out.println("Removing stale ssd record: " + id);
+                    Log.d(TAG, "Removing stale ssd record: " + id);
                     continue;
                 }
                 if(FormRecord.STATUS_INCOMPLETE.equals(storage.getMetaDataFieldForRecord(recordId, FormRecord.META_STATUS))) {
@@ -275,14 +276,15 @@ public class AndroidSessionWrapper {
         Hashtable<String, Entry> entries = platform.getMenuMap();
         for(StackFrameStep step : session.getFrame().getSteps()) {
             String val = null; 
-            if(step.getType() == SessionFrame.STATE_COMMAND_ID) {
+            if(SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 //Menu or form. 
                 if(menus.containsKey(step.getId())) {
                     val = menus.get(step.getId());
                 } else if(entries.containsKey(step.getId())) {
                     val = entries.get(step.getId()).getText().evaluate();
                 }
-            } else if(step.getType() == SessionFrame.STATE_DATUM_VAL || step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
+            } else if(SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+                    SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
                 //nothing much to be done here...
             }
             if(val != null) {
@@ -300,8 +302,10 @@ public class AndroidSessionWrapper {
         //TODO: This manipulates the state of the session. We should instead grab and make a copy of the frame, and make a new session to 
         //investigate this.
         
-        //Walk backwards until we find something with a long detail
-        while(session.getFrame().getSteps().size() > 0 && (session.getNeededData() != SessionFrame.STATE_DATUM_VAL || session.getNeededDatum().getLongDetail() == null)) {
+        // Walk backwards until we find something with a long detail
+        while (session.getFrame().getSteps().size() > 0 &&
+                (!SessionFrame.STATE_DATUM_VAL.equals(session.getNeededData()) ||
+                        session.getNeededDatum().getLongDetail() == null)) {
             session.stepBack();
         }
         if(session.getFrame().getSteps().size() == 0) { return null;}
@@ -418,7 +422,7 @@ public class AndroidSessionWrapper {
                     }
                     
                     wrapper = new AndroidSessionWrapper(platform);
-                    wrapper.session.setCommand(key);
+                    wrapper.session.setCommand(platform.getModuleNameForEntry(e));
                     wrapper.session.setCommand(e.getCommandId());
                     wrapper.session.setDatum(datum.getDataId(), selectedValue);
                 }

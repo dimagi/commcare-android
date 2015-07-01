@@ -23,7 +23,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.dalvik.application.CommCareApplication;

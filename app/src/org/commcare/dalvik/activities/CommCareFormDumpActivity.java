@@ -15,7 +15,6 @@ import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -28,19 +27,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
  * @author wspride
- *
  */
 
 @ManagedUi(R.layout.screen_form_dump)
 public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpActivity> {
+    private static final String TAG = CommCareFormDumpActivity.class.getSimpleName();
      
     @UiElement(value = R.id.screen_bulk_form_prompt, locale="bulk.form.prompt")
     TextView txtDisplayPrompt;
@@ -90,7 +89,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                 //if there're no forms to dump, just return
                 if(formsOnSD == 0){
                     txtInteractiveMessages.setText(localize("bulk.form.no.unsynced.submit"));
-                    TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                    transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
                 }
                 
@@ -116,7 +115,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                             //assume that we've already set the error message, but make it look scary
                             CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
                             receiver.updateCounters();
-                            receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                            receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                         }
                     }
 
@@ -138,7 +137,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                     protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
                         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "SendTask error: " + ExceptionReportTask.getStackTrace(e));
                         receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
-                        receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                        receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
                 };
                 mSendTask.connect(CommCareFormDumpActivity.this);
@@ -156,7 +155,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                 
                 if(formsOnPhone == 0){
                     txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
-                    TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                    transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
                 }
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -178,7 +177,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                             return;
                         } else {
                             //assume that we've already set the error message, but make it look scary
-                            receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                            receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                         }
                     }
 
@@ -199,7 +198,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                     @Override
                     protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
                         receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
-                        receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                        receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
                 };
                 mDumpTask.connect(CommCareFormDumpActivity.this);
@@ -322,7 +321,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
     @Override
     public void taskCancelled(int id) {
         txtInteractiveMessages.setText(Localization.get("bulk.form.cancel"));
-        this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+        this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
     
     /** Implementation of generateProgressDialog() for DialogController -- other methods
@@ -345,12 +344,10 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
             message = Localization.get("bulk.send.dialog.progress", new String[] {"0"});
         }
         else {
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in CommCareFormDumpActivity");
             return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
     }
-    
-    
 }

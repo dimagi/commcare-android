@@ -73,7 +73,7 @@ public class FormController {
         InstanceMetadata( String instanceId ) {
             this.instanceId = instanceId;
         }
-    };
+    }
 
 
     public FormController(FormEntryController fec) {

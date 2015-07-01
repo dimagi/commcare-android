@@ -1,21 +1,6 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.dalvik.activities;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,6 +11,7 @@ import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -40,6 +26,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +46,7 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -70,6 +58,8 @@ import java.io.IOException;
 
 
 public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
+    public static final String TAG = FormRecordListActivity.class.getSimpleName();
+
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST  + 1;
     private static final int RESTORE_RECORD = Menu.FIRST  + 2;
@@ -93,7 +83,8 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     private ImageButton barcodeButton;
     private Spinner filterSelect;
     private ListView listView;
-    
+    private SearchView searchView;
+
     public enum FormRecordFilter {
         
         /** Processed and Pending **/ 
@@ -207,11 +198,20 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 
             this.registerForContextMenu(listView);
             refreshView();
+
+            restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
         } catch(SessionUnavailableException sue) {
             //TODO: session is dead, login and return
         }
     }
-    
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+    }
+
     public String getActivityTitle() {
         
         if(adapter == null){
@@ -231,6 +231,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      */
     private void refreshView() {
         disableSearch();
+        adapter.resetRecords();
         listView.setAdapter(adapter);
     }
     
@@ -369,6 +370,39 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
+        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+            // this should be unnecessary...
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
+                FormRecordListActivity.this.searchView = searchView;
+                if (lastQueryString != null && lastQueryString.length() > 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    {
+                        searchItem.expandActionView();
+                    }
+                    searchView.setQuery(lastQueryString, false);
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
+                    }
+                    if (adapter != null) {
+                        adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);
+                    }
+                }
+                FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        adapter.applyTextFilter(newText);
+                        return false;
+                    }
+                });
+            }
+        });
         if(!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
             SharedPreferences prefs =CommCareApplication._().getCurrentApp().getAppPreferences();
             String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
@@ -382,7 +416,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         }
         return parent;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
@@ -534,6 +568,9 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
                 return true;
+            case R.id.menu_settings:
+                CommCareHomeActivity.createPreferencesMenu(this);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -617,8 +654,8 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             message = "Forms downloaded. Processing...";
             break;
         default:
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in FormRecordListActivity");    
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
+                    + "any valid possibilities in FormRecordListActivity");
             return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
