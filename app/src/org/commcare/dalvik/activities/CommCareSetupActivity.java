@@ -115,7 +115,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private CommCareApp ccApp;
     
-    //Whether this needs to be interactive (if it's automatic, we want to skip a lot of the UI stuff
+    // Whether this needs to be interactive (if it's automatic, we want to skip
+    // a lot of the UI stuff
     private boolean isAuto = false;
     
     /* used to keep track of whether or not the previous resource table was in a 
@@ -172,15 +173,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         } else {
             String uiStateEncoded = savedInstanceState.getString("advanced");
             this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
-            Log.v("UiState","uiStateEncoded is: " + uiStateEncoded + ", so my uiState is: " + uiState);
+            Log.v("UiState","uiStateEncoded is: " + uiStateEncoded +
+                    ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
             inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
             isAuto = savedInstanceState.getBoolean(KEY_AUTO);
-            //Uggggh, this might not be 100% legit depending on timing, what if we've already reconnected and shut down the dialog?
+            // Uggggh, this might not be 100% legit depending on timing, what
+            // if we've already reconnected and shut down the dialog?
             startAllowed = savedInstanceState.getBoolean("startAllowed");
         }
 
-        // if we are in upgrade mode we want the UiState to reflect that, unless we are showing an error
+        // if we are in upgrade mode we want the UiState to reflect that,
+        // unless we are showing an error
         if (inUpgradeMode && this.uiState != UiState.error){
             this.uiState = UiState.upgrade;
         }
@@ -218,11 +222,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case ready:
                 if(incomingRef == null || incomingRef.length() == 0){
                     Log.e(TAG,"During install: IncomingRef is empty!");
-                    Toast.makeText(getApplicationContext(), "Invalid URL: '" + incomingRef + "'", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Invalid URL: '" +
+                            incomingRef + "'", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                // the buttonCommands were already set when the fragment was attached, no need to set them here
+                // the buttonCommands were already set when the fragment was
+                // attached, no need to set them here
                 fragment = startInstall;
                 break;
 
@@ -246,7 +252,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onStart();
         uiStateScreenTransition();
         // upgrade app if needed
-        if(uiState == UiState.upgrade && incomingRef != null && incomingRef.length() != 0){
+        if(uiState == UiState.upgrade && 
+                incomingRef != null && incomingRef.length() != 0) {
             if(AndroidUtil.isNetworkAvailable(this)){
                 startResourceInstall(true);
             } else {
@@ -322,10 +329,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CommCareApp ccApp = getCommCareApp();
         long lastInstallTime = ccApp.getAppPreferences().getLong(KEY_LAST_INSTALL, -1);
         if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
-            /*If we are triggering a start over install due to the time threshold
-             * when there is a partial resource table that we could be using, send
-             * a message to log this.
-             */
+            // If we are triggering a start over install due to the time
+            // threshold when there is a partial resource table that we could
+            // be using, send a message to log this.
             ResourceTable temporary = ccApp.getCommCarePlatform().getUpgradeResourceTable();
             if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL) {
                 Logger.log(AndroidLogger.TYPE_RESOURCES, "A start-over on installation has been "
@@ -333,8 +339,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         + "resource table that could be used.");
             }
             startResourceInstall(true);
-        }
-        else {
+        } else {
             startResourceInstall(ccApp.getAppPreferences().getBoolean(KEY_START_OVER, true));
         }
     }
@@ -352,8 +357,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     /**
-     * @param startOverUpgrade - what determines whether CommCarePlatform.stageUpgradeTable()
-     * reuses the last version of the upgrade table, or starts over
+     * @param startOverUpgrade what determines whether
+     * CommCarePlatform.stageUpgradeTable() reuses the last version of the
+     * upgrade table, or starts over
      */
     private void startResourceInstall(boolean startOverUpgrade) {
         if(startAllowed) {
@@ -363,18 +369,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             ccApp = app;
 
-            /* store what the state of the resource table was before this install, 
-             * so we can compare it to the state after and decide if this should 
-             * count as a 'last install time'
-             */
+             // store what the state of the resource table was before this
+             // install, so we can compare it to the state after and decide if
+             // this should count as a 'last install time'
             int tableStateBeforeInstall = ccApp.getCommCarePlatform().getUpgradeResourceTable().
                     getTableReadiness();
             this.resourceTableWasFresh = tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY ||
                      tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED;
             
             CustomProgressDialog lastDialog = getCurrentDialog();
-            /* used to tell the ResourceEngineTask whether or not it should sleep before
-             * it starts, set based on whether we are currently in keep trying mode */
+             // used to tell the ResourceEngineTask whether or not it should
+             // sleep before it starts, set based on whether we are currently
+             // in keep trying mode.
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
             
             ResourceEngineTask<CommCareSetupActivity> task =
@@ -416,18 +422,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         startOverInstall = true;
                         receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
                     }
-                    
-                    /*
-                     * startOverInstall will be used on next install to indicate whether
-                     * we want to start from the existing resource table or a new one,
-                     * based on the outcome of this install
-                     */
+
+                    // startOverInstall will be used on next install to
+                    // indicate whether we want to start from the existing
+                    // resource table or a new one, based on the outcome of
+                    // this install
                     receiver.ccApp.getAppPreferences().edit().putBoolean(KEY_START_OVER, startOverInstall).commit();
 
-                    /* 
-                     * Check if we want to record this as a 'last install time', based on the 
-                     * state of the resource table before and after this install took place
-                     */
+                    // Check if we want to record this as a 'last install
+                    // time', based on the state of the resource table before
+                    // and after this install took place
                     ResourceTable temporary = receiver.ccApp.getCommCarePlatform().getUpgradeResourceTable();
                     if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL && 
                             receiver.resourceTableWasFresh) {
@@ -436,15 +440,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
 
                 @Override
-                protected void deliverUpdate(CommCareSetupActivity receiver, int[]... update) {
+                protected void deliverUpdate(CommCareSetupActivity receiver,
+                                             int[]... update) {
                     receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
                 }
 
                 @Override
-                protected void deliverError(CommCareSetupActivity receiver, Exception e) {
+                protected void deliverError(CommCareSetupActivity receiver,
+                                            Exception e) {
                     receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
                 }
-
             };
             
             task.connect(this);
@@ -481,8 +486,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     void done(boolean requireRefresh) {
-        //TODO: We might have gotten here due to being called from the outside, in which
-        //case we should manually start up the home activity
+        // TODO: We might have gotten here due to being called from the
+        // outside, in which case we should manually start up the home activity
         
         if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
@@ -508,10 +513,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
     
-    // All final paths from the Update are handled here (Important! Some interaction modes should always auto-exit this activity)
-    // Everything here should call one of: fail() or done() 
+    // All final paths from the Update are handled here (Important! Some
+    // interaction modes should always auto-exit this activity) Everything here
+    // should call one of: fail() or done() 
     
-    /** All methods for implementation of ResourceEngineListener **/
+    /* All methods for implementation of ResourceEngineListener */
     
     public void reportSuccess(boolean appChanged) {
         //If things worked, go ahead and clear out any warnings to the contrary
