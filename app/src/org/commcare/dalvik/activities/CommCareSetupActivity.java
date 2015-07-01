@@ -519,6 +519,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     /* All methods for implementation of ResourceEngineListener */
     
+    @Override
     public void reportSuccess(boolean appChanged) {
         //If things worked, go ahead and clear out any warnings to the contrary
         CommCareApplication._().clearNotifications("install_update");
@@ -529,10 +530,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         done(appChanged);
     }
 
+    @Override
     public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
         fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
     }
 
+    @Override
     public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
         String versionMismatch = Localization.get("install.version.mismatch", new String[] {vRequired,vAvailable});
         
@@ -546,10 +549,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusBadReqs, new String[] {null, versionMismatch, error}), true);
     }
 
+    @Override
     public void failUnknown(ResourceEngineOutcomes unknown) {
         fail(NotificationMessageFactory.message(unknown), false);
     }
     
+    @Override
     public void updateProgress(int done, int total, int phase) {
         if(inUpgradeMode) {       
             if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
@@ -564,6 +569,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
+    @Override
     public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
         fail(NotificationMessageFactory.message(statusfailstate), true);
     }
