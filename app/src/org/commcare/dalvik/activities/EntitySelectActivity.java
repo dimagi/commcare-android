@@ -15,6 +15,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -53,6 +54,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
@@ -88,6 +90,8 @@ import java.util.TimerTask;
  *
  */
 public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
+    public static final String TAG = EntitySelectActivity.class.getSimpleName();
+
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -309,6 +313,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
+        restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
     }
 
     /**
@@ -486,6 +491,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void onStop() {
         super.onStop();
         stopTimer();
+        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
     }
     
 
@@ -707,8 +713,22 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             // again, this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
-            public void onActionBarFound(SearchView searchView) {
+            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
                 EntitySelectActivity.this.searchView = searchView;
+                // restore last query string in the searchView if there is one
+                if (lastQueryString != null && lastQueryString.length() > 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    {
+                        searchItem.expandActionView();
+                    }
+                    searchView.setQuery(lastQueryString, false);
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
+                    }
+                    if (adapter != null) {
+                        adapter.applyFilter(lastQueryString == null ? "" : lastQueryString);
+                    }
+                }
                 EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
@@ -717,6 +737,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
+                        lastQueryString = newText;
+                        if (BuildConfig.DEBUG) {
+                            Log.v(TAG, "Setting lastQueryString to (" + newText + ")");
+                        }
+                        if(newText != null && newText.length() > 0){
+                        }
                         if (adapter != null) {
                             adapter.applyFilter(newText);
                         }

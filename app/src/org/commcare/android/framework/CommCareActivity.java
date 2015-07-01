@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -30,9 +31,12 @@ import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
@@ -59,6 +63,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
+    protected final static int DIALOG_PROGRESS = 32;
+    protected final static String DIALOG_TEXT = "cca_dialog_text";
+
     StateFragment stateHolder;
 
     //fields for implementing task transitions for CommCareTaskConnector
@@ -66,6 +73,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private boolean shouldDismissDialog = true;
 
     private GestureDetector mGestureDetector;
+
+    public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
+    protected String lastQueryString;
 
     /*
      * (non-Javadoc)
@@ -107,6 +117,22 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
         
         mGestureDetector = new GestureDetector(this, this);
+    }
+
+    protected void restoreLastQueryString(String key) {
+        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
+        lastQueryString = settings.getString(key, null);
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Recovered lastQueryString: (" + lastQueryString + ")");
+        }
+    }
+
+    private void loadPreviousAudio(AudioController oldController) {
+        MediaEntity oldEntity = oldController.getCurrMedia();
+        if (oldEntity != null) {
+            this.currentEntity = oldEntity;
+            oldController.removeCurrentMediaEntity();
+        }
     }
 
     /*
@@ -356,7 +382,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void onStop() {
         super.onStop();
     }
-        
+
+    protected void saveLastQueryString(String key) {
+        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(key, lastQueryString);
+        editor.commit();
+
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Saving lastQueryString: (" + lastQueryString + ") in file: " + CommCarePreferences.ACTIONBAR_PREFS);
+        }
+    }
+
     private void wakelock() {
         int lockLevel = getWakeLockingLevel();
         if(lockLevel == -1) { return;}
@@ -581,7 +618,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * tryToAddActionSearchBar} method.
      */
     public interface ActionBarInstantiator {
-        void onActionBarFound(SearchView searchView);
+        void onActionBarFound(MenuItem searchItem, SearchView searchView);
     }
 
     /**
@@ -600,8 +637,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             MenuInflater inflater = act.getMenuInflater();
             inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
 
+            MenuItem searchItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
-                    (SearchView)menu.findItem(org.commcare.dalvik.R.id.search_action_bar).getActionView();
+                    (SearchView)searchItem.getActionView();
             if (searchView != null) {
                 int[] searchViewStyle =
                         AndroidUtil.getThemeColorIDs(this,
@@ -612,7 +650,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 TextView textView = (TextView)searchView.findViewById(id);
                 textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
-                    instantiator.onActionBarFound(searchView);
+                    instantiator.onActionBarFound(searchItem, searchView);
                 }
             }
 
