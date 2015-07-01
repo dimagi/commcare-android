@@ -321,6 +321,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         } catch (InvalidReferenceException ire) {
             // Couldn't process reference, return to basic ui state to ask user
             // for new install reference
+            incomingRef = null;
             Toast.makeText(getApplicationContext(),
                     Localization.get("install.bad.ref"),
                     Toast.LENGTH_LONG).show();
