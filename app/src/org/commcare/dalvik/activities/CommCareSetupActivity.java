@@ -320,7 +320,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // check if the reference can be derived without erroring out
             ReferenceManager._().DeriveReference(incomingRef);
         } catch (InvalidReferenceException ire) {
-            // Couldn't process reference, return to basic ui state
+            // Couldn't process reference, return to basic ui state to ask user
+            // for new install reference
             Toast.makeText(getApplicationContext(),
                     Localization.get("install.bad.ref"),
                     Toast.LENGTH_LONG).show();
