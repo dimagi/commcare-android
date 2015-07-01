@@ -19,7 +19,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.GridEntityView;
-import org.commcare.android.view.GridMediaView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
