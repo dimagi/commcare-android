@@ -315,11 +315,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(result == null) return;
         incomingRef = result;
         this.uiState = UiState.ready;
-        //Definitely have a URI now.
+
         try {
+            // check if the reference can be derived without erroring out
             ReferenceManager._().DeriveReference(incomingRef);
         } catch (InvalidReferenceException ire) {
-            return;
+            // Couldn't process reference, return to basic ui state to ask user
+            // for new install reference
+            incomingRef = null;
+            Toast.makeText(getApplicationContext(),
+                    Localization.get("install.bad.ref"),
+                    Toast.LENGTH_LONG).show();
+            this.uiState = UiState.basic;
+            uiStateScreenTransition();
         }
     }
 
