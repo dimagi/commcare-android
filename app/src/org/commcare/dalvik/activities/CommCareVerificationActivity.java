@@ -29,22 +29,21 @@ import android.widget.TextView;
 /**
  * Performs media validation and allows for the installation of missing media
  */
-public class CommCareVerificationActivity extends CommCareActivity<CommCareVerificationActivity> implements VerificationTaskListener, OnClickListener {
+public class CommCareVerificationActivity
+        extends CommCareActivity<CommCareVerificationActivity>
+        implements VerificationTaskListener, OnClickListener {
     private static final String TAG = CommCareVerificationActivity.class.getSimpleName();
 
-    TextView missingMediaPrompt;
+    private TextView missingMediaPrompt;
     private static final int MENU_UNZIP = Menu.FIRST;
     
-    public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+    private static final String KEY_REQUIRE_REFRESH = "require_referesh";
     
-    Button retryButton;
+    private Button retryButton;
     
-    VerificationTask task;
-    
-    public static int RESULT_RETRY = 2;
-    public static int RESULT_IGNORE = 3;
-    
-    public static int DIALOG_VERIFY_PROGRESS = 0;
+    private VerificationTask task;
+
+    private static final int DIALOG_VERIFY_PROGRESS = 0;
 
     /**
      * Return code for launching media inflater (selector).
@@ -63,7 +62,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         setContentView(R.layout.missing_multimedia_layout);
         
         retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
-        
         retryButton.setOnClickListener(this);
         
         missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
@@ -98,10 +96,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         task.execute((String[])null);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.VerificationTaskListener#onFinished(org.javarosa.core.util.SizeBoundVector)
-     */
     @Override
     public void onFinished(SizeBoundVector<MissingMediaException> problems) {
         dismissProgressDialog();
@@ -141,10 +135,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.VerificationTaskListener#updateVerifyProgress(int, int)
-     */
     @Override
     public void updateVerifyProgress(int done, int pending) {
         updateProgress(Localization.get("verification.progress",new String[] {""+done,""+pending}),
@@ -170,72 +160,36 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 
     }
 
-    private void done(boolean requireRefresh) {
-        
-        //TODO: We might have gotten here due to being called from the outside, in which
-        //case we should manually start up the home activity
-        
-        if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
-            //Call out to CommCare Home
-            Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
-            i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
-            startActivity(i);
-            finish();
-
-            return;
-        } else {
-            //Good to go
-            Intent i = new Intent(getIntent());
-            i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
-            setResult(RESULT_OK, i);
-            finish();
-            return;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.VerificationTaskListener#success()
-     */
     @Override
     public void success() {
         CommCareApplication._().getCurrentApp().setResourcesValidated(true);
-        done(true);
+
+        if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
+            //Call out to CommCare Home
+            Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+            i.putExtra(KEY_REQUIRE_REFRESH, true);
+            startActivity(i);
+        } else {
+            //Good to go
+            Intent i = new Intent(getIntent());
+            i.putExtra(KEY_REQUIRE_REFRESH, true);
+            setResult(RESULT_OK, i);
+        }
+        finish();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.VerificationTaskListener#failUnknown()
-     */
     @Override
     public void failUnknown() {
         missingMediaPrompt.setText("Validation failed for an unknown reason");
-        
     }
     
-    private String prettyString(String rawString){
-        int marker = rawString.indexOf("/sdcard");
-        if(marker<0){return rawString;}
-        else{return rawString.substring(marker);}
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see android.view.View.OnClickListener#onClick(android.view.View)
-     */
     @Override
-    public void onClick(View v) {        
-        switch(v.getId()){
-        case R.id.screen_multimedia_retry:
+    public void onClick(View v) {
+        if (v.getId() == R.id.screen_multimedia_retry) {
             verifyResourceInstall();
-            return;
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -243,11 +197,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         return true;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -262,9 +211,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
     }
     
     /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
-     * 
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
@@ -280,4 +226,11 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
                 + "any valid possibilities in CommCareVerificationActivity");
         return null;
     }
+
+    private String prettyString(String rawString){
+        int marker = rawString.indexOf("/sdcard");
+        if(marker<0){return rawString;}
+        else{return rawString.substring(marker);}
+    }
+
 }
