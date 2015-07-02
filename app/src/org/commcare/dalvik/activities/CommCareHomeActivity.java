@@ -716,9 +716,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     break;
                 } else if(resultCode == RESULT_OK) {
                     currentState.getSession().setDatum(currentState.getSession().getNeededDatum().getDataId(), intent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-                    if(intent.hasExtra(CallOutActivity.CALL_DURATION)) {
-                        platform.setCallDuration(intent.getLongExtra(CallOutActivity.CALL_DURATION, 0));
-                    }
                     break;
                 }
             case MODEL_RESULT:

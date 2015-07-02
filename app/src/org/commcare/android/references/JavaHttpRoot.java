@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.references;
 
 import org.commcare.android.net.HttpRequestGenerator;
@@ -10,7 +7,6 @@ import org.javarosa.core.reference.ReferenceFactory;
 
 /**
  * @author ctsims
- *
  */
 public class JavaHttpRoot implements ReferenceFactory {
     
@@ -36,10 +32,6 @@ public class JavaHttpRoot implements ReferenceFactory {
      */
     public boolean derives(String URI) {
         URI = URI.toLowerCase();
-        if(URI.startsWith("http://") || URI.startsWith("https://")) {
-            return true;
-        }
-        return false;
+        return URI.startsWith("http://") || URI.startsWith("https://");
     }
-
 }
