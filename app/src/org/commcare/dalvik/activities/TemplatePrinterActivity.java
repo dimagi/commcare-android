@@ -32,7 +32,7 @@ import android.webkit.MimeTypeMap;
 public class TemplatePrinterActivity extends Activity implements OnClickListener, PopulateListener {
     
     private static final int REQUEST_TEMPLATE = 0;
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -103,38 +103,25 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
             //TODO: Check if a document is coming in from the Intent -- how would this be done?
         }
 
-        //Use the default document location that was set in Settings menu
+        //Try to use the document location that was set in Settings menu
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         String path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
-
-        if (!"".equals(path)) {
-            Log.i("Doc location being used", path);
-
-            File templateFile = new File(path);
-
-            if (templateFile.exists()) {
-
-                File outputFolder = templateFile.getParentFile();
-
-                new TemplatePrinterTask(
-                        templateFile,
-                        outputFolder,
-                        data,
-                        this
-                ).execute();
-
-            } else {
-
-                //TODO: instead of starting file browser, show appropriate error dialog
-                // Manually select template file;
-                // see onActivityResult(int,int,Intent)
-                startFileBrowser();
-
-            }
-
-        }
-        else {
-            Log.i("7/1/15", "path from prefs was empty, i.e. has not yet been set");
+        path = "";
+        Log.i("Doc location being used", path);
+        File templateFile = new File(path);
+        if (templateFile.exists()) {
+            File outputFolder = templateFile.getParentFile();
+            new TemplatePrinterTask(
+                    templateFile,
+                    outputFolder,
+                    data,
+                    this
+            ).execute();
+        } else {
+            //TODO: instead of starting file browser, show appropriate error dialog
+            // Manually select template file;
+            // see onActivityResult(int,int,Intent)
+            startFileBrowser();
         }
     }
 
