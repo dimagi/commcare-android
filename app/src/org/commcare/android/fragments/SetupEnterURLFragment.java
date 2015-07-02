@@ -91,7 +91,7 @@ public class SetupEnterURLFragment extends Fragment {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
         }
         if(!url.startsWith("http")){
-            url = "http://" + url;
+            //url = "http://" + url;
         }
         return url;
     }
