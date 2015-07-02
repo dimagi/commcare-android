@@ -105,6 +105,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
     private static final int REQUEST_TEMPLATE = 0;
 
+    public final static String PRINT_DOC_LOCATION = "print_doc_location";
+
     /*
      * (non-Javadoc)
      * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
@@ -151,11 +153,11 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
             if (resultCode == RESULT_OK
                     && data != null) {
-
-                String filePath = data.getData().toString();
+                Uri uri = data.getData();
+                String filePath = uri.getPath(); //TODO: Should this be getPath() or toString() ?
                 Log.i("7/1/15", filePath);
                 SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
-                editor.putString("printDocLocation", filePath);
+                editor.putString(PRINT_DOC_LOCATION, filePath);
                 editor.commit();
 
             } else {

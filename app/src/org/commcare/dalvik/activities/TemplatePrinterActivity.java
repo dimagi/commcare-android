@@ -6,6 +6,8 @@ import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -14,8 +16,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 /**
@@ -43,29 +47,7 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
                     && data != null) {
 
                 Uri uri = data.getData();
-                String extension = TemplatePrinterUtils.getExtension(uri.getPath());
-
-                if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension)) {
-
-                    File templateFile = new File(uri.getPath());
-                    
-                    File outputFolder = templateFile.getParentFile();
-                    
-                    new TemplatePrinterTask(
-                            templateFile,
-                            outputFolder,
-                            getIntent().getExtras(),
-                            this
-                    ).execute();
-
-                } else {
-                    showErrorDialog(
-                            getString(
-                                    R.string.file_invalid,
-                                    uri.getPath()
-                            )
-                    );
-                }
+                executePrint(uri);
 
             } else {
                 // No template file selected
@@ -74,6 +56,32 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
 
         }
 
+    }
+
+    private void executePrint(Uri uri) {
+        String extension = TemplatePrinterUtils.getExtension(uri.getPath());
+
+        if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension)) {
+
+            File templateFile = new File(uri.getPath());
+
+            File outputFolder = templateFile.getParentFile();
+
+            new TemplatePrinterTask(
+                    templateFile,
+                    outputFolder,
+                    getIntent().getExtras(),
+                    this
+            ).execute();
+
+        } else {
+            showErrorDialog(
+                    getString(
+                            R.string.file_invalid,
+                            uri.getPath()
+                    )
+            );
+        }
     }
 
     @Override
@@ -93,43 +101,58 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
         Bundle data = getIntent().getExtras();
         
         if (data == null) {
+            //TODO: Why is he doing this?
             showErrorDialog(R.string.no_data);
             return;
+        } else {
+            //TODO: Check if a document is coming in from the Intent -- how would this be done?
         }
-        
-        try {
-            File templateFile = new File(
-                    ReferenceManager._().DeriveReference(TEMPLATE_FILE_PATH).getLocalURI()
-            );
-            // TODO: see TEMPLATE_FILE_HACK_EXT declaration
-            File templateHackFile = new File(
-                    ReferenceManager._().DeriveReference(TEMPLATE_FILE_PATH + TEMPLATE_FILE_HACK_EXT).getLocalURI()
-            );
-            
-            if (templateFile.exists()
-                    // TODO: see TEMPLATE_FILE_HACK_EXT declaration
-                    || templateHackFile.renameTo(templateFile)) {
-    
-                File outputFolder = templateFile.getParentFile();
-    
-                new TemplatePrinterTask(
-                        templateFile,
-                        outputFolder,
-                        data,
-                        this
-                ).execute();
-    
-            } else {
 
-                // Manually select template file;
-                // see onActivityResult(int,int,Intent)
-                startFileBrowser();
-                
+        //Use the default document location that was set in Settings menu
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
+
+        if (!"".equals(path)) {
+            //START HERE -- path saved to SharedPrefs needs to be something slightly different for ReferenceManager to be able to derive it
+            path = "jr://file/" + path;
+            Log.i("Doc location being used", path);
+            try {
+                File templateFile = new File(
+                        ReferenceManager._().DeriveReference(path).getLocalURI()
+                );
+                // TODO: see TEMPLATE_FILE_HACK_EXT declaration
+                File templateHackFile = new File(
+                        ReferenceManager._().DeriveReference(path + TEMPLATE_FILE_HACK_EXT).getLocalURI()
+                );
+
+                if (templateFile.exists()
+                        // TODO: see TEMPLATE_FILE_HACK_EXT declaration
+                        || templateHackFile.renameTo(templateFile)) {
+
+                    File outputFolder = templateFile.getParentFile();
+
+                    new TemplatePrinterTask(
+                            templateFile,
+                            outputFolder,
+                            data,
+                            this
+                    ).execute();
+
+                } else {
+
+                    //TODO: instead of starting file browser, show appropriate error dialog
+                    // Manually select template file;
+                    // see onActivityResult(int,int,Intent)
+                    startFileBrowser();
+
+                }
+            } catch (InvalidReferenceException e) {
+                showErrorDialog(e.getMessage());
             }
-        } catch (InvalidReferenceException e) {
-            showErrorDialog(e.getMessage());
         }
-        
+        else {
+            Log.i("7/1/15", "path from prefs was empty, i.e. has not yet been set");
+        }
     }
 
     @Override
