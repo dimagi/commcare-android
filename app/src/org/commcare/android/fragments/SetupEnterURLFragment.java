@@ -89,9 +89,9 @@ public class SetupEnterURLFragment extends Fragment {
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
         if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
-        }
-        if(!url.startsWith("http")){
-            url = "http://" + url;
+            if(!url.startsWith("http")){
+                url = "http://" + url;
+            }
         }
         return url;
     }
