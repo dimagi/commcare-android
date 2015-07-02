@@ -539,6 +539,25 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        /*
+         * EventLog accepts only proper Strings as input, but prior to this version,
+         * Android would try to send SpannedStrings to it, thus crashing the app.
+         * This makes sure the title is actually a String.
+         * This fixes bug 174626.
+         */
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
+                && item.getTitleCondensed() != null) {
+            if (BuildConfig.DEBUG) {
+                Log.v(t, "Selected item is: " + item);
+            }
+            item.setTitleCondensed(item.getTitleCondensed().toString());
+        }
+
+        return super.onMenuItemSelected(featureId, item);
+    }
+
+    @Override
     public void formSaveCallback() {
         // note that we have started saving the form
         savingFormOnKeySessionExpiration = true;
