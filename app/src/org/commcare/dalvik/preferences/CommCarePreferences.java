@@ -41,6 +41,7 @@ import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -154,8 +155,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
             if (resultCode == RESULT_OK
                     && data != null) {
                 Uri uri = data.getData();
-                String filePath = uri.getPath(); //TODO: Should this be getPath() or toString() ?
-                Log.i("7/1/15", filePath);
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
+                Log.i("Doc location set to: ", filePath);
                 SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
                 editor.putString(PRINT_DOC_LOCATION, filePath);
                 editor.commit();

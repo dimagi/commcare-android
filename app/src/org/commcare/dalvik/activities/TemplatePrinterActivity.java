@@ -33,11 +33,6 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
     
     private static final int REQUEST_TEMPLATE = 0;
     
-    // TODO: Remove the hack video extension and update relative file path
-    // when feature is implemented HQ-side
-    private static final String TEMPLATE_FILE_HACK_EXT = ".mp4";
-    private static final String TEMPLATE_FILE_PATH = "jr://file/commcare/video/data/print_template.docx";
-    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -113,42 +108,30 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
         String path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
 
         if (!"".equals(path)) {
-            //START HERE -- path saved to SharedPrefs needs to be something slightly different for ReferenceManager to be able to derive it
-            path = "jr://file/" + path;
             Log.i("Doc location being used", path);
-            try {
-                File templateFile = new File(
-                        ReferenceManager._().DeriveReference(path).getLocalURI()
-                );
-                // TODO: see TEMPLATE_FILE_HACK_EXT declaration
-                File templateHackFile = new File(
-                        ReferenceManager._().DeriveReference(path + TEMPLATE_FILE_HACK_EXT).getLocalURI()
-                );
 
-                if (templateFile.exists()
-                        // TODO: see TEMPLATE_FILE_HACK_EXT declaration
-                        || templateHackFile.renameTo(templateFile)) {
+            File templateFile = new File(path);
 
-                    File outputFolder = templateFile.getParentFile();
+            if (templateFile.exists()) {
 
-                    new TemplatePrinterTask(
-                            templateFile,
-                            outputFolder,
-                            data,
-                            this
-                    ).execute();
+                File outputFolder = templateFile.getParentFile();
 
-                } else {
+                new TemplatePrinterTask(
+                        templateFile,
+                        outputFolder,
+                        data,
+                        this
+                ).execute();
 
-                    //TODO: instead of starting file browser, show appropriate error dialog
-                    // Manually select template file;
-                    // see onActivityResult(int,int,Intent)
-                    startFileBrowser();
+            } else {
 
-                }
-            } catch (InvalidReferenceException e) {
-                showErrorDialog(e.getMessage());
+                //TODO: instead of starting file browser, show appropriate error dialog
+                // Manually select template file;
+                // see onActivityResult(int,int,Intent)
+                startFileBrowser();
+
             }
+
         }
         else {
             Log.i("7/1/15", "path from prefs was empty, i.e. has not yet been set");
