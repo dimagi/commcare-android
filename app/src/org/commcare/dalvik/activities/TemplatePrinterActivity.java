@@ -106,7 +106,6 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
         //Try to use the document location that was set in Settings menu
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         String path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
-        path = "";
         Log.i("Doc location being used", path);
         File templateFile = new File(path);
         if (templateFile.exists()) {
