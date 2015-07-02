@@ -26,6 +26,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+/**
+ * Performs media validation and allows for the installation of missing media
+ */
 public class CommCareVerificationActivity extends CommCareActivity<CommCareVerificationActivity> implements VerificationTaskListener, OnClickListener {
     private static final String TAG = CommCareVerificationActivity.class.getSimpleName();
 
@@ -69,7 +72,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
     }
     
     private void fire() {
-        
         CommCareVerificationActivity last = (CommCareVerificationActivity)this.getDestroyedActivityState();
         if(last == null) {
             missingMediaPrompt.setText("Verifying media...");
@@ -89,8 +91,8 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         }
     }
     
-    public void verifyResourceInstall() {
-        task = new VerificationTask(this);
+    private void verifyResourceInstall() {
+        task = new VerificationTask();
         task.setListener(this);
         showProgressDialog(DIALOG_VERIFY_PROGRESS);
         task.execute((String[])null);
@@ -159,7 +161,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         }
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == GET_MULTIMEDIA && resultCode == Activity.RESULT_OK) {
@@ -169,7 +170,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
 
     }
 
-    public void done(boolean requireRefresh) {
+    private void done(boolean requireRefresh) {
         
         //TODO: We might have gotten here due to being called from the outside, in which
         //case we should manually start up the home activity
@@ -180,7 +181,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             startActivity(i);
             finish();
-            
+
             return;
         } else {
             //Good to go
@@ -212,7 +213,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         
     }
     
-    public String prettyString(String rawString){
+    private String prettyString(String rawString){
         int marker = rawString.indexOf("/sdcard");
         if(marker<0){return rawString;}
         else{return rawString.substring(marker);}
@@ -260,7 +261,6 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         return super.onOptionsItemSelected(item);
     }
     
-    
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
@@ -280,5 +280,4 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
                 + "any valid possibilities in CommCareVerificationActivity");
         return null;
     }
-    
 }
