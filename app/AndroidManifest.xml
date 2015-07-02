@@ -6,7 +6,6 @@
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
 
     <application
@@ -445,7 +444,6 @@
     <uses-permission
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-sdk
         android:minSdkVersion="8"
