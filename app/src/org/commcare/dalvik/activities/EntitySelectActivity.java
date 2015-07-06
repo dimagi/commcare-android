@@ -162,15 +162,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
         }
         
-        try {
-            asw = CommCareApplication._().getCurrentSessionWrapper();
-            session = asw.getSession();
-        } catch(SessionUnavailableException sue){
-            //The user isn't logged in! bounce this back to where we came from
-            this.setResult(Activity.RESULT_CANCELED);
-            this.finish();
-            return;
-        }
+        asw = CommCareApplication._().getCurrentSessionWrapper();
+        session = asw.getSession();
+
         selectDatum = session.getNeededDatum();
         
         shortSelect = session.getDetail(selectDatum.getShortDetail());
@@ -440,7 +434,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        try {            
+        try {
             //TODO: Get ec into these text's
             String[] headers = new String[shortSelect.getFields().length];
             
@@ -472,9 +466,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             } else {
                 startTimer();
             }
-            
-        } catch(SessionUnavailableException sue) {
-            //TODO: login and return
         } catch(RuntimeException re) {
             createErrorDialog(re.getMessage(), true);
         }

@@ -17,6 +17,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -70,7 +71,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         this.rootInstanceDir = destination;
     }
 
-    public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
+    public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String xmlns = parser.getNamespace();
         //Parse this subdocument into a dom
         Element element = new Element();
@@ -86,9 +87,14 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         document.addChild(Node.ELEMENT, element);    
         
         KXmlSerializer serializer = new KXmlSerializer();
-    
-        SecretKey key = CommCareApplication._().createNewSymetricKey();
-        
+
+        SecretKey key;
+        try {
+            key = CommCareApplication._().createNewSymetricKey();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
         
         //Register this instance for inspection
@@ -102,10 +108,8 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         
         Uri instanceRecord = c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 
-        
         FormRecord r = new FormRecord(instanceRecord.toString(), FormRecord.STATUS_UNINDEXED, xmlns, key.getEncoded(),null, new Date(0));
-        IStorageUtilityIndexed<FormRecord> storage =  storage();
-        
+
         OutputStream o = new FileOutputStream(filePath);
         BufferedOutputStream bos = null;
         
@@ -122,14 +126,12 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             serializer.setOutput(bos, "UTF-8");
         
             document.write(serializer);
-        
-            storage.write(r);
-            
-        } catch (StorageFullException e) {
+
+            cachedStorage().write(r);
+        } catch (SessionUnavailableException | StorageFullException e) {
             throw new IOException(e.getMessage());
-        } 
-        //There's nothing we can do about any of these in code, failfast.
-        catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
+        }  catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
+            // There's nothing we can do about any of these in code, failfast.
             throw new RuntimeException(e.getMessage());
         } finally {
             //since bos might not have even been created.
@@ -142,7 +144,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         return r;
     }
     
-    public IStorageUtilityIndexed<FormRecord> storage() throws SessionUnavailableException{
+    public IStorageUtilityIndexed<FormRecord> cachedStorage() throws SessionUnavailableException{
         if(storage == null) {
             storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         } 
