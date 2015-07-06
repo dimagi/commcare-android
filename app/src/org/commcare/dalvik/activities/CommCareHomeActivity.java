@@ -1454,6 +1454,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             syncTime = Localization.get("home.sync.message.last.never");
         } else {
             syncTime = DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
+        }
 
         //TODO: Localize this all
         String message = "";
