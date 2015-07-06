@@ -450,7 +450,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         try {
                             instanceCursor = getContentResolver().query(uri, null, null, null, null);
                             if (instanceCursor.getCount() != 1) {
-                                CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                                CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
                                 return;
                             } else {
                                 instanceCursor.moveToFirst();
@@ -482,10 +482,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                                     .getColumnIndex(FormsColumns.FORM_FILE_PATH));
                                     formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
                                 } else if (formCursor.getCount() < 1) {
-                                    CommCareActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
+                                    CommCareHomeActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
                                     return;
                                 } else if (formCursor.getCount() > 1) {
-                                    CommCareActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
+                                    CommCareHomeActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
                                     return;
                                 }
                             }
@@ -503,7 +503,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         try {
                             c = getContentResolver().query(uri, null, null, null, null);
                             if (c.getCount() != 1) {
-                                CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                                CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
                                 return;
                             } else {
                                 c.moveToFirst();
@@ -518,7 +518,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         break;
                     default:
                         Log.e(t, "unrecognized URI");
-                        CommCareActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
+                        CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
                         return;
                 }
                 if(formUri == null) {
