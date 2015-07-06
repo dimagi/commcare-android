@@ -240,8 +240,10 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="server_requires_auth">Server Requires Authentication</string>
     <string name="server_url">URL</string>
     <string name="server_preferences">Server</string>
-    <string name="template_invalid">The file set for your print job is invalid. Please ask a supervisor to assist you.</string>
-    <string name="template_not_set">No file has been set for your print job. Please ask a supervisor to assist you in setting one.</string>
+    <string name="template_invalid">The file set for your print job is invalid. Please ask a
+        supervisor to assist you.</string>
+    <string name="template_not_set">No template file has been set for your print job.
+        Please ask a supervisor to assist you in setting one.</string>
     <string name="toggle_selected">Toggle All</string>
     <string name="trigger">OK. Please continue.</string>
     <string name="uploading_data">Sending Form</string>
