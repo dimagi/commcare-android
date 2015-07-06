@@ -107,6 +107,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="altitude">Altitude</string>
     <string name="app_name">ODK Collect</string>
     <string name="attachment_oversized">Warning: attached large file of size %s kb. This could cause problems with submitting to the server depending on your network conditions.</string>
+    <string name="attachment_invalid">Invalid filetype choosen. Please select a valid multimedia file.</string>
     <string name="audio_file_error">No audio file was specified.</string>
     <string name="audio_file_invalid">File: %s is not a valid audio file.</string>
     <string name="backup">back to\nprevious\nprompt</string>
