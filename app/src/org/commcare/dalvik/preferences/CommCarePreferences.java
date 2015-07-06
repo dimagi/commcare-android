@@ -90,6 +90,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
 
+    public final static String ACTIONBAR_PREFS = "actionbar-prefs";
+
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;

@@ -114,7 +114,6 @@ public abstract class ResourceEngineTask<R>
     protected int badReqCode = -1;
     private int phase = -1;
     private boolean upgradeMode = false;
-    private boolean partialMode = false;
     private final boolean startOverUpgrade;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
     // trying mode for installation, we want to sleep in between attempts to
@@ -128,9 +127,9 @@ public abstract class ResourceEngineTask<R>
     protected String vRequired;
     protected boolean majorIsProblem;
 
-    public ResourceEngineTask(boolean upgradeMode, boolean partialMode, CommCareApp app,
-                              boolean startOverUpgrade, int taskId, boolean shouldSleep) {
-        this.partialMode = partialMode;
+    public ResourceEngineTask(boolean upgradeMode, CommCareApp app,
+                              boolean startOverUpgrade, int taskId, boolean shouldSleep)
+            throws SessionUnavailableException {
         this.upgradeMode = upgradeMode;
         this.app = app;
         this.startOverUpgrade = startOverUpgrade;
@@ -229,10 +228,6 @@ public abstract class ResourceEngineTask<R>
                 platform.upgrade(global, temporary, recovery);
 
                 // And see where we ended up to see whether an upgrade actually occurred
-            } else if (partialMode) {
-                global.setStateListener(this);
-                platform.init(profileRef, global, false);
-                app.writeInstalled();
             } else {
                 // this is a standard, clean install
                 if (sanityTest1) {
