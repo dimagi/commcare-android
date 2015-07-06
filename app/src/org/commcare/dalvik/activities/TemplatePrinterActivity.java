@@ -29,37 +29,15 @@ import android.webkit.MimeTypeMap;
  * 
  * @author Richard Lu
  */
-public class TemplatePrinterActivity extends Activity implements OnClickListener, PopulateListener {
-    
-    private static final int REQUEST_TEMPLATE = 0;
+public class TemplatePrinterActivity extends Activity implements PopulateListener {
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    private boolean mDialogShowing;
 
-        if (requestCode == REQUEST_TEMPLATE) {
+    private void preparePrintDoc(String path) {
+        String extension = TemplatePrinterUtils.getExtension(path);
+        File templateFile = new File(path);
 
-            if (resultCode == RESULT_OK
-                    && data != null) {
-
-                Uri uri = data.getData();
-                executePrint(uri);
-
-            } else {
-                // No template file selected
-                finish();
-            }
-
-        }
-
-    }
-
-    private void executePrint(Uri uri) {
-        String extension = TemplatePrinterUtils.getExtension(uri.getPath());
-
-        if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension)) {
-
-            File templateFile = new File(uri.getPath());
-
+        if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension) && templateFile.exists()) {
             File outputFolder = templateFile.getParentFile();
 
             new TemplatePrinterTask(
@@ -68,76 +46,48 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
                     getIntent().getExtras(),
                     this
             ).execute();
-
         } else {
-            showErrorDialog(
-                    getString(
-                            R.string.file_invalid,
-                            uri.getPath()
-                    )
-            );
+            Log.i("HERE", "file was invalid");
+            showErrorDialog(getString(R.string.template_invalid, path));
         }
-    }
-
-    @Override
-    public void onClick(DialogInterface dialogInterface, int clickId) {
-
-        // Error dialog "OK" click
-        finish();
-
     }
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+        Log.i("HERE", "onCreate called");
         setContentView(R.layout.activity_template_printer);
-        
         Bundle data = getIntent().getExtras();
-        
         if (data == null) {
-            //TODO: Why is he doing this?
+            //TODO: What is this "No data" string meant to convey?
             showErrorDialog(R.string.no_data);
             return;
         } else {
             //TODO: Check if a document is coming in from the Intent -- how would this be done?
         }
-
         //Try to use the document location that was set in Settings menu
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         String path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
-        Log.i("Doc location being used", path);
-        File templateFile = new File(path);
-        if (templateFile.exists()) {
-            File outputFolder = templateFile.getParentFile();
-            new TemplatePrinterTask(
-                    templateFile,
-                    outputFolder,
-                    data,
-                    this
-            ).execute();
+        //Log.i("Doc location being used", path);
+        if ("".equals(path)) {
+            Log.i("HERE", "path was empty");
+            showErrorDialog(getString(R.string.template_not_set));
         } else {
-            //TODO: instead of starting file browser, show appropriate error dialog
-            // Manually select template file;
-            // see onActivityResult(int,int,Intent)
-            startFileBrowser();
+            preparePrintDoc(path);
         }
     }
 
     @Override
     public void onError(String message) {
-
+        //Log.i("7/6/15","onError CALLED");
         showErrorDialog(message);
-
     }
 
     @Override
     public void onFinished(File result) {
-
-        startDocumentViewer(result);
-
+        //startDocumentViewer(result);
+        executePrint(result);
         finish();
-
     }
 
     private void showErrorDialog(int messageResId) {
@@ -151,6 +101,7 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
      * @param message Error message
      */
     private void showErrorDialog(String message) {
+        Log.i("7/6/15", "showErrorDialog(message) called");
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
                 .setTitle(R.string.error_occured)
@@ -158,10 +109,24 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
                 .setCancelable(false)
                 .setPositiveButton(
                         R.string.ok,
-                        this
-                );
+                        new DialogInterface.OnClickListener() {
 
-        dialogBuilder.show();
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                mDialogShowing = false;
+                                finish();
+                            }
+                        }
+                );
+        if (!mDialogShowing) {
+            dialogBuilder.show();
+            mDialogShowing = true;
+        }
+    }
+
+
+    private void executePrint(File file) {
 
     }
 
@@ -172,6 +137,7 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
      *
      * @param document Document to open
      */
+
     private void startDocumentViewer(File document) {
 
         Uri uri = Uri.fromFile(document);
@@ -190,20 +156,6 @@ public class TemplatePrinterActivity extends Activity implements OnClickListener
                 );
 
         startActivity(intent);
-
-    }
-    
-    private void startFileBrowser() {
-
-        Intent chooseTemplateIntent = new Intent()
-                .setAction(Intent.ACTION_GET_CONTENT)
-                .setType("file/*")
-                .addCategory(Intent.CATEGORY_OPENABLE);
-
-        startActivityForResult(
-                chooseTemplateIntent,
-                REQUEST_TEMPLATE
-        );
 
     }
 
