@@ -29,7 +29,7 @@ public class SetupEnterURLFragment extends Fragment {
          * The parent activity is responsible for implementing this interface and doing something with the URL.
          * @param url URL typed by the user
          */
-        public void OnURLChosen(String url);
+        public void onURLChosen(String url);
     }
 
     public static final String interfaceName = URLInstaller.class.getName();
@@ -60,7 +60,7 @@ public class SetupEnterURLFragment extends Fragment {
             public void onClick(final View v) {
                 getFragmentManager().popBackStack(); // equivalent to pressing the "back" button
                 // no need for a null check because onAttach is called before onCreateView
-                listener.OnURLChosen(getURL()); // returns the chosen URL to the parent Activity
+                listener.onURLChosen(getURL()); // returns the chosen URL to the parent Activity
             }
         });
         return view;
@@ -89,9 +89,9 @@ public class SetupEnterURLFragment extends Fragment {
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
         if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
-        }
-        if(!url.startsWith("http")){
-            url = "http://" + url;
+            if(!url.startsWith("http")){
+                url = "http://" + url;
+            }
         }
         return url;
     }

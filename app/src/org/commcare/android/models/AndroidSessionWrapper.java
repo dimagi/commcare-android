@@ -8,6 +8,7 @@ import java.util.Vector;
 import javax.crypto.SecretKey;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -16,6 +17,7 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -210,7 +212,7 @@ public class AndroidSessionWrapper {
      * null otherwise. 
      */
     public SessionStateDescriptor searchForDuplicates() {
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
         //TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
@@ -243,7 +245,13 @@ public class AndroidSessionWrapper {
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
-        SecretKey key = CommCareApplication._().createNewSymetricKey();
+        SecretKey  key;
+        try {
+            key = CommCareApplication._().createNewSymetricKey();
+        } catch (SessionUnavailableException e) {
+            // the user db is closed
+            throw new UserStorageClosedException(e.getMessage());
+        }
         
         //TODO: this has two components which can fail. be able to roll them back
         
@@ -273,14 +281,15 @@ public class AndroidSessionWrapper {
         Hashtable<String, Entry> entries = platform.getMenuMap();
         for(StackFrameStep step : session.getFrame().getSteps()) {
             String val = null; 
-            if(step.getType() == SessionFrame.STATE_COMMAND_ID) {
+            if(SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 //Menu or form. 
                 if(menus.containsKey(step.getId())) {
                     val = menus.get(step.getId());
                 } else if(entries.containsKey(step.getId())) {
                     val = entries.get(step.getId()).getText().evaluate();
                 }
-            } else if(step.getType() == SessionFrame.STATE_DATUM_VAL || step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
+            } else if(SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
+                    SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
                 //nothing much to be done here...
             }
             if(val != null) {
@@ -298,8 +307,10 @@ public class AndroidSessionWrapper {
         //TODO: This manipulates the state of the session. We should instead grab and make a copy of the frame, and make a new session to 
         //investigate this.
         
-        //Walk backwards until we find something with a long detail
-        while(session.getFrame().getSteps().size() > 0 && (session.getNeededData() != SessionFrame.STATE_DATUM_VAL || session.getNeededDatum().getLongDetail() == null)) {
+        // Walk backwards until we find something with a long detail
+        while (session.getFrame().getSteps().size() > 0 &&
+                (!SessionFrame.STATE_DATUM_VAL.equals(session.getNeededData()) ||
+                        session.getNeededDatum().getLongDetail() == null)) {
             session.stepBack();
         }
         if(session.getFrame().getSteps().size() == 0) { return null;}
@@ -416,7 +427,7 @@ public class AndroidSessionWrapper {
                     }
                     
                     wrapper = new AndroidSessionWrapper(platform);
-                    wrapper.session.setCommand(key);
+                    wrapper.session.setCommand(platform.getModuleNameForEntry(e));
                     wrapper.session.setCommand(e.getCommandId());
                     wrapper.session.setDatum(datum.getDataId(), selectedValue);
                 }

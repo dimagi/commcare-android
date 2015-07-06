@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -88,6 +89,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
+
+    public final static String ACTIONBAR_PREFS = "actionbar-prefs";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
@@ -158,7 +161,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
-                CommCareApplication._().clearUserData();
+                try {
+                    CommCareApplication._().clearUserData();
+                } catch (SessionUnavailableException e) {
+                }
                 this.finish();
                 return true;
             case ABOUT_COMMCARE:

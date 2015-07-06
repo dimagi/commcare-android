@@ -3,15 +3,8 @@
  */
 package org.commcare.android.view;
 
-import java.io.File;
-
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.DisplayUnit;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localizer;
-import org.odk.collect.android.utilities.FileUtils;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;

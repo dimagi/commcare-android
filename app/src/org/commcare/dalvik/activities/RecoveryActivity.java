@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -8,7 +9,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
@@ -28,7 +28,6 @@ import android.widget.TextView;
 
 /**
  * @author ctsims
- *
  */
 @ManagedUi(R.layout.screen_recovery)
 public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
@@ -110,10 +109,7 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                             receiver.displayMessage("There were errors submitting the forms." + remainder);
                         } else if(result == FormUploadUtil.TRANSPORT_FAILURE){
                             receiver.displayMessage("Unable to contact the remote server.");
-                        } else {
-                            
-                        } 
-
+                        }
                     }
 
                     /*
@@ -154,9 +150,6 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                 } else {
                     mProcess.execute(records);
                 }
-                
-                
-                
             }
         });
         
@@ -206,11 +199,9 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
         if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
             appState.setText("App install is corrupt. Make sure forms are sent before attempting recovery.");
             btnRecoverApp.setEnabled(true);
-            return;
         } else {
             appState.setText("App is installed and valid");
             btnRecoverApp.setEnabled(false);
-            return;
         }
     }
 
@@ -221,16 +212,16 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
             return;
         }
         
-        
         try {
-            CommCareSessionService session = CommCareApplication._().getSession();
+            CommCareApplication._().getSession();
         } catch(SessionUnavailableException sue) {
             txtUnsentForms.setText("Couldn't read unsent forms. Not Logged in");
             return;
         }
-            
+
+        SqlStorage<FormRecord> recordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
         try {
-            FormRecord[] records = StorageUtils.getUnsentRecords(CommCareApplication._().getUserStorage(FormRecord.class));
+            FormRecord[] records = StorageUtils.getUnsentRecords(recordStorage);
             if(records.length == 0) {
                 txtUnsentForms.setText("This device has no unsent forms");
             } else{
@@ -241,16 +232,5 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
             txtUnsentForms.setText("Couldn't read unsent forms. Error : " + e.getMessage());
         }
-
     }
-
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onResume()
-     */
-    @Override
-    protected void onResume() {
-        // TODO Auto-generated method stub
-        super.onResume();
-    }
-    
 }

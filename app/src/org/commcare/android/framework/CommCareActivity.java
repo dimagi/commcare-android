@@ -1,10 +1,10 @@
 package org.commcare.android.framework;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +30,7 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -37,6 +38,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
@@ -50,27 +52,7 @@ import org.odk.collect.android.views.media.MediaEntity;
 import org.odk.collect.android.views.media.MediaState;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.media.MediaPlayer;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.text.Spannable;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Pair;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.lang.reflect.Field;
 
@@ -79,30 +61,31 @@ import java.lang.reflect.Field;
  * common localization and workflow tasks
  * 
  * @author ctsims
- *
  */
 public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
     AudioController, DialogController, OnGestureListener {
-    private static final String TAG = CommCareActivity.class.getSimpleName();
-    
+    public static final String TAG = CommCareActivity.class.getSimpleName();
+
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";
     public final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
     StateFragment stateHolder;
-    private boolean firstRun = true;
-    
+
     //Fields for implementation of AudioController
     private MediaEntity currentEntity;
     private AudioButton currentButton;
     private MediaState stateBeforePause;
     
     //fields for implementing task transitions for CommCareTaskConnector
-    boolean inTaskTransition;
-    boolean shouldDismissDialog = true;
+    private boolean inTaskTransition;
+    private boolean shouldDismissDialog = true;
     
     private GestureDetector mGestureDetector;
-    
+
+    public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
+    protected String lastQueryString;
+
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -120,11 +103,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             stateHolder = new StateFragment();
             fm.beginTransaction().add(stateHolder, "state").commit();
         } else {
-            if(stateHolder.getPreviousState() != null){
-                firstRun = stateHolder.getPreviousState().isFirstRun();
+            if (stateHolder.getPreviousState() != null) {
                 loadPreviousAudio(stateHolder.getPreviousState());
-            } else{
-                firstRun = true;
             }
         }
         
@@ -135,8 +115,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
 
-            //Add breadcrumb bar
-            
+            // Add breadcrumb bar
             BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
             
             // If the state holder is null, create a new one for this activity
@@ -148,7 +127,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         
         mGestureDetector = new GestureDetector(this, this);
     }
-    
+
+    protected void restoreLastQueryString(String key) {
+        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
+        lastQueryString = settings.getString(key, null);
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Recovered lastQueryString: (" + lastQueryString + ")");
+        }
+    }
+
     private void loadPreviousAudio(AudioController oldController) {
         MediaEntity oldEntity = oldController.getCurrMedia();
         if (oldEntity != null) {
@@ -156,29 +143,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             oldController.removeCurrentMediaEntity();
         }
     }
-    
+
     private void playPreviousAudio() {
-        if (currentEntity == null) return;
-        switch (currentEntity.getState()) {
-        case PausedForRenewal:
-            playCurrentMediaEntity();
-            break;
-        case Paused:
-            break;
-        case Playing:
-        case Ready:
-            Log.w(TAG, "State in loadPreviousAudio is invalid");
+        if (currentEntity != null) {
+            switch (currentEntity.getState()) {
+                case PausedForRenewal:
+                    playCurrentMediaEntity();
+                    break;
+                case Paused:
+                    break;
+                case Playing:
+                case Ready:
+                    Log.w(TAG, "State in loadPreviousAudio is invalid");
+            }
         }
-    }
-    
-    /*
-     * Method to override in classes that need some functions called only once at the start 
-     * of the life cycle. Called by the CommCareActivity onResume() method; so, after the onCreate()
-     * method of all classes, but before the onResume() of the overriding activity. State maintained in
-     * stateFragment Fragment and firstRun boolean. 
-     */
-    public void fireOnceOnStart(){
-        // override when needed
     }
     
     /*
@@ -190,15 +168,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         switch (item.getItemId()) {
             case android.R.id.home:
                 this.onBackPressed();
-                
-//                try { 
-//                    CommCareApplication._().getCurrentSession().clearAllState();
-//                } catch(SessionUnavailableException sue) {
-//                    // probably won't go anywhere with this
-//                }
-//                // app icon in action bar clicked; go home
-//                Intent intent = new Intent(this, CommCareHomeActivity.class);
-//                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -224,10 +193,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                                 if(v instanceof TextView) {
                                     ((TextView)v).setText(((TextView)oldView).getText());
                                 }
-                                if(v == null || oldView == null) {
+                                if (v == null) {
                                     Log.d("loadFields", "NullPointerException when trying to find view with id: " +
                                             + element.value() + " (" + getResources().getResourceEntryName(element.value()) + ") "
-                                            + "v is " + v + ", oldView is " + oldView + " for activity " + oldActivity +
+                                            + " oldView is " + oldView + " for activity " + oldActivity +
                                             ", element is: " + f + " (" + f.getName() + ")");
                                 }
                                 v.setVisibility(oldView.getVisibility());
@@ -236,7 +205,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                             }
                         }
                         
-                        if(element.locale() != "") {
+                        if(!"".equals(element.locale())) {
                             if(v instanceof TextView) {
                                 ((TextView)v).setText(Localization.get(element.locale()));
                             } else {
@@ -264,7 +233,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         return false;
     }
     
-    boolean visible = false;
+    private boolean visible = false;
     
 
     /* (non-Javadoc)
@@ -274,18 +243,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     @TargetApi(11)
     protected void onResume() {
         super.onResume();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            //If we're in honeycomb this is taken care of by the fragment
-        } else {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            // In honeycomb and above the fragment takes care of this
             this.setTitle(getTitle(this, getActivityTitle()));
         }
+
         visible = true;
         playPreviousAudio();
-        //set that this activity has run
-        if(isFirstRun()){
-            fireOnceOnStart();
-            setActivityHasRun();
-        }
     }
     
     /* (non-Javadoc)
@@ -395,7 +360,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     
     //if shouldDismiss flag has not been set to false in the course of a task transition,
     //then dismiss the dialog
-    public void attemptDismissDialog() {
+    void attemptDismissDialog() {
         if (shouldDismissDialog) {
             dismissProgressDialog();
         }
@@ -403,8 +368,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     
     /**
      * Handle an error in task execution.  
-     * 
-     * @param e
      */
     protected void taskError(Exception e) {
         //TODO: For forms with good error reporting, integrate that
@@ -465,7 +428,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public void onStop() {
         super.onStop();
     }
-        
+
+    protected void saveLastQueryString(String key) {
+        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(key, lastQueryString);
+        editor.commit();
+
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Saving lastQueryString: (" + lastQueryString + ") in file: " + CommCarePreferences.ACTIONBAR_PREFS);
+        }
+    }
+
     private void wakelock() {
         int lockLevel = getWakeLockingLevel();
         if(lockLevel == -1) { return;}
@@ -487,7 +461,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     
     //Graphical stuff below, needs to get modularized
     
-    public void TransplantStyle(TextView target, int resource) {
+    public void transplantStyle(TextView target, int resource) {
         //get styles from here
         TextView tv = (TextView)View.inflate(this, resource, null);
         int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(),target.getPaddingBottom() };
@@ -504,23 +478,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      * This will update dynamically as the activity loads/updates, but if
      * it will ever have a value it must return a blank string when one
      * isn't available.
-     * 
-     * @return
      */
     public String getActivityTitle() {
         return null;
     }
     
     public static String getTopLevelTitleName(Context c) {
-        String topLevel = null;
         try {
-            topLevel = Localization.get("app.display.name");
-            return topLevel;
+            return Localization.get("app.display.name");
         } catch(NoLocalizedTextException nlte) {
-            //nothing, app display name is optional for now.
+            return c.getString(org.commcare.dalvik.R.string.title_bar_name);
         }
-        
-        return c.getString(org.commcare.dalvik.R.string.title_bar_name);
     }
     
     public static String getTitle(Context c, String local) {
@@ -546,31 +514,21 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                 }
                 ++i;
             }
-            
-        } catch(SessionUnavailableException sue) {
+        } catch(SessionStateUninitException e) {
             
         }
         
-        String returnValue = topLevel;
-        
+        StringBuilder titleBuf = new StringBuilder(topLevel);
         for(String title : stepTitles) {
             if(title != null) {
-                returnValue += " > " + title;
+                titleBuf.append(" > ").append(title);
             }
         }
         
         if(local != null) {
-            returnValue += " > " + local;
+            titleBuf.append(" > ").append(local);
         }
-        return returnValue;
-    }
-    
-    public void setActivityHasRun(){
-        this.firstRun = false;
-    }
-    
-    public boolean isFirstRun(){
-        return this.firstRun;
+        return titleBuf.toString();
     }
     
     /*
@@ -748,7 +706,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     /**
      * Pop up a semi-friendly error dialog rather than crashing outright.
      * @param activity Activity to which to attach the dialog.
-     * @param errorMsg
      * @param shouldExit If true, cancel activity when user exits dialog.
      */
     public static void createErrorDialog(final Activity activity, String errorMsg, final boolean shouldExit) {
@@ -874,7 +831,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      * tryToAddActionSearchBar} method.
      */
     public interface ActionBarInstantiator {
-        void onActionBarFound(SearchView searchView);
+        void onActionBarFound(MenuItem searchItem, SearchView searchView);
     }
 
     /**
@@ -893,8 +850,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             MenuInflater inflater = act.getMenuInflater();
             inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
 
+            MenuItem searchItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
-                    (SearchView)menu.findItem(org.commcare.dalvik.R.id.search_action_bar).getActionView();
+                    (SearchView)searchItem.getActionView();
             if (searchView != null) {
                 int[] searchViewStyle =
                         AndroidUtil.getThemeColorIDs(this,
@@ -905,7 +863,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                 TextView textView = (TextView)searchView.findViewById(id);
                 textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
-                    instantiator.onActionBarFound(searchView);
+                    instantiator.onActionBarFound(searchItem, searchView);
                 }
             }
 
@@ -932,11 +890,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      */
     @Override
     public boolean dispatchTouchEvent(MotionEvent mv) {
-        boolean handled = mGestureDetector == null ? false : mGestureDetector.onTouchEvent(mv);
-        if (!handled) {
-            return super.dispatchTouchEvent(mv);
-        }
-        return handled;
+        return !(mGestureDetector == null || !mGestureDetector.onTouchEvent(mv)) || super.dispatchTouchEvent(mv);
+
     }
     
     /*
@@ -1018,62 +973,32 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 
     /**
      * Decide if two given MotionEvents represent a swipe.
-     * @param activity
-     * @param e1 First MotionEvent
-     * @param e2 Second MotionEvent
+     *
      * @return True iff the movement is a definitive horizontal swipe.
      */
     public static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-        //screen width and height in inches.
-        double sw = dm.xdpi * dm.widthPixels;
-        double sh = dm.ydpi * dm.heightPixels;
-        
-        //relative metrics for what constitutes a swipe (to adjust per screen size)
-        double swipeX = 0.25;
-        double swipeY = 0.25;
-        
         //details of the motion itself
         float xMov = Math.abs(e1.getX() - e2.getX());
         float yMov = Math.abs(e1.getY() - e2.getY());
         
         double angleOfMotion = ((Math.atan(yMov / xMov) / Math.PI) * 180);
-        
-        //large screen (tablet style 
-        if( sw > 5 || sh > 5) {
-            swipeX = 0.5;
-        }
-        
+
 
         // for all screens a swipe is left/right of at least .25" and at an angle of no more than 30
         //degrees
         int xPixelLimit = (int) (dm.xdpi * .25);
-        //int yPixelLimit = (int) (dm.ydpi * .25);
 
         return xMov > xPixelLimit && angleOfMotion < 30;
     }
 
-    /*
-     * Methods to make localization and styling easier for devs
-     * copied from CommCareActivity
-     */
-    
-    public Spannable stylize(String text){
-        return MarkupUtil.styleSpannable(this, text);
-    }
-    
     public Spannable localize(String key){
         return MarkupUtil.localizeStyleSpannable(this, key);
-    }
-    
-    public Spannable localize(String key, String arg){
-        return MarkupUtil.localizeStyleSpannable(this, key, arg);
     }
     
     public Spannable localize(String key, String[] args){
         return MarkupUtil.localizeStyleSpannable(this, key, args);
     }
-    
 }

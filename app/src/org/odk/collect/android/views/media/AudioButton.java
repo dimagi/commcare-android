@@ -27,17 +27,15 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private final static String t = "AudioButton";
     private String URI;
     private MediaState currentState;
-    private AudioController controller;
+    private final AudioController controller;
     private Object residingViewId;
 
     public AudioButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.controller = buildAudioControllerInstance();
+        setOnClickListener(this);
     }
 
-    /*
-         * Constructor for if not explicitly using an AudioController
-         */
     public AudioButton(Context context, final String URI, boolean visible) {
         this(context, URI, null, null, visible);
     }
@@ -45,6 +43,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
     public AudioButton(Context context, String URI, Object id,
             AudioController controller, boolean visible) {
         super(context);
+        setOnClickListener(this);
 
         resetButton(URI, visible);
 
@@ -72,7 +71,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
     }
 
-    public void resetButton(String URI, Object id, boolean visible) {
+    void resetButton(String URI, Object id, boolean visible) {
         resetButton(URI, visible);
         this.residingViewId = id;
     }
@@ -87,11 +86,11 @@ public class AudioButton extends ImageButton implements OnClickListener {
         attachToMedia();
     }
 
+    /**
+     * Check if the button in this view had media assigned to
+     * it in a previously-existing app (before rotation, etc.)
+     */
     private void attachToMedia() {
-        /*
-         * Check if the button in this view had media assigned to
-         * it in a previously-existing app (before rotation, etc.)
-         */
         MediaEntity currEntity = controller.getCurrMedia();
         if (currEntity != null) {
             Object oldId = currEntity.getId();
@@ -102,7 +101,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
     }
 
-    public void restoreButtonFromEntity(MediaEntity currentEntity) {
+    void restoreButtonFromEntity(MediaEntity currentEntity) {
         this.URI = currentEntity.getSource();
         this.residingViewId = currentEntity.getId();
         this.currentState = currentEntity.getState();
@@ -133,17 +132,17 @@ public class AudioButton extends ImageButton implements OnClickListener {
         refreshAppearance();
     }
 
-    public void setStateToPlaying() {
+    void setStateToPlaying() {
         currentState = MediaState.Playing;
         refreshAppearance();
     }
 
-    public void setStateToPaused() {
+    void setStateToPaused() {
         currentState = MediaState.Paused;
         refreshAppearance();
     }
 
-    public void refreshAppearance() {
+    void refreshAppearance() {
         switch(currentState) {
         case Ready:
             this.setImageResource(R.drawable.icon_audioplay_lightcool);
@@ -231,7 +230,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
     }
 
-    public void startPlaying() {
+    void startPlaying() {
         logAction("start");
         controller.playCurrentMediaEntity();
         setStateToPlaying();
@@ -243,7 +242,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         setStateToReady();
     }
 
-    public void pausePlaying() {
+    void pausePlaying() {
         logAction("pause");
         controller.pauseCurrentMediaEntity();
         setStateToPaused();
@@ -283,7 +282,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
         return returnValue;
     }
 
-    public AudioController buildAudioControllerInstance() {
+    AudioController buildAudioControllerInstance() {
         return new AudioController() {
             private MediaPlayer mp;
             boolean alive = false;

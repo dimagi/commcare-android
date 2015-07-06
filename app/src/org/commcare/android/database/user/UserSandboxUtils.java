@@ -26,7 +26,6 @@ import android.net.Uri;
 
 /**
  * @author ctsims
- *
  */
 public class UserSandboxUtils {
 
@@ -156,6 +155,7 @@ public class UserSandboxUtils {
         
         //OK! So we should be all set, here. Mark the new sandbox as ready and the old sandbox as ready for cleanup.
         SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
+
         SQLiteDatabase ukrdb = ukr.getAccessLock();
         ukrdb.beginTransaction();
         try {

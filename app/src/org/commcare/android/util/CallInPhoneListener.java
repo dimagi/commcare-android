@@ -114,11 +114,9 @@ public class CallInPhoneListener extends PhoneStateListener {
              */
             @Override
             protected Void doInBackground(Void... params) {
-                try {
                     synchronized(cachedNumbers) {
                         Hashtable<String,Pair<String, TreeReference>> detailSources = new Hashtable<String,Pair<String, TreeReference>>();
                         Set<Detail> details = new HashSet<Detail>();
-
 
                         //To fan this out, we first need to find the appropriate long detail screens
                         //then determine what nodeset to use to iterate over it
@@ -176,7 +174,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 
                                 TreeReference nodesetSource = detailSources.get(d.getId()).second;
 
-                                Vector<TreeReference> references =ec .expandReference(nodesetSource);
+                                Vector<TreeReference> references = ec.expandReference(nodesetSource);
 
                                 Set<Integer> phoneIds = new HashSet<Integer>();
                                 String[] forms = d.getTemplateForms();
@@ -209,10 +207,6 @@ public class CallInPhoneListener extends PhoneStateListener {
                         Log.d(TAG, "Caching Complete");
                         return null;
                     }
-                } catch(SessionUnavailableException sue) {
-                    //We got logged out in the middle of 
-                    return null;
-                }
             }
 
             private EvaluationContext getEC(String commandId) {
