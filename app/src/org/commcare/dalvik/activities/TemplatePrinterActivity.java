@@ -2,6 +2,7 @@ package org.commcare.dalvik.activities;
 
 import java.io.File;
 
+import org.commcare.android.adapters.PdfPrintDocumentAdapter;
 import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
 import org.commcare.android.util.TemplatePrinterUtils;
@@ -11,14 +12,18 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.print.PrintManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -47,7 +52,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                     this
             ).execute();
         } else {
-            Log.i("HERE", "file was invalid");
             showErrorDialog(getString(R.string.template_invalid, path));
         }
     }
@@ -55,32 +59,36 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("HERE", "onCreate called");
         setContentView(R.layout.activity_template_printer);
+        //Check to make sure we are targeting API 19 or above, which is where print is supported
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            showErrorDialog(getString(R.string.print_not_supported));
+            return;
+        }
         Bundle data = getIntent().getExtras();
+        //Check to make sure key-value data has been passed with the intent
         if (data == null) {
             showErrorDialog(R.string.no_data);
             return;
+        }
+        //Check if a doc location is coming in from the Intent
+        //Will return a reference of format jr://... if it has been set
+        String path = data.getString("cc:print_template_reference");
+        if (path != null) {
+            try {
+                String ccPath = ReferenceManager._().DeriveReference(path).getLocalURI();
+                preparePrintDoc(ccPath);
+            } catch (InvalidReferenceException e) {
+                showErrorDialog(getString(R.string.template_invalid, path));
+            }
         } else {
-            //Check if a doc location is coming in from the Intent
-            //Will return a reference of format jr://... if it has been set
-            String path = data.getString("cc:print_template_reference");
-            if (path != null) {
-                try {
-                    String ccPath = ReferenceManager._().DeriveReference(path).getLocalURI();
-                    preparePrintDoc(ccPath);
-                } catch (InvalidReferenceException e) {
-                    showErrorDialog(getString(R.string.template_invalid, path));
-                }
+            //Try to use the document location that was set in Settings menu
+            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
+            if ("".equals(path)) {
+                showErrorDialog(getString(R.string.template_not_set));
             } else {
-                //Try to use the document location that was set in Settings menu
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
-                if ("".equals(path)) {
-                    showErrorDialog(getString(R.string.template_not_set));
-                } else {
-                    preparePrintDoc(path);
-                }
+                preparePrintDoc(path);
             }
         }
     }
@@ -133,9 +141,12 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         }
     }
 
-
-    private void executePrint(File file) {
-
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private void executePrint(File document) {
+        PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+        String jobName = "";
+        PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, document.getPath());
+        printManager.print(jobName, adapter, null);
     }
 
     /**
