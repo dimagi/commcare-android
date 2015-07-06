@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.Toast;
 
-import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -216,14 +215,6 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         // get the file path and create a copy in the instance folder
         String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
                 (Uri)binaryuri);
-
-        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
-            // don't let the user select a file that won't be included in the
-            // upload to the server
-            clearAnswer();
-            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_invalid, "video"));
-            return;
-        }
 
         String extension = binaryPath.substring(binaryPath.lastIndexOf("."));
         String destVideoPath = mInstanceFolder + "/" + System.currentTimeMillis() + extension;
