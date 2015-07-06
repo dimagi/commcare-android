@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
 
 import android.app.Activity;
@@ -32,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
@@ -284,8 +271,17 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         if (mBinaryName != null) {
             deleteMedia();
         }
-        String binarypath = UrlUtils.getPathFromUri((Uri) binaryuri,getContext());
-        File f = new File(binarypath);
+        String binaryPath = UrlUtils.getPathFromUri((Uri) binaryuri,getContext());
+
+        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+            // don't let the user select a file that won't be included in the
+            // upload to the server
+            clearAnswer();
+            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_invalid, "image"));
+            return;
+        }
+
+        File f = new File(binaryPath);
         mBinaryName = f.getName();
         Log.i(t, "Setting current answer to " + f.getName());
 

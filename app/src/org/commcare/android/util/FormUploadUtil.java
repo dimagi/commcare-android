@@ -257,15 +257,8 @@ public class FormUploadUtil {
     private static long estimateUploadBytes(File[] files) {
         long bytes = 0;
         for (File file : files) {
-            //Make sure we'll be sending it
-            boolean supported = false;
-            for (String ext : SUPPORTED_FILE_EXTS) {
-                if (file.getName().endsWith(ext) || isAudioVisualMimeType(file)) {
-                    supported = true;
-                    break;
-                }
-            }
-            if (!supported) {
+            // Make sure we'll be sending it
+            if (!isSupportedMultimediaFile(file.getName())) {
                 continue;
             }
 
@@ -293,14 +286,6 @@ public class FormUploadUtil {
             throws FileNotFoundException {
         for (File f : files) {
             ContentBody fb;
-
-            boolean supported = false;
-            for (String ext : SUPPORTED_FILE_EXTS) {
-                if (f.getName().endsWith(ext)) {
-                    supported = true;
-                    break;
-                }
-            }
 
             if (f.getName().endsWith(".xml")) {
                 if (key != null) {
@@ -337,7 +322,7 @@ public class FormUploadUtil {
                 } else {
                     Log.i(TAG, "file " + f.getName() + " is too big");
                 }
-            } else if (supported || isAudioVisualMimeType(f)) {
+            } else if (isSupportedMultimediaFile(f.getName())) {
                 fb = new FileBody(f, "application/octet-stream");
                 if (fb.getContentLength() <= MAX_BYTES) {
                     entity.addPart(f.getName(), fb);
@@ -354,14 +339,27 @@ public class FormUploadUtil {
     }
 
     /**
+     * @return Is the filename's extension in the hard-coded list of supported
+     * files or have a media mimetype?
+     */
+    public static boolean isSupportedMultimediaFile(String filename) {
+        for (String ext : SUPPORTED_FILE_EXTS) {
+            if (filename.endsWith(ext)) {
+                return true;
+            }
+        }
+        return isAudioVisualMimeType(filename);
+    }
+
+    /**
      * Use the file's extension to determine if it has an audio,
      * video, or image mimetype.
      *
      * @return true if the file has an audio, image, or video mimetype
      */
-    private static boolean isAudioVisualMimeType(File file) {
+    private static boolean isAudioVisualMimeType(String filename) {
         MimeTypeMap mtm = MimeTypeMap.getSingleton();
-        String[] filenameSegments = file.getName().split("\\.");
+        String[] filenameSegments = filename.split("\\.");
         if (filenameSegments.length > 1) {
             // use the file extension to determine the mimetype
             String ext = filenameSegments[filenameSegments.length - 1];
