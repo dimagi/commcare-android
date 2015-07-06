@@ -30,6 +30,7 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -513,8 +514,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                 }
                 ++i;
             }
-            
-        } catch(SessionUnavailableException sue) {
+        } catch(SessionStateUninitException e) {
             
         }
         

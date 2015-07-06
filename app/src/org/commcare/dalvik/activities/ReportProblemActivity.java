@@ -3,6 +3,7 @@ package org.commcare.dalvik.activities;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -52,21 +53,25 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
         
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         
-        String username = CommCareApplication._().getSession().getLoggedInUser().getUsername();
+        String username;
+        try {
+            username = CommCareApplication._().getSession().getLoggedInUser().getUsername();
+        } catch (SessionUnavailableException e) {
+            username = "unknown_username";
+        }
         String version = CommCareApplication._().getCurrentVersionString();
-        String domain = prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX,"not found");
-        String postURL = prefs.getString("PostURL", null);
 
-        String message = "Problem reported via CommCareODK. " +
-        		"\n User: " + username + 
-        		"\n Domain: " + domain + 
-        		"\n PostURL: " + postURL +
-                "\n CCODK version: " + version + 
+        String domain = prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
+        String postURL = prefs.getString("PostURL", null);
+        return "Problem reported via CommCareODK. " +
+                "\n User: " + username +
+                "\n Domain: " + domain +
+                "\n PostURL: " + postURL +
+                "\n CCODK version: " + version +
                 "\n Device Model: " + Build.MODEL +
                 "\n Manufacturer: " + Build.MANUFACTURER +
-                "\n Android Version: " + Build.VERSION.RELEASE + 
+                "\n Android Version: " + Build.VERSION.RELEASE +
                 "\n Message: " + userInput;
-        return message;
     }
     
     public void sendReportEmail(String report){

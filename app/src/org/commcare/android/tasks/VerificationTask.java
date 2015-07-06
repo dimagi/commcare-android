@@ -39,7 +39,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<M
     public static final int STATUS_VERIFY_FAIL = 1;
     public static final int STATUS_FAIL_UNKNOWN = 2;
     
-    public VerificationTask(Context c) throws SessionUnavailableException{
+    public VerificationTask(Context c) {
         this.c = c;
     }
     
