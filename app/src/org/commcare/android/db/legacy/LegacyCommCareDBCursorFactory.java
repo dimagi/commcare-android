@@ -39,7 +39,7 @@ public class LegacyCommCareDBCursorFactory implements CursorFactory {
     /* (non-Javadoc)
      * @see android.database.sqlite.SQLiteDatabase.CursorFactory#newCursor(android.database.sqlite.SQLiteDatabase, android.database.sqlite.SQLiteCursorDriver, java.lang.String, android.database.sqlite.SQLiteQuery)
      */
-    public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) throws SessionUnavailableException{
+    public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
         if(models == null || !models.containsKey(editTable)) {
             return new SQLiteCursor(db, masterQuery, editTable, query);
         } else {
@@ -48,7 +48,7 @@ public class LegacyCommCareDBCursorFactory implements CursorFactory {
         }
     } 
     
-    protected CipherPool getCipherPool() throws SessionUnavailableException {
+    protected CipherPool getCipherPool() {
         return null;
     }
 }

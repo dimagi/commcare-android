@@ -62,7 +62,7 @@ public class IncompleteFormRecordView extends LinearLayout {
         rightHandSync = context.getResources().getDrawable(android.R.drawable.stat_notify_sync_noanim);
     }
 
-    public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
+    public void setParams(FormRecord record, String dataTitle, Long timestamp) {
         if(names.containsKey(record.getFormNamespace())) {
             Text name = names.get(record.getFormNamespace());
             mPrimaryTextView.setText(MarkupUtil.styleSpannable(IncompleteFormRecordView.this.getContext(), name.evaluate()));

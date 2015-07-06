@@ -70,8 +70,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     private static final String logCCUnexpectedResultMessage = "CCHQ ping test: Unexpected HTML result";
     private static final String logCCSuccessMessage = "CCHQ ping test: Success.";
     
-    public ConnectionDiagnosticTask(Context c, CommCarePlatform platform) throws SessionUnavailableException
-    {
+    public ConnectionDiagnosticTask(Context c, CommCarePlatform platform) {
         this.c = c;
         this.platform = platform;
         this.taskId = CONNECTION_ID;

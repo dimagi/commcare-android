@@ -128,8 +128,7 @@ public abstract class ResourceEngineTask<R>
     protected boolean majorIsProblem;
 
     public ResourceEngineTask(boolean upgradeMode, CommCareApp app,
-                              boolean startOverUpgrade, int taskId, boolean shouldSleep)
-            throws SessionUnavailableException {
+                              boolean startOverUpgrade, int taskId, boolean shouldSleep) {
         this.upgradeMode = upgradeMode;
         this.app = app;
         this.startOverUpgrade = startOverUpgrade;
