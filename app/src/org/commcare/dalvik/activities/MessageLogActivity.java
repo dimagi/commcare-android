@@ -40,12 +40,8 @@ public class MessageLogActivity extends ListActivity {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        try {
-            messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
-            this.setListAdapter(messages);
-        } catch(SessionUnavailableException sue) {
-            //TODO: login and return
-        }
+        messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
+        this.setListAdapter(messages);
     }
 
     /*

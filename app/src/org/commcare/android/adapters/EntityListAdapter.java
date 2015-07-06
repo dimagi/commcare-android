@@ -19,7 +19,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.GridEntityView;
-import org.commcare.android.view.GridMediaView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -92,7 +91,7 @@ public class EntityListAdapter implements ListAdapter {
     private boolean inAwesomeMode = false;
 
     public EntityListAdapter(Activity activity, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
-            int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) throws SessionUnavailableException {
+            int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) {
         this.detail = detail;
         actionEnabled = detail.getCustomAction() != null;
 
@@ -226,7 +225,13 @@ public class EntityListAdapter implements ListAdapter {
             long startTime = System.currentTimeMillis();
             //It's a bit sketchy here, because this DB lock will prevent
             //anything else from processing
-            SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+            SQLiteDatabase db;
+            try {
+                db = CommCareApplication._().getUserDbHandle();
+            } catch (SessionUnavailableException e) {
+                this.finish();
+                return;
+            }
             db.beginTransaction();
             full:
             for(int index = 0 ; index < full.size() ; ++index) {

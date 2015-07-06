@@ -108,7 +108,7 @@ public class CommCareUtil {
         } else {
             try {
                 LogSubmissionTask reportSubmitter =
-                    new LogSubmissionTask(CommCareApplication._(), true,
+                    new LogSubmissionTask(true,
                             CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title),
                             url);
                 reportSubmitter.execute();

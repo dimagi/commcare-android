@@ -92,7 +92,7 @@ public class EncryptionUtils {
     private static final String NEW_LINE = "\n";
 
     private EncryptionUtils() {
-    };
+    }
 
     public static final class EncryptedFormInformation {
         public final String formId;

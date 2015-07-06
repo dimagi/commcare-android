@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.IncompleteFormListAdapter;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
@@ -46,6 +47,7 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -57,7 +59,8 @@ import java.io.IOException;
 
 
 public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
-    private static final String TAG = FormRecordListActivity.class.getSimpleName();
+    public static final String TAG = FormRecordListActivity.class.getSimpleName();
+
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST  + 1;
     private static final int RESTORE_RECORD = Menu.FIRST  + 2;
@@ -196,11 +199,20 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 
             this.registerForContextMenu(listView);
             refreshView();
+
+            restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
         } catch(SessionUnavailableException sue) {
             //TODO: session is dead, login and return
         }
     }
-    
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+    }
+
     public String getActivityTitle() {
         
         if(adapter == null){
@@ -320,9 +332,8 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
               Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
               createFormRecordScanResultDialog(result);
           }
-          
           return true;
-        } catch(SessionUnavailableException sue) {
+        } catch(UserStorageClosedException e) {
             //TODO: Login and try again
             return true;
         }
@@ -363,8 +374,21 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             // this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
-            public void onActionBarFound(SearchView searchView) {
+            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
                 FormRecordListActivity.this.searchView = searchView;
+                if (lastQueryString != null && lastQueryString.length() > 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    {
+                        searchItem.expandActionView();
+                    }
+                    searchView.setQuery(lastQueryString, false);
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
+                    }
+                    if (adapter != null) {
+                        adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);
+                    }
+                }
                 FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {

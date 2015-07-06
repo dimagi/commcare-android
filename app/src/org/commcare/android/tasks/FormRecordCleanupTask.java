@@ -377,7 +377,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                  * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
                  */
                 @Override
-                public void commit(Case parsed) throws IOException, SessionUnavailableException {
+                public void commit(Case parsed) throws IOException {
                     String incoming = parsed.getCaseId();
                     if (incoming != null && !"".equals(incoming)) {
                         caseIDs[0] = incoming;
@@ -389,7 +389,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                  * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
                  */
                 @Override
-                public ACase retrieve(String entityId) throws SessionUnavailableException {
+                public ACase retrieve(String entityId) {
                     caseIDs[0] = entityId;
                     ACase c = new ACase("", "");
                     c.setCaseId(entityId);
@@ -424,7 +424,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
              * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
              */
             @Override
-            public void commit(String[] meta) throws IOException, SessionUnavailableException {
+            public void commit(String[] meta) throws IOException {
                 if (meta[0] != null) {
                     modified[0] = DateUtils.parseDateTime(meta[0]);
                 }

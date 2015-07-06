@@ -16,7 +16,6 @@ package org.odk.collect.android.widgets;
 
 import java.util.Vector;
 
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
