@@ -59,21 +59,29 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         setContentView(R.layout.activity_template_printer);
         Bundle data = getIntent().getExtras();
         if (data == null) {
-            //TODO: What is this "No data" string meant to convey?
             showErrorDialog(R.string.no_data);
             return;
         } else {
-            //TODO: Check if a document is coming in from the Intent -- how would this be done?
-        }
-        //Try to use the document location that was set in Settings menu
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
-        //Log.i("Doc location being used", path);
-        if ("".equals(path)) {
-            Log.i("HERE", "path was empty");
-            showErrorDialog(getString(R.string.template_not_set));
-        } else {
-            preparePrintDoc(path);
+            //Check if a doc location is coming in from the Intent
+            //Will return a reference of format jr://... if it has been set
+            String path = data.getString("cc:print_template_reference");
+            if (path != null) {
+                try {
+                    String ccPath = ReferenceManager._().DeriveReference(path).getLocalURI();
+                    preparePrintDoc(ccPath);
+                } catch (InvalidReferenceException e) {
+                    showErrorDialog(getString(R.string.template_invalid, path));
+                }
+            } else {
+                //Try to use the document location that was set in Settings menu
+                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+                path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
+                if ("".equals(path)) {
+                    showErrorDialog(getString(R.string.template_not_set));
+                } else {
+                    preparePrintDoc(path);
+                }
+            }
         }
     }
 
