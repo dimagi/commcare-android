@@ -418,8 +418,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
         // remove Forms from CC
 
-        WipeTask mWipeTask = new WipeTask(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), this.cachedRecords){
-
+        WipeTask mWipeTask = new WipeTask(getApplicationContext(), this.cachedRecords){
             /*
              * (non-Javadoc)
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
@@ -498,8 +497,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         }
 
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(), CommCareApplication._().getCurrentApp().getCommCarePlatform(), 
-                settings.getString("PostURL", url), receiveFolder){
+        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(), settings.getString("PostURL", url), receiveFolder){
 
             /*
              * (non-Javadoc)
@@ -507,13 +505,11 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              */
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {
-
                 if(result == Boolean.TRUE){
                     Intent i = new Intent(getIntent());
                     i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
                     receiver.setResult(BULK_SEND_ID, i);
                     receiver.finish();
-                    return;
                 } else {
                     //assume that we've already set the error message, but make it look scary
                     receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
@@ -574,7 +570,6 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         Log.d(TAG, "creating unzip task");
 
         UnzipTask<CommCareWiFiDirectActivity> mUnzipTask = new UnzipTask<CommCareWiFiDirectActivity>() {
-
             /*
              * (non-Javadoc)
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
@@ -874,8 +869,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     public void zipFiles(){
         Logger.log(TAG, "Zipping Files");
         Log.d(CommCareWiFiDirectActivity.TAG, "Zipping Files2");
-        ZipTask mZipTask = new ZipTask(this, CommCareApplication._().getCurrentApp().getCommCarePlatform()){
-
+        ZipTask mZipTask = new ZipTask(this) {
             /*
              * (non-Javadoc)
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])

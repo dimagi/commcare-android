@@ -20,6 +20,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
@@ -78,7 +79,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         try {
             asw = CommCareApplication._().getCurrentSessionWrapper();
             session = asw.getSession();
-        } catch(SessionUnavailableException sue){
+        } catch(SessionStateUninitException sue) {
             // The user isn't logged in! bounce this back to where we came from
             this.setResult(RESULT_CANCELED, this.getIntent());
             this.finish();
@@ -123,23 +124,19 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
             }
         }
      
-        try {
-            next.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    select();
-                }
-            });
-
-            if (mViewMode) {
-                next.setText("Done");
+        next.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                select();
             }
+        });
 
-            mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
-            mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
-        } catch(SessionUnavailableException sue) {
-            //TODO: Login and return to try again
+        if (mViewMode) {
+            next.setText("Done");
         }
-        
+
+        mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
+        mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
+
         mDetailView.setDetail(factory.getDetail());
     }
     

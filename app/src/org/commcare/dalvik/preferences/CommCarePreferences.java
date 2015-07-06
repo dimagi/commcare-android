@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -160,7 +161,10 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
-                CommCareApplication._().clearUserData();
+                try {
+                    CommCareApplication._().clearUserData();
+                } catch (SessionUnavailableException e) {
+                }
                 this.finish();
                 return true;
             case ABOUT_COMMCARE:
