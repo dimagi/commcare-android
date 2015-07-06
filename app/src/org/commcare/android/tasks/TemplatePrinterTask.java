@@ -2,6 +2,7 @@ package org.commcare.android.tasks;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -58,18 +59,20 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
 
     private final File input;
     private final File outputFolder;
+    private final String jobName;
     private final Bundle values;
     private final PopulateListener listener;
 
     private String errorMessage;
 
-    public TemplatePrinterTask(File input, File outputFolder, Bundle values, PopulateListener listener) {
+    public TemplatePrinterTask(File input, File outputFolder, String jobName,
+                               Bundle values, PopulateListener listener) {
 
         this.input = input;
         this.outputFolder = outputFolder;
+        this.jobName = jobName;
         this.values = values;
         this.listener = listener;
-
     }
 
     @Override
@@ -112,10 +115,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
      */
     private File populate(File input, Bundle values) throws IOException {
 
-        // Sans file extension
-        String inputName = input.getName().substring(0, input.getName().lastIndexOf('.'));
         String inputExtension = TemplatePrinterUtils.getExtension(input.getName());
-
         File output;
 
         if (DocTypeEnum.isSupportedExtension(inputExtension)) {
@@ -123,7 +123,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
             DocTypeEnum docType = DocTypeEnum.getFromExtension(inputExtension);
 
             // Append suffix and file extension to output file name
-            output = new File(outputFolder, inputName + "-out." + inputExtension);
+            output = new File(outputFolder, jobName + "." + inputExtension);
 
             ZipFile file = new ZipFile(input);
             Enumeration entries = file.entries();
