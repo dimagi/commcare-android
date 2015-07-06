@@ -14,7 +14,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -203,14 +202,6 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
                 (Uri)binaryuri);
 
-        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
-            // don't let the user select a file that won't be included in the
-            // upload to the server
-            clearAnswer();
-            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_invalid, "audio"));
-            return;
-        }
-
         String[] filenameSegments = binaryPath.split("\\.");
         String extension = "";
         if (filenameSegments.length > 1) {
@@ -226,7 +217,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         checkFileSize(newAudio);
 
         if (newAudio.exists()) {
-            // Add the copy to the content provier
+            // Add the copy to the content provider
             ContentValues values = new ContentValues(6);
             values.put(Audio.Media.TITLE, newAudio.getName());
             values.put(Audio.Media.DISPLAY_NAME, newAudio.getName());

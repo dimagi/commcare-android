@@ -18,7 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
@@ -272,14 +271,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
             deleteMedia();
         }
         String binaryPath = UrlUtils.getPathFromUri((Uri) binaryuri,getContext());
-
-        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
-            // don't let the user select a file that won't be included in the
-            // upload to the server
-            clearAnswer();
-            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_invalid, "image"));
-            return;
-        }
 
         File f = new File(binaryPath);
         mBinaryName = f.getName();
