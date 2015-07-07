@@ -4,7 +4,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-//import org.commcare.android.adapters.PdfPrintDocumentAdapter;
+import org.commcare.android.adapters.PdfPrintDocumentAdapter;
 import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
 import org.commcare.android.util.TemplatePrinterUtils;
@@ -128,8 +128,8 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
     @Override
     public void onFinished(File result) {
-        startDocumentViewer(result);
-        //executePrint(result);
+        //startDocumentViewer(result);
+        executePrint(result);
         finish();
     }
 
@@ -167,8 +167,8 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void executePrint(File document) {
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
-        //PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, document.getPath());
-        //printManager.print(mJobName, adapter, null);
+        PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, document.getPath(), mJobName);
+        printManager.print(mJobName, adapter, null);
     }
 
     /**
