@@ -42,7 +42,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
-public class PdfPrintDocumentAdapter extends PrintDocumentAdapter{
+public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
 
     private Activity mActivity;
     private String mFilePath;
@@ -76,9 +76,10 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter{
                          PrintDocumentAdapter.LayoutResultCallback callback, Bundle extras) {
 
         // Respond to cancellation request
-        if(cancellationSignal.isCanceled()){
+        if (cancellationSignal.isCanceled()) {
             callback.onLayoutCancelled();
-            Toast.makeText(mActivity, R.string.print_error, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mActivity, R.string.print_error,
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -90,8 +91,7 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter{
         // Content layout reflow is complete
         callback.onLayoutFinished(info, true);
 
-//            callback.onLayoutFailed("Page count calculation failed.");
-
+        //callback.onLayoutFailed("Page count calculation failed.");
     }
 
     @Override
@@ -119,10 +119,12 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter{
             Log.d(TAG, "Exception"+e);
         } finally {
             try {
-                if(input!=null)
+                if (input!=null) {
                     input.close();
-                if(output!=null)
+                }
+                if (output!=null) {
                     output.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -141,7 +143,6 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter{
             if (job.getInfo().getLabel().equals(mJobName)) {
                 //printJobUniueID++;//for internal purpose only
                 //Util.saveUniquePrintJobIDSP(mActivity, printJobUniueID);
-
                 mTimer = new Timer();
                 mTimerTask = new CustomTimerTask(job);
                 mTimer.scheduleAtFixedRate(mTimerTask, 0, 2000);
@@ -155,14 +156,17 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter{
      * @author rreddy.avula
      *
      */
-    private class CustomTimerTask extends TimerTask{
+    private class CustomTimerTask extends TimerTask {
+
         private PrintJob job;
         private long mTimeLimit = 2;
+
         public CustomTimerTask(PrintJob job) {
             this.job = job;
             mDialog = new ProgressDialog(mActivity);
             mDialog.show();
         }
+
         @Override
         public void run() {
             mActivity.runOnUiThread(new Runnable() {
@@ -170,59 +174,60 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter{
                 @Override
                 public void run() {
                     mTimeLimit += 2;
-                    if(job.isQueued()){
-                        if(!mDialog.isShowing())
+                    if (job.isQueued()) {
+                        if (!mDialog.isShowing()) {
                             mDialog.show();
+                        }
                         mDialog.setTitle(mResources.getString(R.string.printjob_queued));
-                    }else if(job.isStarted()){
-                        if(!mDialog.isShowing())
+                    } else if(job.isStarted()) {
+                        if (!mDialog.isShowing()) {
                             mDialog.show();
+                        }
                         mDialog.setTitle(mResources.getString(R.string.printjob_started));
-                    }else if(job.isBlocked()){
+                    } else if (job.isBlocked()) {
                         mDialog.setTitle(mResources.getString(R.string.printjob_blocked));
                         job.restart();
-                    }else if(job.isFailed()){
+                    } else if (job.isFailed()) {
                         mDialog.setTitle(mResources.getString(R.string.printjob_failed));
                         job.restart();
-                    }else if(job.isCompleted()){
+                    } else if (job.isCompleted()) {
                         job.cancel();
                         CustomTimerTask.this.cancel();
                         mTimer.cancel();
                         showAlert(mResources.getString(R.string.printing_done), PRINT_SUCCESS);
-
                     }
-                    if(mTimeLimit == MAXTIME_FOR_PRINT_WAIT){
+                    if (mTimeLimit == MAXTIME_FOR_PRINT_WAIT) {
                         job.cancel();
                         CustomTimerTask.this.cancel();
                         mTimer.cancel();
                         showAlert(mResources.getString(R.string.print_error), PRINT_FAILED);
-
                     }
                 }
             });
         }
     }
+
     /**
      * Show the alert in the specified activity and message
      * @param msg String message that should be shown on the alert
      */
-    public void showAlert(String msg, final int status){
+    public void showAlert(String msg, final int status) {
         AlertDialog.Builder alert=new AlertDialog.Builder(mActivity);
         alert.setTitle(msg);
-//        alert.setMessage("");
+        //alert.setMessage("");
         alert.setCancelable(false);
-        alert.setPositiveButton(mActivity.getResources().getString(R.string.ok), new DialogInterface.OnClickListener(){
+        alert.setPositiveButton(mActivity.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+
             public void onClick(DialogInterface dialog1, int which) {
                 Intent intent = new Intent();
                 mActivity.setResult(Activity.RESULT_OK, intent);
 
-                if(mDialog.isShowing())
+                if (mDialog.isShowing()) {
                     mDialog.dismiss();
-
-                if(status == PRINT_SUCCESS){
+                }
+                if (status == PRINT_SUCCESS) {
                     intent.putExtra(ODK_INTENT_DATA, true);
-
-                }else if(status == PRINT_FAILED){
+                } else if (status == PRINT_FAILED) {
                     intent.putExtra(ODK_INTENT_DATA, false);
                 }
                 mActivity.finish();
@@ -235,11 +240,12 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter{
      * their status
      */
     public void cancelTimer() {
-        if(mTimerTask!=null){
+        if (mTimerTask!=null) {
             mTimerTask.cancel();
             mTimer.cancel();
-            if(mDialog!=null && mDialog.isShowing())
+            if (mDialog!=null && mDialog.isShowing()) {
                 mDialog.dismiss();
+            }
             Intent intent = new Intent();
             mActivity.setResult(Activity.RESULT_OK, intent);
             intent.putExtra(ODK_INTENT_DATA, false);
