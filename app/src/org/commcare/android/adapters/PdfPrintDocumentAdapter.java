@@ -159,6 +159,13 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
         public CustomTimerTask(PrintJob job) {
             this.job = job;
             mDialog = new ProgressDialog(mActivity);
+            mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    mActivity.finish();
+                }
+            });
             mDialog.show();
         }
 
@@ -170,6 +177,12 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
                 @Override
                 public void run() {
                     mTimeLimit += 2;
+                    if (mTimeLimit == MAXTIME_FOR_PRINT_WAIT) {
+                        job.cancel();
+                        CustomTimerTask.this.cancel();
+                        mTimer.cancel();
+                        showAlert(mResources.getString(R.string.print_error), PRINT_FAILED);
+                    }
                     if (job.isQueued()) {
                         if (!mDialog.isShowing()) {
                             mDialog.show();
@@ -192,11 +205,18 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
                         mTimer.cancel();
                         showAlert(mResources.getString(R.string.printing_done), PRINT_SUCCESS);
                     }
-                    if (mTimeLimit == MAXTIME_FOR_PRINT_WAIT) {
+                    else {
+                        //We're not in any of these states, can result from a lot of different
+                        //and unclear things. Just going to dismiss the dialog and end the print
+                        //activity for now...
+                        Log.i("HERE", "in else statement");
                         job.cancel();
                         CustomTimerTask.this.cancel();
                         mTimer.cancel();
-                        showAlert(mResources.getString(R.string.print_error), PRINT_FAILED);
+                        if (mDialog.isShowing()) {
+                            mDialog.dismiss();
+                        }
+                        mActivity.finish();
                     }
                 }
             });
@@ -228,6 +248,7 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
                 mActivity.finish();
             }
         });
+
         alert.show();
     }
     /**

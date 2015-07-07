@@ -222,6 +222,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="printjob_blocked">"PrintJob Blocked and restarting&#8230;"</string>
     <string name="printjob_failed">"PrintJob failed and restarting&#8230;"</string>
     <string name="printing_done">"Printing done successfully"</string>
+    <string name="printing_unknown">Print was interrupted, please try again.</string>
     <string name="quit_application">Exit %s</string>
     <string name="quit_entry">Save Form and Exit</string>
     <string name="refresh">Refresh</string>
