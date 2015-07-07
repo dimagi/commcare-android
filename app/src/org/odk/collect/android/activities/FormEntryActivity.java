@@ -795,7 +795,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     // upload to the server
                     ((ODKView) mCurrentView).clearAnswer();
                     Toast.makeText(FormEntryActivity.this,
-                            StringUtils.getStringSpannableRobust(FormEntryActivity.this, R.string.attachment_invalid),
+                            Localization.get("form.attachment.invalid"),
                             Toast.LENGTH_LONG).show();
                 } else {
                     ((ODKView) mCurrentView).setBinaryData(media);
