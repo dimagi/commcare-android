@@ -58,12 +58,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             showErrorDialog(R.string.no_data);
         }
 
-        //Get the case number, which should be sent with the intent bundle
+        // Get the case number, which may be sent with the intent bundle -- For purposes of
+        // creating the job name. If not included, will just not be used.
         String caseNum = data.getString("cc:case_num");
-        //Until HQ side is implemented, this may not exist
-        if (caseNum == null) {
-            caseNum = "caseNumPlaceholder";
-        }
 
         //Check if a doc location is coming in from the Intent
         //Will return a reference of format jr://... if it has been set
@@ -116,7 +113,11 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         String inputName = templateFile.getName().substring(0, templateFile.getName().lastIndexOf('.'));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = sdf.format(new Date());
-        mJobName = inputName + "_" + caseNum + "_" + dateString;
+        if (caseNum != null) {
+            mJobName = inputName + "_" + caseNum + "_" + dateString;
+        } else {
+            mJobName = inputName + "_" + dateString;
+        }
         Log.i("Job name generated", mJobName);
     }
 
