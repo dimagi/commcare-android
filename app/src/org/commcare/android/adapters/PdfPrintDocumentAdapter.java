@@ -74,7 +74,6 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
                          PrintAttributes newAttributes,
                          CancellationSignal cancellationSignal,
                          PrintDocumentAdapter.LayoutResultCallback callback, Bundle extras) {
-
         // Respond to cancellation request
         if (cancellationSignal.isCanceled()) {
             callback.onLayoutCancelled();
@@ -136,13 +135,9 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
         super.onFinish();
         PrintManager printManager = (PrintManager) mActivity.getSystemService(Context.PRINT_SERVICE);
         List<PrintJob> printJobs = printManager.getPrintJobs();
-        //String PatientID = mActivity.getIntent().getExtras().getString(Constants.PATIENT_ID);
-        //long printJobUniueID = Util.getUniquePrintJobIDFromSP(mActivity);
         for (int i = 0; i <printJobs.size(); i++) {
             PrintJob job = printJobs.get(i);
             if (job.getInfo().getLabel().equals(mJobName)) {
-                //printJobUniueID++;//for internal purpose only
-                //Util.saveUniquePrintJobIDSP(mActivity, printJobUniueID);
                 mTimer = new Timer();
                 mTimerTask = new CustomTimerTask(job);
                 mTimer.scheduleAtFixedRate(mTimerTask, 0, 2000);
@@ -169,6 +164,7 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
 
         @Override
         public void run() {
+
             mActivity.runOnUiThread(new Runnable() {
 
                 @Override
@@ -214,7 +210,6 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
     public void showAlert(String msg, final int status) {
         AlertDialog.Builder alert=new AlertDialog.Builder(mActivity);
         alert.setTitle(msg);
-        //alert.setMessage("");
         alert.setCancelable(false);
         alert.setPositiveButton(mActivity.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
 
