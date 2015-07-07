@@ -131,7 +131,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     public void onFinished(File result) {
         //startDocumentViewer(result);
         executePrint(result);
-        finish();
+        //finish();
     }
 
     private void showErrorDialog(int messageResId) {
@@ -168,37 +168,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void executePrint(File document) {
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
-        PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, document.getPath(), mJobName);
+        PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, document.getPath(),
+                mJobName);
         printManager.print(mJobName, adapter, null);
-    }
-
-    /**
-     * Attempts to open the document with its default viewer.
-     * If default viewer is unavailable, opens a dialog from which
-     * a viewer application can be selected.
-     *
-     * @param document Document to open
-     */
-
-    private void startDocumentViewer(File document) {
-
-        Uri uri = Uri.fromFile(document);
-
-        String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                MimeTypeMap.getFileExtensionFromUrl(
-                        uri.toString()
-                )
-        );
-
-        Intent intent = new Intent()
-                .setAction(Intent.ACTION_VIEW)
-                .setDataAndType(
-                        uri,
-                        type == null ? "*/*" : type
-                );
-
-        startActivity(intent);
-
     }
 
 }
