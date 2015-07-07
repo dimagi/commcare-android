@@ -44,8 +44,6 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int i) {
         EntityDetailFragment fragment = new EntityDetailFragment();
         fragment.setEntityDetailModifier(modifier);
-        fragment.setOnLeftClick(onLeftClick);
-        fragment.setOnRightClick(onRightClick);
         Bundle args = new Bundle();
         args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
         if (detail.isCompound()) {
@@ -57,10 +55,15 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         return fragment;
     }
 
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return (detail.isCompound() ? detail.getDetails()[position] : detail).getTitle().getText().evaluate();
+    }
+
     /*
-     * (non-Javadoc)
-     * @see android.support.v4.view.PagerAdapter#getCount()
-     */
+         * (non-Javadoc)
+         * @see android.support.v4.view.PagerAdapter#getCount()
+         */
     @Override
     public int getCount() {
         return detail.isCompound() ? detail.getDetails().length : 1;
