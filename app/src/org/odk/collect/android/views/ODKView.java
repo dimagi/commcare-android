@@ -389,8 +389,6 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
 
     /**
      * Called when another activity returns information to answer this question.
-     * 
-     * @param answer
      */
     public void setBinaryData(Object answer) {
         

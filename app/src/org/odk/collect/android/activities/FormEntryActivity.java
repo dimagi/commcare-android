@@ -80,6 +80,7 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -90,6 +91,7 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.services.CommCareSessionService;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -786,7 +788,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // For audio/video capture/chooser, we get the URI from the content provider
                 // then the widget copies the file and makes a new entry in the content provider.
                 Uri media = intent.getData();
-                ((ODKView) mCurrentView).setBinaryData(media);
+                String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
+                if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+                    // don't let the user select a file that won't be included in the
+                    // upload to the server
+                    ((ODKView) mCurrentView).clearAnswer();
+                    Toast.makeText(FormEntryActivity.this,
+                            Localization.get("form.attachment.invalid"),
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    ((ODKView) mCurrentView).setBinaryData(media);
+                }
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 refreshCurrentView();
                 break;
@@ -799,7 +811,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // We may have jumped to a new index in hierarchy activity, so refresh
                 refreshCurrentView(false);
                 break;
-
         }
     }
     

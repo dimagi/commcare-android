@@ -452,3 +452,5 @@ archive.install.button=Install App
 wifi.direct.transfer.forms=Transfer Forms
 wifi.direct.receive.forms=Receive Forms
 wifi.direct.submit.forms=Submit Forms
+
+form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
