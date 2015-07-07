@@ -43,6 +43,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.InputFilter;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.Pair;
@@ -1908,7 +1909,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             header.setVisibility(View.GONE);
             groupLabel.setVisibility(View.GONE);
 
-            String groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
+            SpannableStringBuilder groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
 
             if(!"".equals(groupLabelText)) {
                 groupLabel.setText(groupLabelText);
