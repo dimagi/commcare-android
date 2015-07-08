@@ -1494,8 +1494,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return newly created View
      */
     private View createView(int event) {
-        boolean isGroup = false;
-
         setTitle(getHeaderString());
         switch (event) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
