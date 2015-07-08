@@ -1,18 +1,5 @@
 package org.commcare.android.framework;
 
-import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.DetailCalloutListener;
-import org.commcare.android.util.SerializationUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.Detail;
-import org.javarosa.core.model.instance.TreeReference;
-import org.odk.collect.android.views.media.AudioController;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -20,9 +7,19 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import org.commcare.android.adapters.EntityDetailAdapter;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.SerializationUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Detail;
+import org.javarosa.core.model.instance.TreeReference;
+import org.odk.collect.android.views.media.AudioController;
 
 /**
  * Fragment to display Detail content. Not meant for handling nested Detail objects.
@@ -36,11 +33,8 @@ public class EntityDetailFragment extends Fragment {
     public static final String CHILD_REFERENCE = "edf_detail_reference";
 
     private AndroidSessionWrapper asw;
-    private NodeEntityFactory factory;
     private EntityDetailAdapter adapter;
     private EntityDetailAdapter.EntityDetailViewModifier modifier;
-
-    private boolean tabbedDetailHeader = true;
 
     public EntityDetailFragment() {
         super();
@@ -54,7 +48,7 @@ public class EntityDetailFragment extends Fragment {
         }
     }
 
-    public static String MODIFIER_KEY = "modifier";
+    public static final String MODIFIER_KEY = "modifier";
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -73,7 +67,7 @@ public class EntityDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(savedInstanceState != null){
-            this.modifier = (EntityDetailAdapter.EntityDetailViewModifier) savedInstanceState.getParcelable(MODIFIER_KEY);
+            this.modifier = savedInstanceState.getParcelable(MODIFIER_KEY);
         }
 
         // Note that some of this setup could be moved into onAttach if it would help performance
@@ -87,9 +81,9 @@ public class EntityDetailFragment extends Fragment {
             childDetail = detail.getDetails()[thisIndex];
         }
 
-        factory = new NodeEntityFactory(childDetail, asw.getEvaluationContext());
+        NodeEntityFactory factory = new NodeEntityFactory(childDetail, asw.getEvaluationContext());
         final Entity entity = factory.getEntity(SerializationUtil.deserializeFromBundle(
-            args, CHILD_REFERENCE, TreeReference.class)
+                        args, CHILD_REFERENCE, TreeReference.class)
         );
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);

@@ -1,8 +1,5 @@
 package org.commcare.android.view;
 
-import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.util.AndroidUtil;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
@@ -11,7 +8,6 @@ import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +15,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityDetailPagerAdapter;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.graph.DisplayData;
@@ -41,8 +39,6 @@ public class TabbedDetailView extends RelativeLayout {
 
     private int mAlternateId = -1;
 
-    private boolean useNewTabStyle = true;
-    
     public TabbedDetailView(Context context) {
         this(context, -1);
     }
@@ -105,58 +101,7 @@ public class TabbedDetailView extends RelativeLayout {
     /*
      * Populate view with content from given Detail.
      */
-    public void setDetail(Detail detail) {
-        if(useNewTabStyle){
-            mMenu.setVisibility(VISIBLE);
-            return;
-        }
-        Detail[] details = detail.getDetails();
-
-        LinearLayout.LayoutParams pagerLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        int margin = 0;
-        int menuVisibility = View.GONE;
-        int backgroundColor = Color.TRANSPARENT;
-
-        if (details.length > 0) {
-            mMenu.setWeightSum(details.length);
-            LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1
-            );
-
-            for (Detail d : details) {
-                OnClickListener listener = new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int index = ((ViewGroup) v.getParent()).indexOfChild(v);
-                        mViewPager.setCurrentItem(index, true);
-                        markSelectedTab(index);
-                    }
-                };
-
-                // Create MenuListEntryView for tab
-                HorizontalMediaView view = new HorizontalMediaView(mContext);
-                DisplayData title = d.getTitle().evaluate();
-                view.setAVT(title.getName(), title.getAudioURI(), title.getImageURI());
-                view.setGravity(Gravity.CENTER);
-                view.setClickable(true);
-                view.setOnClickListener(listener);
-                view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-                mMenu.addView(view, fillLayout);
-            }
-            markSelectedTab(0);
-            menuVisibility = View.VISIBLE;
-            backgroundColor = mContext.getResources().getColor(R.color.yellow_green);
-            margin = (int) getResources().getDimension(R.dimen.spacer);
-            pagerLayout.setMargins(0, margin, margin, margin);
-        }
-
-        mMenu.setVisibility(menuVisibility);
-        mViewPagerWrapper.setBackgroundColor(backgroundColor);
-        pagerLayout.setMargins(0, margin, margin, margin);
-        mViewPager.setLayoutParams(pagerLayout);
-    }
+    public void setDetail(Detail detail) { mMenu.setVisibility(VISIBLE); }
     
     /*
      * Get form list from database and insert into view.
@@ -166,7 +111,6 @@ public class TabbedDetailView extends RelativeLayout {
                 hasDetailCalloutListener, new DefaultEDVModifier()
         );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
-        if(!useNewTabStyle) markSelectedTab(0);
     }
 
     /*
