@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.app.Fragment;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -54,6 +55,21 @@ public class SetupEnterURLFragment extends Fragment {
         installButton = (Button) view.findViewById(R.id.start_install);
         installButton.setText(Localization.get("install.button.start"));
         prefixURLSpinner = (Spinner) view.findViewById(R.id.url_spinner);
+        prefixURLSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedText = profileLocation.getText().toString();
+                if((position == prefixURLSpinner.getCount() -1) &&
+                        (selectedText == null || selectedText.length() == 0)) {
+                    // automatically sets text to the default location for offline installs
+                    profileLocation.setText(R.string.default_app_server);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
         profileLocation = (EditText) view.findViewById(R.id.edit_profile_location);
         TextView appProfile = (TextView) view.findViewById(R.id.app_profile_txt_view);
         appProfile.setText(Localization.get("install.appprofile"));
