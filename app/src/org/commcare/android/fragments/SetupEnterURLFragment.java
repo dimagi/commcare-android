@@ -2,6 +2,7 @@ package org.commcare.android.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
@@ -22,6 +24,7 @@ import org.javarosa.core.services.locale.Localization;
  */
 @ManagedUi(R.layout.fragment_setup_enter_url)
 public class SetupEnterURLFragment extends Fragment {
+    public static final String TAG = SetupEnterURLFragment.class.getSimpleName();
 
     public interface URLInstaller {
         /**
@@ -87,9 +90,18 @@ public class SetupEnterURLFragment extends Fragment {
             return url;
         }
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Selected prefix: " + selectedPrefix + ", selected item is: " + prefixURLSpinner.getSelectedItem());
+        }
         if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
-            if(!url.startsWith("http")){
+        } else { // prefix is "raw", autocomplete with http:// if needed
+            if (BuildConfig.DEBUG) {
+                if (!(prefixURLSpinner.getSelectedItem().toString().equalsIgnoreCase("raw"))) {
+                    throw new AssertionError("Last choice should be 'Raw'");
+                }
+            }
+            if(url.indexOf("://") == -1){ // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
                 url = "http://" + url;
             }
         }
