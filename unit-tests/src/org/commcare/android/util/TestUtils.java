@@ -42,7 +42,7 @@ import org.xmlpull.v1.XmlPullParserException;
 public class TestUtils {
     
     //TODO: Move this to the application or somewhere better static
-    static LivePrototypeFactory factory = new LivePrototypeFactory();
+    public static LivePrototypeFactory factory = new LivePrototypeFactory();
 
     /**
      * Initialize all of the static hooks we need to make storage possible
@@ -66,8 +66,8 @@ public class TestUtils {
     private static TransactionParserFactory getFactory(final SQLiteDatabase db) {
         return new TransactionParserFactory() {
             
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-                if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace) && name.toLowerCase().equals("case")) {
+            public TransactionParser getParser(KXmlParser parser) {
+                if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && parser.getName().toLowerCase().equals("case")) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {
