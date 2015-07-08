@@ -87,7 +87,6 @@ public class EntityDetailFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
-        final AudioController audioController = thisActivity instanceof AudioController ? ((AudioController)thisActivity) : null;
         final DetailCalloutListener detailCalloutListener =
                 thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
 

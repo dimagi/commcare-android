@@ -92,8 +92,7 @@ public class EntityListAdapter implements ListAdapter {
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
                              int[] sort, TextToSpeech tts,
-                             NodeEntityFactory factory)
-            throws SessionUnavailableException {
+                             NodeEntityFactory factory) {
         this.detail = detail;
         actionEnabled = detail.getCustomAction() != null;
 

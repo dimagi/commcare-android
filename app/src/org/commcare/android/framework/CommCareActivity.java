@@ -128,14 +128,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    private void loadPreviousAudio(AudioController oldController) {
-        MediaEntity oldEntity = oldController.getCurrMedia();
-        if (oldEntity != null) {
-            this.currentEntity = oldEntity;
-            oldController.removeCurrentMediaEntity();
-        }
-    }
-
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
