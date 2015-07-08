@@ -111,15 +111,9 @@ public class SetupEnterURLFragment extends Fragment {
         }
         if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
-        } else { // prefix is "raw", autocomplete with http:// if needed
-            if (BuildConfig.DEBUG) {
-                if (!(prefixURLSpinner.getSelectedItem().toString().equalsIgnoreCase("raw"))) {
-                    throw new AssertionError("Last choice should be 'Raw'");
-                }
-            }
-            if(url.indexOf("://") == -1){ // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
-                url = "http://" + url;
-            }
+        }
+        if(url.indexOf("://") == -1){ // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
+            url = "http://" + url;
         }
         return url;
     }
