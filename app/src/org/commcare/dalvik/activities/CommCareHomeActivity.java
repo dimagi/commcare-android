@@ -225,7 +225,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     }
 
-    @SuppressLint("NewApi")
     private void configUi() {
         TextView version = (TextView)findViewById(R.id.str_version);
         if (version != null) version.setText(CommCareApplication._().getCurrentVersionString());
@@ -349,13 +348,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         };
         adapter.setOnClickListenerForButton(R.layout.home_sync_button, false, syncButtonListener);
 
-
-        // CommCare-159047: this method call rebuilds the options menu
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            invalidateOptionsMenu();
-        } else {
-            supportInvalidateOptionsMenu();
-        }
+        rebuildMenus();
     }
 
     private boolean isOnline() {
