@@ -47,14 +47,12 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
         //Check to make sure we are targeting API 19 or above, which is where print is supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            Log.i("HERE", "Target Api too low");
             showErrorDialog(getString(R.string.print_not_supported));
         }
 
         Bundle data = getIntent().getExtras();
         //Check to make sure key-value data has been passed with the intent
         if (data == null) {
-            Log.i("HERE", "Bundle from intent was null");
             showErrorDialog(R.string.no_data);
         }
 
@@ -66,7 +64,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         //Will return a reference of format jr://... if it has been set
         String path = data.getString("cc:print_template_reference");
         if (path != null) {
-            Log.i("HERE", "Trying to use path from HQ");
             try {
                 path = ReferenceManager._().DeriveReference(path).getLocalURI();
                 preparePrintDoc(path, caseNum);
@@ -74,7 +71,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 showErrorDialog(getString(R.string.template_invalid, path));
             }
         } else {
-            Log.i("HERE", "Trying to use path from settings");
             //Try to use the document location that was set in Settings menu
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
@@ -89,7 +85,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     private void preparePrintDoc(String path, String caseNum) {
         String extension = TemplatePrinterUtils.getExtension(path);
         File templateFile = new File(path);
-        //Log.i("HERE", "Preparing print doc");
 
         if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension) && templateFile.exists()) {
 
@@ -109,7 +104,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     private void generateJobName(File templateFile, String caseNum) {
-        Log.i("HERE", "Generating job name");
         String inputName = templateFile.getName().substring(0, templateFile.getName().lastIndexOf('.'));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = sdf.format(new Date());
@@ -118,20 +112,16 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         } else {
             mJobName = inputName + "_" + dateString;
         }
-        Log.i("Job name generated", mJobName);
     }
 
     @Override
     public void onError(String message) {
-        Log.i("HERE","onError called");
         showErrorDialog(message);
     }
 
     @Override
     public void onFinished(File result) {
-        //startDocumentViewer(result);
         executePrint(result);
-        //finish();
     }
 
     private void showErrorDialog(int messageResId) {

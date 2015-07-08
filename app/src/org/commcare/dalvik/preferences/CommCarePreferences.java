@@ -29,12 +29,10 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -45,7 +43,6 @@ import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import java.io.File;
 
 public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
@@ -137,7 +134,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
                 if (preference.getKey().equals("print-doc-location")) {
                     startFileBrowser();
                     return true;

@@ -204,7 +204,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="no_items_display_instances">Nothing available to display.\n\nTry finalizing saved forms before sending.</string>
     <string name="no_items_error">Nothing available to %s!</string>
     <string name="no_sd_error">Sorry, your memory card is not working!</string>
-    <string name="no_template">No template</string>
     <string name="ok">OK</string>
     <string name="one_capture">Multimedia recorded.</string>
     <string name="parse_error">Sorry, unable to parse form.</string>
@@ -221,8 +220,8 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="printjob_started">"PrintJob Started&#8230;"</string>
     <string name="printjob_blocked">"PrintJob Blocked and restarting&#8230;"</string>
     <string name="printjob_failed">"PrintJob failed and restarting&#8230;"</string>
+    <string name="printjob_not_started">No print job was started</string>
     <string name="printing_done">"Printing done successfully"</string>
-    <string name="printing_unknown">Print was interrupted, please try again.</string>
     <string name="quit_application">Exit %s</string>
     <string name="quit_entry">Save Form and Exit</string>
     <string name="refresh">Refresh</string>

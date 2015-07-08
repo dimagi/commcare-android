@@ -3,10 +3,8 @@ package org.commcare.android.adapters;
 import org.commcare.dalvik.R;
 
 /**
- * This PdfPrintDocumentAdapter class prepares the PDF document
- * and giving the pdf to Android print frame work
- *
- * Source: https://github.com/dimagi/mWellcare-Printer/blob/master/PrinterApplication/src/org/
+ * Prepares a PDF document to pass to the Android print framework
+ * Adapted from: https://github.com/dimagi/mWellcare-Printer/blob/master/PrinterApplication/src/org/
  *      commcare/mwellcare/PdfPrintDocumentAdapter.java
  */
 
@@ -61,7 +59,7 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
         this.mActivity = activity;
         this.mFilePath = filePath;
         this.mJobName = jobName;
-        mResources = activity.getResources();
+        this.mResources = activity.getResources();
 
     }
     @Override
@@ -89,8 +87,6 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
                 .build();
         // Content layout reflow is complete
         callback.onLayoutFinished(info, true);
-
-        //callback.onLayoutFailed("Page count calculation failed.");
     }
 
     @Override
@@ -206,17 +202,14 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
                         showAlert(mResources.getString(R.string.printing_done), PRINT_SUCCESS);
                     }
                     else {
-                        //We're not in any of these states, can result from a lot of different
-                        //and unclear things. Just going to dismiss the dialog and end the print
-                        //activity for now...
-                        Log.i("HERE", "in else statement");
+                        // Means that either the user pressed back / outside of the print dialog,
+                        // or that the option the user selected was something other than starting
+                        // a print job (save to PDF, save to Google Docs).
                         job.cancel();
                         CustomTimerTask.this.cancel();
                         mTimer.cancel();
-                        if (mDialog.isShowing()) {
-                            mDialog.dismiss();
-                        }
-                        mActivity.finish();
+                        showAlert(mResources.getString(R.string.printjob_not_started),
+                                PRINT_FAILED);
                     }
                 }
             });
