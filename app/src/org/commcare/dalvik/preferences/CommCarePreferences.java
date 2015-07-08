@@ -152,15 +152,14 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
         if (requestCode == REQUEST_TEMPLATE) {
 
-            if (resultCode == RESULT_OK
-                    && data != null) {
+            if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                Log.i("Doc location set to: ", filePath);
+                //Log.i("Doc location set to: ", filePath);
                 SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
                 editor.putString(PRINT_DOC_LOCATION, filePath);
                 editor.commit();
-
+                Toast.makeText(this, "Template set successfully!", Toast.LENGTH_SHORT).show();
             } else {
                 // No template file selected
                 finish();
