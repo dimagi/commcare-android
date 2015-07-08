@@ -151,7 +151,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                //Log.i("Doc location set to: ", filePath);
                 SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
                 editor.putString(PRINT_DOC_LOCATION, filePath);
                 editor.commit();

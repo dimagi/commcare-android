@@ -33,7 +33,7 @@ import android.webkit.MimeTypeMap;
  * with data before sending it off to a document viewer app
  * capable of printing.
  * 
- * @author Richard Lu
+ * @author Richard Lu, amstone
  */
 public class TemplatePrinterActivity extends Activity implements PopulateListener {
 

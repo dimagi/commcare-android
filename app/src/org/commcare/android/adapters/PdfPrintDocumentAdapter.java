@@ -1,13 +1,6 @@
 package org.commcare.android.adapters;
 
 import org.commcare.dalvik.R;
-
-/**
- * Prepares a PDF document to pass to the Android print framework
- * Adapted from: https://github.com/dimagi/mWellcare-Printer/blob/master/PrinterApplication/src/org/
- *      commcare/mwellcare/PdfPrintDocumentAdapter.java
- */
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -39,6 +32,14 @@ import android.print.PrintManager;
 import android.util.Log;
 import android.widget.Toast;
 
+/**
+ * Prepares a PDF document to pass to the Android print framework
+ *
+ * @author amstone
+ * Adapted from: https://github.com/dimagi/mWellcare-Printer/blob/master/PrinterApplication/src/org/
+ *      commcare/mwellcare/PdfPrintDocumentAdapter.java
+ */
+
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
 
@@ -60,8 +61,8 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
         this.mFilePath = filePath;
         this.mJobName = jobName;
         this.mResources = activity.getResources();
-
     }
+
     @Override
     public void onStart() {
         super.onStart();
