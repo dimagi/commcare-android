@@ -12,11 +12,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -25,7 +20,6 @@ import org.commcare.android.fragments.SetupInstallFragment;
 import org.commcare.android.fragments.SetupKeepInstallFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -147,7 +141,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
-        this.mFromManager = this.getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        this.mFromManager = this.getIntent().
+                getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         //Retrieve instance state
         if(savedInstanceState == null) {
@@ -523,9 +518,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     void done(boolean requireRefresh) {
-        // TODO: We might have gotten here due to being called from the
-        // outside, in which case we should manually start up the home activity
+        // TODO: We might have gotten here due to being called from the outside, in which case we should manually start up the home activity
         if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+            Log.i("HERE", "calling out to CCHome in SetupActivity");
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
@@ -533,6 +528,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             finish();
         } else {
             //Good to go
+            Log.i("HERE", "Just finishing in SetupActivity");
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             setResult(RESULT_OK, i);

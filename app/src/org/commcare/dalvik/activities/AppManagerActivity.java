@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -74,8 +75,10 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
         case CommCareHomeActivity.INIT_APP:
+            Log.i("HERE", "Back in ManagerActivity from INIT_APP");
             if (resultCode == RESULT_OK) {
                 if (!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
+                    Log.i("HERE", "going to VerificationActivity from ManagerActivity");
                     Intent i = new Intent(this, CommCareVerificationActivity.class);
                     i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
                     this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
@@ -87,6 +90,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
             }
             break;
         case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
+            Log.i("HERE", "Back in ManagerActivity from MISSING_MEDIA_ACTIVITY");
             if (resultCode == RESULT_CANCELED) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Media Not Verified");

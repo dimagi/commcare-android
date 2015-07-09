@@ -68,6 +68,7 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
                 
         boolean fromManager = this.getIntent().
         		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        Log.i("HERE", "fromManager in Verification #1: " + fromManager);
         if (fromManager) {
             skipButton = (Button)findViewById(R.id.skip_verification_button);
             skipButton.setVisibility(View.VISIBLE);
@@ -201,19 +202,23 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         
         if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
+            Log.i("HERE", "calling out to CCHome in VerificationActivity");
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             startActivity(i);
             finish();
-            
-            return;
+            //return;
         } else {
             //Good to go
+            Log.i("HERE", "just finishing in VerificationActivity");
             Intent i = new Intent(getIntent());
+            boolean fromManager = this.getIntent().
+                    getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+            Log.i("HERE", "fromManager in Verification #2: " + fromManager);
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             setResult(RESULT_OK, i);
             finish();
-            return;
+            //return;
         }
     }
 
