@@ -865,6 +865,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         if(inAwesomeMode) {
             updateSelectedItem(true);
         }
+
+        rebuildMenus();
         
         this.startTimer();        
     }
