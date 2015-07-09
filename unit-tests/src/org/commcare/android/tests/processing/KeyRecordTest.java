@@ -1,13 +1,8 @@
 package org.commcare.android.tests.processing;
 
-import static junit.framework.Assert.assertEquals;
-
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.junit.CommCareTestRunner;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
-import org.commcare.android.util.LivePrototypeFactory;
 import org.commcare.android.util.TestUtils;
-import org.commcare.cases.model.Case;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
