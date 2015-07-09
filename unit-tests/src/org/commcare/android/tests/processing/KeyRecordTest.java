@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tests.processing;
 
 import static junit.framework.Assert.assertEquals;
@@ -17,6 +14,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
 /**
+ * Tests for the processing of Key Record files coming from the server.
+ * 
  * @author ctsims
  *
  */
@@ -24,14 +23,14 @@ import org.robolectric.annotation.Config;
 @RunWith(CommCareTestRunner.class)
 public class KeyRecordTest {
 
-    //TODO: Move this to the application or somewhere better static
-    static LivePrototypeFactory factory = new LivePrototypeFactory();
-
     @Before
     public void setupTests() {
         TestUtils.initializeStaticTestStorage();
     }
     
+    /**
+     *  Test basic parsing of key record format as it is defined in the spec. 
+     */
     @Test
     public void testKeyRecordParse() {
         TestUtils.processResourceTransaction("resources/inputs/key_record_create.xml");
