@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tests.processing;
 
 import java.io.IOException;
@@ -19,6 +16,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
 /**
+ * 
+ * Tests for the serializaiton and deserialzation of XForms.
+ * 
  * @author ctsims
  *
  */
@@ -31,7 +31,7 @@ public class FormStorageTest {
     }
     
     @Test
-    public void testRegressionXForms() {
+    public void testRegressionXFormSerializations() {
         FormDef def = XFormUtils.getFormFromResource("/resources/forms/placeholder.xml");
         try {
             ExtUtil.deserialize(ExtUtil.serialize(def), FormDef.class, TestUtils.factory);
