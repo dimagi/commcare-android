@@ -19,14 +19,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.print.PrintManager;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 /**
  * Intermediate activity which populates a .DOCX/.ODT template
@@ -37,9 +34,9 @@ import android.webkit.MimeTypeMap;
  */
 public class TemplatePrinterActivity extends Activity implements PopulateListener {
 
-    //Used as both the print job name, and the new name to save the populated template file as
+    //Unique name to use for the print job name
     private static String mJobName;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,12 +86,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension) && templateFile.exists()) {
 
             generateJobName(templateFile, caseNum);
-            File outputFolder = templateFile.getParentFile();
 
             new TemplatePrinterTask(
                     templateFile,
-                    outputFolder,
-                    mJobName,
                     getIntent().getExtras(),
                     this
             ).execute();
@@ -151,7 +145,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                             }
                         }
                 );
-
         dialogBuilder.show();
     }
 

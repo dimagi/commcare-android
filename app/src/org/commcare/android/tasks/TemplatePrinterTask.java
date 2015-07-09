@@ -14,6 +14,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.commcare.android.util.TemplatePrinterUtils;
+import org.commcare.dalvik.application.CommCareApplication;
 
 /**
  * Asynchronous task for populating a document with data.
@@ -58,19 +59,13 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
     private static final int BUFFER_SIZE = 1024;
 
     private final File input;
-    private final File outputFolder;
-    private final String jobName;
     private final Bundle values;
     private final PopulateListener listener;
 
     private String errorMessage;
 
-    public TemplatePrinterTask(File input, File outputFolder, String jobName,
-                               Bundle values, PopulateListener listener) {
-
+    public TemplatePrinterTask(File input, Bundle values, PopulateListener listener) {
         this.input = input;
-        this.outputFolder = outputFolder;
-        this.jobName = jobName;
         this.values = values;
         this.listener = listener;
     }
@@ -122,8 +117,8 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
 
             DocTypeEnum docType = DocTypeEnum.getFromExtension(inputExtension);
 
-            // Append suffix and file extension to output file name
-            output = new File(outputFolder, jobName + "." + inputExtension);
+            //output = new File(outputFolder, jobName + "." + inputExtension);
+            output = new File(CommCareApplication._().getTempFilePath() + "." + inputExtension);
 
             ZipFile file = new ZipFile(input);
             Enumeration entries = file.entries();
@@ -162,6 +157,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
                 } else {
 
                     // Straight up copy file
+                    Log.i("HERE", "copying file to output stream");
                     while ((numBytesRead = inputStream.read(byteBuffer)) > 0) {
                         outputStream.write(byteBuffer, 0, numBytesRead);
                     }
