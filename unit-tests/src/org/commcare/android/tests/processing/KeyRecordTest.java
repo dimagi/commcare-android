@@ -34,6 +34,8 @@ public class KeyRecordTest {
     @Test
     public void testKeyRecordParse() {
         TestUtils.processResourceTransaction("resources/inputs/key_record_create.xml");
-
+        //TODO: Check for existing key record in storage post-parse.
+        
+        //TODO: Tests to write - establish key record expiration processing
     }
 }
