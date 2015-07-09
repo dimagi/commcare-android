@@ -31,7 +31,7 @@ public class FormStorageTest {
     }
     
     @Test
-    public void testKeyRecordParse() {
+    public void testRegressionXForms() {
         FormDef def = XFormUtils.getFormFromResource("/resources/forms/placeholder.xml");
         try {
             ExtUtil.deserialize(ExtUtil.serialize(def), FormDef.class, TestUtils.factory);
