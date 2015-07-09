@@ -34,12 +34,9 @@ public class FormStorageTest {
         FormDef def = XFormUtils.getFormFromResource("/resources/forms/placeholder.xml");
         try {
             ExtUtil.deserialize(ExtUtil.serialize(def), FormDef.class, TestUtils.factory);
-        } catch (IOException e) {
+        } catch (IOException | DeserializationException e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
-        } catch (DeserializationException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        }
+        } 
     }
 }
