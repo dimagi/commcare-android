@@ -442,7 +442,7 @@ public class EntityView extends LinearLayout {
     }
 
     private int[] calculateDetailWidths(int fullSize) {
-        // Convert any percentages to pixels
+        // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
         int[] hints = new int[mHints.length];
         for (int i = 0; i < mHints.length; i++) {
             if (mHints[i] == null) {
@@ -454,25 +454,47 @@ public class EntityView extends LinearLayout {
                 hints[i] = Integer.parseInt(mHints[i]);
             }
         }
-
-        // Determine how wide to make columns without a specified width
-        int[] widths = new int[hints.length];
-        int sharedBetween = 0;
-        for(int hint : hints) {
-            if(hint != -1) {
-                fullSize -= hint;
-            } else {
-                sharedBetween++;
+        
+        int claimedSpace = 0;
+        int indeterminateColumns = 0;
+        for (int hint : hints) {
+            if (hint != -1) {
+                claimedSpace += hint;
+            }
+            else {
+                indeterminateColumns++;
             }
         }
-        
-        // Set column widths
-        int defaultWidth = sharedBetween == 0 ? 0 : fullSize / sharedBetween;
-        for(int i = 0; i < hints.length; ++i) {
-            widths[i] = hints[i] == -1 ? defaultWidth : hints[i];
+        if (
+            fullSize < claimedSpace + indeterminateColumns
+            || fullSize > claimedSpace && indeterminateColumns == 0
+        ) {
+            // Either more space has been claimed than the screen has room for,
+            // or the full width isn't spoken for and there are no indeterminate columns
+            claimedSpace += indeterminateColumns;
+            for (int i = 0; i < hints.length; i++) {
+                if (hints[i] == -1) {
+                    // Assign indeterminate columns a real width.
+                    // It's arbitrary and tiny, but this is going to look terrible regardless.
+                    hints[i] = 1;
+                }
+                else {
+                    // Shrink or expand columns proportionally
+                    hints[i] = fullSize * hints[i] / claimedSpace;
+                }
+            }
         }
-        
-        return widths;
+        else if (indeterminateColumns > 0) {
+            // Divide remaining space equally among the indeterminate columns
+            int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
+            for (int i = 0; i < hints.length; i++) {
+                if (hints[i] == -1) {
+                    hints[i] = defaultWidth;
+                }
+            }
+        }
+
+        return hints;
     }
 
     /*
