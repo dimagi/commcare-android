@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.commcare.android.junit.CommCareTestRunner;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
-import org.commcare.android.util.LivePrototypeFactory;
 import org.commcare.android.util.TestUtils;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.externalizable.DeserializationException;
