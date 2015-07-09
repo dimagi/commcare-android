@@ -11,6 +11,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
+import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -92,9 +93,15 @@ public class SingleAppManagerActivity extends Activity {
             if(resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "Your update did not complete", Toast.LENGTH_LONG).show();
             } else if(resultCode == RESULT_OK) {
-                //Set flag that we should autoupdate on next login
-                SharedPreferences preferences = CommCareApplication._().getCurrentApp().getAppPreferences();
-                preferences.edit().putBoolean(CommCarePreferences.AUTO_TRIGGER_UPDATE,true);
+                if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
+                    Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
+                    try {
+                        CommCareApplication._().getSession().closeSession(false);
+                    } catch (SessionUnavailableException e) {
+                        // if the session isn't available, we don't need to logout
+                    }
+                }
+                return;
             }
             break;
         case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
@@ -147,7 +154,7 @@ public class SingleAppManagerActivity extends Activity {
     public void verifyResourcesClicked(View v) {
         try {
             CommCareSessionService s = CommCareApplication._().getSession();
-            if (s.isLoggedIn()) {
+            if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_VERIFY_MM);
             } else {
                 verifyResources();
@@ -169,7 +176,7 @@ public class SingleAppManagerActivity extends Activity {
     public void updateClicked(View v) {
         try {
             CommCareSessionService s = CommCareApplication._().getSession();
-            if (s.isLoggedIn()) {
+            if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_UPDATE);
             } else {
                 update();

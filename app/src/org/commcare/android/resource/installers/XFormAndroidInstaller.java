@@ -42,12 +42,13 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public class XFormAndroidInstaller extends FileSystemInstaller {
+    private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
     String namespace;
     
@@ -247,7 +248,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             return true;
         }
         if(formDef==null){
-            System.out.println("formdef is null");
+            Log.d(TAG, "formdef is null");
         }
         //Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
         //available

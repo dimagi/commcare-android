@@ -11,6 +11,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -29,7 +30,6 @@ import android.widget.Toast;
 
 /**
  * @author wspride
- *
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
@@ -55,7 +55,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     boolean done = false;
 
-    public static String TAG = "install-archive";
+    public static String TAG = InstallArchiveActivity.class.getSimpleName();
     
     public static String ARCHIVE_REFERENCE = "archive-ref";
 
@@ -78,7 +78,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             public void onClick(View v) {
                 //Go fetch us a file path!
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("file/*");
+                intent.setType("*/*");
                 try {
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
                 } catch(ActivityNotFoundException e) {
@@ -127,7 +127,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                     return;
                 } else {
                     //assume that we've already set the error message, but make it look scary
-                    receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                    receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                 }
             }
 
@@ -151,7 +151,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             protected void deliverError(InstallArchiveActivity receiver, Exception e) {
                 Log.d(TAG, "unzip deliver error: " + e.getMessage());
                 receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[] {e.getMessage()}));
-                receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             }
         };
 
@@ -188,8 +188,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
             if(resultCode == Activity.RESULT_OK) {
-                String filePath = intent.getData().getPath();
-                editFileLocation.setText(filePath);
+                // Android versions 4.4 and up sometimes don't return absolute
+                // filepaths from the file chooser. So resolve the URI into a
+                // valid file path.
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                        intent.getData());
+                if (filePath != null) {
+                    editFileLocation.setText(filePath);
+                }
             }
         }
     }
@@ -206,7 +212,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     private void evalState() {
         if(done) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.done"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(false);
             return;
         }
@@ -214,21 +220,21 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         String location = editFileLocation.getText().toString();
         if("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.empty"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(false);
             return;
         }
 
         if(!(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallArchive.setEnabled(false);
             return;
         }
 
         else {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.ready"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(true);
             return;
         }
@@ -240,7 +246,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @Override
     public void taskCancelled(int id) {
         txtInteractiveMessages.setText(Localization.get("archive.install.cancelled"));
-        this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+        this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
     public String getTargetFolder(){
@@ -268,7 +274,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return CustomProgressDialog.newInstance(title, message, taskId);
         }
         else {
-            System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in InstallArchiveActivity");
             return null;
         }

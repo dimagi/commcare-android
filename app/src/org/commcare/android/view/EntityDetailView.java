@@ -3,27 +3,11 @@
  */
 package org.commcare.android.view;
 
-import java.util.Hashtable;
-
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.Entity;
-import org.commcare.android.util.DetailCalloutListener;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.MediaUtil;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
-import org.commcare.util.CommCareSession;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -36,6 +20,28 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.Entity;
+import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.MediaUtil;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.CalloutData;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
+import org.commcare.util.CommCareSession;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.AudioController;
+import org.odk.collect.android.views.media.ViewId;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 /**
  * @author ctsims
@@ -51,9 +57,14 @@ public class EntityDetailView extends FrameLayout {
     private Button addressButton;
     private TextView addressText;
     private ImageView imageView;
+    private View calloutView;
+    private Button calloutButton;
+    private TextView calloutText;
+    private ImageButton calloutImageButton;
     private AspectRatioLayout graphLayout;
     private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
     private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
+    private Set<Integer> graphsWithErrors;
     private ImageButton videoButton;
     private AudioButton audioButton;
     private View valuePane;
@@ -70,6 +81,7 @@ public class EntityDetailView extends FrameLayout {
     private static final String FORM_ADDRESS = "address";
     private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
+    private static final String FORM_CALLOUT = "callout";
 
     private static final int TEXT = 0;
     private static final int PHONE = 1;
@@ -78,14 +90,17 @@ public class EntityDetailView extends FrameLayout {
     private static final int VIDEO = 4;
     private static final int AUDIO = 5;
     private static final int GRAPH = 6;
+    private static final int CALLOUT = 7;
     
     int current = TEXT;
-    
+
     DetailCalloutListener listener;
+    private int oddRowColor;
+    private int evenRowColor;
 
     public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
             AudioController controller, int detailNumber) {
-        super(context);        
+        super(context);
         this.controller = controller;
         
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
@@ -110,7 +125,12 @@ public class EntityDetailView extends FrameLayout {
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
+        calloutView = (View)detailRow.findViewById(R.id.callout_view);
+        calloutText = (TextView)detailRow.findViewById(R.id.callout_text);
+        calloutButton = (Button)detailRow.findViewById(R.id.callout_button);
+        calloutImageButton = (ImageButton)detailRow.findViewById(R.id.callout_image_button);
         graphViewsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
+        graphsWithErrors = new HashSet<Integer>();
         graphIntentsCache = new Hashtable<Integer, Intent>();
         origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
         origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
@@ -118,8 +138,34 @@ public class EntityDetailView extends FrameLayout {
         fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         setParams(session, d, e, index, detailNumber);
+
+        int[] colorAttr = new int[] {
+                R.attr.entity_detail_odd_row_color,
+                R.attr.entity_detail_even_row_color
+        };
+        Resources.Theme theme = context.getTheme();
+        for (int i = 0; i < colorAttr.length; i++) {
+            TypedValue typedValue = new TypedValue();
+            theme.resolveAttribute(colorAttr[i], typedValue, true);
+            int color = typedValue.data;
+            if(i == 0) { oddRowColor = color; }
+            else { evenRowColor = color; }
+        }
     }
-    
+
+    public void setLineColor(boolean isOddRow){
+        if(isOddRow){
+            detailRow.setBackgroundColor(oddRowColor);
+        } else {
+            detailRow.setBackgroundColor(evenRowColor);
+        }
+    }
+
+    public void setOddEvenRowColors(int oddRowColor, int evenRowColor){
+        this.oddRowColor = oddRowColor;
+        this.evenRowColor = evenRowColor;
+    }
+
     public void setCallListener(final DetailCalloutListener listener) {
         this.listener = listener;
     }
@@ -144,7 +190,63 @@ public class EntityDetailView extends FrameLayout {
                 this.removeView(currentView);
                 updateCurrentView(PHONE, callout);
             }
-        } else if(FORM_ADDRESS.equals(form)) {
+        } else if (FORM_CALLOUT.equals(form) && (field instanceof CalloutData)) {
+
+            final CalloutData callout = (CalloutData) field;
+
+            String imagePath = callout.getImage();
+
+            if (imagePath != null) {
+                // use image as button, if available
+                calloutButton.setVisibility(View.GONE);
+                calloutText.setVisibility(View.GONE);
+
+                Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imagePath);
+
+                if (b == null) {
+                    calloutImageButton.setImageDrawable(null);
+                } else {
+                    // Figure out whether our image small or large.
+                    if (b.getWidth() > (getScreenWidth() / 2)) {
+                        veryLong = true;
+                    }
+
+                    calloutImageButton.setPadding(10, 10, 10, 10);
+                    calloutImageButton.setAdjustViewBounds(true);
+                    calloutImageButton.setImageBitmap(b);
+                    calloutImageButton.setId(23422634);
+                }
+
+                calloutImageButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        listener.performCallout(callout, CALLOUT);
+                    }
+                });
+            } else {
+                calloutImageButton.setVisibility(View.GONE);
+                calloutText.setVisibility(View.GONE);
+
+                String displayName = callout.getDisplayName();
+                // use display name if available, otherwise use URI
+                if (displayName != null) {
+                    calloutButton.setText(displayName);
+                } else {
+                    String actionName = callout.getActionName();
+                    calloutButton.setText(actionName);
+                }
+
+                calloutButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        listener.performCallout(callout, CALLOUT);
+                    }
+                });
+            }
+
+            updateCurrentView(CALLOUT, calloutView);
+        }
+        else if(FORM_ADDRESS.equals(form)) {
             final String address = textField;
             addressText.setText(address);
             if(current != ADDRESS) {
@@ -177,6 +279,7 @@ public class EntityDetailView extends FrameLayout {
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
             // Fetch graph view from cache, or create it
             View graphView = null;
+            final Context context = getContext();
             int orientation = getResources().getConfiguration().orientation;
             if (graphViewsCache.get(index) != null) {
                 graphView = graphViewsCache.get(index).get(orientation);
@@ -185,41 +288,58 @@ public class EntityDetailView extends FrameLayout {
                 graphViewsCache.put(index, new Hashtable<Integer, View>());
             }
             if (graphView == null) {
-                GraphView g = new GraphView(getContext(), labelText);
+                GraphView g = new GraphView(context, labelText);
                 g.setClickable(true);
-                graphView = g.getView((GraphData) field);
+                try {
+                    graphView = g.getView((GraphData) field);
+                    graphLayout.setRatio((float) g.getRatio(), (float) 1);
+                }
+                catch (InvalidStateException ise) {
+                    graphView = new TextView(context);
+                    int padding = (int) context.getResources().getDimension(R.dimen.spacer_small);
+                    graphView.setPadding(padding, padding, padding, padding);
+                    ((TextView)graphView).setText(ise.getMessage());
+                    graphsWithErrors.add(index);
+                }
                 graphViewsCache.get(index).put(orientation, graphView);
             }
             
             // Fetch full-screen graph intent from cache, or create it
             Intent graphIntent = graphIntentsCache.get(index);
-            final Context context = getContext();
-            if (graphIntent == null) {
+            if (graphIntent == null && !graphsWithErrors.contains(index)) {
                 GraphView g = new GraphView(context, labelText);
-                graphIntent = g.getIntent((GraphData) field);
-                graphIntentsCache.put(index, graphIntent);
+                try {
+                    graphIntent = g.getIntent((GraphData) field);
+                    graphIntentsCache.put(index, graphIntent);
+                }
+                catch (InvalidStateException ise) {
+                    // This shouldn't happen, since any error should have been caught during getView above
+                    graphsWithErrors.add(index);
+                }
             }
             final Intent finalIntent = graphIntent;
             
             // Open full-screen graph intent on double tap
-            final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onDown(MotionEvent e) {
-                    return true;
-                }
-        
-                @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    context.startActivity(finalIntent);
-                    return true;
-                }
-            });
-            graphView.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent event) {
-                    return detector.onTouchEvent(event);
-                }
-            });
+            if (!graphsWithErrors.contains(index)) {
+                final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDown(MotionEvent e) {
+                        return true;
+                    }
+            
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+                        context.startActivity(finalIntent);
+                        return true;
+                    }
+                });
+                graphView.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View view, MotionEvent event) {
+                        return detector.onTouchEvent(event);
+                    }
+                });
+            }
             
             graphLayout.removeAllViews();
             graphLayout.addView(graphView, GraphView.getLayoutParams());
@@ -271,7 +391,7 @@ public class EntityDetailView extends FrameLayout {
             updateCurrentView(VIDEO, videoButton);
         } else {
             String text = textField;
-            data.setText(text);
+            data.setText((text));
             if(text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
                 veryLong = true;
             }

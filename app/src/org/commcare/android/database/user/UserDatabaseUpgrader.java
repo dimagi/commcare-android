@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.user;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -19,12 +16,13 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.content.Context;
+import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public class UserDatabaseUpgrader {
+    private static final String TAG = UserDatabaseUpgrader.class.getSimpleName();
     
     boolean inSenseMode = false;
     Context c;
@@ -118,6 +116,10 @@ public class UserDatabaseUpgrader {
     }
     
     private boolean upgradeFiveSix(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //On some devices this process takes a significant amount of time (sorry!) we should
+        //tell the service to wait longer to make sure this can finish.
+        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        
         db.beginTransaction();
         try {
             db.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
@@ -128,7 +130,7 @@ public class UserDatabaseUpgrader {
             
             db.execSQL(CaseIndexTable.getTableDefinition());
             CaseIndexTable.createIndexes(db);
-            CaseIndexTable cit = new CaseIndexTable();
+            CaseIndexTable cit = new CaseIndexTable(db);
             
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
@@ -147,6 +149,10 @@ public class UserDatabaseUpgrader {
     }
     
     private boolean upgradeSixSeven(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //On some devices this process takes a significant amount of time (sorry!) we should
+        //tell the service to wait longer to make sure this can finish.
+        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
@@ -157,7 +163,7 @@ public class UserDatabaseUpgrader {
             return true;
         } finally {
             db.endTransaction();
-            System.out.println("Case model update complete in " + (System.currentTimeMillis() - start) + "ms");
+            Log.d(TAG, "Case model update complete in " + (System.currentTimeMillis() - start) + "ms");
         }
     }
     
@@ -196,7 +202,6 @@ public class UserDatabaseUpgrader {
      * Reads and rewrites all of the records in a table, generally to adapt an old serialization format to a new
      * format
      *  
-     * @param db
      * @param storage
      * @return
      */

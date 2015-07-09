@@ -9,13 +9,15 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.view.View;
 
 /**
  * Subclass of FragmentStatePagerAdapter for populating a ViewPager (swipe-based paging widget) with entity detail fields.
  * @author jschweers
  */
 public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
-    
+
+    private EntityDetailAdapter.EntityDetailViewModifier modifier;
     Detail detail;
     int detailIndex;
     boolean hasDetailCalloutListener;
@@ -29,13 +31,19 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.mEntityReference = reference;
     }
 
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, EntityDetailAdapter.EntityDetailViewModifier modifier) {
+        this(fm, detail, detailIndex, reference, hasDetailCalloutListener);
+        this.modifier = modifier;
+    }
+
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
      */
     @Override
     public Fragment getItem(int i) {
-        Fragment fragment = new EntityDetailFragment();
+        EntityDetailFragment fragment = new EntityDetailFragment();
+        fragment.setEntityDetailModifier(modifier);
         Bundle args = new Bundle();
         args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
         if (detail.isCompound()) {
@@ -47,10 +55,15 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         return fragment;
     }
 
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return (detail.isCompound() ? detail.getDetails()[position] : detail).getTitle().getText().evaluate();
+    }
+
     /*
-     * (non-Javadoc)
-     * @see android.support.v4.view.PagerAdapter#getCount()
-     */
+         * (non-Javadoc)
+         * @see android.support.v4.view.PagerAdapter#getCount()
+         */
     @Override
     public int getCount() {
         return detail.isCompound() ? detail.getDetails().length : 1;

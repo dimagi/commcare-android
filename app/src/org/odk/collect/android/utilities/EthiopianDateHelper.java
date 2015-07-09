@@ -19,7 +19,7 @@ import android.content.Context;
 
 public class EthiopianDateHelper {
 
-    private final static String TAG = "EthiopianDateHelper";
+    private final static String TAG = EthiopianDateHelper.class.getSimpleName();
     
     public static String ConvertToEthiopian(Context context, int gregorianYear, int gregorianMonth, int gregorianDay){
         Chronology chron_eth = EthiopicChronology.getInstance();

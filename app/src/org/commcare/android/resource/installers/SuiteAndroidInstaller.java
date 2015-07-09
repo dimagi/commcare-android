@@ -7,6 +7,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import android.util.Log;
+
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
 import org.commcare.android.util.FileUtil;
@@ -20,8 +22,8 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.SuiteParser;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -35,9 +37,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- *
  */
 public class SuiteAndroidInstaller extends FileSystemInstaller {
+    private static final String TAG = SuiteAndroidInstaller.class.getSimpleName();
     
     public SuiteAndroidInstaller() {
         
@@ -207,7 +209,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         }
         catch(Exception e){
             Logger.log("e", "suite validation failed with: " + e.getMessage());
-            System.out.println("Suite validation failed");
+            Log.d(TAG, "Suite validation failed");
             e.printStackTrace();
         }
 

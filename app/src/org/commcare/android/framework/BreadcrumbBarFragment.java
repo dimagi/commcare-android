@@ -8,6 +8,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
@@ -29,6 +30,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.Gravity;
@@ -118,7 +120,6 @@ public class BreadcrumbBarFragment extends Fragment {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setSubtitle(local);
         
         actionBar.setTitle(title);
                 
@@ -145,7 +146,6 @@ public class BreadcrumbBarFragment extends Fragment {
         LayoutParams p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
         p.leftMargin = buffer;
 
-        actionBar.setCustomView(getTitleView(activity, title), p);
         activity.setTitle("");
         actionBar.setDisplayShowHomeEnabled(false);
     }
@@ -232,90 +232,86 @@ public class BreadcrumbBarFragment extends Fragment {
         View tile = tileData == null ? null : tileData.first;
         if(tile == null) { return null;}
         
-        final ImageButton openButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
-        
         final String inlineDetail = (String)tile.getTag();
-        if(inlineDetail == null) {
-            openButton.setVisibility(View.GONE);
-        }
-        
+
         ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        
-        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open)).setOnClickListener(new OnClickListener() {
+
+        final ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
+
+        OnClickListener toggleButtonClickListener = new OnClickListener() {
+
+            private boolean isClosed = true;
 
             @Override
             public void onClick(View v) {
-                if(mInternalDetailView == null ) {
-                    mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
-                    mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
-    
-                    AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-                    CommCareSession session = asw.getSession();
-    
-                    NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));            
-                    Detail detail = factory.getDetail();
-                    mInternalDetailView.setDetail(detail);
-    
-                    mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
-                }
-                openButton.setVisibility(View.INVISIBLE);
-                expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
-            }
-            
-        });
-        
-        ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_close)).setOnClickListener(new OnClickListener() {
+                if(isClosed){
+                    if(mInternalDetailView == null ) {
+                        mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
+                        mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
 
-            @Override
-            public void onClick(View v) {
-                collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
-                    @Override
-                    public void run() {
-                        openButton.setVisibility(View.VISIBLE);
+                        AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                        CommCareSession session = asw.getSession();
+
+                        NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
+                        Detail detail = factory.getDetail();
+                        mInternalDetailView.setDetail(detail);
+
+                        mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
                     }
-                });
+                    infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
+                    expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
+                    isClosed = false;
+                } else {
+                    //collapses view
+                    infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
+                    collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
+                        @Override
+                        public void run() {
+                        }
+                    });
+                    isClosed = true;
+                }
             }
-            
-        });
-        
-        
+        };
+
+        infoButton.setOnClickListener(toggleButtonClickListener);
         
         return holder;
     }
 
 
     private Pair<View, TreeReference> loadTile(Activity activity) {
+        AndroidSessionWrapper asw;
         try {
-            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-            CommCareSession session = asw.getSession();
-    
-            StackFrameStep stepToFrame = null;
-            Vector<StackFrameStep> v = session.getFrame().getSteps();
-            
-            //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
-            //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
-            for(int i = v.size() -1 ; i >= 0; i--){
-                StackFrameStep step = v.elementAt(i);
-    
-                if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
-                    stepToFrame = step;
-                }
-            }
-            
-            Pair<View, TreeReference> tile = buildContextTile(activity, stepToFrame, asw);
-            //some contexts may provide a tile that isn't really part of the current session's stack
-            if(tile == null && activity instanceof CommCareActivity) {
-                Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
-                if(entityContext != null) {
-                    tile = buildContextTile(activity, entityContext.first, entityContext.second, asw);
-                }
-            }
-            return tile;
-        }catch(SessionUnavailableException sue) {
-            
+            asw = CommCareApplication._().getCurrentSessionWrapper();
+        } catch (SessionStateUninitException e) {
+            return null;
         }
-        return null;
 
+        CommCareSession session = asw.getSession();
+
+        StackFrameStep stepToFrame = null;
+        Vector<StackFrameStep> v = session.getFrame().getSteps();
+
+        //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
+        //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
+        for(int i = v.size() -1 ; i >= 0; i--){
+            StackFrameStep step = v.elementAt(i);
+
+            if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+                stepToFrame = step;
+            }
+        }
+
+        Pair<View, TreeReference> tile = buildContextTile(stepToFrame, asw);
+        //some contexts may provide a tile that isn't really part of the current session's stack
+        if(tile == null && activity instanceof CommCareActivity) {
+            Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
+            if(entityContext != null) {
+                tile = buildContextTile(entityContext.first, entityContext.second, asw);
+            }
+        }
+        return tile;
     }
 
 
@@ -342,10 +338,7 @@ public class BreadcrumbBarFragment extends Fragment {
             
             if(title != null) {
             
-                if(!breadCrumbsEnabled) {
-                    ActionBar actionBar = this.getActivity().getActionBar();
-                    actionBar.setSubtitle(title);
-                } else {
+                if(breadCrumbsEnabled) {
                     //This part can change more dynamically
                     if(localIdPart != -1 ) {
                         TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
@@ -358,36 +351,46 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
     
-    public String getBestTitle(Activity activity) {
+    public static String getBestTitle(Activity activity) {
         String bestTitle = null;
+        AndroidSessionWrapper asw;
 
         try {
-            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-            CommCareSession session = asw.getSession();
-    
-            String[] stepTitles = session.getHeaderTitles();
-            
-            Vector<StackFrameStep> v = session.getFrame().getSteps();
-            
-            //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
-            //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
-            for(int i = v.size() -1 ; i >= 0; i--){
-                if(bestTitle != null) { break;}
-                StackFrameStep step = v.elementAt(i);
-    
-                if(!SessionFrame.STATE_DATUM_VAL.equals(step.getType()) && bestTitle == null) {
-                    bestTitle = stepTitles[i];
-                }
-            }
-        } catch(SessionUnavailableException sue) {
-            
+            asw = CommCareApplication._().getCurrentSessionWrapper();
+        } catch (SessionStateUninitException e) {
+            return defaultTitle(bestTitle, activity);
         }
-        
-        if(bestTitle == null || "".equals(bestTitle)) { bestTitle = CommCareActivity.getTopLevelTitleName(activity); }
-        if(bestTitle == null || "".equals(bestTitle)) { bestTitle = "CommCare"; }
 
-        return bestTitle;
+        CommCareSession session = asw.getSession();
 
+        String[] stepTitles = session.getHeaderTitles();
+
+        Vector<StackFrameStep> v = session.getFrame().getSteps();
+
+        //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
+        //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
+        for(int i = v.size() -1 ; i >= 0; i--){
+            if (bestTitle != null) {
+                break;
+            }
+            StackFrameStep step = v.elementAt(i);
+
+            if(!SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+                bestTitle = stepTitles[i];
+            }
+        }
+
+        return defaultTitle(bestTitle, activity);
+    }
+
+    private static String defaultTitle(String currentTitle, Activity activity) {
+        if(currentTitle == null || "".equals(currentTitle)) {
+            currentTitle = CommCareActivity.getTopLevelTitleName(activity);
+        }
+        if(currentTitle == null || "".equals(currentTitle)) {
+            currentTitle = "CommCare";
+        }
+        return currentTitle;
     }
 
 
@@ -431,8 +434,7 @@ public class BreadcrumbBarFragment extends Fragment {
             LayoutInflater li = activity.getLayoutInflater();
             
             int currentId = -1;
-            View tile = null;
-            
+
             //We don't actually want this one to look the same
             int newId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + layout.getChildCount() + 1;            
             if(local != null) {
@@ -506,20 +508,16 @@ public class BreadcrumbBarFragment extends Fragment {
                                 }
                                 
                                 activity.finish();
-                            } catch(SessionUnavailableException sue) {
+                            } catch (SessionStateUninitException e) {
                                 
                             }
                         }
                         
                     };
-                
-                    
 
                     try {
-                        
-                        //It the current step was selecting a nodeset value... 
+                        //It the current step was selecting a nodeset value...
                     if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
-                        
                         //Haaack. We should replace this with a generalizable "What do you refer to your detail by", but for now this is 90% of cases
                         if(step.getId() != null && step.getId().contains("case_id")) {
                             ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
@@ -535,9 +533,7 @@ public class BreadcrumbBarFragment extends Fragment {
                     newId = addElementToTitle(li, layout, stepTitles[i], org.commcare.dalvik.R.layout.component_title_breadcrumb, currentId, stepBackListener);
                     if(newId != -1) { currentId = newId;}
                 }
-                
-            } catch(SessionUnavailableException sue) {
-                
+            } catch(SessionStateUninitException e) {
             }
             
             //Finally add the "top level" breadcrumb that represents the application's home. 
@@ -551,8 +547,8 @@ public class BreadcrumbBarFragment extends Fragment {
                 public void onClick(View arg0) {
                     try{
                         CommCareApplication._().getCurrentSession().clearAllState();
-                    } catch(SessionUnavailableException sue) {
-                        
+                    } catch (SessionStateUninitException e) {
+
                     }
                     
                     activity.finish();
@@ -563,7 +559,7 @@ public class BreadcrumbBarFragment extends Fragment {
             //Add the app icon
             TextView iconBearer = ((TextView)layout.getChildAt(layout.getChildCount() - 1));
             
-            iconBearer.setCompoundDrawablesWithIntrinsicBounds(org.commcare.dalvik.R.drawable.ab_icon,0,0,0);
+            iconBearer.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icon_app_white,0,0,0);
             iconBearer.setCompoundDrawablePadding(this.getResources().getDimensionPixelSize(org.commcare.dalvik.R.dimen.title_logo_pad));
             
             //Add an "Anchor" view to the left hand side of the bar. The relative layout doesn't work unless
@@ -585,7 +581,7 @@ public class BreadcrumbBarFragment extends Fragment {
         
         View tile;
         
-        private Pair<View, TreeReference> buildContextTile(Activity activity, StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
+        private Pair<View, TreeReference> buildContextTile(StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
             
             //check to make sure we can look up this child
@@ -600,18 +596,22 @@ public class BreadcrumbBarFragment extends Fragment {
             TreeReference ref = d.getEntityFromID(ec, stepToFrame.getValue());
             if(ref == null) { return null; }
             
-            Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);
+            Pair<View, TreeReference> r = buildContextTile(detail, ref, asw);
             r.first.setTag(d.getInlineDetail());
             return r;
         }
 
-        private Pair<View, TreeReference> buildContextTile(Activity activity, Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+        private Pair<View, TreeReference> buildContextTile(Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
             NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
             
             Entity entity = nef.getEntity(ref);
-            
-            View tile = new GridEntityView(this.getActivity(), detail, entity, null);
-            return Pair.create(tile, ref);
+
+            Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
+            GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity, null);
+            int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(), new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
+            tile.setTextColor(textColor[0]);
+            tile.setTitleTextColor(textColor[1]);
+            return Pair.create(((View)tile), ref);
         }
 
 

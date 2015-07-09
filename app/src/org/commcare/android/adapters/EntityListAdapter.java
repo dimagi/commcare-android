@@ -13,12 +13,12 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.GridEntityView;
-import org.commcare.android.view.GridMediaView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -91,11 +91,12 @@ public class EntityListAdapter implements ListAdapter {
     private boolean inAwesomeMode = false;
 
     public EntityListAdapter(Activity activity, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
-            int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) throws SessionUnavailableException {
+            int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) {
         this.detail = detail;
+        actionEnabled = detail.getCustomAction() != null;
 
         this.full = full;
-        current = new ArrayList<Entity<TreeReference>>();
+        setCurrent(new ArrayList<Entity<TreeReference>>()); 
         this.references = references;
 
         this.context = activity;
@@ -114,8 +115,7 @@ public class EntityListAdapter implements ListAdapter {
             }
             filterValues("");
         } else {
-            current = new ArrayList<Entity<TreeReference>>(full);
-            actionPosition = current.size();
+            setCurrent(new ArrayList<Entity<TreeReference>>(full));
         }
         
         this.tts = tts;
@@ -129,11 +129,21 @@ public class EntityListAdapter implements ListAdapter {
         if(detail.getCustomAction() != null) {
         }
         usesGridView = detail.usesGridView();
-        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
-        
-        actionEnabled = detail.getCustomAction() != null;
+        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();        
     }
     
+    /**
+     * Set the current display set for this adapter
+     * 
+     * @param arrayList
+     */
+    private void setCurrent(List<Entity<TreeReference>> arrayList) {
+        current = arrayList;
+        if(actionEnabled) {
+            actionPosition = current.size();
+        }
+    }
+
     private void filterValues(String filterRaw) {
         this.filterValues(filterRaw, false);
     }
@@ -215,7 +225,13 @@ public class EntityListAdapter implements ListAdapter {
             long startTime = System.currentTimeMillis();
             //It's a bit sketchy here, because this DB lock will prevent
             //anything else from processing
-            SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+            SQLiteDatabase db;
+            try {
+                db = CommCareApplication._().getUserDbHandle();
+            } catch (SessionUnavailableException e) {
+                this.finish();
+                return;
+            }
             db.beginTransaction();
             full:
             for(int index = 0 ; index < full.size() ; ++index) {
@@ -293,10 +309,7 @@ public class EntityListAdapter implements ListAdapter {
 
                 @Override
                 public void run() {
-                    current = matchList;
-                    if(actionEnabled) {
-                        actionPosition = current.size(); 
-                    }
+                    setCurrent(matchList);
                     currentSearchTerms = searchTerms;
                     update();
                 }
@@ -332,13 +345,15 @@ public class EntityListAdapter implements ListAdapter {
 
             private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
 
-                int i = detail.getFields()[index].getSortType();
+                int sortType = detail.getFields()[index].getSortType();
 
                 String a1 = object1.getSortField(index);
                 String a2 = object2.getSortField(index);
 
-                if(a1 == null) { a1 = object1.getFieldString(i); }
-                if(a2 == null) { a2 = object2.getFieldString(i); }
+                // COMMCARE-161205: Problem with search functionality
+                // If one of these is null, we need to get the field in the same index, not the field in SortType
+                if(a1 == null) { a1 = object1.getFieldString(index); }
+                if(a2 == null) { a2 = object2.getFieldString(index); }
 
                 //TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
                 //For now, regardless of typing, blanks are always smaller than non-blanks
@@ -349,8 +364,8 @@ public class EntityListAdapter implements ListAdapter {
                     return 1;
                 }
 
-                Comparable c1 = applyType(i, a1);
-                Comparable c2 = applyType(i, a2);
+                Comparable c1 = applyType(sortType, a1);
+                Comparable c2 = applyType(sortType, a2);
 
                 if(c1 == null || c2 == null) {
                     //Don't do something smart here, just bail.
@@ -507,6 +522,8 @@ public class EntityListAdapter implements ListAdapter {
 
             if(emv == null) {
                 emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller, mFuzzySearchEnabled);
+                int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
+                emv.setTitleTextColor(titleColor[0]);
             } else{
                emv.setSearchTerms(currentSearchTerms);
                 emv.setViews(context, detail, entity);

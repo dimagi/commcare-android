@@ -11,6 +11,7 @@ import java.util.Vector;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.FormRecordLoaderTask;
+import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
@@ -28,89 +29,162 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 /**
+ * Responsible for delegating the loading of form lists and performing
+ * filtering over them.
+ *
  * @author ctsims
  *
  */
-public class IncompleteFormListAdapter extends BaseAdapter {
+public class IncompleteFormListAdapter extends BaseAdapter implements FormRecordLoadListener {
+    private final Context context;
     
-    private AndroidCommCarePlatform platform;
-    private Context context;
+    private final List<DataSetObserver> observers;
     
-    List<DataSetObserver> observers;
-    
-    FormRecordFilter filter;
+    private FormRecordFilter filter;
+
+    /**
+     * All loaded form records of a given status, with no filtering.
+     */
     private List<FormRecord> records;
-    private List<FormRecord> current;
-    
-    private Hashtable<Integer, String[]> searchCache;
-    
-    private String currentQuery;
-    
-    FormRecordLoaderTask loader;
-    
-    Hashtable<String,Text> names;
-    
+
+    /**
+     * Filtered form records. getView reads from this to display all the forms.
+     */
+    private final List<FormRecord> current = new ArrayList<FormRecord>();
+
+    /**
+     * Maps FormRecord ID to an array of text that will be shown to the user
+     * and query-able. Text should includes modified date, record title, and
+     * form name.
+     */
+    private final Hashtable<Integer, String[]> searchCache = new Hashtable<Integer, String[]>();
+
+    /**
+     * The last query made, used to filter forms.
+     */
+    private String query = "";
+
+    /**
+     * The current query split up by spaces. Used for filtering forms.
+     */
+    private String [] queryPieces = new String[0];
+
+    private FormRecordLoaderTask loader;
+
+    /**
+     * Maps form namespace (unique id for forms) to their form title
+     * (entry-point text). Needed because FormRecords don't have form title
+     * info, but do have the namespace.
+     */
+    private final Hashtable<String, Text> names;
+
     public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform, FormRecordLoaderTask loader) throws SessionUnavailableException{
-        this.platform = platform;
         this.context = context;
         this.filter = null;
-        observers = new ArrayList<DataSetObserver>();
         this.loader = loader;
-        
-        names = new Hashtable<String,Text>();
-        for(Suite s : platform.getInstalledSuites()) {
-            for(Enumeration en = s.getEntries().elements(); en.hasMoreElements() ;) {
+
+        observers = new ArrayList<DataSetObserver>();
+        names = new Hashtable<String, Text>();
+
+        loader.addListener(this);
+
+        // create a mapping from form definition IDs to their entry point text
+        for (Suite s : platform.getInstalledSuites()) {
+            for (Enumeration en = s.getEntries().elements(); en.hasMoreElements() ;) {
                 Entry entry = (Entry)en.nextElement();
-                if(entry.getXFormNamespace() == null) {
-                    //This is a <view>, not an <entry>, so
-                    //it can't define a form
-                } else {
-                    names.put(entry.getXFormNamespace(),entry.getText());
+                if (entry.getXFormNamespace() != null) {
+                    // Ensure that entry is actually <entry> and not a <view>,
+                    // which can't define a form
+                    names.put(entry.getXFormNamespace(), entry.getText());
                 }
             }
         }
     }
-    
-    public void resetRecords() throws SessionUnavailableException {
-        if(loader.getStatus() == Status.RUNNING) {
+
+    /**
+     * Add a newly-loaded form to the current list if it satisfies the current
+     * query.
+     */
+    @Override
+    public void notifyPriorityLoaded(FormRecord record, boolean isLoaded) {
+        if (isLoaded && satisfiesQuery(record)) {
+            current.add(record);
+        }
+    }
+
+    /**
+     * Notify observers that the form list has loaded/potentially been updated.
+     */
+    @Override
+    public void notifyLoaded() {
+        this.notifyDataSetChanged();
+    }
+
+    /**
+     * Load new records and text if the given FormFilter differs from the
+     * current filter.
+     *
+     * @param newFilter update the internal FormFilter to this value
+     */
+    public void setFilterAndResetRecords(FormRecordFilter newFilter) {
+        if (!newFilter.equals(this.filter)) {
+            setFormFilter(newFilter);
+            resetRecords();
+        }
+    }
+
+    /**
+     * Reload form record list for current filter status and collect pertinent
+     * text data using FormRecordLoaderTask; results will then be re-filtered
+     * and displayed via callbacks.
+     */
+    public void resetRecords() {
+        // reload the form records, even if they are currently being loaded
+        if (loader.getStatus() == Status.RUNNING) {
             loader.cancel(false);
             loader = loader.spawn();
         } else if(loader.getStatus() == Status.FINISHED) {
             loader = loader.spawn();
         }
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-        
-        if(filter == null) { filter = FormRecordFilter.SubmittedAndPending;}
-        records = new Vector<FormRecord>();
-        for(String status : filter.getStatus()) {
-            records.addAll(storage.getRecordsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {status} ));
+
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+
+        // choose a default filter if none set
+        if (filter == null) {
+            filter = FormRecordFilter.SubmittedAndPending;
         }
-        
-        Collections.sort(records,new Comparator<FormRecord>() {
 
-            public int compare(FormRecord one, FormRecord two) {
-                
-                long ot = one.lastModified().getTime();
-                long tt = two.lastModified().getTime();
-                 
-//                if(ot == 0) return -1;
-//                if(tt == 0) return 1;
-                
-                return ot > tt ? -1 : ot == tt ? 0 : 1;
+        records = new Vector<FormRecord>();
+        // for each type of status in the filter, grab all the records that satisfy it
+        for (String status : filter.getStatus()) {
+            records.addAll(storage.getRecordsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {status}));
+        }
+
+        // Sort FormRecords by modification time, most recent first.
+        Collections.sort(records, new Comparator<FormRecord>() {
+            public int compare(FormRecord left, FormRecord right) {
+                long leftModTime = left.lastModified().getTime();
+                long rightModTime = right.lastModified().getTime();
+
+                if (leftModTime > rightModTime) {
+                    return -1;
+                } else if (leftModTime == rightModTime) {
+                    return 0;
+                } else {
+                    return 1;
+                }
             }
-            
         });
-        
-        searchCache = new Hashtable<Integer, String[]>();
-        current = new ArrayList<FormRecord>();
 
-        
-        this.filterValues(currentQuery);
-        
+        searchCache.clear();
+        current.clear();
+
+        // load specific data about the 'records' into the searchCache, such as
+        // record title, form name, modified date
         loader.init(searchCache, names);
         loader.execute(records.toArray(new FormRecord[0]));
     }
-    
+
     public int findRecordPosition(int formRecordId) {
         for(int i = 0 ; i < current.size() ; ++i) {
             FormRecord record = current.get(i);
@@ -194,19 +268,24 @@ public class IncompleteFormListAdapter extends BaseAdapter {
      */
     public View getView(int i, View v, ViewGroup vg) {
         FormRecord r = current.get(i);
-        IncompleteFormRecordView ifrv =(IncompleteFormRecordView)v;
-        if(ifrv == null) {
+        IncompleteFormRecordView ifrv = (IncompleteFormRecordView)v;
+        if (ifrv == null) {
             ifrv = new IncompleteFormRecordView(context, names);
         }
-        
-        if(searchCache.containsKey(r.getID())) {
+
+        if (searchCache.containsKey(r.getID())) {
             ifrv.setParams(r, searchCache.get(r.getID())[1], r.lastModified().getTime());
         } else {
-            //notify the loader that we need access to this record immediately
+            // notify the loader that we need access to this record immediately
             loader.registerPriority(r);
+            // TODO: PLM: once the priority item is reloaded in the async task,
+            // there is no hook to explicitly re-set the title. That is, the
+            // local notifyPriorityLoaded method should probably be defined to
+            // reset the params of this record. It will eventually get reset,
+            // once this method is called again...
             ifrv.setParams(r, "Loading...", r.lastModified().getTime());
         }
-        
+
         return ifrv;
     }
 
@@ -231,43 +310,91 @@ public class IncompleteFormListAdapter extends BaseAdapter {
         return getCount() > 0;
     }
     
-    public void setFormFilter(FormRecordFilter filter) throws SessionUnavailableException {
+    public void setFormFilter(FormRecordFilter filter) {
         this.filter = filter;
     }
     
     public FormRecordFilter getFilter() {
         return this.filter;
     }
-    private void filterValues(String query) {
-        this.currentQuery = query;
+
+    /**
+     * Filter loaded FormRecords by those whose data contains any word in the
+     * query field.
+     *
+     * Reads from FormRecords in the 'records' field and moves them into the
+     * cleared out the 'current' field.
+     */
+    private void filterValues() {
+        // If FormRecords are still being loaded, wait for them to finish.
+        // Upon load completion this method will get called.
+        if (!loader.doneLoadingFormRecords()) {
+            return;
+        }
+
         current.clear();
-        
-        if(query == null || query.equals("")) {
+
+        if ("".equals(query)) {
             current.addAll(records);
             return;
         }
-        
-        String[] pieces = query.toLowerCase().split(" ");
-        
-        
-        //TODO: Don't let this happen until search cache is populated
-        
-        full:
-        for(FormRecord r : records) {
-            for(String cacheValue : searchCache.get(r.getID())) {
-                for(String piece : pieces) {
-                    if(cacheValue.toLowerCase().contains(piece)) {
-                        current.add(r);
-                        continue full;
-                    }
-                }
+
+        // collect all forms that have text data that contains pieces.
+        for (FormRecord r : records) {
+            if (satisfiesQuery(r)) {
+                current.add(r);
             }
         }
     }
-    
-    public void applyTextFilter(String query) {
-        filterValues(query);
-        for(DataSetObserver o : observers) {
+
+    /**
+     * Does the form record have text that contains one of the query segments?
+     *
+     * @param r Lookup this form record's text and compare to the current query
+     *          segments.
+     * @return Did the text corresponding to the form record argument contain
+     * any of the query segments?
+     */
+    private boolean satisfiesQuery(FormRecord r) {
+        if (queryPieces.length == 0) {
+            // empty queries always pass
+            return true;
+        }
+
+        for (String cacheValue : searchCache.get(r.getID())) {
+            for (String piece : this.queryPieces) {
+                if (cacheValue.toLowerCase().contains(piece)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Re-filter form listing based on query parameter.
+     *
+     * @param newQuery set the current query to this value.
+     */
+    public void applyTextFilter(String newQuery) {
+        if (this.query.trim().equals(newQuery.trim())) {
+            // don't perform filtering if old and new queries are same, modulo
+            // whitespace
+            return;
+        }
+
+        this.query = newQuery;
+
+        // split the query up into segments, by whitespace.
+        if ("".equals(this.query)) {
+            this.queryPieces = new String[0];
+        } else {
+            this.queryPieces = newQuery.toLowerCase().split(" ");
+        }
+
+        filterValues();
+
+        for (DataSetObserver o : observers) {
             o.onChanged();
         }
     }
@@ -293,9 +420,6 @@ public class IncompleteFormListAdapter extends BaseAdapter {
     }
 
     public boolean isValid(int i) {
-        if(!names.containsKey(current.get(i).getFormNamespace())) {
-            return false;
-        }
-        return true;
+        return names.containsKey(current.get(i).getFormNamespace());
     }
 }

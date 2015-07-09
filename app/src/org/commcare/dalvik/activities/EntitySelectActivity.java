@@ -1,40 +1,6 @@
 package org.commcare.dalvik.activities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
-
-import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.tasks.EntityLoaderListener;
-import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.SerializationUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.view.EntityView;
-import org.commcare.android.view.TabbedDetailView;
-import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.suite.model.Action;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.SessionDatum;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionFrame;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.model.xform.XPathReference;
-
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -44,10 +10,15 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,10 +31,55 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.tasks.EntityLoaderListener;
+import org.commcare.android.tasks.EntityLoaderTask;
+import org.commcare.android.util.AndroidUtil;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.DetailCalloutListener;
+import org.commcare.android.util.SerializationUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.EntityView;
+import org.commcare.android.view.TabbedDetailView;
+import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.suite.model.Action;
+import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.CalloutData;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.SessionDatum;
+import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.model.xform.XPathReference;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 
@@ -72,7 +88,9 @@ import android.widget.Toast;
  * @author ctsims
  *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener {
+public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
+    public static final String TAG = EntitySelectActivity.class.getSimpleName();
+
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
@@ -82,6 +100,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private static final int CONFIRM_SELECT = 0;
     private static final int BARCODE_FETCH = 1;
     private static final int MAP_SELECT = 2;
+    private static final int CALLOUT = 3;
     
     private static final int MENU_SORT = Menu.FIRST;
     private static final int MENU_MAP = Menu.FIRST + 1;
@@ -90,9 +109,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     EditText searchbox;
     TextView searchResultStatus;
     EntityListAdapter adapter;
-    Entry prototype;
     LinearLayout header;
     ImageButton barcodeButton;
+    SearchView searchView;
     
     TextToSpeech tts;
     
@@ -104,8 +123,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     
     boolean mMappingEnabled = false;
     
+    // Is the detail screen for showing entities, without option for moving
+    // forward on to form manipulation?
     boolean mViewMode = false;
-    
+
+    // Has a detail screen not been defined?
     boolean mNoDetailMode = false;
     
     private EntityLoaderTask loader;
@@ -121,7 +143,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private Detail shortSelect;
     
     private DataSetObserver mListStateObserver;
-    
+    private OnClickListener barcodeScanOnClickListener;
+
     /*
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
@@ -138,15 +161,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
         }
         
-        try {
-            asw = CommCareApplication._().getCurrentSessionWrapper();
-            session = asw.getSession();
-        } catch(SessionUnavailableException sue){
-            //The user isn't logged in! bounce this back to where we came from
-            this.setResult(Activity.RESULT_CANCELED);
-            this.finish();
-            return;
-        }
+        asw = CommCareApplication._().getCurrentSessionWrapper();
+        session = asw.getSession();
+
         selectDatum = session.getNeededDatum();
         
         shortSelect = session.getDetail(selectDatum.getShortDetail());
@@ -167,15 +184,29 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
                 
                 TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
-                message.setText(Localization.get("select.placeholder.message", new String[] {Localization.get("cchq.case")}));
+                //use the old method here because some Android versions don't like Spannables for titles
+                message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
             } else {
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
                 //need to go to the detail screen instead.
-                if(oldActivity != null) {
-                    if(oldActivity.selectedIntent != null) {
-                        startActivityForResult(oldActivity.selectedIntent, CONFIRM_SELECT);
+                if (oldActivity != null) {
+                    Intent intent = this.getIntent();
+
+                    TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
+                            EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                    if (selectedRef != null) {
+                        // remove the reference from this intent, ensuring we
+                        // don't re-launch the detail for an entity even after
+                        // it being de-selected.
+                        intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
+
+                        // attach the selected entity to the new detail intent
+                        // we're launching
+                        Intent detailIntent = getDetailIntent(selectedRef, null);
+
                         startOther = true;
+                        startActivityForResult(detailIntent, CONFIRM_SELECT);
                     }
                 }
             }
@@ -186,6 +217,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
         searchLabel.setOnClickListener(new OnClickListener(){
             @Override
@@ -204,32 +236,58 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         searchbox.setHorizontallyScrolling(false);
         searchResultStatus = (TextView) findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
-        
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-        
-        Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
-        prototype = entries.elementAt(0);
-        
-        
-        //(We shouldn't need the "" here, but we're avoiding making changes to commcare core for release issues)
-        if(entries.size() == 1 && (prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals(""))) {
-            mViewMode = true;
-        }
-                
-        barcodeButton.setOnClickListener(new OnClickListener() {
 
-            public void onClick(View v) {
-                Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                try {
-                    startActivityForResult(i, BARCODE_FETCH);
-                } catch(ActivityNotFoundException anfe) {
-                    Toast noReader = Toast.makeText(EntitySelectActivity.this, "No barcode reader available! You can install one from the android market.", Toast.LENGTH_LONG);
-                    noReader.show();
+        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+
+        mViewMode = session.isViewCommand(session.getCommand());
+
+        Callout callout = shortSelect.getCallout();
+
+        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+
+        if (callout == null) {
+            // Default to barcode scanning if no callout defined in the detail
+            barcodeButton.setOnClickListener((barcodeScanOnClickListener = new OnClickListener() {
+                public void onClick(View v) {
+                    Log.i("SCAN","Using default barcode scan");
+                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                    try {
+                        startActivityForResult(i, BARCODE_FETCH);
+                    } catch (ActivityNotFoundException anfe) {
+                        Toast.makeText(EntitySelectActivity.this,
+                                "No barcode reader available! You can install one " +
+                                "from the android market.",
+                                Toast.LENGTH_LONG).show();
+                    }
                 }
+            }));
+        } else {
+            CalloutData calloutData = callout.evaluate();
+
+            if (calloutData.getImage() != null) {
+                setupImageLayout(barcodeButton, calloutData.getImage());
             }
-            
-        });
-        
+
+            final String actionName = calloutData.getActionName();
+            final Hashtable<String, String> extras = calloutData.getExtras();
+
+            barcodeButton.setOnClickListener((barcodeScanOnClickListener = new OnClickListener() {
+                public void onClick(View v) {
+                    Log.i("SCAN","Using barcode scan with action: " + actionName);
+                    Intent i = new Intent(actionName);
+
+                    for(String key: extras.keySet()){
+                        i.putExtra(key, extras.get(key));
+                    }
+                    try {
+                        startActivityForResult(i, CALLOUT);
+                    } catch (ActivityNotFoundException anfe) {
+                        Toast.makeText(EntitySelectActivity.this, "No application found for action: " + actionName, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }));
+        }
+
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
@@ -249,6 +307,39 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
+        restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+    }
+
+    /**
+     * Updates the ImageView layout that is passed in, based on the
+     * new id and source
+     */
+    public void setupImageLayout(View layout, final String imagePath) {
+        ImageView iv = (ImageView)layout;
+        Bitmap b;
+        if (!imagePath.equals("")) {
+            try {
+                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(imagePath).getStream());
+                if (b == null) {
+                    // Input stream could not be used to derive bitmap, so
+                    // showing error-indicating image
+                    iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                } else {
+                    iv.setImageBitmap(b);
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                // Error loading image, default to folder button
+                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+            } catch (InvalidReferenceException ex) {
+                ex.printStackTrace();
+                // No image, default to folder button
+                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+            }
+        } else {
+            // no image passed in, draw a white background
+            iv.setImageDrawable(getResources().getDrawable(R.color.white));
+        }
     }
 
     private void createDataSetObserver() {
@@ -257,7 +348,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             public void onChanged() {
                 super.onChanged();
                 //update the search results box
-                String query = searchbox.getText().toString();
+                String query = getSearchText().toString();
                 if (!"".equals(query)) {
                     searchResultStatus.setText(Localization.get("select.search.status", new String[] {
                         ""+adapter.getCount(true, false), 
@@ -309,7 +400,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void onResume() {
         super.onResume();
         //Don't go through making the whole thing if we're finishing anyway.
-        if(this.isFinishing() || startOther) {return;}
+        if (this.isFinishing() || startOther) { return; }
         
         if(!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
             TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
@@ -343,7 +434,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        try {            
+        try {
             //TODO: Get ec into these text's
             String[] headers = new String[shortSelect.getFields().length];
             
@@ -354,11 +445,13 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 }
             }
             
-            //Hm, sadly we possibly need to rebuild this each time. 
-            EntityView v = new EntityView(this, shortSelect, headers);
+            //Hm, sadly we possibly need to rebuild this each time.
+            int[] colors = AndroidUtil.getThemeColorIDs(this, new int[]{ R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color });
+            Log.i("DEBUG-i","Background color is: " + colors[0] + ", text color is: " + colors[1]);
+            EntityView v = new EntityView(this, shortSelect, headers, colors[1]);
             header.removeAllViews();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            v.setBackgroundResource(R.drawable.blue_tabbed_box);
+            v.setBackgroundColor(colors[0]);
 
             // only add headers if we're not using grid mode
             if(!shortSelect.usesGridView()){
@@ -373,9 +466,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             } else {
                 startTimer();
             }
-            
-        } catch(SessionUnavailableException sue) {
-            //TODO: login and return
+        } catch(RuntimeException re) {
+            createErrorDialog(re.getMessage(), true);
         }
     }
     
@@ -390,37 +482,56 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     public void onStop() {
         super.onStop();
         stopTimer();
+        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
     }
     
 
     
 
-    protected Intent getDetailIntent(TreeReference contextRef, Intent i) {
-        //Parse out the return value first, and stick it in the appropriate intent so it'll get passed along when
-        //we return
-        if (i == null) {
-            i = new Intent(getApplicationContext(), EntityDetailActivity.class);
+    /**
+     * Attach element selection information to the intent argument, or create a
+     * new EntityDetailActivity if null. Used for displaying a detailed view of
+     * an element (form instance).
+     *
+     * @param contextRef reference to the selected element for which to display
+     * detailed view
+     * @param detailIntent intent to attach extra data to. If null, create a fresh
+     * EntityDetailActivity intent
+     * @return The intent argument, or a newly created one, with element
+     * selection information attached.
+     */
+    protected Intent getDetailIntent(TreeReference contextRef, Intent detailIntent) {
+        if (detailIntent == null) {
+            detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         }
-        
-        TreeReference valueRef = XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
-        AbstractTreeElement element = asw.getEvaluationContext().resolveReference(valueRef.contextualize(contextRef));
+
+        // grab the session's (form) element reference, and load it.
+        TreeReference elementRef =
+            XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
+        AbstractTreeElement element =
+            asw.getEvaluationContext().resolveReference(elementRef.contextualize(contextRef));
+
         String value = "";
+        // get the case id and add it to the intent
         if(element != null && element.getValue() != null) {
             value = element.getValue().uncast().getString();
         }
-        
-        //See if we even have a long datum
-        if(selectDatum.getLongDetail() != null) {
-            //If so, add this. otherwise that'll be the queue to just return
-            i.putExtra(EntityDetailActivity.DETAIL_ID, selectDatum.getLongDetail()); 
-            i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getPersistentDetail());
+        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, value);
+
+        // Include long datum info if present. Otherwise that'll be the queue
+        // to just return
+        if (selectDatum.getLongDetail() != null) {
+            detailIntent.putExtra(EntityDetailActivity.DETAIL_ID,
+                    selectDatum.getLongDetail());
+            detailIntent.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
+                    selectDatum.getPersistentDetail());
         }
-   
-        i.putExtra(SessionFrame.STATE_DATUM_VAL, value);
-        SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
-        
-        return i;
-    }    
+
+        SerializationUtil.serializeToIntent(detailIntent,
+                EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
+
+        return detailIntent;
+    }
 
     /*
      * (non-Javadoc)
@@ -461,6 +572,25 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 this.searchbox.setText(result);
             }
             break;
+        case CALLOUT:
+            if (resultCode == Activity.RESULT_OK) {
+                boolean resultSet = false;
+                String result = intent.getStringExtra("odk_intent_data");
+                if (result != null) {
+                    this.searchbox.setText(result);
+                    resultSet = true;
+                }
+                Callout callout = shortSelect.getCallout();
+                for (String key : callout.getResponses()) {
+                    result = intent.getExtras().getString(key);
+                    if (result != null && !resultSet) {
+                        resultSet = true;
+                        this.searchbox.setText(result);
+                        break;
+                    }
+                }
+            }
+            break;
         case CONFIRM_SELECT:
             resuming = true;
             if(resultCode == RESULT_OK && !mViewMode) {
@@ -474,16 +604,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     Intent i = new Intent(this, EntityMapActivity.class);
                     this.startActivityForResult(i, MAP_SELECT);
                     return;
-                } 
-                
-                //Otherwise, if we're in awesome mode, make sure we retain the original selection
-                if(inAwesomeMode) {
+                }
+
+                if (inAwesomeMode) {
+                    // Retain original element selection
                     TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-                    if(r != null) {
+                    if (r != null && adapter != null) {
+                        // TODO: added 'adapter != null' due to a
+                        // NullPointerException, we need to figure out how to
+                        // make sure adapter is never null -- PLM
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
                         updateSelectedItem(r, true);
                     }
-                    releaseCurrentMediaEntity();        
+                    releaseCurrentMediaEntity();
                 }
                 return;
             }
@@ -554,6 +687,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+        //use the old method here because some Android versions don't like Spannables for titles
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if(mMappingEnabled) {
@@ -562,10 +696,61 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         Action action = shortSelect.getCustomAction();
         if(action != null) {
-            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION, action.getDisplay());
+            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
+                    action.getDisplay().evaluate());
         }
 
+        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+            // again, this should be unnecessary...
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
+                EntitySelectActivity.this.searchView = searchView;
+                // restore last query string in the searchView if there is one
+                if (lastQueryString != null && lastQueryString.length() > 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    {
+                        searchItem.expandActionView();
+                    }
+                    searchView.setQuery(lastQueryString, false);
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
+                    }
+                    if (adapter != null) {
+                        adapter.applyFilter(lastQueryString == null ? "" : lastQueryString);
+                    }
+                }
+                EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        lastQueryString = newText;
+                        if (BuildConfig.DEBUG) {
+                            Log.v(TAG, "Setting lastQueryString to (" + newText + ")");
+                        }
+                        if(newText != null && newText.length() > 0){
+                        }
+                        if (adapter != null) {
+                            adapter.applyFilter(newText);
+                        }
+                        return false;
+                    }
+                });
+            }
+        });
+
         return true;
+    }
+
+    @SuppressWarnings("NewApi")
+    private CharSequence getSearchText(){
+        // not checking for build version because searchview will be null if not supported
+        if(searchView != null) return searchView.getQuery();
+        return searchbox.getText();
     }
     
     /* (non-Javadoc)
@@ -598,6 +783,15 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             case MENU_ACTION:
                 triggerDetailAction();
                 return true;
+            // handling click on the barcode scanner's actionbar
+            // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
+            case R.id.barcode_scan_action_bar:
+                barcodeScanOnClickListener.onClick(null);
+                return true;
+            // this is needed because superclasses do not implement the menu_settings click
+            case R.id.menu_settings:
+                CommCareHomeActivity.createPreferencesMenu(this);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -611,7 +805,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
     private void createSortMenu() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        
+        //use the old method here because some Android versions don't like Spannables for titles
         builder.setTitle(Localization.get("select.menu.sort"));
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
@@ -788,6 +982,23 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         setResult(RESULT_OK, i);
         finish();
     }
+
+    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
+    public void callRequested(String phoneNumber) {
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
+    }
+
+    public void addressRequested(String address) {
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
+    }
+
+    public void playVideo(String videoRef) {
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
+    }
+
+    public void performCallout(CalloutData callout, int id) {
+        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
+    }
     
     public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection, getIntent());
@@ -796,6 +1007,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
             Button next = (Button)findViewById(R.id.entity_select_button);
+            //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
@@ -803,16 +1015,19 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     return;
                 }
             });
-            
-            if(getIntent().getBooleanExtra(EntityDetailActivity.IS_DEAD_END, false)) {
-                next.setText("Done");
+
+            if (mViewMode) {
+                next.setVisibility(View.GONE);
             }
 
             String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-            
-            Vector<Entry> entries = session.getEntriesForCommand(passedCommand == null ? session.getCommand() : passedCommand);
-            prototype = entries.elementAt(0);
-            
+
+            if (passedCommand != null) {
+                mViewMode = session.isViewCommand(passedCommand);
+            } else {
+                mViewMode = session.isViewCommand(session.getCommand());
+            }
+
             detailView = new TabbedDetailView(this);
             detailView.setRoot((ViewGroup) rightFrame.findViewById(R.id.entity_detail_tabs));
 
@@ -852,7 +1067,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             if (inAwesomeMode && detailView != null && detailView.getCurrentTab() < detailView.getTabCount() - 1) {
                 return false;
             }
-            select();
+
+            if (!mViewMode) {
+                select();
+            }
         }
         return true;
     }
@@ -882,7 +1100,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             theloader.execute(selectDatum.getNodeset());
         }
     }
-    
+
     private Timer myTimer;
     private Object timerLock = new Object();
     boolean cancelled;

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.crypt;
 
 import java.util.HashSet;
@@ -8,11 +5,13 @@ import java.util.Stack;
 
 import javax.crypto.Cipher;
 
+import android.util.Log;
+
 /**
  * @author ctsims
- *
  */
 public abstract class CipherPool {
+    private static final String TAG = CipherPool.class.getSimpleName();
     
     private static final int GROWTH_FACTOR = 5;
     
@@ -32,7 +31,7 @@ public abstract class CipherPool {
     public synchronized final Cipher borrow() {
         if(free.isEmpty()) {
             grow();
-            System.out.println("Growing cipher pool. Current size is: " + free.size() + issued.size());
+            Log.d(TAG, "Growing cipher pool. Current size is: " + free.size() + issued.size());
         }
         Cipher toLend = free.pop();
         issued.add(toLend);

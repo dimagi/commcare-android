@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.achartengine.ChartFactory;
+import org.achartengine.chart.BarChart;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -14,6 +15,7 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
+import org.commcare.android.util.InvalidStateException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
@@ -75,10 +77,18 @@ public class GraphView {
         if (!mRenderer.getXTitle().equals("")) {
             bottomMargin += textAllowance;
         }
+        
+        // Bar charts have text labels that are likely to be long (names, etc.).
+        // This is a terrible, temporary way to give them extra space. At some point
+        // there'll need to be a more robust solution for setting margins that
+        // respond to data and screen size.
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            bottomMargin += 100;
+        }
         mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
     }
     
-    private void render(GraphData data) {
+    private void render(GraphData data) throws InvalidStateException {
         mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
@@ -91,15 +101,18 @@ public class GraphView {
         setMargins();        
     }
         
-    public Intent getIntent(GraphData data) {
+    public Intent getIntent(GraphData data) throws InvalidStateException {
         render(data);
         
         String title = mRenderer.getChartTitle();
-        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
         }
-        if (mData.getType().equals(Graph.TYPE_TIME)) {
+        if (Graph.TYPE_TIME.equals(mData.getType())) {
             return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, title, getTimeFormat());
+        }
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            return ChartFactory.getBarChartIntent(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT, title);
         }
         return ChartFactory.getLineChartIntent(mContext, mDataset, mRenderer, title);
     }
@@ -108,7 +121,7 @@ public class GraphView {
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
      */
-    public View getView(GraphData data) {
+    public View getView(GraphData data) throws InvalidStateException {
         render(data);
         
         // Graph will not render correctly unless it has data, so
@@ -120,13 +133,11 @@ public class GraphView {
         }
         if (!hasPoints) {
             SeriesData s = new SeriesData();
-            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
                 s.addPoint(new BubblePointData("0", "0", "0"));
-            }
-            else if (mData.getType().equals(Graph.TYPE_TIME)) {
+            } else if (Graph.TYPE_TIME.equals(mData.getType())) {
                 s.addPoint(new XYPointData(DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601), "0"));
-            }
-            else {
+            } else {
                 s.addPoint(new XYPointData("0", "0"));
             }
             s.setConfiguration("line-color", "#00000000");
@@ -134,11 +145,14 @@ public class GraphView {
             renderSeries(s);
         }
         
-        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
         }
-        if (mData.getType().equals(Graph.TYPE_TIME)) {
+        if (Graph.TYPE_TIME.equals(mData.getType())) {
             return ChartFactory.getTimeChartView(mContext, mDataset, mRenderer, getTimeFormat());
+        }
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, BarChart.Type.STACKED);
         }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
     }
@@ -161,15 +175,16 @@ public class GraphView {
     /*
      * Set up a single series.
      */
-    private void renderSeries(SeriesData s) {
+    private void renderSeries(SeriesData s) throws InvalidStateException {
         XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
         mRenderer.addSeriesRenderer(currentRenderer);
         configureSeries(s, currentRenderer);
 
         XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
-        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        series.setTitle(s.getConfiguration("name", ""));
+        if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             if (s.getConfiguration("radius-max") != null) {
-                ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max")));
+                ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max"), "radius-max"));
             }
         }
         mDataset.addSeries(series);
@@ -179,19 +194,53 @@ public class GraphView {
         for (XYPointData d : s.getPoints()) {
             sortedPoints.add(d);
         }
-        Collections.sort(sortedPoints, new PointComparator());
+        Comparator<XYPointData> comparator;
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            String barSort = s.getConfiguration("bar-sort", "");
+            if (barSort.equals("ascending")) {
+                comparator = new AscendingValuePointComparator();
+            } else if (barSort.equals("descending")) {
+                comparator = new DescendingValuePointComparator();
+            } else {
+                comparator = new StringPointComparator();
+            }
+        } else {
+            comparator = new NumericPointComparator();
+        }
+        Collections.sort(sortedPoints, comparator);
         
+        int barIndex = 1;
+        JSONObject barLabels = new JSONObject();
         for (XYPointData p : sortedPoints) {
-            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            String description = "point (" + p.getX() + ", " + p.getY() + ")";
+            if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
                 BubblePointData b = (BubblePointData) p;
-                ((RangeXYValueSeries) series).add(parseXValue(b.getX()), parseYValue(b.getY()), parseRadiusValue(b.getRadius()));
+                description += " with radius " + b.getRadius();
+                ((RangeXYValueSeries) series).add(parseXValue(b.getX(), description), parseYValue(b.getY(), description), parseRadiusValue(b.getRadius(), description));
+            } else if (Graph.TYPE_TIME.equals(mData.getType())) {
+                ((TimeSeries) series).add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
+            } else if (Graph.TYPE_BAR.equals(mData.getType())) {
+                // In CommCare, bar graphs are specified with x as a set of text labels
+                // and y as a set of values. In AChartEngine, bar graphs are a subclass
+                // of XY graphs, with numeric x and y values. Deal with this by 
+                // assigning an arbitrary, evenly-spaced x value to each bar and then
+                // populating x-labels with the user's x values. 
+                series.add(barIndex, parseYValue(p.getY(), description));
+                try {
+                    barLabels.put(Double.toString(barIndex), p.getX());
+                }
+                catch (JSONException e) {
+                    throw new InvalidStateException("Could not handle bar label '" + p.getX() + "': " + e.getMessage());
+                }
+                barIndex++;
+            } else {
+                series.add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             }
-            else if (mData.getType().equals(Graph.TYPE_TIME)) {
-                ((TimeSeries) series).add(parseXValue(p.getX()), parseYValue(p.getY()));
-            }
-            else {
-                series.add(parseXValue(p.getX()), parseYValue(p.getY()));
-            }
+        }
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            mData.setConfiguration("x-min", Double.toString(0.5));
+            mData.setConfiguration("x-max", Double.toString(sortedPoints.size() + 0.5));
+            mData.setConfiguration("x-labels", barLabels.toString());
         }
     }
     
@@ -201,6 +250,21 @@ public class GraphView {
      */
     public static LinearLayout.LayoutParams getLayoutParams() {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
+    }
+    
+    /**
+     * Get graph's desired aspect ratio. 
+     * @return Ratio, expressed as a double: width / height.
+     */
+    public double getRatio() {
+        // Most graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
+        // and happened to look nice for partographs. Vertically-oriented graphs,
+        // however, get squished unless they're drawn as a square. Expect to revisit 
+        // this eventually (make all graphs square? user-configured aspect ratio?).
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            return 1;
+        }
+        return 2;
     }
     
     /**
@@ -219,14 +283,14 @@ public class GraphView {
     private XYSeries createSeries(int scaleIndex) {
         // TODO: Bubble and time graphs ought to respect scaleIndex, but XYValueSeries
         // and TimeSeries don't expose the (String title, int scaleNumber) constructor.
-        if (scaleIndex > 0 && !mData.getType().equals(Graph.TYPE_XY)) {
+        if (scaleIndex > 0 && !Graph.TYPE_XY.equals(mData.getType())) {
             throw new IllegalArgumentException("This series does not support a secondary y axis");
         }
 
-        if (mData.getType().equals(Graph.TYPE_TIME)) {
+        if (Graph.TYPE_TIME.equals(mData.getType())) {
             return new TimeSeries("");
         }
-        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return new RangeXYValueSeries("");
         }
         return new XYSeries("", scaleIndex);
@@ -235,13 +299,15 @@ public class GraphView {
     /*
      * Set up any annotations.
      */
-    private void renderAnnotations() {
+    private void renderAnnotations() throws InvalidStateException {
         Vector<AnnotationData> annotations = mData.getAnnotations();
         if (!annotations.isEmpty()) {
             // Create a fake series for the annotations
             XYSeries series = createSeries();
             for (AnnotationData a : annotations) {
-                series.addAnnotation(a.getAnnotation(), parseXValue(a.getX()), parseYValue(a.getY()));
+                String text = a.getAnnotation();
+                String description = "annotation '" + text + "' at (" + a.getX() + ", " + a.getY() + ")";
+                series.addAnnotation(text, parseXValue(a.getX(), description), parseYValue(a.getY(), description));
             }
             
             // Annotations won't display unless the series has some data in it
@@ -265,17 +331,13 @@ public class GraphView {
             PointStyle style = null;
             if (pointStyle.equals("circle")) {
                 style = PointStyle.CIRCLE;
-            }
-            else if (pointStyle.equals("x")) {
+            } else if (pointStyle.equals("x")) {
                 style = PointStyle.X;
-            }
-            else if (pointStyle.equals("square")) {
+            } else if (pointStyle.equals("square")) {
                 style = PointStyle.SQUARE;
-            }
-            else if (pointStyle.equals("triangle")) {
+            } else if (pointStyle.equals("triangle")) {
                 style = PointStyle.TRIANGLE;
-            }
-            else if (pointStyle.equals("diamond")) {
+            } else if (pointStyle.equals("diamond")) {
                 style = PointStyle.DIAMOND;
             }
             currentRenderer.setPointStyle(style);
@@ -286,8 +348,7 @@ public class GraphView {
         String lineColor = s.getConfiguration("line-color");
         if (lineColor == null) {
             currentRenderer.setColor(Color.BLACK);
-        }
-        else {
+        } else {
             currentRenderer.setColor(Color.parseColor(lineColor));
         }
         
@@ -310,7 +371,7 @@ public class GraphView {
     /*
      * Configure graph's look and feel based on default assumptions and user-requested configuration.
      */
-    private void configure() {
+    private void configure() throws InvalidStateException{
         // Default options
         mRenderer.setBackgroundColor(mContext.getResources().getColor(R.color.white));
         mRenderer.setMarginsColor(mContext.getResources().getColor(R.color.white));
@@ -321,14 +382,22 @@ public class GraphView {
         mRenderer.setXLabelsAlign(Align.CENTER);
         mRenderer.setYLabelsAlign(Align.RIGHT);
         mRenderer.setYLabelsAlign(Align.LEFT, 1);
-        mRenderer.setYLabelsPadding(10);
         mRenderer.setYAxisAlign(Align.RIGHT, 1);
         mRenderer.setAxesColor(mContext.getResources().getColor(R.color.grey_lighter));
         mRenderer.setLabelsTextSize(mTextSize);
         mRenderer.setAxisTitleTextSize(mTextSize);
         mRenderer.setApplyBackgroundColor(true);
-        mRenderer.setShowLegend(false);
         mRenderer.setShowGrid(true);
+        
+        int padding = 10;
+        mRenderer.setXLabelsPadding(padding);
+        mRenderer.setYLabelsPadding(padding);
+        mRenderer.setYLabelsVerticalPadding(padding);
+        
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
+            mRenderer.setBarSpacing(0.5);
+        }
         
         // User-configurable options
         mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
@@ -336,40 +405,48 @@ public class GraphView {
         mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
 
         if (mData.getConfiguration("x-min") != null) {
-            mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min")));
+            mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min"), "x-min"));
         }
         if (mData.getConfiguration("y-min") != null) {
-            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("y-min")));
+            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("y-min"), "y-min"));
         }
         if (mData.getConfiguration("secondary-y-min") != null) {
-            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("secondary-y-min")), 1);
+            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("secondary-y-min"), "secondary-y-min"), 1);
         }
         
         if (mData.getConfiguration("x-max") != null) {
-            mRenderer.setXAxisMax(parseXValue(mData.getConfiguration("x-max")));
+            mRenderer.setXAxisMax(parseXValue(mData.getConfiguration("x-max"), "x-max"));
         }
         if (mData.getConfiguration("y-max") != null) {
-            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("y-max")));
+            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("y-max"), "y-max"));
         }
         if (mData.getConfiguration("secondary-y-max") != null) {
-            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max")), 1);
+            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"), 1);
         }
         
-        String showGrid = mData.getConfiguration("show-grid", "true");
-        if (Boolean.valueOf(showGrid).equals(Boolean.FALSE)) {
-            mRenderer.setShowGridX(false);
-            mRenderer.setShowGridY(false);
-        }
+        boolean showGrid = Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE);
+        mRenderer.setShowGridX(showGrid);
+        mRenderer.setShowGridY(showGrid);
+        mRenderer.setShowCustomTextGridX(showGrid);
+        mRenderer.setShowCustomTextGridY(showGrid);
 
         String showAxes = mData.getConfiguration("show-axes", "true");
         if (Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
             mRenderer.setShowAxes(false);
         }
         
+        // Legend
+        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false")).booleanValue();
+        mRenderer.setShowLegend(showLegend);
+        mRenderer.setLegendTextSize(mTextSize);
+
         // Labels
-        configureLabels("x-labels");
-        configureLabels("y-labels");
+        boolean hasX = configureLabels("x-labels");
+        boolean hasY = configureLabels("y-labels");
         configureLabels("secondary-y-labels");
+        boolean showLabels = hasX || hasY;
+        mRenderer.setShowLabels(showLabels);
+        mRenderer.setShowTickMarks(showLabels);
 
         boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
         mRenderer.setPanEnabled(panAndZoom, panAndZoom);
@@ -380,39 +457,70 @@ public class GraphView {
     /**
      * Parse given string into Double for AChartEngine.
      * @param value
+     * @param description Something to identify the kind of value, used to augment any error message.
      * @return
      */
-    private Double parseXValue(String value) {
-        if (mData.getType().equals(Graph.TYPE_TIME)) {
-            return Double.valueOf(DateUtils.parseDateTime(value).getTime());
+    private Double parseXValue(String value, String description) throws InvalidStateException {
+        if (Graph.TYPE_TIME.equals(mData.getType())) {
+            Date parsed = DateUtils.parseDateTime(value);
+            if (parsed == null) {
+                throw new InvalidStateException("Could not parse date '" + value + "' in " + description);
+            }
+            return parseDouble(String.valueOf(parsed.getTime()), description);
         }
 
-        return Double.valueOf(value);
+        return parseDouble(value, description);
     }
     
     /**
      * Parse given string into Double for AChartEngine.
      * @param value
+     * @param description Something to identify the kind of value, used to augment any error message.
      * @return
+     * @throws InvalidStateException 
      */
-    private Double parseYValue(String value) {
-        return Double.valueOf(value);
+    private Double parseYValue(String value, String description) throws InvalidStateException {
+        return parseDouble(value, description);
     }
     
     /**
      * Parse given string into Double for AChartEngine.
      * @param value
+     * @param description Something to identify the kind of value, used to augment any error message.
      * @return
      */
-    private Double parseRadiusValue(String value) {
-        return Double.valueOf(value);
+    private Double parseRadiusValue(String value, String description) throws InvalidStateException {
+        return parseDouble(value, description);
+    }
+    
+    /**
+     * Attempt to parse a double, but fail on NumberFormatException.
+     * @param value
+     * @param description Something to identify the kind of value, used to augment any error message.
+     * @return
+     * @throws InvalidStateException
+     */
+    private Double parseDouble(String value, String description) throws InvalidStateException {
+        try {
+            Double numeric = Double.valueOf(value);
+            if (numeric.isNaN()) {
+                throw new InvalidStateException("Could not understand '" + value + "' in " + description);
+            }
+            return numeric;
+        }
+        catch (NumberFormatException nfe) {
+            throw new InvalidStateException("Could not understand '" + value + "' in " + description);
+        }
     }
 
     /**
      * Customize labels.
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @return True iff axis has any labels at all
      */
-    private void configureLabels(String key) {
+    private boolean configureLabels(String key) throws InvalidStateException {
+        boolean hasLabels = true;
+        
         // The labels setting might be a JSON array of numbers, 
         // a JSON object of number => string, or a single number
         String labelString = mData.getConfiguration(key);
@@ -423,8 +531,9 @@ public class GraphView {
                 setLabelCount(key, 0);
                 for (int i = 0; i < labels.length(); i++) {
                     String value = labels.getString(i);
-                    addTextLabel(key, parseXValue(value), value);
+                    addTextLabel(key, parseXValue(value, "x label '" + key + "'"), value);
                 }
+                hasLabels = labels.length() > 0;
             }
             catch (JSONException je) {
                 // Assume try block failed because labelString isn't an array.
@@ -435,9 +544,11 @@ public class GraphView {
                     JSONObject labels = new JSONObject(labelString);
                     setLabelCount(key, 0);
                     Iterator i = labels.keys();
+                    hasLabels = false;
                     while (i.hasNext()) {
                        String location = (String) i.next();
-                       addTextLabel(key, parseXValue(location), labels.getString(location));
+                       addTextLabel(key, parseXValue(location, "x label at " + location), labels.getString(location));
+                       hasLabels = true;
                     }
                 }
                 catch (JSONException e) {
@@ -445,9 +556,12 @@ public class GraphView {
                     // represents the number of labels the user wants.
                     Integer count = Integer.valueOf(labelString);
                     setLabelCount(key, count);
+                    hasLabels = count != 0;
                 }
             }
         }
+        
+        return hasLabels;
     }
     
     /**
@@ -459,8 +573,7 @@ public class GraphView {
     private void addTextLabel(String key, Double location, String text) {
         if (isXKey(key)) {
             mRenderer.addXTextLabel(location, text);
-        }
-        else {
+        } else {
             int scaleIndex = getScaleIndex(key);
             if (mRenderer.getYAxisAlign(scaleIndex) == Align.RIGHT) {
                 text = "   " + text;
@@ -478,8 +591,7 @@ public class GraphView {
     private void setLabelCount(String key, int value) {
         if (isXKey(key)) {
             mRenderer.setXLabels(value);
-        }
-        else {
+        } else {
             mRenderer.setYLabels(value);
         }
     }
@@ -506,11 +618,58 @@ public class GraphView {
      * Comparator to sort XYPointData-derived objects by x value.
      * @author jschweers
      */
-    private class PointComparator implements Comparator<XYPointData> {
+    private class NumericPointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
-            return parseXValue(lhs.getX()).compareTo(parseXValue(rhs.getX()));
+            try {
+                return parseXValue(lhs.getX(), "").compareTo(parseXValue(rhs.getX(), ""));
+            } catch (InvalidStateException e) {
+                return 0;
+            }
         }
     }
 
+    /**
+     * Comparator to sort XYPointData-derived objects by x value without parsing them.
+     * Useful for bar graphs, where x values are text.
+     * @author jschweers
+     */
+    private class StringPointComparator implements Comparator<XYPointData> {
+        @Override
+        public int compare(XYPointData lhs, XYPointData rhs) {
+            return lhs.getX().compareTo(rhs.getX());
+        }
+    }
+
+    /**
+     * Comparator to sort XYPoint-derived data by y value, in ascending order.
+     * Useful for bar graphs, nonsensical for other graphs.
+     * @author jschweers
+     */
+    private class AscendingValuePointComparator implements Comparator<XYPointData> {
+        @Override
+        public int compare(XYPointData lhs, XYPointData rhs) {
+            try {
+                return parseXValue(lhs.getY(), "").compareTo(parseXValue(rhs.getY(), ""));
+            } catch (InvalidStateException e) {
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * Comparator to sort XYPoint-derived data by y value, in descending order.
+     * Useful for bar graphs, nonsensical for other graphs.
+     * @author jschweers
+     */
+    private class DescendingValuePointComparator implements Comparator<XYPointData> {
+        @Override
+        public int compare(XYPointData lhs, XYPointData rhs) {
+            try {
+                return parseXValue(rhs.getY(), "").compareTo(parseXValue(lhs.getY(), ""));
+            } catch (InvalidStateException e) {
+                return 0;
+            }
+        }
+    }
 }

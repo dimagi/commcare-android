@@ -3,15 +3,17 @@ package org.commcare.android.tasks;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
-import android.os.AsyncTask;
 import android.util.Pair;
 
 
@@ -19,7 +21,7 @@ import android.util.Pair;
  * @author ctsims
  *
  */
-public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
+public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
     
     private static EntityLoaderTask pending[] = {null};
     
@@ -129,6 +131,8 @@ public class EntityLoaderTask extends AsyncTask<TreeReference, Integer, Pair<Lis
         } catch (XPathException xe){
             XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
             me.setSource(xe.getSource());
+            xe.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, ExceptionReportTask.getStackTrace(me));
             mException = me;
             return null;
         }

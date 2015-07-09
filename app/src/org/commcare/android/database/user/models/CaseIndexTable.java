@@ -10,6 +10,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -46,9 +48,21 @@ public class CaseIndexTable {
     
     //TODO: We should do some synchronization to make it the case that nothing can hold
     //an object for the same cache at once and let us manage the lifecycle
-    SQLiteDatabase db;
+    
     public CaseIndexTable() {
-        db = CommCareApplication._().getUserDbHandle();
+        // TODO PLM: remove this constructor and have callers pass in result
+        // from getUserDbHandle()
+        try {
+            this.db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            // TODO PLM: find a way to fail elegantly here.
+            throw new UserStorageClosedException(e.getMessage());
+        }
+    }
+    
+    SQLiteDatabase db;
+    public CaseIndexTable(SQLiteDatabase dbHandle) {
+        this.db = dbHandle;
     }
     
     /**

@@ -17,6 +17,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -31,6 +32,7 @@ import android.os.Environment;
 import android.util.Log;
 
 public class FormUploadUtil {
+    private static final String TAG = FormUploadUtil.class.getSimpleName();
     
     /** Everything worked great! **/
     public static final long FULL_SUCCESS = 0;
@@ -118,7 +120,7 @@ public class FormUploadUtil {
             String state = Environment.getExternalStorageState();
             if (!Environment.MEDIA_MOUNTED.equals(state)) {
                 //If so, just bail as if the user had logged out.
-                throw new SessionUnavailableException("External Storage Removed");
+                throw new UserStorageClosedException("External Storage Removed");
             } else {
                 throw new FileNotFoundException("No directory found at: " + folder.getAbsoluteFile());
             }
@@ -138,7 +140,7 @@ public class FormUploadUtil {
             if(!supported) { continue;}
             
             bytes += files[j].length();
-            System.out.println("Added file: " + files[j].getName() +". Bytes to send: " + bytes);
+            Log.d(TAG, "Added file: " + files[j].getName() +". Bytes to send: " + bytes);
         }
         
         if(hasListener){
@@ -191,13 +193,6 @@ public class FormUploadUtil {
                 
                 entity.addPart("xml_submission_file", fb);
                 
-                //fb = new FileBody(f, "text/xml");
-                //Don't know if we can ask for the content length on the input stream, so skip it.
-//                if (fb.getContentLength() <= MAX_BYTES) {
-//                    Log.i(t, "added xml file " + f.getName());
-//                } else {
-//                    Log.i(t, "file " + f.getName() + " is too big");
-//                }
             } else if (f.getName().endsWith(".jpg")) {
                 fb = new FileBody(f, "image/jpeg");
                 if (fb.getContentLength() <= MAX_BYTES) {
@@ -282,7 +277,7 @@ public class FormUploadUtil {
         }
         
         String responseString = new String(bos.toByteArray());
-        System.out.println(responseString);
+        Log.d(TAG, responseString);
         
 
         if(responseCode >= 200 && responseCode < 300) {

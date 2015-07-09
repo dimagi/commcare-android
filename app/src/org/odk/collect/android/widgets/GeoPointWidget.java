@@ -1,11 +1,11 @@
 /*
  * Copyright (C) 2009 University of Washington
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,44 +14,44 @@
 
 package org.odk.collect.android.widgets;
 
-import java.text.DecimalFormat;
-
-import org.javarosa.core.model.data.GeoPointData;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.activities.GeoPointActivity;
-import org.odk.collect.android.activities.GeoPointMapActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.activities.GeoPointActivity;
+import org.odk.collect.android.activities.GeoPointMapActivity;
+
+import java.text.DecimalFormat;
 
 /**
  * GeoPointWidget is the widget that allows the user to get GPS readings.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
-    private Button mGetLocationButton;
-    private Button mViewButton;
+    private final Button mGetLocationButton;
+    private final Button mViewButton;
 
-    private TextView mStringAnswer;
-    private TextView mAnswerDisplay;
+    private final TextView mStringAnswer;
+    private final TextView mAnswerDisplay;
     private boolean mWaitingForData;
     private boolean mUseMaps;
-    private String mAppearance;
-    public static String LOCATION = "gp";
+    public static final String LOCATION = "gp";
 
 
     public GeoPointWidget(Context context, FormEntryPrompt prompt) {
@@ -59,100 +59,85 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
 
         mWaitingForData = false;
         mUseMaps = false;
-        mAppearance = prompt.getAppearanceHint();
-
-        setOrientation(LinearLayout.VERTICAL);
-
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-        
-        mGetLocationButton = new Button(getContext());
-        mGetLocationButton.setPadding(20, 20, 20, 20);
-        mGetLocationButton.setText(Localization.get("odk_get_location"));
-        mGetLocationButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mGetLocationButton.setEnabled(!prompt.isReadOnly());
-        mGetLocationButton.setLayoutParams(params);
-
-        // setup play button
-        mViewButton = new Button(getContext());
-        mViewButton.setText(Localization.get("odk_show_location"));
-        mViewButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mViewButton.setPadding(20, 20, 20, 20);
-        mViewButton.setLayoutParams(params);
-        
-        // on play, launch the appropriate viewer
-        mViewButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
-            @Override
-            public void onClick(View v) {
-
-                String s = mStringAnswer.getText().toString();
-                String[] sa = s.split(" ");
-                double gp[] = new double[4];
-                gp[0] = Double.valueOf(sa[0]).doubleValue();
-                gp[1] = Double.valueOf(sa[1]).doubleValue();
-                gp[2] = Double.valueOf(sa[2]).doubleValue();
-                gp[3] = Double.valueOf(sa[3]).doubleValue();
-                Intent i = new Intent(getContext(), GeoPointMapActivity.class);
-                i.putExtra(LOCATION, gp);
-                ((Activity) getContext()).startActivity(i);
-
-            }
-        });
-
-        mStringAnswer = new TextView(getContext());
-
-        mAnswerDisplay = new TextView(getContext());
-        mAnswerDisplay.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mAnswerDisplay.setGravity(Gravity.CENTER);
-
-        String s = prompt.getAnswerText();
-        if (s != null && !s.equals("")) {
-            mGetLocationButton.setText(Localization.get("odk_replace_location"));
-            setBinaryData(s);
-            mViewButton.setEnabled(true);
-        } else {
-            mViewButton.setEnabled(false);
-        }
-        
-        // use maps or not
-        if (mAppearance != null && mAppearance.equalsIgnoreCase("maps")) {
+        String appearance = prompt.getAppearanceHint();
+        if ("maps".equalsIgnoreCase(appearance)) {
             try {
-                // do google maps exist on the device
+                // use google maps it exists on the device
                 Class.forName("com.google.android.maps.MapActivity");
                 mUseMaps = true;
             } catch (ClassNotFoundException e) {
                 mUseMaps = false;
             }
-        } 
+        }
 
-        
-        // when you press the button
+        setOrientation(LinearLayout.VERTICAL);
+
+        mStringAnswer = new TextView(getContext());
+        mAnswerDisplay = new TextView(getContext());
+        mAnswerDisplay.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mAnswerDisplay.setGravity(Gravity.CENTER);
+
+        Spannable locButtonText;
+        boolean viewButtonEnabled;
+
+        String s = prompt.getAnswerText();
+        if (s != null && !("".equals(s))) {
+            setBinaryData(s);
+
+            locButtonText = StringUtils.getStringSpannableRobust(getContext(),
+                    R.string.replace_location);
+            viewButtonEnabled = true;
+        } else {
+            locButtonText = StringUtils.getStringSpannableRobust(getContext(),
+                    R.string.get_location);
+            viewButtonEnabled = false;
+        }
+
+        mGetLocationButton = new Button(getContext());
+        WidgetUtils.setupButton(mGetLocationButton,
+                locButtonText,
+                mAnswerFontsize,
+                !prompt.isReadOnly());
+
         mGetLocationButton.setOnClickListener(new View.OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
-                Intent i = null;
+                Intent i;
                 if (mUseMaps) {
                     i = new Intent(getContext(), GeoPointMapActivity.class);
                 } else {
                     i = new Intent(getContext(), GeoPointActivity.class);
                 }
-                ((Activity) getContext()).startActivityForResult(i,
-                    FormEntryActivity.LOCATION_CAPTURE);
+                ((Activity)getContext()).startActivityForResult(i,
+                        FormEntryActivity.LOCATION_CAPTURE);
                 mWaitingForData = true;
-
             }
         });
 
-        // finish complex layout
-        // retrieve answer from data model and update ui
+        // setup 'view location' button
+        mViewButton = new Button(getContext());
+        WidgetUtils.setupButton(mViewButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.show_location),
+                mAnswerFontsize,
+                viewButtonEnabled);
+
+        // launch appropriate map viewer
+        mViewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String s = mStringAnswer.getText().toString();
+                String[] sa = s.split(" ");
+                double gp[] = new double[4];
+                gp[0] = Double.valueOf(sa[0]);
+                gp[1] = Double.valueOf(sa[1]);
+                gp[2] = Double.valueOf(sa[2]);
+                gp[3] = Double.valueOf(sa[3]);
+                Intent i = new Intent(getContext(), GeoPointMapActivity.class);
+                i.putExtra(LOCATION, gp);
+                getContext().startActivity(i);
+
+            }
+        });
 
         addView(mGetLocationButton);
         if (mUseMaps) {
@@ -170,7 +155,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     public void clearAnswer() {
         mStringAnswer.setText(null);
         mAnswerDisplay.setText(null);
-        mGetLocationButton.setText(Localization.get("odk_get_location"));
+        mGetLocationButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_location));
 
     }
 
@@ -189,10 +174,10 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
                 // segment lat and lon
                 String[] sa = s.split(" ");
                 double gp[] = new double[4];
-                gp[0] = Double.valueOf(sa[0]).doubleValue();
-                gp[1] = Double.valueOf(sa[1]).doubleValue();
-                gp[2] = Double.valueOf(sa[2]).doubleValue();
-                gp[3] = Double.valueOf(sa[3]).doubleValue();
+                gp[0] = Double.valueOf(sa[0]);
+                gp[1] = Double.valueOf(sa[1]);
+                gp[2] = Double.valueOf(sa[2]);
+                gp[3] = Double.valueOf(sa[3]);
 
                 return new GeoPointData(gp);
             } catch (Exception NumberFormatException) {
@@ -244,7 +229,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -255,16 +240,19 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
      */
     @Override
     public void setBinaryData(Object answer) {
-        String s = (String) answer;
+        String s = (String)answer;
         mStringAnswer.setText(s);
 
         String[] sa = s.split(" ");
-        mAnswerDisplay.setText(Localization.get("odk_latitude") + ": "
-                + formatGps(Double.parseDouble(sa[0]), "lat") + "\n"
-                + Localization.get("odk_longitude") + ": "
-                + formatGps(Double.parseDouble(sa[1]), "lon") + "\n"
-                + Localization.get("odk_altitude") + ": " + truncateDouble(sa[2]) + "m\n"
-                + Localization.get("odk_accuracy") + ": " + truncateDouble(sa[3]) + "m");
+        mAnswerDisplay.setText(
+                StringUtils.getStringSpannableRobust(getContext(), R.string.latitude) +
+                        ": " + formatGps(Double.parseDouble(sa[0]), "lat") + "\n" +
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.longitude) +
+                        ": " + formatGps(Double.parseDouble(sa[1]), "lon") + "\n" +
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.altitude) +
+                        ": " + truncateDouble(sa[2]) + "m\n" +
+                        StringUtils.getStringSpannableRobust(getContext(), R.string.accuracy) +
+                        ": " + truncateDouble(sa[3]) + "m");
         mWaitingForData = false;
     }
 

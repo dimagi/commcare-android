@@ -8,8 +8,11 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.app.ListActivity;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.CallLog.Calls;
 import android.view.View;
@@ -74,24 +77,27 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        try {
-            ListAdapter adapter = null;
-            if(isMessages) {
-                if(messages == null) {
-                    messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
-                }
-                adapter = messages;
-            } else {
-                if(calls == null) {
-                    calls = new CallRecordAdapter(this, managedQuery(android.provider.CallLog.Calls.CONTENT_URI,null, null, null, Calls.DATE + " DESC"));
-                }
-                adapter =calls;
+        ListAdapter adapter = null;
+        if(isMessages) {
+            if(messages == null) {
+                messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
             }
-            
-            this.setListAdapter(adapter);
-        } catch(SessionUnavailableException sue) {
-            //TODO: login and return
+            adapter = messages;
+        } else {
+            if(calls == null) {
+
+                Cursor callCursor;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    callCursor = new CursorLoader(this, android.provider.CallLog.Calls.CONTENT_URI, null, null, null, Calls.DATE + " DESC").loadInBackground();
+                } else {
+                    callCursor = managedQuery(android.provider.CallLog.Calls.CONTENT_URI, null, null, null, Calls.DATE + " DESC");
+                }
+                calls = new CallRecordAdapter(this, callCursor);
+            }
+            adapter =calls;
         }
+
+        this.setListAdapter(adapter);
     }
 
     /*

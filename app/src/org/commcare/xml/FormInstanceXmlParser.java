@@ -10,13 +10,14 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -24,7 +25,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.data.xml.TransactionParser;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
@@ -44,35 +45,33 @@ import android.net.Uri;
  */
 public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
-    Context c;
-    IStorageUtilityIndexed<FormRecord> storage;
-    Hashtable<String, String> namespaces;
-    int counter = 0;
-    Cipher encrypter;
-    
-    private String destination;
-    
-    public FormInstanceXmlParser(KXmlParser parser, Context c, Hashtable<String, String> namespaces, String destination) {
-        super(parser, null, null);
-        this.c = c;
-        this.namespaces = namespaces;
-        this.destination = destination;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParser#parses(java.lang.String, java.lang.String)
+    private final Context c;
+    private IStorageUtilityIndexed<FormRecord> storage;
+
+    /**
+     * An unmodifiable mapping from an installed form's namespace its install
+     * path.
      */
-    @Override
-    public boolean parses(String name, String namespace) {
-        if(namespaces.containsKey(namespace)) {
-            return true;
-        }
-        return false;
+    private final Map<String, String> namespaceToInstallPath;
+
+    private int parseCount = 0;
+    private Cipher encrypter;
+
+    /**
+     * Root directory for where instances of forms should be saved
+     */
+    private final String rootInstanceDir;
+
+    public FormInstanceXmlParser(KXmlParser parser, Context c,
+                                 Map<String, String> namespaceToInstallPath,
+                                 String destination) {
+        super(parser);
+        this.c = c;
+        this.namespaceToInstallPath = namespaceToInstallPath;
+        this.rootInstanceDir = destination;
     }
 
-
-    public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
+    public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String xmlns = parser.getNamespace();
         //Parse this subdocument into a dom
         Element element = new Element();
@@ -88,11 +87,15 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         document.addChild(Node.ELEMENT, element);    
         
         KXmlSerializer serializer = new KXmlSerializer();
-    
-        SecretKey key = CommCareApplication._().createNewSymetricKey();
-        
-        
-        String filePath = getFileDestination(namespaces.get(xmlns), destination);
+
+        SecretKey key;
+        try {
+            key = CommCareApplication._().createNewSymetricKey();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
+        String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
         
         //Register this instance for inspection
         ContentValues values = new ContentValues();
@@ -105,12 +108,9 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         
         Uri instanceRecord = c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 
-        
         FormRecord r = new FormRecord(instanceRecord.toString(), FormRecord.STATUS_UNINDEXED, xmlns, key.getEncoded(),null, new Date(0));
-        IStorageUtilityIndexed<FormRecord> storage =  storage();
-        
+
         OutputStream o = new FileOutputStream(filePath);
-        CipherOutputStream cos = null;
         BufferedOutputStream bos = null;
         
         try {
@@ -119,25 +119,19 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             }
 
             encrypter.init(Cipher.ENCRYPT_MODE, key);
-            cos = new CipherOutputStream(o, encrypter);
+            CipherOutputStream cos = new CipherOutputStream(o, encrypter);
             bos = new BufferedOutputStream(cos,1024*256);
             
         
             serializer.setOutput(bos, "UTF-8");
         
             document.write(serializer);
-        
-            storage.write(r);
-            
-        } catch (StorageFullException e) {
+
+            cachedStorage().write(r);
+        } catch (SessionUnavailableException | StorageFullException e) {
             throw new IOException(e.getMessage());
-        } 
-        //There's nothing we can do about any of these in code, failfast.
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e.getMessage());
-        } catch (NoSuchPaddingException e) {
-            throw new RuntimeException(e.getMessage());
-        } catch (InvalidKeyException e) {
+        }  catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
+            // There's nothing we can do about any of these in code, failfast.
             throw new RuntimeException(e.getMessage());
         } finally {
             //since bos might not have even been created.
@@ -150,23 +144,39 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         return r;
     }
     
-    public IStorageUtilityIndexed<FormRecord> storage() throws SessionUnavailableException{
+    public IStorageUtilityIndexed<FormRecord> cachedStorage() throws SessionUnavailableException{
         if(storage == null) {
             storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         } 
         return storage;
     }
-    
-    private String getFileDestination(String formPath, String instancePath) {
-        // Create new answer folder.
-        String time = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime()) + counter;
-        String file = formPath.substring(formPath.lastIndexOf('/') + 1, formPath.lastIndexOf('.'));
-        counter++;
-        
-        String path = instancePath + file + "_" + time;
-        if (FileUtil.createFolder(path)) {
-            return new File(path + "/" + file + "_" + time + ".xml").getAbsolutePath();
+
+    /**
+     * Path for where a particular form instance should be stored. Creates a
+     * directory using the form's namespace id and the current time and returns
+     * a path pointing to an xml file of the same name inside that directory.
+     *
+     * Path should look something like:
+     *   /app/{app-id}/formdata/{form-id}_{time}/{form-id}_time.xml
+     *
+     * @param formPath Path to xml file defining a form.
+     * @return Absolute path to file where the instance of a given form should
+     * be saved.
+     */
+    private String getInstanceDestination(String formPath) {
+        // parseCount makes sure two instances of the same form, parsed in the
+        // same second don't get placed in the same file.
+        String time = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime()) + parseCount++;
+
+        String formId = formPath.substring(formPath.lastIndexOf('/') + 1,
+                formPath.lastIndexOf('.'));
+        String filename = formId + "_" + time;
+
+        String formInstanceDir = rootInstanceDir + filename;
+        if (FileUtil.createFolder(formInstanceDir)) {
+            return new File(formInstanceDir + "/" + filename + ".xml").getAbsolutePath();
         }
+
         throw new RuntimeException("Couldn't create folder needed to save form instance");
     }
 

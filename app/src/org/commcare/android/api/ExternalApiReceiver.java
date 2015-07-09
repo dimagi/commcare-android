@@ -1,9 +1,11 @@
 package org.commcare.android.api;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.widget.Toast;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
@@ -26,12 +28,10 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.widget.Toast;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * This broadcast receiver is the central point for incoming API calls from other apps.
@@ -149,18 +149,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             tryLocalLogin(context, username, password);
         } else if(b.getString("commcareaction").equals("sync")) {
             
-            boolean formsToSend = checkAndStartUnsentTask(context, new ProcessTaskListener() {
+            boolean formsToSend = checkAndStartUnsentTask(context);
 
-                public void processTaskAllProcessed() {
-                    //Don't cancel the dialog, we need it to stay in the foreground to ensure things are set
-                }
-                
-                public void processAndSendFinished(int result, int successfulSends) {
-
-                }
-
-            });
-            
             if(!formsToSend) {
                 //No unsent forms, just sync
                 syncData(context);
@@ -171,8 +161,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
     
     
-    protected boolean checkAndStartUnsentTask(final Context context, ProcessTaskListener listener) throws SessionUnavailableException {
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+    protected boolean checkAndStartUnsentTask(final Context context) {
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         
         //Get all forms which are either unsent or unprocessed
         Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
@@ -184,8 +174,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             }
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
-
-
                 /*
                  * (non-Javadoc)
                  * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
@@ -224,7 +212,13 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
                 
             };
-            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+
+            try {
+                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+            } catch (SessionUnavailableException e) {
+                // if the session expired don't launch the process
+                return false;
+            }
             mProcess.connect(dummyconnector);
             mProcess.execute(records);
             return true;
@@ -233,10 +227,16 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             return false;
         }
     }
-    
+
     private void syncData(final Context c) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        
+        User u;
+        try {
+            u = CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException e) {
+            // if the session expired don't launch the process
+            return;
+        }
+
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",c.getString(R.string.ota_restore_url)), "", c) {
@@ -317,26 +317,25 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             //TODO: See if it worked first?
             
             CommCareApplication._().logIn(key, matchingRecord);
-            new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
+            ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
                 @Override
                 public void keysLoginComplete(Object o) {
-                    // TODO Auto-generated method stub
-                    
+
                 }
 
                 @Override
                 public void keysReadyForSync(Object o) {
                     // TODO Auto-generated method stub
-                    
+
                 }
 
                 @Override
                 public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
                     // TODO Auto-generated method stub
-                    
+
                 }
-                
+
             }) {
                 /*
                  * (non-Javadoc)
@@ -345,7 +344,9 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 @Override
                 protected void deliverUpdate(Object r, String... update) {
                 }
-            }.execute();
+            };
+            mKeyRecordTask.connect(dummyconnector);
+            mKeyRecordTask.execute();
             
             return true;
         }catch (Exception e) {

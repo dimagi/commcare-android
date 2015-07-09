@@ -93,7 +93,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         this.aesKey = aesKey;
         this.uuid = uuid;
         this.lastModified = lastModified;
-        if(lastModified == null) { lastModified = new Date(); } ;
+        if(lastModified == null) { lastModified = new Date(); }
     }
 
     public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, 
@@ -102,6 +102,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
         this.idOfOriginApp = appId;
     }
 
+    /**
+     * Create a copy of the current form record, with an updated instance uri
+     * and status.
+     */
     public FormRecord updateStatus(String instanceURI, String newStatus) {
         FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified, idOfOriginApp);
         fr.recordId = this.recordId;

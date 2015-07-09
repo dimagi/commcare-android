@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database;
 
 import java.io.ByteArrayInputStream;
@@ -20,6 +17,7 @@ import net.sqlcipher.database.SQLiteStatement;
 import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -35,9 +33,13 @@ import android.util.Pair;
 
 /**
  * @author ctsims
- *
  */
 public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed, Iterable<T> {
+    
+    /**
+     * Static flag identifying whether storage optimizations are active.
+     */
+    public static boolean STORAGE_OPTIMIZATIONS_ACTIVE = true;
     
     public static final boolean STORAGE_OUTPUT_DEBUG = false;  
     
@@ -59,11 +61,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if(e instanceof EncryptedModel) {
                 em = (EncryptedModel)e;
             }
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            // TODO Auto-generated catch block
+        } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
@@ -71,19 +69,26 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
      */
+    @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         return getIDsForValues(new String[] {fieldName}, new Object[] { value} );
     }
     
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
         
         if(STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
-            DbUtil.explainSql(helper.getHandle(), sql, whereClause.second);
+            DbUtil.explainSql(db, sql, whereClause.second);
         }
         
-        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
+        Cursor c = db.query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
         return fillIdWindow(c, DbUtil.ID_COL);
     }
     
@@ -104,7 +109,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             return indices;
         }
     }
-    
 
     public Vector<T> getRecordsForValue(String fieldName, Object value) {
         return getRecordsForValues(new String[] {fieldName}, new Object[] {value});
@@ -113,7 +117,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
 
-        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         if(c.getCount() == 0) {
             c.close();
             return new Vector<T>();
@@ -134,7 +143,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
         String scrubbedName = TableBuilder.scrubName(rawFieldName);
-        Cursor c = helper.getHandle().query(table, new String[] {scrubbedName} , DbUtil.ID_COL + "=?", new String[] {rid}, null, null, null);
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table, new String[] {scrubbedName} , DbUtil.ID_COL + "=?", new String[] {rid}, null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         if(c.getCount() == 0) {
             c.close();
             throw new NoSuchElementException("No record in table " + table + " for ID " + recordId);
@@ -146,12 +160,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     }
     
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
-     */
     public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em, t);
-        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         if(c.getCount() == 0) {
             throw new NoSuchElementException("No element in table " + table + " with names " + rawFieldNames +" and values " + values.toString());
         }
@@ -167,16 +183,24 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
      */
+    @Override
     public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
         Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
         
         if(STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
-            DbUtil.explainSql(helper.getHandle(), sql, whereClause.second);
+            DbUtil.explainSql(db, sql, whereClause.second);
         }
         
         String scrubbedName = TableBuilder.scrubName(rawFieldName);
-        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
+        Cursor c = db.query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
         if(c.getCount() == 0) {
             c.close();
             throw new NoSuchElementException("No element in table " + table + " with name " + scrubbedName +" and value " + value.toString());
@@ -214,16 +238,17 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
         return re;
     }
-    
-    
-    
-    
 
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
      */
     public int add(Externalizable e) throws StorageFullException {
-        SQLiteDatabase db = helper.getHandle();
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException sue) {
+            throw new UserStorageClosedException(sue.getMessage());
+        }
         int i = -1;
         try{
             db.beginTransaction();
@@ -247,7 +272,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @see org.javarosa.core.services.storage.IStorageUtility#close()
      */
     public void close() {
-        helper.getHandle().close();
+        try {
+            helper.getHandle().close();
+        } catch (SessionUnavailableException e) {
+            // The db isn't available so don't worry about closing it.
+        }
     }
 
     /* (non-Javadoc)
@@ -261,7 +290,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
      */
     public boolean exists(int id) {
-        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"= ? ", new String[] {String.valueOf(id)}, null, null, null);
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"= ? ", new String[] {String.valueOf(id)}, null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
         if(c.getCount() == 0) {
             c.close();
             return false;
@@ -278,14 +313,23 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
      */
     public SQLiteDatabase getAccessLock() {
-        return helper.getHandle();
+        try {
+            return helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
     }
 
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#getNumRecords()
      */
     public int getNumRecords() {
-        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         int records = c.getCount();
         c.close();
         return records;
@@ -324,6 +368,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return iterate(true);
     }
     
+    
     /**
      * Creates a custom iterator for this storage which can either include or exclude the actual data.
      * 
@@ -333,13 +378,18 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @param includeData True to return an iterator with all records. False to return only the index.
      */
     public SqlStorageIterator<T> iterate(boolean includeData) {
-        
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
         //If we're just iterating over ID's, we may want to use a different, much 
         //faster method depending on our stats. This method retrieves the 
         //index records that _don't_ exist so we can assume the spans that
         //do.
-        if(includeData == false) {
-            SQLiteDatabase db = helper.getHandle();
+        if(includeData == false && STORAGE_OPTIMIZATIONS_ACTIVE) {
 
             SQLiteStatement min = db.compileStatement("SELECT MIN(" + DbUtil.ID_COL + ") from " + table);
             
@@ -348,7 +398,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             SQLiteStatement count = db.compileStatement("SELECT COUNT(" + DbUtil.ID_COL + ") from " + table);
             
             int minValue = (int)min.simpleQueryForLong();
-            int maxValue = (int)max.simpleQueryForLong();
+            int maxValue = (int)max.simpleQueryForLong() + 1;
             int countValue = (int)count.simpleQueryForLong();
             
             min.close();
@@ -364,15 +414,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if(countValue > 1000 &&
                countValue < 100000 &&
                density >= 0.5) {
-                return getCoveringIndexIterator(minValue, maxValue, countValue);
+                return getCoveringIndexIterator(db, minValue, maxValue, countValue);
             }
-
         }
-        
-        
-        
+
         String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} : new String[] {DbUtil.ID_COL};
-        Cursor c = helper.getHandle().query(table,  projection, null, null, null, null, null);
+        Cursor c = db.query(table,  projection, null, null, null, null, null);
         return new SqlStorageIterator<T>(c, this);
     }
     
@@ -393,7 +440,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      */
     public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
         String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL, TableBuilder.scrubName(primaryId)} : new String[] {DbUtil.ID_COL,  TableBuilder.scrubName(primaryId)};
-        Cursor c = helper.getHandle().query(table,  projection, null, null, null, null, DbUtil.ID_COL);
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table,  projection, null, null, null, null, DbUtil.ID_COL);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         return new SqlStorageIterator<T>(c, this, TableBuilder.scrubName(primaryId));
     }
     
@@ -412,8 +464,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
      */
     public byte[] readBytes(int id) {
-        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"=?", new String[] {String.valueOf(id)}, null, null, null);
-        
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"=?", new String[] {String.valueOf(id)}, null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
         c.moveToFirst();
         byte[] blob = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
         c.close();
@@ -423,8 +480,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
      */
+    @Override
     public void remove(int id) {
-        SQLiteDatabase db = helper.getHandle();
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         db.beginTransaction();
         try {
             db.delete(table, DbUtil.ID_COL +"=?",new String[] {String.valueOf(id)});
@@ -434,12 +497,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }    
     }
     
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
-     */
     public void remove(List<Integer> ids) {
         if(ids.size() == 0 ) { return; }
-        SQLiteDatabase db = helper.getHandle();
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         db.beginTransaction();
         try {
             List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
@@ -455,6 +520,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#remove(org.javarosa.core.services.storage.Persistable)
      */
+    @Override
     public void remove(Persistable p) {
         this.remove(p.getID());
     }
@@ -462,8 +528,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll()
      */
+    @Override
     public void removeAll() {
-        SQLiteDatabase db = helper.getHandle();
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         db.beginTransaction();
         try {
             db.delete(table, null,null);
@@ -476,6 +548,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
      */
+    @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         Vector<Integer> removed = new Vector<Integer>();
         for(IStorageIterator iterator = this.iterate() ; iterator.hasMore() ;) {
@@ -497,7 +570,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
 
         
-        SQLiteDatabase db = helper.getHandle();
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         db.beginTransaction();
         try {
             for(Pair<String, String[]> whereParams : whereParamList) {
@@ -514,6 +592,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#repack()
      */
+    @Override
     public void repack() {
         //Unecessary!
     }
@@ -521,15 +600,22 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#repair()
      */
-    public void repair() { 
+    @Override
+    public void repair() {
         //Unecessary!
     }
 
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
      */
+    @Override
     public void update(int id, Externalizable e) throws StorageFullException {
-        SQLiteDatabase db = helper.getHandle();
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException sue) {
+            throw new UserStorageClosedException(sue.getMessage());
+        }
         db.beginTransaction();
         try {
             db.update(table, helper.getContentValues(e), DbUtil.ID_COL +"=?", new String[] {String.valueOf(id)});
@@ -542,14 +628,19 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
      */
+    @Override
     public void write(Persistable p) throws StorageFullException {
         if(p.getID() != -1) {
             update(p.getID(), p);
             return;
         }
-        SQLiteDatabase db = helper.getHandle();
+        SQLiteDatabase db;
         try {
-        
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+        try {
         db.beginTransaction();
         long ret = db.insertOrThrow(table, DbUtil.DATA_COL, helper.getContentValues(p));
         
@@ -569,19 +660,21 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
+    @Override
     public void setReadOnly() {
         //TODO: Implement (although I doubt there's much useful stuff to do)
     }
 
+    @Override
     public void registerIndex(String filterIndex) {
         // TODO Auto-generated method stub
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws StorageFullException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws StorageFullException, SessionUnavailableException {
         return cleanCopy(from, to, null);
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException, SessionUnavailableException {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
         try{
@@ -608,9 +701,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /**
      * @return An iterator which can provide a list of all of the indices in this table.
      */
-    protected SqlStorageIterator<T> getCoveringIndexIterator(int minValue, int maxValue, int countValue) {
-        SQLiteDatabase db = helper.getHandle();
-        
+    private SqlStorageIterator<T> getCoveringIndexIterator(SQLiteDatabase db, int minValue, int maxValue, int countValue) {
+
         //So here's what we're doing: 
         //Build a select statement that has all of the numbers from 1 to 100k
         //Filter it to contain our real boundaries

@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.GridLayout;
@@ -32,6 +33,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Space;
 import android.widget.TextView;
+
+import java.util.Arrays;
 
 /**
  * @author wspride
@@ -48,6 +51,7 @@ public class GridEntityView extends GridLayout {
 	private GridCoordinate[] coords;
 	private GridStyle[] styles;
 	Object[] mRowData;
+    View[] mRowViews;
 	boolean mFuzzySearchEnabled = false;
 	boolean mIsAsynchronous = false;
 	
@@ -251,6 +255,9 @@ public class GridEntityView extends GridLayout {
 		coords = detail.getGridCoordinates();
 		styles = detail.getGridStyles();
 		mRowData = entity.getData();
+        mRowViews = new View[mRowData.length];
+
+        Log.v("TempForms", "Template: " + Arrays.toString(forms) + " | RowData: " + Arrays.toString(mRowData) + " | Coords: " + Arrays.toString(coords) + " | Styles: " + Arrays.toString(styles));
 		
 		String[] bgData = entity.getBackgroundData();
 		
@@ -258,15 +265,20 @@ public class GridEntityView extends GridLayout {
 		
 		// see if any entities have background data set
 		for(int i=0; i<bgData.length; i++){
-			if(!bgData[i].equals("")){
-				if(bgData[i].equals(("red-border"))){
-					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
-				} else if(bgData[i].equals(("yellow-border"))){
-					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
-				} else if(bgData[i].equals(("red-background"))){
-                    this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
-                } else if(bgData[i].equals(("yellow-background"))){
-                    this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
+			if(!"".equals(bgData[i])){
+                switch (bgData[i]) {
+                    case ("red-border"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
+                        break;
+                    case ("yellow-border"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
+                        break;
+                    case ("red-background"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
+                        break;
+                    case ("yellow-background"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
+                        break;
                 }
 			}
 		}
@@ -312,79 +324,87 @@ public class GridEntityView extends GridLayout {
 			String textsize = mStyle.getFontSize();
 			String CssID = mStyle.getCssID();			
 			
-			mView = getView(context, multimediaType, mGridParams, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i));
+			mView = getView(context, multimediaType, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i));
 			if(!(mView instanceof ImageView)) {
 			    mGridParams.height = LayoutParams.WRAP_CONTENT;
 			}
 
 			mView.setLayoutParams(mGridParams);
+
+            mRowViews[i] = mView;
 		
 			this.addView(mView, mGridParams);
 		}
-        
 	}
 	
 	/**
 	 * Get the correct View for this particular activity.
+     *
 	 * @param context
 	 * @param multimediaType either "image", "audio", or default text. Describes how this XPath result should be displayed.
-	 * @param width the width, in number of cells, this entity should occupy in the grid
-	 * @param height the height, in number of cells, this entity should occupy in the grid
 	 * @param horzAlign How the text should be aligned horizontally - left, center, or right ONE OF horzAlign or vertAlign
 	 * @param vertAlign How the text should be aligned vertically - top, center, or bottom ONE OF horzAlign or vertAlign
 	 * @param textsize The font size, scaled for screen size. small, medium, large, xlarge accepted.
-	 * @param rowData The actual data to display, either an XPath to media or a String to display
+	 * @param rowData The actual data to display, either an XPath to media or a String to display.
+     * @param uniqueId
+     * @param cssid
+     * @param searchField
 	 * @return
 	 */
-	private View getView(Context context, String multimediaType, GridLayout.LayoutParams mGridParams,  String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
+	private View getView(Context context, String multimediaType, String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
 		View retVal;
-		if(multimediaType.equals(EntityView.FORM_IMAGE)){
-			retVal = new ImageView(context);
-	        if(horzAlign.equals("center")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
-	        } else if(horzAlign.equals("left")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
-	        } else if(horzAlign.equals("right")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
-	        }  
-			retVal.setPadding(CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL,CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL);
-			// image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
-			if(rowData != null && !rowData.equals("")){
-			    if(mImageLoader != null){
-			        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
-			    } else{
-			        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
-			        ((ImageView)retVal).setImageBitmap(b);
-			    }
-			}
-		} 
-		else if(multimediaType.equals(EntityView.FORM_AUDIO)){
-    		if (rowData != null & rowData.length() > 0) {
-    			retVal = new AudioButton(context, rowData, uniqueId, controller, true);
-    		}
-    		else {
-    			retVal = new AudioButton(context, rowData, uniqueId, controller, false);
-    		}
-		} else{
-			retVal = new TextView(context);
-			
-			//the html spanner currently does weird stuff like converts "a  a" into "a a"
-			//so we've gotta mirror that for the search text. Booooo. I dunno if there's any
-			//other other side effects (newlines? nbsp?)
-			
-			String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
-			
-			if(cssid !=null && !cssid.equals("none")){
-			    // user defined a style we want to use
-			    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
-			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
-			    ((TextView)retVal).setText(mSpannable);
-			} else{
-			    // just process inline markup 
-			    Spannable mSpannable = MarkupUtil.getSpannable(rowData);
-			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
-			    ((TextView)retVal).setText(mSpannable);
-			}
+        switch (multimediaType) {
+            case EntityView.FORM_IMAGE:
+                retVal = new ImageView(context);
+                switch(horzAlign){
+                    case "center":
+                        ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
+                        break;
+                    case "left":
+                        ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
+                        break;
+                    case "right":
+                        ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
+                        break;
+                }
+                retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
+                // image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
+                if (rowData != null && !rowData.equals("")) {
+                    if (mImageLoader != null) {
+                        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
+                    } else {
+                        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
+                        ((ImageView)retVal).setImageBitmap(b);
+                    }
+                }
+                break;
+            case EntityView.FORM_AUDIO:
+                if (rowData != null & rowData.length() > 0) {
+                    retVal = new AudioButton(context, rowData, uniqueId, controller, true);
+                } else {
+                    retVal = new AudioButton(context, rowData, uniqueId, controller, false);
+                }
+                break;
+            default:
+                retVal = new TextView(context);
+
+                //the html spanner currently does weird stuff like converts "a  a" into "a a"
+                //so we've gotta mirror that for the search text. Booooo. I dunno if there's any
+                //other other side effects (newlines? nbsp?)
+
+                String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
+
+                if (cssid != null && !cssid.equals("none")) {
+                    // user defined a style we want to use
+                    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
+                    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
+                    ((TextView)retVal).setText(mSpannable);
+                } else {
+                    // just process inline markup
+                    Spannable mSpannable = MarkupUtil.returnCSS(rowData);
+                    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
+                    ((TextView)retVal).setText(mSpannable);
+                }
 
 			// handle horizontal alignments
 			if(horzAlign.equals("center")){
@@ -419,6 +439,26 @@ public class GridEntityView extends GridLayout {
 	}
     public void setSearchTerms(String[] currentSearchTerms) {
         this.searchTerms = currentSearchTerms;
-        
+    }
+
+    public void setTextColor(int color){
+        for (int i = 0; i < mRowViews.length; i++) {
+            View v = mRowViews[i];
+            if (v == null) continue;
+            if(v instanceof TextView){
+                ((TextView)v).setTextColor(color);
+            }
+        }
+    }
+
+    public void setTitleTextColor(int color){
+        for (int i = 0; i < mRowViews.length; i++) {
+            View v = mRowViews[i];
+            if (v == null) continue;
+            if(v instanceof TextView){
+                ((TextView)v).setTextColor(color);
+                return;
+            }
+        }
     }
 }

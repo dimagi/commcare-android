@@ -9,6 +9,7 @@ import javax.crypto.Cipher;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
@@ -18,6 +19,7 @@ import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.references.JavaHttpReference;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -45,12 +47,15 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     EntityStorageCache mEntityCache;
     CaseIndexTable mCaseIndexTable;
     
-    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
+    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage, EntityStorageCache entityCache, CaseIndexTable indexTable) {
         super(parser, storage);
-        mEntityCache = new EntityStorageCache("case");
-        mCaseIndexTable = new CaseIndexTable();
-    }
+        mEntityCache = entityCache;
+        mCaseIndexTable = indexTable;
+    }    
     
+    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
+        this(parser, storage, new EntityStorageCache("case"), new CaseIndexTable());
+    }
     
     //TODO: Sync the following two constructors!
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage, Cipher attachmentCipher, Cipher userCipher, File folder) {
@@ -86,16 +91,19 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         //Handle these cases better later.
         try {
             ReferenceManager._().DeriveReference(source).remove();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidReferenceException e) {
+        } catch (InvalidReferenceException | IOException e) {
             e.printStackTrace();
         }
     }
     
     @Override
     public void commit(Case parsed) throws IOException {
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+        SQLiteDatabase db;
+        try {
+            db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException("User database closed while parsing");
+        }
         db.beginTransaction();
         try {
             super.commit(parsed);
@@ -107,7 +115,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
             db.endTransaction();
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.commcare.xml.CaseXmlParser#processAttachment(java.lang.String, java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)

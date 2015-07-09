@@ -1,38 +1,54 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
-    
-    <ImageView android:id="@+id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="0px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
+    android:layout_height="fill_parent">
 
-    <TextView
-        android:id="@+id/ReportPrompt01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/hello_world"
-        android:layout_below="@+id/ImageView01"
-        tools:context=".ReportProblemActivity" 
-        android:padding="20dp"/>
-    
-    <EditText
-        android:id="@+id/ReportText01"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ReportPrompt01"
-        android:hint="@string/your_comment"
-        android:inputType="textMultiLine"
-        android:lines="5"
-        android:gravity="top"
-        android:textColor="@color/black" />
-    
-    <Button
-        android:id="@+id/ReportButton01"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Submit Report"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/ReportText01"/>
+        android:layout_height="wrap_content">
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/ImageView01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:paddingBottom="@dimen/content_min_margin"
+            android:paddingLeft="@dimen/content_min_margin"
+            android:paddingTop="@dimen/content_min_margin"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/commcare_logo"></ImageView>
+
+        <TextView
+            android:id="@+id/ReportPrompt01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ImageView01"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:padding="@dimen/content_min_margin"
+            android:text="@string/hello_world"
+            tools:context=".ReportProblemActivity" />
+
+        <EditText
+            android:id="@+id/ReportText01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ReportPrompt01"
+            android:gravity="top"
+            android:hint="@string/your_comment"
+            android:inputType="textMultiLine"
+            android:lines="5"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/ReportButton01"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ReportText01"
+            android:layout_centerHorizontal="true"
+            android:text="Submit Report" />
+
+    </RelativeLayout>
+</ScrollView>

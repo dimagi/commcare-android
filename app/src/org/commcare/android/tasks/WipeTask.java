@@ -26,18 +26,14 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
     public static final int WIPE_TASK_ID = 9213435;
     
     DataSubmissionListener formSubmissionListener;
-    CommCarePlatform platform;
     FormRecord[] records;
-    SqlStorage<FormRecord> storage;
-    
+
     private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
     
-    public WipeTask(Context c, CommCarePlatform platform, FormRecord[] records) throws SessionUnavailableException{
+    public WipeTask(Context c, FormRecord[] records) {
         this.c = c;
-        storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         this.taskId = WIPE_TASK_ID;
         this.records = records;
-        platform = this.platform;
     }
     
     /* (non-Javadoc)

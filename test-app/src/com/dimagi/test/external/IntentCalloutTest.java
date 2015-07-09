@@ -92,7 +92,7 @@ public class IntentCalloutTest extends Activity {
                 try {
                     startActivityForResult(i, KEY_REQUEST_IMAGE);
                 } catch (ActivityNotFoundException e) {
-                    Toast.makeText(IntentCalloutTest.this, "No Camera",Toast.LENGTH_SHORT);
+                    Toast.makeText(IntentCalloutTest.this, "No Camera",Toast.LENGTH_SHORT).show();
                 }
             }
             

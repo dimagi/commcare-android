@@ -1,15 +1,44 @@
 package org.commcare.android.framework;
 
-import java.lang.reflect.Field;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.text.Spannable;
+import android.util.DisplayMetrics;
+import android.util.Pair;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.android.util.AndroidUtil;
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
@@ -23,53 +52,40 @@ import org.odk.collect.android.views.media.MediaEntity;
 import org.odk.collect.android.views.media.MediaState;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.media.MediaPlayer;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.util.DisplayMetrics;
-import android.util.Pair;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.util.Log;
+
+import java.lang.reflect.Field;
 
 /**
  * Base class for CommCareActivities to simplify 
  * common localization and workflow tasks
  * 
  * @author ctsims
- *
  */
 public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
     AudioController, DialogController, OnGestureListener {
-    
+    public static final String TAG = CommCareActivity.class.getSimpleName();
+
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";
     public final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
     StateFragment stateHolder;
-    private boolean firstRun = true;
-    
+
     //Fields for implementation of AudioController
     private MediaEntity currentEntity;
     private AudioButton currentButton;
     private MediaState stateBeforePause;
     
     //fields for implementing task transitions for CommCareTaskConnector
-    boolean inTaskTransition;
-    boolean shouldDismissDialog = true;
+    private boolean inTaskTransition;
+    private boolean shouldDismissDialog = true;
     
     private GestureDetector mGestureDetector;
-    
+
+    public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
+    protected String lastQueryString;
+
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -87,11 +103,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             stateHolder = new StateFragment();
             fm.beginTransaction().add(stateHolder, "state").commit();
         } else {
-            if(stateHolder.getPreviousState() != null){
-                firstRun = stateHolder.getPreviousState().isFirstRun();
+            if (stateHolder.getPreviousState() != null) {
                 loadPreviousAudio(stateHolder.getPreviousState());
-            } else{
-                firstRun = true;
             }
         }
         
@@ -102,8 +115,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
 
-            //Add breadcrumb bar
-            
+            // Add breadcrumb bar
             BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
             
             // If the state holder is null, create a new one for this activity
@@ -113,11 +125,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             }
         }
         
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mGestureDetector = new GestureDetector(this, this);
+        mGestureDetector = new GestureDetector(this, this);
+    }
+
+    protected void restoreLastQueryString(String key) {
+        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
+        lastQueryString = settings.getString(key, null);
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Recovered lastQueryString: (" + lastQueryString + ")");
         }
     }
-    
+
     private void loadPreviousAudio(AudioController oldController) {
         MediaEntity oldEntity = oldController.getCurrMedia();
         if (oldEntity != null) {
@@ -125,29 +143,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             oldController.removeCurrentMediaEntity();
         }
     }
-    
+
     private void playPreviousAudio() {
-        if (currentEntity == null) return;
-        switch (currentEntity.getState()) {
-        case PausedForRenewal:
-            playCurrentMediaEntity();
-            break;
-        case Paused:
-            break;
-        case Playing:
-        case Ready:
-            System.out.println("WARNING: state in loadPreviousAudio is invalid");
+        if (currentEntity != null) {
+            switch (currentEntity.getState()) {
+                case PausedForRenewal:
+                    playCurrentMediaEntity();
+                    break;
+                case Paused:
+                    break;
+                case Playing:
+                case Ready:
+                    Log.w(TAG, "State in loadPreviousAudio is invalid");
+            }
         }
-    }
-    
-    /*
-     * Method to override in classes that need some functions called only once at the start 
-     * of the life cycle. Called by the CommCareActivity onResume() method; so, after the onCreate()
-     * method of all classes, but before the onResume() of the overriding activity. State maintained in
-     * stateFragment Fragment and firstRun boolean. 
-     */
-    public void fireOnceOnStart(){
-        // override when needed
     }
     
     /*
@@ -159,15 +168,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         switch (item.getItemId()) {
             case android.R.id.home:
                 this.onBackPressed();
-                
-//                try { 
-//                    CommCareApplication._().getCurrentSession().clearAllState();
-//                } catch(SessionUnavailableException sue) {
-//                    // probably won't go anywhere with this
-//                }
-//                // app icon in action bar clicked; go home
-//                Intent intent = new Intent(this, CommCareHomeActivity.class);
-//                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -193,13 +193,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                                 if(v instanceof TextView) {
                                     ((TextView)v).setText(((TextView)oldView).getText());
                                 }
+                                if (v == null) {
+                                    Log.d("loadFields", "NullPointerException when trying to find view with id: " +
+                                            + element.value() + " (" + getResources().getResourceEntryName(element.value()) + ") "
+                                            + " oldView is " + oldView + " for activity " + oldActivity +
+                                            ", element is: " + f + " (" + f.getName() + ")");
+                                }
                                 v.setVisibility(oldView.getVisibility());
                                 v.setEnabled(oldView.isEnabled());
                                 continue;
                             }
                         }
                         
-                        if(element.locale() != "") {
+                        if(!"".equals(element.locale())) {
                             if(v instanceof TextView) {
                                 ((TextView)v).setText(Localization.get(element.locale()));
                             } else {
@@ -227,7 +233,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         return false;
     }
     
-    boolean visible = false;
+    private boolean visible = false;
     
 
     /* (non-Javadoc)
@@ -237,18 +243,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     @TargetApi(11)
     protected void onResume() {
         super.onResume();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            //If we're in honeycomb this is taken care of by the fragment
-        } else {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            // In honeycomb and above the fragment takes care of this
             this.setTitle(getTitle(this, getActivityTitle()));
         }
+
         visible = true;
         playPreviousAudio();
-        //set that this activity has run
-        if(isFirstRun()){
-            fireOnceOnStart();
-            setActivityHasRun();
-        }
     }
     
     /* (non-Javadoc)
@@ -271,7 +273,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (currentEntity != null) attemptSetStateToPauseForRenewal();
+        if (currentEntity != null) {
+            attemptSetStateToPauseForRenewal();
+        }
     }
 
     /* (non-Javadoc)
@@ -356,7 +360,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     
     //if shouldDismiss flag has not been set to false in the course of a task transition,
     //then dismiss the dialog
-    public void attemptDismissDialog() {
+    void attemptDismissDialog() {
         if (shouldDismissDialog) {
             dismissProgressDialog();
         }
@@ -364,8 +368,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     
     /**
      * Handle an error in task execution.  
-     * 
-     * @param e
      */
     protected void taskError(Exception e) {
         //TODO: For forms with good error reporting, integrate that
@@ -426,7 +428,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public void onStop() {
         super.onStop();
     }
-        
+
+    protected void saveLastQueryString(String key) {
+        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(key, lastQueryString);
+        editor.commit();
+
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Saving lastQueryString: (" + lastQueryString + ") in file: " + CommCarePreferences.ACTIONBAR_PREFS);
+        }
+    }
+
     private void wakelock() {
         int lockLevel = getWakeLockingLevel();
         if(lockLevel == -1) { return;}
@@ -448,7 +461,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     
     //Graphical stuff below, needs to get modularized
     
-    public void TransplantStyle(TextView target, int resource) {
+    public void transplantStyle(TextView target, int resource) {
         //get styles from here
         TextView tv = (TextView)View.inflate(this, resource, null);
         int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(),target.getPaddingBottom() };
@@ -465,23 +478,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      * This will update dynamically as the activity loads/updates, but if
      * it will ever have a value it must return a blank string when one
      * isn't available.
-     * 
-     * @return
      */
     public String getActivityTitle() {
         return null;
     }
     
     public static String getTopLevelTitleName(Context c) {
-        String topLevel = null;
         try {
-            topLevel = Localization.get("app.display.name");
-            return topLevel;
+            return Localization.get("app.display.name");
         } catch(NoLocalizedTextException nlte) {
-            //nothing, app display name is optional for now.
+            return c.getString(org.commcare.dalvik.R.string.title_bar_name);
         }
-        
-        return c.getString(org.commcare.dalvik.R.string.title_bar_name);
     }
     
     public static String getTitle(Context c, String local) {
@@ -507,31 +514,21 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
                 }
                 ++i;
             }
-            
-        } catch(SessionUnavailableException sue) {
+        } catch(SessionStateUninitException e) {
             
         }
         
-        String returnValue = topLevel;
-        
+        StringBuilder titleBuf = new StringBuilder(topLevel);
         for(String title : stepTitles) {
             if(title != null) {
-                returnValue += " > " + title;
+                titleBuf.append(" > ").append(title);
             }
         }
         
         if(local != null) {
-            returnValue += " > " + local;
+            titleBuf.append(" > ").append(local);
         }
-        return returnValue;
-    }
-    
-    public void setActivityHasRun(){
-        this.firstRun = false;
-    }
-    
-    public boolean isFirstRun(){
-        return this.firstRun;
+        return titleBuf.toString();
     }
     
     /*
@@ -550,8 +547,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      * @see org.odk.collect.android.views.media.AudioController#refreshCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
      */
     @Override
-    public void refreshCurrentAudioButton(AudioButton clicked) {
-        if (currentButton != null && currentButton != clicked) {
+    public void refreshCurrentAudioButton(AudioButton clickedButton) {
+        if (currentButton != null && currentButton != clickedButton) {
             currentButton.setStateToReady();
         }
     }
@@ -622,7 +619,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     public void pauseCurrentMediaEntity() {
         if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
             MediaPlayer mp = currentEntity.getPlayer();
-            mp.pause();    
+            mp.pause();
             currentEntity.setState(MediaState.Paused);
         }
     }
@@ -700,6 +697,42 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             return mp.getCurrentPosition();
         }
         return null;
+    }
+
+    protected void createErrorDialog(String errorMsg, boolean shouldExit) {
+        createErrorDialog(this, errorMsg, shouldExit);
+    }
+    
+    /**
+     * Pop up a semi-friendly error dialog rather than crashing outright.
+     * @param activity Activity to which to attach the dialog.
+     * @param shouldExit If true, cancel activity when user exits dialog.
+     */
+    public static void createErrorDialog(final Activity activity, String errorMsg, final boolean shouldExit) {
+        AlertDialog dialog = new AlertDialog.Builder(activity).create();
+        dialog.setIcon(android.R.drawable.ic_dialog_info);
+        dialog.setTitle(StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured));
+        dialog.setMessage(errorMsg);
+        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+            /*
+             * (non-Javadoc)
+             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+             */
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        if (shouldExit) {
+                            activity.setResult(RESULT_CANCELED);
+                            activity.finish();
+                        }
+                        break;
+                }
+            }
+        };
+        dialog.setCancelable(false);
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok), errorListener);
+        dialog.show();
     }
     
     /** All methods for implementation of DialogController **/
@@ -791,6 +824,57 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     }
 
     /**
+     * Interface to perform additional setup code when adding an ActionBar
+     * using the {@link #tryToAddActionSearchBar(android.app.Activity,
+     * android.view.Menu,
+     * org.commcare.android.framework.CommCareActivity.ActionBarInstantiator)}
+     * tryToAddActionSearchBar} method.
+     */
+    public interface ActionBarInstantiator {
+        void onActionBarFound(MenuItem searchItem, SearchView searchView);
+    }
+
+    /**
+     * Tries to add actionBar to current Activity and hides the current search
+     * widget and runs ActionBarInstantiator if it exists. Used in
+     * EntitySelectActivity and FormRecordListActivity.
+     *
+     * @param act          Current activity
+     * @param menu         Menu passed through onCreateOptionsMenu
+     * @param instantiator Optional ActionBarInstantiator for additional setup
+     *                     code.
+     */
+    public void tryToAddActionSearchBar(Activity act, Menu menu,
+                                        ActionBarInstantiator instantiator) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuInflater inflater = act.getMenuInflater();
+            inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
+
+            MenuItem searchItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
+            SearchView searchView =
+                    (SearchView)searchItem.getActionView();
+            if (searchView != null) {
+                int[] searchViewStyle =
+                        AndroidUtil.getThemeColorIDs(this,
+                                new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
+                int id = searchView.getContext()
+                        .getResources()
+                        .getIdentifier("android:id/search_src_text", null, null);
+                TextView textView = (TextView)searchView.findViewById(id);
+                textView.setTextColor(searchViewStyle[0]);
+                if (instantiator != null) {
+                    instantiator.onActionBarFound(searchItem, searchView);
+                }
+            }
+
+            View bottomSearchWidget = act.findViewById(org.commcare.dalvik.R.id.searchfooter);
+            if (bottomSearchWidget != null) {
+                bottomSearchWidget.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /**
      * Whether or not the "Back" action makes sense for this activity.
      * 
      * @return True if "Back" is a valid concept for the Activity ande should be shown
@@ -806,11 +890,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
      */
     @Override
     public boolean dispatchTouchEvent(MotionEvent mv) {
-        boolean handled = mGestureDetector == null ? false : mGestureDetector.onTouchEvent(mv);
-        if (!handled) {
-            return super.dispatchTouchEvent(mv);
-        }
-        return handled;
+        return !(mGestureDetector == null || !mGestureDetector.onTouchEvent(mv)) || super.dispatchTouchEvent(mv);
+
     }
     
     /*
@@ -892,41 +973,32 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
 
     /**
      * Decide if two given MotionEvents represent a swipe.
-     * @param activity
-     * @param e1 First MotionEvent
-     * @param e2 Second MotionEvent
+     *
      * @return True iff the movement is a definitive horizontal swipe.
      */
     public static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-        //screen width and height in inches.
-        double sw = dm.xdpi * dm.widthPixels;
-        double sh = dm.ydpi * dm.heightPixels;
-        
-        //relative metrics for what constitutes a swipe (to adjust per screen size)
-        double swipeX = 0.25;
-        double swipeY = 0.25;
-        
         //details of the motion itself
         float xMov = Math.abs(e1.getX() - e2.getX());
         float yMov = Math.abs(e1.getY() - e2.getY());
         
         double angleOfMotion = ((Math.atan(yMov / xMov) / Math.PI) * 180);
-        
-        //large screen (tablet style 
-        if( sw > 5 || sh > 5) {
-            swipeX = 0.5;
-        }
-        
+
 
         // for all screens a swipe is left/right of at least .25" and at an angle of no more than 30
         //degrees
         int xPixelLimit = (int) (dm.xdpi * .25);
-        //int yPixelLimit = (int) (dm.ydpi * .25);
 
         return xMov > xPixelLimit && angleOfMotion < 30;
     }
 
+    public Spannable localize(String key){
+        return MarkupUtil.localizeStyleSpannable(this, key);
+    }
+    
+    public Spannable localize(String key, String[] args){
+        return MarkupUtil.localizeStyleSpannable(this, key, args);
+    }
 }

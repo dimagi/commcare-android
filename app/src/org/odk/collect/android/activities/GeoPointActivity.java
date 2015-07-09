@@ -14,15 +14,6 @@
 
 package org.odk.collect.android.activities;
 
-import java.text.DecimalFormat;
-import java.util.Set;
-
-import org.commcare.dalvik.R;
-import org.odk.collect.android.application.GeoProgressDialog;
-import org.odk.collect.android.listeners.TimerListener;
-import org.odk.collect.android.utilities.GeoUtils;
-import org.odk.collect.android.utilities.ODKTimer;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,6 +25,16 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.odk.collect.android.application.GeoProgressDialog;
+import org.odk.collect.android.listeners.TimerListener;
+import org.odk.collect.android.utilities.GeoUtils;
+import org.odk.collect.android.utilities.ODKTimer;
+
+import java.text.DecimalFormat;
+import java.util.Set;
 
 public class GeoPointActivity extends Activity implements LocationListener, TimerListener {
     private GeoProgressDialog mLocationDialog;
@@ -53,7 +54,8 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTitle(getString(R.string.app_name) + " > " + getString(R.string.get_location));
+        setTitle(StringUtils.getStringRobust(this, R.string.app_name) +
+                " > " + StringUtils.getStringRobust(this, R.string.get_location));
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
@@ -161,15 +163,16 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             }
         };
 
-        mLocationDialog = new GeoProgressDialog(this, getString(R.string.found_location), getString(R.string.finding_location));
+        mLocationDialog = new GeoProgressDialog(this, StringUtils.getStringRobust(this, R.string.found_location),
+                StringUtils.getStringRobust(this, R.string.finding_location));
 
         // back button doesn't cancel
         mLocationDialog.setCancelable(false);
         mLocationDialog.setImage(getResources().getDrawable(R.drawable.green_check_mark));
-        mLocationDialog.setMessage(getString(R.string.please_wait_long));
-        mLocationDialog.setOKButton(getString(R.string.accept_location),
+        mLocationDialog.setMessage(StringUtils.getStringRobust(this, R.string.please_wait_long));
+        mLocationDialog.setOKButton(StringUtils.getStringRobust(this, R.string.accept_location),
             okButtonListener);
-        mLocationDialog.setCancelButton(getString(R.string.cancel_location),
+        mLocationDialog.setCancelButton(StringUtils.getStringRobust(this, R.string.cancel_location),
             cancelButtonListener);
     }
 
@@ -192,8 +195,9 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     public void onLocationChanged(Location location) {
         mLocation = location;
         if (mLocation != null) {
-            mLocationDialog.setMessage(getString(R.string.location_provider_accuracy,
-                mLocation.getProvider(), truncateDouble(mLocation.getAccuracy())));
+            String[] args = {mLocation.getProvider(), truncateDouble(mLocation.getAccuracy())};
+            mLocationDialog.setMessage(StringUtils.getStringRobust(this,
+                    R.string.location_provider_accuracy, args));
 
             // If location is accurate, we're done
             if (mLocation.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
@@ -245,8 +249,8 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         switch (status) {
             case LocationProvider.AVAILABLE:
                 if (mLocation != null) {
-                    mLocationDialog.setMessage(getString(R.string.location_accuracy,
-                        (int) mLocation.getAccuracy()));
+                    mLocationDialog.setMessage(StringUtils.getStringRobust(this, R.string.location_accuracy,
+                        "" + (int) mLocation.getAccuracy()));
                 }
                 break;
             case LocationProvider.OUT_OF_SERVICE:

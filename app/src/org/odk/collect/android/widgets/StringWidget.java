@@ -14,11 +14,7 @@
 
 package org.odk.collect.android.widgets;
 
-import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
-import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
-import org.javarosa.form.api.FormEntryPrompt;
+import org.commcare.dalvik.R;
 
 import android.content.Context;
 import android.text.Editable;
@@ -30,12 +26,18 @@ import android.text.method.TextKeyListener;
 import android.text.method.TextKeyListener.Capitalize;
 import android.util.TypedValue;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TableLayout;
+
+import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
+import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
+import org.javarosa.form.api.FormEntryPrompt;
 
 /**
  * The most basic widget that allows for entry of any text.
@@ -51,14 +53,10 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
         super(context, prompt);
-        mAnswer = new EditText(context);
+        mAnswer = (EditText) LayoutInflater.from(getContext()).inflate(R.layout.edit_text_question_widget, this, false);
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mAnswer.setOnClickListener(this);
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-        mAnswer.setLayoutParams(params);
-        
+
         mAnswer.addTextChangedListener(this);
         
         //Let's see if we can figure out a constraint for this string
@@ -76,8 +74,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
         setTextInputType(mAnswer);
 
-        // needed to make long read only text scroll
-        mAnswer.setHorizontallyScrolling(false);
         if(!secret) {
             mAnswer.setSingleLine(false);
         }

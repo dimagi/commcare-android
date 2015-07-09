@@ -19,8 +19,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.logic.FormRecordProcessor;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.javarosa.core.services.Logger;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -108,6 +115,9 @@ public class InstanceProvider extends ContentProvider {
         return true;
     }
     
+    /**
+     * Setup helper to access database.
+     */
     public void init() {
         //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
         if(mDbHelper == null) {
@@ -170,8 +180,11 @@ public class InstanceProvider extends ContentProvider {
     }
 
 
-    /*
-     * (non-Javadoc)
+    /**
+     * {@inheritDoc}
+     * Starting with the ContentValues passed in, finish setting up the
+     * instance entry and write it database.
+     *
      * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
      */
     @Override
@@ -189,36 +202,52 @@ public class InstanceProvider extends ContentProvider {
             values = new ContentValues();
         }
 
-        Long now = Long.valueOf(System.currentTimeMillis());
 
         // Make sure that the fields are all set
-        if (values.containsKey(InstanceColumns.LAST_STATUS_CHANGE_DATE) == false) {
-            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, now);
+        if (!values.containsKey(InstanceColumns.LAST_STATUS_CHANGE_DATE)) {
+            // set the change date to now
+            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, Long.valueOf(System.currentTimeMillis()));
         }
 
-        if (values.containsKey(InstanceColumns.DISPLAY_SUBTEXT) == false) {
-            Date today = new Date();
-            String text = getDisplaySubtext(InstanceProviderAPI.STATUS_INCOMPLETE, today);
-            values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
+        if (!values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {
+            // set display subtext to detail save date
+            values.put(InstanceColumns.DISPLAY_SUBTEXT,
+                    getDisplaySubtext(InstanceProviderAPI.STATUS_INCOMPLETE));
         }
-        
-        if (values.containsKey(InstanceColumns.STATUS) == false) {
+
+        if (!values.containsKey(InstanceColumns.STATUS)) {
             values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(INSTANCES_TABLE_NAME, null, values);
+        db.close();
+
         if (rowId > 0) {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
+
+            try {
+                linkToSessionFormRecord(instanceUri);
+            } catch (Exception e) {
+                throw new SQLException("Failed to insert row into " + uri);
+            }
+
             return instanceUri;
         }
 
         throw new SQLException("Failed to insert row into " + uri);
     }
-    
-    private String getDisplaySubtext(String state, Date date) {
-        String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(date);
+
+
+    /**
+     * Create display subtext for current date and time
+     *
+     * @param state is the status column of an instance entry
+     */
+    private String getDisplaySubtext(String state) {
+        String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(new Date());
+
         if (state == null) {
             return "Added on " + ts;
         } else if (InstanceProviderAPI.STATUS_INCOMPLETE.equalsIgnoreCase(state)) {
@@ -312,50 +341,44 @@ public class InstanceProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+        db.close();
 
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 
 
-    /*
-     * (non-Javadoc)
+    /**
+     * {@inheritDoc}
+     *
      * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
      */
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+        int count;
+
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        int count;
-        String status = null;
+
+        // Given a value in the status column and none in the display subtext
+        // column, set the display subtext column from the status value.
+        if (values.containsKey(InstanceColumns.STATUS) &&
+                !values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {
+            values.put(InstanceColumns.DISPLAY_SUBTEXT,
+                    getDisplaySubtext(values.getAsString(InstanceColumns.STATUS)));
+        }
+
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
-                if (values.containsKey(InstanceColumns.STATUS)) {
-                    status = values.getAsString(InstanceColumns.STATUS);
-                    
-                    if (values.containsKey(InstanceColumns.DISPLAY_SUBTEXT) == false) {
-                        Date today = new Date();
-                        String text = getDisplaySubtext(status, today);
-                        values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
-                    }
-                }
-                
+                // assumes where/whereArgs were constructed to point to the
+                // entry to update
                 count = db.update(INSTANCES_TABLE_NAME, values, where, whereArgs);
                 break;
 
             case INSTANCE_ID:
+                // use the uri to manually build an update query
                 String instanceId = uri.getPathSegments().get(1);
 
-                if (values.containsKey(InstanceColumns.STATUS)) {
-                    status = values.getAsString(InstanceColumns.STATUS);
-                    
-                    if (values.containsKey(InstanceColumns.DISPLAY_SUBTEXT) == false) {
-                        Date today = new Date();
-                        String text = getDisplaySubtext(status, today);
-                        values.put(InstanceColumns.DISPLAY_SUBTEXT, text);
-                    }
-                }
-               
                 count =
                     db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
                             + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
@@ -364,9 +387,140 @@ public class InstanceProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
+        db.close();
+
+        // If we've changed a particular form instance's status, and not
+        // created a new entry (hence count > 0 check), we need to mirror the
+        // change in that form's record.  NOTE: this conditional is crucial,
+        // since updating a form record in turn calls this update function, so
+        // we need to break the infinite loop by only updating the form record
+        // when the the status changes.
+        if (values.containsKey(InstanceColumns.STATUS) && count > 0) {
+            try {
+                linkToSessionFormRecord(getInstanceRowUri(uri, where, whereArgs));
+            } catch (Exception e) {
+                throw new SQLException("Failed to update row " + uri);
+            }
+        }
 
         getContext().getContentResolver().notifyChange(uri, null);
+
         return count;
+    }
+
+    /**
+     * Check if a URI points to a concrete instance; if it doesn't
+     * then rebuild the uri from the result of a query using the where
+     * arguments.
+     *
+     * @param potentialUri URI pointing to the instance table or a particular
+     * entry in that table
+     * @param selection A selection criteria to apply when filtering rows. If
+     * null then all rows are included.
+     * @param selectionArgs You may include ?s in selection, which will be
+     * replaced by the values from selectionArgs, in order that they appear in
+     * the selection. The values will be bound as Strings.
+     * @return URI pointing to a row in the instance table, either the one passed
+     * in or built from a query using the method arguments.
+     */
+    private Uri getInstanceRowUri(Uri potentialUri, String selection, String[] selectionArgs) {
+        switch (sUriMatcher.match(potentialUri)) {
+            case INSTANCES:
+                // the potential URI points to the instance table, so use the
+                // selection args to find a specific row id.
+                Cursor c = null;
+                try {
+                    c = this.query(potentialUri, null, selection, selectionArgs, null);
+                    c.moveToPosition(-1);
+                    if (c.moveToNext()) {
+                        // there should only be one result for this query
+                        String instanceId = c.getString(c.getColumnIndex("_id"));
+                        return InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
+                    }
+                } finally {
+                    if (c != null ) {
+                        c.close();
+                    }
+                }
+                break;
+            case INSTANCE_ID:
+                // the potential URI points to a row in the instance table
+                return potentialUri;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + potentialUri);
+        }
+        return null;
+    }
+
+    /**
+     * Register an instance with the session's form record.
+     *
+     * @param instanceUri points to a concrete instance we want to register
+     */
+    private void linkToSessionFormRecord(Uri instanceUri) {
+        if (getType(instanceUri) != InstanceColumns.CONTENT_ITEM_TYPE) {
+            Log.w(t, "Tried to link a FormRecord to a URI that doesn't point " +
+                    "to a concrete instance.");
+            return;
+        }
+        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+
+        if (instanceUri == null) {
+            raiseFormEntryError("Form Entry did not return a form", currentState);
+            return;
+        }
+
+        Cursor c = getContext().getContentResolver().query(instanceUri, null, null, null, null);
+        boolean complete = false;
+        try {
+            // register the instance uri and its status with the session
+            complete = currentState.beginRecordTransaction(instanceUri, c);
+        } catch (IllegalArgumentException iae) {
+            iae.printStackTrace();
+            // TODO: Fail more hardcore here? Wipe the form record and its ties?
+            raiseFormEntryError("Unrecoverable error when trying to read form|" + iae.getMessage(),
+                    currentState);
+            return;
+        } finally {
+            c.close();
+        }
+
+        FormRecord current;
+        try {
+            current = currentState.commitRecordTransaction();
+        } catch (Exception e) {
+            // Something went wrong with all of the connections which should exist.
+            FormRecordCleanupTask.wipeRecord(getContext(), currentState);
+
+            // Notify the server of this problem (since we aren't going to crash)
+            ExceptionReportTask ert = new ExceptionReportTask();
+            ert.execute(e);
+
+            raiseFormEntryError("An error occurred: " + e.getMessage() +
+                    " and your data could not be saved.", currentState);
+            return;
+        }
+
+        Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Completed");
+
+        // The form is either ready for processing, or not, depending on how it was saved
+        if (complete) {
+            // Form record should now be up to date now and stored correctly.
+
+            // ctsims - App stack workflows require us to have processed _this_ specific form before
+            // we can move on, and that needs to be synchronous. We'll go ahead and try to process just
+            // this form before moving on. We'll catch any errors here and just eat them (since the
+            // task will also try the process and fail if it does.
+            if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
+                try {
+                    new FormRecordProcessor(getContext()).process(current);
+                } catch (Exception e) {
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                            "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+                }
+            }
+
+        }
     }
 
     static {
@@ -384,6 +538,19 @@ public class InstanceProvider extends ContentProvider {
         sInstancesProjectionMap.put(InstanceColumns.STATUS, InstanceColumns.STATUS);
         sInstancesProjectionMap.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, InstanceColumns.LAST_STATUS_CHANGE_DATE);
         sInstancesProjectionMap.put(InstanceColumns.DISPLAY_SUBTEXT, InstanceColumns.DISPLAY_SUBTEXT);
+    }
+
+    /**
+     * Throw and Log FormEntry-related errors
+     *
+     * @param loggerText String sent to javarosa logger
+     * @param currentState session to be cleared
+     */
+    private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) throws RuntimeException {
+        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, loggerText);
+
+        currentState.reset();
+        throw new RuntimeException(loggerText);
     }
 
 }

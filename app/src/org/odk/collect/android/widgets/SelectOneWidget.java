@@ -66,11 +66,13 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         if (prompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 final RadioButton rb = new RadioButton(getContext());
-                rb.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                rb.setText(stylize(prompt.getSelectChoiceText(mItems.get(i))));
                 rb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
                 rb.setId(i + buttonIdBase);
                 rb.setEnabled(!prompt.isReadOnly());
                 rb.setFocusable(!prompt.isReadOnly());
+
+                rb.setBackgroundResource(R.drawable.selector_button_press);
                 
                 buttons.add(rb);
 

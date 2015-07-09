@@ -1,11 +1,23 @@
 
 package org.odk.collect.android.views;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.preference.PreferenceManager;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -20,23 +32,11 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.StringWidget;
 import org.odk.collect.android.widgets.WidgetFactory;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Typeface;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
- * This class is
- * 
  * @author carlhartung
  */
 public class ODKView extends ScrollView implements OnLongClickListener, WidgetChangedListener {
@@ -66,7 +66,13 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     private int mViewBannerCount = 0;
 
     private boolean mProgressEnabled;
+    
+    SpannableStringBuilder mGroupLabel;
 
+    /**
+     * If enabled, we use dividers between question prompts
+     */
+    private static final boolean SEPERATORS_ENABLED = false;
 
     public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory) {
         this(context, new FormEntryPrompt[] {
@@ -106,10 +112,9 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         widgets = new ArrayList<QuestionWidget>();
         dividers = new ArrayList<View>();
 
-        mView = new LinearLayout(getContext());
-        mView.setOrientation(LinearLayout.VERTICAL);
-        mView.setGravity(Gravity.TOP);
-        mView.setPadding(0, 7, 0, 0);
+        View layout = inflate(getContext(), R.layout.odkview_layout, null);
+
+        mView = (LinearLayout) layout.findViewById(R.id.odkview_layout);
         
         if(PreferencesActivity.getProgressBarMode(mContext) == ProgressBarMode.ProgressOnly) {
             this.mProgressEnabled = true;
@@ -136,7 +141,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         mLayout =
             new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
-        mLayout.setMargins(10, 0, 10, 0);
+        //mLayout.setMargins(10, 0, 10, 0);
 
         //Figure out if we share hint text between questions
         String hintText = null;
@@ -156,7 +161,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
 
         // display which group you are in as well as the question
-        addGroupText(groups);
+        mGroupLabel = deriveGroupText(groups);
         
         addHintText(hintText);
         
@@ -166,8 +171,12 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             
             if (!first) {
                 View divider = new View(getContext());
-                divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
-                divider.setMinimumHeight(3);
+                if(SEPERATORS_ENABLED) {
+                    divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+                    divider.setMinimumHeight(3);
+                } else {
+                    divider.setMinimumHeight(0);
+                }
                 dividers.add(divider);
                 mView.addView(divider);
             } else {
@@ -192,16 +201,22 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
         
         updateLastQuestion();
-        
-        addView(mView);
+
+        addView(layout);
     }
     
     public void removeQuestionFromIndex(int i){
-        mView.removeView((View) widgets.get(i));
         int dividerIndex = Math.max(i - 1, 0);
-        mView.removeView(dividers.get(dividerIndex));
-        widgets.remove(i);
-        dividers.remove(dividerIndex);
+
+        if (dividerIndex < dividers.size()) {
+            mView.removeView(dividers.get(dividerIndex));
+            dividers.remove(dividerIndex);
+        }
+
+        if (i < widgets.size()) {
+            mView.removeView((View) widgets.get(i));
+            widgets.remove(i);
+        }
     }
     
     public void removeQuestionsFromIndex(ArrayList<Integer> indexes){
@@ -218,8 +233,12 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     public void addQuestionToIndex(FormEntryPrompt fep, WidgetFactory factory, int i){
 
         View divider = new View(getContext());
-        divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
-        divider.setMinimumHeight(3);
+        if(SEPERATORS_ENABLED) {
+            divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+            divider.setMinimumHeight(3);
+        } else {
+            divider.setMinimumHeight(0);
+        }
         int dividerIndex = mViewBannerCount;
         if(i > 0) {
             dividerIndex += 2 * i - 1;
@@ -227,7 +246,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         mView.addView(divider, getViewIndex(dividerIndex));
         dividers.add(Math.max(0, i - 1), divider);
         
-        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());;
+        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());
         qw.setLongClickable(true);
         qw.setOnLongClickListener(this);
         qw.setId(VIEW_ID + widgetIdCount++);
@@ -249,13 +268,9 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      */
     public HashMap<FormIndex, IAnswerData> getAnswers() {
         HashMap<FormIndex, IAnswerData> answers = new HashMap<FormIndex, IAnswerData>();
-        Iterator<QuestionWidget> i = widgets.iterator();
-        while (i.hasNext()) {
-            /*
-             * The FormEntryPrompt has the FormIndex, which is where the answer gets stored. The
-             * QuestionWidget has the answer the user has entered.
-             */
-            QuestionWidget q = i.next();
+        for (QuestionWidget q : widgets) {
+            // The FormEntryPrompt has the FormIndex, which is where the answer gets stored. The
+            // QuestionWidget has the answer the user has entered.
             FormEntryPrompt p = q.getPrompt();
             answers.put(p.getIndex(), q.getAnswer());
         }
@@ -310,34 +325,50 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     }
 
     /**
-     * // * Add a TextView containing the hierarchy of groups to which the question belongs. //
+     * Returns the hierarchy of groups to which the question belongs.
      */
-    private void addGroupText(FormEntryCaption[] groups) {
-        StringBuffer s = new StringBuffer("");
+    private SpannableStringBuilder deriveGroupText(FormEntryCaption[] groups) {
+        SpannableStringBuilder s = new SpannableStringBuilder("");
         String t = "";
+        String m = "";
         int i;
         // list all groups in one string
         for (FormEntryCaption g : groups) {
             i = g.getMultiplicity() + 1;
             t = g.getLongText();
-            if (t != null) {
-                s.append(t);
-                if (g.repeats() && i > 0) {
-                    s.append(" (" + i + ")");
-                }
-                s.append(" > ");
-            }
-        }
+            m = g.getMarkdownText();
 
-        // build view
-        if (s.length() > 0) {
-            TextView tv = new TextView(getContext());
-            tv.setText(s.substring(0, s.length() - 3));
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE - 4);
-            tv.setPadding(0, 0, 0, 5);
-            mView.addView(tv, mLayout);
-            mViewBannerCount ++;
+            if(m != null){
+                Spannable markdownSpannable = MarkupUtil.returnMarkdown(getContext(), m);
+                s.append(markdownSpannable);
+            }
+            else if (t != null) {
+                s.append(t);
+            }
+
+            if (g.repeats() && i > 0) {
+                s.append(" (" + i + ")");
+            }
+            s.append(" > ");
         }
+        
+        //remove the trailing " > "
+        if(s.length() > 0) {
+            s.delete(s.length() - 2, s.length());
+        }
+        
+        return s;
+    }
+    
+    
+    /**
+     * Ugh, the coupling here sucks, but this returns the group label
+     * to be used for this odk view. 
+     * 
+     * @return
+     */
+    public SpannableStringBuilder getGroupLabel() {
+        return mGroupLabel;
     }
     
     private void addHintText(String hintText) {

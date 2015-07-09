@@ -11,6 +11,8 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 
 import android.app.Activity;
@@ -29,11 +31,11 @@ import android.widget.Toast;
 
 /**
  * @author ctsims
- *
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
+    private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
     
     private static final String LOG_TAG = "CommCare-MultimediaInflator";
 
@@ -63,6 +65,9 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        final String destination = this.getIntent().getStringExtra(EXTRA_FILE_DESTINATION);
+
         super.onCreate(savedInstanceState);
         btnFetchFiles.setOnClickListener(new OnClickListener() {
 
@@ -74,7 +79,8 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             public void onClick(View v) {
                 //Go fetch us a file path!
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("file/*");
+                // only allow look for zip files
+                intent.setType("application/zip");
                 try {
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
                 } catch(ActivityNotFoundException e) {
@@ -82,12 +88,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                 }
             }
         });
-        
-        
-        
-        final String destination = this.getIntent().getStringExtra(EXTRA_FILE_DESTINATION);
-        
-        
+
         btnInstallMultimedia.setOnClickListener(new OnClickListener() {
             /*
              * (non-Javadoc)
@@ -111,7 +112,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                             return;
                         } else {
                             //assume that we've already set the error message, but make it look scary
-                            receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                            receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                         }
                     }
 
@@ -132,7 +133,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                     @Override
                     protected void deliverError(MultimediaInflaterActivity receiver, Exception e) {
                         receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
-                        receiver.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                        receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
                 };
                 
@@ -163,8 +164,14 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
             if(resultCode == Activity.RESULT_OK) {
-                String filePath = intent.getData().getPath();
-                editFileLocation.setText(filePath);
+                // Android versions 4.4 and up sometimes don't return absolute
+                // filepaths from the file chooser. So resolve the URI into a
+                // valid file path.
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                        intent.getData());
+                if (filePath != null) {
+                    editFileLocation.setText(filePath);
+                }
             }
         }
     }
@@ -181,29 +188,30 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     private void evalState() {
         if(done) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.done"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(false);
             return;
         }
-        
+
         String location = editFileLocation.getText().toString();
+
         if("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.empty"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(false);
             return;
         }
         
         if(!(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);
             return;
         }
         
         else {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.ready"));
-            this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
+            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(true);
             return;
         }
@@ -215,7 +223,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     @Override
     public void taskCancelled(int id) {
         txtInteractiveMessages.setText(Localization.get("mult.install.cancelled"));
-        this.TransplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+        this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
     
 
@@ -302,7 +310,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             String message = Localization.get("mult.install.progress", new String[] {"0"});
             return CustomProgressDialog.newInstance(title, message, taskId);
         }
-        System.out.println("WARNING: taskId passed to generateProgressDialog does not match "
+        Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                 + "any valid possibilities in MultiMediaInflaterActivity");
         return null;
     }

@@ -53,7 +53,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     public void installAppClicked(View v) {
         try {
             CommCareSessionService s = CommCareApplication._().getSession();
-            if (s.isLoggedIn()) {
+            if (s.isActive()) {
                 triggerLogoutWarning();
             } else {
                 installApp();

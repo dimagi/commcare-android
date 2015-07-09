@@ -12,6 +12,7 @@ import java.util.Set;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -33,7 +34,7 @@ public abstract class DbHelper {
         this.c = c;
     }
     
-    public abstract SQLiteDatabase getHandle();
+    public abstract SQLiteDatabase getHandle() throws SessionUnavailableException;
     
 
     public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p)  throws IllegalArgumentException {
