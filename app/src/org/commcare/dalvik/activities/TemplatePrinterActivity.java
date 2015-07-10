@@ -7,6 +7,7 @@ import java.util.Date;
 import org.commcare.android.adapters.PdfPrintDocumentAdapter;
 import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.android.util.EncryptedStream;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -23,19 +24,27 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.print.PrintManager;
-import android.util.Log;
 
 /**
  * Intermediate activity which populates a .DOCX/.ODT template
  * with data before sending it off to a document viewer app
  * capable of printing.
  * 
- * @author Richard Lu, amstone
+ * @author Richard Lu
+ * @author amstone
  */
 public class TemplatePrinterActivity extends Activity implements PopulateListener {
 
-    //Unique name to use for the print job name
-    private static String mJobName;
+    /**
+     * Unique name to use for the print job name
+     */
+    private static String jobName;
+
+    /**
+     * Provides the encrypted output stream with which to write the filled-in template file,
+     * and the input stream with which to decrypt and read back from that file in order to print
+     */
+    private EncryptedStream stream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,12 +92,18 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         String extension = TemplatePrinterUtils.getExtension(path);
         File templateFile = new File(path);
 
-        if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension) && templateFile.exists()) {
+        if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension)
+                && templateFile.exists()) {
 
             generateJobName(templateFile, caseNum);
 
+            // Create the EncryptedStream that will be used by TemplatePrinterTask to write to a
+            // file, and by PdfPrintDocumentAdapter to read back from that file
+            this.stream = new EncryptedStream();
+
             new TemplatePrinterTask(
                     templateFile,
+                    this.stream,
                     getIntent().getExtras(),
                     this
             ).execute();
@@ -102,9 +117,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = sdf.format(new Date());
         if (caseNum != null) {
-            mJobName = inputName + "_" + caseNum + "_" + dateString;
+            jobName = inputName + "_" + caseNum + "_" + dateString;
         } else {
-            mJobName = inputName + "_" + dateString;
+            jobName = inputName + "_" + dateString;
         }
     }
 
@@ -115,7 +130,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
     @Override
     public void onFinished(File result) {
-        executePrint(result);
+        executePrint();
     }
 
     private void showErrorDialog(int messageResId) {
@@ -149,11 +164,10 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void executePrint(File document) {
+    private void executePrint() {
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
-        PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, document.getPath(),
-                mJobName);
-        printManager.print(mJobName, adapter, null);
+        PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, jobName, this.stream);
+        printManager.print(jobName, adapter, null);
     }
 
 }

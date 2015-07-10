@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -13,6 +12,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.commcare.android.util.EncryptedStream;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 
@@ -61,11 +61,14 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
     private final File input;
     private final Bundle values;
     private final PopulateListener listener;
+    private EncryptedStream es;
 
     private String errorMessage;
 
-    public TemplatePrinterTask(File input, Bundle values, PopulateListener listener) {
+    public TemplatePrinterTask(File input, EncryptedStream es, Bundle values,
+                               PopulateListener listener) {
         this.input = input;
+        this.es = es;
         this.values = values;
         this.listener = listener;
     }
@@ -119,11 +122,12 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
 
             //output = new File(outputFolder, jobName + "." + inputExtension);
             output = new File(CommCareApplication._().getTempFilePath() + "." + inputExtension);
-
             ZipFile file = new ZipFile(input);
             Enumeration entries = file.entries();
 
-            ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(output));
+            //Get the encrypted output stream for this file destination
+            es.initialize(output);
+            ZipOutputStream outputStream = es.getOutputStream();
 
             while (entries.hasMoreElements()) {
 
@@ -157,7 +161,6 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
                 } else {
 
                     // Straight up copy file
-                    Log.i("HERE", "copying file to output stream");
                     while ((numBytesRead = inputStream.read(byteBuffer)) > 0) {
                         outputStream.write(byteBuffer, 0, numBytesRead);
                     }
@@ -171,6 +174,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
 
             outputStream.close();
             file.close();
+
 
         } else {
             throw new RuntimeException("Not a supported file format");
