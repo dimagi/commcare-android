@@ -1,10 +1,23 @@
 
 package org.odk.collect.android.views;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.preference.PreferenceManager;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -19,19 +32,9 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.StringWidget;
 import org.odk.collect.android.widgets.WidgetFactory;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Typeface;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * @author carlhartung
@@ -64,7 +67,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
 
     private boolean mProgressEnabled;
     
-    String mGroupLabel;
+    SpannableStringBuilder mGroupLabel;
 
     /**
      * If enabled, we use dividers between question prompts
@@ -324,21 +327,29 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     /**
      * Returns the hierarchy of groups to which the question belongs.
      */
-    private String deriveGroupText(FormEntryCaption[] groups) {
-        StringBuffer s = new StringBuffer("");
+    private SpannableStringBuilder deriveGroupText(FormEntryCaption[] groups) {
+        SpannableStringBuilder s = new SpannableStringBuilder("");
         String t = "";
+        String m = "";
         int i;
         // list all groups in one string
         for (FormEntryCaption g : groups) {
             i = g.getMultiplicity() + 1;
             t = g.getLongText();
-            if (t != null) {
-                s.append(t);
-                if (g.repeats() && i > 0) {
-                    s.append(" (" + i + ")");
-                }
-                s.append(" > ");
+            m = g.getMarkdownText();
+
+            if(m != null){
+                Spannable markdownSpannable = MarkupUtil.returnMarkdown(getContext(), m);
+                s.append(markdownSpannable);
             }
+            else if (t != null) {
+                s.append(t);
+            }
+
+            if (g.repeats() && i > 0) {
+                s.append(" (" + i + ")");
+            }
+            s.append(" > ");
         }
         
         //remove the trailing " > "
@@ -346,7 +357,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             s.delete(s.length() - 2, s.length());
         }
         
-        return s.toString();
+        return s;
     }
     
     
@@ -356,7 +367,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
      * 
      * @return
      */
-    public String getGroupLabel() {
+    public SpannableStringBuilder getGroupLabel() {
         return mGroupLabel;
     }
     
