@@ -179,7 +179,6 @@ public abstract class ResourceEngineTask<R>
                     return ResourceEngineOutcomes.StatusFailState;
                 }
                 global.setStateListener(this);
-
                 // temporary is the upgrade table, which starts out in the
                 // state that it was left after the last install- partially
                 // populated if it stopped in middle, empty if the install was
@@ -233,14 +232,8 @@ public abstract class ResourceEngineTask<R>
             } else {
                 //this is a standard, clean install
                 global.setStateListener(this);
+
                 platform.init(profileRef, global, false);
-                
-                String newAppId = app.getUniqueId();
-                for (ApplicationRecord r : CommCareApplication._().getInstalledAppRecords()) {
-                    if (r.getUniqueId().equals(newAppId)) {
-                        return ResourceEngineOutcomes.StatusDuplicateApp;
-                    }
-                }
             }
 
             // Initialize them now that they're installed
@@ -270,15 +263,18 @@ public abstract class ResourceEngineTask<R>
             return ResourceEngineOutcomes.StatusNoLocalStorage;
         } catch (UnfullfilledRequirementsException e) {
             e.printStackTrace();
-            badReqCode = e.getRequirementCode();
+            if (e.isDuplicateException()) {
+                return ResourceEngineOutcomes.StatusDuplicateApp;
+            } else {
+                badReqCode = e.getRequirementCode();
+                vAvailable = e.getAvailableVesionString();
+                vRequired = e.getRequiredVersionString();
+                majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
 
-            vAvailable = e.getAvailableVesionString();
-            vRequired = e.getRequiredVersionString();
-            majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
-
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "App resources are incompatible with this device|" + e.getMessage());
-            return ResourceEngineOutcomes.StatusBadReqs;
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "App resources are incompatible with this device|" + e.getMessage());
+                return ResourceEngineOutcomes.StatusBadReqs;
+            }
         } catch (UnresolvedResourceException e) {
             // couldn't find a resource, which isn't good.
             e.printStackTrace();
@@ -301,7 +297,8 @@ public abstract class ResourceEngineTask<R>
             } else {
                 return ResourceEngineOutcomes.StatusMissing;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
 
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
