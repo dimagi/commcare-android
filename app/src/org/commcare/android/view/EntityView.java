@@ -481,8 +481,10 @@ public class EntityView extends LinearLayout {
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // calculate the view and its childrens default measurements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        
+
+        // Adjust the children view's widths based on percentage size hints
         int[] widths = calculateDetailWidths(getMeasuredWidth());
         for (int i = 0; i < views.length; i++) {
             if (views[i] != null) {
@@ -492,7 +494,8 @@ public class EntityView extends LinearLayout {
             }
         }
         
-        // Use children's new widths
+        // Re-calculate the view's measurements based on the percentage
+        // adjustments above
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }
