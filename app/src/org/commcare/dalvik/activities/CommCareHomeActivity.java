@@ -1024,10 +1024,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     private void startFormEntry(AndroidSessionWrapper state) throws SessionUnavailableException {
             if (state.getFormRecordId() == -1) {
-                if (CommCarePreferences.isIncompleteFormsEnabled() &&
-                        state.getSessionStateDescriptor().getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
+                if (CommCarePreferences.isIncompleteFormsEnabled()) {
                     // Are existing (incomplete) forms using the same case?
-                    SessionStateDescriptor existing = state.searchForDuplicates();
+                    SessionStateDescriptor existing =
+                        state.getExistingIncompleteCaseDescriptor();
 
                     if (existing != null) {
                         // Ask user if they want to just edit existing form that
