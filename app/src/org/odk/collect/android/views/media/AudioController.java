@@ -1,107 +1,155 @@
 package org.odk.collect.android.views.media;
 
+import android.media.MediaPlayer;
+import android.util.Log;
+
 /**
- * This interface is currently used for purposes of controlling audio buttons
- * that appear in a list adapter, for managing the re-attachment of a currently
- * active MediaEntity to its button of origin.
+ * Audio playback is delegated through this singleton class since only one
+ * track should play at a time. Audio buttons invoke this controller on button
+ * presses. When activities that are playing audio are paused or unloaded they
+ * pause or release the audio through this controller.
  *
- * Can be used for any need to control multiple audio buttons residing within the
- * same view
- *
- * @author amstone326
+ * @author Phillip Mates (pmates@dimagi.com)
  */
-
-public interface AudioController {
-
-    /*
-     * Returns the current MediaEntity, or null if none is set
+public enum AudioController {
+    /**
+     * Singleton instance
      */
-    public MediaEntity getCurrMedia();
+    INSTANCE;
 
-    /*
-     * Removes the current MediaEntity if there is one,
-     * and sets the current MediaEntity to newEntity
+    private static final String TAG = AudioController.class.getSimpleName();
+
+    /**
+     * Only one audio entity should be playing at once, this is that entity.
      */
-    public void setCurrent(MediaEntity newEntity);
+    private MediaEntity currentEntity;
 
-    /*
-     * Replaces the current MediaEntity with newEntity
-     * and the current AudioButton with newButton
+    /**
+     * Button that corresponds to the currentEntity media. Pressing the button
+     * should trigger playback control methods here.
      */
-    public void setCurrent(MediaEntity newEntity, AudioButton newButton);
+    private AudioButton currentButton;
 
-    /*
-     * Sets/replaces the current button
+    /**
+     * Set the media to be played and store the playback button attached to
+     * that media, enableing button display state to mirror playback state.
+     *
+     * @param newMedia      New media to be controlled
+     * @param clickedButton Button that corresponds to the new media, needed so
+     *                      we can update the button's display state to mirror
+     *                      the media's playback state
      */
-    public void setCurrentAudioButton(AudioButton b);
+    public void setCurrentMediaAndButton(MediaEntity newMedia,
+                                         AudioButton clickedButton) {
+        if (currentButton != null && currentButton != clickedButton) {
+            // reset the old button to not be playing
+            currentButton.setStateToReady();
+        }
+        currentButton = clickedButton;
 
-    /*
-     * Releases the current MediaEntity's associated MediaPlayer
-     * and sets the current MediaEntity to null
+        if (newMedia != currentEntity) {
+            // newMedia is actually new, so release old media
+            releaseCurrentMediaEntity();
+            currentEntity = newMedia;
+        }
+    }
+
+    /**
+     * When a view and its buttons are re-created, we need to re-register the
+     * button that corresponds with the playing media.
+     *
+     * @param button Corresponds with the media that is currently
+     *               loaded/playing
      */
-    public void releaseCurrentMediaEntity();
+    public void registerPlaybackButton(AudioButton button) {
+        currentButton = button;
+    }
 
-    /*
-     * Sets the current MediaEntity to null
+
+    /**
+     * Release current media resources.
      */
-    public void removeCurrentMediaEntity();
+    public void releaseCurrentMediaEntity() {
+        if (currentEntity != null) {
+            MediaPlayer mp = currentEntity.getPlayer();
+            mp.reset();
+            mp.release();
+        }
+        currentEntity = null;
+    }
 
-    /*
-     * Starts playing the current MediaPlayer, assuming
-     * setDataSource() and prepare() were already called successfully
+    /**
+     * Start audio playback of current media resource.
      */
-    public void playCurrentMediaEntity();
+    public void playCurrentMediaEntity() {
+        if (currentEntity != null) {
+            currentEntity.getPlayer().start();
+            currentEntity.setState(MediaState.Playing);
+        }
+    }
 
-    /*
-     * Pauses the current MediaPlayer
+    /**
+     * Pause playback of current media resource.
      */
-    public void pauseCurrentMediaEntity();
+    public void pauseCurrentMediaEntity() {
+        if (currentEntity != null) {
+            if (currentEntity.getState().equals(MediaState.Playing)) {
+                MediaPlayer mp = currentEntity.getPlayer();
+                mp.pause();
+                currentEntity.setState(MediaState.Paused);
+            }
+        }
+    }
 
-    /*
-     * Gets the associated viewId of the current MediaEntity
+    /**
+     * Pauses playback when the controlling activity gets put in the
+     * background. The pause is specially marked such that when the activity
+     * resumes and calls playPreviousAudio, playback will resume.
      */
-    public Object getMediaEntityId();
+    public void systemInducedPause() {
+        if (currentEntity != null) {
+            boolean unpauseOnResume =
+                    MediaState.Playing.equals(currentEntity.getState());
 
-    /*
-     * Sets the state of the current MediaEntity
+            pauseCurrentMediaEntity();
+
+            if (unpauseOnResume) {
+                currentEntity.setState(MediaState.PausedForRenewal);
+            }
+        }
+    }
+
+    /**
+     * Play media that was paused due to a system interruption
      */
-    public void setMediaEntityState(MediaState state);
+    public void playPreviousAudio() {
+        if (currentEntity != null) {
+            switch (currentEntity.getState()) {
+                case PausedForRenewal:
+                    playCurrentMediaEntity();
+                    break;
+                case Paused:
+                    break;
+                case Playing:
+                case Ready:
+                    Log.w(TAG, "State in loadPreviousAudio is invalid");
+            }
+        }
+    }
 
-    /*
-     * If the current button and the button passed in are
-     * not the same button, resets the current button to
-     * the ready state
-     */
-    public void refreshCurrentAudioButton(AudioButton clicked);
+    protected boolean isMediaLoaded() {
+        return currentEntity != null;
+    }
 
+    protected ViewId getMediaViewId() {
+        return currentEntity.getId();
+    }
 
-    /*
-     * -Sets the current media entity's state to PausedForRenewal
-     *  IF the state before it was paused was MediaState.Playing
-     * -Should only be called after saveStateAndClear
-     * -If implementing class is an activity, should be called in
-     *  implementing class's onDestroy method
-     */
-    public void attemptSetStateToPauseForRenewal();
+    protected String getMediaUri() {
+        return currentEntity.getSource();
+    }
 
-    /*
-     * -Saves the current state and then pauses the current
-     * media and clears the current button
-     * -If implementing class is an activity, should be called in
-     * implementing class's onPause method
-     */
-    public void saveEntityStateAndClear();
-
-    /*
-     * Return the length of the media, in milliseconds. May return
-     * null if the media isn't in a state where duration is relevant.
-     */
-    public Integer getDuration();
-
-    /*
-     * Return the number of milliseconds the media has been playing.
-     * May return null if the media is in a state where progress
-     * isn't relevant.
-     */
-    public Integer getProgress();
+    protected MediaState getMediaState() {
+        return currentEntity.getState();
+    }
 }

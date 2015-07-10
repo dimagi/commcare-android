@@ -30,7 +30,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.odk.collect.android.views.media.AudioController;
 
 import android.app.Activity;
 import android.database.DataSetObserver;
@@ -67,7 +66,6 @@ public class EntityListAdapter implements ListAdapter {
     List<TreeReference> references;
 
     TextToSpeech tts;
-    AudioController controller;
 
     private TreeReference selected;
 
@@ -90,8 +88,11 @@ public class EntityListAdapter implements ListAdapter {
 
     private boolean inAwesomeMode = false;
 
-    public EntityListAdapter(Activity activity, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
-            int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) {
+    public EntityListAdapter(Activity activity, Detail detail,
+                             List<TreeReference> references,
+                             List<Entity<TreeReference>> full,
+                             int[] sort, TextToSpeech tts,
+                             NodeEntityFactory factory) {
         this.detail = detail;
         actionEnabled = detail.getCustomAction() != null;
 
@@ -119,7 +120,6 @@ public class EntityListAdapter implements ListAdapter {
         }
         
         this.tts = tts;
-        this.controller = controller;
         if(android.os.Build.VERSION.SDK_INT >= 14){
             mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
         }
@@ -489,10 +489,6 @@ public class EntityListAdapter implements ListAdapter {
         return 0;
     }
 
-    public void setController(AudioController controller) {
-        this.controller = controller;
-    }
-
     /* (non-Javadoc)
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
@@ -521,7 +517,7 @@ public class EntityListAdapter implements ListAdapter {
             GridEntityView emv =(GridEntityView)convertView;
 
             if(emv == null) {
-                emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller, mFuzzySearchEnabled);
+                emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
                 int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
                 emv.setTitleTextColor(titleColor[0]);
             } else{
@@ -536,7 +532,7 @@ public class EntityListAdapter implements ListAdapter {
             EntityView emv =(EntityView)convertView;
 
             if (emv == null) {
-                emv = new EntityView(context, detail, entity, tts, currentSearchTerms, controller, position, mFuzzySearchEnabled);
+                emv = new EntityView(context, detail, entity, tts, currentSearchTerms, position, mFuzzySearchEnabled);
             } else {
                 emv.setSearchTerms(currentSearchTerms);
                 emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
