@@ -607,7 +607,7 @@ public class BreadcrumbBarFragment extends Fragment {
             Entity entity = nef.getEntity(ref);
 
             Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
-            GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity, null);
+            GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity);
             int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(), new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
             tile.setTextColor(textColor[0]);
             tile.setTitleTextColor(textColor[1]);

@@ -14,7 +14,6 @@ import org.commcare.util.GridStyle;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 
 import android.annotation.SuppressLint;
@@ -86,8 +85,7 @@ public class GridEntityView extends GridLayout {
 	public double rowHeight;
 	public double rowWidth;
 	private CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
-	private AudioController controller;
-	
+
 	/**
 	 * Used to create a entity view tile outside of a managed context (like 
 	 * for an individual entity out of a search context).
@@ -96,8 +94,8 @@ public class GridEntityView extends GridLayout {
 	 * @param detail
 	 * @param entity
 	 */
-	public GridEntityView(Context context, Detail detail, Entity entity, AudioController controller) {
-	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), controller, false);
+	public GridEntityView(Context context, Detail detail, Entity entity) {
+	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), false);
 	}
 	
 	/**
@@ -109,14 +107,12 @@ public class GridEntityView extends GridLayout {
 	 * @param entity
 	 * @param searchTerms
 	 * @param mLoader
-	 * @param controller
 	 * @param fuzzySearchEnabled
 	 */
-	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, AudioController controller, boolean fuzzySearchEnabled) {
+	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
 		super(context);
 		this.searchTerms = searchTerms;
-		this.controller = controller;
-		this.mIsAsynchronous = entity instanceof AsyncEntity;		
+		this.mIsAsynchronous = entity instanceof AsyncEntity;
 		
 		int maximumRows = this.getMaxRows(detail);
 		this.NUMBER_ROWS_PER_GRID = maximumRows;
@@ -380,9 +376,9 @@ public class GridEntityView extends GridLayout {
                 break;
             case EntityView.FORM_AUDIO:
                 if (rowData != null & rowData.length() > 0) {
-                    retVal = new AudioButton(context, rowData, uniqueId, controller, true);
+                    retVal = new AudioButton(context, rowData, uniqueId, true);
                 } else {
-                    retVal = new AudioButton(context, rowData, uniqueId, controller, false);
+                    retVal = new AudioButton(context, rowData, uniqueId, false);
                 }
                 break;
             default:
