@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -22,40 +21,62 @@ import android.widget.Toast;
  * @author ctsims
  * @author carlhartung
  * @author amstone326
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 public class AudioButton extends ImageButton implements OnClickListener {
-    private final static String t = "AudioButton";
-    private String URI;
-    private MediaState currentState;
-    private final AudioController controller;
-    private Object residingViewId;
+    private final static String TAG = AudioController.class.getSimpleName();
 
+    /**
+     * Audio to load when play button pressed.
+     */
+    private String URI;
+
+    /**
+     * Audio playback state, used for correctly displaying the button and
+     * dispatching playback logic on button presses.
+     */
+    private MediaState currentState;
+
+    /**
+     * The id of the ListAdapter view that contains this button. Should be null
+     * if the button resides in a form entry question.
+     */
+    private ViewId residingViewId;
+
+    /**
+     * Used by media inflater.
+     */
     public AudioButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.controller = buildAudioControllerInstance();
         setOnClickListener(this);
     }
 
+    /**
+     * @param URI audio to load when play button pressed
+     */
     public AudioButton(Context context, final String URI, boolean visible) {
-        this(context, URI, null, null, visible);
+        this(context, URI, null, visible);
     }
 
-    public AudioButton(Context context, String URI, Object id,
-            AudioController controller, boolean visible) {
+    /**
+     * @param URI     audio to load when play button pressed
+     * @param viewId  Id for the ListAdapter view that contains this button
+     * @param visible Should the button be visible?
+     */
+    public AudioButton(Context context, String URI,
+                       ViewId viewId, boolean visible) {
         super(context);
         setOnClickListener(this);
 
-        resetButton(URI, visible);
-
-        if (controller == null) {
-            this.controller = buildAudioControllerInstance();
-        } else {
-            this.controller = controller;
-        }
-
-        this.residingViewId = id;
+        resetButton(URI, viewId, visible);
     }
 
+    /**
+     * Set playback and display state to ready and update media URI.
+     *
+     * @param URI     audio to load when play button pressed
+     * @param visible Should the button be visible?
+     */
     public void resetButton(String URI, boolean visible) {
         this.URI = URI;
         this.currentState = MediaState.Ready;
@@ -71,88 +92,71 @@ public class AudioButton extends ImageButton implements OnClickListener {
         }
     }
 
-    void resetButton(String URI, Object id, boolean visible) {
+    /**
+     * Set playback and display state to ready and update media URI and the id
+     * of the button's containing view.
+     *
+     * @param URI     audio to load when play button pressed
+     * @param viewId  Set button's residing view id to this ListAdapter view id.
+     * @param visible Should the button be visible?
+     */
+    void resetButton(String URI, ViewId viewId, boolean visible) {
         resetButton(URI, visible);
-        this.residingViewId = id;
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        /*As soon as this button is attached to the Window we want it to "grab" the handle
-        to the currently playing media. This will have the side effect of dropping the handle
-        from anything else that was currently holding it. Only one View at a time should
-        be in control of the media handle.*/
-        attachToMedia();
+        this.residingViewId = viewId;
     }
 
     /**
-     * Check if the button in this view had media assigned to
-     * it in a previously-existing app (before rotation, etc.)
+     * Setup button using the AudioController's state if containing view ids
+     * match-up between the button and the controller. Otherwise, setup the
+     * button using the provided arguments.
+     *
+     * @param viewId  Set button's residing view id to this ListAdapter view id.
+     * @param URI     audio to load when play button pressed
+     * @param visible Should the button be visible?
      */
-    private void attachToMedia() {
-        MediaEntity currEntity = controller.getCurrMedia();
-        if (currEntity != null) {
-            Object oldId = currEntity.getId();
-            if (oldId.equals(residingViewId)) {
-                controller.setCurrentAudioButton(this);
-                restoreButtonFromEntity(currEntity);
-            }
+    public void modifyButtonForNewView(ViewId viewId, String URI,
+                                       boolean visible) {
+        if (AudioController.INSTANCE.isMediaLoaded() &&
+                AudioController.INSTANCE.getMediaViewId().equals(viewId)) {
+            // The containing view's id of this button and that of the audio
+            // being played by the controller match. Hence, load media info
+            // from the controller into this button.
+            this.URI = AudioController.INSTANCE.getMediaUri();
+            this.residingViewId = AudioController.INSTANCE.getMediaViewId();
+            this.currentState = AudioController.INSTANCE.getMediaState();
+            AudioController.INSTANCE.registerPlaybackButton(this);
+            refreshAppearance();
+        } else {
+            // the containing view's id of the button doesn't match the audio
+            // controller, so just setup the button normally using the provided
+            // arguments
+            resetButton(URI, viewId, visible);
         }
     }
 
-    void restoreButtonFromEntity(MediaEntity currentEntity) {
-        this.URI = currentEntity.getSource();
-        this.residingViewId = currentEntity.getId();
-        this.currentState = currentEntity.getState();
-        refreshAppearance();
-    }
-
-    public String getSource() {
-        return URI;
-    }
-
-    public void modifyButtonForNewView(Object newViewId, String audioResource, boolean visible) {
-        MediaEntity currentEntity = controller.getCurrMedia();
-        if (currentEntity == null) {
-            resetButton(audioResource, newViewId, visible);
-            return;
-        }
-        Object activeId = currentEntity.getId();
-        if (activeId.equals(newViewId)) {
-            restoreButtonFromEntity(currentEntity);
-        }
-        else {
-            resetButton(audioResource, newViewId, visible);
-        }
-    }
-
+    /**
+     * Set button appearance and playback state to 'ready'. Used when another
+     * button is pressed and this one is reset.
+     */
     public void setStateToReady() {
         currentState = MediaState.Ready;
         refreshAppearance();
     }
 
-    void setStateToPlaying() {
-        currentState = MediaState.Playing;
-        refreshAppearance();
-    }
-
-    void setStateToPaused() {
-        currentState = MediaState.Paused;
-        refreshAppearance();
-    }
-
+    /**
+     * Change button appearance to match the playback state.
+     */
     void refreshAppearance() {
-        switch(currentState) {
-        case Ready:
-            this.setImageResource(R.drawable.icon_audioplay_lightcool);
-            break;
-        case Playing:
-            this.setImageResource(R.drawable.icon_audiostop_darkwarm);
-            break;
-        case Paused:
-        case PausedForRenewal:
-            this.setImageResource(R.drawable.icon_audioplay_lightcool);
+        switch (currentState) {
+            case Ready:
+                this.setImageResource(R.drawable.icon_audioplay_lightcool);
+                break;
+            case Playing:
+                this.setImageResource(R.drawable.icon_audiostop_darkwarm);
+                break;
+            case Paused:
+            case PausedForRenewal:
+                this.setImageResource(R.drawable.icon_audioplay_lightcool);
         }
     }
 
@@ -165,17 +169,19 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private String getAudioFilename() {
         if (URI == null) {
             // No audio file specified
-            Log.e(t, "No audio file was specified");
-            Toast.makeText(getContext(), getContext().getString(R.string.audio_file_error),
-                       Toast.LENGTH_LONG).show();
+            Log.e(TAG, "No audio file was specified");
+            Toast.makeText(getContext(),
+                    getContext().getString(R.string.audio_file_error),
+                    Toast.LENGTH_LONG).show();
             return "";
         }
 
         String audioFilename;
         try {
-            audioFilename = ReferenceManager._().DeriveReference(URI).getLocalURI();
+            audioFilename =
+                    ReferenceManager._().DeriveReference(URI).getLocalURI();
         } catch (InvalidReferenceException e) {
-            Log.e(t, "Invalid reference exception");
+            Log.e(TAG, "Invalid reference exception");
             e.printStackTrace();
             return "";
         }
@@ -183,8 +189,9 @@ public class AudioButton extends ImageButton implements OnClickListener {
         File audioFile = new File(audioFilename);
         if (!audioFile.exists()) {
             // We should have an audio clip, but the file doesn't exist.
-            String errorMsg = getContext().getString(R.string.file_missing, audioFile);
-            Log.e(t, errorMsg);
+            String errorMsg =
+                    getContext().getString(R.string.file_missing, audioFile);
+            Log.e(TAG, errorMsg);
             Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
             return "";
         }
@@ -198,7 +205,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
             return;
         }
 
-        switch(currentState) {
+        switch (currentState) {
             case Ready:
                 MediaPlayer player = new MediaPlayer();
                 try {
@@ -211,11 +218,12 @@ public class AudioButton extends ImageButton implements OnClickListener {
                         }
 
                     });
-                    controller.setCurrent(new MediaEntity(URI, player, residingViewId, currentState), this);
+                    AudioController.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), this);
                     startPlaying();
                 } catch (IOException e) {
-                    String errorMsg = getContext().getString(R.string.audio_file_invalid);
-                    Log.e(t, errorMsg);
+                    String errorMsg =
+                            getContext().getString(R.string.audio_file_invalid);
+                    Log.e(TAG, errorMsg);
                     Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
@@ -227,138 +235,29 @@ public class AudioButton extends ImageButton implements OnClickListener {
             case Playing:
                 pausePlaying();
                 break;
+            default:
+                Log.w(TAG, "Current playback state set to unexpected value");
         }
     }
 
-    void startPlaying() {
-        logAction("start");
-        controller.playCurrentMediaEntity();
-        setStateToPlaying();
+    private void startPlaying() {
+        AudioController.INSTANCE.playCurrentMediaEntity();
+
+        currentState = MediaState.Playing;
+        refreshAppearance();
     }
 
     public void endPlaying() {
-        logAction("stop");
-        controller.releaseCurrentMediaEntity();
-        setStateToReady();
+        AudioController.INSTANCE.releaseCurrentMediaEntity();
+
+        currentState = MediaState.Ready;
+        refreshAppearance();
     }
 
-    void pausePlaying() {
-        logAction("pause");
-        controller.pauseCurrentMediaEntity();
-        setStateToPaused();
-    }
+    private void pausePlaying() {
+        AudioController.INSTANCE.pauseCurrentMediaEntity();
 
-
-    private void logAction(String action) {
-        String message = action + " " + URI;
-        Integer progress = controller.getProgress();
-        Integer duration = controller.getDuration();
-        if (progress != null && duration != null) {
-            message += " " + formatTime(progress) + "/" + formatTime(duration);
-        }
-        Logger.log("media", message);
-    }
-
-    private String formatTime(Integer milliseconds) {
-        if (milliseconds == null) {
-            return "";
-        }
-        int numSeconds = Math.round(milliseconds);
-        int hours = (numSeconds / 3600);
-        int minutes = (numSeconds / 60);
-        int seconds = numSeconds % 60;
-        String returnValue = "";
-        returnValue += seconds;
-        if (seconds < 10) {
-            returnValue = "0" + returnValue;
-        }
-        returnValue = minutes + ":" + returnValue;
-        if (hours > 0) {
-            if (minutes < 10) {
-                returnValue += "0" + returnValue;
-            }
-            returnValue += hours + ":" + returnValue;
-        }
-        return returnValue;
-    }
-
-    AudioController buildAudioControllerInstance() {
-        return new AudioController() {
-            private MediaPlayer mp;
-            boolean alive = false;
-
-            @Override
-            public MediaEntity getCurrMedia() {
-                return null;
-            }
-
-            @Override
-            public void setCurrent(MediaEntity newEntity) {
-                this.mp = newEntity.getPlayer();
-            }
-
-            @Override
-            public void setCurrent(MediaEntity newEntity, AudioButton newButton) {
-                setCurrent(newEntity);
-            }
-
-            @Override
-            public void releaseCurrentMediaEntity() {
-                if (mp != null) {
-                    mp.reset();
-                    mp.release();
-                    mp = null;
-                    alive = false;
-                }
-            }
-
-            @Override
-            public Object getMediaEntityId() {
-                return residingViewId;
-            }
-
-            @Override
-            public void refreshCurrentAudioButton(AudioButton clicked) { }
-
-            @Override
-            public void saveEntityStateAndClear() { }
-
-            @Override
-            public void setMediaEntityState(MediaState state) { }
-
-            @Override
-            public void playCurrentMediaEntity() {
-                alive = true;
-                mp.start();
-            }
-
-            @Override
-            public void pauseCurrentMediaEntity() { }
-
-            @Override
-            public void setCurrentAudioButton(AudioButton b) { }
-
-            @Override
-            public void removeCurrentMediaEntity() { }
-
-            @Override
-            public void attemptSetStateToPauseForRenewal() { }
-
-            @Override
-            public Integer getDuration() {
-                if (!alive) {
-                    return null;
-                }
-                return mp.getDuration();
-            }
-
-            @Override
-            public Integer getProgress() {
-                if (!alive) {
-                    return null;
-                }
-                return mp.getCurrentPosition();
-            }
-        };
+        currentState = MediaState.Paused;
+        refreshAppearance();
     }
 }

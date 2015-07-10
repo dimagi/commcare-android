@@ -43,6 +43,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.InputFilter;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.Pair;
@@ -277,8 +278,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
-
-        // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
             if(fragmentClass != null) {
@@ -1495,8 +1494,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return newly created View
      */
     private View createView(int event) {
-        boolean isGroup = false;
-
         setTitle(getHeaderString());
         switch (event) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
@@ -1640,16 +1637,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                 return endView;
             case FormEntryController.EVENT_GROUP:
-                isGroup = true;
             case FormEntryController.EVENT_QUESTION:
-            
-                ODKView odkv = null;
+                ODKView odkv;
                 // should only be a group here if the event_group is a field-list
                 try {
                     odkv =
                         new ODKView(this, mFormController.getQuestionPrompts(),
                                 mFormController.getGroupsForCurrentIndex(),
-                                mFormController.getWidgetFactory(), this, isGroup);
+                                mFormController.getWidgetFactory(), this);
                     Log.i(t, "created view for group");
                 } catch (RuntimeException e) {
                     Logger.exception(e);
@@ -1912,7 +1907,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             header.setVisibility(View.GONE);
             groupLabel.setVisibility(View.GONE);
 
-            String groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
+            SpannableStringBuilder groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
 
             if(!"".equals(groupLabelText)) {
                 groupLabel.setText(groupLabelText);

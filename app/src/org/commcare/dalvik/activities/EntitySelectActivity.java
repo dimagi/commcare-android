@@ -73,6 +73,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
+import org.odk.collect.android.views.media.AudioController;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -293,9 +294,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
         if(oldActivity != null) {
             adapter = oldActivity.adapter;
-            //not sure how this happens, but seem plausible.
+            // on orientation change
             if(adapter != null) {
-                adapter.setController(this);
                 ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
                 
@@ -616,7 +616,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
                         updateSelectedItem(r, true);
                     }
-                    releaseCurrentMediaEntity();
+                    AudioController.INSTANCE.releaseCurrentMediaEntity();
                 }
                 return;
             }
@@ -918,7 +918,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, this, factory);
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
