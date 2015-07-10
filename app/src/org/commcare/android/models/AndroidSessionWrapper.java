@@ -206,35 +206,47 @@ public class AndroidSessionWrapper {
     }
 
     /**
-     * A helper method to search for any saved sessions which match this current one
-     *  
-     * @return The descriptor of the first saved session which matches this, if any,
-     * null otherwise. 
+     * Search for a saved sessions that has an incomplete form record using the
+     * same case as the one in the current session descriptor.
+     *
+     * @return Descriptor of the first saved session that has has an incomplete
+     * form record with the same case found in the current descriptor;
+     * otherwise null.
      */
-    public SessionStateDescriptor searchForDuplicates() {
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+    public SessionStateDescriptor getExistingIncompleteCaseDescriptor() {
+        SessionStateDescriptor ssd = getSessionStateDescriptor();
 
-        //TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
+        if (!ssd.getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
+            // don't continue if the current session doesn't use a case
+            return null;
+        }
 
-        //First, we need to see if this session's unique hash corresponds to any pending forms.
-        Vector<Integer> ids = sessionStorage.getIDsForValue(SessionStateDescriptor.META_DESCRIPTOR_HASH, getSessionStateDescriptor().getHash());
+        SqlStorage<FormRecord> storage =
+                CommCareApplication._().getUserStorage(FormRecord.class);
 
-        //Filter for forms which have actually been started.
-        for(int id : ids) {
+        SqlStorage<SessionStateDescriptor> sessionStorage =
+                CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+
+        // TODO: This is really a join situation. Need a way to outline
+        // connections between tables to enable joining
+
+        // See if this session's unique hash corresponds to any pending forms.
+        Vector<Integer> ids = sessionStorage.getIDsForValue(SessionStateDescriptor.META_DESCRIPTOR_HASH, ssd.getHash());
+
+        // Filter for forms which have actually been started.
+        for (int id : ids) {
             try {
                 int recordId = Integer.valueOf(sessionStorage.getMetaDataFieldForRecord(id, SessionStateDescriptor.META_FORM_RECORD_ID));
-                if(!storage.exists(recordId)) {
+                if (!storage.exists(recordId)) {
                     sessionStorage.remove(id);
                     Log.d(TAG, "Removing stale ssd record: " + id);
                     continue;
                 }
-                if(FormRecord.STATUS_INCOMPLETE.equals(storage.getMetaDataFieldForRecord(recordId, FormRecord.META_STATUS))) {
+                if (FormRecord.STATUS_INCOMPLETE.equals(storage.getMetaDataFieldForRecord(recordId, FormRecord.META_STATUS))) {
                     return sessionStorage.read(id);
                 }
-            } catch(NumberFormatException nfe) {
-                //TODO: Clean up this record
-                continue;
+            } catch (NumberFormatException nfe) {
+                // TODO: Clean up this record
             }
         }
         return null;
