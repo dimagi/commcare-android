@@ -22,7 +22,7 @@ import android.widget.Toast;
  * 
  * The activity that starts up when a user launches into the app manager.
  * Displays a list of all installed apps, each of which can be clicked to launch
- * the SingleAppManagerAcitivity for that app. Also includes a button for
+ * the SingleAppManagerActivity for that app. Also includes a button for
  * installing new apps.
  * 
  * @author amstone326
@@ -75,12 +75,10 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
         case CommCareHomeActivity.INIT_APP:
-            Log.i("HERE", "Back in ManagerActivity from INIT_APP");
             boolean installFailed = intent.getBooleanExtra(CommCareSetupActivity.KEY_INSTALL_FAILED,
                     false);
             if (resultCode == RESULT_OK && !installFailed) {
                 if (!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
-                    Log.i("HERE", "going to VerificationActivity from ManagerActivity");
                     Intent i = new Intent(this, CommCareVerificationActivity.class);
                     i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
                     this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
@@ -92,7 +90,6 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
             }
             break;
         case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
-            Log.i("HERE", "Back in ManagerActivity from MISSING_MEDIA_ACTIVITY");
             if (resultCode == RESULT_CANCELED) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Media Not Verified");
