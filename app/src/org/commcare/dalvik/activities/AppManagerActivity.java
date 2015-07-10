@@ -76,7 +76,9 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         switch (requestCode) {
         case CommCareHomeActivity.INIT_APP:
             Log.i("HERE", "Back in ManagerActivity from INIT_APP");
-            if (resultCode == RESULT_OK) {
+            boolean installFailed = intent.getBooleanExtra(CommCareSetupActivity.KEY_INSTALL_FAILED,
+                    false);
+            if (resultCode == RESULT_OK && !installFailed) {
                 if (!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
                     Log.i("HERE", "going to VerificationActivity from ManagerActivity");
                     Intent i = new Intent(this, CommCareVerificationActivity.class);

@@ -61,9 +61,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
     public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+    public static final String KEY_INSTALL_FAILED = "install_failed";
     public static final String KEY_AUTO = "is_auto_update";
     private static final String KEY_START_OVER = "start_over_uprgrade";
     private static final String KEY_LAST_INSTALL = "last_install_time";
+
 
     /**
      * UI configuration states.
@@ -517,7 +519,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
 
-    void done(boolean requireRefresh) {
+    void done(boolean requireRefresh, boolean failed) {
         // TODO: We might have gotten here due to being called from the outside, in which case we should manually start up the home activity
         if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             Log.i("HERE", "calling out to CCHome in SetupActivity");
@@ -532,6 +534,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             setResult(RESULT_OK, i);
+            i.putExtra(KEY_INSTALL_FAILED, failed);
             finish();
         }
     }
@@ -541,7 +544,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         
         if (isAuto || alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
-            done(false);
+            done(false, true);
         }
     }
     
@@ -559,7 +562,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(!appChanged) {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
-        done(appChanged);
+        done(appChanged, false);
     }
 
     @Override
