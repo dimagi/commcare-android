@@ -69,14 +69,12 @@ public class EntityView extends LinearLayout {
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
         this.tts = tts;
-        this.setWeightSum(1);
         this.controller = controller;
         this.renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         this.rowId = rowId;
         this.views = new View[e.getNumFields()];
         this.forms = d.getTemplateForms();
         this.mHints = d.getTemplateSizeHints();
-        float[] weights = calculateDetailWeights(d.getTemplateSizeHints());
         
         for (int i = 0; i < views.length; ++i) {
             if (mHints[i] == null || !mHints[i].startsWith("0")) {
@@ -87,7 +85,7 @@ public class EntityView extends LinearLayout {
         }
         refreshViewsForNewEntity(e, false, rowId);
         for (int i = 0; i < views.length; i++) {
-            LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, weights[i]);
+            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
             if (views[i] != null) {
                 addView(views[i], l);
             }
@@ -102,15 +100,13 @@ public class EntityView extends LinearLayout {
     public EntityView(Context context, Detail d, String[] headerText, Integer textColor) {
         super(context);
         this.context = context;
-        this.setWeightSum(1);
         this.views = new View[headerText.length];
-        float[] lengths = calculateDetailWeights(d.getHeaderSizeHints());
         this.mHints = d.getHeaderSizeHints();
         String[] headerForms = d.getHeaderForms();
         
         for (int i = 0 ; i < views.length ; ++i) {
             if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                LayoutParams l = new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, lengths[i]);
+                LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
                 ViewId uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(headerText[i], headerForms[i], uniqueId, null);      
                 views[i].setId(i);
@@ -445,41 +441,6 @@ public class EntityView extends LinearLayout {
         }
     }
     
-    private float[] calculateDetailWeights(String[] stringHints) {
-        int[] hints = new int[stringHints.length];
-        for(int i = 0; i < stringHints.length; i++) {
-            if (stringHints[i] == null) {
-                hints[i] = -1;
-            }
-            else if (stringHints[i].contains("%")) {
-                hints[i] = Integer.parseInt(stringHints[i].substring(0, stringHints[i].indexOf("%")));
-            }
-            else {
-                hints[i] = Integer.parseInt(stringHints[i]);
-            }
-        }
-        
-        float[] weights = new float[hints.length];
-        int fullSize = 100;
-        int sharedBetween = 0;
-        for(int hint : hints) {
-            if(hint != -1) {
-                fullSize -= hint;
-            } else {
-                sharedBetween++;
-            }
-        }
-        
-        double average = ((double)fullSize) / (double)sharedBetween;
-        
-        for(int i = 0; i < hints.length; ++i) {
-            int hint = hints[i];
-            weights[i] = hint == -1? (float)(average/100.0) :  (float)(((double)hint)/100.0);
-        }
-        
-        return weights;
-    }
-
     private int[] calculateDetailWidths(int fullSize) {
         // Convert any percentages to pixels
         int[] hints = new int[mHints.length];
@@ -517,11 +478,13 @@ public class EntityView extends LinearLayout {
     /*
      * (non-Javadoc)
      * @see android.widget.LinearLayout#onMeasure(int, int)
-     *
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // calculate the view and its childrens default measurements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        
+
+        // Adjust the children view's widths based on percentage size hints
         int[] widths = calculateDetailWidths(getMeasuredWidth());
         for (int i = 0; i < views.length; i++) {
             if (views[i] != null) {
@@ -530,5 +493,9 @@ public class EntityView extends LinearLayout {
                 views[i].setLayoutParams(params);
             }
         }
-    }*/
+        
+        // Re-calculate the view's measurements based on the percentage
+        // adjustments above
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
 }
