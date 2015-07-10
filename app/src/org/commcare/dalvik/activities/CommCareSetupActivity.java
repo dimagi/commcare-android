@@ -119,6 +119,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     CommCareApp ccApp;
 
+    /**
+     * Indicates whether this activity was launched from the AppManagerActivity
+     */
     boolean mFromManager;
 
     // Whether this needs to be interactive (if it's automatic, we want to skip

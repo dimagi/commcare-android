@@ -57,6 +57,11 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
      */
     private boolean newMediaToValidate = false;
 
+    /**
+     * Indicates whether this activity was launched from the AppManagerActivity
+     */
+    private boolean fromManager;
+
     public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
@@ -66,9 +71,8 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
         retryButton.setOnClickListener(this);
                 
-        boolean fromManager = this.getIntent().
+        this.fromManager = this.getIntent().
         		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
-        Log.i("HERE", "fromManager in Verification #1: " + fromManager);
         if (fromManager) {
             skipButton = (Button)findViewById(R.id.skip_verification_button);
             skipButton.setVisibility(View.VISIBLE);
@@ -83,12 +87,14 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
     @Override
     public void onResume() {
         super.onResume();
-        //Check whether the current state of the app still indicates that we want to be in
-        //this activity
-        boolean shouldBeHere = (CommCareApplication._().getVisibleAppRecords().size() == 1 && 
+
+        // Workaround for the possibility that CommCare screen is left off in the
+        // VerificationActivity, but then something is done on the Manager screen that means we
+        // no longer want to be there
+        boolean shouldBeHere = (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
                 CommCareApplication._().getReadyAppRecords().size() == 0);
         //If not, redirect to CommCareHomeActivity
-        if (!shouldBeHere) {
+        if (!fromManager && !shouldBeHere) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             this.startActivity(i);
         }
@@ -202,23 +208,18 @@ public class CommCareVerificationActivity extends CommCareActivity<CommCareVerif
         
         if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
-            Log.i("HERE", "calling out to CCHome in VerificationActivity");
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             startActivity(i);
             finish();
-            //return;
+            return;
         } else {
             //Good to go
-            Log.i("HERE", "just finishing in VerificationActivity");
             Intent i = new Intent(getIntent());
-            boolean fromManager = this.getIntent().
-                    getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
-            Log.i("HERE", "fromManager in Verification #2: " + fromManager);
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             setResult(RESULT_OK, i);
             finish();
-            //return;
+            return;
         }
     }
 
