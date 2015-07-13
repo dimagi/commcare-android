@@ -118,7 +118,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     public void setStyleDefault() {
         LoginBoxesStatus.Normal.setStatus(this);
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
+        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
         loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
@@ -335,20 +335,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 return;
             }
         } catch (SessionUnavailableException sue) {
-            populateAvailableAppsSpinner();
+            // Nothing, we're logging in here anyway
         }
-        
+
         //If we arrived at LoginActivity from clicking the regular app icon, and there
         //are no longer any available apps, we want to redirect to CCHomeActivity
         if (CommCareApplication._().getReadyAppRecords().size() == 0) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
         }
-            
+
+        // Otherwise, update the login screen
         refreshView();
-    }
-    
-    private void refreshView() {
     }
     
     private String getUsername() {
@@ -588,13 +586,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         return false;
     }
     
-    private void populateAvailableAppsSpinner() {
+    private void refreshView() {
         Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
+        TextView message = (TextView) findViewById(R.id.welcome_msg);
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
         if (readyApps.size() <= 1) {
             spinner.setVisibility(View.GONE);
+            message.setText(R.string.login_welcome_single);
             return;
         }
+        message.setText(R.string.login_welcome_multiple);
         ArrayList<String> appNames = new ArrayList<String>();
         ArrayList<String> appIds = new ArrayList<String>();
         for (ApplicationRecord r : readyApps) {

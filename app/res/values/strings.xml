@@ -206,6 +206,8 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="location_provider_accuracy">Location found using %1$s. Accuracy is %2$s m.</string>
     <string name="location_provider">Using %1$s provider. Please wait for greater accuracy.</string>
     <string name="location_accuracy">Location found. Accuracy is %1$s m</string>
+    <string name="login_welcome_single">Welcome back! Please log in.</string>
+    <string name="login_welcome_multiple">Welcome back! Please select an app and log in.</string>
     <string name="longitude">Longitude</string>
     <string name="main_menu">Main Menu</string>
     <string name="main_menu_details">Data collection made easier...</string>
