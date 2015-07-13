@@ -68,8 +68,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private static final String TAG = LoginActivity.class.getSimpleName();
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public static String ALREADY_LOGGED_IN = "la_loggedin";
-    public static String KEY_LAST_APP = "id_of_last_selected";
+    public final static String ALREADY_LOGGED_IN = "la_loggedin";
+    public final static String KEY_LAST_APP = "id_of_last_selected";
     
 
     @UiElement(value=R.id.login_button, locale="login.button")
@@ -96,24 +96,25 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final int TASK_KEY_EXCHANGE = 1;
     
     SqlStorage<UserKeyRecord> storage;
-    Map<String,ApplicationRecord> namesToRecords = new HashMap<String,ApplicationRecord>();
+    private Map<String,ApplicationRecord> namesToRecords = new HashMap<String, ApplicationRecord>();
 
     private int editTextColor;
     private View.OnKeyListener l;
     private final TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                setStyleDefault();
-            }
-        };
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            setStyleDefault();
+        }
+    };
 
     public void setStyleDefault() {
         LoginBoxesStatus.Normal.setStatus(this);
@@ -339,8 +340,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         
         //If we arrived at LoginActivity from clicking the regular app icon, and there
         //are no longer any available apps, we want to redirect to CCHomeActivity
-        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
-        if (readyApps.size() == 0) {
+        if (CommCareApplication._().getReadyAppRecords().size() == 0) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
         }
@@ -591,6 +591,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private void populateAvailableAppsSpinner() {
         Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
+        if (readyApps.size() <= 1) {
+            spinner.setVisibility(View.GONE);
+            return;
+        }
         ArrayList<String> appNames = new ArrayList<String>();
         ArrayList<String> appIds = new ArrayList<String>();
         for (ApplicationRecord r : readyApps) {
@@ -599,24 +603,24 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             appIds.add(r.getUniqueId());
             namesToRecords.put(name, r);
         }
-        if (appNames.size() > 1) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appNames);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinner.setAdapter(adapter);
-            spinner.setOnItemSelectedListener(this);
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            String lastApp = prefs.getString(KEY_LAST_APP,"");
-            int position = 0;
-            if (!"".equals(lastApp)) {
-                position = appIds.indexOf(lastApp);
-                //if this last app has since been deleted, set the position to 0
-                if (position == -1) { 
-                    position = 0;
-                }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        // The unique of id of the last app that was selected in the drop-down menu
+        String lastApp = prefs.getString(KEY_LAST_APP,"");
+        int position = 0;
+        // If there is a last app, set the spinner selection to be that app
+        if (!"".equals(lastApp)) {
+            position = appIds.indexOf(lastApp);
+            // If this last app has since been deleted, set the position to 0
+            if (position == -1) {
+                position = 0;
             }
-            spinner.setSelection(position);
-            spinner.setVisibility(View.VISIBLE);
-        } else spinner.setVisibility(View.GONE);
+        }
+        spinner.setSelection(position);
+        spinner.setVisibility(View.VISIBLE);
     }
     
 
@@ -625,9 +629,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String selected = (String) parent.getItemAtPosition(position);
         ApplicationRecord r = namesToRecords.get(selected);
+        // Set the id of the last selected app
         prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
         CommCareApplication._().initializeAppResources(new CommCareApp(r));
-        //refresh UI for potential new language
+        // Refresh UI for potential new language
         loadFields(false);
     }
 

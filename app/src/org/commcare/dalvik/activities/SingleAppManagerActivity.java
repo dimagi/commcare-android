@@ -1,15 +1,10 @@
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.services.locale.Localization;
 
@@ -24,6 +19,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ *
+ * The activity launched when the user clicks on a specific app within the app manager. From
+ * this screen, the selected app can be archived/unarchived, uninstalled, updated, or  have its
+ * multimedia verified if needed.
+ *
+ * @author amstone
+ *
+ */
 
 public class SingleAppManagerActivity extends Activity {
     
@@ -36,11 +40,11 @@ public class SingleAppManagerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) { 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_app_view);
-
+        // Try to retrieve the app record at the indicated position
         int position = getIntent().getIntExtra("position", -1);
         appRecord = CommCareApplication._().getAppAtIndex(position);
-        // Implies that this appRecord has been uninstalled since last we launched SingleAppManagerActivity,
-        // so redirect to AppManagerActivity
+        // Implies that this appRecord has been uninstalled since last we launched
+        // SingleAppManagerActivity, so redirect to AppManagerActivity
         if (appRecord == null) {
             Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
             startActivity(i);
@@ -60,7 +64,7 @@ public class SingleAppManagerActivity extends Activity {
     }
     
     private void refresh() {    
-        //refresh old profile warning 
+        // Warns the user that this app came from an old version of the profile file, if necessary
         TextView warning = (TextView) findViewById(R.id.profile_warning);
         if (appRecord.preMultipleAppsProfile()) {
             warning.setVisibility(View.VISIBLE);
@@ -68,7 +72,7 @@ public class SingleAppManagerActivity extends Activity {
             warning.setVisibility(View.GONE);
         }
         
-        //refresh validate button
+        // Updates text of the validate button based on the current state of the app's resources
         Button validateButton = (Button) findViewById(R.id.verify_button);
         if (appRecord.resourcesValidated()) {
             validateButton.setVisibility(View.INVISIBLE);
@@ -76,7 +80,7 @@ public class SingleAppManagerActivity extends Activity {
             validateButton.setVisibility(View.VISIBLE);
         }
         
-        //Change text for archive button depending on archive status
+        // Updates text of the archive button based on app's archive status
         boolean isArchived = appRecord.isArchived();
         Button archiveButton = (Button) findViewById(R.id.archive_button);
         if (isArchived) {
@@ -135,22 +139,25 @@ public class SingleAppManagerActivity extends Activity {
         }
     }
     
-    /** Uninstalls the selected app **/
+    // Uninstalls the selected app
     public void uninstall() {
         CommCareApplication._().logout();
         appRecord.uninstall(this);
         rebootCommCare();
    }
     
-    /** If the app is not archived, sets it to archived (i.e. still installed but 
-     * not visible to users); If it is archived, sets it to unarchived **/
+    /**
+     * If the app is not archived, sets it to archived (i.e. still installed but
+     * not visible to users)
+     * If it is archived, sets it to unarchived
+     **/
     public void toggleArchived(View v) {
         appRecord.setArchiveStatus(!appRecord.isArchived());
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
         refresh();
     }
     
-    //triggered when verify MM button is clicked
+    /** Triggered when verify MM button is clicked **/
     public void verifyResourcesClicked(View v) {
         try {
             CommCareSessionService s = CommCareApplication._().getSession();
@@ -172,7 +179,7 @@ public class SingleAppManagerActivity extends Activity {
         this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
     }
     
-    //Triggered when update button is clicked
+    /** Triggered when update button is clicked **/
     public void updateClicked(View v) {
         try {
             CommCareSessionService s = CommCareApplication._().getSession();
@@ -198,7 +205,8 @@ public class SingleAppManagerActivity extends Activity {
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         startActivityForResult(i,CommCareHomeActivity.UPGRADE_APP);
     }
-    
+
+    /** Relaunches CommCare after an app has been uninstalled **/
     public void rebootCommCare() {
         Intent i = getBaseContext().getPackageManager()
                 .getLaunchIntentForPackage( getBaseContext().getPackageName() );
@@ -206,7 +214,8 @@ public class SingleAppManagerActivity extends Activity {
                 | Intent.FLAG_ACTIVITY_NEW_TASK);
         this.startActivityForResult(i, CommCareHomeActivity.RESTART_APP);
     }
-        
+
+    /** Warns a user that the action they are trying to conduct will result in a reboot of CC **/
     public void rebootAlertDialog(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Uninstalling your app");
@@ -232,7 +241,11 @@ public class SingleAppManagerActivity extends Activity {
         dialog = builder.create();
         dialog.show();
     }
-    
+
+    /**
+     * Warns a user that the action they are trying to conduct will result in the current
+     * session being logged out
+     */
     public void triggerLogoutWarning(final int actionKey) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Logging out your app");

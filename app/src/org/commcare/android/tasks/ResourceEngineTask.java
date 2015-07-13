@@ -170,12 +170,11 @@ public abstract class ResourceEngineTask<R>
             // Ok, should figure out what the state of this bad boy is.
             Resource profile = global.getResourceWithId("commcare-application-profile");
 
-            //True if there is an app currently installed
-            boolean sanityTest1 = (profile != null &&
+            boolean appInstalled = (profile != null &&
                     profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
 
             if (upgradeMode) {
-                if (!sanityTest1) {
+                if (!appInstalled) {
                     return ResourceEngineOutcomes.StatusFailState;
                 }
                 global.setStateListener(this);
@@ -229,20 +228,20 @@ public abstract class ResourceEngineTask<R>
                 // Replaces global table with temporary, or w/ recovery if
                 // something goes wrong
                 platform.upgrade(global, temporary, recovery);
-            } else {
-                //this is a standard, clean install
+            }
+            // Not upgrade mode, so attempting normal install
+            else {
                 global.setStateListener(this);
-
                 platform.init(profileRef, global, false);
             }
 
-            // Initialize them now that they're installed
+            // Initializes app resources and the app itself, including doing a check to see if this
+            // app record was converted by the db upgrader
             CommCareApplication._().initializeGlobalResources(app);
+            // Write this App Record to storage -- needs to be performed after initialize resources
+            // in case the app record had to be upgraded from an old version first
             app.writeInstalled();
-            
-            // All good, we need to set our current profile ref to either the one just used,
-            // or the auth ref, if one is available.
-            String authRef = platform.getCurrentProfile().getAuthReference() == null ? profileRef : platform.getCurrentProfile().getAuthReference();
+
             // update the current profile reference
             prefs = app.getAppPreferences();
             Editor edit = prefs.edit();
@@ -297,8 +296,7 @@ public abstract class ResourceEngineTask<R>
             } else {
                 return ResourceEngineOutcomes.StatusMissing;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
 
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,

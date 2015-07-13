@@ -94,7 +94,9 @@ public class CommCareVerificationActivity
         // no longer want to be there
         boolean shouldBeHere = (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
                 CommCareApplication._().getReadyAppRecords().size() == 0);
-        //If not, redirect to CommCareHomeActivity
+
+        // If not, and we were not explicitly sent here from the Manager screen, then redirect to
+        // CommCareHomeActivity
         if (!fromManager && !shouldBeHere) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             this.startActivity(i);

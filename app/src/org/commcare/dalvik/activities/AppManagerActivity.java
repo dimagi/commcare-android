@@ -40,6 +40,8 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         ((ListView) this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
     }
 
+
+    // Refresh the list of installed apps
     private void refreshView() {
         ListView lv = (ListView) findViewById(R.id.apps_list_view);
         lv.setAdapter(new AppManagerAdapter(this, android.R.layout.simple_list_item_1, 
@@ -111,15 +113,22 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         }
     }
 
+    // Called when an app in the list is selected, redirects to SingleAppManager for that app
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position,
             long id) {
         Intent i = new Intent(getApplicationContext(),
                 SingleAppManagerActivity.class);
+        // Pass to SingleAppManager the index of the app that was selected, so it knows which
+        // app to display information for
         i.putExtra("position", position);
         startActivity(i);
     }
 
+    /**
+     * Warns a user that the action they are trying to conduct will result in the current
+     * session being logged out
+     */
     public void triggerLogoutWarning() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Logging out your app");

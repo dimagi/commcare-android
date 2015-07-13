@@ -75,7 +75,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_START_OVER = "start_over_uprgrade";
     private static final String KEY_LAST_INSTALL = "last_install_time";
 
-
     /**
      * UI configuration states.
      */
@@ -121,17 +120,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int ARCHIVE_INSTALL = 3;
     private static final int DIALOG_INSTALL_PROGRESS = 4;
 
-    boolean startAllowed = true;
-    boolean inUpgradeMode = false;
-
-    public String incomingRef;
-
-    CommCareApp ccApp;
+    private boolean startAllowed = true;
+    private boolean inUpgradeMode = false;
+    private String incomingRef;
+    private CommCareApp ccApp;
 
     /**
      * Indicates whether this activity was launched from the AppManagerActivity
      */
-    boolean mFromManager;
+    private boolean mFromManager;
 
     // Whether this needs to be interactive (if it's automatic, we want to skip
     // a lot of the UI stuff

@@ -355,26 +355,30 @@ public class CommCareApplication extends Application {
     }
 
     private int initializeAppResources() {
-        //Check if any apps were left in a partially deleted state
+        // Before we try to initialize a new app, check if any existing apps were left in a
+        // partially deleted state, and finish uninstalling them if so
         for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
             if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
                 record.uninstall(this);
             }
         }
         
-        //There may now be multiple of these, bc of multiple apps support.
-        //For now, onCreate of CommCareApplication is still picking the first one arbitrarily,
-        //may want to change this        
+        // There may now be multiple app records in storage, because of multiple apps support.
+        // Since this method is called from onCreate of CommCareApplication, current behavior is
+        // just to pick the first app in the list to initialize
         for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
             if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
-                //We have an app record ready to go
                 return initializeAppResources(new CommCareApp(record));
             }
         }
+        // There are no installed apps
         return STATE_UNINSTALLED;
     }
-    
-    /** Return all installed ApplicationRecords, in alphabetical order **/
+
+    /**
+     *
+     * @return all installed ApplicationRecords, in alphabetical order
+     */
     public ArrayList<ApplicationRecord> getInstalledAppRecords() {
         ArrayList<ApplicationRecord> records = new ArrayList<ApplicationRecord>();
         for (ApplicationRecord r : getGlobalStorage(ApplicationRecord.class)) {
@@ -386,12 +390,15 @@ public class CommCareApplication extends Application {
             public int compare(ApplicationRecord lhs, ApplicationRecord rhs) {
                 return lhs.getDisplayName().compareTo(rhs.getDisplayName());
             }
-            
+
         });
         return records;
     }
 
-    /** Return all ApplicationRecords that are installed and NOT archived **/
+    /**
+     *
+     * @return all ApplicationRecords that are installed and NOT archived
+     */
     public ArrayList<ApplicationRecord> getVisibleAppRecords() {
         ArrayList<ApplicationRecord> visible = new ArrayList<ApplicationRecord>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
@@ -403,9 +410,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Return all ApplicationRecords that are installed AND are not archived AND
-     * have MM verified
-     **/
+     *
+     * @return  all ApplicationRecords that are installed AND are not archived AND have MM verified
+     */
     public ArrayList<ApplicationRecord> getReadyAppRecords() {
         ArrayList<ApplicationRecord> ready = new ArrayList<ApplicationRecord>();
         for (ApplicationRecord r : getVisibleAppRecords()) {
@@ -421,6 +428,10 @@ public class CommCareApplication extends Application {
         return b;
     }
 
+    /**
+     *
+     * @return the list of all installed apps as an array
+     */
     public ApplicationRecord[] appRecordArray() {
         ArrayList<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
         ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
@@ -430,7 +441,9 @@ public class CommCareApplication extends Application {
         }
         return appArray;
     }
-    
+
+    // Return the ApplicationRecord that corresponds to the given index in the global list of
+    // installed apps
     public ApplicationRecord getAppAtIndex(int index) {
         ArrayList<ApplicationRecord> currentApps = getInstalledAppRecords();
         if (index < 0 || index >= currentApps.size()) {

@@ -14,7 +14,7 @@
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
 
-    <string name="install_app">Install Another App</string>
+    <string name="install_app">Install An App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
     <string name="update_app">Update</string>

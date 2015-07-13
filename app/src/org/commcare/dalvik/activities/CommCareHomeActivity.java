@@ -118,12 +118,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public static final int WIFI_DIRECT_ACTIVITY=1024;
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     public static final int PREFERENCES_ACTIVITY=4096;
+
     /**
      * Request code for launching media validator manually (Settings ->
      * Validate Media). Should signal a return from
      * CommCareVerificationActivity.
      */
     public static final int MEDIA_VALIDATOR_ACTIVITY=8192;
+
+    /**
+     * Request code for rebooting CommCare after an app has been uninstalled
+     */
     public static final int RESTART_APP=16384;
 
     public static final int USE_OLD_DIALOG = 1;
@@ -1294,7 +1299,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
                 Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
                 refreshView();
-                this.syncData(false);
+
+                //Send unsent forms first. If the process detects unsent forms
+                //it will sync after the are submitted
+                if(!this.checkAndStartUnsentTask(true)) {
+                    //If there were no unsent forms to be sent, we should immediately
+                    //trigger a sync
+                    this.syncData(false);
+                }
             } else {
                 //Normal Home Screen login time!
                 refreshView();
@@ -1305,8 +1317,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
     
     private void loginDecisionProcess() {
-        // 1) If there is exactly one visible app and its missing its MM, 
-        // redirect to MM verification (bc assuming not using multiple apps)
+        // 1) If there is exactly one visible app and it's missing its MM, redirect to MM
+        // verification (because we're assuming the user is not using multiple apps)
         if (CommCareApplication._().getVisibleAppRecords().size() == 1 && 
                 CommCareApplication._().getReadyAppRecords().size() == 0) {
             ApplicationRecord r = CommCareApplication._().getVisibleAppRecords().get(0);
@@ -1323,6 +1335,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     Localization.get("multiple.apps.unverified.message"), 
                     Localization.get("multiple.apps.unverified.title"));
         }
+
         //3) Otherwise, we're good to go with showing the login screen
         else returnToLogin();
     }

@@ -149,22 +149,22 @@ public class CommCareApp {
     }
 
     /**
-     * If the CommCare app being initialized was first installed on this device with a pre 2.20
-     * build of CommCare, then its ApplicationRecord will have been generated from an older
-     * format with missing fields. This method serves to fill in those missing fields, and is
-     * called after initializeApplication, if and only if the ApplicationRecord has just been
-     * generated from the old format. Once the update for an AppRecord performs once, it will
-     * not need to be performed again.
+     * If the CommCare app being initialized was first installed on this device with pre-Multiple
+     * Apps build of CommCare, then its ApplicationRecord will have been generated from an
+     * older format with missing fields. This method serves to fill in those missing fields,
+     * and is called after initializeApplication, if and only if the ApplicationRecord has just
+     * been generated from the old format. Once the update for an AppRecord performs once, it will
+     * not be performed again.
      */
     public void updateAppRecord() {
-        //uniqueId and displayName will be missing, so pull them from the app's profile file
+        // uniqueId and displayName will be missing, so pull them from the app's profile file
         record.setUniqueId(getUniqueId());
         record.setDisplayName(getDisplayName());
-        //Similarly, this field may be incorrect
+        // Similarly, the default value this field was set to may be incorrect, so check it
         record.setResourcesStatus(areResourcesValidated());
-        //set this to false so we don't try to update this app record every time we seat it
+        // Set this to false so we don't try to update this app record every time we seat it
         record.setConvertedByDbUpgrader(false);
-        //commit changes
+        // Commit changes
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
     }
 
@@ -199,13 +199,9 @@ public class CommCareApp {
             Log.d(TAG, "upgrade after rollback\n" + upgrade.toString());
         }
 
-        /**
-         * See if we got left in the middle of an update 
-         */
-
+        // See if we got left in the middle of an update
         if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
-            //If so, repair the global table. (Always takes priority over maintaining
-            //the update)
+            // If so, repair the global table. (Always takes priority over maintaining the update)
             global.repairTable(upgrade);
         }
 
