@@ -34,6 +34,8 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
         this.host = host;
         this.filepath = filepath;
         this.port = port;
+
+        TAG = FormTransferTask.class.getSimpleName();
     }
     
     public InputStream getFormInputStream(String fPath) throws FileNotFoundException{

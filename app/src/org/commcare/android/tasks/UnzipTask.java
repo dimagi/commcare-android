@@ -32,6 +32,8 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
         public UnzipTask() {
             Log.d(CommCareWiFiDirectActivity.TAG, "UnZip task constructor");
             this.taskId = UNZIP_TASK_ID;
+
+            TAG = UnzipTask.class.getSimpleName();
         }
 
         /*

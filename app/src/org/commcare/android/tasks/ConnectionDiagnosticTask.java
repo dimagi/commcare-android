@@ -74,6 +74,8 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         this.c = c;
         this.platform = platform;
         this.taskId = CONNECTION_ID;
+
+        TAG = ConnectionDiagnosticTask.class.getSimpleName();
     }
     
     //onProgressUpdate(<B>)
