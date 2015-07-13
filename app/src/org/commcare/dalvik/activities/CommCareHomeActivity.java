@@ -743,7 +743,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             startNextFetch();
         } catch (SessionUnavailableException sue) {
             //TODO: Cache current return, login, and try again
-            returnToLogin();
+            returnToInitialScreen();
         }
         super.onActivityResult(requestCode, resultCode, intent);
 
@@ -1265,7 +1265,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
                 this.startActivityForResult(i, INIT_APP);
             } else if (!CommCareApplication._().getSession().isActive()) {
-                loginDecisionProcess();
+                returnToInitialScreen();
             } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                 wasExternal = true;
                 String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
@@ -1312,11 +1312,16 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 refreshView();
             }
         } catch(SessionUnavailableException sue) {
-            loginDecisionProcess();
+            returnToInitialScreen();
         }
     }
-    
-    private void loginDecisionProcess() {
+
+    /**
+     * Called in the event that we are leaving the CCHomeActivity (generally due to there no
+     * longer being an active session). Makes the decision of which prior screen or application
+     * state to return to, depending on the state of all currently installed CC apps.
+     */
+    private void returnToInitialScreen() {
         // 1) If there is exactly one visible app and it's missing its MM, redirect to MM
         // verification (because we're assuming the user is not using multiple apps)
         if (CommCareApplication._().getVisibleAppRecords().size() == 1 && 
@@ -1337,7 +1342,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         //3) Otherwise, we're good to go with showing the login screen
-        else returnToLogin();
+        else {
+            returnToLogin();
+        }
     }
 
     private void returnToLogin() {
