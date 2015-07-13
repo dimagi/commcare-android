@@ -1,33 +1,18 @@
 package org.odk.collect.android.tasks;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.util.Vector;
 
 import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.utils.InstanceLoader;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.RootTranslator;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.form.api.FormEntryModel;
-import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xform.parse.XFormParser;
-import org.javarosa.xform.util.XFormUtils;
+import org.javarosa.core.util.Pair;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
@@ -44,7 +29,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.util.Log;
 
 /**
  * Background task for loading a form.
@@ -118,11 +102,19 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         String formHash = FileUtils.getMd5Hash(formXml);
         File formBin = new File(Collect.CACHE_PATH + "/" + formHash + ".formdef");
 
+        Vector<Pair> parserHandlers = new Vector();
+        parserHandlers.add(new Pair("intent", new IntentExtensionParser()));
+
+        Vector<Pair> extensionHandlers = new Vector();
+        extensionHandlers.add(new Pair("pollsensor", new PollSensorExtensionParser()));
+
+        Vector<IFunctionHandler> funcHandlers = new Vector();
+        funcHandlers.add(new CalendaredDateFormatHandler(context));
 
         PrototypeFactory protoFactory = ApkUtils.getPrototypeFactory(context);
         FormEntryController fec;
         try {
-            fec = InstanceLoader.loadInstance(formMediaPath, formDefFile, fileBytes, formBin, formXml, mReadOnly, protoFactory, iif);
+            fec = InstanceLoader.loadInstance(formMediaPath, formDefFile, fileBytes, formBin, formXml, mReadOnly, protoFactory, iif, funcHandlers, parserHandlers, extensionHandlers, new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
         } catch (Exception e) {
             fec = null;
         }
