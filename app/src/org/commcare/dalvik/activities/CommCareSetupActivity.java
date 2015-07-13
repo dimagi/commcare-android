@@ -341,8 +341,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Localization.get("install.bad.ref"),
                     Toast.LENGTH_LONG).show();
             this.uiState = UiState.basic;
-            uiStateScreenTransition();
         }
+        uiStateScreenTransition();
     }
 
     private String getRef(){
