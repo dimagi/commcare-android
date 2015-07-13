@@ -543,7 +543,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             startActivity(i);
         } else {
             //Good to go
-            Log.i("HERE", "Just finishing in SetupActivity");
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             i.putExtra(KEY_INSTALL_FAILED, failed);

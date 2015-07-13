@@ -20,8 +20,7 @@
     android:visibility="gone" />
 
     </LinearLayout>
-    
-   
+
     <LinearLayout
         android:id="@+id/main_pane"
         android:layout_width="match_parent"
@@ -29,7 +28,6 @@
         android:layout_alignParentTop="true"
         android:paddingTop="55sp"
         android:orientation="vertical" >
-
 
         <FrameLayout
             android:layout_width="fill_parent"
@@ -49,8 +47,6 @@
                 android:adjustViewBounds="true"/>
 
         </FrameLayout>
-
-
 
         <LinearLayout
             android:id="@+id/LinearLayout01"
@@ -154,6 +150,5 @@
 
     </LinearLayout>
 
-
-
 </RelativeLayout>
+
