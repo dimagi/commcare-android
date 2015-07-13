@@ -229,6 +229,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     @Override
                     protected void deliverResult( LoginActivity receiver, Integer result) {
                         if (result == null) {
+                            // The task crashed unexpectedly
                             receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                             return;
                         }
