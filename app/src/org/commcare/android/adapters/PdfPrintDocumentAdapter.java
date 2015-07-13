@@ -85,7 +85,7 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
 
         // Return print information to print framework
         PrintDocumentInfo info = new PrintDocumentInfo
-                .Builder("print_output.pdf")
+                .Builder(mJobName + ".pdf")
                 .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
                 .build();
         // Content layout reflow is complete
