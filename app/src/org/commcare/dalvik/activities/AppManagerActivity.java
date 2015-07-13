@@ -75,8 +75,8 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
         case CommCareHomeActivity.INIT_APP:
-            boolean installFailed = intent.getBooleanExtra(CommCareSetupActivity.KEY_INSTALL_FAILED,
-                    false);
+            boolean installFailed = intent == null ? false : intent.getBooleanExtra(
+                    CommCareSetupActivity.KEY_INSTALL_FAILED, false);
             if (resultCode == RESULT_OK && !installFailed) {
                 if (!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
                     Intent i = new Intent(this, CommCareVerificationActivity.class);
