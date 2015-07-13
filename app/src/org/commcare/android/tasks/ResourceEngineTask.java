@@ -134,6 +134,8 @@ public abstract class ResourceEngineTask<R>
         this.startOverUpgrade = startOverUpgrade;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;
+
+        TAG = ResourceEngineTask.class.getSimpleName();
     }
 
     /* (non-Javadoc)
