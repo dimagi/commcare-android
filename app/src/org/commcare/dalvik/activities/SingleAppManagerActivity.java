@@ -102,7 +102,7 @@ public class SingleAppManagerActivity extends Activity {
                     try {
                         CommCareApplication._().getSession().closeSession(false);
                     } catch (SessionUnavailableException e) {
-                        // if the session isn't available, we don't need to logout
+                        // If the session isn't available, we don't need to logout
                     }
                 }
                 return;
@@ -141,7 +141,11 @@ public class SingleAppManagerActivity extends Activity {
     
     // Uninstalls the selected app
     public void uninstall() {
-        CommCareApplication._().logout();
+        try {
+            CommCareApplication._().getSession().closeSession(false);
+        } catch (SessionUnavailableException e) {
+            // if the session isn't available, we don't need to logout
+        }
         appRecord.uninstall(this);
         rebootCommCare();
    }
@@ -256,7 +260,11 @@ public class SingleAppManagerActivity extends Activity {
                     public void onClick(DialogInterface dialog,
                             int which) {
                         dialog.dismiss();
-                        CommCareApplication._().logout();
+                        try {
+                            CommCareApplication._().getSession().closeSession(false);
+                        } catch (SessionUnavailableException e) {
+                            // If the session isn't available, we don't need to logout
+                        }
                         switch (actionKey) {
                         case LOGOUT_FOR_UPDATE:
                             update();
