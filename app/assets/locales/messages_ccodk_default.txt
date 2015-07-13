@@ -284,6 +284,7 @@ connection.task.success=No problems were detected.
 connection.task.report.commcare.popup=Your logs are being sent to CommCare!
 connection.task.unset.posturl=There has been an error on CommCare's end. Please report this problem to CommCare Support.
 
+
 notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections
 notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to wifi or turning mobile data on.
@@ -295,6 +296,7 @@ multiple.apps.unverified.message=All of your available apps are missing their as
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
+
 
 
 
