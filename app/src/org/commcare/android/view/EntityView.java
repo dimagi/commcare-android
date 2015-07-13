@@ -441,60 +441,69 @@ public class EntityView extends LinearLayout {
         }
     }
 
+    /**
+     * Determine width of each child view, based on mHints, the suite's size hints.
+     * mHints contains a width hint for each child view, each one of
+     * - A string like "50%", requesting the field take up 50% of the row
+     * - A string like "200", requesting the field take up 200 pixels
+     * - Null, not specifying a width for the field
+     * This function will parcel out requested widths and divide remaining space among unspecified columns.
+     * @param fullSize Width, in pixels, of the containing row.
+     * @return Array of integers, each corresponding to a child view,
+     * representing the desired width, in pixels, of that view.
+     */
     private int[] calculateDetailWidths(int fullSize) {
         // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
-        int[] hints = new int[mHints.length];
+        int[] widths = new int[mHints.length];
         for (int i = 0; i < mHints.length; i++) {
             if (mHints[i] == null) {
-                hints[i] = -1;
+                widths[i] = -1;
             } else if (mHints[i].contains("%")) {
-                hints[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
+                widths[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
             }
             else {
-                hints[i] = Integer.parseInt(mHints[i]);
+                widths[i] = Integer.parseInt(mHints[i]);
             }
         }
         
         int claimedSpace = 0;
         int indeterminateColumns = 0;
-        for (int hint : hints) {
-            if (hint != -1) {
-                claimedSpace += hint;
+        for (int width : widths) {
+            if (width != -1) {
+                claimedSpace += width;
             }
             else {
                 indeterminateColumns++;
             }
         }
-        if (
-            fullSize < claimedSpace + indeterminateColumns
-            || fullSize > claimedSpace && indeterminateColumns == 0
-        ) {
+        if (fullSize < claimedSpace + indeterminateColumns 
+                || (fullSize > claimedSpace && indeterminateColumns == 0)) {
             // Either more space has been claimed than the screen has room for,
             // or the full width isn't spoken for and there are no indeterminate columns
             claimedSpace += indeterminateColumns;
-            for (int i = 0; i < hints.length; i++) {
-                if (hints[i] == -1) {
+            for (int i = 0; i < widths.length; i++) {
+                if (widths[i] == -1) {
                     // Assign indeterminate columns a real width.
                     // It's arbitrary and tiny, but this is going to look terrible regardless.
-                    hints[i] = 1;
+                    widths[i] = 1;
                 }
                 else {
                     // Shrink or expand columns proportionally
-                    hints[i] = fullSize * hints[i] / claimedSpace;
+                    widths[i] = fullSize * widths[i] / claimedSpace;
                 }
             }
         }
         else if (indeterminateColumns > 0) {
             // Divide remaining space equally among the indeterminate columns
             int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
-            for (int i = 0; i < hints.length; i++) {
-                if (hints[i] == -1) {
-                    hints[i] = defaultWidth;
+            for (int i = 0; i < widths.length; i++) {
+                if (widths[i] == -1) {
+                    widths[i] = defaultWidth;
                 }
             }
         }
-
-        return hints;
+        
+        return widths;
     }
 
     /*
@@ -513,5 +522,7 @@ public class EntityView extends LinearLayout {
                 views[i].setLayoutParams(params);
             }
         }
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }
