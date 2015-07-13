@@ -12,7 +12,7 @@ import org.commcare.android.storage.framework.Table;
  * The previous version of ApplicationRecord in the database,
  * used for database upgrade purposes
  * 
- * @author astone
+ * @author amstone
  *
  */
 @Table("app_record")

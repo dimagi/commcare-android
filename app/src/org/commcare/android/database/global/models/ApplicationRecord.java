@@ -21,6 +21,7 @@ import android.content.Context;
  * install.
  * 
  * @author ctsims
+ * @author amstone
  *
  */
 @Table("app_record")

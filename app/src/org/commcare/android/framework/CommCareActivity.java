@@ -142,7 +142,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 return super.onOptionsItemSelected(item);
         }
     }
-    
+
+    /**
+     *
+     * @param restoreOld Indicates whether or not we want to  use the fields already on screen --
+     *                   Used to allow a refresh when the default language may have changed after
+     *                   switching between apps on the home screen drop-down menu for multiple apps
+     */
     protected void loadFields(boolean restoreOld) {
         CommCareActivity oldActivity = stateHolder.getPreviousState();
         Class c = this.getClass();

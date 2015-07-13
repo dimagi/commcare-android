@@ -13,7 +13,7 @@
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
-    
+
     <string name="install_app">Install Another App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
@@ -36,7 +36,7 @@
         <item>2</item>
         <item>22</item>
     </integer-array>
-    
+
     <string name="app_version_string">version.id.long</string>
     <string name="notificationtitle">Logged Into Commcare</string>
     <string name="expirenotification">CommCare Login Expired</string>

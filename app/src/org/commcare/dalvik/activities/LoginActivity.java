@@ -626,8 +626,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         String selected = (String) parent.getItemAtPosition(position);
         ApplicationRecord r = namesToRecords.get(selected);
         prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
-        CommCareApplication._().initializeAppResources(new CommCareApp(r));    
-        loadFields(false);  //refresh UI for potential new language
+        CommCareApplication._().initializeAppResources(new CommCareApp(r));
+        //refresh UI for potential new language
+        loadFields(false);
     }
 
     @Override
