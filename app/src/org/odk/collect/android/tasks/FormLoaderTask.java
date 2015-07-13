@@ -90,7 +90,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
         Cursor c = null;
         String formPath = "";
-        String formMediaPath = "";
+        String formMediaPath = null;
         try {
             //TODO: Selection=? helper
             c = context.getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
