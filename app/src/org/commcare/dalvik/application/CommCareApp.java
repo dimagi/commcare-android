@@ -38,23 +38,23 @@ import android.util.Log;
  * @author ctsims
  */
 public class CommCareApp {
-    ApplicationRecord record;
+    private final ApplicationRecord record;
 
-    JavaFileRoot fileRoot;
-    AndroidCommCarePlatform platform;
+    private JavaFileRoot fileRoot;
+    private final AndroidCommCarePlatform platform;
 
     private static final String TAG = CommCareApp.class.getSimpleName();
 
-    public static Object lock = new Object();
+    private static final Object lock = new Object();
 
     // This unfortunately can't be managed entirely by the application object,
     // so we have to do some here
     public static CommCareApp currentSandbox;
 
-    private Object appDbHandleLock = new Object();
+    private final Object appDbHandleLock = new Object();
     private SQLiteDatabase appDatabase; 
     
-    public static Stylizer mStylizer;
+    private static Stylizer mStylizer;
     
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
@@ -63,7 +63,7 @@ public class CommCareApp {
         int[] version = CommCareApplication._().getCommCareVersion();
 
         // TODO: Badly coupled
-        platform = new AndroidCommCarePlatform(version[0], version[1], CommCareApplication._(), this);
+        platform = new AndroidCommCarePlatform(version[0], version[1], this);
     }
     
     public Stylizer getStylizer(){
@@ -77,7 +77,7 @@ public class CommCareApp {
         return CommCareApplication._().getAndroidFsRoot() + "app/" + record.getApplicationId() + "/";
     }
 
-    public void createPaths() {
+    void createPaths() {
         String[] paths = new String[]{"", GlobalConstants.FILE_CC_INSTALL,
             GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE,
             GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA,
@@ -94,7 +94,6 @@ public class CommCareApp {
     public String fsPath(String relative) {
         return storageRoot() + relative;
     }
-
 
     private void initializeFileRoots() {
         synchronized (lock) {
@@ -127,7 +126,7 @@ public class CommCareApp {
         setupSandbox(true);
     }
     
-    public void initializeStylizer() {
+    void initializeStylizer() {
         mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
     }
     
@@ -187,11 +186,8 @@ public class CommCareApp {
         ResourceTable recovery = platform.getRecoveryTable();
 
         Log.d(TAG, "Global\n" + global.toString());
-
         Log.d(TAG, "Upgrade\n" + upgrade.toString());
-
         Log.d(TAG, "Recovery\n" + recovery.toString());
-
 
         // See if any of our tables got left in a weird state
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
@@ -227,8 +223,6 @@ public class CommCareApp {
             
             return true;
         }
-        
-       
         return false;
     }
 
@@ -286,13 +280,6 @@ public class CommCareApp {
         });
     }
 
-    public void clearInstallData() {
-        ResourceTable global = platform.getGlobalResourceTable();
-
-        // Install was botched, clear anything left lying around....
-        global.clear();
-    }
-    
     public void writeInstalled() {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
         record.setUniqueId(getUniqueId());

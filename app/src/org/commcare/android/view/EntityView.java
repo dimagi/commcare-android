@@ -16,7 +16,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 
 import android.content.Context;
@@ -47,7 +46,6 @@ public class EntityView extends LinearLayout {
     private String[] searchTerms;
     private String[] mHints;
     private Context context;
-    private AudioController controller;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
     public static final String FORM_AUDIO = "audio";
@@ -62,14 +60,13 @@ public class EntityView extends LinearLayout {
      * Constructor for row/column contents
      */
     public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
-            String[] searchTerms, AudioController controller, long rowId, boolean mFuzzySearchEnabled) {
+            String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
         this.context = context;
         //this is bad :(
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
         this.tts = tts;
-        this.controller = controller;
         this.renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         this.rowId = rowId;
         this.views = new View[e.getNumFields()];
@@ -78,8 +75,7 @@ public class EntityView extends LinearLayout {
         
         for (int i = 0; i < views.length; ++i) {
             if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                Object uniqueId = new ViewId(rowId, i, false);
-                views[i] = initView(e.getField(i), forms[i], uniqueId, e.getSortField(i));
+                views[i] = initView(e.getField(i), forms[i], new ViewId(rowId, i, false), e.getSortField(i));
                 views[i].setId(i);
             }
         }
@@ -123,7 +119,7 @@ public class EntityView extends LinearLayout {
      * Creates up a new view in the view with ID uniqueid, based upon
      * the entity's text and form
      */
-    private View initView(Object data, String form, Object uniqueId, String sortField) {
+    private View initView(Object data, String form, ViewId uniqueId, String sortField) {
         View retVal;
         if (FORM_IMAGE.equals(form)) {
             ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);
@@ -133,10 +129,10 @@ public class EntityView extends LinearLayout {
             String text = (String) data;
             AudioButton b;
             if (text != null & text.length() > 0) {
-                b = new AudioButton(context, text, uniqueId, controller, true);
+                b = new AudioButton(context, text, uniqueId, true);
             }
             else {
-                b = new AudioButton(context, text, uniqueId, controller, false);
+                b = new AudioButton(context, text, uniqueId, false);
             }
             retVal = b;
         } 

@@ -19,7 +19,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
-import org.odk.collect.android.views.media.AudioController;
 
 /**
  * Fragment to display Detail content. Not meant for handling nested Detail objects.
@@ -88,14 +87,13 @@ public class EntityDetailFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
-        final AudioController audioController = thisActivity instanceof AudioController ? ((AudioController)thisActivity) : null;
         final DetailCalloutListener detailCalloutListener =
                 thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
 
         final ListView listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
         adapter = new EntityDetailAdapter(
             thisActivity, asw.getSession(), childDetail, entity, 
-            detailCalloutListener, audioController, args.getInt(DETAIL_INDEX)
+            detailCalloutListener, args.getInt(DETAIL_INDEX)
         );
         adapter.setModifier(modifier);
         listView.setAdapter(adapter);
