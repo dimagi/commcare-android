@@ -6,8 +6,8 @@
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        
         android:layout_alignParentTop="true"
+        android:paddingTop="@dimen/activity_vertical_margin"
         android:id="@+id/screen_manager_banner_pane">
 
         <ImageView
@@ -28,7 +28,7 @@
         android:layout_below="@id/screen_manager_banner_pane"
         android:paddingTop="10sp"
         android:paddingBottom="10sp"
-        android:textSize="@dimen/font_size_xlarge" 
+        android:textSize="@dimen/font_size_large"
         android:textColor="@color/grey_medium"
         android:layout_centerHorizontal="true"
         android:gravity="center" />
