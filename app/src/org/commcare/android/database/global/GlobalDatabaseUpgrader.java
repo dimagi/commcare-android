@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.database.global;
 
@@ -20,7 +20,7 @@ import android.content.Context;
  */
 public class GlobalDatabaseUpgrader {
     private Context c;
-    
+
     public GlobalDatabaseUpgrader(Context c) {
         this.c = c;
     }
@@ -48,14 +48,20 @@ public class GlobalDatabaseUpgrader {
             db.endTransaction();
         }
     }
-    
+
+    /**
+     * Migrate from database V2 to V3, where the ApplicationRecord has
+     * new fields for multiple app seating support
+     */
     private boolean upgradeTwoThree(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
-            SqlStorage<Persistable> storage = new SqlStorage<Persistable>("app_record", ApplicationRecordV1.class, new ConcreteDbHelper(c, db));
+            SqlStorage<Persistable> storage =
+                    new SqlStorage<Persistable>("app_record", ApplicationRecordV1.class, new ConcreteDbHelper(c, db));
             for (Persistable r : storage) {
                 ApplicationRecordV1 oldRecord = (ApplicationRecordV1) r;
-                ApplicationRecord newRecord = new ApplicationRecord(oldRecord.getApplicationId(), oldRecord.getStatus());
+                ApplicationRecord newRecord =
+                        new ApplicationRecord(oldRecord.getApplicationId(), oldRecord.getStatus());
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 //set default values for the new fields
@@ -73,6 +79,4 @@ public class GlobalDatabaseUpgrader {
             db.endTransaction();
         }
     }
-    
-    
 }
